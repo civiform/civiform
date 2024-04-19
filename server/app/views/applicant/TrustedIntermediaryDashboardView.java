@@ -7,7 +7,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
@@ -447,19 +446,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return nav(
             renderClientListLink(messages, baseUrl)
                 .withClasses(
-                  "mr-10",
-                  "py-4",
-                  iffElse(isClientList, "border-b-4", "hover:border-b-4"),
-                  iffElse(isClientList, "border-blue-600", "hover:border-blue-600"),
-                  iffElse(isClientList, "text-bold", "hover:text-blue-600"))
+                    "mr-10",
+                    "py-4",
+                    iffElse(isClientList, "border-b-4", "hover:border-b-4"),
+                    iffElse(isClientList, "border-blue-600", "hover:border-blue-600"),
+                    iffElse(isClientList, "text-bold", "hover:text-blue-600"))
                 .condAttr(isClientList, "aria-current", "page"),
             renderAccountSettingsLink(messages, baseUrl)
-              .withClasses(
-                "py-4",
-                iffElse(isAccountSettings, "border-b-4", "hover:border-b-4"),
-                iffElse(isAccountSettings, "border-blue-600", "hover:border-blue-600"),
-                iffElse(isAccountSettings, "text-bold", "hover:text-blue-600"))
-              .condAttr(isAccountSettings, "aria-current", "page"))
+                .withClasses(
+                    "py-4",
+                    iffElse(isAccountSettings, "border-b-4", "hover:border-b-4"),
+                    iffElse(isAccountSettings, "border-blue-600", "hover:border-blue-600"),
+                    iffElse(isAccountSettings, "text-bold", "hover:text-blue-600"))
+                .condAttr(isAccountSettings, "aria-current", "page"))
         .withClasses("px-20", "text-sm", "tracking-tight", "flex")
         .attr("aria-label", "Trusted Intermediary")
         .attr("data-testid", "ti-nav");

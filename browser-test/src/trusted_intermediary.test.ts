@@ -925,6 +925,9 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
       await tiDashboard.gotoTIDashboardPage(page)
       await waitForPageJsLoad(page)
 
+      await tiDashboard.goToAccountSettingsPage(page)
+      await waitForPageJsLoad(page)
+
       await validateScreenshot(
         page.getByTestId('org-members-table'),
         'org-members-table',
@@ -961,10 +964,53 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
       await tiDashboard.gotoTIDashboardPage(page)
       await waitForPageJsLoad(page)
 
+      await tiDashboard.goToAccountSettingsPage(page)
+      await waitForPageJsLoad(page)
+
       await validateScreenshot(
         page.getByTestId('org-members-table'),
         'org-members-table-many',
       )
+    })
+  })
+
+  test.describe('ti navigation', () => {
+    test('marks the correct tab as current and matches screenshot', async ({
+      page,
+      tiDashboard,
+    }) => {
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('ti-nav'),
+        'ti-navigation-dashboard',
+      )
+
+      // When we're on the client list page (the dashboard), the current tab should be the client list tab.
+      expect(
+        await page.getAttribute('#account-settings-link', 'aria-current'),
+      ).toBeNull()
+      expect(
+        await page.getAttribute('#client-list-link', 'aria-current'),
+      ).not.toBeNull()
+
+      await tiDashboard.goToAccountSettingsPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('ti-nav'),
+        'ti-navigation-account-settings',
+      )
+
+      // When we're on the account settings page, the current tab should be the account settings tab.
+      expect(
+        await page.getAttribute('#account-settings-link', 'aria-current'),
+      ).not.toBeNull()
+      expect(
+        await page.getAttribute('#client-list-link', 'aria-current'),
+      ).toBeNull()
     })
   })
 
