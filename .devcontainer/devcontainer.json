@@ -6,7 +6,9 @@
 
   // For details, see https://containers.dev/implementors/json_reference/#min-host-reqs
   "hostRequirements": {
-    "memory": "10gb"
+    "memory": "16gb",
+    "cpus": 4,
+    "storage": "32gb"
   },
 
   // Features to add to the dev container. More info: https://containers.dev/features.
