@@ -72,14 +72,14 @@
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000],
   "portsAttributes": {
-    "3390": {"label": "OIDC"},
-    "4566": {"label": "Localstack (email)"},
-    "5432": {"label": "Postgres"},
-    "6645": {"label": "Localstack (file uploads)"},
+    "3390": {"label": "OIDC (dev)"},
+    "4566": {"label": "Localstack (dev email & file upload)"},
+    "5432": {"label": "Postgres (dev)"},
+    "6645": {"label": "Localstack (browser-test email & file upload)"},
     "8888": {"label": "Prod simulator"},
-    "9000": {"label": "Application"},
-    "9100": {"label": "Unit tests"},
-    "9999": {"label": "Browser tests"},
+    "9000": {"label": "Application (dev)"},
+    "9100": {"label": "Application (unit tests)"},
+    "9999": {"label": "Application (browser tests)"},
     "10000": {"label": "Azureite"}
   }
 }
