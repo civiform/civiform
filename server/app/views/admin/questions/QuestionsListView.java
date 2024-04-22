@@ -528,7 +528,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    // Use set operations to collect programs into 3 sets.
+    // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
