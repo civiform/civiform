@@ -37,6 +37,7 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -63,15 +64,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = settingsManifest;
   }
 
   /** Renders a page with a list view of all questions. */
@@ -267,7 +271,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
+        renderReferencingPrograms(
+            latestDefinition.getName(), cardData.referencingPrograms(), request);
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -406,7 +411,9 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
+      String questionName,
+      GroupedReferencingPrograms groupedReferencingPrograms,
+      Http.Request request) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
             questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
@@ -434,7 +441,8 @@ public final class QuestionsListView extends BaseHtmlView {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
       }
-      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()) {
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()
+          && settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
         int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
         tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
