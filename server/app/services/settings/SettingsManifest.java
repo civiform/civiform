@@ -601,6 +601,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("ESRI_WELLKNOWN_ID_OVERRIDE");
   }
 
+  /**
+   * A secret token value from Esri's arcgis.com online service created by your arcgis.com account
+   * for accessing the API.
+   */
+  public Optional<String> getEsriArcgisApiToken() {
+    return getString("ESRI_ARCGIS_API_TOKEN");
+  }
+
   /** This email address is listed in the footer for applicants to contact support. */
   public Optional<String> getSupportEmailAddress(RequestHeader request) {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
@@ -1615,7 +1623,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " endpoints.",
                               /* isRequired= */ false,
                               SettingType.INT,
-                              SettingMode.ADMIN_READABLE)))),
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_ARCGIS_API_TOKEN",
+                              "A secret token value from Esri's arcgis.com online service created"
+                                  + " by your arcgis.com account for accessing the API.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN)))),
               ImmutableList.of(
                   SettingDescription.create(
                       "AWS_REGION",
