@@ -40,7 +40,7 @@ import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
-public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
+public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   private final AdminLayout layout;
 
@@ -51,7 +51,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
   }
 
   @Inject
-  public ProgramPredicatesEditViewV2(AdminLayoutFactory layoutFactory) {
+  public ProgramPredicatesEditView(AdminLayoutFactory layoutFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -226,7 +226,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                     makeCsrfTokenInputTag(request),
                                     each(
                                         predicateQuestions,
-                                        ProgramPredicatesEditViewV2
+                                        ProgramPredicatesEditView
                                             ::renderPredicateQuestionCheckBoxRow),
                                     submitButton(
                                             hasExistingPredicate
