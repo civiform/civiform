@@ -187,6 +187,7 @@ test.describe('Admin question list', () => {
       ['a', 'b'],
     )
     await adminPrograms.publishProgram('program-disabled')
+    // // Add question a, b, and c to the other program
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['a', 'b', 'c'],
       'program-two',

@@ -500,7 +500,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private GroupedReferencingPrograms createReferencingPrograms(
       Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
-    ImmutableMap<String, ProgramDefinition> activeAllProgramsMap =
+    ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
@@ -511,34 +511,31 @@ public final class QuestionsListView extends BaseHtmlView {
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    ImmutableMap<String, ProgramDefinition> draftAllProgramsMap =
+    ImmutableMap<String, ProgramDefinition> draftProgramsMap =
         draftPrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     // Use set operations to collect programs into 3 sets.
-    Set<String> usedSet =
-        Sets.intersection(activeAllProgramsMap.keySet(), draftAllProgramsMap.keySet());
-    Set<String> addedSet =
-        Sets.difference(draftAllProgramsMap.keySet(), activeAllProgramsMap.keySet());
-    Set<String> removedSet =
-        Sets.difference(activeAllProgramsMap.keySet(), draftAllProgramsMap.keySet());
+    Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> disabledSet =
-        Sets.difference(draftDisabledProgramsMap.keySet(), activeAllProgramsMap.keySet());
+        Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
 
     ImmutableList<ProgramDefinition> usedPrograms =
         usedSet.stream()
-            .map(draftAllProgramsMap::get)
+            .map(draftProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> addedPrograms =
         addedSet.stream()
-            .map(draftAllProgramsMap::get)
+            .map(draftProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> removedPrograms =
         removedSet.stream()
-            .map(activeAllProgramsMap::get)
+            .map(activeProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> disabledPrograms =

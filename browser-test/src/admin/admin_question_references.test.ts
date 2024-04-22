@@ -121,7 +121,7 @@ test.describe(
       })
     })
 
-    test('shows results for referencing disabled programs', async ({
+    test('shows results for referencing disabled program', async ({
       page,
       adminQuestions,
       adminPrograms,
@@ -156,13 +156,15 @@ test.describe(
         )
       })
 
-      await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, 'question-used-in-disabled-programs')
-      await adminQuestions.expectQuestionProgramReferencesText({
-        questionName,
-        expectedProgramReferencesText:
-          'Added to 2 programs.\n\nAdded to 1 disabled program.',
-        version: 'draft',
+      await test.step(`Verify question and program`, async () => {
+        await adminQuestions.gotoAdminQuestionsPage()
+        await validateScreenshot(page, 'question-used-in-disabled-programs')
+        await adminQuestions.expectQuestionProgramReferencesText({
+          questionName,
+          expectedProgramReferencesText:
+            'Added to 2 programs.\n\nAdded to 1 disabled program.',
+          version: 'draft',
+        })
       })
     })
   },
