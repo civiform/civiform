@@ -147,6 +147,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
     PersistedDurableJobModel job = createPersistedJobToExecute();
     durableJobRunner.runJobs();
 
+    // The job should have been deleted since it does not exist in the registry.
+    // Calling job.refresh should throw an error since the job was deleted.
     Exception exception =
         assertThrows(
             EntityNotFoundException.class,
