@@ -204,4 +204,10 @@ public final class BaseStyles {
 
   public static final String TI_HEADER_BAND_H2 =
       StyleUtils.joinStyles("flex", "items-center", "h-24", "px-20", "ti-header-band", "mb-10");
+
+  public static final String TI_NAV_CURRENT =
+      StyleUtils.joinStyles("border-b-4", "border-blue-600", "text-bold");
+
+  public static final String TI_NAV_NOT_CURRENT =
+      StyleUtils.joinStyles("hover:border-b-4", "hover:border-blue-600", "hover:text-blue-600");
 }

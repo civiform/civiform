@@ -1,6 +1,5 @@
 package views.applicant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -29,22 +28,21 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-public class TIAccountSettingsView extends BaseHtmlView {
-
-  private final ApplicantLayout layout;
-  private final String baseUrl;
+/**
+ * Renders a page where trusted intermediaries can view a table with information on the members of
+ * their organization.
+ */
+public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryDashboardView {
 
   @Inject
-  public TIAccountSettingsView(ApplicantLayout layout, Config configuration) {
-    this.layout = checkNotNull(layout);
-    this.baseUrl = checkNotNull(configuration).getString("base_url");
+  public TrustedIntermediaryAccountSettingsView(ApplicantLayout layout, Config configuration) {
+    super(configuration, layout);
   }
 
   public Content render(
@@ -56,18 +54,17 @@ public class TIAccountSettingsView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("CiviForm")
+            .setTitle(messages.at(MessageKey.TITLE_TI_ACCOUNT_SETTINGS.getKeyName()))
             .addMainContent(
                 h1(tiGroup.getName()).withClasses(BaseStyles.TI_HEADER_BAND_H1),
-                TrustedIntermediaryDashboardView.renderTabButtons(
-                    messages, baseUrl, TrustedIntermediaryDashboardView.TabType.ACCOUNT_SETTINGS),
+                renderTabButtons(messages, TabType.ACCOUNT_SETTINGS),
                 div(
                     renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName()))
                         .withClasses(BaseStyles.TI_HEADER_BAND_H2),
                     div(
                             h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
                                 .withClass("mt-8"),
-                            renderTIMembersTable(tiGroup, messages))
+                            renderOrgMembersTable(tiGroup, messages))
                         .withClass("px-20")))
             .addMainStyles("bg-white");
 
@@ -81,22 +78,22 @@ public class TIAccountSettingsView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
+  private DivTag renderOrgMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
     return div(
         table()
             .withData("testid", "org-members-table")
             .withClasses("usa-table", "usa-table--striped", "w-5/6")
-            .with(renderGroupTableHeader(messages))
+            .with(renderOrgMembersTableHeader(messages))
             .with(
                 tbody(
                     each(
                         tiGroup.getTrustedIntermediaries().stream()
                             .sorted(Comparator.comparing(AccountModel::getApplicantName))
                             .collect(Collectors.toList()),
-                        this::renderTIRow))));
+                        this::renderOrgMembersTableRow))));
   }
 
-  private TheadTag renderGroupTableHeader(Messages messages) {
+  private TheadTag renderOrgMembersTableHeader(Messages messages) {
     return thead(
         tr().with(
                 th(messages.at(MessageKey.NAME_LABEL.getKeyName()))
@@ -115,7 +112,7 @@ public class TIAccountSettingsView extends BaseHtmlView {
                     .withClass("w-1/5")));
   }
 
-  private TrTag renderTIRow(AccountModel ti) {
+  private TrTag renderOrgMembersTableRow(AccountModel ti) {
     return tr().withClass(ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
         .with(renderNameCell(ti))
         .with(renderEmailCell(ti))

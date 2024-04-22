@@ -251,6 +251,8 @@ public enum MessageKey {
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
   TITLE_STATUS("title.status"),
+  TITLE_TI_ACCOUNT_SETTINGS("title.tiAccountSettings"),
+  TITLE_TI_DASHBOARD("title.tiDashboard"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_ERROR_MSG_OUTLINE("toast.errorMessageOutline"),

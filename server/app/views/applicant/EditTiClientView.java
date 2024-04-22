@@ -26,7 +26,6 @@ import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
@@ -35,10 +34,8 @@ import views.components.LinkElement;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
-public class EditTiClientView extends BaseHtmlView {
-  private final ApplicantLayout layout;
+public class EditTiClientView extends TrustedIntermediaryDashboardView {
   private final DateConverter dateConverter;
-  private final String baseUrl;
   private AccountRepository accountRepository;
 
   @Inject
@@ -47,10 +44,9 @@ public class EditTiClientView extends BaseHtmlView {
       DateConverter dateConverter,
       Config configuration,
       AccountRepository accountRepository) {
-    this.layout = checkNotNull(layout);
+    super(configuration, layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
-    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   public Content render(
@@ -89,8 +85,7 @@ public class EditTiClientView extends BaseHtmlView {
             .setTitle(title)
             .addMainContent(
                 h1(tiGroup.getName()).withClasses(BaseStyles.TI_HEADER_BAND_H1),
-                TrustedIntermediaryDashboardView.renderTabButtons(
-                    messages, baseUrl, TrustedIntermediaryDashboardView.TabType.CLIENT_LIST),
+                renderTabButtons(messages, TabType.CLIENT_LIST),
                 renderSubHeader(pageHeader)
                     .withId(pageId)
                     .withClasses(BaseStyles.TI_HEADER_BAND_H2),

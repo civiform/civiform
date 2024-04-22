@@ -31,8 +31,8 @@ import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.EditTiClientView;
-import views.applicant.TIAccountSettingsView;
-import views.applicant.TrustedIntermediaryDashboardView;
+import views.applicant.TrustedIntermediaryAccountSettingsView;
+import views.applicant.TrustedIntermediaryClientListView;
 
 /**
  * Controller for handling methods for an trusted intermediary managing their clients and applying
@@ -41,14 +41,14 @@ import views.applicant.TrustedIntermediaryDashboardView;
 public final class TrustedIntermediaryController {
 
   private static final int PAGE_SIZE = 10;
-  private final TrustedIntermediaryDashboardView tiDashboardView;
+  private final TrustedIntermediaryClientListView tiClientListView;
   private final ProfileUtils profileUtils;
   private final AccountRepository accountRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final TrustedIntermediaryService tiService;
   private final EditTiClientView editTiClientView;
-  private final TIAccountSettingsView tiAccountSettingsView;
+  private final TrustedIntermediaryAccountSettingsView tiAccountSettingsView;
 
   @Inject
   public TrustedIntermediaryController(
@@ -56,12 +56,12 @@ public final class TrustedIntermediaryController {
       AccountRepository accountRepository,
       FormFactory formFactory,
       MessagesApi messagesApi,
-      TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
+      TrustedIntermediaryClientListView trustedIntermediaryClientListView,
       TrustedIntermediaryService tiService,
       EditTiClientView editTiClientView,
-      TIAccountSettingsView tiAccountSettingsView) {
+      TrustedIntermediaryAccountSettingsView tiAccountSettingsView) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
-    this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
+    this.tiClientListView = Preconditions.checkNotNull(trustedIntermediaryClientListView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
@@ -112,7 +112,7 @@ public final class TrustedIntermediaryController {
         civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
 
     return ok(
-        tiDashboardView.render(
+        tiClientListView.render(
             /* tiGroup= */ trustedIntermediaryGroup.get(),
             /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setName(applicantName).build()),
