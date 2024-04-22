@@ -4,6 +4,9 @@
   <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
   <body data-load-modal="true">
     <div>
+      <header>
+        <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
+      </header>
       <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
         <button
@@ -15,8 +18,7 @@
         ></button>
 
         <div
-          th:text="#{content.blockProgress(${applicationParams.blockIndex() + 1},
-                                                      ${applicationParams.totalBlockCount()})}"
+          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
         ></div>
 
         <div

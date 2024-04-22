@@ -278,9 +278,7 @@ public final class PredicateGenerator {
    *
    * <p>If value is the empty string, then parses the list of values instead.
    */
-  // TODO: make this private once the old predicate logic is removed from
-  // AdminProgramBlockPredicatesController
-  public static PredicateValue parsePredicateValue(
+  static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
     // TODO: if scalar is not SELECTION or SELECTIONS and there values then throw an exception.
