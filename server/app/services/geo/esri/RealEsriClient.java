@@ -233,6 +233,12 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     // session
     request.addQueryParameter("maxLocations", "3");
 
+    // The forStorage parameter specifies whether the results of the operation will be persisted.
+    // The default value is false, which indicates the results of the operation can't be stored, but
+    // they can be temporarily displayed on a map, for instance. If you store the results, in a
+    // database, for example, you need to set this parameter to true.
+    request.addQueryParameter("forStorage", "true");
+
     Optional<String> address =
         Optional.ofNullable(addressJson.findPath(AddressField.STREET.getValue()).textValue());
     Optional<String> address2 =
