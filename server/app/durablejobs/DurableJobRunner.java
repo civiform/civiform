@@ -150,8 +150,24 @@ public final class DurableJobRunner {
           persistedDurableJob.getJobName(),
           persistedDurableJob.id,
           getJobDurationInSeconds(startTime));
-    } catch (JobNotFoundException
-        | IllegalArgumentException
+    } catch(JobNotFoundException e) {
+      boolean deleted = persistedDurableJob.delete();
+      if (!deleted) {
+        // throw error
+      } else {
+        String msg =
+        String.format(
+            "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
+                + " duration_s=%f",
+            e.getClass().getSimpleName(),
+            persistedDurableJob.getJobName(),
+            persistedDurableJob.id,
+            persistedDurableJob.getRemainingAttempts(),
+            getJobDurationInSeconds(startTime));
+        LOGGER.info(msg);
+      }
+    }
+    catch (IllegalArgumentException
         | CancellationException
         | InterruptedException e) {
       String msg =
@@ -163,9 +179,7 @@ public final class DurableJobRunner {
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime));
-      // change this to info?
-      // if a job is missing from the registry, it likely means it was intentionally removed
-      LOGGER.info(msg);
+      LOGGER.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {
       String msg =
