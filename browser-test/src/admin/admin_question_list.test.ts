@@ -160,7 +160,7 @@ test.describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
-  test('questions used in published disabled programs is still shown in phrase `used in # program` ', async () => {
+  test('questions used in published disabled programs is still shown in phrase `used in # program`', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
@@ -188,7 +188,7 @@ test.describe('Admin question list', () => {
     )
     await adminPrograms.publishProgram('program-disabled')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['a','b','c'],
+      ['a', 'b', 'c'],
       'program-two',
     )
 
@@ -199,20 +199,17 @@ test.describe('Admin question list', () => {
     )
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName: 'a',
-      expectedProgramReferencesText:
-        'Used in 2 programs.',
+      expectedProgramReferencesText: 'Used in 2 programs.',
       version: 'active',
     })
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName: 'b',
-      expectedProgramReferencesText:
-        'Used in 2 programs.',
+      expectedProgramReferencesText: 'Used in 2 programs.',
       version: 'active',
     })
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName: 'c',
-      expectedProgramReferencesText:
-        'Used in 1 program.',
+      expectedProgramReferencesText: 'Used in 1 program.',
       version: 'active',
     })
   })
