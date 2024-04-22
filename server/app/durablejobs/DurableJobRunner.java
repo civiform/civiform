@@ -163,7 +163,9 @@ public final class DurableJobRunner {
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime));
-      LOGGER.error(msg);
+      // change this to info?
+      // if a job is missing from the registry, it likely means it was intentionally removed
+      LOGGER.info(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {
       String msg =
