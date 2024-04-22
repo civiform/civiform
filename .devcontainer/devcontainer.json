@@ -69,7 +69,7 @@
   "updateContentCommand": "bin/vscode-setup",
   "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
-  // Use 'forwardPorts' to make a list of ports inside the container available locally. The ports correspond to the following:
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000],
   "portsAttributes": {
     "3390": {"label": "OIDC"},
