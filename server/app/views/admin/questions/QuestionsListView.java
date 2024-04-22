@@ -467,6 +467,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
+    /**
+     * Returns an immutable list of program definitions that are currently in draft status with
+     * disabled visibility.
+     */
     abstract ImmutableList<ProgramDefinition> disabledPrograms();
 
     static Builder builder() {
