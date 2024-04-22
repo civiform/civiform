@@ -1,6 +1,8 @@
 package durablejobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.persistence.EntityNotFoundException;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Rule;
@@ -140,21 +143,18 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
-  public void runJobs_jobNotFound() {
+  public void runJobs_jobNotFound_deletesJobFromDb() throws Exception {
     PersistedDurableJobModel job = createPersistedJobToExecute();
-
     durableJobRunner.runJobs();
 
-    job.refresh();
-    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
-    assertThat(job.getRemainingAttempts()).isEqualTo(0);
-    Mockito.verify(simpleEmailMock, Mockito.times(1))
-        .send(
-            Mockito.eq("test@example.com"),
-            Mockito.eq("ERROR: CiviForm Durable job failure on civiform-test.dev"),
-            Mockito.contains(
-                String.format(
-                    "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
+    Exception exception =
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> {
+              job.refresh();
+            });
+    assertThat(exception.toString().contains("Bean not found during lazy load or refresh."))
+        .isTrue();
   }
 
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
