@@ -456,7 +456,11 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private static String formatReferencingProgramsText(
       String prefix, int numPrograms, String suffix) {
-    return String.format("%s %d %s%s.", prefix, numPrograms, suffix, (numPrograms > 1 ? "s" : ""));
+    return String.format(
+        "%s %d %s.",
+        prefix,
+        numPrograms,
+        (numPrograms > 1 ? suffix.replaceAll("\\bprogram\\b", "programs") : suffix));
   }
 
   @AutoValue
