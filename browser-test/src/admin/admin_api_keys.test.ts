@@ -12,6 +12,11 @@ test.describe('Managing API keys', {tag: ['@uses-fixtures']}, () => {
 
     await loginAsAdmin(page)
 
+    await test.step('Validate new api key page without any programs created', async () => {
+      await adminApiKeys.gotoNewApiKeyPage()
+      await validateScreenshot(page, 'new-api-key-no-programs')
+    })
+
     await test.step('Add and publish program', async () => {
       await adminPrograms.addProgram(
         programName,
@@ -27,8 +32,8 @@ test.describe('Managing API keys', {tag: ['@uses-fixtures']}, () => {
       await validateScreenshot(page, 'new-api-key-page')
     })
 
-    await test.step('Submit key creation request with missing fields', async () => {
-      await adminApiKeys.submitInvalidApiKeyRequest(['api-using-program'])
+    await test.step('Submit key creation request with invalid fields', async () => {
+      await adminApiKeys.submitInvalidApiKeyRequest()
       await validateScreenshot(page, 'api-key-index-page-invalid')
     })
 
