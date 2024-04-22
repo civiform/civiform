@@ -18,7 +18,10 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
 
+    <!-- Hidden input to delete the old single date value. -->
+    <input hidden th:name="${dateQuestion.getDatePath()}" value="">
     <div class="usa-memorable-date">
+      <!-- Month Input -->
       <div
         class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
         th:with="monthId=${#strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
@@ -98,7 +101,11 @@
             th:selected="${value == 12}"
           ></option>
         </select>
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getMonthPath())})}"
+        ></div>
       </div>
+      <!-- Day of month input -->
       <div
         class="usa-form-group usa-form-group--day cf-date-day"
         th:with="dayId=${#strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
@@ -119,7 +126,11 @@
           th:value="${dateQuestion.getDayValue().orElse('')}"
           th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(dayPath)}"
         />
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDayPath())})}"
+        ></div>
       </div>
+      <!-- Year input -->
       <div
         class="usa-form-group usa-form-group--year cf-date-year"
         th:with="yearId=${#strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"
@@ -141,6 +152,9 @@
           th:value="${dateQuestion.getYearValue().orElse('')}"
           th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(yearPath)}"
         />
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getYearPath())})}"
+        ></div>
       </div>
     </div>
   </fieldset>

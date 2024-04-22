@@ -69,6 +69,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
@@ -1833,4 +1834,49 @@ public final class ApplicantService {
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
   }
+
+    /**
+   * Checks the block for any {@link DateQuestion}. Since there are two different UI components
+   * that can display date questions, consolidate any Date questions into the central date path
+   * so UI differences are not reflected in the database.
+   */
+  public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Get a writeable map so the existing paths can be replaced
+              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+
+              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+                if (applicantQuestion.getType() != QuestionType.DATE) {
+                  continue;
+                }
+
+                DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+                Optional<String> phoneNumber =
+                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+
+                PhoneValidationResult result =
+                    PhoneValidationUtils.determineCountryCode(phoneNumber);
+
+                if (result.isValid()) {
+                  newFormData.put(
+                      phoneQuestion.getCountryCodePath().toString(),
+                      result.getCountryCode().orElse(""));
+                }
+              }
+
+              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
+            });
+  }
+}
 }
