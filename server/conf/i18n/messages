@@ -420,8 +420,6 @@ content.december=12 - December
 label.dayOfMonth=Day
 # Label on an input for the user the enter the month for a date question.
 label.month=Month
-# Label on an input for the user the enter the year for a date question.
-label.year=Year
 # Validation error shown when the user does not enter the day of month in a date question.
 validation.dayRequired=Day is required
 validation.invalidDateFormat=Please enter a date in the correct format

@@ -15,8 +15,8 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
 
 /**
- * Represents a date question in the context of a specific applicant.
- * TODO (#7266): After north star launch, clean up this file so we only read from Memorable date.
+ * Represents a date question in the context of a specific applicant. TODO (#7266): After north star
+ * launch, clean up this file so we only read from Memorable date.
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
@@ -30,9 +30,10 @@ public final class DateQuestion extends Question {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a date and been noted as a failed update. We check for that here.
-    if (applicantQuestion.getApplicantData().updateDidFailAt(getDatePath())) {
+    if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
           ImmutableSet.of(
@@ -40,11 +41,14 @@ public final class DateQuestion extends Question {
     }
     // If the Date path is empty, we are using the memorable date component, so we need to validate
     // each individually.
-    if (applicantQuestion.getApplicantData().readDate(getDatePath()).isEmpty()) {
+    if (applicantData.readDate(getDatePath()).isEmpty()
+        && !(applicantData.readLong(getMonthPath()).isEmpty()
+            && applicantData.readLong(getDayPath()).isEmpty()
+            && applicantData.readLong(getYearPath()).isEmpty())) {
       return ImmutableMap.of(
-        getMonthPath(), validateMonth(),
-        getDayPath(), validateDay(),
-        getYearPath(), validateYear()); 
+          getMonthPath(), validateMonth(),
+          getDayPath(), validateDay(),
+          getYearPath(), validateYear());
     }
     return ImmutableMap.of();
   }
