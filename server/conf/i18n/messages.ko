@@ -243,6 +243,10 @@ title.displayingOneClient=클라이언트 1명 표시 중
 title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=조직 구성원
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
