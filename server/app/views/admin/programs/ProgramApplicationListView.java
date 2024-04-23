@@ -16,6 +16,7 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
@@ -27,7 +28,6 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
@@ -107,52 +107,45 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
 
     DivTag applicationListDiv =
-        div()
-            .withData("testid", "application-list")
-            .with(
-                h1(program.adminName()).withClasses("mt-4"),
-                br(),
-                renderSearchForm(
-                    program,
+      div()
+        .withData("testid", "application-list")
+        .with(
+          h1(program.adminName()).withClasses("mt-4"),
+          br(),
+
+       h2("All submitted applications")
+            .withClasses("font-bold", "font-sans", "text-black-700", "flex"),
+          renderSearchForm(
+            program,
+            allPossibleProgramApplicationStatuses,
+            filterParams,
+            request),
+            downloadModal.getButton(),
+            br(),
+            span("Applications").withClasses("usa-label", "text-bold"),
+         renderApplicationsTable(
+                    paginatedApplications.getPageContents(),
                     allPossibleProgramApplicationStatuses,
-                    downloadModal.getButton(),
-                    filterParams,
-                    request),
-                renderApplicationsTable(
-                        paginatedApplications.getPageContents(),
-                        allPossibleProgramApplicationStatuses,
-                        hasEligibilityEnabled,
-                        defaultStatus,
-                        program)
-                    // each(
-                    //     paginatedApplications.getPageContents(),
-                    //     application ->
-                    //         renderApplicationListItem(
-                    //             application,
-                    //             /* displayStatus= */ allPossibleProgramApplicationStatuses.size()
-                    // > 0,
-                    //             hasEligibilityEnabled
-                    //                 ? applicantService.getApplicationEligibilityStatus(
-                    //                     application, program)
-                    //                 : Optional.empty(),
-                    //             defaultStatus)))
-                    .condWith(
-                        paginatedApplications.getNumPages() > 1,
-                        renderPagination(
-                            paginationSpec.getCurrentPage(),
-                            paginatedApplications.getNumPages(),
-                            pageNumber ->
-                                routes.AdminApplicationController.index(
-                                    program.id(),
-                                    filterParams.search(),
-                                    Optional.of(pageNumber),
-                                    filterParams.fromDate(),
-                                    filterParams.untilDate(),
-                                    filterParams.selectedApplicationStatus(),
-                                    /* selectedApplicationUri= */ Optional.empty())))
-                    .withClasses("usa-table-container--scrollable")
-                    .withTabindex(0))
-            .withClasses("flex", "flex-col");
+                    hasEligibilityEnabled,
+                    defaultStatus,
+                    program)
+                .withClasses("usa-table-container--scrollable", "usa-table--borderless").withTabindex(0)
+                .condWith(
+                    paginatedApplications.getNumPages() > 1,
+                    renderPagination(
+                        paginationSpec.getCurrentPage(),
+                        paginatedApplications.getNumPages(),
+                        pageNumber ->
+                            routes.AdminApplicationController.index(
+                                program.id(),
+                                filterParams.search(),
+                                Optional.of(pageNumber),
+                                filterParams.fromDate(),
+                                filterParams.untilDate(),
+                                filterParams.selectedApplicationStatus(),
+                                /* selectedApplicationUri= */ Optional.empty()))))
+        .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2","w-1/3");
+                //.withClasses( "flex-col", "justify-end","items-start","inline-flex");
 
     DivTag applicationShowDiv =
         div()
@@ -187,7 +180,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      ButtonTag downloadButton,
       RenderFilterParams filterParams,
       Http.Request request) {
     String redirectUrl =
@@ -222,8 +214,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             fieldset()
                 .withClasses("pt-1")
                 .with(
-                    h2("All submitted applications")
-                        .withClasses("font-bold", "font-sans", "text-black-700", "flex"),
                     div().withClass("mt-6"),
                     FieldWithLabel.input()
                         .setFieldName(SEARCH_PARAM)
@@ -270,7 +260,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                             .build())
                                     .build()))
                         .getSelectTag()),
-            div().withClasses("mt-4"),
             div(
                     div(
                             div(label("Start date").withClass("usa-label")),
@@ -285,15 +274,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
                                 .getDateTag())
-                        .withClasses("flex", "flex-col", "justify-between"))
-                .withClasses("flex", "my-6", "gap-6"))
+                        .withClasses("flex", "flex-col", "justify-between", "gap-2"))
+                .withClasses("flex", "gap-6"))
         .with(
             div()
-                .withClasses("mt-6", "mb-8", "flex", "space-x-2")
+                .withClasses("flex",  "my-6","items-start", "gap-6")
                 .with(
-                    div().withClass("flex-grow"),
-                    downloadButton,
-                    makeSvgTextButton("Filter", Icons.FILTER_ALT)
+                    // div().withClass("flex-grow"),
+                    makeSvgTextButton("Search", Icons.SEARCH)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
                     a("Clear").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE)));
@@ -377,7 +365,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setContent(modalContent)
         .setModalTitle("Download application data")
         .setTriggerButtonContent(
-            makeSvgTextButton("Download", Icons.DOWNLOAD)
+            makeSvgTextButton("Download all applications", Icons.DOWNLOAD)
                 .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                 .withType("button"))
         .build();
@@ -392,7 +380,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     DivTag table =
         div(
             table()
-                .withClass("usa-table")
+                .withClasses("usa-table")
                 .with(renderGroupTableHeader())
                 .with(
                     tbody(
