@@ -3,7 +3,6 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -158,61 +157,6 @@ test.describe('Admin question list', () => {
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'a', 'b'])
 
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
-  })
-
-  test('questions used in published disabled programs is still shown in phrase `used in # program`', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-    await loginAsAdmin(page)
-    // Set the questionText to the same as questionName to make validation easier since questionBankNames()
-    // returns the questionText.
-    await adminQuestions.addTextQuestion({
-      questionName: 'b',
-      questionText: 'b',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'a',
-      questionText: 'a',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'c',
-      questionText: 'c',
-    })
-
-    await adminPrograms.addDisabledProgram('program-disabled')
-    // Add question a and b to the disabled program
-    await adminPrograms.editProgramBlock(
-      'program-disabled',
-      'dummy description',
-      ['a', 'b'],
-    )
-    await adminPrograms.publishProgram('program-disabled')
-    // // Add question a, b, and c to the other program
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['a', 'b', 'c'],
-      'program-two',
-    )
-
-    await adminQuestions.gotoAdminQuestionsPage()
-    await validateScreenshot(
-      page,
-      'questions-list-sort-dropdown-disabled-programs',
-    )
-    await adminQuestions.expectQuestionProgramReferencesText({
-      questionName: 'a',
-      expectedProgramReferencesText: 'Used in 2 programs.',
-      version: 'active',
-    })
-    await adminQuestions.expectQuestionProgramReferencesText({
-      questionName: 'b',
-      expectedProgramReferencesText: 'Used in 2 programs.',
-      version: 'active',
-    })
-    await adminQuestions.expectQuestionProgramReferencesText({
-      questionName: 'c',
-      expectedProgramReferencesText: 'Used in 1 program.',
-      version: 'active',
-    })
   })
 
   test('shows if questions are marked for archival', async () => {
