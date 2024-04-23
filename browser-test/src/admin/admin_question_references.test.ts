@@ -1,6 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
-
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 test.describe(
   'view program references from question view',
   {tag: ['@uses-fixtures']},
@@ -119,6 +118,53 @@ test.describe(
 
         await adminQuestions.clickOnProgramReferencesModal(questionName)
         await validateScreenshot(page, 'question-program-modal')
+      })
+    })
+
+    test('shows results for referencing disabled programs listed separately from other programs', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+      const programName = 'Program name'
+      const disabledProgramName = 'Disabled program name'
+      const questionName = 'question-references-q'
+
+      await loginAsAdmin(page)
+      await adminQuestions.addAddressQuestion({questionName})
+
+      await test.step(`Create two programs and add ${questionName}`, async () => {
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.addProgramBlockUsingSpec(programName, 'block', [
+          {
+            name: questionName,
+            isOptional: false,
+          },
+        ])
+
+        await adminPrograms.addDisabledProgram(disabledProgramName)
+        await adminPrograms.addProgramBlockUsingSpec(
+          disabledProgramName,
+          'first block',
+          [
+            {
+              name: questionName,
+              isOptional: false,
+            },
+          ],
+        )
+      })
+
+      await test.step(`Verify question and program`, async () => {
+        await adminQuestions.gotoAdminQuestionsPage()
+        await validateScreenshot(page, 'question-used-in-disabled-programs')
+        await adminQuestions.expectQuestionProgramReferencesText({
+          questionName,
+          expectedProgramReferencesText:
+            'Added to 2 programs.\n\nAdded to 1 disabled program.',
+          version: 'draft',
+        })
       })
     })
   },
