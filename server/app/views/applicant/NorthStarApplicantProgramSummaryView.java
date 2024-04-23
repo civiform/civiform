@@ -1,6 +1,5 @@
 package views.applicant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -25,7 +24,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes) {
-        super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
   }
 
   public String render(Request request, Params params) {
@@ -33,9 +32,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
-    context.setVariable("hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
+    context.setVariable(
+        "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
-    return templateEngine.process("applicant/ApplicantProgramSummaryView", context);
+    return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }
 
   // Returns a map of block ids to edit urls.

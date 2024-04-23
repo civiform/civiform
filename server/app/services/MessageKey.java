@@ -89,6 +89,7 @@ public enum MessageKey {
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_ADMIN_FOOTER_PROMPT("content.adminFooterPrompt"),
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
+  CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
   CONTENT_CIVIFORM_DESCRIPTION("content.findProgramsDescription"),

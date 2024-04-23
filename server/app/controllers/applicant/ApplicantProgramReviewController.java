@@ -171,7 +171,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
-                int completedBlockCount = roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
+                int completedBlockCount =
+                    roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
 
                 NorthStarApplicantProgramSummaryView.Params northStarParams =
                     NorthStarApplicantProgramSummaryView.Params.builder()
