@@ -1,6 +1,7 @@
 <html>
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
-  <body>
+  <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
+  <body data-load-modal="true">
     <h1>Let's get started.</h1>
     <p>
       Select a step below to start your application. You can save and come back
