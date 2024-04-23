@@ -259,6 +259,8 @@ button.submit=Submit
 button.continue=Continue
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Does not qualify
 link.edit=Edit
 link.answer=Answer
@@ -266,8 +268,10 @@ content.previouslyAnsweredOn=Previously answered on {0}
 ariaLabel.answer=Answer {0}
 
 ariaLabel.edit=Edit {0}
-title.programSummary=Program application summary
 title.commonIntakeSummary=Benefits pre-screener summary
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Program application summary
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

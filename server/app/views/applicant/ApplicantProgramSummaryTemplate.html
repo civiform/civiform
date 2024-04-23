@@ -2,11 +2,8 @@
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
   <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
   <body data-load-modal="true">
-    <h1>Let's get started.</h1>
-    <p>
-      Select a step below to start your application. You can save and come back
-      at any time.
-    </p>
+    <h1 th:text="#{title.getStarted}"></h1>
+    <p th:text="#{content.reviewPageIntro}"></p>
     <ul class="usa-card-group">
       <li
         class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4"
@@ -21,7 +18,7 @@
             ></span>
             <span
               class="usa-tag"
-              th:if="${block.isCompletedInProgramWithoutErrors()}"
+              th:if="${block.isCompletedInProgramWithoutErrors() && block.answeredQuestionsCount() != 0}"
               th:text="#{title.programSectionCompleted}"
             ></span>
             <span
@@ -43,7 +40,6 @@
             ></p>
           </div>
           <div class="usa-card__footer">
-            <!-- TODO: Is this the right condition? -->
             <a
               class="usa-button"
               th:href="${blockEditUrlMap.get(block.getId())}"
@@ -77,6 +73,7 @@
         class="usa-button"
       ></a>
     </form>
+    <div id="modal-container"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>
