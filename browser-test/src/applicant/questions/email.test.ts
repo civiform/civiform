@@ -170,7 +170,9 @@ test.describe(
           await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
           await applicantQuestions.clickContinue()
 
-          await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+          await applicantQuestions.submitFromReviewPage(
+            /* northStarEnabled= */ true,
+          )
         })
       },
     )

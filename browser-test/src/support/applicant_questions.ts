@@ -424,9 +424,11 @@ export class ApplicantQuestions {
 
   async expectReviewPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      await expect (this.page.locator('h1')).toContainText('Let\'s get started')
+      await expect(this.page.locator('h1')).toContainText("Let's get started")
     } else {
-      await expect (this.page.locator('h2')).toContainText('Program application summary')
+      await expect(this.page.locator('h2')).toContainText(
+        'Program application summary',
+      )
     }
   }
 
