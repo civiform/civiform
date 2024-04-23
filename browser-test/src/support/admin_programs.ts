@@ -110,7 +110,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name.
+   * Creates a disabled program with given name.
+   */
+  async addDisabledProgram(programName: string) {
+    await this.addProgram(
+      programName,
+      'program description',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+    )
+  }
+
+  /**
+   * Creates a program with given name.
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
    * to the database and then the admin will be redirected to the next page in the
@@ -1167,6 +1179,7 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
   /*
    * Creates a program, ads the specified questions to it and publishes it.
    * To use this method, questions must have been previously created for example by using one of the helper methods in admin_questions.ts.

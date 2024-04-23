@@ -49,7 +49,9 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
 
-  public abstract Optional<ToastMessage> bannerMessage();
+  public abstract Optional<ToastMessage> bannerToastMessage();
+
+  public abstract Optional<String> bannerMessage();
 
   public abstract Optional<String> applicantSelectedQuestionName();
 
@@ -89,7 +91,9 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setErrorDisplayMode(
         ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
 
-    public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
+    public abstract Builder setBannerToastMessage(Optional<ToastMessage> banner);
+
+    public abstract Builder setBannerMessage(Optional<String> bannerMessage);
 
     public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 

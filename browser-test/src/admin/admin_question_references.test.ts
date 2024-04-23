@@ -1,5 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe(
   'view program references from question view',
@@ -119,53 +119,6 @@ test.describe(
 
         await adminQuestions.clickOnProgramReferencesModal(questionName)
         await validateScreenshot(page, 'question-program-modal')
-      })
-    })
-
-    test('shows disabled programs visibility text when disabled visibility condition flag is enabled', async ({
-      page,
-      adminQuestions,
-      adminPrograms,
-    }) => {
-      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-      const firstProgramName = 'First program'
-      const disabledProgramName  = 'Disabled program'
-      const questionName = 'question name'
-
-      await loginAsAdmin(page)
-      await adminQuestions.addAddressQuestion({questionName})
-
-      await test.step(`Create two programs and add ${questionName}`, async () => {
-        await adminPrograms.addProgram(firstProgramName)
-        await adminPrograms.addProgramBlockUsingSpec(
-          firstProgramName,
-          'first block',
-          [],
-        )
-
-        await adminPrograms.addProgram(disabledProgramName)
-        await adminPrograms.addProgramBlockUsingSpec(
-          disabledProgramName,
-          'first block',
-          [
-            {
-              name: questionName,
-              isOptional: false,
-            },
-          ],
-        )
-      })
-
-      await test.step('Verify draft question and publish', async () => {
-        await adminPrograms.publishAllDrafts()
-        await adminQuestions.gotoAdminQuestionsPage()
-        await adminQuestions.clickOnProgramReferencesModal(questionName)
-
-        await adminQuestions.expectProgramReferencesModalContains({
-          questionName,
-          expectedUsedProgramReferences: ['first-program', 'disabled-program'],
-        })
-        await validateScreenshot(page, 'question-disabled-program-modal')
       })
     })
   },

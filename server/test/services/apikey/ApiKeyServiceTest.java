@@ -53,6 +53,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void listActiveApiKeys() {
+    resourceCreator.insertActiveProgram("test program");
+
     Instant now = Instant.now();
 
     Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
@@ -70,7 +72,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                   "expiration",
                   futureExpirationDate,
                   "subnet",
-                  "0.0.0.1/32")),
+                  "0.0.0.1/32",
+                  "grant-program-read[test-program]",
+                  "true")),
           adminProfile);
     }
 
@@ -85,7 +89,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                           "expiration",
                           futureExpirationDate,
                           "subnet",
-                          "0.0.0.1/32")),
+                          "0.0.0.1/32",
+                          "grant-program-read[test-program]",
+                          "true")),
                   adminProfile)
               .getApiKey();
       apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
@@ -100,7 +106,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                       "expiration",
                       pastExpirationDate,
                       "subnet",
-                      "0.0.0.1/32")),
+                      "0.0.0.1/32",
+                      "grant-program-read[test-program]",
+                      "true")),
               adminProfile)
           .getApiKey();
     }
@@ -113,6 +121,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void listRetiredApiKeys() {
+    resourceCreator.insertActiveProgram("test program");
+
     Instant now = Instant.now();
 
     Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
@@ -130,7 +140,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                   "expiration",
                   futureExpirationDate,
                   "subnet",
-                  "0.0.0.1/32")),
+                  "0.0.0.1/32",
+                  "grant-program-read[test-program]",
+                  "true")),
           adminProfile);
     }
 
@@ -145,7 +157,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                           "expiration",
                           futureExpirationDate,
                           "subnet",
-                          "0.0.0.1/32")),
+                          "0.0.0.1/32",
+                          "grant-program-read[test-program]",
+                          "true")),
                   adminProfile)
               .getApiKey();
       apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
@@ -161,7 +175,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                       "expiration",
                       pastExpirationDate,
                       "subnet",
-                      "0.0.0.1/32")),
+                      "0.0.0.1/32",
+                      "grant-program-read[test-program]",
+                      "true")),
               adminProfile)
           .getApiKey();
     }
@@ -174,6 +190,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void listExpiredApiKeys() {
+    resourceCreator.insertActiveProgram("test program");
+
     Instant now = Instant.now();
 
     Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
@@ -192,7 +210,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                   "expiration",
                   futureExpirationDate,
                   "subnet",
-                  "0.0.0.1/32")),
+                  "0.0.0.1/32",
+                  "grant-program-read[test-program]",
+                  "true")),
           adminProfile);
     }
     for (int i = 0; i < 3; i++) {
@@ -206,7 +226,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                           "expiration",
                           futureExpirationDate,
                           "subnet",
-                          "0.0.0.1/32")),
+                          "0.0.0.1/32",
+                          "grant-program-read[test-program]",
+                          "true")),
                   adminProfile)
               .getApiKey();
       apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
@@ -222,7 +244,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                       "expiration",
                       pastExpirationDate,
                       "subnet",
-                      "0.0.0.1/32")),
+                      "0.0.0.1/32",
+                      "grant-program-read[test-program]",
+                      "true")),
               adminProfile)
           .getApiKey();
     }
@@ -235,6 +259,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void retireApiKey_retiresAnApiKey() {
+    resourceCreator.insertActiveProgram("test program");
+
     ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
@@ -242,7 +268,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
                     ImmutableMap.of(
                         "keyName", "test key 1",
                         "expiration", "2020-01-30",
-                        "subnet", "0.0.0.1/32")),
+                        "subnet", "0.0.0.1/32",
+                        "grant-program-read[test-program]", "true")),
                 adminProfile)
             .getApiKey();
 
@@ -257,6 +284,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void retireApiKey_keyAlreadyRetired_throws() {
+    resourceCreator.insertActiveProgram("test program");
+
     ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
@@ -264,7 +293,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
                     ImmutableMap.of(
                         "keyName", "test key 1",
                         "expiration", "2020-01-30",
-                        "subnet", "0.0.0.1/32")),
+                        "subnet", "0.0.0.1/32",
+                        "grant-program-read[test-program]", "true")),
                 adminProfile)
             .getApiKey();
     apiKeyService.retireApiKey(apiKey.id, adminProfile);
@@ -440,6 +470,20 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
     assertThat(apiKeyCreationResult.getForm().error("subnet").get().message())
         .isEqualTo("Subnet cannot allow all IP addresses.");
+  }
+
+  @Test
+  public void createApiKey_noProgramSpecified_reportsError() {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "0.0.0.1/32,1.1.1.0/32"));
+
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
+
+    assertThat(apiKeyCreationResult.getForm().error("programs")).isPresent();
   }
 
   @Test

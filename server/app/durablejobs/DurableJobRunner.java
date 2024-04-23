@@ -150,10 +150,30 @@ public final class DurableJobRunner {
           persistedDurableJob.getJobName(),
           persistedDurableJob.id,
           getJobDurationInSeconds(startTime));
-    } catch (JobNotFoundException
-        | IllegalArgumentException
-        | CancellationException
-        | InterruptedException e) {
+    } catch (JobNotFoundException e) {
+      // If the job is not found in the registry, it was likely removed intentionally
+      // In this case, we want to delete the job from the database becuase it should not be run
+      // anymore
+      if (persistedDurableJob.delete()) {
+        LOGGER.info(
+            String.format(
+                "Job was not found in the registry and was deleted from the db. job_name=\"%s\"",
+                persistedDurableJob.getJobName()));
+      } else {
+        // If the delete fails, handle it like the other errors
+        String msg =
+            String.format(
+                "Job was not found in the registry and there was an error deleting the job. Error:"
+                    + " %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d, duration_s=%f",
+                e.getClass().getSimpleName(),
+                persistedDurableJob.getJobName(),
+                persistedDurableJob.id,
+                persistedDurableJob.getRemainingAttempts(),
+                getJobDurationInSeconds(startTime));
+        LOGGER.error(msg);
+        persistedDurableJob.appendErrorMessage(msg).save();
+      }
+    } catch (IllegalArgumentException | CancellationException | InterruptedException e) {
       String msg =
           String.format(
               "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"

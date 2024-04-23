@@ -6,7 +6,9 @@
 
   // For details, see https://containers.dev/implementors/json_reference/#min-host-reqs
   "hostRequirements": {
-    "memory": "6gb"
+    "memory": "16gb",
+    "cpus": 4,
+    "storage": "32gb"
   },
 
   // Features to add to the dev container. More info: https://containers.dev/features.
@@ -70,5 +72,16 @@
   "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [3390, 5432, 9000, 9999]
+  "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000],
+  "portsAttributes": {
+    "3390": {"label": "OIDC (dev)"},
+    "4566": {"label": "Localstack (dev email & file upload)"},
+    "5432": {"label": "Postgres (dev)"},
+    "6645": {"label": "Localstack (browser-test email & file upload)"},
+    "8888": {"label": "Prod simulator"},
+    "9000": {"label": "Application (dev)"},
+    "9100": {"label": "Application (unit tests)"},
+    "9999": {"label": "Application (browser tests)"},
+    "10000": {"label": "Azureite"}
+  }
 }

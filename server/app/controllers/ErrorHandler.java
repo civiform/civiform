@@ -126,6 +126,20 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     return Optional.empty();
   }
 
+  /**
+   * Normally the application handles 403s before this and redirects home. This is a failsafe for
+   * edge cases that would leave the user on a grey 403 page that is just builtin to Play. To be
+   * consistent with the rest of the app we redirect home.
+   *
+   * <p>This only known way to hit this is to have an active session, change the application secret,
+   * and try using your existing session.
+   */
+  @Override
+  protected CompletionStage<Result> onForbidden(RequestHeader request, String message) {
+    return CompletableFuture.completedFuture(
+        Results.redirect(controllers.routes.HomeController.index().url()));
+  }
+
   @Override
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(

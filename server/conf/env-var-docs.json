@@ -490,6 +490,11 @@
             "mode": "ADMIN_READABLE",
             "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
             "type": "int"
+          },
+          "ESRI_ARCGIS_API_TOKEN": {
+            "mode": "HIDDEN",
+            "description": "A secret token value from Esri's arcgis.com online service created by your arcgis.com account for accessing the API.",
+            "type": "string"
           }
         }
       }
