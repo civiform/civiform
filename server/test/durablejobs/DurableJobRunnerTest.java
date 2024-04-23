@@ -1,18 +1,18 @@
 package durablejobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.DB;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.persistence.EntityNotFoundException;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Rule;
@@ -142,20 +142,30 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
-  public void runJobs_jobNotFound_deletesJobFromDb() throws Exception {
+  public void runJobs_jobNotFound_deletesJobFromDb() {
     PersistedDurableJobModel job = createPersistedJobToExecute();
-    durableJobRunner.runJobs();
 
-    // The job should have been deleted since it does not exist in the registry.
-    // Calling job.refresh should throw an error since the job was deleted.
-    Exception exception =
-        assertThrows(
-            EntityNotFoundException.class,
-            () -> {
-              job.refresh();
-            });
-    assertThat(exception.toString().contains("Bean not found during lazy load or refresh."))
-        .isTrue();
+    // Assert the job was saved to the db
+    Optional<PersistedDurableJobModel> savedJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(savedJob.get().getJobName()).isEqualTo(job.getJobName());
+
+    // Assert the job does not exist in the registry
+    assertThat(durableJobRegistry.getRecurringJobs()).isEmpty();
+
+    // Since the job does not exist in the registry, it should be deleted when runJobs is run
+    durableJobRunner.runJobs();
+    Optional<PersistedDurableJobModel> foundJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(foundJob).isEmpty();
   }
 
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
