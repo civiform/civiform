@@ -31,7 +31,7 @@ import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramPredicateConfigureView;
-import views.admin.programs.ProgramPredicatesEditViewV2;
+import views.admin.programs.ProgramPredicatesEditView;
 
 /**
  * Controller for admins editing and viewing program predicates for eligibility and visibility
@@ -41,7 +41,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final ProgramPredicatesEditViewV2 predicatesEditViewV2;
+  private final ProgramPredicatesEditView predicatesEditViewV2;
   private final ProgramPredicateConfigureView predicatesConfigureView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -51,7 +51,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       PredicateGenerator predicateGenerator,
       ProgramService programService,
       QuestionService questionService,
-      ProgramPredicatesEditViewV2 predicatesEditViewV2,
+      ProgramPredicatesEditView predicatesEditViewV2,
       ProgramPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
       RequestChecker requestChecker,
@@ -86,7 +86,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramPredicatesEditViewV2.ViewType.VISIBILITY));
+              ProgramPredicatesEditView.ViewType.VISIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -114,7 +114,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramPredicatesEditViewV2.ViewType.ELIGIBILITY));
+              ProgramPredicatesEditView.ViewType.ELIGIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

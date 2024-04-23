@@ -37,6 +37,7 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -63,15 +64,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = settingsManifest;
   }
 
   /** Renders a page with a list view of all questions. */
@@ -267,7 +271,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
+        renderReferencingPrograms(
+            latestDefinition.getName(), cardData.referencingPrograms(), request);
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -406,10 +411,12 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
+      String questionName,
+      GroupedReferencingPrograms groupedReferencingPrograms,
+      Http.Request request) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty(), request);
 
     DivTag tag =
         div()
@@ -419,7 +426,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 StyleUtils.responsiveXLarge("ml-10"),
                 "py-7",
                 "w-1/4");
-    if (groupedReferencingPrograms.isEmpty()) {
+    if (groupedReferencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       tag.with(p("Used in 0 programs."));
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
@@ -434,7 +442,8 @@ public final class QuestionsListView extends BaseHtmlView {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
       }
-      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()) {
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()
+          && settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
         int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
         tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
@@ -471,17 +480,23 @@ public final class QuestionsListView extends BaseHtmlView {
 
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
+    /**
+     * Returns an immutable list of program definitions that are currently in draft status with
+     * disabled visibility.
+     */
     abstract ImmutableList<ProgramDefinition> disabledPrograms();
 
     static Builder builder() {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
-    boolean isEmpty() {
-      return usedPrograms().isEmpty()
-          && addedPrograms().isEmpty()
-          && removedPrograms().isEmpty()
-          && disabledPrograms().isEmpty();
+    boolean isEmpty(boolean includeDisabledPrograms) {
+      boolean usedAndAddedAndRemovedProgramsIsEmpty =
+          usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+      if (includeDisabledPrograms) {
+        return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
+      }
+      return usedAndAddedAndRemovedProgramsIsEmpty;
     }
 
     int getTotalNumReferencingPrograms() {
@@ -520,7 +535,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    // Use set operations to collect programs into 3 sets.
+    // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
@@ -558,8 +573,10 @@ public final class QuestionsListView extends BaseHtmlView {
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
       GroupedReferencingPrograms referencingPrograms,
-      Optional<DomContent> modalHeader) {
-    if (referencingPrograms.isEmpty()) {
+      Optional<DomContent> modalHeader,
+      Http.Request request) {
+    if (referencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       return Optional.empty();
     }
 
@@ -792,7 +809,7 @@ public final class QuestionsListView extends BaseHtmlView {
         GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(), referencingPrograms, Optional.of(modalHeader));
+                definition.getName(), referencingPrograms, Optional.of(modalHeader), request);
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)

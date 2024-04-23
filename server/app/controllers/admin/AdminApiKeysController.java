@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -95,7 +96,13 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    return ok(newOneView.render(request, programService.getActiveProgramNames()));
+    ImmutableSet<String> programNames = programService.getActiveProgramNames();
+
+    if (programNames.isEmpty()) {
+      return ok(newOneView.renderNoPrograms(request));
+    } else {
+      return ok(newOneView.render(request, programNames));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

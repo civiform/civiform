@@ -20,6 +20,10 @@ export class TIDashboard {
     await page.click('text="View and add clients"')
   }
 
+  async goToAccountSettingsPage(page: Page) {
+    await page.getByRole('link', {name: 'Account settings'}).click()
+  }
+
   async goToProgramsPageForCurrentClient() {
     await this.page.click('text="CiviForm"')
   }
