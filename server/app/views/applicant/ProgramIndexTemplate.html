@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
+  <body>
+      <h1 th:text="#{content.findPrograms}"></h1>
+      <div th:text="#{content.findProgramsDescription}"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
