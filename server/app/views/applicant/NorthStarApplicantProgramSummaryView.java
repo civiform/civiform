@@ -1,6 +1,5 @@
 package views.applicant;
 
-
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
