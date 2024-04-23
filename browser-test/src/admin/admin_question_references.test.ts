@@ -136,7 +136,36 @@ test.describe(
       await adminQuestions.addAddressQuestion({questionName})
 
       await test.step(`Create two programs and add ${questionName}`, async () => {
+        await adminPrograms.addProgram(firstProgramName)
+        await adminPrograms.addProgramBlockUsingSpec(
+          firstProgramName,
+          'first block',
+          [],
+        )
 
+        await adminPrograms.addProgram(disabledProgramName)
+        await adminPrograms.addProgramBlockUsingSpec(
+          disabledProgramName,
+          'first block',
+          [
+            {
+              name: questionName,
+              isOptional: false,
+            },
+          ],
+        )
+      })
+
+      await test.step('Verify draft question and publish', async () => {
+        await adminPrograms.publishAllDrafts()
+        await adminQuestions.gotoAdminQuestionsPage()
+        await adminQuestions.clickOnProgramReferencesModal(questionName)
+
+        await adminQuestions.expectProgramReferencesModalContains({
+          questionName,
+          expectedUsedProgramReferences: ['first-program', 'disabled-program'],
+        })
+        await validateScreenshot(page, 'question-disabled-program-modal')
       })
     })
   },
