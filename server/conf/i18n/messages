@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Close
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Review
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
 
@@ -58,7 +60,6 @@ button.deleteFile=Delete
 button.keepFile=Continue
 button.nextScreen=Save and next
 button.previousScreen=Previous
-button.review=Review
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
@@ -257,6 +258,8 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=Submit
 button.continue=Continue
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.

@@ -44,7 +44,8 @@
               class="usa-button"
               th:href="${blockEditUrlMap.get(block.getId())}"
               th:if="${block.isCompletedInProgramWithoutErrors()}"
-              >Review</a
+              th:text="#{button.review}"
+            ></a
             >
             <a
               class="usa-button"
