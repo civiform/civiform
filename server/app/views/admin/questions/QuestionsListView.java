@@ -160,7 +160,8 @@ public final class QuestionsListView extends BaseHtmlView {
                       .setReferencingPrograms(
                           createReferencingPrograms(
                               referencingPrograms.activeReferences(),
-                              referencingPrograms.draftReferences()))
+                              referencingPrograms.draftReferences(),
+                              request))
                       .build();
                 })
             .sorted(
@@ -436,7 +437,11 @@ public final class QuestionsListView extends BaseHtmlView {
       }
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
+        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
+        } else {
+          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
+        }
       }
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
@@ -518,7 +523,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private GroupedReferencingPrograms createReferencingPrograms(
-      Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
+      Collection<ProgramDefinition> activePrograms,
+      Collection<ProgramDefinition> draftPrograms,
+      Http.Request request) {
     ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
@@ -538,6 +545,9 @@ public final class QuestionsListView extends BaseHtmlView {
     // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+      addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
+    }
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> disabledSet =
         Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
