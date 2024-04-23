@@ -162,7 +162,7 @@ test.describe(
         await adminQuestions.expectQuestionProgramReferencesText({
           questionName,
           expectedProgramReferencesText:
-            'Added to 2 programs.\n\nAdded to 1 disabled program.',
+            'Added to 1 program in use.\n\nAdded to 1 disabled program.',
           version: 'draft',
         })
       })
