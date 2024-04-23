@@ -416,7 +416,7 @@ public final class QuestionsListView extends BaseHtmlView {
       Http.Request request) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty(), request);
 
     DivTag tag =
         div()
@@ -426,7 +426,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 StyleUtils.responsiveXLarge("ml-10"),
                 "py-7",
                 "w-1/4");
-    if (groupedReferencingPrograms.isEmpty()) {
+    if (groupedReferencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       tag.with(p("Used in 0 programs."));
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
@@ -485,11 +486,13 @@ public final class QuestionsListView extends BaseHtmlView {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
-    boolean isEmpty() {
-      return usedPrograms().isEmpty()
-          && addedPrograms().isEmpty()
-          && removedPrograms().isEmpty()
-          && disabledPrograms().isEmpty();
+    boolean isEmpty(boolean includeDisabledPrograms) {
+      boolean usedAndAddedAndRemovedProgramsIsEmpty =
+          usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+      if (includeDisabledPrograms) {
+        return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
+      }
+      return usedAndAddedAndRemovedProgramsIsEmpty;
     }
 
     int getTotalNumReferencingPrograms() {
@@ -566,8 +569,10 @@ public final class QuestionsListView extends BaseHtmlView {
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
       GroupedReferencingPrograms referencingPrograms,
-      Optional<DomContent> modalHeader) {
-    if (referencingPrograms.isEmpty()) {
+      Optional<DomContent> modalHeader,
+      Http.Request request) {
+    if (referencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       return Optional.empty();
     }
 
@@ -800,7 +805,7 @@ public final class QuestionsListView extends BaseHtmlView {
         GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(), referencingPrograms, Optional.of(modalHeader));
+                definition.getName(), referencingPrograms, Optional.of(modalHeader), request);
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
