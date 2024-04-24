@@ -5,10 +5,7 @@
     <h1 th:text="#{title.getStarted}"></h1>
     <p th:text="#{content.reviewPageIntro}"></p>
     <ul class="usa-card-group">
-      <li
-        class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4"
-        th:each="block: ${blocks}"
-      >
+      <li class="usa-card grid-col-12" th:each="block: ${blocks}">
         <div class="usa-card__container">
           <div class="usa-card__header">
             <span

@@ -241,7 +241,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
   }
 
   private LiTag renderClientCard(AccountModel account, Messages messages) {
-    return li().withClass("usa-card tablet-lg:grid-col-6 widescreen:grid-col-4")
+    return li().withClass("usa-card grid-col-12")
         .with(
             div()
                 .withClass("usa-card__container")

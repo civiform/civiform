@@ -353,13 +353,13 @@ test.describe('address applicant flow', {tag: ['@uses-fixtures']}, () => {
       const programName = 'Test program for single address'
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await setUpProgramWithSingleAddressQuestion(
           page,
           adminQuestions,
           adminPrograms,
           programName,
         )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
