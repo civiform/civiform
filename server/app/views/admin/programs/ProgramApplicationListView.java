@@ -118,31 +118,33 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadModal.getButton(),
                     filterParams,
                     request),
-                renderApplicationsTable(
-                        paginatedApplications.getPageContents(),
-                        allPossibleProgramApplicationStatuses,
-                        hasEligibilityEnabled,
-                        defaultStatus,
-                        program)
-                    .withClasses("usa-table-container--scrollable", "usa-table--borderless")
-                    .withTabindex(0)
-                    .condWith(
-                        paginatedApplications.getNumPages() > 1,
-                        renderPagination(
-                            paginationSpec.getCurrentPage(),
-                            paginatedApplications.getNumPages(),
-                            pageNumber ->
-                                routes.AdminApplicationController.index(
-                                    program.id(),
-                                    filterParams.search(),
-                                    Optional.of(pageNumber),
-                                    filterParams.fromDate(),
-                                    filterParams.untilDate(),
-                                    filterParams.selectedApplicationStatus(),
-                                    /* selectedApplicationUri= */ Optional.empty()))))
+                div(
+                    div(renderApplicationsTable(
+                            paginatedApplications.getPageContents(),
+                            allPossibleProgramApplicationStatuses,
+                            hasEligibilityEnabled,
+                            defaultStatus,
+                            program))
+                        .withClasses("usa-table-container--scrollable", "usa-table--borderless")
+                        .withTabindex(0)),
+                div(div()
+                        .condWith(
+                            paginatedApplications.getNumPages() > 1,
+                            renderPagination(
+                                paginationSpec.getCurrentPage(),
+                                paginatedApplications.getNumPages(),
+                                pageNumber ->
+                                    routes.AdminApplicationController.index(
+                                        program.id(),
+                                        filterParams.search(),
+                                        Optional.of(pageNumber),
+                                        filterParams.fromDate(),
+                                        filterParams.untilDate(),
+                                        filterParams.selectedApplicationStatus(),
+                                        /* selectedApplicationUri= */ Optional.empty()))))
+                    .withClasses("flex", "items-start"))
             .withClasses(
                 "mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2", "w-1/3");
-    // .withClasses( "flex-col", "justify-end","items-start","inline-flex");
 
     DivTag applicationShowDiv =
         div()
@@ -435,7 +437,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .with(td(eligibility))
         .condWith(displayStatus, td(statusString))
         .with(td(renderSubmitTime(application)))
-        .withClass(ReferenceClasses.ADMIN_APPLICATION_CARD);
+        .withClass(ReferenceClasses.ADMIN_APPLICATION_ROW);
   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
