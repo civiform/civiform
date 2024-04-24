@@ -16,7 +16,7 @@ import services.program.ProgramDefinition;
  *
  * <p>The template which uses this is defined in ProgramCardsSectionFragment.html
  */
-public class ProgramCardsSectionParamsFactory {
+public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
 
   @Inject
