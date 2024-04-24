@@ -877,6 +877,7 @@ export class AdminPrograms {
       .getByRole('row')
       .filter({hasText: applicantName})
       .getByRole('link')
+      .click()
   }
 
   selectQuestionWithinBlock(question: string) {
@@ -931,7 +932,7 @@ export class AdminPrograms {
   async viewApplicationForApplicant(applicantName: string) {
     await Promise.all([
       this.waitForApplicationFrame(),
-      this.page.click(this.selectWithinApplicationForApplicant(applicantName)),
+      this.selectWithinApplicationForApplicant(applicantName),
     ])
   }
 
