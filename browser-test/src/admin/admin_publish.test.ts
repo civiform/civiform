@@ -1,7 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
-import {waitForAnyModal} from "../support/wait";
 
 test.describe(
   'publishing all draft questions and programs',
@@ -84,48 +83,42 @@ test.describe(
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-      await  loginAsAdmin(page)
+      await loginAsAdmin(page)
 
-      //Create a disabled program
+      // Create a disabled program
       await adminPrograms.addDisabledProgram(disabledProgram)
-
-      //Create a new question referenced by a program
+      // Create a new question referenced by the pubic program
       await adminQuestions.addAddressQuestion({questionName, questionText})
       await adminPrograms.addProgram(publicProgram)
-      await adminPrograms.editProgramBlock(
-        publicProgram,
-        'dummy description',
-      [questionName],
-      )
-      // Publish.
+      await adminPrograms.editProgramBlock(publicProgram, 'dummy description', [
+        questionName,
+      ])
+      // Publish all drafts.
       await adminPrograms.publishAllDrafts()
-
       // Make an edit to the disabled program.
       await adminPrograms.createNewVersion(disabledProgram)
-
       // Make an edit to the shared question.
       await adminQuestions.createNewVersion(questionName)
-
       await adminPrograms.gotoAdminProgramsPage()
-      // beforeEach
     })
 
-      test('shows programs and questions that will be publised in the modal, including disabled programs', async({
-        adminPrograms,
-      }) => {
-        await adminPrograms.expectProgramReferencesModalContains({
-          expectedQuestionsContents: [`${draftQuestionText} - Edit`],
-          expectedProgramsContents: [
-            `${disabledProgram} (Hidden from applicants and TIs) Edit`,
-            `${publicProgram} (Publicly visible) Edit`,
-          ],
-        })
-        await adminPrograms.openPublishAllDraftsModal()
-        await validateScreenshot( adminPrograms.publishAllProgramsModalLocator(),
-          'publish-modal-including-disabled-programs',)
+    test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
+      adminPrograms,
+    }) => {
+      await adminPrograms.expectProgramReferencesModalContains({
+        expectedQuestionsContents: [`${draftQuestionText} - Edit`],
+        expectedProgramsContents: [
+          `${disabledProgram} (Hidden from applicants and TIs) Edit`,
+          `${publicProgram} (Publicly visible) Edit`,
+        ],
       })
-
-  }
+      await adminPrograms.openPublishAllDraftsModal()
+      await validateScreenshot(
+        adminPrograms.publishAllProgramsModalLocator(),
+        'publish-modal-including-disabled-programs',
+      )
+    })
+  },
 )
 
 test.describe(
