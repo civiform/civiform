@@ -62,7 +62,9 @@ button.nextScreen=Save and next
 button.previousScreen=Previous
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
@@ -112,6 +114,7 @@ title.allProgramsSection=All programs ({0})
 title.status=Status
 title.inProgressProgramsUpdated=In progress
 title.activeProgramsUpdated=Not started
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
 title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
