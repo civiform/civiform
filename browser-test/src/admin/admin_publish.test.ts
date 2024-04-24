@@ -74,49 +74,55 @@ test.describe(
   'publishing all programs with disabled programs feature flag on',
   {tag: ['@uses-fixtures']},
   () => {
-    const disabledProgram = 'Disabled test program'
-    const publicProgram = 'Public test program'
-    const questionName = 'admin-publish-test-address-q'
-    const questionText = 'admin-publish-test-address-q'
-    // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
-    const draftQuestionText = `${questionText} new version`
-
-    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-      await loginAsAdmin(page)
-
-      // Create a disabled program
-      await adminPrograms.addDisabledProgram(disabledProgram)
-      // Create a new question referenced by the pubic program
-      await adminQuestions.addAddressQuestion({questionName, questionText})
-      await adminPrograms.addProgram(publicProgram)
-      await adminPrograms.editProgramBlock(publicProgram, 'dummy description', [
-        questionName,
-      ])
-      // Publish all drafts.
-      await adminPrograms.publishAllDrafts()
-      // Make an edit to the disabled program.
-      await adminPrograms.createNewVersion(disabledProgram)
-      // Make an edit to the shared question.
-      await adminQuestions.createNewVersion(questionName)
-      await adminPrograms.gotoAdminProgramsPage()
-    })
-
     test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
+      page,
       adminPrograms,
+      adminQuestions,
     }) => {
-      await adminPrograms.expectProgramReferencesModalContains({
-        expectedQuestionsContents: [`${draftQuestionText} - Edit`],
-        expectedProgramsContents: [
-          `${disabledProgram} (Hidden from applicants and TIs) Edit`,
-          `${publicProgram} (Publicly visible) Edit`,
-        ],
+      const disabledProgram = 'Disabled test program'
+      const publicProgram = 'Public test program'
+      const questionName = 'admin-publish-test-address-q'
+      const questionText = 'admin-publish-test-address-q'
+      // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
+      const draftQuestionText = `${questionText} new version`
+      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+
+      await test.step('Log in as a civiform admin and create a public program and a disabled program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addDisabledProgram(disabledProgram)
+        await adminPrograms.addProgram(publicProgram)
       })
-      await adminPrograms.openPublishAllDraftsModal()
-      await validateScreenshot(
-        adminPrograms.publishAllProgramsModalLocator(),
-        'publish-modal-including-disabled-programs',
-      )
+
+      await test.step('Create a new question referenced by the public program', async () => {
+        await adminQuestions.addAddressQuestion({questionName, questionText})
+        await adminPrograms.editProgramBlock(
+          publicProgram,
+          'dummy description',
+          [questionName],
+        )
+        await adminPrograms.publishAllDrafts()
+      })
+
+      await test.step('Make an edit to the disabled program and to the shared question', async () => {
+        await adminPrograms.createNewVersion(disabledProgram)
+        await adminQuestions.createNewVersion(questionName)
+      })
+
+      await test.step('Trigger publish all draft modal and verify the visibility text for the disabled program shows up as expected', async () => {
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.expectProgramReferencesModalContains({
+          expectedQuestionsContents: [`${draftQuestionText} - Edit`],
+          expectedProgramsContents: [
+            `${disabledProgram} (Hidden from applicants and Trusted Intermediaries) Edit`,
+            `${publicProgram} (Publicly visible) Edit`,
+          ],
+        })
+        await adminPrograms.openPublishAllDraftsModal()
+        await validateScreenshot(
+          adminPrograms.publishAllProgramsModalLocator(),
+          'publish-modal-including-disabled-programs',
+        )
+      })
     })
   },
 )
