@@ -5,9 +5,9 @@
   <body data-load-modal="true">
     <div>
       <header>
-        <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
+        <!-- <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div> -->
       </header>
-      <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
+      <form enctype="multipart/form-data" method="POST" th:class="${fileUploadViewStrategy.getUploadFormClass()}">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
         <button
           type="submit"

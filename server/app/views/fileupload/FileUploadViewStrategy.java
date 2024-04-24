@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
@@ -45,6 +46,10 @@ public abstract class FileUploadViewStrategy {
         .withClasses(getUploadFormClass());
   }
 
+  public String formAction(StorageUploadRequest request) {
+    return null;
+  }
+
   /**
    * Creates a list of all the **additional** input tags required for the file upload form to
    * correctly connect to and authenticate with the cloud storage provider.
@@ -52,6 +57,9 @@ public abstract class FileUploadViewStrategy {
    * <p>Important: This specifically does *not* include the required <input type="file"> element.
    */
   public abstract ImmutableList<InputTag> additionalFileUploadFormInputs(
+      Optional<StorageUploadRequest> request);
+
+  public abstract ImmutableMap<String, String> additionalFileUploadFormInputFields(
       Optional<StorageUploadRequest> request);
 
   /** Creates a list of footer tags needed on a page rendering a file upload form. */

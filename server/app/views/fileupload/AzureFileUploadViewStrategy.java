@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
@@ -43,6 +44,19 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withName("successActionRedirect")
             .withValue(signedRequest.successActionRedirect()));
     return builder.build();
+  }
+
+  @Override
+  public ImmutableMap<String, String> additionalFileUploadFormInputFields(
+      Optional<StorageUploadRequest> request) {
+        BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
+        return ImmutableMap.of(
+            "fileName", signedRequest.fileName(),
+            "sasToken", signedRequest.sasToken(),
+            "blobUrl", signedRequest.blobUrl(),
+            "containerName", signedRequest.containerName(),
+            "accountName", signedRequest.accountName(),
+            "successActionRedirect", signedRequest.successActionRedirect());
   }
 
   private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {

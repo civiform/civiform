@@ -12,20 +12,26 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.applicant.question.AddressQuestion;
+import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.StorageUploadRequest;
 import views.ApplicationBaseViewParams;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.fileupload.FileUploadViewStrategy;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
+  private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      FileUploadViewStrategy fileUploadViewStrategy) {
     super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
@@ -44,11 +50,27 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     // TODO include signed request
+    // Include file upload specific parameters.
+    if (applicationParams.block().isFileUpload()) {
+      context.setVariable(
+          "fileUploadViewStrategy", fileUploadViewStrategy);
+    }
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
   private String getFormAction(
       ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
+    if (params.block().isFileUpload()) {
+      return applicantRoutes
+      .updateFile(
+          params.profile(),
+          params.applicantId(),
+          params.programId(),
+          params.block().getId(),
+          params.inReview(),
+          nextAction)
+      .url();
+    }
     return applicantRoutes
         .updateBlock(
             params.profile(),
@@ -58,6 +80,24 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
             params.inReview(),
             nextAction)
         .url();
+  }
+
+  private String getFileUploadSuccessUrl(ApplicationBaseViewParams params) {
+    return params.baseUrl()
+        + applicantRoutes
+            .updateFile(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview(),
+                ApplicantRequestedAction.NEXT_BLOCK)
+            .url();
+  }
+
+  private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
+    return ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+        params.applicantId(), params.programId(), params.block().getId());
   }
 
   // Returns a mapping from Question ID to Renderer params for that question.
@@ -73,15 +113,25 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
                   if (question.hasErrors()) {
                     ordinalErrorCount.incrementAndGet();
                   }
-                  return ApplicantQuestionRendererParams.builder()
-                      .setMessages(params.messages())
-                      .setErrorDisplayMode(params.errorDisplayMode())
-                      .setAutofocus(
-                          calculateAutoFocusTarget(
-                              params.errorDisplayMode(),
-                              params.block().hasErrors(),
-                              ordinalErrorCount.get()))
-                      .build();
+                  ApplicantQuestionRendererParams.Builder paramsBuilder =
+                      ApplicantQuestionRendererParams.builder()
+                          .setMessages(params.messages())
+                          .setErrorDisplayMode(params.errorDisplayMode())
+                          .setAutofocus(
+                              calculateAutoFocusTarget(
+                                  params.errorDisplayMode(),
+                                  params.block().hasErrors(),
+                                  ordinalErrorCount.get()));
+                  if (params.block().isFileUpload()) {
+                    StorageUploadRequest signedRequest =
+                        params
+                            .applicantStorageClient()
+                            .getSignedUploadRequest(
+                                getFileUploadSignedRequestKey(params),
+                                getFileUploadSuccessUrl(params));
+                    paramsBuilder.setSignedFileUploadRequest(signedRequest);
+                  }
+                  return paramsBuilder.build();
                 }));
   }
 

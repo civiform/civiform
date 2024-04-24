@@ -3,6 +3,7 @@ package views.fileupload;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
@@ -49,9 +50,33 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
+  public ImmutableMap<String, String> additionalFileUploadFormInputFields(
+      Optional<StorageUploadRequest> request) {
+    SignedS3UploadRequest signedRequest = castStorageRequest(request.get());
+    ImmutableMap.Builder<String, String> mapBuilder =
+        new ImmutableMap.Builder<String, String>()
+            .put("key", signedRequest.key())
+            .put("success_action_redirect", signedRequest.successActionRedirect())
+            .put("X-Amz-Credential", signedRequest.credential())
+            .put("X-Amz-Algorithm", signedRequest.algorithm())
+            .put("X-Amz-Date", signedRequest.date())
+            .put("X-Amz-Signature", signedRequest.signature())
+            .put("Policy", signedRequest.policy());
+    if (!signedRequest.securityToken().isEmpty()) {
+      mapBuilder.put("X-Amz-Security-Token", signedRequest.securityToken());
+    }
+    return mapBuilder.build();
+  }
+
+  @Override
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
     return super.renderFileUploadFormElement(request).withAction(signedRequest.actionLink());
+  }
+
+  @Override public String formAction(StorageUploadRequest request) {
+    SignedS3UploadRequest signedRequest = castStorageRequest(request);
+    return signedRequest.actionLink();
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
