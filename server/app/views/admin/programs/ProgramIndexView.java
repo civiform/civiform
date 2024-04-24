@@ -388,7 +388,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String visibilityText = " ";
     switch (program.displayMode()) {
       case DISABLED:
-        visibilityText = " (Hidden from applicants and TIs)";
+        visibilityText = " (Hidden from applicants and TIs) ";
         break;
       case HIDDEN_IN_INDEX:
         visibilityText = " (Hidden from applicants) ";

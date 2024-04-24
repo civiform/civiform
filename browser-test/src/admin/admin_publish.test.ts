@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -68,6 +68,63 @@ test.describe(
       )
     })
   },
+)
+
+test.describe(
+  'publishing all programs with disabled programs feature flag on',
+  {tag: ['@uses-fixtures']},
+  () => {
+    const disabledProgram = 'Disabled test program'
+    const publicProgram = 'Public test program'
+    const questionName = 'admin-publish-test-address-q'
+    const questionText = 'admin-publish-test-address-q'
+    // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
+    const draftQuestionText = `${questionText} new version`
+
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+      await  loginAsAdmin(page)
+
+      //Create a disabled program
+      await adminPrograms.addDisabledProgram(disabledProgram)
+
+      //Create a new question referenced by a program
+      await adminQuestions.addAddressQuestion({questionName, questionText})
+      await adminPrograms.addProgram(publicProgram)
+      await adminPrograms.editProgramBlock(
+        publicProgram,
+        'dummy description',
+      [questionName],
+      )
+      // Publish.
+      await adminPrograms.publishAllDrafts()
+
+      // Make an edit to the disabled program.
+      await adminPrograms.createNewVersion(disabledProgram)
+
+      // Make an edit to the shared question.
+      await adminQuestions.createNewVersion(questionName)
+
+      await adminPrograms.gotoAdminProgramsPage()
+      // beforeEach
+    })
+
+      test('shows programs and questions that will be publised in the modal, including disabled programs', async({
+        page, adminPrograms,
+      }) => {
+        await adminPrograms.openPublishAllDraftsModal()
+        await adminPrograms.expectProgramReferencesModalContains({
+          expectedQuestionsContents: [`${draftQuestionText} - Edit`],
+          expectedProgramsContents: [
+            `${disabledProgram} (Hidden from applicants and TIs) Edit`,
+            `${publicProgram} (Publicly visible) Edit`,
+          ],
+        })
+        await validateScreenshot( page,
+          'publish-modal-including-disabled-programs',)
+      })
+
+  }
 )
 
 test.describe(
