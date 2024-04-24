@@ -295,4 +295,42 @@ public class FieldWithLabelTest {
 
     assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
   }
+
+  @Test
+  public void buildBaseContainer_containsMarkdownIndicatorWhenSet() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.textArea()
+            .setMarkdownSupported(true)
+            .setMarkdownText("Markdown is supported, ")
+            .setMarkdownLinkText("see how it works");
+    String renderedWithDefaultUrl = fieldWithLabel.getTextareaTag().render();
+    // Assert contains markdown icon
+    assertThat(renderedWithDefaultUrl)
+        .contains(
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\""
+                + " stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0"
+                + " -960 960 960\" class=\"h-6 w-6\"><path d=\"m640-360 120-120-42-43-48"
+                + " 48v-125h-60v125l-48-48-42 43 120 120ZM140-160q-24 0-42-18t-18-42v-520q0-24"
+                + " 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42"
+                + " 18H140Zm0-60h680v-520H140v520Zm0 0v-520"
+                + " 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14"
+                + " 0-27 13t-13 27v200Z\">");
+    // Assert contains text
+    assertThat(renderedWithDefaultUrl).contains("Markdown is supported, ");
+    // Assert contains link text with default url
+    assertThat(renderedWithDefaultUrl)
+        .contains(
+            "<a href=\"https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown\""
+                + " target=\"_blank\" class=\"text-blue-600 hover:text-blue-500 inline-flex"
+                + " items-center\">see how it works</a>");
+
+    // Set custom url for link text
+    fieldWithLabel.setMarkdownLinkText("click here for details", "https://www.example.com");
+    String renderedWithCustomUrl = fieldWithLabel.getTextareaTag().render();
+    // Assert default url was overridden with new url
+    assertThat(renderedWithCustomUrl)
+        .contains(
+            "<a href=\"https://www.example.com\" target=\"_blank\" class=\"text-blue-600"
+                + " hover:text-blue-500 inline-flex items-center\">click here for details</a>");
+  }
 }

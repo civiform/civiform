@@ -126,6 +126,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setRequired(true)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Markdown is supported")
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, programEditStatus),
@@ -142,6 +144,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 "A custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"
                     + " application process and/or highlight other programs to apply for.")
+            .setMarkdownSupported(true)
+            .setMarkdownText("Markdown is supported")
             .setValue(confirmationSceen)
             .getTextareaTag(),
         h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),

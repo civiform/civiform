@@ -20,6 +20,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TextareaTag;
 import java.util.List;
 import java.util.Optional;
@@ -87,6 +88,11 @@ public class FieldWithLabel {
   private boolean required = false;
   private boolean ariaRequired = false;
   private boolean focusOnInput = false;
+  private boolean markdownSupported = false;
+  private String markdownText = "";
+  private String markdownLinkText = "";
+  private String markdownLinkHref =
+      "https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown";
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
@@ -335,6 +341,40 @@ public class FieldWithLabel {
   }
 
   /**
+   * Set this field to render an indicator that markdown is supported on this field. Use the methods
+   * below to set the text that should be displayed alongside the icon.
+   */
+  public FieldWithLabel setMarkdownSupported(boolean markdownSupported) {
+    this.markdownSupported = markdownSupported;
+    return this;
+  }
+
+  /** Set this field for the main text that should be displayed next to the markdown indicator. */
+  public FieldWithLabel setMarkdownText(String markdownText) {
+    this.markdownText = markdownText;
+    return this;
+  }
+
+  /**
+   * Set this field for link text to be displayed after the main markdown indicator text and link
+   * out to a custom url
+   */
+  public FieldWithLabel setMarkdownLinkText(String markdownLinkText, String markdownLinkHref) {
+    this.markdownLinkText = markdownLinkText;
+    this.markdownLinkHref = markdownLinkHref;
+    return this;
+  }
+
+  /**
+   * Set this field for link text to be displayed after the main markdown indicator text and link
+   * out to our markdown documentation
+   */
+  public FieldWithLabel setMarkdownLinkText(String markdownLinkText) {
+    this.markdownLinkText = markdownLinkText;
+    return this;
+  }
+
+  /**
    * Sets the aria-required attribute indicating whether or not the field is required for a11y
    * purposes without making any visible UI changes. If instead you need the UI to reflect that the
    * field is required, use setRequired().
@@ -570,10 +610,25 @@ public class FieldWithLabel {
             span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
   }
 
+  private SpanTag buildMarkdownIndicator() {
+    SpanTag text = span(markdownText);
+    if (!markdownLinkText.isBlank()) {
+      text.with(
+          new LinkElement()
+              .setText(markdownLinkText)
+              .setHref(markdownLinkHref)
+              .opensInNewTab()
+              .asAnchorText());
+    }
+
+    return span(Icons.svg(Icons.MARKDOWN).withClasses("h-6", "w-6"), text.withClasses("text-sm"))
+        .withClasses("flex", "flex-row");
+  }
+
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
-    return div(
-            labelTag,
-            div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
+    return div(labelTag)
+        .condWith(markdownSupported, buildMarkdownIndicator())
+        .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
