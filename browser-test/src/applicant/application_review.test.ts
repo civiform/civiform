@@ -424,7 +424,7 @@ test.describe(
 
         for (let i = 0; i < answers.length; i++) {
           await page.click(
-            `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
+            `:nth-match(.cf-admin-application-row, ${i + 1}) a:text("Guest")`,
           )
           await adminPrograms.waitForApplicationFrame()
           await adminPrograms.expectApplicationAnswers(

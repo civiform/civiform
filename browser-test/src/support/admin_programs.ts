@@ -902,13 +902,13 @@ export class AdminPrograms {
   }) {
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
-      await this.page.selectOption('label:has-text("Application status")', {
+      await this.page.selectOption('label:has-text("- Filter by status -")', {
         label: applicationStatusOption,
       })
     }
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.click('button:has-text("Filter")'),
+      await this.page.click('button:has-text("Search")'),
     ])
     await waitForPageJsLoad(this.page)
   }
