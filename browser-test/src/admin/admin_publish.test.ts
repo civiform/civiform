@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
+import {waitForAnyModal} from "../support/wait";
 
 test.describe(
   'publishing all draft questions and programs',
@@ -110,9 +111,8 @@ test.describe(
     })
 
       test('shows programs and questions that will be publised in the modal, including disabled programs', async({
-        page, adminPrograms,
+        adminPrograms,
       }) => {
-        await adminPrograms.openPublishAllDraftsModal()
         await adminPrograms.expectProgramReferencesModalContains({
           expectedQuestionsContents: [`${draftQuestionText} - Edit`],
           expectedProgramsContents: [
@@ -120,7 +120,8 @@ test.describe(
             `${publicProgram} (Publicly visible) Edit`,
           ],
         })
-        await validateScreenshot( page,
+        await adminPrograms.openPublishAllDraftsModal()
+        await validateScreenshot( adminPrograms.publishAllProgramsModalLocator(),
           'publish-modal-including-disabled-programs',)
       })
 
