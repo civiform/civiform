@@ -2,8 +2,12 @@
 <html>
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
   <body>
-      <h1 th:text="#{content.findPrograms}"></h1>
-      <div th:text="#{content.findProgramsDescription}"></div>
+    <h1 th:text="#{content.findPrograms}"></h1>
+    <div th:text="#{content.findProgramsDescription}"></div>
+    <div
+      th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cards})}"
+    ></div>
+    <div id="modal-container"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

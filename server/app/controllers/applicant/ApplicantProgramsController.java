@@ -4,20 +4,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CompletionStage;
-
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.pac4j.play.java.Secure;
-
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -35,7 +32,6 @@ import views.applicant.ApplicantProgramInfoView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
-
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -98,29 +94,38 @@ public final class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
-          applicationPrograms -> {
-            Result result;
-            if (settingsManifest.getNorthStarApplicantUi(request)) {
-              result= ok(northStarProgramIndexView.render(
-                      request))
-                  .as(Http.MimeTypes.HTML);
-            } else {
-              result = ok(programIndexView.render(
-                messagesApi.preferred(request),
-                request,
-                applicantId,
-                applicantStage.toCompletableFuture().join(),
-                applicationPrograms,
-                banner,
-                requesterProfile.orElseThrow(
-                    () -> new MissingOptionalException(CiviFormProfile.class))));
-            }
+            applicationPrograms -> {
+              Result result;
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                result =
+                    ok(northStarProgramIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))))
+                        .as(Http.MimeTypes.HTML);
+              } else {
+                result =
+                    ok(
+                        programIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            banner,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))));
+              }
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
               // logging in.
               return result.removingFromSession(request, REDIRECT_TO_SESSION_KEY);
             },
-          classLoaderExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

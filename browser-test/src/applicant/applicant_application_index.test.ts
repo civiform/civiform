@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -51,6 +52,7 @@ test.describe('applicant program index page', () => {
 
     await adminPrograms.publishAllDrafts()
     await logout(page)
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('shows log in button for guest users', async () => {
@@ -250,6 +252,17 @@ test.describe('applicant program index page', () => {
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
+  })
+
+  test.describe('with northstar UI', {tag: ['@northstar']}, () => {
+    test('validate initial page load with guest user', async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await validateScreenshot(
+        page,
+        'program-index-page-initial-load-northstar',
+      )
+    })
   })
 })
 
