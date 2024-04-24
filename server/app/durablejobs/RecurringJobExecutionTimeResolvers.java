@@ -72,19 +72,6 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Nightly at 2am local time. Used for the FIX_APPLICANT_DOB_DATA_PATH job. */
-  public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
-
-    @Override
-    public Instant resolveExecutionTime(Clock clock) {
-      return LocalDate.now(clock)
-          .plusDays(1)
-          .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
-          .toInstant();
-    }
-  }
-
   /** Nightly at 3am local time. Used for the MIGRATE_PRIMARY_APPLICANT_INFO job. */
   public static final class Nightly3Am implements RecurringJobExecutionTimeResolver {
 
