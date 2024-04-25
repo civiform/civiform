@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu o
 toast.errorMessageOutline=Khalad: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Xidh
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Dib u eeg
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
 
@@ -58,9 +60,12 @@ button.deleteFile=Tirtir
 button.keepFile=Sii wad
 button.nextScreen=Tan Xiga
 button.previousScreen=Hore
-button.review=Dib u eeg
 button.skipFileUpload=Ka bood
 content.blockProgress={0} ee {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
@@ -109,6 +114,8 @@ title.allProgramsSection=Dhammaan barnaamijyada ({0})
 title.status=Heerka
 title.inProgressProgramsUpdated=Socda hadda
 title.activeProgramsUpdated=Lama bilaabin
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=La gudbiyay
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=Gudbi
 button.continue=Sii wad
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Uma qalmo
 link.edit=Wax ka beddel
 link.answer=Jawaab
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
 ariaLabel.answer=Jawaab {0}
 
 ariaLabel.edit=Wax ka beddel {0}
-title.programSummary=Soo koobida barnaamijka codsiga
 title.commonIntakeSummary=Faa'iidooyinka hore u baadhaha oo kooban
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Soo koobida barnaamijka codsiga
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
