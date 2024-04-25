@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「
 toast.errorMessageOutline=發生錯誤: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=關閉
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=檢查
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
 
@@ -58,9 +60,12 @@ button.deleteFile=刪除
 button.keepFile=繼續
 button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
-button.review=檢查
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
@@ -109,6 +114,8 @@ title.allProgramsSection=所有計畫 ({0})
 title.status=狀態
 title.inProgressProgramsUpdated=進行中
 title.activeProgramsUpdated=未開始
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 toast.programCompleted=已完成申請。
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=提交
 button.continue=繼續
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=不符合資格
 link.edit=編輯
 link.answer=回答問題
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=已於 {0}回答
 ariaLabel.answer=回答以下問題：{0}
 
 ariaLabel.edit=編輯「{0}」
-title.programSummary=計畫申請摘要
 title.commonIntakeSummary=福利預先篩選表單摘要
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=計畫申請摘要
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
