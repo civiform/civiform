@@ -134,7 +134,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             filterParams.fromDate(),
                             filterParams.untilDate(),
                             filterParams.selectedApplicationStatus(),
-                            /* selectedApplicationUri= */ Optional.empty())))
+                            /* selectedApplicationUri= */ Optional.empty()),
+                    /* optionalMessages */ Optional.empty()))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
