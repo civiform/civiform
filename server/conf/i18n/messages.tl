@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka r
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Isara
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Pagsusuri
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 
@@ -58,9 +60,12 @@ button.deleteFile=Burahin
 button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
-button.review=Pagsusuri
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
@@ -109,6 +114,8 @@ title.allProgramsSection=Lahat ng programa ({0})
 title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 toast.programCompleted=Nakumpleto na ang aplikasyon.
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=Isumite
 button.continue=Magsimula dito
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Hindi kwalipikado
 link.edit=I-edit
 link.answer=Sagot
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=Sinagutan noong {0}
 ariaLabel.answer=Sagot {0}
 
 ariaLabel.edit=I-edit {0}
-title.programSummary=Buod ng application para sa programa
 title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Buod ng application para sa programa
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
