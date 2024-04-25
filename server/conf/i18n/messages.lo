@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? �
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=ປິດ
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=ກວດສອບ
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=ເປີດໃນແຖບໃໝ່
 
@@ -58,9 +60,12 @@ button.deleteFile=ລຶບ
 button.keepFile=ສືບຕໍ່
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
-button.review=ກວດສອບ
 button.skipFileUpload=ຂ້າມ
 content.blockProgress={0} ຈາກທັງໝົດ {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງການນີ້ບໍ່ໄດ້ແປເປັນພາສາທີ່ທ່ານຕ້ອງການຢ່າງສົມບູນຄົບຖ້ວນ.
@@ -109,6 +114,8 @@ title.allProgramsSection=ໂຄງການທັງໝົດ ({0})
 title.status=ສະຖານະ
 title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=ສົ່ງແລ້ວ
 toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດແລ້ວ: ລະຫັດໃບສະໝັກ {0}
 toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=ສົ່ງ
 button.continue=ສືບຕໍ່
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
 link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=ຕອບກ່ອນໜ້ານີ້ເມື່
 ariaLabel.answer=ຕອບ {0}
 
 ariaLabel.edit=ແກ້ໄຂ {0}
-title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
 title.commonIntakeSummary=ສະຫຼຸບສິດທິປະໂຫຍດກວດສອບລ່ວງໜ້າ
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
