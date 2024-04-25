@@ -7,6 +7,7 @@ import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import views.html.helper.CSRF;
 
 public abstract class NorthStarApplicantBaseView {
   protected final TemplateEngine templateEngine;
@@ -32,6 +33,7 @@ public abstract class NorthStarApplicantBaseView {
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
+    context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     return context;
   }
 }

@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Close
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Review
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
 
@@ -58,9 +60,12 @@ button.deleteFile=Delete
 button.keepFile=Continue
 button.nextScreen=Save and next
 button.previousScreen=Previous
-button.review=Review
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
@@ -109,6 +114,8 @@ title.allProgramsSection=All programs ({0})
 title.status=Status
 title.inProgressProgramsUpdated=In progress
 title.activeProgramsUpdated=Not started
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
 toast.programCompleted=Application was already completed.
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=Submit
 button.continue=Continue
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Does not qualify
 link.edit=Edit
 link.answer=Answer
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=Previously answered on {0}
 ariaLabel.answer=Answer {0}
 
 ariaLabel.edit=Edit {0}
-title.programSummary=Program application summary
 title.commonIntakeSummary=Benefits pre-screener summary
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Program application summary
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

@@ -106,6 +106,26 @@ test.describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
+    test.describe(
+      'review page with North Star enabled',
+      {tag: ['@northstar']},
+      () => {
+        test('validate screenshot', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'north_star_applicant_ui')
+          await applicantQuestions.clickApplyProgramButton(programName)
+
+          await validateScreenshot(
+            page,
+            'north-star-program-preview',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+          await disableFeatureFlag(page, 'north_star_applicant_ui')
+        })
+      },
+    )
+
     test.describe('next button', () => {
       test('next block progression', async () => {
         const {page, applicantQuestions} = ctx
