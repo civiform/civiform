@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -42,6 +43,7 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.style.AdminStyles;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -149,6 +151,19 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     cardData ->
                                         programCardFactory.renderCard(request, cardData)))));
 
+    contentDiv.with(
+      renderFilterLink(
+        "In use",
+        "In use",
+        controllers.admin.routes.AdminProgramController.index().url()
+      ),
+      renderFilterLink(
+        "Disabled",
+        "Disabled",
+        controllers.admin.routes.AdminProgramController.indexDisabled().url()
+      )
+    );
+
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
@@ -172,6 +187,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private ATag renderFilterLink(String status, String selectedStatus, String redirectLocation) {
+    String styles =
+      selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
+    return new LinkElement()
+      .setText(status)
+      .setHref(redirectLocation)
+      .setStyles(styles)
+      .asAnchorText();
   }
 
   private Modal renderDemographicsCsvModal() {
