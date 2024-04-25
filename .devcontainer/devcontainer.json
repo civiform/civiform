@@ -27,7 +27,8 @@
       "jdkVersion": "11",
       "jdkDistro": "tem"
     },
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/python:1": {}
   },
 
   "customizations": {
@@ -69,7 +70,7 @@
 
   "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
   "updateContentCommand": "bin/vscode-setup",
-  "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
+  "postCreateCommand": "pip install requests && echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000],
