@@ -621,14 +621,19 @@ public class FieldWithLabel {
               .asAnchorText());
     }
 
-    return span(Icons.svg(Icons.MARKDOWN).withClasses("h-6", "w-6"), text.withClasses("text-sm"))
-        .withClasses("flex", "flex-row");
+    SvgTag markdownSvg =
+        Icons.setColor(Icons.svg(Icons.MARKDOWN), BaseStyles.FORM_LABEL_TEXT_COLOR);
+
+    return span(
+            markdownSvg.withClasses("h-6", "w-6", "mr-1"),
+            text.withClasses(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-sm"))
+        .withClasses("flex", "flex-row", "mt-2");
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(labelTag)
-        .condWith(markdownSupported, buildMarkdownIndicator())
         .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
+        .condWith(markdownSupported, buildMarkdownIndicator())
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

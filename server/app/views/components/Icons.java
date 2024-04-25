@@ -539,6 +539,11 @@ public enum Icons {
     return svg().with(path(icon.path)).attr("viewBox", iconViewBox);
   }
 
+  /** Helper method to override the default "currentColor" setting for svgs with a custom color */
+  public static SvgTag setColor(SvgTag svg, String color) {
+    return svg.attr("fill", color).attr("stroke", color);
+  }
+
   private static SvgTag svg() {
     return new SvgTag()
         .attr("xmlns", "http://www.w3.org/2000/svg")
