@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም �
 toast.errorMessageOutline=ስህተት: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=ዝጋ
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
 
@@ -58,9 +60,12 @@ button.deleteFile=ሰርዝ
 button.keepFile=ቀጥል
 button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
-button.review=ገምግም
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
@@ -109,6 +114,8 @@ title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
 title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=የገቡ
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=አስገባ
 button.continue=ቀጥል
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=ብቁ አይደለም
 link.edit=አርትዕ
 link.answer=መልስ
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥ�
 ariaLabel.answer=መልስ {0}
 
 ariaLabel.edit={0}ን አርትዕ
-title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
