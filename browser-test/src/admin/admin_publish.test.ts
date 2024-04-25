@@ -72,7 +72,7 @@ test.describe(
 
 test.describe(
   'publishing all programs with disabled programs feature flag on',
-  {tag: ['@uses-fixtures']},
+  {tag: ['@uses-fixtures', '@in-development']},
   () => {
     test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
       page,
@@ -83,7 +83,7 @@ test.describe(
       const publicProgram = 'Public test program'
       const questionName = 'admin-publish-test-address-q'
       const questionText = 'admin-publish-test-address-q'
-      // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
+      // adminPrograms.createNewVersion implicitly updates the question text to be suffixed with " new version".
       const draftQuestionText = `${questionText} new version`
       await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
 

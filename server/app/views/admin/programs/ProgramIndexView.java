@@ -343,7 +343,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     sortedDraftPrograms,
                                     program ->
                                         renderPublishModalProgramItem(
-                                            program, universalQuestionIds)))),
+                                            program, universalQuestionIds, request)))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
@@ -384,11 +384,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalProgramItem(
-      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds, Http.Request request) {
     String visibilityText = " ";
     switch (program.displayMode()) {
       case DISABLED:
-        visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
+        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+          visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
+        }
         break;
       case HIDDEN_IN_INDEX:
         visibilityText = " (Hidden from applicants) ";
