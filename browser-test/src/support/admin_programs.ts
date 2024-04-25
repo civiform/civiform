@@ -902,7 +902,7 @@ export class AdminPrograms {
   }) {
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
-      await this.page.selectOption('label:has-text("- Filter by status -")', {
+      await this.page.selectOption('#select-status-filter', {
         label: applicationStatusOption,
       })
     }

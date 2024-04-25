@@ -226,6 +226,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     div().withClass("mt-6"),
                     new SelectWithLabel()
                         .setFieldName(APPLICATION_STATUS_PARAM)
+                        .setId("select-status-filter")
                         .setValue(filterParams.selectedApplicationStatus().orElse(""))
                         .setOptionGroups(
                             ImmutableList.of(
