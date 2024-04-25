@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선
 toast.errorMessageOutline=오류: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=닫기
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
 
@@ -58,9 +60,12 @@ button.deleteFile=삭제
 button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
-button.review=검토
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
@@ -109,6 +114,8 @@ title.allProgramsSection=모든 프로그램({0})
 title.status=상태
 title.inProgressProgramsUpdated=진행 중
 title.activeProgramsUpdated=시작 안 함
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
@@ -254,8 +261,12 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 button.submit=제출
 button.continue=계속
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=자격요건을 충족하지 않음
 link.edit=편집
 link.answer=답변
@@ -263,8 +274,10 @@ content.previouslyAnsweredOn={0}에 답변됨
 ariaLabel.answer={0}에 답변
 
 ariaLabel.edit={0} 편집
-title.programSummary=프로그램 신청 요약
 title.commonIntakeSummary=혜택 사전 선별 요약
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=프로그램 신청 요약
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
