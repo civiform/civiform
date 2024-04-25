@@ -422,10 +422,14 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async expectReviewPage() {
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+  async expectReviewPage(northStarEnabled = false) {
+    if (northStarEnabled) {
+      await expect(this.page.locator('h1')).toContainText("Let's get started")
+    } else {
+      await expect(this.page.locator('h2')).toContainText(
+        'Program application summary',
+      )
+    }
   }
 
   async expectConfirmationPage() {
@@ -549,9 +553,9 @@ export class ApplicantQuestions {
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
 
-  async submitFromReviewPage() {
+  async submitFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    await this.expectReviewPage()
+    await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
     await this.clickSubmit()
