@@ -86,7 +86,7 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickNext()
 
       // Check that we are on the enumerator page
-      await expect(page.locator('.cf-question-enumerator')).toBeVisible(true)
+      await expect(page.locator('.cf-question-enumerator')).toBeVisible()
 
       // Validate that enumerators are accessible
       await validateAccessibility(page)
