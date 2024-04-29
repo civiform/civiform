@@ -74,7 +74,8 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     return super.renderFileUploadFormElement(request).withAction(signedRequest.actionLink());
   }
 
-  @Override public String formAction(StorageUploadRequest request) {
+  @Override
+  public String formAction(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
     return signedRequest.actionLink();
   }
@@ -88,7 +89,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected String getUploadFormClass() {
+  public String getUploadFormClass() {
     return "aws-upload";
   }
 

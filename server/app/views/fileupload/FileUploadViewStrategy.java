@@ -139,7 +139,7 @@ public abstract class FileUploadViewStrategy {
    * Returns strategy-specific class to add to the <form> element. It helps to distinguish
    * client-side different strategies (AWS or Azure).
    */
-  protected abstract String getUploadFormClass();
+  public abstract String getUploadFormClass();
 
   protected abstract ImmutableList<ScriptTag> extraScriptTags();
 }

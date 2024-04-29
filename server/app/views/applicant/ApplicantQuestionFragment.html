@@ -1,5 +1,5 @@
 <div
-  th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations, fileUploadViewStrategy)"
+  th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations)"
 >
   <!-- TODO(#6910): Investigate why we can't access enum types in Thymeleaf -->
   <th:block th:switch="${question.getType().getLabel()}">
@@ -31,11 +31,6 @@
     <th:block th:case="'Enumerator'">
       <div
         th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
-      ></div>
-    </th:block>
-    <th:block th:case="'File Upload'">
-      <div
-        th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams}, ${fileUploadViewStrategy})}"
       ></div>
     </th:block>
     <th:block th:case="'ID'">

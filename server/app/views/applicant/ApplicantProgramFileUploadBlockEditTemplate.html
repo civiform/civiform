@@ -4,11 +4,17 @@
   <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
   <body data-load-modal="true">
     <div>
-      <header>
-        <!-- <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div> -->
-      </header>
-      <form enctype="multipart/form-data" method="POST" th:class="${fileUploadViewStrategy.getUploadFormClass()}">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
+      <!-- <header>
+        <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
+      </header> -->
+      <form
+        enctype="multipart/form-data"
+        method="POST"
+        id="cf-block-form"
+        th:class="${fileUploadViewStrategy.getUploadFormClass()}"
+        th:with="question=${applicationParams.block().getQuestions().get(0)},questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},fileUploadQuestion=${question.createFileUploadQuestion()}"
+        th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
+      >
         <button
           type="submit"
           th:formaction="${previousFormAction}"
@@ -25,27 +31,84 @@
           th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
         ></div>
 
-        <div th:each="question: ${applicationParams.block().getQuestions()}">
-          <div
-            th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations}, ${fileUploadViewStrategy})}"
-          ></div>
+        <div
+          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionParams}, ${fileUploadViewStrategy})}"
+        ></div>
+
+        <!-- Hidden forms that allow users to pass through without submitting a file.  -->
+        <div class="hidden">
+          <form
+            id="cf-fileupload-continue-form"
+            method="POST"
+            th:action="${submitFormAction}"
+          >
+            <input hidden th:value="${csrfToken}" name="csrfToken" />
+            <div th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"></div>
+          </form>
+          <form
+            id="cf-fileupload-delete-form"
+            method="POST"
+            th:action="${submitFormAction}"
+          >
+            <input hidden th:value="${csrfToken}" name="csrfToken" />
+            <div th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, true)}"></div>
+          </form>
         </div>
 
-        <button
-          type="submit"
-          id="cf-block-submit"
-          class="usa-button"
-          th:text="#{button.continue}"
-        ></button>
-        <button
-          type="submit"
-          th:formaction="${reviewFormAction}"
-          id="review-application-button"
-          class="usa-button usa-button--outline"
-          th:text="#{button.review}"
-        ></button>
-        <!-- TODO: Add delete button for file upload-->
-        <!-- TODO: Do we need file upload continue button -->
+        <div
+          th:with="hasUploadedFile=${fileUploadQuestion.getFileKeyValue().isPresent()}"
+        >
+          <!-- Review page button -->
+          <button
+            type="submit"
+            form="cf-block-form"
+            th:attr="data-redirect-with-file=${reviewPageWithFile},data-redirect-without-file=${reviewPageWithoutFile}"
+            th:text="#{button.review}"
+            class="file-upload-action-button"
+          ></button>
+          <!-- Previous block button -->
+          <button
+            type="submit"
+            form="cf-block-form"
+            th:attr="data-redirect-with-file=${previousBlockWithFile},data-redirect-without-file=${previousBlockWithoutFile}"
+            th:text="#{button.previousScreen}"
+            class="file-upload-action-button"
+          ></button>
+          <div th:if="${question.isOptional()}">
+            <!-- Delete button -->
+            <button
+              th:if="${hasUploadedFile}"
+              type="submit"
+              form="cf-fileupload-delete-form"
+              th:text="#{button.deleteFile}"
+              id="fileupload-delete-button"
+            ></button>
+            <!-- Skip button -->
+            <button
+              th:if="${!hasUploadedFile}"
+              type="submit"
+              form="cf-fileupload-delete-form"
+              th:text="#{button.skipFileUpload}"
+              id="fileupload-skip-button"
+            ></button>
+          </div>
+          <!-- Next block button -->
+          <button
+            type="submit"
+            form="cf-block-form"
+            th:attr="data-redirect-with-file=${nextBlockWithFile}"
+            th:text="#{button.nextScreen}"
+            class="file-upload-action-button"
+          ></button>
+          <!-- Continue button -->
+          <button
+            th:if="${hasUploadedFile}"
+            type="submit"
+            form="cf-fileupload-continue-form"
+            th:text="#{button.keepFile}"
+            id="fileupload-continue-button"
+          ></button>
+        </div>
       </form>
     </div>
     <div id="modal-container"></div>

@@ -49,14 +49,14 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   public ImmutableMap<String, String> additionalFileUploadFormInputFields(
       Optional<StorageUploadRequest> request) {
-        BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
-        return ImmutableMap.of(
-            "fileName", signedRequest.fileName(),
-            "sasToken", signedRequest.sasToken(),
-            "blobUrl", signedRequest.blobUrl(),
-            "containerName", signedRequest.containerName(),
-            "accountName", signedRequest.accountName(),
-            "successActionRedirect", signedRequest.successActionRedirect());
+    BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
+    return ImmutableMap.of(
+        "fileName", signedRequest.fileName(),
+        "sasToken", signedRequest.sasToken(),
+        "blobUrl", signedRequest.blobUrl(),
+        "containerName", signedRequest.containerName(),
+        "accountName", signedRequest.accountName(),
+        "successActionRedirect", signedRequest.successActionRedirect());
   }
 
   private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
@@ -73,7 +73,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected String getUploadFormClass() {
+  public String getUploadFormClass() {
     return "azure-upload";
   }
 }

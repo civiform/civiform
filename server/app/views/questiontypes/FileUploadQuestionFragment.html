@@ -1,10 +1,10 @@
-<!-- TODO: Should file upload page be totally different for rendering. Ask UX about 5 buttons -->
 <div
   th:fragment="file-upload(question, questionRendererParams, fileUploadViewStrategy)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${#strings.randomAlphanumeric(8)},
     inputId=${#strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
+  class="cf-question-fileupload"
 >
   <!-- Title and Help Text -->
   <div
@@ -23,8 +23,20 @@
     name="file"
     aria-describedby="file-input-specific-hint"
     accept="image/*,.pdf"
-    multiple="multiple"
+    data-file-limit-mb="100"
   />
 
-  <input type="hidden" th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}" th:name="${inputValues.key}" th:value="${inputValues.value}">
+  <input
+    type="hidden"
+    th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
+    th:name="${inputValues.key}"
+    th:value="${inputValues.value}"
+  />
+</div>
+
+<div th:fragment="file-key-field(fileUploadQuestion, clearData)">
+  <input
+    th:name="${fileUploadQuestion.getFileKeyPath()}"
+    th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
+  />
 </div>

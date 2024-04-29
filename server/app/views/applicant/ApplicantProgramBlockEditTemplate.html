@@ -27,7 +27,7 @@
 
         <div th:each="question: ${applicationParams.block().getQuestions()}">
           <div
-            th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations}, ${fileUploadViewStrategy})}"
+            th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
           ></div>
         </div>
 

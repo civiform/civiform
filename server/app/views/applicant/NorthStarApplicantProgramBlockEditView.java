@@ -15,9 +15,9 @@ import services.applicant.question.AddressQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import views.ApplicationBaseViewParams;
+import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.fileupload.FileUploadViewStrategy;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
@@ -36,41 +36,62 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
-    context.setVariable(
-        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
-    context.setVariable(
-        "previousFormAction",
-        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-    context.setVariable(
-        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
-    // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
-    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
-    // TODO include signed request
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()) {
+      context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
       context.setVariable(
-          "fileUploadViewStrategy", fileUploadViewStrategy);
+          "nextBlockWithFile",
+          redirectWithFile(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+      context.setVariable(
+          "previousBlockWithFile",
+          redirectWithFile(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+      context.setVariable(
+          "reviewPageWithFile",
+          redirectWithFile(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+      context.setVariable(
+          "previousBlockWithoutFile",
+          applicationParams.baseUrl()
+              + applicantRoutes
+                  .blockPreviousOrReview(
+                      applicationParams.profile(),
+                      applicationParams.applicantId(),
+                      applicationParams.programId(),
+                      applicationParams.blockIndex(),
+                      applicationParams.inReview())
+                  .url());
+      context.setVariable(
+          "reviewPageWithoutFile",
+          applicationParams.baseUrl()
+              + applicantRoutes
+                  .review(
+                      applicationParams.profile(),
+                      applicationParams.applicantId(),
+                      applicationParams.programId())
+                  .url());
+      return templateEngine.process(
+          "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
+    } else {
+      context.setVariable(
+          "submitFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+      context.setVariable(
+          "previousFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+      context.setVariable(
+          "reviewFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+      // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
+      context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
-    return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
   private String getFormAction(
       ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
-    if (params.block().isFileUpload()) {
-      return applicantRoutes
-      .updateFile(
-          params.profile(),
-          params.applicantId(),
-          params.programId(),
-          params.block().getId(),
-          params.inReview(),
-          nextAction)
-      .url();
-    }
     return applicantRoutes
         .updateBlock(
             params.profile(),
@@ -82,7 +103,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
         .url();
   }
 
-  private String getFileUploadSuccessUrl(ApplicationBaseViewParams params) {
+  private String redirectWithFile(
+      ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
     return params.baseUrl()
         + applicantRoutes
             .updateFile(
@@ -91,7 +113,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
                 params.programId(),
                 params.block().getId(),
                 params.inReview(),
-                ApplicantRequestedAction.NEXT_BLOCK)
+                nextAction)
             .url();
   }
 
@@ -128,7 +150,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
                             .applicantStorageClient()
                             .getSignedUploadRequest(
                                 getFileUploadSignedRequestKey(params),
-                                getFileUploadSuccessUrl(params));
+                                redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
                     paramsBuilder.setSignedFileUploadRequest(signedRequest);
                   }
                   return paramsBuilder.build();
