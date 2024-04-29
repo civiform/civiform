@@ -627,7 +627,7 @@ public class FieldWithLabel {
     return span(
             markdownSvg.withClasses("h-6", "w-6", "mr-1"),
             text.withClasses(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-sm"))
-        .withClasses("flex", "flex-row", "mt-2");
+        .withClasses("flex", "flex-row", "mt-2", "items-center");
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
