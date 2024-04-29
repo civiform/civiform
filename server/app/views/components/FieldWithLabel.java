@@ -89,7 +89,7 @@ public class FieldWithLabel {
   private boolean ariaRequired = false;
   private boolean focusOnInput = false;
   private boolean markdownSupported = false;
-  private String markdownText = "";
+  private String markdownText = "Markdown is supported";
   private String markdownLinkText = "";
   private String markdownLinkHref =
       "https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown";

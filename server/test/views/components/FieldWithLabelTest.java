@@ -298,14 +298,10 @@ public class FieldWithLabelTest {
 
   @Test
   public void buildBaseContainer_containsMarkdownIndicatorWhenSet() {
-    FieldWithLabel fieldWithLabel =
-        FieldWithLabel.textArea()
-            .setMarkdownSupported(true)
-            .setMarkdownText("Markdown is supported, ")
-            .setMarkdownLinkText("see how it works");
-    String renderedWithDefaultUrl = fieldWithLabel.getTextareaTag().render();
+    FieldWithLabel fieldWithLabel = FieldWithLabel.textArea().setMarkdownSupported(true);
+    String renderedWithDefaultText = fieldWithLabel.getTextareaTag().render();
     // Assert contains markdown icon
-    assertThat(renderedWithDefaultUrl)
+    assertThat(renderedWithDefaultText)
         .contains(
             "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"text-gray-600\""
                 + " stroke=\"text-gray-600\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0"
@@ -315,7 +311,15 @@ public class FieldWithLabelTest {
                 + " 18H140Zm0-60h680v-520H140v520Zm0 0v-520"
                 + " 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14"
                 + " 0-27 13t-13 27v200Z\"></path></svg>");
-    // Assert contains text
+    // Assert that default text is set
+    assertThat(renderedWithDefaultText).contains("Markdown is supported");
+    assertThat(renderedWithDefaultText).doesNotContain(",");
+
+    fieldWithLabel
+        .setMarkdownText("Markdown is supported, ")
+        .setMarkdownLinkText("see how it works");
+    String renderedWithDefaultUrl = fieldWithLabel.getTextareaTag().render();
+    // Assert contains custom text
     assertThat(renderedWithDefaultUrl).contains("Markdown is supported, ");
     // Assert contains link text with default url
     assertThat(renderedWithDefaultUrl)
