@@ -357,20 +357,20 @@ public class FieldWithLabel {
 
   /**
    * Set this field for link text to be displayed after the main markdown indicator text and link
-   * out to a custom url
+   * out to our markdown documentation
    */
-  public FieldWithLabel setMarkdownLinkText(String markdownLinkText, String markdownLinkHref) {
+  public FieldWithLabel setMarkdownLinkText(String markdownLinkText) {
     this.markdownLinkText = markdownLinkText;
-    this.markdownLinkHref = markdownLinkHref;
     return this;
   }
 
   /**
    * Set this field for link text to be displayed after the main markdown indicator text and link
-   * out to our markdown documentation
+   * out to a custom url
    */
-  public FieldWithLabel setMarkdownLinkText(String markdownLinkText) {
+  public FieldWithLabel setMarkdownLinkText(String markdownLinkText, String markdownLinkHref) {
     this.markdownLinkText = markdownLinkText;
+    this.markdownLinkHref = markdownLinkHref;
     return this;
   }
 
