@@ -383,6 +383,9 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionText")
             .setLabelText("Question text displayed to the applicant")
             .setRequired(true)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Markdown is supported, ")
+            .setMarkdownLinkText("see how it works")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -392,6 +395,9 @@ public final class QuestionEditView extends BaseHtmlView {
               .setId("question-help-text-textarea")
               .setFieldName("questionHelpText")
               .setLabelText("Question help text displayed to the applicant")
+              .setMarkdownSupported(true)
+              .setMarkdownText("Markdown is supported, ")
+              .setMarkdownLinkText("see how it works")
               .setDisabled(!submittable)
               .setValue(questionForm.getQuestionHelpText())
               .getTextareaTag());
