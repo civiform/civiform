@@ -42,36 +42,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()) {
-      context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
-      context.setVariable(
-          "nextBlockWithFile",
-          redirectWithFile(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
-      context.setVariable(
-          "previousBlockWithFile",
-          redirectWithFile(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable(
-          "reviewPageWithFile",
-          redirectWithFile(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
-      context.setVariable(
-          "previousBlockWithoutFile",
-          applicationParams.baseUrl()
-              + applicantRoutes
-                  .blockPreviousOrReview(
-                      applicationParams.profile(),
-                      applicationParams.applicantId(),
-                      applicationParams.programId(),
-                      applicationParams.blockIndex(),
-                      applicationParams.inReview())
-                  .url());
-      context.setVariable(
-          "reviewPageWithoutFile",
-          applicationParams.baseUrl()
-              + applicantRoutes
-                  .review(
-                      applicationParams.profile(),
-                      applicationParams.applicantId(),
-                      applicationParams.programId())
-                  .url());
+      this.addFileUploadParameters(applicationParams, context);
+
       return templateEngine.process(
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
@@ -173,5 +145,33 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+  }
+
+  private void addFileUploadParameters(
+      ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
+    context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable(
+        "nextBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
+    context.setVariable(
+        "previousBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable(
+        "reviewPageWithFile", redirectWithFile(params, ApplicantRequestedAction.REVIEW_PAGE));
+    context.setVariable(
+        "previousBlockWithoutFile",
+        params.baseUrl()
+            + applicantRoutes
+                .blockPreviousOrReview(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.blockIndex(),
+                    params.inReview())
+                .url());
+    context.setVariable(
+        "reviewPageWithoutFile",
+        params.baseUrl()
+            + applicantRoutes
+                .review(params.profile(), params.applicantId(), params.programId())
+                .url());
   }
 }

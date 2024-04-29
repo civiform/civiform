@@ -43,7 +43,9 @@
             th:action="${submitFormAction}"
           >
             <input hidden th:value="${csrfToken}" name="csrfToken" />
-            <div th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"></div>
+            <div
+              th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
+            ></div>
           </form>
           <form
             id="cf-fileupload-delete-form"
@@ -51,7 +53,9 @@
             th:action="${submitFormAction}"
           >
             <input hidden th:value="${csrfToken}" name="csrfToken" />
-            <div th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, true)}"></div>
+            <div
+              th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, true)}"
+            ></div>
           </form>
         </div>
 
