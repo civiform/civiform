@@ -6,9 +6,6 @@
     <div
       th:with="question=${applicationParams.block().getQuestions().get(0)},questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},fileUploadQuestion=${question.createFileUploadQuestion()}"
     >
-      <!-- <header>
-        <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      </header> -->
       <form
         enctype="multipart/form-data"
         method="POST"
@@ -16,14 +13,6 @@
         th:class="${fileUploadViewStrategy.getUploadFormClass()}"
         th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
       >
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
-
         <div
           th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
         ></div>

@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -353,10 +354,13 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
       })
 
       test('re-answering question shows continue button but no delete button', async ({
+        page,
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        // Answer the file upload question
+        // Answer the file upload question (with North star disabled, since review page isn't
+        // fully functional yet)
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerFileUploadQuestion(
           'some text',
@@ -364,10 +368,12 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
         )
         await applicantQuestions.clickNext()
 
+        // Navigate back to non-north star to navigate in review page
         // Re-open the file upload question
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
         )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
 
         await applicantFileQuestion.expectHasContinueButton()
         // A required file upload question should never show a Delete button
