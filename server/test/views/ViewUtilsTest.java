@@ -87,7 +87,8 @@ public class ViewUtilsTest {
 
   @Test
   public void makeMemorableDate_createsDateComponentWithCorrectFieldNames() {
-    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", false);
+    FieldsetTag dateComponent =
+        ViewUtils.makeMemorableDate("", "", "", "Test DOB", false, Optional.empty());
     String rendered = dateComponent.render();
     assertThat(rendered)
         .contains("<input class=\"usa-input\" id=\"date_of_birth_day\" name=\"dayQuery\"");
@@ -99,7 +100,8 @@ public class ViewUtilsTest {
 
   @Test
   public void makeMemorableDate_showsErrorWhenShowErrorIsTrue() {
-    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", true);
+    FieldsetTag dateComponent =
+        ViewUtils.makeMemorableDate("", "", "", "Test DOB", true, Optional.empty());
     String rendered = dateComponent.render();
     assertThat(rendered)
         .contains("<div class=\"text-red-600 text-xs\" id=\"memorable_date_error\"><span>Error:");
@@ -109,7 +111,8 @@ public class ViewUtilsTest {
 
   @Test
   public void makeMemorableDate_doesNotShowErrorWhenShowErrorIsFalse() {
-    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("04", "04", "", "Test DOB", false);
+    FieldsetTag dateComponent =
+        ViewUtils.makeMemorableDate("04", "04", "", "Test DOB", false, Optional.empty());
     String rendered = dateComponent.render();
     assertThat(rendered).doesNotContain("<div class=\"text-red-600 text-xs\"><span>Error:");
 

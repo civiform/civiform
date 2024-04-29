@@ -219,7 +219,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "flex-shrink-0",
                             "grow",
                             StyleUtils.responsiveMedium("grow-0")))
-                .with(maybeRenderTiButton(profile))
+                .with(maybeRenderTiButton(profile, messages))
                 .with(
                     div(
                             getLanguageForm(request, messages, applicantId),
@@ -301,12 +301,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         span(text(" CiviForm")))));
   }
 
-  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile) {
+  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, Messages messages) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
     if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
-      String tiDashboardText = "View and add clients";
+      String tiDashboardText = messages.at(MessageKey.BUTTON_VIEW_AND_ADD_CLIENTS.getKeyName());
       div.with(
           a(tiDashboardText)
               .withId("ti-dashboard-link")

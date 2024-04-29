@@ -26,6 +26,7 @@ import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
+import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
@@ -90,7 +91,8 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     .withId(pageId)
                     .withClasses(BaseStyles.TI_HEADER_BAND_H2),
                 div(
-                        renderBackLink(),
+                        renderBackLink(
+                            messages.at(MessageKey.BUTTON_BACK_TO_CLIENT_LIST.getKeyName())),
                         renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
                         renderMainContent(
                             isSuccessfulSave,
@@ -123,7 +125,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     else {
       return div()
           .with(
-              requiredFieldsExplanationContent(),
+              ApplicationBaseView.requiredFieldsExplanationContent(messages),
               renderAddOrEditClientForm(
                   tiGroup, optionalAccountModel, request, tiClientInfoForm, messages));
     }
@@ -168,13 +170,13 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
         successToast, false, optionalSuccessMessage, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
   }
 
-  private ATag renderBackLink() {
+  private ATag renderBackLink(String linkText) {
     LinkElement link =
         new LinkElement()
             .setStyles("underline")
             .setHref(getTiLink())
             .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
-            .setText("Back to client list")
+            .setText(linkText)
             .setId("ti-dashboard-link");
     return link.asAnchorText();
   }
@@ -266,11 +268,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setToolTipIcon(Icons.INFO)
-                .setToolTipText(
-                    "Add an email address for your client to receive status updates about their"
-                        + " application automatically. Without an email, you or your"
-                        + " community-based organization will be responsible for communicating"
-                        + " updates to your client.")
+                .setToolTipText(messages.at(MessageKey.CONTENT_EMAIL_TOOLTIP.getKeyName()))
                 .setValue(setDefaultEmail(optionalAccount)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,

@@ -165,7 +165,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
             .getForm();
     assertThat(returnedForm.error("dob").get().message())
-        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
+        .isEqualTo("Please enter a date in the correct format");
   }
 
   @Test
