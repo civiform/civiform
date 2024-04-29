@@ -303,6 +303,59 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       await logout(page)
     })
 
+    test('Enumerator add button is enabled/disabled correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Set up application', async () => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('Add button is enabled with a non-blank entity', async () => {
+        await applicantQuestions.addEnumeratorAnswer('Bugs')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is disabled if an entity is blank', async () => {
+        await applicantQuestions.addEnumeratorAnswer('')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is re-enabled when the blank item is removed', async () => {
+        await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is still enabled after navigating away and back', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickPrevious()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is disabled when an existing item is blanked', async () => {
+        await applicantQuestions.editEnumeratorAnswer('Bugs', '')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+    })
+
     test('Applicant can navigate to previous blocks', async ({
       page,
       applicantQuestions,
