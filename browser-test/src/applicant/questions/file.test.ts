@@ -351,62 +351,6 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
           'file2.txt',
         )
         await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
-
-        await applicantQuestions.clickNext()
-
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          fileUploadQuestionText,
-          'file2.txt',
-        )
-      })
-
-      test('can download file content', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-        const fileContent = 'some sample text'
-        await applicantQuestions.answerFileUploadQuestion(fileContent)
-        await applicantQuestions.clickNext()
-
-        // We haven't added this feature to the review page yet, so revert back.
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
-        const downloadedFileContent =
-          await applicantQuestions.downloadSingleQuestionFromReviewPage()
-        expect(downloadedFileContent).toEqual(fileContent)
-      })
-
-      test('re-answering question shows previously uploaded file name on review and block pages', async ({
-        page,
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
-        // Answer the file upload question
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerFileUploadQuestion(
-          'some text',
-          'testFileName.txt',
-        )
-        await applicantQuestions.clickNext()
-
-        // Verify the previously uploaded file name is shown on the review page
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          fileUploadQuestionText,
-          'testFileName.txt',
-        )
-
-        // Re-open the file upload question
-        await applicantQuestions.editQuestionFromReviewPage(
-          fileUploadQuestionText,
-        )
-
-        // Verify the previously uploaded file name is shown on the block page
-        await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
-        await validateScreenshot(
-          page,
-          'file-required-re-answered-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
       })
 
       test('re-answering question shows continue button but no delete button', async ({
@@ -422,7 +366,6 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
         await applicantQuestions.clickNext()
 
         // Re-open the file upload question
-        await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
         )

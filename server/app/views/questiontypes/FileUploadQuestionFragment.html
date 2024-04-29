@@ -16,6 +16,7 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
   ></div>
 
+  <!-- Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) -->
   <input
     type="hidden"
     th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
@@ -30,13 +31,13 @@
     aria-live="polite"
   ></div>
 
-  <!-- TODO: Display errors for file too large and file selection failed -->
+  <!-- TODO(#7335): Display errors for file too large and file selection failed -->
   <input
     th:id="${inputId}"
     class="usa-file-input"
     type="file"
     name="file"
-    aria-describedby="file-input-specific-hint"
+    th:aria-describedby="${questionId} + '-description'"
     accept="image/*,.pdf"
     data-file-limit-mb="100"
   />
