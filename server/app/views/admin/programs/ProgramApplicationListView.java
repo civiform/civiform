@@ -125,7 +125,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             hasEligibilityEnabled,
                             defaultStatus,
                             program))
-                        .withClasses("usa-table-container--scrollable", "usa-table--borderless")
+                        .withClasses("usa-table-container", "usa-table--borderless")
                         .withTabindex(0)),
                 div(div()
                         .condWith(
@@ -143,8 +143,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         filterParams.selectedApplicationStatus(),
                                         /* selectedApplicationUri= */ Optional.empty()))))
                     .withClasses("flex", "items-start"))
-            .withClasses(
-                "mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2", "w-1/3");
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
         div()
@@ -226,7 +225,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     div().withClass("mt-6"),
                     new SelectWithLabel()
                         .setFieldName(APPLICATION_STATUS_PARAM)
-                        .setId("select-status-filter")
+                        .setLabelText("Application status")
                         .setValue(filterParams.selectedApplicationStatus().orElse(""))
                         .setOptionGroups(
                             ImmutableList.of(
