@@ -208,11 +208,11 @@ label.dobExample=Tusaale Janaayo 28 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Iimayl
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Khalad: Taariikhda dhalashada ayaa loo baahan yahay
+label.errorDOB=Date of birth required
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Khalad: Magaca koowaad ayaa loo baahan yahay
+label.errorFirstName=First name required
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Khalad: Magaca awoowgaa ayaa loo baahan yahay
+label.errorLastName=Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Bisha
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -393,6 +393,38 @@ validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
