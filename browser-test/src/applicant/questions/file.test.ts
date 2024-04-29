@@ -1,7 +1,7 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
-  dropTables,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   seedQuestions,
@@ -10,9 +10,8 @@ import {
 } from '../../support'
 import {BASE_URL} from '../../support/config'
 
-test.describe('file upload applicant flow', () => {
+test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
   test.beforeEach(async ({page}) => {
-    // await dropTables(page)
     await seedQuestions(page)
     await page.goto(BASE_URL)
   })
@@ -56,26 +55,39 @@ test.describe('file upload applicant flow', () => {
       await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
-    test('does not show errors initially', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('does not show errors initially', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
       await applicantFileQuestion.expectFileTooLargeErrorHidden()
     })
 
-    test('no continue button initially', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('no continue button initially', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectNoContinueButton()
     })
 
-    test('does not show skip button for required question', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('does not show skip button for required question', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectNoSkipButton()
     })
 
-    test('can upload file', async ({page, applicantQuestions, applicantFileQuestion}) => {
+    test('can upload file', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
@@ -85,7 +97,10 @@ test.describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-    test('can replace file', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('can replace file', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
@@ -121,7 +136,10 @@ test.describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
-    test('missing file error disappears when file uploaded', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('missing file error disappears when file uploaded', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
       await applicantFileQuestion.expectFileSelectionErrorShown()
@@ -131,7 +149,11 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-    test('too large file error', async ({page, applicantQuestions, applicantFileQuestion}) => {
+    test('too large file error', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await test.step('Shows error when file size is too large', async () => {
@@ -158,13 +180,20 @@ test.describe('file upload applicant flow', () => {
       })
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions}) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
-    test('re-answering question shows previously uploaded file name on review and block pages', async ({page, applicantQuestions, applicantFileQuestion}) => {
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
@@ -190,7 +219,10 @@ test.describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-required-re-answered')
     })
 
-    test('re-answering question shows continue button but no delete button', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('re-answering question shows continue button but no delete button', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
@@ -210,6 +242,197 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectNoDeleteButton()
     })
   })
+
+  test.describe(
+    'required file upload question with North Star enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single file upload'
+      const fileUploadQuestionText = 'Required file upload question'
+
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await loginAsAdmin(page)
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
+          programName,
+        )
+
+        await logout(page)
+      })
+
+      test('validate screenshot', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateScreenshot(
+          page,
+          'file-required-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('form is correctly formatted', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickNext()
+
+        const formInputs = await page
+          .locator('#cf-block-form')
+          .locator('input')
+          .all()
+        const lastFormInput = formInputs[formInputs.length - 1]
+
+        // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+        await expect(lastFormInput).toHaveAttribute('type', 'file')
+      })
+
+      test('no continue button initially', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantFileQuestion.expectNoContinueButton()
+      })
+
+      test('does not show skip button for required question', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantFileQuestion.expectNoSkipButton()
+      })
+
+      test('can upload file', async ({
+        page,
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file.txt',
+        )
+
+        await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+        await validateScreenshot(
+          page,
+          'file-uploaded-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      /** Regression test for https://github.com/civiform/civiform/issues/6221. */
+      test('can replace file', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file1.txt',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file2.txt',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'file2.txt',
+        )
+      })
+
+      test('can download file content', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+        const fileContent = 'some sample text'
+        await applicantQuestions.answerFileUploadQuestion(fileContent)
+        await applicantQuestions.clickNext()
+
+        // We haven't added this feature to the review page yet, so revert back.
+        disableFeatureFlag(page, 'north_star_applicant_ui')
+        const downloadedFileContent =
+          await applicantQuestions.downloadSingleQuestionFromReviewPage()
+        expect(downloadedFileContent).toEqual(fileContent)
+      })
+
+      test('re-answering question shows previously uploaded file name on review and block pages', async ({
+        page,
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        // Answer the file upload question
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerFileUploadQuestion(
+          'some text',
+          'testFileName.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Verify the previously uploaded file name is shown on the review page
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'testFileName.txt',
+        )
+
+        // Re-open the file upload question
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Verify the previously uploaded file name is shown on the block page
+        await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+        await validateScreenshot(
+          page,
+          'file-required-re-answered-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('re-answering question shows continue button but no delete button', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        // Answer the file upload question
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerFileUploadQuestion(
+          'some text',
+          'testFileName.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantFileQuestion.expectHasContinueButton()
+        // A required file upload question should never show a Delete button
+        await applicantFileQuestion.expectNoDeleteButton()
+      })
+    },
+  )
 
   // Optional file upload.
   test.describe('optional file upload question', () => {
@@ -241,7 +464,10 @@ test.describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-optional')
     })
 
-    test('with missing file shows error and does not proceed if Save&next', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('with missing file shows error and does not proceed if Save&next', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       // When the applicant clicks "Save & next"
@@ -253,7 +479,10 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
     })
 
-    test('with missing file can be skipped', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('with missing file can be skipped', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantFileQuestion.expectHasSkipButton()
 
@@ -267,7 +496,10 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('can upload file', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('can upload file', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
@@ -276,7 +508,10 @@ test.describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-    test('can replace file', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('can replace file', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
@@ -321,13 +556,20 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions}) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
-    test('re-answering question shows previously uploaded file name on review and block pages', async ({page, applicantQuestions, applicantFileQuestion}) => {
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
@@ -353,7 +595,10 @@ test.describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-optional-re-answered')
     })
 
-    test('re-answering question shows continue and delete buttons', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('re-answering question shows continue and delete buttons', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
@@ -372,7 +617,10 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectHasDeleteButton()
     })
 
-    test('delete button removes file and redirects to next block', async ({applicantQuestions, applicantFileQuestion}) => {
+    test('delete button removes file and redirects to next block', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
@@ -468,7 +716,9 @@ test.describe('file upload applicant flow', () => {
     })
 
     test.describe('review button', () => {
-      test('clicking review without file redirects to review page', async ({applicantQuestions}) => {
+      test('clicking review without file redirects to review page', async ({
+        applicantQuestions,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -479,7 +729,9 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking review with file saves file and redirects to review page', async ({applicantQuestions}) => {
+      test('clicking review with file saves file and redirects to review page', async ({
+        applicantQuestions,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -504,7 +756,9 @@ test.describe('file upload applicant flow', () => {
     })
 
     test.describe('previous button', () => {
-      test('clicking previous without file redirects to previous page', async ({applicantQuestions}) => {
+      test('clicking previous without file redirects to previous page', async ({
+        applicantQuestions,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -516,7 +770,9 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
       })
 
-      test('clicking previous with file saves file and redirects to previous page', async ({applicantQuestions}) => {
+      test('clicking previous with file saves file and redirects to previous page', async ({
+        applicantQuestions,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -544,7 +800,10 @@ test.describe('file upload applicant flow', () => {
     })
 
     test.describe('save & next button', () => {
-      test('clicking save&next without file shows error on same page', async ({applicantQuestions, applicantFileQuestion}) => {
+      test('clicking save&next without file shows error on same page', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -560,7 +819,9 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileSelectionErrorShown()
       })
 
-      test('clicking save&next with file saves file and redirects to next page', async ({applicantQuestions}) => {
+      test('clicking save&next with file saves file and redirects to next page', async ({
+        applicantQuestions,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -587,7 +848,10 @@ test.describe('file upload applicant flow', () => {
     })
 
     test.describe('continue button', () => {
-      test('clicking continue button redirects to first unseen block', async ({applicantQuestions, applicantFileQuestion}) => {
+      test('clicking continue button redirects to first unseen block', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
         // Answer the file upload question
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.answerQuestionFromReviewPage(
@@ -625,7 +889,10 @@ test.describe('file upload applicant flow', () => {
         )
       })
 
-      test('clicking continue without new file redirects to next page', async ({applicantQuestions, applicantFileQuestion}) => {
+      test('clicking continue without new file redirects to next page', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
         // First, open the email block so that the email block is considered answered
         // and we're not taken back to it when we click "Continue".
         // (see test case 'clicking continue button redirects to first unseen block').
@@ -667,7 +934,10 @@ test.describe('file upload applicant flow', () => {
         )
       })
 
-      test('clicking continue with new file does *not* save new file and redirects to next page', async ({applicantQuestions, applicantFileQuestion}) => {
+      test('clicking continue with new file does *not* save new file and redirects to next page', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
         // First, open the email block so that the email block is considered answered
         // and we're not taken back to it when we click "Continue".
         // (see test case 'clicking continue button redirects to first unseen block').

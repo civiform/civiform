@@ -40,6 +40,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     context.setVariable("applicationParams", applicationParams);
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
+    context.setVariable(
+        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()) {
       this.addFileUploadParameters(applicationParams, context);
@@ -47,9 +49,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       return templateEngine.process(
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
-      context.setVariable(
-          "submitFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));

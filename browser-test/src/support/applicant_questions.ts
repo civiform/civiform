@@ -89,7 +89,7 @@ export class ApplicantQuestions {
   async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
-      mimeType: 'text/plain',
+      mimeType: 'image/png',
       buffer: Buffer.from(text),
     })
   }

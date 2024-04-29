@@ -17,6 +17,21 @@
   ></div>
 
   <input
+    type="hidden"
+    th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
+    th:name="${inputValues.key}"
+    th:value="${inputValues.value}"
+  />
+
+  <div
+    th:with="alreadyUploadedText=#{input.fileAlreadyUploaded(${fileUploadQuestion.getFilename().orElse('')})}"
+    th:text="${fileUploadQuestion.getFilename().isEmpty() ? '' : alreadyUploadedText}"
+    th:attr="data-upload-text=#{input.fileAlreadyUploaded}"
+    aria-live="polite"
+  ></div>
+
+  <!-- TODO: Display errors for file too large and file selection failed -->
+  <input
     th:id="${inputId}"
     class="usa-file-input"
     type="file"
@@ -25,15 +40,9 @@
     accept="image/*,.pdf"
     data-file-limit-mb="100"
   />
-
-  <input
-    type="hidden"
-    th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
-    th:name="${inputValues.key}"
-    th:value="${inputValues.value}"
-  />
 </div>
 
+<!-- Fragment for rendering file key fields within hidden inputs -->
 <div th:fragment="file-key-field(fileUploadQuestion, clearData)">
   <input
     th:name="${fileUploadQuestion.getFileKeyPath()}"
