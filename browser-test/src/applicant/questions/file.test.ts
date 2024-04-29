@@ -368,7 +368,7 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
         await applicantQuestions.clickNext()
 
         // We haven't added this feature to the review page yet, so revert back.
-        disableFeatureFlag(page, 'north_star_applicant_ui')
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
         const downloadedFileContent =
           await applicantQuestions.downloadSingleQuestionFromReviewPage()
         expect(downloadedFileContent).toEqual(fileContent)
