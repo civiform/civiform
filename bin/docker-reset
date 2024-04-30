@@ -14,13 +14,13 @@ if [[ $(docker container ls -q | wc -c) -ne 0 ]]; then
   docker kill $(docker container ls -q)
 fi
 
+echo "Pruning all containers"
+yes | docker container prune >/dev/null
+
 if [[ $(docker volume ls -q | wc -c) -ne 0 ]]; then
   echo "Removing volumes"
   docker volume rm $(docker volume ls -q)
 fi
-
-echo "Pruning all containers"
-yes | docker container prune >/dev/null
 
 echo "Pruning all volumes"
 yes | docker volume prune >/dev/null
