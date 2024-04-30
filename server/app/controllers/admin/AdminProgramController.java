@@ -81,6 +81,7 @@ public final class AdminProgramController extends CiviFormController {
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
+            "In use",
             profileMaybe));
   }
 
@@ -93,9 +94,10 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
-            programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getDisabledProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
+            "Disabled",
             profileMaybe));
   }
 

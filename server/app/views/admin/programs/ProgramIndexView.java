@@ -78,6 +78,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ActiveAndDraftPrograms programs,
       ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
+      String selectedStatus,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
       layout.setAdminType(profile.get());
@@ -133,7 +134,13 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     contentDiv.with(
         renderFilterLink(
-            "In use", "In use", controllers.admin.routes.AdminProgramController.index().url()));
+            "In use",
+            selectedStatus,
+            controllers.admin.routes.AdminProgramController.index().url()),
+        renderFilterLink(
+            "Disabled",
+            selectedStatus,
+            controllers.admin.routes.AdminProgramController.indexDisabled().url()));
 
     contentDiv.with(
         div()
