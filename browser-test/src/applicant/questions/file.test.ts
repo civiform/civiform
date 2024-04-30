@@ -250,7 +250,6 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
       const fileUploadQuestionText = 'Required file upload question'
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await loginAsAdmin(page)
 
         await adminQuestions.addFileUploadQuestion({
@@ -263,6 +262,7 @@ test.describe('file upload applicant flow', {tag: ['@uses-fixtures']}, () => {
         )
 
         await logout(page)
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
