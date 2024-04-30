@@ -3,9 +3,12 @@ package services.question.types;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.OptionalInt;
 import services.CiviFormError;
 import services.LocalizedStrings;
 
@@ -57,10 +60,61 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     return entityType;
   }
 
+  public OptionalInt getMinEntities() {
+    return getEnumeratorValidationPredicates().minEntities();
+  }
+
+  public OptionalInt getMaxEntities() {
+    return getEnumeratorValidationPredicates().maxEntities();
+  }
+
+  @JsonDeserialize(
+      builder = AutoValue_EnumeratorQuestionDefinition_EnumeratorValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class EnumeratorValidationPredicates extends ValidationPredicates {
+
+    public static EnumeratorValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString,
+            AutoValue_EnumeratorQuestionDefinition_EnumeratorValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
     public static EnumeratorValidationPredicates create() {
-      return new AutoValue_EnumeratorQuestionDefinition_EnumeratorValidationPredicates();
+      return builder().build();
+    }
+
+    public static EnumeratorValidationPredicates create(int minEntities, int maxEntities) {
+      return builder().setMinEntities(minEntities).setMaxEntities(maxEntities).build();
+    }
+
+    @JsonProperty("minEntities")
+    public abstract OptionalInt minEntities();
+
+    @JsonProperty("maxEntities")
+    public abstract OptionalInt maxEntities();
+
+    public static Builder builder() {
+      return new AutoValue_EnumeratorQuestionDefinition_EnumeratorValidationPredicates.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      @JsonProperty("minEntities")
+      public abstract Builder setMinEntities(OptionalInt minEntities);
+
+      public abstract Builder setMinEntities(int minEntities);
+
+      @JsonProperty("maxEntities")
+      public abstract Builder setMaxEntities(OptionalInt maxEntities);
+
+      public abstract Builder setMaxEntities(int maxEntities);
+
+      public abstract EnumeratorValidationPredicates build();
     }
   }
 }
