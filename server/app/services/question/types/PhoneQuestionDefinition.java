@@ -10,10 +10,9 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
   }
 
   @AutoValue
-  public abstract static class PhoneValidationPredicates
-      extends QuestionDefinition.ValidationPredicates {
+  public abstract static class PhoneValidationPredicates extends ValidationPredicates {
 
-    public static PhoneQuestionDefinition.PhoneValidationPredicates parse(String jsonString) {
+    public static PhoneValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString, AutoValue_PhoneQuestionDefinition_PhoneValidationPredicates.class);
@@ -22,13 +21,13 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    public static PhoneQuestionDefinition.PhoneValidationPredicates create() {
+    public static PhoneValidationPredicates create() {
       return new AutoValue_PhoneQuestionDefinition_PhoneValidationPredicates();
     }
   }
 
-  public PhoneQuestionDefinition.PhoneValidationPredicates getPhoneValidationPredicates() {
-    return (PhoneQuestionDefinition.PhoneValidationPredicates) getValidationPredicates();
+  public PhoneValidationPredicates getPhoneValidationPredicates() {
+    return (PhoneValidationPredicates) getValidationPredicates();
   }
 
   @Override

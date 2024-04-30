@@ -18,7 +18,7 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
   @AutoValue
   public abstract static class NumberValidationPredicates extends ValidationPredicates {
 
-    public static NumberQuestionDefinition.NumberValidationPredicates parse(String jsonString) {
+    public static NumberValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString, AutoValue_NumberQuestionDefinition_NumberValidationPredicates.class);
@@ -27,11 +27,11 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    public static NumberQuestionDefinition.NumberValidationPredicates create() {
+    public static NumberValidationPredicates create() {
       return builder().build();
     }
 
-    public static NumberQuestionDefinition.NumberValidationPredicates create(long min, long max) {
+    public static NumberValidationPredicates create(long min, long max) {
       return builder().setMin(min).setMax(max).build();
     }
 
@@ -41,7 +41,7 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     @JsonProperty("max")
     public abstract OptionalLong max();
 
-    public static NumberQuestionDefinition.NumberValidationPredicates.Builder builder() {
+    public static Builder builder() {
       return new AutoValue_NumberQuestionDefinition_NumberValidationPredicates.Builder();
     }
 
@@ -49,23 +49,21 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     public abstract static class Builder {
 
       @JsonProperty("min")
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(
-          OptionalLong min);
+      public abstract Builder setMin(OptionalLong min);
 
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(long min);
+      public abstract Builder setMin(long min);
 
       @JsonProperty("max")
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(
-          OptionalLong max);
+      public abstract Builder setMax(OptionalLong max);
 
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(long max);
+      public abstract Builder setMax(long max);
 
-      public abstract NumberQuestionDefinition.NumberValidationPredicates build();
+      public abstract NumberValidationPredicates build();
     }
   }
 
-  public NumberQuestionDefinition.NumberValidationPredicates getNumberValidationPredicates() {
-    return (NumberQuestionDefinition.NumberValidationPredicates) getValidationPredicates();
+  public NumberValidationPredicates getNumberValidationPredicates() {
+    return (NumberValidationPredicates) getValidationPredicates();
   }
 
   @Override
