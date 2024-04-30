@@ -23,7 +23,6 @@ public final class ActiveAndDraftPrograms {
 
   private final ImmutableList<ProgramDefinition> activePrograms;
   private final ImmutableList<ProgramDefinition> draftPrograms;
-  private final ImmutableList<ProgramDefinition> disabledPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
 
@@ -102,7 +101,6 @@ public final class ActiveAndDraftPrograms {
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
-    this.disabledPrograms = disabledActiveNameToProgram.values().asList();
 
     if (!isDisabled) {
       this.versionedByName =
@@ -143,10 +141,6 @@ public final class ActiveAndDraftPrograms {
 
   public ImmutableList<ProgramDefinition> getDraftPrograms() {
     return draftPrograms;
-  }
-
-  public ImmutableList<ProgramDefinition> getDisabledPrograms() {
-    return disabledPrograms;
   }
 
   public ImmutableSet<String> getProgramNames() {
