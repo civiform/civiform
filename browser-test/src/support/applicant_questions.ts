@@ -163,6 +163,16 @@ export class ApplicantQuestions {
     )
   }
 
+  async editEnumeratorAnswer(
+    existingEntityName: string,
+    newEntityName: string,
+  ) {
+    await this.page.fill(
+      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      newEntityName,
+    )
+  }
+
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
     await this.page.waitForSelector(
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
