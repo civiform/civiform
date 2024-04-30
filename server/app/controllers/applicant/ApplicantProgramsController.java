@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -26,7 +27,9 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
+import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
 
@@ -44,6 +47,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
+  private final NorthStarProgramIndexView northStarProgramIndexView;
 
   @Inject
   public ApplicantProgramsController(
@@ -55,7 +60,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      NorthStarProgramIndexView northStarProgramIndexView) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -64,6 +71,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
   }
 
   @Secure
@@ -85,20 +94,37 @@ public final class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
-            applicationPrograms ->
-                ok(programIndexView.render(
-                        messagesApi.preferred(request),
-                        request,
-                        applicantId,
-                        applicantStage.toCompletableFuture().join(),
-                        applicationPrograms,
-                        banner,
-                        requesterProfile.orElseThrow(
-                            () -> new MissingOptionalException(CiviFormProfile.class))))
-                    // If the user has been to the index page, any existing redirects should be
-                    // cleared to avoid an experience where they're unexpectedly redirected after
-                    // logging in.
-                    .removingFromSession(request, REDIRECT_TO_SESSION_KEY),
+            applicationPrograms -> {
+              Result result;
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                result =
+                    ok(northStarProgramIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))))
+                        .as(Http.MimeTypes.HTML);
+              } else {
+                result =
+                    ok(
+                        programIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            banner,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))));
+              }
+              // If the user has been to the index page, any existing redirects should be
+              // cleared to avoid an experience where they're unexpectedly redirected after
+              // logging in.
+              return result.removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+            },
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {

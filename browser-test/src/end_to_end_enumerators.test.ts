@@ -396,13 +396,13 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
     {tag: ['@northstar']},
     () => {
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await setupEnumeratorQuestion(
           page,
           adminQuestions,
           adminPrograms,
           /* shouldValidateScreenshot= */ false,
         )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
