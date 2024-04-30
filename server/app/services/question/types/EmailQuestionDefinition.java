@@ -13,7 +13,7 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
   @AutoValue
   public abstract static class EmailValidationPredicates extends ValidationPredicates {
 
-    public static EmailQuestionDefinition.EmailValidationPredicates parse(String jsonString) {
+    public static EmailValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString, AutoValue_EmailQuestionDefinition_EmailValidationPredicates.class);
@@ -22,13 +22,13 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    public static EmailQuestionDefinition.EmailValidationPredicates create() {
+    public static EmailValidationPredicates create() {
       return new AutoValue_EmailQuestionDefinition_EmailValidationPredicates();
     }
   }
 
-  public EmailQuestionDefinition.EmailValidationPredicates getEmailValidationPredicates() {
-    return (EmailQuestionDefinition.EmailValidationPredicates) getValidationPredicates();
+  public EmailValidationPredicates getEmailValidationPredicates() {
+    return (EmailValidationPredicates) getValidationPredicates();
   }
 
   @Override
