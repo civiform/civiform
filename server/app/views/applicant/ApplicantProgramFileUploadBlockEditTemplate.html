@@ -4,7 +4,9 @@
   <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
   <body data-load-modal="true">
     <div
-      th:with="question=${applicationParams.block().getQuestions().get(0)},questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},fileUploadQuestion=${question.createFileUploadQuestion()}"
+      th:with="question=${applicationParams.block().getQuestions().get(0)},
+               questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
+               fileUploadQuestion=${question.createFileUploadQuestion()}"
     >
       <form
         enctype="multipart/form-data"
