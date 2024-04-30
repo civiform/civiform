@@ -23,7 +23,6 @@ public final class ActiveAndDraftPrograms {
 
   private final ImmutableList<ProgramDefinition> activePrograms;
   private final ImmutableList<ProgramDefinition> draftPrograms;
-  private final ImmutableList<ProgramDefinition> disabledPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
 
@@ -34,7 +33,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.of(service));
+    return new ActiveAndDraftPrograms(repository, Optional.of(service), false);
   }
 
   /**
@@ -44,7 +43,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty());
+    return new ActiveAndDraftPrograms(repository, Optional.empty(), false);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -91,7 +90,6 @@ public final class ActiveAndDraftPrograms {
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
-    this.disabledPrograms = disabledActiveNameToProgram.values().asList();
     if (!isDisabled) {
       this.versionedByName =
         Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
@@ -108,10 +106,12 @@ public final class ActiveAndDraftPrograms {
         Sets.union(
             Sets.difference(
               disabledActiveNameToProgram.keySet(),
-              activeNameToProgram.keySet()), // active disabled programs
+              // active disabled programs
+              activeNameToProgram.keySet()),
             Sets.difference(
               disabledDraftNameToProgram.keySet(),
-              draftNameToProgram.keySet()) // draft disabled programs
+              // draft disabled programs
+              draftNameToProgram.keySet())
           )
           .stream()
           .collect(
@@ -131,10 +131,6 @@ public final class ActiveAndDraftPrograms {
 
   public ImmutableList<ProgramDefinition> getDraftPrograms() {
     return draftPrograms;
-  }
-
-  public ImmutableList<ProgramDefinition> getDisabledPrograms() {
-    return disabledPrograms;
   }
 
   public ImmutableSet<String> getProgramNames() {

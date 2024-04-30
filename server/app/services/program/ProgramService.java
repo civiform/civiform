@@ -133,10 +133,6 @@ public final class ProgramService {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
-  public ActiveAndDraftPrograms getDisabledProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedDisabled(versionRepository);
-  }
-
   /*
    * Looks at the most recent version of each program and returns the program marked as the
    * common intake form if it exists. The most recent version may be in the draft or active stage.
