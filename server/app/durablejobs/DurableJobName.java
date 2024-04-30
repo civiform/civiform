@@ -15,6 +15,9 @@ public enum DurableJobName {
   UNUSED_PROGRAM_IMAGES_CLEANUP("UNUSED_PROGRAM_IMAGES_CLEANUP"),
   MIGRATE_PRIMARY_APPLICANT_INFO("MIGRATE_PRIMARY_APPLICANT_INFO"),
 
+  // deprecated jobs (must be kept around so that durableJobRegistry.get does not throw an IllegalArgumentException error
+  FIX_APPLICANT_DOB_DATA_PATH("FIX_APPLICANT_DOB_DATA_PATH"),
+
   // job names used for tests
   TEST("TEST");
 
