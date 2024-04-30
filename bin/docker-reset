@@ -1,29 +1,28 @@
 #! /usr/bin/env bash
 
-# DOC: Stop ALL docker containers and destroy ALL containers, volumes, networks.
+# DOC: Stop all docker containers and destroy all containers, volumes, networks for the project in the current directory
 
 source bin/lib.sh
 
-read -p "Are you sure you want to destroy ALL containers, volumes, and networks? [y/n] " -r
+# Get the root folder name of the git repository
+PROJECT="$(basename $(git rev-parse --show-toplevel))"
+
+read -p "Are you sure you want to destroy ALL "${PROJECT}" containers, volumes, and networks? [y/n] " -r
 if ! [[ "${REPLY}" =~ ^[Yy]$ ]]; then
   exit 0
 fi
 
-if [[ $(docker container ls -q | wc -c) -ne 0 ]]; then
-  echo "Killing running containers"
-  docker kill $(docker container ls -q)
+if [[ $(docker ps --all --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
+  echo "Removing containers and associated volumes for ${PROJECT}"
+  docker remove --force --volumes $(docker ps --all --quiet --filter=name="${PROJECT}") >/dev/null
 fi
 
-echo "Pruning all containers"
-yes | docker container prune >/dev/null
-
-if [[ $(docker volume ls -q | wc -c) -ne 0 ]]; then
-  echo "Removing volumes"
-  docker volume rm $(docker volume ls -q)
+if [[ $(docker volume list --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
+  echo "Removing all volumes for ${PROJECT}"
+  docker volume remove --force $(docker volume list --quiet --filter=name="${PROJECT}") >/dev/null
 fi
 
-echo "Pruning all volumes"
-yes | docker volume prune >/dev/null
-
-echo "Pruning all networks"
-yes | docker network prune >/dev/null
+if [[ $(docker network list --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
+  echo "Removing all networks for ${PROJECT}"
+  docker network remove --force $(docker network list --quiet --filter=name="${PROJECT}") >/dev/null
+fi
