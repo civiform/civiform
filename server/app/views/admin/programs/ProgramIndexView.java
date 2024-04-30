@@ -43,7 +43,6 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.style.AdminStyles;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -51,6 +50,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -129,40 +129,29 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses("mt-10", "flex")
                     .with(
                         div().withClass("flex-grow"),
-                        p("Sorting by most recently updated").withClass("text-sm")),
-                div()
-                    .withClass("mt-6")
-                    .with(
-                        each(
-                            programs.getProgramNames().stream()
-                                .map(
-                                    name ->
-                                        this.buildProgramCardData(
-                                            programs.getActiveProgramDefinition(name),
-                                            programs.getDraftProgramDefinition(name),
-                                            request,
-                                            profile,
-                                            publishSingleProgramModals,
-                                            universalQuestionIds))
-                                .sorted(
-                                    ProgramCardFactory
-                                        .programTypeThenLastModifiedThenNameComparator())
-                                .map(
-                                    cardData ->
-                                        programCardFactory.renderCard(request, cardData)))));
+                        p("Sorting by most recently updated").withClass("text-sm")));
 
     contentDiv.with(
-      renderFilterLink(
-        "In use",
-        "In use",
-        controllers.admin.routes.AdminProgramController.index().url()
-      ),
-      renderFilterLink(
-        "Disabled",
-        "Disabled",
-        controllers.admin.routes.AdminProgramController.indexDisabled().url()
-      )
-    );
+        renderFilterLink(
+            "In use", "In use", controllers.admin.routes.AdminProgramController.index().url()));
+
+    contentDiv.with(
+        div()
+            .withClass("mt-6")
+            .with(
+                each(
+                    programs.getProgramNames().stream()
+                        .map(
+                            name ->
+                                this.buildProgramCardData(
+                                    programs.getActiveProgramDefinition(name),
+                                    programs.getDraftProgramDefinition(name),
+                                    request,
+                                    profile,
+                                    publishSingleProgramModals,
+                                    universalQuestionIds))
+                        .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
+                        .map(cardData -> programCardFactory.renderCard(request, cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -191,12 +180,12 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ATag renderFilterLink(String status, String selectedStatus, String redirectLocation) {
     String styles =
-      selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
+        selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
     return new LinkElement()
-      .setText(status)
-      .setHref(redirectLocation)
-      .setStyles(styles)
-      .asAnchorText();
+        .setText(status)
+        .setHref(redirectLocation)
+        .setStyles(styles)
+        .asAnchorText();
   }
 
   private Modal renderDemographicsCsvModal() {

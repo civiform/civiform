@@ -85,18 +85,18 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /**
-   * Returns an HTML page displaying all disabled programs of the current live version and all disabled
-   * programs of the current draft version if any.
+   * Returns an HTML page displaying all disabled programs of the current live version and all
+   * disabled programs of the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexDisabled(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
-      listView.render(
-        programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
-        questionService.getReadOnlyQuestionServiceSync(),
-        request,
-        profileMaybe));
+        listView.render(
+            programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
+            questionService.getReadOnlyQuestionServiceSync(),
+            request,
+            profileMaybe));
   }
 
   /** Returns an HTML page containing a form to create a new program in the draft version. */
