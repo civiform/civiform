@@ -56,6 +56,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     if (!applicationPrograms.inProgress().isEmpty()) {
       sectionParamsBuilder.add(
           programCardsSectionParamsFactory.getSection(
+              request,
               messages,
               Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
               MessageKey.BUTTON_CONTINUE,
@@ -68,6 +69,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     if (!applicationPrograms.submitted().isEmpty()) {
       sectionParamsBuilder.add(
           programCardsSectionParamsFactory.getSection(
+              request,
               messages,
               Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
               MessageKey.BUTTON_EDIT,
@@ -80,6 +82,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     if (!applicationPrograms.unapplied().isEmpty()) {
       sectionParamsBuilder.add(
           programCardsSectionParamsFactory.getSection(
+              request,
               messages,
               Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
               MessageKey.BUTTON_APPLY,

@@ -1543,6 +1543,69 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
+    test(
+      'North Star shows ineligible on home page',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.answerNumberQuestion('1')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectIneligiblePage()
+        })
+
+        await test.step('verify question is marked ineligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ false,
+          )
+
+          await validateScreenshot(
+            page,
+            'ineligible-home-page-program-tagnorthstar',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+      },
+    )
+
+    test(
+      'North Star shows eligible on home page',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.answerNumberQuestion('5')
+          await applicantQuestions.clickContinue()
+        })
+
+        await test.step('verify question is marked eligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ true,
+          )
+
+          await validateScreenshot(
+            page,
+            'eligible-home-page-program-tagnorthstar',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+      },
+    )
+
     test('shows may be eligible with an eligible answer', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
