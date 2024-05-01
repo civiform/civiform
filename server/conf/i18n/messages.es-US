@@ -208,11 +208,11 @@ label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Date of birth required
+label.errorDOB=Error: Debes ingresar la fecha de nacimiento
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=First name required
+label.errorFirstName=Error: Debes ingresar el nombre
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Last name required
+label.errorLastName=Error: Debes ingresar el apellido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
