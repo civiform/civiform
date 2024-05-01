@@ -644,122 +644,110 @@ public final class ViewUtils {
                     option()
                         .withValue("01")
                         .withText(
-                            "01 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_JANUARY.getKeyName())
-                                    : "January"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_JANUARY.getKeyName())
+                                : "01 - January")
                         .withCondSelected(monthValue.equals("01")),
                     option()
                         .withValue("02")
                         .withText(
-                            "02 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_FEBRUARY.getKeyName())
-                                    : "February"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_FEBRUARY.getKeyName())
+                                : "02 - February")
                         .withCondSelected(monthValue.equals("02")),
                     option()
                         .withValue("03")
                         .withText(
-                            "03 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_MARCH.getKeyName())
-                                    : "March"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_MARCH.getKeyName())
+                                : "03 - March")
                         .withCondSelected(monthValue.equals("03")),
                     option()
                         .withValue("04")
                         .withText(
-                            "04 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_APRIL.getKeyName())
-                                    : "April"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_APRIL.getKeyName())
+                                : "04 - April")
                         .withCondSelected(monthValue.equals("04")),
                     option()
                         .withValue("05")
                         .withText(
-                            "05 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_MAY.getKeyName())
-                                    : "May"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_MAY.getKeyName())
+                                : "05 - May")
                         .withCondSelected(monthValue.equals("05")),
                     option()
                         .withValue("06")
                         .withText(
-                            "06 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_JUNE.getKeyName())
-                                    : "June"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_JUNE.getKeyName())
+                                : "06 - June")
                         .withCondSelected(monthValue.equals("06")),
                     option()
                         .withValue("07")
                         .withText(
-                            "07 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_JULY.getKeyName())
-                                    : "July"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_JULY.getKeyName())
+                                : "07 - July")
                         .withCondSelected(monthValue.equals("07")),
                     option()
                         .withValue("08")
                         .withText(
-                            "08 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_AUGUST.getKeyName())
-                                    : "August"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_AUGUST.getKeyName())
+                                : "08 - August")
                         .withCondSelected(monthValue.equals("08")),
                     option()
                         .withValue("09")
                         .withText(
-                            "09 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_SEPTEMBER.getKeyName())
-                                    : "September"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_SEPTEMBER.getKeyName())
+                                : "09 - September")
                         .withCondSelected(monthValue.equals("09")),
                     option()
                         .withValue("10")
                         .withText(
-                            "10 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_OCTOBER.getKeyName())
-                                    : "October"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_OCTOBER.getKeyName())
+                                : "10 - October")
                         .withCondSelected(monthValue.equals("10")),
                     option()
                         .withValue("11")
                         .withText(
-                            "11 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_NOVEMBER.getKeyName())
-                                    : "November"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_NOVEMBER.getKeyName())
+                                : "11 - November")
                         .withCondSelected(monthValue.equals("11")),
                     option()
                         .withValue("12")
                         .withText(
-                            "12 - "
-                                + (optionalMessages.isPresent()
-                                    ? optionalMessages
-                                        .get()
-                                        .at(MessageKey.OPTION_MEMORABLE_DATE_DECEMBER.getKeyName())
-                                    : "December"))
+                            optionalMessages.isPresent()
+                                ? optionalMessages
+                                    .get()
+                                    .at(MessageKey.OPTION_MEMORABLE_DATE_DECEMBER.getKeyName())
+                                : "12 - December")
                         .withCondSelected(monthValue.equals("12"))));
   }
 }

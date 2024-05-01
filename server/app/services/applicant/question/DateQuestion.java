@@ -33,8 +33,7 @@ public final class DateQuestion extends Question {
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a date and been noted as a failed update. We check for that here.
     // TODO(#7356): Implement client side validation to prevent invalid dates from being entered,
-    // since
-    // it's difficult to separate which input is causing issues on the server.
+    // since it's difficult to separate which input is causing issues on the server.
     if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
