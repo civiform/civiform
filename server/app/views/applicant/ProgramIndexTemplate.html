@@ -3,10 +3,14 @@
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
   <body>
     <h1 th:text="#{content.findPrograms}"></h1>
-    <div th:text="#{content.findProgramsDescription}"></div>
     <div
-      th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cards})}"
+      th:text="#{content.findProgramsDescription(${civicEntityShortName})}"
     ></div>
+    <th:block th:each="section : ${sections}">
+      <div
+        th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
+      ></div>
+    </th:block>
     <div id="modal-container"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"

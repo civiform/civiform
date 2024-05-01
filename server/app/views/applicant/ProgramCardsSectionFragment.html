@@ -1,8 +1,18 @@
 <!doctype html>
 
-<div th:fragment="cardsSection (cards)">
+<div
+  th:fragment="cardsSection (section)"
+  class="cf-application-program-section grid grid-cols-1 gap-4 justify-between place-items-center items-start"
+  th:attr="${section.getId().isPresent()}?aria-labelledby=${section.getId().get()}"
+>
+  <h3
+    th:if="${section.getTitle().isPresent()}"
+    th:id="${section.getId().get()}"
+    th:text="${section.getTitle().get()}"
+    class="my-4 text-lg px-4"
+  ></h3>
   <ul class="usa-card-group">
-    <th:block th:each="card : ${cards}">
+    <th:block th:each="card : ${section.getCards()}">
       <li
         th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card})}"
       ></li>
@@ -16,7 +26,10 @@
 >
   <div class="usa-card__container">
     <div class="usa-card__header">
-      <h2 class="usa-card__heading" th:text="${card.getTitle()}"></h2>
+      <h2
+        class="usa-card__heading cf-application-card-title"
+        th:text="${card.getTitle()}"
+      ></h2>
     </div>
     <div class="usa-card__body">
       <p th:text="${card.getBody()}"></p>
