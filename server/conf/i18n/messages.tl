@@ -180,11 +180,11 @@ content.warning=Walang application na naisumite para sa kliyenteng ito, kaya wal
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(walang email address)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=Hindi pa naka-log in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=Naka-log in, walang isinumiteng aplikasyon
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=Huling nagsumite ng aplikasyon noong {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
 
@@ -222,9 +222,9 @@ label.nameExample=Halimbawa: Gu o Darren o Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Mga Tala
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Phone number
+label.phoneNum=Numero ng telepono
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Search by date of birth
+label.searchByDob=Maghanap ayon sa petsa ng kapanganakan
 # The label above the name search field of the client search.
 label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
@@ -237,17 +237,17 @@ link.edit=I-edit
 link.selectNewClient=Pumili ng bagong kliyente
 
 # This is the header above the list of clients and the client search.
-title.allClients=All clients
+title.allClients=Lahat ng kliyente
 # This is the heading above a new client creation form.
 title.createClient=Gumawa ng bagong kliyente
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=I-edit ang impormasyon ng kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Nagpapakita ng 1 kliyente
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=Ipinapakita ang lahat ng kliyente
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Mga miyembro ng organisasyon
 # HTML document title for the trusted intermediary dashboard page
