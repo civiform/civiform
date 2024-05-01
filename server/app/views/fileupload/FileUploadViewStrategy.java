@@ -46,6 +46,7 @@ public abstract class FileUploadViewStrategy {
         .withClasses(getUploadFormClass());
   }
 
+  /** Returns the action attribute appended to the <form> element for a file upload question. */
   public String formAction(StorageUploadRequest request) {
     return null;
   }

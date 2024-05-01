@@ -56,21 +56,13 @@
         th:with="hasUploadedFile=${fileUploadQuestion.getFileKeyValue().isPresent()}"
       >
         <!-- Review page button -->
-        <button
-          type="submit"
-          form="cf-block-form"
-          th:attr="data-redirect-with-file=${reviewPageWithFile},data-redirect-without-file=${reviewPageWithoutFile}"
-          th:text="#{button.review}"
-          class="file-upload-action-button"
-        ></button>
+        <div
+          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.review}, ${reviewPageWithFile}, ${reviewPageWithoutFile})}"
+        ></div>
         <!-- Previous block button -->
-        <button
-          type="submit"
-          form="cf-block-form"
-          th:attr="data-redirect-with-file=${previousBlockWithFile},data-redirect-without-file=${previousBlockWithoutFile}"
-          th:text="#{button.previousScreen}"
-          class="file-upload-action-button"
-        ></button>
+        <div
+          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.previousScreen}, ${previousBlockWithFile}, ${previousBlockWithoutFile})}"
+        ></div>
         <div th:if="${question.isOptional()}">
           <!-- Delete button -->
           <button
@@ -90,13 +82,9 @@
           ></button>
         </div>
         <!-- Next block button -->
-        <button
-          type="submit"
-          form="cf-block-form"
-          th:attr="data-redirect-with-file=${nextBlockWithFile}"
-          th:text="#{button.nextScreen}"
-          class="file-upload-action-button"
-        ></button>
+        <div
+          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.nextScreen}, ${nextBlockWithFile}, null)}"
+        ></div>
         <!-- Continue button -->
         <button
           th:if="${hasUploadedFile}"
