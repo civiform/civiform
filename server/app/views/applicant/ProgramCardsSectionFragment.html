@@ -3,7 +3,7 @@
 <div
   th:fragment="cardsSection (section)"
   class="cf-application-program-section grid grid-cols-1 gap-4 justify-between place-items-center items-start"
-  th:attr="${section.id().isPresent()}?aria-labelledby=${section.id().get()}"
+  th:attrappend="aria-labelledby=${section.id().isPresent()}?${section.id().get()}"
 >
   <h3
     th:if="${section.title().isPresent()}"
