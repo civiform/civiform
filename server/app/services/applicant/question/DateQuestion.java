@@ -72,10 +72,6 @@ public final class DateQuestion extends Question {
         .orElse(getDefaultAnswerString());
   }
 
-  // Load the date value. We first check the single input value, if present. If that isn't there,
-  // we check the memorable date component. In the Thymeleaf implementation, we clear the single
-  // input path, which ensures that if we want to use the memorable date, it is the only one
-  // present.
   public Optional<LocalDate> getDateValue() {
     if (dateValue != null) {
       return dateValue;
@@ -90,9 +86,6 @@ public final class DateQuestion extends Question {
     return dateValue;
   }
 
-  // Rather than reading directly from the month input, this checks the date value and extracts the
-  // month, to be able to load the Month value if it was set by the user prior to migration to the
-  // Memorable date component.
   public Optional<Integer> getMonthValue() {
     return getDateValue()
         .map(localDate -> Optional.of(localDate.getMonthValue()))

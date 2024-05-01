@@ -131,9 +131,9 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                dateQuestion.getDayPath(),
+                dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DAY))));
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
   }
 
@@ -150,9 +150,9 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                dateQuestion.getYearPath(),
+                dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_YEAR_REQUIRED))));
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
   }
 
@@ -169,9 +169,9 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                dateQuestion.getMonthPath(),
+                dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED))));
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
   }
 
@@ -188,9 +188,9 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                dateQuestion.getDayPath(),
+                dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED))));
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
   }
 

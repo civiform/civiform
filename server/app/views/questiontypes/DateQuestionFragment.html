@@ -17,7 +17,8 @@
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
-    <!-- Display field specific error messages for the shared date path -->
+    <!-- Display error messages for the shared date path. We actually use 3 different paths for
+    inputs, but all errors are reported on the date path. -->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())})}"
     ></div>
@@ -105,9 +106,6 @@
             th:selected="${value == 12}"
           ></option>
         </select>
-        <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getMonthPath())})}"
-        ></div>
       </div>
       <!-- Day of month input -->
       <div
@@ -129,9 +127,6 @@
           inputmode="numeric"
           th:value="${dateQuestion.getDayValue().orElse('')}"
         />
-        <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDayPath())})}"
-        ></div>
       </div>
       <!-- Year input -->
       <div
@@ -154,9 +149,6 @@
           inputmode="numeric"
           th:value="${dateQuestion.getYearValue().orElse('')}"
         />
-        <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getYearPath())})}"
-        ></div>
       </div>
     </div>
   </fieldset>

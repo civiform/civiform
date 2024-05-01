@@ -1869,6 +1869,9 @@ public final class ApplicantService {
                   String yearValue = formData.get(dateQuestion.getYearPath().toString());
                   String monthValue = formData.get(dateQuestion.getMonthPath().toString());
                   String dayValue = formData.get(dateQuestion.getDayPath().toString());
+                  // Note: We intentionally don't check for null or empty strings in the individual
+                  // values, because in those cases we want to generate an invalid date so the
+                  // update can be rejected and we can show a proper error message.
                   String dateString =
                       String.format(
                           "%s-%s-%s",
@@ -1876,6 +1879,7 @@ public final class ApplicantService {
                           Strings.padStart(monthValue, 2, '0'),
                           Strings.padStart(dayValue, 2, '0'));
                   newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+                  // Remove the 3 individual paths, so they won't be stored.
                   newFormData.remove(dateQuestion.getYearPath().toString());
                   newFormData.remove(dateQuestion.getMonthPath().toString());
                   newFormData.remove(dateQuestion.getDayPath().toString());
