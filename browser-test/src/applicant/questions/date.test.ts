@@ -168,7 +168,9 @@ test.describe('Date question for applicant flow', () => {
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
       })
 
       test('Renders existing values', async ({page, applicantQuestions}) => {

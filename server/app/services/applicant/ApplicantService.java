@@ -1870,7 +1870,8 @@ public final class ApplicantService {
 
                 // If the value in the single input is not present or empty, and there is at least
                 // one memorable date value, convert to a date.
-                if ((singleDateValue == null || singleDateValue.isEmpty()) && hasMemorableDateValue) {
+                if ((singleDateValue == null || singleDateValue.isEmpty())
+                    && hasMemorableDateValue) {
                   // Note: If a memorable date input value is not present, replace it with a
                   // placeholder. This will fail to parse as a date without throwing a
                   // NullPointerException when building the date string.
