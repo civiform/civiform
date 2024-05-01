@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import models.DisplayMode;
 import models.VersionModel;
@@ -50,8 +51,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), ActiveAndDraftProgramsType.INUSE);
+    return new ActiveAndDraftPrograms(repository, Optional.empty(), ActiveAndDraftProgramsType.ALL);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -98,38 +98,51 @@ public final class ActiveAndDraftPrograms {
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
+
+    ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+        mapNameToProgram(repository, service, active);
+
+    ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+        mapNameToProgram(repository, service, draft);
     switch (type) {
       case INUSE:
-        this.activePrograms = activeNameToProgram.values().asList();
-        this.draftPrograms = draftNameToProgram.values().asList();
+        this.activePrograms = ImmutableList.copyOf(activeNameToProgram.values());
+        this.draftPrograms = ImmutableList.copyOf(draftNameToProgram.values());
+        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+        break;
+      case DISABLED:
+        this.activePrograms = ImmutableList.copyOf(activeNameToProgram.values());
+        this.draftPrograms = ImmutableList.copyOf(draftNameToProgram.values());
+        // Pass only the maps, not the sets, as that's what the method expects.
         this.versionedByName =
-            Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
-                .collect(
-                    ImmutableMap.toImmutableMap(
-                        Function.identity(),
-                        programName -> {
-                          return Pair.create(
-                              Optional.ofNullable(activeNameToProgram.get(programName)),
-                              Optional.ofNullable(draftNameToProgram.get(programName)));
-                        }));
+            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
         break;
       case ALL:
-        this.activePrograms = activeNameToProgramAll.values().asList();
-        this.draftPrograms = draftNameToProgramAll.values().asList();
+        this.activePrograms = ImmutableList.copyOf(activeNameToProgramAll.values());
+        this.draftPrograms = ImmutableList.copyOf(draftNameToProgramAll.values());
         this.versionedByName =
-            Sets.union(activeNameToProgramAll.keySet(), draftNameToProgramAll.keySet()).stream()
-                .collect(
-                    ImmutableMap.toImmutableMap(
-                        Function.identity(),
-                        programName -> {
-                          return Pair.create(
-                              Optional.ofNullable(activeNameToProgramAll.get(programName)),
-                              Optional.ofNullable(draftNameToProgramAll.get(programName)));
-                        }));
+            createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
         break;
       default:
         throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
     }
+  }
+
+  private ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
+      createVersionedByNameMap(
+          ImmutableMap<String, ProgramDefinition> activeNameToProgram,
+          ImmutableMap<String, ProgramDefinition> draftNameToProgram) {
+    Set<String> allProgramNames =
+        Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet());
+
+    return allProgramNames.stream()
+        .collect(
+            ImmutableMap.toImmutableMap(
+                Function.identity(),
+                programName ->
+                    Pair.create(
+                        Optional.ofNullable(activeNameToProgram.get(programName)),
+                        Optional.ofNullable(draftNameToProgram.get(programName)))));
   }
 
   public ImmutableList<ProgramDefinition> getActivePrograms() {
