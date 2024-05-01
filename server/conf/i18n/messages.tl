@@ -208,11 +208,11 @@ label.dobExample=Halimbawa: Enero 28, 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Date of birth required
+label.errorDOB=Error: Kinakailangan ang petsa ng kapanganakan
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=First name required
+label.errorFirstName=Error: Kinakailangan ang pangalan
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Last name required
+label.errorLastName=Error: Kinakailangan ang apelyido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
