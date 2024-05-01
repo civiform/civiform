@@ -26,7 +26,7 @@ public final class ActiveAndDraftPrograms {
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
 
-  enum ActiveAndDraftProgramsType{
+  enum ActiveAndDraftProgramsType {
     INUSE,
     DISABLED,
     ALL
@@ -39,7 +39,8 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.of(service), ActiveAndDraftProgramsType.ALL);
+    return new ActiveAndDraftPrograms(
+        repository, Optional.of(service), ActiveAndDraftProgramsType.ALL);
   }
 
   /**
@@ -49,7 +50,8 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), ActiveAndDraftProgramsType.INUSE);
+    return new ActiveAndDraftPrograms(
+        repository, Optional.empty(), ActiveAndDraftProgramsType.INUSE);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -75,56 +77,61 @@ public final class ActiveAndDraftPrograms {
       VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
     return mapNameToProgramWithFilter(repository, service, versionModel, Optional.empty());
   }
+
   private ActiveAndDraftPrograms(
-    VersionRepository repository, Optional<ProgramService> service,ActiveAndDraftProgramsType type) {
+      VersionRepository repository,
+      Optional<ProgramService> service,
+      ActiveAndDraftProgramsType type) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-      mapNameToProgramWithFilter(repository, service, active, Optional.of(DisplayMode.DISABLED));
+        mapNameToProgramWithFilter(repository, service, active, Optional.of(DisplayMode.DISABLED));
 
     ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
-      mapNameToProgram(repository, service, active);
+        mapNameToProgram(repository, service, active);
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-      mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
+        mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
-      mapNameToProgram(repository, service, draft);
-    switch(type) {
+        mapNameToProgram(repository, service, draft);
+    switch (type) {
       case INUSE:
         this.activePrograms = activeNameToProgram.values().asList();
         this.draftPrograms = draftNameToProgram.values().asList();
         this.versionedByName =
-          Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
-            .collect(
-              ImmutableMap.toImmutableMap(
-                Function.identity(),
-                programName -> {
-                  return Pair.create(
-                    Optional.ofNullable(activeNameToProgram.get(programName)),
-                    Optional.ofNullable(draftNameToProgram.get(programName)));
-                }));
+            Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
+                .collect(
+                    ImmutableMap.toImmutableMap(
+                        Function.identity(),
+                        programName -> {
+                          return Pair.create(
+                              Optional.ofNullable(activeNameToProgram.get(programName)),
+                              Optional.ofNullable(draftNameToProgram.get(programName)));
+                        }));
         break;
       case ALL:
         this.activePrograms = activeNameToProgramAll.values().asList();
         this.draftPrograms = draftNameToProgramAll.values().asList();
-        this.versionedByName = Sets.union(activeNameToProgramAll.keySet(), draftNameToProgramAll.keySet()).stream()
-          .collect(
-            ImmutableMap.toImmutableMap(
-              Function.identity(),
-              programName -> {
-                return Pair.create(
-                  Optional.ofNullable(activeNameToProgramAll.get(programName)),
-                  Optional.ofNullable(draftNameToProgramAll.get(programName)));
-              }));
+        this.versionedByName =
+            Sets.union(activeNameToProgramAll.keySet(), draftNameToProgramAll.keySet()).stream()
+                .collect(
+                    ImmutableMap.toImmutableMap(
+                        Function.identity(),
+                        programName -> {
+                          return Pair.create(
+                              Optional.ofNullable(activeNameToProgramAll.get(programName)),
+                              Optional.ofNullable(draftNameToProgramAll.get(programName)));
+                        }));
         break;
       default:
         throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
     }
   }
+
   public ImmutableList<ProgramDefinition> getActivePrograms() {
     return activePrograms;
   }
