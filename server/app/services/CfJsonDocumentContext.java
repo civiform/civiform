@@ -122,6 +122,7 @@ public class CfJsonDocumentContext {
           String.format("Invalid phone number format: %s", phoneNumber.replaceAll("\\d", "X")));
     }
   }
+
   /**
    * Stores the dollars currency string as a long of the currency cents at the given {@link Path}.
    *

@@ -16,8 +16,8 @@ import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -1496,7 +1496,7 @@ public final class ApplicantService {
           case DATE:
             try {
               applicantData.putDate(currentPath, update.value());
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
@@ -1835,10 +1835,10 @@ public final class ApplicantService {
             });
   }
 
-    /**
-   * Checks the block for any {@link DateQuestion}. Since there are two different UI components
-   * that can display date questions, consolidate any Date questions into the central date path
-   * so UI differences are not reflected in the database.
+  /**
+   * Checks the block for any {@link DateQuestion}. Since there are two different UI components that
+   * can display date questions, consolidate any Date questions into the central date path so UI
+   * differences are not reflected in the database.
    */
   public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
       long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
@@ -1862,21 +1862,27 @@ public final class ApplicantService {
 
                 DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
-                Optional<String> phoneNumber =
-                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+                String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
 
-                PhoneValidationResult result =
-                    PhoneValidationUtils.determineCountryCode(phoneNumber);
-
-                if (result.isValid()) {
-                  newFormData.put(
-                      phoneQuestion.getCountryCodePath().toString(),
-                      result.getCountryCode().orElse(""));
+                // If the value is not present or empty, check the 3 individual input paths.
+                if (singleDateValue == null || singleDateValue.isEmpty()) {
+                  String yearValue = formData.get(dateQuestion.getYearPath().toString());
+                  String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+                  String dayValue = formData.get(dateQuestion.getDayPath().toString());
+                  String dateString =
+                      String.format(
+                          "%s-%s-%s",
+                          yearValue,
+                          Strings.padStart(monthValue, 2, '0'),
+                          Strings.padStart(dayValue, 2, '0'));
+                  newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+                  newFormData.remove(dateQuestion.getYearPath().toString());
+                  newFormData.remove(dateQuestion.getMonthPath().toString());
+                  newFormData.remove(dateQuestion.getDayPath().toString());
                 }
               }
 
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
   }
-}
 }

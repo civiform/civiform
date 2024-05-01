@@ -420,11 +420,7 @@ content.december=12 - December
 label.dayOfMonth=Day
 # Label on an input for the user the enter the month for a date question.
 label.month=Month
-# Validation error shown when the user does not enter the day of month in a date question.
-validation.dayRequired=Day is required
 validation.invalidDateFormat=Please enter a date in the correct format
-<<<<<<< HEAD
-<<<<<<< HEAD
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=January
 # A month option when selecting a specific date from a dropdown menu.
@@ -457,16 +453,6 @@ error.incompleteDate=Error: Please enter month, day and year.
 validation.dobNotInPast=Date of Birth should be in the past
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
 validation.impossibleDob=Date of Birth should be less than 150 years ago
-=======
-=======
-# Validation error shown when the month/year the user entered doesn't have the specified day (eg Feb 31)
-validation.invalidDay=Invalid day
-# Validation error shown when the user does not enter the month in a date question.
->>>>>>> 52ac5ac31 (handle migration and added comments)
-validation.monthRequired=Month is required
-# Validation error shown when the user does not enter the year in a date question.
-validation.yearRequired=Year is required
->>>>>>> f1586ae11 (Render date question with Thymeleaf)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

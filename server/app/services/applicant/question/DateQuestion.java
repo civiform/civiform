@@ -3,7 +3,6 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -33,66 +32,16 @@ public final class DateQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a date and been noted as a failed update. We check for that here.
+    // TODO(#7356): Implement client side validation to prevent invalid dates from being entered,
+    // since
+    // it's difficult to separate which input is causing issues on the server.
     if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
           ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
-    // If the Date path is empty, we are using the memorable date component, so we need to validate
-    // each individually.
-    if (applicantData.readDate(getDatePath()).isEmpty()
-        && !(applicantData.readLong(getMonthPath()).isEmpty()
-            && applicantData.readLong(getDayPath()).isEmpty()
-            && applicantData.readLong(getYearPath()).isEmpty())) {
-      return ImmutableMap.of(
-          getMonthPath(), validateMonth(),
-          getDayPath(), validateDay(),
-          getYearPath(), validateYear());
-    }
     return ImmutableMap.of();
-  }
-
-  private ImmutableSet<ValidationErrorMessage> validateMonth() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
-
-    if (applicantData.readLong(getMonthPath()).isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED));
-    }
-
-    return ImmutableSet.of();
-  }
-
-  private ImmutableSet<ValidationErrorMessage> validateYear() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
-
-    if (applicantData.readLong(getYearPath()).isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_YEAR_REQUIRED));
-    }
-
-    return ImmutableSet.of();
-  }
-
-  private ImmutableSet<ValidationErrorMessage> validateDay() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
-
-    Optional<Long> dayValue = applicantData.readLong(getDayPath());
-    if (dayValue.isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED));
-    }
-    // Verify that we can parse the Date from the given inputs, if they are filled in.
-    // If we can't parse the date, the user inputted an invalid date (a day that does
-    // not exist in the specified month.)
-    try {
-      getMemorableDateValue();
-    } catch (DateTimeException e) {
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DAY));
-    }
-
-    return ImmutableSet.of();
   }
 
   @Override
@@ -131,18 +80,9 @@ public final class DateQuestion extends Question {
     if (dateValue != null) {
       return dateValue;
     }
+
     ApplicantData applicantData = applicantQuestion.getApplicantData();
-
-    dateValue = getSingleInputDateValue();
-
-    // In the North Star UI
-    if (dateValue.isEmpty()) {
-      try {
-        dateValue = getMemorableDateValue();
-      } catch (DateTimeException e) {
-        dateValue = Optional.empty();
-      }
-    }
+    dateValue = applicantData.readDate(getDatePath());
 
     if (dateValue.isEmpty() && isPaiQuestion()) {
       dateValue = applicantData.getDateOfBirth();
@@ -169,24 +109,6 @@ public final class DateQuestion extends Question {
     return getDateValue()
         .map(localDate -> Optional.of(localDate.getDayOfMonth()))
         .orElse(Optional.empty());
-  }
-
-  private Optional<LocalDate> getMemorableDateValue() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
-    Optional<Long> yearValue = applicantData.readLong(getYearPath());
-    Optional<Long> monthValue = applicantData.readLong(getMonthPath());
-    Optional<Long> dayValue = applicantData.readLong(getDayPath());
-    if (yearValue.isPresent() && monthValue.isPresent() && dayValue.isPresent()) {
-      return Optional.of(
-          LocalDate.of(
-              yearValue.get().intValue(), monthValue.get().intValue(), dayValue.get().intValue()));
-    }
-    return Optional.empty();
-  }
-
-  private Optional<LocalDate> getSingleInputDateValue() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
-    return applicantData.readDate(getDatePath());
   }
 
   public DateQuestionDefinition getQuestionDefinition() {

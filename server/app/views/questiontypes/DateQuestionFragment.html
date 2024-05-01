@@ -17,6 +17,10 @@
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
+    <!-- Display field specific error messages for the shared date path -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())})}"
+    ></div>
 
     <!-- Hidden input to delete the old single date value. -->
     <input hidden th:name="${dateQuestion.getDatePath()}" value="" />
@@ -37,9 +41,9 @@
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
           th:aria-describedby="${questionId} + '-description'"
-          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(monthPath)}"
+          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty()}"
         >
-          <option value>- Select -</option>
+          <option value th:text="#{placeholder.memorableDate}"></option>
           <option
             value="1"
             th:text="#{content.january}"
@@ -124,7 +128,6 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getDayValue().orElse('')}"
-          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(dayPath)}"
         />
         <div
           th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDayPath())})}"
@@ -150,7 +153,6 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getYearValue().orElse('')}"
-          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(yearPath)}"
         />
         <div
           th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getYearPath())})}"
