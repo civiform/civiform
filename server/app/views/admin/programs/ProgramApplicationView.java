@@ -107,16 +107,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
               .orElseThrow();
       blockToAnswers.put(answerBlock, answer);
     }
-    String programSlug = application.getProgram().getProgramDefinition().slug();
-    StatusDefinitions statusDefinitions1 =
-        programService
-            .getActiveFullProgramDefinitionAsync(programSlug)
-            .toCompletableFuture()
-            .join()
-            .statusDefinitions();
-
     ImmutableList<Modal> statusUpdateConfirmationModals =
-        statusDefinitions1.getStatuses().stream()
+        statusDefinitions.getStatuses().stream()
             .map(
                 status ->
                     renderStatusUpdateConfirmationModal(
@@ -147,12 +139,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withClasses("flex", "flex-wrap", "gap-2")
                             // Status options if configured on the program.
                             .condWith(
-                                !statusDefinitions1.getStatuses().isEmpty(),
+                                !statusDefinitions.getStatuses().isEmpty(),
                                 div()
                                     .withClasses("flex", "mr-4", "gap-2")
                                     .with(
-                                        renderStatusOptionsSelector(
-                                            application, statusDefinitions1),
+                                        renderStatusOptionsSelector(application, statusDefinitions),
                                         updateNoteModal.getButton()))
                             .with(renderDownloadButton(programId, application.id))))
             .with(
