@@ -180,11 +180,11 @@ content.warning=No se enviaron solicitudes para este cliente, por lo que no se p
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(no se proporcionó una dirección de correo electrónico)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=Todavía no accedió
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=Accedió, pero no envió solicitudes
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=Se envió la última solicitud el {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 
@@ -222,9 +222,9 @@ label.nameExample=Por ejemplo: López o Pablo o Pablo López
 # Label above the text input field for notes about a client.
 label.notes=Notas
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Phone number
+label.phoneNum=Número de teléfono
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Search by date of birth
+label.searchByDob=Buscar por fecha de nacimiento
 # The label above the name search field of the client search.
 label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
@@ -237,17 +237,17 @@ link.edit=Editar
 link.selectNewClient=Seleccionar un nuevo cliente
 
 # This is the header above the list of clients and the client search.
-title.allClients=All clients
+title.allClients=Todos los clientes
 # This is the heading above a new client creation form.
 title.createClient=Crea un cliente nuevo
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=Edita la información del cliente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Se muestran {0} clientes
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Se muestra 1 cliente
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=Se muestran todos los clientes
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Miembros de la organización
 # HTML document title for the trusted intermediary dashboard page
