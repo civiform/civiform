@@ -646,7 +646,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             each(
                                 referencingPrograms,
                                 programReference -> {
-                                  return li(programReference.adminName());
+                                  return li(programReference.localizedName().getDefault());
                                 }))));
   }
 
