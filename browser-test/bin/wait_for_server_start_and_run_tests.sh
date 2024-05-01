@@ -33,6 +33,7 @@ fi
 # Install any new packages not built into the image
 # Also saves any package-lock.json changes back to your local filesystem.
 npm install --quiet
+npx playwright install --with-deps chromium
 
 echo "Polling to check server start. Server url: ${BASE_URL}"
 

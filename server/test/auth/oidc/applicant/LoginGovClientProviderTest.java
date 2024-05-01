@@ -5,6 +5,8 @@ import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -22,8 +24,8 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
@@ -41,8 +43,9 @@ public class LoginGovClientProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    UserRepository userRepository = instanceOf(UserRepository.class);
+    AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    IdTokensFactory idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -55,7 +58,11 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     loginGovProvider =
         new LoginGovClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+            OidcClientProviderParams.create(
+                config,
+                profileFactory,
+                idTokensFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test
@@ -116,7 +123,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
         client.getLogoutAction(
-            webContext, mockSessionStore, new CiviFormProfileData(), afterLogoutUri);
+            webContext, mockSessionStore, new CiviFormProfileData(1L), afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)

@@ -7,10 +7,12 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.RandomStringUtils;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -38,8 +40,9 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
-    SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
+    SingleSelectQuestion singleOptionQuestion = applicantQuestion.createSingleSelectQuestion();
     boolean hasErrors = !validationErrors.isEmpty();
+    AtomicBoolean alreadyAutofocused = new AtomicBoolean(false);
 
     DivTag radioQuestionFormContent =
         div()
@@ -47,13 +50,22 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                 singleOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
                     .map(
-                        option ->
-                            renderRadioOption(
-                                singleOptionQuestion.getSelectionPath().toString(),
-                                option,
-                                singleOptionQuestion.optionIsSelected(option),
-                                hasErrors,
-                                isOptional)));
+                        option -> {
+                          boolean shouldAutofocus = false;
+
+                          if (params.autofocusSingleField() && !alreadyAutofocused.get()) {
+                            shouldAutofocus = true;
+                            alreadyAutofocused.setPlain(true);
+                          }
+
+                          return renderRadioOption(
+                              singleOptionQuestion.getSelectionPath().toString(),
+                              option,
+                              singleOptionQuestion.optionIsSelected(option),
+                              hasErrors,
+                              isOptional,
+                              shouldAutofocus);
+                        }));
 
     return radioQuestionFormContent;
   }
@@ -63,13 +75,10 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       LocalizedQuestionOption option,
       boolean checked,
       boolean hasErrors,
-      boolean isOptional) {
+      boolean isOptional,
+      boolean shouldAutofocus) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
-    LabelTag labelTag =
-        label()
-            .withFor(id)
-            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
     InputTag inputTag =
         input()
             .withId(id)
@@ -77,9 +86,17 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
+            .condAttr(shouldAutofocus, Attr.AUTOFOCUS, "")
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(!isOptional, "aria-required", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
+
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .withClasses("inline-block", "w-full", "h-full")
+            .with(inputTag)
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
         .withClasses(
@@ -88,8 +105,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
-            checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-        .with(inputTag)
+            checked ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
         .with(labelTag);
   }
 }

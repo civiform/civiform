@@ -12,10 +12,8 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
-import com.itextpdf.text.DocumentException;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -24,7 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -34,6 +32,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
@@ -45,10 +44,11 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
 import services.applications.AccountHasNoEmailException;
+import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
-import services.export.JsonExporter;
+import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -67,15 +67,14 @@ public final class AdminApplicationController extends CiviFormController {
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
   private final ApplicantService applicantService;
+  private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ProgramService programService;
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
-  private final JsonExporter jsonExporter;
-  private final PdfExporter pdfExporter;
-  private final ProfileUtils profileUtils;
+  private final JsonExporterService jsonExporterService;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
@@ -86,26 +85,27 @@ public final class AdminApplicationController extends CiviFormController {
       ApplicantService applicantService,
       CsvExporterService csvExporterService,
       FormFactory formFactory,
-      JsonExporter jsonExporter,
-      PdfExporter pdfExporter,
+      JsonExporterService jsonExporterService,
+      PdfExporterService pdfExporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider) {
+      @Now Provider<LocalDateTime> nowProvider,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
-    this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
-    this.jsonExporter = checkNotNull(jsonExporter);
-    this.pdfExporter = checkNotNull(pdfExporter);
+    this.jsonExporterService = checkNotNull(jsonExporterService);
+    this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
   }
@@ -124,8 +124,8 @@ public final class AdminApplicationController extends CiviFormController {
     final ProgramDefinition program;
 
     try {
-      program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      program = programService.getFullProgramDefinition(programId);
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -147,10 +147,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
-        jsonExporter
-            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters)
-            .getLeft();
-
+        jsonExporterService.export(
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters, request);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -182,10 +180,10 @@ public final class AdminApplicationController extends CiviFormController {
                 .setApplicationStatus(applicationStatus)
                 .build();
       }
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters, request);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -203,8 +201,8 @@ public final class AdminApplicationController extends CiviFormController {
   public Result downloadSingleVersion(Http.Request request, long programId)
       throws ProgramNotFoundException {
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
@@ -218,7 +216,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   /**
    * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
-   * start of that date in the time zone configured for the server deployment.
+   * start of that date in the UTC time zone.
    */
   private Optional<Instant> parseDateFromQuery(
       DateConverter dateConverter, Optional<String> maybeQueryParam) {
@@ -227,7 +225,7 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -258,26 +256,21 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
-
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
-      return notFound(String.format("Application %d does not exist.", applicationId));
+      return badRequest(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
-
-    PdfExporter.InMemoryPdf pdf;
-    try {
-      pdf = pdfExporter.export(application);
-    } catch (DocumentException | IOException e) {
-      throw new RuntimeException(e);
-    }
+    ApplicationModel application = applicationMaybe.get();
+    PdfExporter.InMemoryPdf pdf =
+        pdfExporterService.generateApplicationPdf(
+            application, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
@@ -288,21 +281,21 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
@@ -318,7 +311,7 @@ public final class AdminApplicationController extends CiviFormController {
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
@@ -341,23 +334,25 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
+      throws ProgramNotFoundException,
+          StatusEmailNotFoundException,
+          StatusNotFoundException,
           AccountHasNoEmailException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
@@ -408,7 +403,8 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).get().getAccount().join(),
+        request);
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
@@ -421,21 +417,21 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateNote(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
@@ -495,16 +491,16 @@ public final class AdminApplicationController extends CiviFormController {
 
     final ProgramDefinition program;
     try {
-      program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      program = programService.getFullProgramDefinition(programId);
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
-    PaginationResult<Application> applications =
+    PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, F.Either.Right(paginationSpec), filters, request);
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
@@ -525,7 +521,7 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
-    return programService.getAllProgramDefinitionVersions(programId).stream()
+    return programService.getAllVersionsFullProgramDefinition(programId).stream()
         .map(pdef -> pdef.statusDefinitions().getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)

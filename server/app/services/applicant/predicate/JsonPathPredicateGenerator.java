@@ -6,6 +6,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
 import services.DateConverter;
 import services.Path;
@@ -64,7 +65,7 @@ public final class JsonPathPredicateGenerator {
         String.format(
             "%s[?(@.%s %s %s)]",
             getPath(node).predicateFormat(),
-            node.scalar().name().toLowerCase(),
+            node.scalar().name().toLowerCase(Locale.ROOT),
             node.operator().toJsonPathOperator(),
             node.comparedValue().value()));
   }
@@ -91,7 +92,7 @@ public final class JsonPathPredicateGenerator {
         String.format(
             "%s[?(@.%s %s %s)]",
             getPath(node).predicateFormat(),
-            Scalar.SERVICE_AREA.name().toLowerCase(),
+            Scalar.SERVICE_AREA.name().toLowerCase(Locale.ROOT),
             Operator.IN_SERVICE_AREA.toJsonPathOperator(),
             String.format(
                 "/([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*%1$s_(%2$s|%3$s)_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/",
@@ -136,16 +137,17 @@ public final class JsonPathPredicateGenerator {
                 getPath(node).predicateFormat(),
                 dateConverter.getDateTimestampFromAge(ageRange.get(0)),
                 dateConverter.getDateTimestampFromAge(ageRange.get(1)),
-                node.scalar().name().toLowerCase()));
+                node.scalar().name().toLowerCase(Locale.ROOT)));
       case AGE_OLDER_THAN:
       case AGE_YOUNGER_THAN:
         return JsonPathPredicate.create(
             String.format(
                 "%s[?(%s %s @.%s)]",
                 getPath(node).predicateFormat(),
-                dateConverter.getDateTimestampFromAge(Long.parseLong(node.comparedValue().value())),
+                dateConverter.getDateTimestampFromAge(
+                    Double.parseDouble(node.comparedValue().value())),
                 node.operator().toJsonPathOperator(),
-                node.scalar().name().toLowerCase()));
+                node.scalar().name().toLowerCase(Locale.ROOT)));
       default:
         throw new InvalidPredicateException(
             String.format("Expecting an age predicate but instead received %s", node.operator()));

@@ -1,40 +1,44 @@
 package controllers.applicant;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import controllers.WithMockedProfiles;
-import featureflags.FeatureFlag;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import models.Applicant;
-import models.Application;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.test.Helpers;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
-  private Applicant currentApplicant;
+  private ApplicantModel currentApplicant;
+  private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
 
@@ -43,19 +47,38 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resetDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
+    applicantWithoutProfile = createApplicant();
   }
 
   @Test
-  public void index_differentApplicant_returnsUnauthorizedResult() {
-    Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  public void indexWithApplicantId_differentApplicant_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id + 1)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void index_withNoPrograms_returnsEmptyResult() {
-    Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+  public void indexWithApplicantId_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .indexWithApplicantId(request, applicantWithoutProfile.id)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void indexWithApplicantId_withNoPrograms_returnsEmptyResult() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -64,13 +87,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_withPrograms_returnsOnlyRelevantPrograms() {
+  public void indexWithApplicantId_withPrograms_returnsOnlyRelevantPrograms() {
     resourceCreator().insertActiveProgram("one");
     resourceCreator().insertActiveProgram("two");
     resourceCreator().insertDraftProgram("three");
 
-    Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -79,20 +103,29 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void indexWithApplicantId_clearsRedirectToSessionKey() {
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().session(REDIRECT_TO_SESSION_KEY, "redirect")).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();
+  }
+
+  @Test
   public void test_deduplicate_inProgressPrograms() {
     versionRepository = instanceOf(VersionRepository.class);
     String programName = "In Progress Program";
-    Program program = resourceCreator().insertActiveProgram(programName);
+    ProgramModel program = resourceCreator().insertActiveProgram(programName);
 
-    Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
+    ApplicationModel app = new ApplicationModel(currentApplicant, program, LifecycleStage.DRAFT);
     app.save();
 
     resourceCreator().insertDraftProgram(programName);
-
     this.versionRepository.publishNewSynchronizedVersion();
 
-    Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     // A program's name appears in the index view page content 3 times:
@@ -113,57 +146,60 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceCreator().insertActiveProgram("program");
+  public void indexWithApplicantId_withProgram_includesApplyButtonWithRedirect() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
   }
 
   @Test
-  public void index_withCommonIntakeform_includesStartHereButtonWithRedirect() {
-    Program program = resourceCreator().insertActiveCommonIntakeForm("benefits");
+  public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
+    ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
     Request request =
-        addCSRFToken(fakeRequest().session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true"))
-            .build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+        addCSRFToken(requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")).build();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
   }
 
   @Test
-  public void index_usesMessagesForUserPreferredLocale() {
+  public void indexWithApplicantId_usesMessagesForUserPreferredLocale() {
     // Set the PLAY_LANG cookie
     Http.Request request =
-        addCSRFToken(fakeRequest())
+        addCSRFToken(requestBuilderWithSettings())
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Obtén beneficios");
+    assertThat(contentAsString(result)).contains("Buscar programas");
   }
 
   @Test
-  public void index_missingTranslationForProgram_defaultsToEnglish() {
+  public void indexWithApplicantId_missingTranslationForProgram_defaultsToEnglish() {
     resourceCreator().insertActiveProgram(Locale.forLanguageTag("es-US"), "A different language!");
     resourceCreator().insertActiveProgram("English program"); // Missing translation
 
     // Set the PLAY_LANG cookie
     Http.Request request =
-        addCSRFToken(fakeRequest())
+        addCSRFToken(requestBuilderWithSettings())
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("A different language!");
@@ -171,24 +207,26 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_includesApplyButton() {
-    Program program = resourceCreator().insertActiveProgram("program");
+  public void showWithApplicantId_includesApplyButton() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.view(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .showWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(
-            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
+        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
   }
 
   @Test
-  public void view_invalidProgram_returnsBadRequest() {
+  public void showWithApplicantId_invalidProgram_returnsBadRequest() {
     Result result =
         controller
-            .view(fakeRequest().build(), currentApplicant.id, 9999L)
+            .showWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999)
             .toCompletableFuture()
             .join();
 
@@ -196,18 +234,84 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_differentApplicant_returnsUnauthorizedResult() {
-    Request request = addCSRFToken(fakeRequest()).build();
+  // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
+  // representing a program slug.
+  public void show_withStringProgramParam_showsByProgramSlug() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
+    // meaningful redirect location.
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+  }
+
+  @Test
+  public void edit_differentApplicant_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+        controller
+            .editWithApplicantId(request, currentApplicant.id + 1, 1L)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .editWithApplicantId(request, applicantWithoutProfile.id, 1L)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantAccessToDraftProgram_redirectsToHome() {
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, draftProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .editWithApplicantId(request, adminApplicantId, draftProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
   public void edit_invalidProgram_returnsBadRequest() {
     Result result =
         controller
-            .edit(fakeRequest().build(), currentApplicant.id, 9999L)
+            .editWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
             .toCompletableFuture()
             .join();
 
@@ -215,21 +319,38 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_applicantAccessToObsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, obsoleteProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
-    Program program =
-        ProgramBuilder.newDraftProgram()
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
+            routes.ApplicantProgramBlocksController.edit(
+                    program.id, "1", /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -237,8 +358,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
-    Program program =
-        ProgramBuilder.newDraftProgram()
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
@@ -251,14 +372,18 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     QuestionAnswerer.addMetadata(currentApplicant.getApplicantData(), colorPath, 456L, 12345L);
     currentApplicant.save();
 
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "2")
+            routes.ApplicantProgramBlocksController.edit(
+                    program.id, "2", /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -266,14 +391,17 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   //  end of program submission.
   @Ignore
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
-    Program program = resourceCreator().insertActiveProgram("My Program");
+    ProgramModel program = resourceCreator().insertActiveProgram("My Program");
 
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
+        .hasValue(routes.ApplicantProgramsController.index().url());
   }
 }

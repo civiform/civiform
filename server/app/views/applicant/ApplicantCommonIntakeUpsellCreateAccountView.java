@@ -11,18 +11,23 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
+import annotations.BindingAnnotations;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
+import java.util.Locale;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -34,34 +39,39 @@ import views.style.ReferenceClasses;
 public final class ApplicantCommonIntakeUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final Config configuration;
+  private final String authProviderName;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantCommonIntakeUpsellCreateAccountView(
-      ApplicantLayout layout, Config configuration) {
+      ApplicantLayout layout,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
-    this.configuration = checkNotNull(configuration);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.authProviderName = checkNotNull(authProviderName);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
       Http.Request request,
       String redirectTo,
-      Account account,
-      Optional<String> applicantName,
+      AccountModel account,
+      ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long programId,
-      boolean isTrustedIntermediary,
+      CiviFormProfile profile,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      ApplicantRoutes applicantRoutes) {
     boolean shouldUpsell = shouldUpsell(account);
 
     Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
                 redirectTo,
-                /*description=*/ MessageKey.GENERAL_LOGIN_MODAL_PROMPT,
+                /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
 
@@ -71,9 +81,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           redirectButton(
                   "go-back-and-edit",
                   messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramReviewController.review(
-                          applicantId, programId)
-                      .url())
+                  applicantRoutes.review(profile, applicantId, programId).url())
               .withClasses(ButtonStyles.OUTLINED_TRANSPARENT));
     }
 
@@ -89,46 +97,57 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           createApplyToProgramsButton(
               "apply-to-programs",
               messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-              applicantId));
+              applicantId,
+              profile,
+              applicantRoutes));
     }
 
     String title =
-        isTrustedIntermediary
+        profile.isTrustedIntermediary()
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
     var content =
         createMainContent(
             title,
-            eligibleProgramsSection(eligiblePrograms, messages, isTrustedIntermediary)
+            eligibleProgramsSection(
+                    request, eligiblePrograms, messages, profile.isTrustedIntermediary())
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
-            configuration.getString("auth.applicant_auth_provider_name"),
+            authProviderName,
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,
-        applicantName,
+        personalInfo,
         messages,
-        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content),
+        applicantId);
   }
 
   private SectionTag eligibleProgramsSection(
+      Http.Request request,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       boolean isTrustedIntermediary) {
     var eligibleProgramsSection = section();
 
     if (eligiblePrograms.isEmpty()) {
+      String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(request).get();
       var moreLink =
           new LinkElement()
               .setStyles("underline")
-              .setText(configuration.getString("common_intake_more_resources_link_text"))
-              .setHref(configuration.getString("common_intake_more_resources_link_href"))
+              .setText(linkText)
+              .setHref(settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get())
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
               .attr(
-                  "aria-label", configuration.getString("common_intake_more_resources_link_text"));
+                  "aria-label",
+                  linkText
+                      + " "
+                      + messages
+                          .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                          .toLowerCase(Locale.ROOT));
 
       return eligibleProgramsSection.with(
           p(isTrustedIntermediary

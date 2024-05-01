@@ -1,21 +1,18 @@
 package auth.oidc.applicant;
 
-import auth.ProfileFactory;
 import auth.oidc.OidcClientProvider;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc";
+  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc.";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
 
@@ -34,11 +31,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String LOCALE_ATTRIBUTE_CONFIG_NAME = "locale_attribute";
 
   @Inject
-  public GenericOidcClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+  public GenericOidcClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override
@@ -62,13 +56,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
     getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     return new GenericApplicantProfileCreator(
-        config,
-        client,
-        profileFactory,
-        applicantRepositoryProvider,
-        emailAttr,
-        localeAttr.orElse(null),
-        nameAttrsBuilder.build());
+        config, client, params, emailAttr, localeAttr.orElse(null), nameAttrsBuilder.build());
   }
 
   @Override
@@ -108,5 +96,11 @@ public class GenericOidcClientProvider extends OidcClientProvider {
       return ImmutableList.of();
     }
     return ImmutableList.copyOf(extraScopesMaybe.get().split(" "));
+  }
+
+  @Override
+  protected boolean getUseCsrf() {
+    // In the future, we may wish to make this configurable, since this is a generic provider.
+    return false;
   }
 }

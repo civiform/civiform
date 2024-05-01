@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import java.time.Duration;
 import javax.inject.Provider;
 import scala.concurrent.ExecutionContext;
-import tasks.DatabaseSeedTask;
+import services.seeding.DatabaseSeedTask;
 
 /**
  * Binds the {@link DatabaseSeedScheduler} as an eager singleton, which causes it to run at server

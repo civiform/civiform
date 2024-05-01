@@ -1,26 +1,38 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.util.Providers;
 import io.ebean.DB;
+import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Account;
-import models.Applicant;
-import models.Application;
-import models.ApplicationEvent;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationEventModel;
+import models.ApplicationModel;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
+import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import play.libs.F;
+import play.test.Helpers;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
@@ -29,28 +41,50 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
+import services.question.QuestionAnswerer;
+import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private VersionRepository versionRepo;
+  private SyncCacheApi programCache;
+  private SyncCacheApi programDefCache;
+  private SyncCacheApi versionsByProgramCache;
+  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setup() {
-    repo = instanceOf(ProgramRepository.class);
     versionRepo = instanceOf(VersionRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    programCache = instanceOf(SyncCacheApi.class);
+    versionsByProgramCache = instanceOf(SyncCacheApi.class);
+
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
+
+    repo =
+        new ProgramRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            Providers.of(versionRepo),
+            mockSettingsManifest,
+            programCache,
+            programDefCache,
+            versionsByProgramCache);
   }
 
   @Test
   public void lookupProgram_returnsEmptyOptionalWhenProgramNotFound() {
-    Optional<Program> found = repo.lookupProgram(1L).toCompletableFuture().join();
+    Optional<ProgramModel> found = repo.lookupProgram(1L).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -58,50 +92,87 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void lookupProgram_findsCorrectProgram() {
     resourceCreator.insertActiveProgram("one");
-    Program two = resourceCreator.insertActiveProgram("two");
+    ProgramModel two = resourceCreator.insertActiveProgram("two");
 
-    Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
+    Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
   }
 
   @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\": \"description\"}',"
-                + " 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
+  public void lookupProgram_usesCacheWhenEnabled() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
 
-    Program found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(
-                program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
-            .findFirst()
-            .get();
+    resourceCreator.insertActiveProgram("one");
+    ProgramModel two = resourceCreator.insertActiveProgram("two");
 
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-    assertThat(found.getProgramDefinition().localizedName())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "name"));
-    assertThat(found.getProgramDefinition().localizedDescription())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
+    assertThat(programCache.get(String.valueOf(two.id))).isEmpty();
+
+    Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
+
+    assertThat(found).hasValue(two);
+    assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
+  }
+
+  @Test
+  public void setFullProgramDefinitionFromCache_doesNotSetWhenDraft() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertDraftProgram("testDraftInCache");
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_getsFromCacheWhenPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("testInCache");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isPresent();
+    assertThat(programDefFromCache.get().getQuestionIdsInProgram())
+        .isEqualTo(program.getProgramDefinition().getQuestionIdsInProgram());
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenNotPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("testNotInCache");
+
+    // We don't set the cache, but we try to get it here.
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenCacheDisabled() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
+    ProgramModel program = resourceCreator.insertActiveProgram("testCacheDisabled");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
   }
 
   // Verify the StatusDefinitions default value in evolution 40 loads.
   @Test
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, status_definitions, program_type) values"
-                + " ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}','{\"en_us\":"
-                + " \"description\"}', '{\"statuses\": []}', 'default');")
+            "insert into programs (name, description, block_definitions, status_definitions,"
+                + " localized_name, localized_description, program_type) values ('Status Default',"
+                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -109,7 +180,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 + "(select id from programs where name = 'Status Default'));")
         .execute();
 
-    Program found =
+    ProgramModel found =
         versionRepo.getActiveVersion().getPrograms().stream()
             .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
             .findFirst()
@@ -120,37 +191,64 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getForSlug_withOldSchema() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
-
-    Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-  }
-
-  @Test
   public void getForSlug_findsCorrectProgram() {
-    Program program = resourceCreator.insertActiveProgram("Something With A Name");
+    ProgramModel program = resourceCreator.insertActiveProgram("Something With A Name");
 
-    Program found = repo.getForSlug("something-with-a-name").toCompletableFuture().join();
+    ProgramModel found =
+        repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
   }
 
+  /* This test is meant to exercise the database trigger defined in server/conf/evolutions/default/56.sql */
+  @Test
+  public void insertingDuplicateDraftPrograms_raisesDatabaseException() throws Exception {
+    var versionRepo = instanceOf(VersionRepository.class);
+    var draftVersion = versionRepo.getDraftVersionOrCreate();
+
+    ProgramModel program = resourceCreator.insertActiveProgram("test");
+    assertThat(program.id).isNotNull();
+
+    var draftOne =
+        new ProgramModel(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
+            new ProgramAcls());
+    draftOne.save();
+
+    var draftTwo =
+        new ProgramModel(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
+            new ProgramAcls());
+
+    var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
+    throwableAssert.hasMessageContaining("Program test-program already has a draft!");
+    throwableAssert.isExactlyInstanceOf(DataIntegrityException.class);
+  }
+
   @Test
   public void insertProgramSync() throws Exception {
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             "ProgramRepository",
             "desc",
             "name",
@@ -159,26 +257,28 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            versionRepo.getDraftVersion(),
-            ProgramType.DEFAULT);
-    Program withId = repo.insertProgramSync(program);
+            versionRepo.getDraftVersionOrCreate(),
+            ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
+            new ProgramAcls());
+    ProgramModel withId = repo.insertProgramSync(program);
 
-    Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
     assertThat(found.getProgramDefinition().localizedName().get(Locale.US)).isEqualTo("name");
   }
 
   @Test
   public void updateProgramSync() {
-    Program existing = resourceCreator.insertActiveProgram("old name");
-    Program updates =
-        new Program(
+    ProgramModel existing = resourceCreator.insertActiveProgram("old name");
+    ProgramModel updates =
+        new ProgramModel(
             existing.getProgramDefinition().toBuilder()
                 .setLocalizedName(LocalizedStrings.of(Locale.US, "new name"))
                 .build());
 
-    Program updated = repo.updateProgramSync(updates);
+    ProgramModel updated = repo.updateProgramSync(updates);
 
-    assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
+    assertThat(updated.id).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "new name"));
   }
@@ -195,9 +295,28 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getVersionsForProgram() {
+    ProgramModel program = resourceCreator.insertActiveProgram("old name");
+
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
+
+    assertThat(versions).hasSize(1);
+  }
+
+  @Test
+  public void getVersionsForProgram_usesCacheWhenEnabled() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("old name");
+
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
+
+    assertThat(versionsByProgramCache.get(String.valueOf(program.id)).get()).isEqualTo(versions);
+  }
+
+  @Test
   public void returnsAllAdmins() throws ProgramNotFoundException {
-    Program withAdmins = resourceCreator.insertActiveProgram("with admins");
-    Account admin = new Account();
+    ProgramModel withAdmins = resourceCreator.insertActiveProgram("with admins");
+    AccountModel admin = new AccountModel();
     admin.save();
     assertThat(repo.getProgramAdministrators(withAdmins.id)).isEmpty();
     admin.addAdministeredProgram(withAdmins.getProgramDefinition());
@@ -206,31 +325,33 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     // This draft, despite not existing when the admin association happened, should
     // still have the same admin associated.
-    Program newDraft = repo.createOrUpdateDraft(withAdmins);
+    ProgramModel newDraft = repo.createOrUpdateDraft(withAdmins);
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
 
   @Test
   public void getApplicationsForAllProgramVersions_searchById() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    ApplicationModel bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    ApplicantModel jane =
+        resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
+                .map(a -> a.getApplicant().getAccount().getEmailAddress())
                 .collect(ImmutableSet.toImmutableSet()))
         .containsExactly("bob@example.com");
     assertThat(paginationResult.getNumPages()).isEqualTo(1);
@@ -248,8 +369,17 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"Doe", ImmutableSet.of("bob@example.com", "jane@example.com")},
         new Object[] {"Bob", ImmutableSet.of("bob@example.com")},
         new Object[] {"Person", ImmutableSet.of("chris@exAMPLE.com")},
-        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
         new Object[] {"Other Person", ImmutableSet.of()},
+
+        // Searching by applicant email or TI email returns the application
+        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
+        new Object[] {"bobs_ti@example.com", ImmutableSet.of("bob@example.com")},
+
+        // Searching by partial email returns the application
+        new Object[] {
+          "example", ImmutableSet.of("bob@example.com", "jane@example.com", "chris@exAMPLE.com")
+        },
+        new Object[] {"bobs_ti", ImmutableSet.of("bob@example.com")},
 
         // Case insensitive search.
         new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
@@ -259,55 +389,178 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"    Bob Doe    ", ImmutableSet.of("bob@example.com")},
 
         // Degenerate cases.
-        // Email must be an exact match.
-        new Object[] {"example.com", ImmutableSet.of()},
+        // Email isn't found.
+        new Object[] {"fake@example.com", ImmutableSet.of()},
         // Only match a single space between first and last name.
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }
 
+  // TODO (#5503): Remove this test when we remove the feature flag
   @Test
   @Parameters(method = "getSearchByNameOrEmailData")
-  public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
+  public void getApplicationsForAllProgramVersions_searchByNameOrEmailUsingWellKnownPaths(
       String searchFragment, ImmutableSet<String> wantEmails) {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
+        .setSubmitterEmail("bobs_ti@example.com")
+        .save();
+    ApplicantModel jane =
+        resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
-    Applicant chris = resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
+    ApplicantModel chris =
+        resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
     makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
 
-    Applicant otherApplicant =
+    ApplicantModel otherApplicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
     resourceCreator.insertDraftApplication(otherApplicant, program);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(searchFragment))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
+                .map(a -> a.getApplicant().getAccount().getEmailAddress())
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(wantEmails);
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
   }
 
-  private Application makeApplicationWithName(
-      Applicant applicant, Program program, String firstName, String middleName, String lastName) {
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+  @Test
+  public void getApplicationsForAllProgramVersions_searchesByNameEmailPhone() {
+    Mockito.when(mockSettingsManifest.getPrimaryApplicantInfoQuestionsEnabled(any()))
+        .thenReturn(true);
+
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
+
+    String emailOne = "one@email.com";
+    String emailTwo = "two@email.com";
+    makeApplicantWithAccountAndApplication("OneFirst", "OneLast", emailOne, "1234567890", program);
+    makeApplicantWithAccountAndApplication("TwoFirst", "TwoLast", emailTwo, "0987654321", program);
+
+    // should only return the applicant with first name "OneFirst"
+    PaginationResult<ApplicationModel> paginationResultOne =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("One"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultOne.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+
+    // should return both applicants with "Last" in their last names
+    PaginationResult<ApplicationModel> paginationResultTwo =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("Last"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultTwo.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(emailOne, emailTwo));
+
+    // should only return the applicant with email = "two@email.com"
+    PaginationResult<ApplicationModel> paginationResultThree =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of(emailTwo))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultThree.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailTwo);
+
+    // should only return the applicant whose phone number contains "1234"
+    PaginationResult<ApplicationModel> paginationResultFour =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("1234"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultFour.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+
+    // special characters (including spaces) in phone numbers are ignored in search
+    PaginationResult<ApplicationModel> paginationResultFive =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("(1.23)- 456"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultFive.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+  }
+
+  private void makeApplicantWithAccountAndApplication(
+      String firstName, String lastName, String email, String phoneNumber, ProgramModel program) {
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(email));
+
+    applicant.setFirstName(firstName);
+    applicant.setLastName(lastName);
+    applicant.setEmailAddress(email);
+    applicant.setPhoneNumber(phoneNumber);
+    applicant.save();
+
+    resourceCreator.insertActiveApplication(applicant, program);
+  }
+
+  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
+  // flag
+  private ApplicationModel makeApplicationWithName(
+      ApplicantModel applicant,
+      ProgramModel program,
+      String firstName,
+      String middleName,
+      String lastName) {
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
         applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
     application.setApplicantData(applicantData);
-    application.setSubmitterEmail(applicant.getAccount().getEmailAddress());
     application.save();
     return application;
   }
@@ -332,26 +585,29 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
-    Application firstStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    ApplicationModel firstStatusApplication =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, firstStatusApplication, ImmutableList.of(Optional.of(FIRST_STATUS)));
 
-    Application secondStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    ApplicationModel secondStatusApplication =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, secondStatusApplication, ImmutableList.of(Optional.of(SECOND_STATUS)));
 
-    Application thirdStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    ApplicationModel thirdStatusApplication =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
     createStatusEvents(
         adminAccount,
@@ -359,11 +615,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
         ImmutableList.of(
             Optional.of(FIRST_STATUS), Optional.of(SECOND_STATUS), Optional.of(THIRD_STATUS)));
 
-    Application noStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    ApplicationModel noStatusApplication =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
 
-    Application backToNoStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    ApplicationModel backToNoStatusApplication =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     // Application has transitioned through statuses and arrived back at an unset status.
     createStatusEvents(
         adminAccount,
@@ -429,12 +687,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
-      Program program, SubmittedApplicationFilter filter) {
-    PaginationResult<Application> result =
+      ProgramModel program, SubmittedApplicationFilter filter) {
+    PaginationResult<ApplicationModel> result =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            filter);
+            filter,
+            addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(result.hasMorePages()).isEqualTo(false);
     return result.getPageContents().stream()
         .map(app -> app.id)
@@ -442,8 +701,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private void createStatusEvents(
-      Account actorAccount,
-      Application application,
+      AccountModel actorAccount,
+      ApplicationModel application,
       ImmutableList<Optional<StatusDefinitions.Status>> statuses)
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
@@ -454,8 +713,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
               .setStatusEvent(
                   StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
               .build();
-      ApplicationEvent event =
-          new ApplicationEvent(application, Optional.of(actorAccount), details);
+      ApplicationEventModel event =
+          new ApplicationEventModel(application, Optional.of(actorAccount), details);
       event.save();
 
       // When persisting models with @WhenModified fields, EBean
@@ -469,13 +728,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_withDateRange() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
 
     var applicationOne = resourceCreator.insertActiveApplication(applicantOne, program);
@@ -502,7 +761,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
           applicationThree.save();
         });
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
@@ -512,7 +771,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -524,27 +784,28 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
-    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
-    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -557,7 +818,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -567,27 +829,28 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_offsetBasedPagination() {
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
-    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
-    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -601,7 +864,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);

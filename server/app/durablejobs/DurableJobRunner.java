@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,10 @@ public final class DurableJobRunner {
         config.getString("base_url").replace("https", "").replace("http", "").replace("://", "");
     this.durableJobExecutionContext = Preconditions.checkNotNull(durableJobExecutionContext);
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
-    this.itEmailAddress = config.getString("it_email_address");
+    this.itEmailAddress =
+        config.getString("it_email_address").isBlank()
+            ? config.getString("support_email_address")
+            : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
     this.runnerLifespanSeconds = config.getInt("durable_jobs.poll_interval_seconds");
@@ -85,11 +88,11 @@ public final class DurableJobRunner {
 
     LocalDateTime stopTime = resolveStopTime();
     Transaction transaction = database.beginTransaction();
-    Optional<PersistedDurableJob> maybeJobToRun =
+    Optional<PersistedDurableJobModel> maybeJobToRun =
         persistedDurableJobRepository.getJobForExecution();
 
     while (maybeJobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
-      PersistedDurableJob jobToRun = maybeJobToRun.get();
+      PersistedDurableJobModel jobToRun = maybeJobToRun.get();
       runJob(jobToRun);
       notifyUponFinalFailure(jobToRun);
       transaction.commit();
@@ -102,7 +105,7 @@ public final class DurableJobRunner {
     LOGGER.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
   }
 
-  private void notifyUponFinalFailure(PersistedDurableJob job) {
+  private void notifyUponFinalFailure(PersistedDurableJobModel job) {
     if (!job.hasFailedWithNoRemainingAttempts()) {
       return;
     }
@@ -122,7 +125,7 @@ public final class DurableJobRunner {
     simpleEmail.send(itEmailAddress, subject, contents.toString());
   }
 
-  private void runJob(PersistedDurableJob persistedDurableJob) {
+  private void runJob(PersistedDurableJobModel persistedDurableJob) {
     LocalDateTime startTime = nowProvider.get();
     LOGGER.info(
         "JobRunner_ExecutingJob thread_ID={}, job_name=\"{}\", job_ID={}",

@@ -45,6 +45,7 @@ public final class ReferenceClasses {
   public static final String PREDICATE_VALUE_BETWEEN_HELP_TEXT =
       "cf-predicate-value-between-help-text";
   public static final String PREDICATE_VALUE_COMMA_HELP_TEXT = "cf-predicate-value-comma-help-text";
+  public static final String PREDICATE_QUESTION_OPTIONS = "cf-predicate-question-options";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
   public static final String QUESTION_BANK_HIDDEN = "cf-question-bank-hidden";
@@ -55,6 +56,7 @@ public final class ReferenceClasses {
   public static final String CLOSE_QUESTION_BANK_BUTTON = "cf-close-question-bank-button";
   public static final String QUESTION_BANK_GLASSPANE = "cf-question-bank-glasspane";
   public static final String QUESTION_BANK_PANEL = "cf-question-bank-panel";
+  public static final String SORTABLE_QUESTIONS_CONTAINER = "cf-sortable-questions";
 
   public static final String DOWNLOAD_ALL_BUTTON = "cf-download-all-button";
   public static final String DOWNLOAD_BUTTON = "cf-download-button";
@@ -106,7 +108,6 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
-  public static final String PHONE_COUNTRY_CODE = "cf-phone-country-code";
   public static final String PHONE_NUMBER = "cf-phone-number";
   public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
@@ -114,6 +115,7 @@ public final class ReferenceClasses {
   public static final String MULTI_OPTION_QUESTION_OPTION_EDITABLE =
       "cf-multi-option-question-option-editable";
   public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
+  public static final String MULTI_OPTION_ADMIN_INPUT = "cf-multi-option-admin-input";
 
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
   public static final String CURRENCY_QUESTION = "cf-question-currency";
@@ -123,8 +125,10 @@ public final class ReferenceClasses {
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
 
+  // Keep these values in sync with app/assets/javascript/file_upload.ts.
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
-  public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
+  public static final String FILEUPLOAD_REQUIRED_ERROR_ID = "cf-fileupload-required-error";
+  public static final String FILEUPLOAD_TOO_LARGE_ERROR_ID = "cf-fileupload-too-large-error";
 
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";

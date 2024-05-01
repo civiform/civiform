@@ -1,21 +1,23 @@
 package auth;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import featureflags.FeatureFlags;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Account;
-import models.ApiKey;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.ApiKeyModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
-import repository.UserRepository;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
+import services.settings.SettingsManifest;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
@@ -24,31 +26,44 @@ import services.apikey.ApiKeyService;
 public final class ProfileFactory {
 
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
+  public static final String APPLICANT_ID_ATTRIBUTE_NAME = "applicant_id";
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final Provider<ProgramRepository> programRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
-  private final Provider<UserRepository> userRepositoryProvider;
-  private final FeatureFlags featureFlags;
+  private final Provider<AccountRepository> accountRepositoryProvider;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       Provider<VersionRepository> versionRepositoryProvider,
+      Provider<ProgramRepository> programRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
-      Provider<UserRepository> userRepositoryProvider,
-      FeatureFlags featureFlags) {
+      Provider<AccountRepository> accountRepositoryProvider,
+      SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
-    this.httpContext = Preconditions.checkNotNull(httpContext);
+    this.classLoaderExecutionContext = Preconditions.checkNotNull(classLoaderExecutionContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
+    this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
-    this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
-    this.featureFlags = Preconditions.checkNotNull(featureFlags);
+    this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
   public CiviFormProfileData createNewApplicant() {
-    return create(new Role[] {Role.ROLE_APPLICANT});
+    CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
+
+    // Store the applicant id in the profile.
+    //
+    // The profile ID corresponds to the *account* id, but controllers need the applicant id. We
+    // store it in the profile for easy retrieval without a db lookup.
+    CiviFormProfile profile = wrapProfileData(profileData);
+    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+
+    return profileData;
   }
 
   public CiviFormProfileData createNewAdmin() {
@@ -76,15 +91,20 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
-    return new CiviFormProfile(dbContext, httpContext, p, featureFlags);
+    return new CiviFormProfile(
+        dbContext,
+        classLoaderExecutionContext,
+        p,
+        settingsManifest,
+        accountRepositoryProvider.get());
   }
 
   /**
    * Retrieves an API key. API keys are effectively the profile (i.e. record of identity and
    * authority) for API requests.
    */
-  public ApiKey retrieveApiKey(String keyId) {
-    Optional<ApiKey> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+  public ApiKeyModel retrieveApiKey(String keyId) {
+    Optional<ApiKeyModel> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }
@@ -99,12 +119,16 @@ public final class ProfileFactory {
     return p;
   }
 
-  public CiviFormProfile wrap(Account account) {
+  @VisibleForTesting
+  public CiviFormProfile wrap(AccountModel account) {
     return wrapProfileData(new CiviFormProfileData(account.id));
   }
 
-  public CiviFormProfile wrap(Applicant applicant) {
-    return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
+  public CiviFormProfile wrap(ApplicantModel applicant) {
+    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id);
+    CiviFormProfile profile = wrapProfileData(profileData);
+    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+    return profile;
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
@@ -123,10 +147,13 @@ public final class ProfileFactory {
             account -> {
               versionRepositoryProvider
                   .get()
-                  .getActiveVersion()
-                  .getPrograms()
+                  .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
-                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+                      program ->
+                          account.addAdministeredProgram(
+                              programRepositoryProvider
+                                  .get()
+                                  .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.setAuthorityId(generateFakeAdminAuthorityId());
               account.save();
@@ -149,10 +176,13 @@ public final class ProfileFactory {
               account.setAuthorityId(generateFakeAdminAuthorityId());
               versionRepositoryProvider
                   .get()
-                  .getActiveVersion()
-                  .getPrograms()
+                  .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
-                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+                      program ->
+                          account.addAdministeredProgram(
+                              programRepositoryProvider
+                                  .get()
+                                  .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.save();
             })
@@ -162,28 +192,42 @@ public final class ProfileFactory {
 
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
-    UserRepository userRepository = userRepositoryProvider.get();
-    List<TrustedIntermediaryGroup> existingGroups = userRepository.listTrustedIntermediaryGroups();
-    TrustedIntermediaryGroup group;
+    AccountRepository accountRepository = accountRepositoryProvider.get();
+    List<TrustedIntermediaryGroupModel> existingGroups =
+        accountRepository.listTrustedIntermediaryGroups();
+    TrustedIntermediaryGroupModel group;
 
     if (existingGroups.isEmpty()) {
-      group = userRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
+      group =
+          accountRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
     } else {
       group = existingGroups.get(0);
     }
 
     CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
-    wrapProfileData(tiProfileData)
+    // The email must be unique in order to insert into the database.
+    // Email must be use example.com for TI browser tests to pass, see
+    // ApplicantLayout.tiEmailForDisplay().
+    String email = String.format("fake-trusted-intermediary-%s@example.com", tiProfileData.getId());
+    tiProfileData.setEmail(email);
+
+    CiviFormProfile tiProfile = wrapProfileData(tiProfileData);
+    tiProfile
         .getAccount()
         .thenAccept(
             account -> {
               account.setAuthorityId(generateFakeAdminAuthorityId());
-              String email = String.format("fake-trusted-intermediary-%d@example.com", account.id);
               account.setEmailAddress(email);
               account.save();
-              userRepository.addTrustedIntermediaryToGroup(group.id, email);
+              accountRepository.addTrustedIntermediaryToGroup(group.id, email);
             })
         .join();
+
+    ApplicantModel tiApplicant = tiProfile.getApplicant().join();
+    // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
+    // underscore so that the name parser doesn't display "TI, Fake".
+    tiApplicant.getApplicantData().setUserName("Fake_TI");
+    accountRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;
   }

@@ -2,6 +2,7 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import java.net.URI;
 import javax.inject.Inject;
@@ -24,6 +25,16 @@ public final class DeploymentType {
     String stagingHostname = config.getString("staging_hostname");
     String baseUrl = config.getString("base_url");
     this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+  }
+
+  @VisibleForTesting
+  public DeploymentType(boolean isDev, boolean isStaging) {
+    this.isDev = isDev;
+    this.isStaging = isStaging;
+  }
+
+  public boolean isDev() {
+    return isDev;
   }
 
   public boolean isStaging() {

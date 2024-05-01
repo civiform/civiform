@@ -5,14 +5,15 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.AccountRepository;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -27,14 +28,24 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
   @Inject
   public ProgramMetaDataEditView(
-      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
-    super(configuration, featureFlags);
+      AdminLayoutFactory layoutFactory,
+      Config configuration,
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
+    super(configuration, settingsManifest, accountRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   /** Renders the edit form. Fields are pre-populated based on the content of existingProgram. */
-  public Content render(Request request, ProgramDefinition existingProgram) {
-    return render(request, existingProgram, Optional.empty(), Optional.empty(), Optional.empty());
+  public Content render(
+      Request request, ProgramDefinition existingProgram, ProgramEditStatus programEditStatus) {
+    return render(
+        request,
+        existingProgram,
+        programEditStatus,
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty());
   }
 
   /**
@@ -44,10 +55,16 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content render(
       Request request,
       ProgramDefinition existingProgram,
+      ProgramEditStatus programEditStatus,
       ProgramForm programForm,
       ToastMessage message) {
     return render(
-        request, existingProgram, Optional.of(programForm), Optional.of(message), Optional.empty());
+        request,
+        existingProgram,
+        programEditStatus,
+        Optional.of(programForm),
+        Optional.of(message),
+        Optional.empty());
   }
 
   /**
@@ -58,11 +75,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content renderChangeCommonIntakeConfirmation(
       Request request,
       ProgramDefinition existingProgram,
+      ProgramEditStatus programEditStatus,
       ProgramForm programForm,
       String existingCommonIntakeFormDisplayName) {
     return render(
         request,
         existingProgram,
+        programEditStatus,
         Optional.of(programForm),
         Optional.empty(),
         Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
@@ -71,6 +90,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   private Content render(
       Request request,
       ProgramDefinition existingProgram,
+      ProgramEditStatus programEditStatus,
       Optional<ProgramForm> programForm,
       Optional<ToastMessage> toastMessage,
       Optional<Modal> modal) {
@@ -78,12 +98,12 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
     FormTag formTag =
         programForm.isPresent()
-            ? buildProgramForm(request, programForm.get(), /* editExistingProgram = */ true)
-            : buildProgramForm(request, existingProgram, /* editExistingProgram= */ true);
+            ? buildProgramForm(request, programForm.get(), programEditStatus)
+            : buildProgramForm(request, existingProgram, programEditStatus);
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div(
@@ -93,7 +113,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                             .with(buildManageQuestionLink(existingProgram.id()))
                             .withAction(
                                 controllers.admin.routes.AdminProgramController.update(
-                                        existingProgram.id())
+                                        existingProgram.id(), programEditStatus.name())
                                     .url()))
                     .withClasses("mx-4", "my-12", "flex", "flex-col"));
     toastMessage.ifPresent(htmlBundle::addToastMessages);
@@ -107,7 +127,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
     return new LinkElement()
         .setId("manage-questions-link")
         .setHref(manageQuestionLink)
-        .setText("Manage Questions →")
+        .setText("Manage questions →")
         .setStyles("mx-4", "float-right")
         .asAnchorText();
   }

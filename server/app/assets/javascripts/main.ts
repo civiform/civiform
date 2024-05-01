@@ -7,6 +7,7 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
+
 import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
@@ -99,10 +100,12 @@ function addNewInput(
   newField.removeAttribute('id')
 
   // Register the click event handler for the buttons.
-  newField
-    .querySelector('[type=button]')!
-    .addEventListener('click', removeInput)
-
+  const deleteButton = newField.querySelector(
+    '.multi-option-question-field-remove-button',
+  )
+  if (deleteButton != null) {
+    deleteButton.addEventListener('click', removeInput)
+  }
   const upButton = newField.querySelector(
     '.multi-option-question-field-move-up-button',
   )
@@ -197,21 +200,6 @@ function moveMultiOptionQuestionDown(event: Event) {
 }
 
 /**
- * If we want to remove an existing element, hide the input div and set disabled to false
- * so the field is submitted.
- * @param {Event} event The event that triggered this action.
- */
-function hideInput(event: Event) {
-  const inputDiv = assertNotNull(
-    (event.currentTarget as Element)!.parentElement,
-  )
-  // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input')!.disabled = false
-  // Hide the entire div from the user
-  inputDiv.classList.add('hidden')
-}
-
-/**
  * Remove line-clamp from div on click.
  *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
@@ -219,8 +207,8 @@ function hideInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function removeLineClamp(event: Event) {
-  const target = event.target as HTMLElement
-  target.classList.add('line-clamp-none')
+  const div = event.currentTarget as HTMLElement
+  div.classList.add('line-clamp-none')
 }
 
 function attachLineClampListeners() {
@@ -276,13 +264,25 @@ function attachStopPropogationListenerOnFormButtons() {
 /**
  * Disables default browser behavior where pressing Enter on any input in a form
  * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ * Except when the data-override-disable-submit-on-enter attribute is present for the form, the default form action would work
+ * See https://github.com/civiform/civiform/issues/5464
  */
 function disableEnterToSubmitBehaviorOnForms() {
   addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
     const target = (e.target as HTMLElement).tagName.toLowerCase()
-    // if event originated from a button or link - it should proceed with
-    // default action.
-    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+    const overrideDisableSubmitOnEnter = document
+      .getElementById((e.target as HTMLElement).id)
+      ?.closest('form')
+      ?.hasAttribute('data-override-disable-submit-on-enter')
+    // If event originated from a button, link, or textarea, or if overrideDisableSubmitOnEnter is enabled,
+    // it should proceed with the default action.
+    if (
+      overrideDisableSubmitOnEnter === false &&
+      target !== 'button' &&
+      target !== 'a' &&
+      target !== 'textarea' &&
+      e.key === 'Enter'
+    ) {
       e.preventDefault()
     }
   })
@@ -314,6 +314,31 @@ export function init() {
     })
   }
 
+  // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
+  const formatQuestionName = (unformatted: string) => {
+    const formatted = unformatted
+      .toLowerCase()
+      .replace(/[^a-zA-Z ]/g, '')
+      .replace(/\s/g, '_')
+    return formatted
+  }
+
+  // Give a live preview of how the question name will be formatted in exports
+  const questionNameInput = document.getElementById('question-name-input')
+  const formattedOutput: HTMLElement | null =
+    document.getElementById('formatted-name')
+  if (questionNameInput && formattedOutput) {
+    formattedOutput.innerText = formatQuestionName(
+      (questionNameInput as HTMLInputElement).value,
+    )
+    questionNameInput.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      if (formattedOutput && target) {
+        formattedOutput.innerText = formatQuestionName(target.value)
+      }
+    })
+  }
+
   // Bind click handler for remove options in multi-option edit view
   addEventListenerToElements(
     '.multi-option-question-field-remove-button',
@@ -331,25 +356,6 @@ export function init() {
     '.multi-option-question-field-move-down-button',
     'click',
     moveMultiOptionQuestionDown,
-  )
-
-  // Configure the button on the manage program admins form to add more email inputs
-  const adminEmailButton = document.getElementById('add-program-admin-button')
-  if (adminEmailButton) {
-    adminEmailButton.addEventListener('click', function () {
-      addNewInput(
-        'program-admin-email-template',
-        'add-program-admin-button',
-        'program-admin-emails',
-      )
-    })
-  }
-
-  // Bind click handler for removing program admins in the program admin management view
-  addEventListenerToElements(
-    '.cf-program-admin-remove-button',
-    'click',
-    hideInput,
   )
 
   attachFormDebouncers()

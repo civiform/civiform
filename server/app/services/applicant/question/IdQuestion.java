@@ -8,7 +8,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.IdQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents an id question in the context of a specific applicant. For example, this could be a
@@ -22,11 +21,6 @@ public final class IdQuestion extends Question {
 
   IdQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.ID);
   }
 
   @Override
@@ -84,6 +78,6 @@ public final class IdQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getIdValue().orElse("-");
+    return getIdValue().orElse(getDefaultAnswerString());
   }
 }

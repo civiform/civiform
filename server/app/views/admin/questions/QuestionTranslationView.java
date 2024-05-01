@@ -58,7 +58,7 @@ public final class QuestionTranslationView extends TranslationFormView {
       Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
-                question.getId(), locale.toLanguageTag())
+                question.getName(), locale.toLanguageTag())
             .url();
 
     // Add form fields for questions.
@@ -75,23 +75,23 @@ public final class QuestionTranslationView extends TranslationFormView {
 
     FormTag form = renderTranslationForm(request, locale, formAction, inputFieldsBuilder.build());
 
-    String title = String.format("Manage Question Translations: %s", question.getName());
+    String title = String.format("Manage question translations: %s", question.getName());
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
+                renderHeader(title), renderLanguageLinks(question.getName(), locale), form);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
 
   @Override
-  protected String languageLinkDestination(long questionId, Locale locale) {
+  protected String languageLinkDestination(String questionName, Locale locale) {
     return controllers.admin.routes.AdminQuestionTranslationsController.edit(
-            questionId, locale.toLanguageTag())
+            questionName, locale.toLanguageTag())
         .url();
   }
 

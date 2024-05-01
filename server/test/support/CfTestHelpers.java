@@ -1,6 +1,8 @@
 package support;
 
 import static org.mockito.Mockito.mockStatic;
+import static play.test.Helpers.route;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
@@ -8,12 +10,17 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import play.Application;
 import play.api.test.Helpers;
-import repository.UserRepository;
+import play.mvc.Call;
+import play.mvc.Http;
+import play.mvc.Result;
+import repository.AccountRepository;
 import services.program.predicate.PredicateValue;
 
 public class CfTestHelpers {
@@ -34,7 +41,7 @@ public class CfTestHelpers {
 
   public static ImmutableMap<String, Object> oidcConfig(String host, int port) {
     return new ImmutableMap.Builder<String, Object>()
-        .put("auth.applicant_idp", "idcs")
+        .put("civiform_applicant_idp", "idcs")
         .put("idcs.client_id", "idcs-fake-oidc-client")
         .put("idcs.secret", "idcs-fake-oidc-secret")
         .put(
@@ -49,11 +56,12 @@ public class CfTestHelpers {
         .build();
   }
 
-  public static Provider<UserRepository> userRepositoryProvider(UserRepository userRepository) {
-    return new Provider<UserRepository>() {
+  public static Provider<AccountRepository> userRepositoryProvider(
+      AccountRepository accountRepository) {
+    return new Provider<AccountRepository>() {
       @Override
-      public UserRepository get() {
-        return userRepository;
+      public AccountRepository get() {
+        return accountRepository;
       }
     };
   }
@@ -85,5 +93,100 @@ public class CfTestHelpers {
   public static PredicateValue stringToPredicateDate(String rawDate) {
     LocalDate localDate = LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     return PredicateValue.of(localDate);
+  }
+
+  public static final Http.Request EMPTY_REQUEST = play.test.Helpers.fakeRequest().build();
+
+  public static Http.RequestBuilder requestBuilderWithSettings(Call call, String... settings) {
+    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(call), settings);
+  }
+
+  public static Http.RequestBuilder requestBuilderWithSettings(String... settings) {
+    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(), settings);
+  }
+
+  public static Http.RequestBuilder requestBuilderWithSettings(
+      Http.RequestBuilder requestBuilder, String... settings) {
+    if (settings.length % 2 != 0) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Odd number of args specified for settings map, must be key-value pairs: %s",
+              Arrays.toString(settings)));
+    }
+
+    ImmutableMap.Builder<String, String> settingsMap = ImmutableMap.builder();
+
+    for (int i = 0; i < settings.length; i += 2) {
+      settingsMap.put(settings[i], settings[i + 1]);
+    }
+
+    return requestBuilder.attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
+  }
+
+  /** Class to hold a Result as well as the final request URI after internal redirects. */
+  public static class ResultWithFinalRequestUri {
+    private Result result;
+    private String finalRequestUri;
+
+    public ResultWithFinalRequestUri(Result result, String finalRequestUri) {
+      this.result = result;
+      this.finalRequestUri = finalRequestUri;
+    }
+
+    public Result getResult() {
+      return result;
+    }
+
+    public void setResult(Result result) {
+      this.result = result;
+    }
+
+    public String getFinalRequestUri() {
+      return finalRequestUri;
+    }
+
+    public void setFinalRequestUri(String finalRequestUri) {
+      this.finalRequestUri = finalRequestUri;
+    }
+  }
+
+  private static boolean isInternalRedirect(Result result) {
+    return result.redirectLocation().isPresent() && result.redirectLocation().get().startsWith("/");
+  }
+
+  // Makes a request and follows internal redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects (10) is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
+      Application app, Http.RequestBuilder request) {
+    return doRequestWithInternalRedirects(app, request, 10);
+  }
+
+  // Makes a request and follows internal redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
+      Application app, Http.RequestBuilder request, int maxRedirects) {
+    Result currentResult;
+    String currentRequestUri = request.uri();
+
+    do {
+      currentResult = route(app, request);
+      if (isInternalRedirect(currentResult)) {
+        --maxRedirects;
+        currentRequestUri = currentResult.redirectLocation().get();
+        request = request.uri(currentRequestUri);
+        if (currentResult.session() != null) {
+          request = request.session(currentResult.session().data());
+        }
+        for (Http.Cookie cookie : currentResult.cookies()) {
+          request = request.cookie(cookie);
+        }
+      }
+    } while (isInternalRedirect(currentResult) && maxRedirects > 0);
+
+    if (maxRedirects == 0) {
+      throw new RuntimeException("Too many redirects");
+    }
+
+    return new ResultWithFinalRequestUri(currentResult, currentRequestUri);
   }
 }

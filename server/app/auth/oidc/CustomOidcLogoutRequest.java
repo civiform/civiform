@@ -1,5 +1,6 @@
 package auth.oidc;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -43,11 +44,12 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
       final Optional<String> clientId,
-      final State state) {
+      final State state,
+      final JWT idTokenHint) {
 
     super(
         uri,
-        /* idTokenHint = */ null,
+        idTokenHint,
         /* logoutHint = */ null,
         /* clientID = */ clientId.map(ClientID::new).orElse(null),
         postLogoutRedirectURI,

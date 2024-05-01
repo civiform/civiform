@@ -2,30 +2,30 @@ package durablejobs.jobs;
 
 import com.google.common.base.Preconditions;
 import durablejobs.DurableJob;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
 
 /**
- * A {@link DurableJob} that deletes {@link PersistedDurableJob} records from the database when
+ * A {@link DurableJob} that deletes {@link PersistedDurableJobModel} records from the database when
  * their execution time is older than six months.
  */
 public final class OldJobCleanupJob extends DurableJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(OldJobCleanupJob.class);
 
   private final PersistedDurableJobRepository persistedDurableJobRepository;
-  private final PersistedDurableJob persistedDurableJob;
+  private final PersistedDurableJobModel persistedDurableJob;
 
   public OldJobCleanupJob(
       PersistedDurableJobRepository persistedDurableJobRepository,
-      PersistedDurableJob persistedDurableJob) {
+      PersistedDurableJobModel persistedDurableJob) {
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
 
   @Override
-  public PersistedDurableJob getPersistedDurableJob() {
+  public PersistedDurableJobModel getPersistedDurableJob() {
     return persistedDurableJob;
   }
 

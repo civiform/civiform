@@ -2,17 +2,21 @@ package views;
 
 import static j2html.TagCreator.link;
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.CfTestHelpers.EMPTY_REQUEST;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
-import featureflags.FeatureFlags;
+import controllers.AssetsFinder;
 import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.SectionTag;
 import java.util.HashMap;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
 
@@ -21,7 +25,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
           "base_url", "http://localhost",
           "staging_hostname", "localhost",
           "civiform_image_tag", "image",
-          "whitelabel.favicon_url", "favicon");
+          "favicon_url", "favicon");
 
   private BaseHtmlLayout layout;
 
@@ -30,14 +34,14 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(DEFAULT_CONFIG),
-            instanceOf(FeatureFlags.class),
-            instanceOf(DeploymentType.class));
+            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class));
   }
 
   @Test
   public void addsDefaultContent() {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
     Content content = layout.render(bundle);
 
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
@@ -47,7 +51,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
         .containsPattern(
-            "<script src=\"/assets/javascripts/[a-z0-9]+-applicant.bundle.js\""
+            "<script src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
                 + " type=\"text/javascript\"></script>");
     assertThat(content.body()).doesNotContain("googletagmanager");
 
@@ -61,10 +65,10 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(config),
-            instanceOf(FeatureFlags.class),
-            instanceOf(DeploymentType.class));
-    HtmlBundle bundle = layout.getBundle();
+            new SettingsManifest(ConfigFactory.parseMap(config)),
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class));
+    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
     Content content = layout.render(bundle);
 
     assertThat(content.body())
@@ -75,7 +79,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle = new HtmlBundle(instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, instanceOf(ViewUtils.class));
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
@@ -88,20 +92,38 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
-                + " href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+                + " href=\"/assets/dist/[a-z0-9]+-uswds.min.css\""
+                + " rel=\"stylesheet\"><link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\""
+                + " rel=\"stylesheet\">");
   }
 
   @Test
   public void withNoExplicitTitle() {
-    Content content = layout.render(layout.getBundle());
+    Content content = layout.render(layout.getBundle(EMPTY_REQUEST));
 
     assertThat(content.body()).contains("<title>CiviForm</title>");
   }
 
   @Test
   public void withProvidedTitle() {
-    Content content = layout.render(layout.getBundle().setTitle("A title"));
+    Content content = layout.render(layout.getBundle(EMPTY_REQUEST).setTitle("A title"));
 
     assertThat(content.body()).contains("<title>A title — CiviForm</title>");
+  }
+
+  @Test
+  public void getGovBanner_returnsBannerWithHeader() {
+    SectionTag banner = layout.getGovBanner(Optional.empty());
+
+    String header = String.format("<header class=\"%s", "usa-banner__header");
+    assertThat(banner.render()).contains(header);
+  }
+
+  @Test
+  public void getGovBanner_returnsBannerWithContentDiv() {
+    SectionTag banner = layout.getGovBanner(Optional.empty());
+
+    String contentDiv = String.format("<div class=\"%s", "usa-banner__content");
+    assertThat(banner.render()).contains(contentDiv);
   }
 }

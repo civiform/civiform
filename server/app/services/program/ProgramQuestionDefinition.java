@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
+import models.ProgramModel;
 import services.question.types.QuestionDefinition;
 
 /**
  * {@link QuestionDefinition}s will not be stored in the database as part of the {@link
- * models.Program} model. Only the question id will be stored. It is up the {@link ProgramService}
- * to properly populate the question definition.
+ * ProgramModel} model. Only the question id will be stored. It is up the {@link ProgramService} to
+ * properly populate the question definition.
  */
 @AutoValue
 public abstract class ProgramQuestionDefinition {

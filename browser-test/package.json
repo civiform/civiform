@@ -3,24 +3,24 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand",
-    "probe": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand"
+    "test": "npx playwright test",
+    "probe": "npx playwright test"
   },
   "devDependencies": {
-    "@types/jest": "29.5.1",
-    "@types/jest-image-snapshot": "6.1.0",
-    "@types/node": "18.16.12",
-    "@typescript-eslint/eslint-plugin": "5.59.2",
-    "@typescript-eslint/parser": "5.59.2",
-    "axe-core": "4.7.0",
-    "axios": "0.27.2",
-    "eslint": "8.40.0",
-    "jest": "29.5.0",
-    "jest-image-snapshot": "6.1.0",
-    "playwright": "1.33.0",
-    "ts-jest": "29.1.0",
-    "ts-node": "10.9.1",
+    "@axe-core/playwright": "4.9.0",
+    "@playwright/test": "1.43.1",
+    "@types/node": "20.12.7",
+    "@typescript-eslint/eslint-plugin": "7.6.0",
+    "@typescript-eslint/parser": "7.6.0",
+    "axe-core": "4.9.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-no-unsanitized": "^4.0.2",
+    "eslint-plugin-playwright": "1.6.0",
+    "glob": "10.3.12",
+    "playwright": "1.43.1",
+    "sharp": "0.33.3",
+    "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.0.4"
+    "typescript": "5.4.5"
   }
 }

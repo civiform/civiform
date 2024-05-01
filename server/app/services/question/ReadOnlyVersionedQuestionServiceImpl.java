@@ -2,26 +2,31 @@ package services.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import models.Question;
-import models.Version;
+import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
  * Implementation class for {@link ReadOnlyQuestionService} interface. It contains all questions
  * that are in the specified version.
  *
- * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(Version)}.
+ * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel)}.
  */
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ReadOnlyVersionedQuestionServiceImpl.class);
 
-  public ReadOnlyVersionedQuestionServiceImpl(Version version) {
+  public ReadOnlyVersionedQuestionServiceImpl(
+      VersionModel version, VersionRepository versionRepository) {
     questionsById =
-        version.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
+        versionRepository.getQuestionDefinitionsForVersion(version).stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
   }
 
@@ -61,6 +66,8 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }
-    throw new QuestionNotFoundException(id);
+
+    LOGGER.error("Question not found for ID: {}", id);
+    return new NullQuestionDefinition(id);
   }
 }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
                   }
                 }));
 
-    PersistedDurableJob job = createPersistedJobToExecute();
+    PersistedDurableJobModel job = createPersistedJobToExecute();
 
     durableJobRunner.runJobs();
 
@@ -96,7 +96,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
                   throw new RuntimeException("test-execution-exception");
                 }));
 
-    PersistedDurableJob job = createPersistedJobToExecute();
+    PersistedDurableJobModel job = createPersistedJobToExecute();
 
     durableJobRunner.runJobs();
 
@@ -114,9 +114,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
         (persistedDurableJob) ->
             makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
 
-    PersistedDurableJob jobA = createPersistedJobToExecute();
-    PersistedDurableJob jobB = createPersistedJobToExecute();
-    PersistedDurableJob jobC = createPersistedJobScheduledInFuture();
+    PersistedDurableJobModel jobA = createPersistedJobToExecute();
+    PersistedDurableJobModel jobB = createPersistedJobToExecute();
+    PersistedDurableJobModel jobC = createPersistedJobScheduledInFuture();
 
     durableJobRunner.runJobs();
 
@@ -141,7 +141,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   @Test
   public void runJobs_jobNotFound() {
-    PersistedDurableJob job = createPersistedJobToExecute();
+    PersistedDurableJobModel job = createPersistedJobToExecute();
 
     durableJobRunner.runJobs();
 
@@ -157,9 +157,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
                     "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
   }
 
-  private PersistedDurableJob createPersistedJobScheduledInFuture() {
+  private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
     var persistedJob =
-        new PersistedDurableJob(
+        new PersistedDurableJobModel(
             DurableJobName.TEST.getJobNameString(), Instant.now().plus(10, ChronoUnit.DAYS));
 
     persistedJob.save();
@@ -167,9 +167,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
     return persistedJob;
   }
 
-  private PersistedDurableJob createPersistedJobToExecute() {
+  private PersistedDurableJobModel createPersistedJobToExecute() {
     var persistedJob =
-        new PersistedDurableJob(
+        new PersistedDurableJobModel(
             DurableJobName.TEST.getJobNameString(), Instant.now().minus(1, ChronoUnit.DAYS));
 
     persistedJob.save();
@@ -178,10 +178,10 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   private static DurableJob makeTestJob(
-      PersistedDurableJob persistedDurableJob, Runnable runnable) {
+      PersistedDurableJobModel persistedDurableJob, Runnable runnable) {
     return new DurableJob() {
       @Override
-      public PersistedDurableJob getPersistedDurableJob() {
+      public PersistedDurableJobModel getPersistedDurableJob() {
         return persistedDurableJob;
       }
 

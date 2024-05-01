@@ -1,26 +1,35 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
+import controllers.applicant.routes;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
+import java.util.ArrayList;
+import java.util.List;
 import models.DisplayMode;
+import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -29,24 +38,32 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
+  private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
 
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final String baseUrl;
+  private final AccountRepository accountRepository;
 
-  ProgramFormBuilder(Config configuration, FeatureFlags featureFlags) {
-    this.featureFlags = featureFlags;
+  ProgramFormBuilder(
+      Config configuration,
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
+    this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.accountRepository = checkNotNull(accountRepository);
   }
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, boolean editExistingProgram) {
+      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.getAdminName(),
@@ -56,13 +73,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
+        program.getEligibilityIsGating(),
         program.getIsCommonIntakeForm(),
-        editExistingProgram);
+        programEditStatus,
+        program.getTiGroups());
   }
 
   /** Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, boolean editExistingProgram) {
+      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.adminName(),
@@ -72,8 +91,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.externalLink(),
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
+        program.eligibilityIsGating(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
-        editExistingProgram);
+        programEditStatus,
+        new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
 
   private FormTag buildProgramForm(
@@ -85,8 +106,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String confirmationSceen,
       String displayMode,
+      boolean eligibilityIsGating,
       Boolean isCommonIntakeForm,
-      boolean editExistingProgram) {
+      ProgramEditStatus programEditStatus,
+      List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
@@ -105,7 +128,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
-        programUrlField(adminName, editExistingProgram),
+        programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -150,18 +173,68 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setId("program-display-mode-ti-only")
                     .setFieldName("displayMode")
                     .setAriaRequired(true)
-                    .setLabelText("Trusted Intermediaries ONLY")
+                    .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag()),
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-select-ti-only")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Visible to selected trusted intermediaries only")
+                    .setValue(DisplayMode.SELECT_TI.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
+                    .getRadioTag(),
+                showTiSelectionList(
+                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())))
+            .condWith(
+                settingsManifest.getDisabledVisibilityConditionEnabled(request),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-disabled")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Disabled")
+                    .setValue(DisplayMode.DISABLED.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+                    .getRadioTag()));
+
+    formTag.with(
+        // TODO(#2618): Consider using helpers for grouping related radio controls.
+        fieldset()
+            .with(
+                legend("Program eligibility gating")
+                    .withClass(BaseStyles.INPUT_LABEL)
+                    .with(ViewUtils.requiredQuestionIndicator())
+                    .condWith(
+                        settingsManifest.getIntakeFormEnabled(request),
+                        p("(Not applicable if this program is the pre-screener)")),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Only allow residents to submit applications if they meet all eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(true))
+                    .setChecked(eligibilityIsGating)
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Allow residents to submit applications even if they don't meet eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(false))
+                    .setChecked(!eligibilityIsGating)
+                    .getRadioTag()));
+
+    formTag.with(
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
+    if (settingsManifest.getIntakeFormEnabled(request)) {
       formTag
           .with(
               FieldWithLabel.checkbox()
@@ -190,20 +263,65 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .addStyleClass("hidden")
                   .getCheckboxTag());
     }
-    formTag.with(
-        submitButton("Save")
-            .withId("program-update-button")
-            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
+    formTag.with(createSubmitButton(programEditStatus));
     return formTag;
   }
 
-  private DomContent programUrlField(String adminName, boolean editExistingProgram) {
-    if (editExistingProgram) {
+  private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
+    List<TrustedIntermediaryGroupModel> tiGroups =
+        accountRepository.listTrustedIntermediaryGroups();
+    DivTag tiSelectionRenderer =
+        div()
+            // Hidden input that's always selected to allow for clearing multi-select data.
+            .with(
+                input()
+                    .withType("checkbox")
+                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
+                    .withValue("")
+                    .withCondChecked(true)
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
+            .with(
+                tiGroups.stream()
+                    .map(
+                        option ->
+                            renderCheckboxOption(
+                                option.getName(), option.id, selectedTi.contains(option.id))));
+    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TiList").with(tiSelectionRenderer);
+
+    return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
+  }
+
+  private DivTag renderCheckboxOption(String tiName, Long tiId, boolean selected) {
+    String id = tiId.toString();
+    LabelTag labelTag =
+        label()
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.CHECKBOX_LABEL,
+                BaseStyles.BORDER_CIVIFORM_BLUE)
+            .with(
+                input()
+                    .withId(id)
+                    .withType("checkbox")
+                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
+                    .withValue(String.valueOf(tiId))
+                    .withCondChecked(selected)
+                    .withClasses(
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
+                span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
+    return div()
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
+        .with(labelTag);
+  }
+
+  private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
+    if (programEditStatus != ProgramEditStatus.CREATION) {
+      // Only allow editing the program URL at program creation time.
       String programUrl =
           baseUrl
-              + controllers.applicant.routes.RedirectController.programBySlug(
-                      MainModule.SLUGIFIER.slugify(adminName))
+              + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
                   .url();
       return div()
           .withClass("mb-2")
@@ -244,10 +362,29 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(content)
         .setModalTitle("Confirm pre-screener change?")
         .setDisplayOnLoad(true)
         .setWidth(Width.THIRD)
         .build();
+  }
+
+  private ButtonTag createSubmitButton(ProgramEditStatus programEditStatus) {
+    String saveProgramDetailsText;
+    if (programEditStatus == ProgramEditStatus.CREATION
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
+      // If the admin is in the middle of creating a new program, they'll be redirected to the next
+      // step of adding a program image, so we want the save button text to reflect that.
+      saveProgramDetailsText = "Save and continue to next step";
+    } else {
+      // If the admin is editing an existing program, they'll be redirected back to the program
+      // blocks page.
+      saveProgramDetailsText = "Save";
+    }
+
+    return submitButton(saveProgramDetailsText)
+        .withId("program-update-button")
+        .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
   }
 }

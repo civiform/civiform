@@ -1,1 +1,1 @@
-See the [wiki entry](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide) for contributing.
+See the [wiki entry](https://github.com/civiform/civiform/wiki/Technical-contribution-guide) for contributing.

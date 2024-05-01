@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 
-/** Implements queries related to {@link PersistedDurableJob}. */
+/** Implements queries related to {@link PersistedDurableJobModel}. */
 public final class PersistedDurableJobRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("PersistedDurableJobRepository");
 
   private final Database database;
   private final Provider<LocalDateTime> nowProvider;
@@ -25,9 +27,12 @@ public final class PersistedDurableJobRepository {
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
   }
 
-  public Optional<PersistedDurableJob> findScheduledJob(String jobName, Instant executionTime) {
+  public Optional<PersistedDurableJobModel> findScheduledJob(
+      String jobName, Instant executionTime) {
     return database
-        .find(PersistedDurableJob.class)
+        .find(PersistedDurableJobModel.class)
+        .setLabel("PersistedDurableJobModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("findScheduledJob"))
         .where()
         .eq("job_name", jobName)
         .eq("execution_time", executionTime)
@@ -48,10 +53,12 @@ public final class PersistedDurableJobRepository {
    *   <li>has a null success time (has never succeeded)
    * </ul>
    */
-  public Optional<PersistedDurableJob> getJobForExecution() {
+  public Optional<PersistedDurableJobModel> getJobForExecution() {
     return database
-        .find(PersistedDurableJob.class)
+        .find(PersistedDurableJobModel.class)
         .forUpdateSkipLocked()
+        .setLabel("PersistedDurableJobModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("getJobForExecution"))
         .where()
         .le("execution_time", nowProvider.get())
         .gt("remaining_attempts", 0)
@@ -60,13 +67,20 @@ public final class PersistedDurableJobRepository {
         .findOneOrEmpty();
   }
 
-  /** All {@link PersistedDurableJob}s ordered by execution time ascending. */
-  public ImmutableList<PersistedDurableJob> getJobs() {
+  /** All {@link PersistedDurableJobModel}s ordered by execution time ascending. */
+  public ImmutableList<PersistedDurableJobModel> getJobs() {
     return ImmutableList.copyOf(
-        database.find(PersistedDurableJob.class).orderBy("execution_time asc").findList());
+        database
+            .find(PersistedDurableJobModel.class)
+            .orderBy("execution_time asc")
+            .setLabel("PersistedDurableJobModel.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getJobs"))
+            .findList());
   }
 
-  /** Delete all {@link PersistedDurableJob}s that have an execution time older than six months. */
+  /**
+   * Delete all {@link PersistedDurableJobModel}s that have an execution time older than six months.
+   */
   public int deleteJobsOlderThanSixMonths() {
     return database
         .sqlUpdate(

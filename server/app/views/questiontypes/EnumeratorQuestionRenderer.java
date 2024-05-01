@@ -1,14 +1,13 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -20,8 +19,10 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
+import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -38,7 +39,12 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
 
   private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD, "grid", "grid-cols-2", "gap-4", "mb-4");
+          ReferenceClasses.ENUMERATOR_FIELD,
+          "grid",
+          "grid-cols-1",
+          "sm:grid-cols-2",
+          "gap-4",
+          "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -55,7 +61,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    EnumeratorQuestion enumeratorQuestion = applicantQuestion.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
     boolean hasErrors = !validationErrors.isEmpty();
@@ -66,7 +72,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
           enumeratorField(
               messages,
               localizedEntityType,
-              question.getContextualizedPath(),
+              applicantQuestion.getContextualizedPath(),
               /* existingEntity= */ Optional.of(entityNames.get(index)),
               /* existingIndex= */ Optional.of(index),
               /* extraStyle= */ Optional.empty(),
@@ -81,29 +87,28 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
-                button()
+                ViewUtils.makeSvgTextButton(
+                        messages.at(
+                            MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                            localizedEntityType),
+                        Icons.PLUS)
                     .withId(ADD_ELEMENT_BUTTON_ID)
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
+                    .condAttr(params.autofocusSingleField(), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
-                        ButtonStyles.SOLID_BLUE,
+                        ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",
                         "font-normal",
                         "px-4",
-                        StyleUtils.disabled("bg-gray-200", "text-gray-400"))
-                    .with(
-                        span("＋ ").attr("aria-hidden", "true"),
-                        span(
-                            messages.at(
-                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                                localizedEntityType))))
+                        StyleUtils.disabled("bg-gray-200", "text-gray-400")))
             .with(
                 // Add the hidden enumerator field template.
                 enumeratorField(
                         messages,
                         localizedEntityType,
-                        question.getContextualizedPath(),
+                        applicantQuestion.getContextualizedPath(),
                         /* existingEntity= */ Optional.empty(),
                         /* existingIndex= */ Optional.empty(),
                         /* extraStyle= */ Optional.of("hidden"),
@@ -163,7 +168,11 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
     }
     if (hasErrors) {
       entityNameInputField.forceAriaInvalid();
+      entityNameInputField.focusOnError();
     }
+    // TODO(#6844): Replace this with {@link
+    // MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE_ALL_BUTTONS_SAVE} once the
+    // SAVE_ON_ALL_ACTIONS flag is enabled.
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
     ButtonTag removeEntityButton =

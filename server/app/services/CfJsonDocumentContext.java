@@ -25,12 +25,12 @@ import services.applicant.JsonPathProvider;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
+import services.export.JsonPrettifier;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
 
 public class CfJsonDocumentContext {
   private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
-  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   protected boolean locked = false;
@@ -89,6 +89,19 @@ public class CfJsonDocumentContext {
     } catch (JsonPathTypeMismatchException e) {
       return false;
     }
+  }
+
+  /**
+   * Returns true if there is a null value at the given {@link Path}; false otherwise.
+   *
+   * <p>A missing path is distinct from a null value at that path, so this method throws {@link
+   * PathNotFoundException} instead of returning false when the path is missing.
+   *
+   * @param path the {@link Path} to check
+   * @return true if there is a null value at the given path; false otherwise.
+   */
+  public boolean hasNullValueAtPath(Path path) {
+    return jsonData.read(path.toString()) == null;
   }
 
   public void putPhoneNumber(Path path, String phoneNumber) {
@@ -402,11 +415,38 @@ public class CfJsonDocumentContext {
 
   /**
    * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
-   * does not exist or a value other than an {@link ImmutableList} of longs is found.
+   * does not exist or a value other than an {@link ImmutableList} of Longs is found.
+   *
+   * @param path the {@link Path} to the list
+   * @return an Optional containing an ImmutableList<Long>
    */
-  public Optional<ImmutableList<Long>> readList(Path path) {
+  public Optional<ImmutableList<Long>> readLongList(Path path) {
+    return this.readList(path, new TypeRef<ImmutableList<Long>>() {});
+  }
+
+  /**
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of Strings is found.
+   *
+   * @param path the {@link Path} to the list
+   * @return an Optional containing an ImmutableList<String>
+   */
+  public Optional<ImmutableList<String>> readStringList(Path path) {
+    return this.readList(path, new TypeRef<ImmutableList<String>>() {});
+  }
+
+  /**
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of T is found.
+   *
+   * @param path the {@link Path} to the list.
+   * @param <T> the type T of ImmutableList<T>.
+   * @param typeRef the {@link TypeRef} of the expected ImmutableList<T> type.
+   * @return an Optional containing an ImmutableList<T>.
+   */
+  private <T> Optional<ImmutableList<T>> readList(Path path, TypeRef<ImmutableList<T>> typeRef) {
     try {
-      return this.read(path, IMMUTABLE_LIST_LONG_TYPE);
+      return this.read(path, typeRef);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
@@ -493,8 +533,8 @@ public class CfJsonDocumentContext {
    * @return optionally returns the value at the path as a string if it exists, or empty if not
    */
   public Optional<String> readAsString(Path path) {
-    if (isJsonArray(path)) {
-      return readList(path).map(ImmutableList::toString);
+    if (isJsonArrayOfLongs(path)) {
+      return readLongList(path).map(ImmutableList::toString);
     }
 
     return readString(path);
@@ -509,7 +549,7 @@ public class CfJsonDocumentContext {
   public boolean deleteRepeatedEntities(Path path, ImmutableList<Integer> indices) {
     checkLocked();
 
-    /** Early return if there's nothing to delete */
+    // Early return if there's nothing to delete
     if (indices.isEmpty()) {
       return false;
     }
@@ -534,9 +574,9 @@ public class CfJsonDocumentContext {
   }
 
   /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */
-  private boolean isJsonArray(Path path) {
+  private boolean isJsonArrayOfLongs(Path path) {
     try {
-      this.read(path, IMMUTABLE_LIST_LONG_TYPE);
+      this.read(path, new TypeRef<ImmutableList<Long>>() {});
       return true;
     } catch (JsonPathTypeMismatchException e) {
       return false;
@@ -556,6 +596,20 @@ public class CfJsonDocumentContext {
 
   public String asJsonString() {
     return jsonData.jsonString();
+  }
+
+  /**
+   * Pretty-print the JSON document, below the specified {@link Path}.
+   *
+   * <p>If the document is only a {@code null} value (for example, if the path points to a {@code
+   * null} leaf node), then this returns the String "null".
+   *
+   * @param path the path to the subtree that should be pretty-printed
+   * @return the pretty-printed document
+   */
+  public String asPrettyJsonString(Path path) {
+    Object subtreeAtPath = jsonData.read(path.toString());
+    return JsonPrettifier.asPrettyJsonString(subtreeAtPath);
   }
 
   @Override

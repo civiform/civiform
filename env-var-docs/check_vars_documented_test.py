@@ -110,50 +110,60 @@ my_var_6 = ${?MY_VAR_6}"""
 
     def test_no_vars(self):
         got = vars_from_application_conf(self.temp_path("no_vars"))
-        self.assertSetEqual(got, set())
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, set())
 
     def test_vars_1(self):
         got = vars_from_application_conf(self.temp_path("vars_1"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_2(self):
         got = vars_from_application_conf(self.temp_path("vars_2"))
-        self.assertSetEqual(got, self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_2_set)
 
     def test_blank_imports_no_vars(self):
         got = vars_from_application_conf(
             self.temp_path("blank_imports_no_vars"))
-        self.assertSetEqual(got, set())
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, set())
 
     def test_blank_imports_vars_1(self):
         got = vars_from_application_conf(self.temp_path("blank_imports_vars_1"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_1_imports_no_vars(self):
         got = vars_from_application_conf(
             self.temp_path("vars_1_imports_no_vars"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_1_imports_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("vars_1_imports_vars_2"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_vars_2_imports_vars_1(self):
         got = vars_from_application_conf(
             self.temp_path("vars_2_imports_vars_1"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_blank_imports_vars_1_and_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("blank_imports_vars_1_and_vars_2"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_vars_3_imports_vars_1_and_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("vars_3_imports_vars_1_and_vars_2"))
+        result_set = set(got.keys())
         self.assertSetEqual(
-            got, self.vars_1_set | self.vars_2_set | self.vars_3_set)
+            result_set, self.vars_1_set | self.vars_2_set | self.vars_3_set)
 
 
 class TestVarsFromDocs(unittest.TestCase):
@@ -161,14 +171,16 @@ class TestVarsFromDocs(unittest.TestCase):
     {
         "MY_VAR": {
             "description": "A var",
-            "type": "string"
+            "type": "string",
+            "mode": "HIDDEN"
         },
         "A group": {
             "group_description": "Some group",
             "members": {
                 "MY_OTHER_VAR": {
                     "description": "Another var",
-                    "type": "string"
+                    "type": "string",
+                    "mode": "HIDDEN"
                 }
             }
         }
@@ -179,13 +191,14 @@ class TestVarsFromDocs(unittest.TestCase):
         with io.StringIO("{}") as f:
             got, gotErrors = vars_from_docs(f)
             self.assertEqual(gotErrors, [])
-            self.assertSetEqual(got, set())
+            self.assertSetEqual(set(got.values()), set())
 
     def test_some_vars(self):
         with io.StringIO(self.env_var_docs) as f:
             got, gotErrors = vars_from_docs(f)
             self.assertEqual(gotErrors, [])
-            self.assertSetEqual(got, set(["MY_VAR", "MY_OTHER_VAR"]))
+            self.assertSetEqual(
+                set(got.keys()), set(["MY_VAR", "MY_OTHER_VAR"]))
 
 
 class TestMain(unittest.TestCase):
@@ -194,13 +207,17 @@ class TestMain(unittest.TestCase):
         os.environ = {}
 
     app_conf = """
-    mykey = ${?MY_VAR}
+    my_var = ${?MY_VAR}
+    """
+    app_conf_with_invalid_hocon_name = """
+    myvar = ${?MY_VAR}
     """
     env_var_docs = """
     {
         "MY_VAR": {
             "description": "A var",
-            "type": "string"
+            "type": "string",
+            "mode": "ADMIN_READABLE"
         }
     }
     """
@@ -208,10 +225,30 @@ class TestMain(unittest.TestCase):
     {
         "MY_VAR": {
           "description": "A var",
-          "type": "not my type"
+          "type": "not my type",
+          "mode": "BUMMER"
         }
     }
     """
+
+    def test_hocon_name_mismatch(self):
+        with tempfile.NamedTemporaryFile(
+                mode='w') as appconf, tempfile.NamedTemporaryFile(
+                    mode='w') as envvar:
+            appconf.write(self.app_conf_with_invalid_hocon_name)
+            appconf.flush()
+            envvar.write(self.env_var_docs)
+            envvar.flush()
+            os.environ["APPLICATION_CONF_PATH"] = appconf.name
+            os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
+
+            stderr = io.StringIO()
+            with self.assertRaises(SystemExit), contextlib.redirect_stderr(
+                    stderr):
+                main()
+            self.assertTrue(
+                "Admin-accessible vars must have a HOCON name matching" in
+                stderr.getvalue())
 
     def test_invalid_env_var_docs_file(self):
         with tempfile.NamedTemporaryFile(

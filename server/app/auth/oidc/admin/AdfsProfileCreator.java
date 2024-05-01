@@ -1,17 +1,15 @@
 package auth.oidc.admin;
 
 import auth.CiviFormProfile;
-import auth.ProfileFactory;
+import auth.IdentityProviderType;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
 import java.util.List;
-import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -20,17 +18,13 @@ import repository.UserRepository;
  */
 public class AdfsProfileCreator extends CiviformOidcProfileCreator {
   private final String adminGroupName;
-  private final String ad_groups_attribute_name;
+  private final String adGroupsAttributeName;
 
   public AdfsProfileCreator(
-      OidcConfiguration configuration,
-      OidcClient client,
-      ProfileFactory profileFactory,
-      Config appConfig,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, client, profileFactory, applicantRepositoryProvider);
-    this.adminGroupName = appConfig.getString("adfs.admin_group");
-    this.ad_groups_attribute_name = appConfig.getString("adfs.ad_groups_attribute_name");
+      OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
+    super(oidcConfiguration, client, params);
+    this.adminGroupName = params.configuration().getString("adfs.admin_group");
+    this.adGroupsAttributeName = params.configuration().getString("adfs.ad_groups_attribute_name");
   }
 
   @Override
@@ -42,6 +36,10 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
   protected ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (this.isGlobalAdmin(oidcProfile)) {
       return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
+    }
+    if (isTrustedIntermediary(profile)) {
+      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
+      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
   }
@@ -61,7 +59,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
   }
 
   private boolean isGlobalAdmin(OidcProfile profile) {
-    List<String> groups = AdfsGroupAccessor.getGroups(profile, this.ad_groups_attribute_name);
+    List<String> groups = AdfsGroupAccessor.getGroups(profile, this.adGroupsAttributeName);
     return groups.contains(this.adminGroupName);
   }
 
@@ -71,5 +69,10 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       return profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     }
     return profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
+  }
+
+  @Override
+  protected IdentityProviderType identityProviderType() {
+    return IdentityProviderType.ADMIN_IDENTITY_PROVIDER;
   }
 }

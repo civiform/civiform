@@ -1,12 +1,17 @@
 package conf;
 
+import static com.google.auto.common.MoreStreams.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -17,6 +22,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.MessageKey;
 
 /**
  * Tests that the messages files are in sync. Reads in the keys from the primary language file,
@@ -42,13 +48,24 @@ public class MessagesTest {
   // copy-pasting text. Check for this error in all messages files.
   private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
+  // Words that should not be in the internationalization files, such as civic entity-specific
+  // names.
+  private static final Set<String> PROHIBITED_WORDS =
+      Set.of(
+          "Seattle",
+          "Washington",
+          "Bloomington",
+          "Indiana",
+          "Arkansas",
+          "Charlotte",
+          "North Carolina");
+
   @Test
   @Parameters(method = "foreignLanguageFiles")
   public void messages_keysInForeignLanguageFileAreInPrimaryLanguageFile(String foreignLanguageFile)
       throws Exception {
-    TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
-
-    TreeSet<String> keysInForeignLangFile = keysInFile(foreignLanguageFile);
+    Set<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
+    Set<String> keysInForeignLangFile = keysInFile(foreignLanguageFile);
 
     // Checks that the foreign language file is a subset of the primary language file.
     assertThat(keysInPrimaryFile)
@@ -59,16 +76,31 @@ public class MessagesTest {
 
   @Test
   public void messages_MessagesEnUs_isEmpty() throws Exception {
-    TreeMap<String, String> entriesInEnUsLanguageFile = entriesInFile(EN_US_LANGUAGE_FILE_PATH);
+    Map<String, String> entriesInEnUsLanguageFile = entriesInFile(EN_US_LANGUAGE_FILE_PATH);
 
     // messages.en-US should be empty and allow all keys to fall back to the messages file.
     assertThat(entriesInEnUsLanguageFile).isEmpty();
   }
 
   @Test
+  public void messages_primaryFile_containsNoProhibitedWords() throws Exception {
+    Map<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
+
+    assertThat(entriesInPrimaryLanguageFile.values())
+        .allSatisfy(
+            sourceString -> {
+              PROHIBITED_WORDS.forEach(
+                  prohibitedWord -> {
+                    assertThat(sourceString.toLowerCase(Locale.US))
+                        .withFailMessage(prohibitedWord + " found in primary language file.")
+                        .doesNotContain(prohibitedWord.toLowerCase(Locale.US));
+                  });
+            });
+  }
+
+  @Test
   public void messages_primaryFile_containsNoProhibitedCharacters() throws Exception {
-    TreeMap<String, String> entriesInPrimaryLanguageFile =
-        entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
+    Map<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
     assertThat(entriesInPrimaryLanguageFile)
         .withFailMessage("Prohibited characters found in primary language file..")
@@ -83,7 +115,7 @@ public class MessagesTest {
   @Parameters(method = "foreignLanguageFiles")
   public void messages_foreignLanguageFiles_containNoProhibitedCharacters(
       String foreignLanguageFile) throws Exception {
-    TreeMap<String, String> entriesInforeignLanguageFile = entriesInFile(foreignLanguageFile);
+    Map<String, String> entriesInforeignLanguageFile = entriesInFile(foreignLanguageFile);
 
     assertThat(entriesInforeignLanguageFile)
         .withFailMessage("Prohibited characters found in " + foreignLanguageFile + ".")
@@ -94,7 +126,17 @@ public class MessagesTest {
             });
   }
 
-  private static TreeSet<String> keysInFile(String filePath) throws Exception {
+  @Test
+  public void messageKeyValuesAndMessagesFileKeysAreIdentical() throws Exception {
+    Set<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
+
+    ImmutableList<String> messageKeys =
+        Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
+
+    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
+  }
+
+  private static Set<String> keysInFile(String filePath) throws Exception {
     return new TreeSet<>(entriesInFile(filePath).keySet());
   }
 
@@ -103,7 +145,7 @@ public class MessagesTest {
    * sorted order, even though the {@link Properties} class reads them into a HashMap with no
    * ordering guarantees (regardless of the ordering of the language files themselves).
    */
-  private static TreeMap<String, String> entriesInFile(String filePath) throws Exception {
+  private static Map<String, String> entriesInFile(String filePath) throws Exception {
     InputStream input = new FileInputStream(filePath);
 
     Properties prop = new Properties();
@@ -133,11 +175,9 @@ public class MessagesTest {
   }
 
   private String errorMessage(
-      TreeSet<String> primaryLangKeys,
-      TreeSet<String> foreignLangKeys,
-      String foreignLanguageFile) {
+      Set<String> primaryLangKeys, Set<String> foreignLangKeys, String foreignLanguageFile) {
 
-    TreeSet<String> keysInForeignLangFileCopy = new TreeSet<>(foreignLangKeys);
+    Set<String> keysInForeignLangFileCopy = new TreeSet<>(foreignLangKeys);
     keysInForeignLangFileCopy.removeAll(primaryLangKeys);
     if (!keysInForeignLangFileCopy.isEmpty()) {
       return String.format(

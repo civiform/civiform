@@ -9,8 +9,10 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -28,21 +30,21 @@ import views.style.ReferenceClasses;
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
-  protected final ApplicantQuestion question;
+  protected final ApplicantQuestion applicantQuestion;
   // HTML id tags for various elements within this question.
   private final String questionId;
   private final String descriptionId;
   private final String errorId;
 
-  ApplicantQuestionRendererImpl(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+  ApplicantQuestionRendererImpl(ApplicantQuestion applicantQuestion) {
+    this.applicantQuestion = checkNotNull(applicantQuestion);
     this.questionId = RandomStringUtils.randomAlphabetic(8);
     this.descriptionId = String.format("%s-description", questionId);
     this.errorId = String.format("%s-error", questionId);
   }
 
   private String getRequiredClass() {
-    return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
+    return applicantQuestion.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
   /** Renders the question tag. */
@@ -69,27 +71,25 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.createLinksAndEscapeText(
-                            question.getQuestionHelpText(),
-                            TextFormatter.UrlOpenAction.NewTab,
-                            /*addRequiredIndicator= */ false)))
+                        TextFormatter.formatTextWithAriaLabel(
+                            applicantQuestion.getQuestionHelpText(),
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT))))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
-    switch (params.errorDisplayMode()) {
-      case HIDE_ERRORS:
-        validationErrors = ImmutableMap.of();
-        break;
-      case DISPLAY_ERRORS:
-        validationErrors = question.errorsPresenter().getValidationErrors();
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Unhandled error display mode: %s", params.errorDisplayMode()));
+    if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
+        params.errorDisplayMode())) {
+      validationErrors = applicantQuestion.getQuestion().getValidationErrors();
+    } else {
+      validationErrors = ImmutableMap.of();
     }
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
-        validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
+        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
       questionSecondaryTextDiv.with(
@@ -100,10 +100,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.createLinksAndEscapeText(
-            question.getQuestionText(),
-            TextFormatter.UrlOpenAction.NewTab,
-            /*addRequiredIndicator= */ !question.isOptional());
+        TextFormatter.formatTextWithAriaLabel(
+            applicantQuestion.getQuestionText(),
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
@@ -114,7 +115,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             ariaDescribedByIds,
             questionTextDoms,
             questionSecondaryTextDiv,
-            question.isOptional());
+            applicantQuestion.isOptional());
 
     return div()
         .withId(questionId)

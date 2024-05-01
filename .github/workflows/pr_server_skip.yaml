@@ -7,16 +7,15 @@ name: Skip Server - On PR to Main
 
 on:
   pull_request:
-    branches:
-      - 'main'
+    branches-ignore:
+      - 'spike/**'
     paths-ignore:
       - 'server/**'
       - 'bin/**'
       - 'browser-test/**'
       - 'test-support/**'
       - 'mock-web-services/**'
-      - 'Dockerfile'
-      - 'prod.Dockerfile'
+      - '**.Dockerfile'
       - '.github/workflows/**'
 
 permissions: read-all

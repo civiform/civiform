@@ -1,213 +1,120 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.endsWith;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
-import j2html.tags.Renderable;
-import j2html.tags.Text;
+import java.util.List;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+import repository.ResetPostgres;
 
-public class TextFormatterTest {
+public class TextFormatterTest extends ResetPostgres {
 
-  @Test
-  public void urlsRenderToOpenInSameTabCorrectly() {
-    ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website",
-            TextFormatter.UrlOpenAction.SameTab,
-            /*addRequiredIndicator= */ false);
-
-    assertThat(content).hasSize(4);
-    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
-    assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
-    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
-    assertThat(content.get(3).render())
-        .isEqualTo(
-            "<a href=\"http://internet.website/\""
-                + " class=\"text-seattle-blue\">http://internet.website</a>");
+  private void assertIsExternalUrlWithIcon(
+      String actualValue, String expectedValue, String endsWith) {
+    assertThat(actualValue).contains(expectedValue).endsWith(endsWith);
   }
 
   @Test
-  public void urlsRenderToOpenInNewTabCorrectly() {
+  public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website",
-            TextFormatter.UrlOpenAction.NewTab,
-            /*addRequiredIndicator= */ false);
+        TextFormatter.formatText(
+            "hello google.com http://internet.website https://secure.website",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
+    String htmlContent = content.get(0).render();
 
-    assertThat(content).hasSize(4);
-    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
+    // URLs without protocols are not turned into links
+    assertThat(htmlContent).contains("hello google.com ");
+
+    // URLs with protocols are turned into links, the protocol is maintained and the SVG icon is
+    // added
+    List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
-        content.get(1).render(),
-        "<a href=\"http://google.com/\" class=\"text-seattle-blue\""
-            + " target=\"_blank\">google.com<svg");
-    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
+        contentArr.get(0),
+        "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
+        "</svg>");
     assertIsExternalUrlWithIcon(
-        content.get(3).render(),
-        "<a href=\"http://internet.website/\" class=\"text-seattle-blue\""
-            + " target=\"_blank\">http://internet.website<svg");
+        htmlContent,
+        "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
+        "</svg></a></p>\n");
   }
 
   @Test
-  public void emailsDoNotGetDetectedAsUrls() {
-    String text = "hello @example@, other@example.com. first.last@example.com!";
+  public void textLinksRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
-            text, TextFormatter.UrlOpenAction.SameTab, /*addRequiredIndicator=*/ false);
-    assertThat(content).hasSize(1);
-    assertThat(content.get(0).render()).isEqualTo(new Text(text).render());
+        TextFormatter.formatText(
+            "[this is a link](https://www.google.com)",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
+    String htmlContent = content.get(0).render();
+    assertIsExternalUrlWithIcon(
+        htmlContent,
+        "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">this is a link",
+        "</svg></a></p>\n");
   }
 
   @Test
   public void rendersRequiredIndicator() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
+        TextFormatter.formatText(
             "Enter your full legal name.",
-            TextFormatter.UrlOpenAction.SameTab,
-            /*addRequiredIndicator= */ true);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
 
-    assertThat(content).hasSize(2);
-    assertThat(content.get(0).render()).isEqualTo(new Text("Enter your full legal name.").render());
-    assertThat(content.get(1).render())
-        .isEqualTo("<span class=\"text-red-600 font-semibold\">&nbsp;*</span>");
-  }
-
-  private void assertIsExternalUrlWithIcon(String actualValue, String expectedValue) {
-    assertThat(actualValue).startsWith(expectedValue).endsWith("</svg></a>");
+    assertThat(content.get(0).render())
+        .isEqualTo(
+            "<p>Enter your full legal name.<span class=\"text-red-600"
+                + " font-semibold\">\u00a0*</span></p>\n");
   }
 
   @Test
-  public void verifyUrlsMaintainSchemeCorrectly() {
+  public void correctlyInsertsRequiredIndicatorBeforeList() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
-            "hello google.com https://secure.website",
-            TextFormatter.UrlOpenAction.SameTab,
-            /*addRequiredIndicator= */ false);
+        TextFormatter.formatText(
+            "Here is some text.\n" + "* list item one\n" + "* list item two",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
+    String htmlContent = content.get(0).render();
 
-    assertThat(content).hasSize(4);
-    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
-    assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
-    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
-    assertThat(content.get(3).render())
-        .isEqualTo(
-            "<a href=\"https://secure.website/\""
-                + " class=\"text-seattle-blue\">https://secure.website</a>");
-  }
-
-  @Test
-  public void urlParserSkipsTrailingPunctuation() {
-    ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText(
-            "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!",
-            TextFormatter.UrlOpenAction.SameTab,
-            /*addRequiredIndicator= */ false);
-
-    assertThat(content).hasSize(7);
-    assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
-    assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
-    assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
-    assertThat(content.get(3).render())
-        .isEqualTo(
-            "<a href=\"http://seattle.gov/\" class=\"text-seattle-blue\">http://seattle.gov/</a>");
-    assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
-    assertThat(content.get(5).render())
-        .isEqualTo(
-            "<a href=\"http://mysite.com/\" class=\"text-seattle-blue\">http://mysite.com</a>");
-    assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
-  }
-
-  @Test
-  public void accordionRendersCorrectly() {
-
-    String withList =
-        "### Accordion Title\n"
-            + ">These are a couple of lines of accordion content.\n"
-            + ">\n"
-            + ">Now I am going to go make a cheesecake.";
-    ImmutableList<DomContent> content = TextFormatter.formatText(withList, false);
-
-    assertThat(content).hasSize(1);
-
-    String accordionContent = content.get(0).render();
-
-    assertThat(accordionContent).startsWith("<div class=\"cf-accordion");
-    assertThat(accordionContent).contains("These are a couple of lines of accordion content.");
-    assertThat(accordionContent).contains("Now I am going to go make a cheesecake.");
+    assertThat(htmlContent)
+        .contains(
+            "<p>Here is some text.<span class=\"text-red-600"
+                + " font-semibold\">\u00a0*</span></p>\n");
+    assertThat(htmlContent).contains("<li>list item one</li>");
+    assertThat(htmlContent).contains("<li>list item two</li>");
+    assertThat(htmlContent).contains("</ul>\n");
   }
 
   @Test
   public void listRendersCorrectly() {
     String withList =
         "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
-    ImmutableList<DomContent> content = TextFormatter.formatText(withList, false);
+    ImmutableList<DomContent> content =
+        TextFormatter.formatText(
+            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    String htmlContent = content.get(0).render();
 
-    assertThat(content).hasSize(2);
-
-    // First item is just plain text.
-    assertThat(content.get(0).render()).isEqualTo("<div>This is my list:</div>");
-
-    // Second item is <ul>
-    String listContent = content.get(1).render();
-
-    assertThat(listContent).startsWith("<ul");
-    assertThat(listContent).contains("<li>cream cheese</li>");
-    assertThat(listContent).contains("<li>eggs</li>");
-    assertThat(listContent).contains("<li>sugar</li>");
-    assertThat(listContent).contains("<li>vanilla</li>");
-    assertThat(listContent).endsWith("</ul>");
-  }
-
-  @Test
-  public void rendersRecursively() {
-    String text =
-        "Cheesecake Recipe\n"
-            + "### Ingredients\n"
-            + ">You will need:\n"
-            + ">* cream cheese\n"
-            + ">* eggs\n"
-            + ">* sugar\n"
-            + ">* vanilla\n"
-            + "### Directions\n"
-            + "> View directions and the rest of the recipe at epicurious.com";
-    ImmutableList<DomContent> content = TextFormatter.formatText(text, false);
-
-    assertThat(content).hasSize(3);
-
-    String[] contentStrings = content.stream().map(Renderable::render).toArray(String[]::new);
-
-    assertThat(contentStrings[0]).isEqualTo("<div>Cheesecake Recipe</div>");
-
-    // Verify that we have an accordion.
-    assertThat(contentStrings[1]).startsWith("<div class=\"cf-accordion");
-    assertThat(contentStrings[1]).contains("Ingredients");
-
-    // ...and that accordion contains a div.
-    assertThat(contentStrings[1]).contains("<div>You will need:</div>");
-
-    // ...and a list.
-    assertThat(contentStrings[1])
-        .contains(
-            "<ul class=\"list-disc mx-8\">"
-                + "<li>cream cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li>"
-                + "</ul>");
-
-    // Verify that we have a second accordion.
-    assertThat(contentStrings[2]).startsWith("<div class=\"cf-accordion");
-    assertThat(contentStrings[2]).contains("Directions");
-
-    // ...with text
-    assertThat(contentStrings[2]).contains("View directions and the rest of the recipe at");
-
-    // ...and a link.
-    assertThat(contentStrings[2])
-        .contains(
-            "<a href=\"http://epicurious.com/\" class=\"text-seattle-blue\""
-                + " target=\"_blank\">epicurious.com<svg")
-        .contains("</svg></a>");
+    assertThat(htmlContent).contains("<p>This is my list:</p>");
+    assertThat(htmlContent).contains("<ul");
+    assertThat(htmlContent).contains("<li>cream cheese</li>");
+    assertThat(htmlContent).contains("<li>eggs</li>");
+    assertThat(htmlContent).contains("<li>sugar</li>");
+    assertThat(htmlContent).contains("<li>vanilla</li>");
+    assertThat(htmlContent).endsWith("</ul>\n");
   }
 
   @Test
@@ -219,32 +126,143 @@ public class TextFormatterTest {
             + "\n"
             + "\n"
             + "This is the third (or sixth) line of content.";
-    ImmutableList<DomContent> preservedBlanks = TextFormatter.formatText(withBlankLine, true);
+    ImmutableList<DomContent> preservedBlanksContent =
+        TextFormatter.formatText(
+            withBlankLine, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+    assertThat(preservedBlanksContent.get(0).render())
+        .contains(
+            "<p>This is the first line of content.<br />\u00A0</p>\n"
+                + // u00A0 is a non-breaking whitespace represented by &nbsp; before going through
+                // the parser
+                "<p>This is the second (or third) line of content.<br />\u00A0</p>\n"
+                + "<p>\u00A0</p>\n"
+                + "<p>This is the third (or sixth) line of content.</p>\n");
 
-    assertThat(preservedBlanks).hasSize(6);
+    ImmutableList<DomContent> nonPreservedBlanksContent =
+        TextFormatter.formatText(
+            withBlankLine, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
 
-    String[] preservedContent =
-        preservedBlanks.stream().map(Renderable::render).toArray(String[]::new);
+    assertThat(nonPreservedBlanksContent.get(0).render())
+        .isEqualTo(
+            "<p>This is the first line of content.</p>\n"
+                + "<p>This is the second (or third) line of content.</p>\n"
+                + "<p>This is the third (or sixth) line of content.</p>\n");
+  }
 
-    assertThat(preservedContent[0]).isEqualTo("<div>This is the first line of content.</div>");
-    assertThat(preservedContent[1]).isEqualTo("<div class=\"h-6\"></div>");
-    assertThat(preservedContent[2])
-        .isEqualTo("<div>This is the second (or third) line of content.</div>");
-    assertThat(preservedContent[3]).isEqualTo("<div class=\"h-6\"></div>");
-    assertThat(preservedContent[4]).isEqualTo("<div class=\"h-6\"></div>");
-    assertThat(preservedContent[5])
-        .isEqualTo("<div>This is the third (or sixth) line of content.</div>");
+  @Test
+  public void appliesTextEmphasis() {
+    String stringWithMarkdown =
+        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatText(
+            stringWithMarkdown, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    assertThat(formattedText.get(0).render())
+        .isEqualTo(
+            "<h2>Hello!</h2>\n"
+                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
+                + " <code>inline code</code></p>\n");
+  }
 
-    ImmutableList<DomContent> nonPresercedBlanks = TextFormatter.formatText(withBlankLine, false);
-    assertThat(nonPresercedBlanks).hasSize(3);
+  @Test
+  public void removesScriptTags() {
+    String stringWithScriptTag = "<script>alert('bad-time');</script>";
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatText(
+            stringWithScriptTag,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
+    assertThat(formattedText.get(0).render()).isEqualTo("\n");
+  }
 
-    String[] nonPreservedContent =
-        nonPresercedBlanks.stream().map(Renderable::render).toArray(String[]::new);
+  @Test
+  public void replacesH1Tags() {
+    String stringWithH1Markdown =
+        "# Header 1\n"
+            + "should be changed to h2 but\n"
+            + "## Header 2\n"
+            + "and\n"
+            + "### Header 3\n"
+            + " should be allowed";
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatText(stringWithH1Markdown, false, false);
+    assertThat(formattedText.get(0).render())
+        .isEqualTo(
+            "<h2>Header 1</h2>\n"
+                + "<p>should be changed to h2 but</p>\n"
+                + "<h2>Header 2</h2>\n"
+                + "<p>and</p>\n"
+                + "<h3 class=\"text-lg\">Header 3</h3>\n"
+                + "<p>should be allowed</p>\n");
+  }
 
-    assertThat(nonPreservedContent[0]).isEqualTo("<div>This is the first line of content.</div>");
-    assertThat(nonPreservedContent[1])
-        .isEqualTo("<div>This is the second (or third) line of content.</div>");
-    assertThat(nonPreservedContent[2])
-        .isEqualTo("<div>This is the third (or sixth) line of content.</div>");
+  @Test
+  public void rejectedElementsAndAttributesAreLogged() {
+    Logger logger = (Logger) LoggerFactory.getLogger(TextFormatter.class);
+    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
+    String stringWithBadAttributesAndElements =
+        "<script>console.log('uhoh')</script><div id=\"bad-id\"></div>";
+    TextFormatter.formatText(stringWithBadAttributesAndElements, false, false);
+
+    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
+    assertThat(logsList.get(0).getMessage())
+        .isEqualTo("HTML element: \"script\" was caught and discarded.");
+    assertThat(logsList.get(1).getMessage())
+        .isEqualTo("HTML attribute: \"id\" was caught and discarded.");
+  }
+
+  @Test
+  public void formatTextWithAriaLabel_addsAriaLabel() {
+    ImmutableList<DomContent> content =
+        TextFormatter.formatTextWithAriaLabel(
+            "[link](https://www.example.com)", false, false, "test aria label");
+
+    assertThat(content.get(0).render()).contains("aria-label=\"test aria label\"");
+
+    // Set the aria label back to the default for the other tests
+    TextFormatter.resetAriaLabelToDefault();
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_addsAriaLabel() {
+    String content =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            "[link](https://www.example.com)", false, false, "test aria label");
+
+    assertThat(content).contains("aria-label=\"test aria label\"");
+
+    // Set the aria label back to the default for the other tests
+    TextFormatter.resetAriaLabelToDefault();
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_removesScriptTags() {
+    String stringWithScriptTag = "<script>alert('bad-time');</script>";
+    String formattedText =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            stringWithScriptTag,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            "test aria label");
+    assertThat(formattedText).isEqualTo("\n");
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_appliesMarkdownFormatting() {
+    String stringWithMarkdown =
+        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+    String formattedText =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            stringWithMarkdown,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            "aria ");
+    assertThat(formattedText)
+        .isEqualTo(
+            "<h2>Hello!</h2>\n"
+                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
+                + " <code>inline code</code></p>\n");
   }
 }

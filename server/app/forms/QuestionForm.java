@@ -2,15 +2,17 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.UrlUtils;
 import services.export.CsvExporterService;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -27,6 +29,8 @@ public abstract class QuestionForm {
   private Optional<String> questionExportState;
   private QuestionDefinition qd;
   private String redirectUrl;
+  private boolean isUniversal;
+  private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
 
   protected QuestionForm() {
     questionName = "";
@@ -36,6 +40,8 @@ public abstract class QuestionForm {
     questionHelpText = "";
     questionExportState = Optional.of("");
     redirectUrl = "";
+    isUniversal = false;
+    primaryApplicantInfoTags = ImmutableSet.of();
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -57,6 +63,9 @@ public abstract class QuestionForm {
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
+
+    isUniversal = qd.isUniversal();
+    primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
   }
 
   public final String getQuestionName() {
@@ -134,7 +143,9 @@ public abstract class QuestionForm {
             .setDescription(questionDescription)
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
-            .setQuestionHelpText(questionHelpTextMap);
+            .setQuestionHelpText(questionHelpTextMap)
+            .setUniversal(isUniversal)
+            .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return builder;
   }
 
@@ -172,10 +183,88 @@ public abstract class QuestionForm {
     }
 
     if (questionExportState.isEmpty()) {
-      Question q = new Question(this.qd);
+      QuestionModel q = new QuestionModel(this.qd);
       q.refresh();
       populateQuestionExportStateFromTags(q.getQuestionTags());
     }
     return questionExportState.get();
+  }
+
+  public final boolean isUniversal() {
+    return this.isUniversal;
+  }
+
+  /**
+   * The name of this function must be setIsUniversal in order to match the field name in the view
+   * so that automatic binding of the form field to the QuestionForm data works correctly.
+   *
+   * @param universal Whether the question is marked as universal or not.
+   */
+  public final void setIsUniversal(boolean universal) {
+    this.isUniversal = universal;
+  }
+
+  public final ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags() {
+    return this.primaryApplicantInfoTags;
+  }
+
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_DOB in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
+  public final void setPrimaryApplicantDob(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_DOB, val);
+  }
+
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_EMAIL in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
+  public final void setPrimaryApplicantEmail(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_EMAIL, val);
+  }
+
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_NAME in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
+  public final void setPrimaryApplicantName(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_NAME, val);
+  }
+
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_PHONE in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
+  public final void setPrimaryApplicantPhone(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_PHONE, val);
+  }
+
+  private void setTagState(PrimaryApplicantInfoTag primaryApplicantInfoTag, boolean isSet) {
+    boolean currentlyContainsTag = this.primaryApplicantInfoTags.contains(primaryApplicantInfoTag);
+    if (isSet && !currentlyContainsTag) {
+      this.primaryApplicantInfoTags =
+          new ImmutableSet.Builder<PrimaryApplicantInfoTag>()
+              .addAll(this.primaryApplicantInfoTags)
+              .add(primaryApplicantInfoTag)
+              .build();
+    } else if (!isSet && currentlyContainsTag) {
+      this.primaryApplicantInfoTags =
+          this.primaryApplicantInfoTags().stream()
+              .filter(t -> t != primaryApplicantInfoTag)
+              .collect(ImmutableSet.toImmutableSet());
+    }
   }
 }

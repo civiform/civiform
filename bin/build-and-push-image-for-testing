@@ -1,0 +1,44 @@
+#! /usr/bin/env bash
+
+# DOC: Build a new server docker image from the local branch
+# DOC: and push to docker hub for testing purposes. Requires
+# DOC: docker hub credentials to be set in the environment
+# DOC: along with DEV_BRANCH_NAME.
+
+source bin/lib.sh
+
+if [[ -z "${DEV_BRANCH_NAME}" ]]; then
+  echo "DEV_BRANCH_NAME must be set"
+  exit 1
+fi
+
+if [[ -z "${DOCKER_HUB_ACCESS_TOKEN}" ]]; then
+  echo "DOCKER_HUB_ACCESS_TOKEN must be set"
+  exit 1
+fi
+
+if [[ -z "${DOCKER_HUB_USERNAME}" ]]; then
+  echo "DOCKER_HUB_USERNAME must be set"
+  exit 1
+fi
+
+docker::do_dockerhub_login
+
+echo "Building ${IMAGE_TAG}..."
+
+readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly IMAGE_TAG="DEV-${SHORT_SHA}-${DEV_BRANCH_NAME/\//-}"
+readonly GIT_SHA="$(git rev-parse HEAD)"
+export DOCKER_BUILDKIT=1
+
+# Push the image and push to docker hub
+docker buildx build --push \
+  -f prod.Dockerfile \
+  -t "civiform/civiform:${IMAGE_TAG}" \
+  --platform linux/amd64 \
+  --cache-from civiform/civiform \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  --build-arg "git_commit_sha=${GIT_SHA}" \
+  --build-arg "image_tag=${IMAGE_TAG}" \
+  --build-arg SBT_VERSION="${SBT_VERSION}" \
+  .

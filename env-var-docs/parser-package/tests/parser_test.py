@@ -1,6 +1,8 @@
-from env_var_docs.parser import Group, Variable, RegexTest, ParseError, NodeParseError, Node, visit, _path, _ensure_no_extra_fields, _parse_field, _try_parse_group, _try_parse_variable
+from env_var_docs.parser import Mode, Group, Variable, RegexTest, ParseError, NodeParseError, Node, visit, _path, _ensure_no_extra_fields, _parse_field, _try_parse_group, _try_parse_variable
 import unittest
 import io
+# Needed for Python <3.9
+from typing import Dict, List
 
 
 def donothing(_: Node):
@@ -27,7 +29,7 @@ class TestVisit(unittest.TestCase):
 
     def test_file_has_duplicate_keys(self):
         f = io.StringIO(
-            '{ "MY_VAR": { "description": "A var", "type": "string", "type": "bool"} }'
+            '{ "MY_VAR": { "description": "A var", "type": "string", "type": "bool", "mode": "HIDDEN"} }'
         )
         got = visit(f, donothing)
         self.assertEqual(
@@ -83,19 +85,20 @@ class TestVisit(unittest.TestCase):
                 "Group A": {
                     "group_description": "Description A",
                     "members": {
-                        "A_VAR": { "description": "Var A", "type": "string" },
+                        "A_VAR": { "description": "Var A", "type": "string", "mode": "HIDDEN" },
                         "Group B": {
                             "group_description": "Description B",
                             "members": {
-                                "B_VAR": { "description": "Var B", "type": "string" }
+                                "B_VAR": { "description": "Var B", "type": "string", "mode": "HIDDEN" }
                             }
                         },
-                        "C_VAR": { "description": "Var C", "type": "string" }
+                        "C_VAR": { "description": "Var C", "type": "string", "mode": "HIDDEN" }
                     }
                 },
                 "MY_VAR": {
                     "description": "A new cool var",
-                    "type": "bool"
+                    "type": "bool",
+                    "mode": "HIDDEN"
                 }
             }""")
         got = visit(f, visit_fn)
@@ -117,7 +120,8 @@ class TestVisit(unittest.TestCase):
                     required=False,
                     values=None,
                     regex=None,
-                    regex_tests=None)),
+                    regex_tests=None,
+                    mode=Mode.HIDDEN)),
             Node(
                 level=2,
                 json_path="file.Group A",
@@ -133,7 +137,8 @@ class TestVisit(unittest.TestCase):
                     required=False,
                     values=None,
                     regex=None,
-                    regex_tests=None)),
+                    regex_tests=None,
+                    mode=Mode.HIDDEN)),
             Node(
                 level=2,
                 json_path="file.Group A",
@@ -144,7 +149,8 @@ class TestVisit(unittest.TestCase):
                     required=False,
                     values=None,
                     regex=None,
-                    regex_tests=None)),
+                    regex_tests=None,
+                    mode=Mode.HIDDEN)),
             Node(
                 level=1,
                 json_path="file",
@@ -155,7 +161,8 @@ class TestVisit(unittest.TestCase):
                     required=False,
                     values=None,
                     regex=None,
-                    regex_tests=None)),
+                    regex_tests=None,
+                    mode=Mode.HIDDEN)),
         ]
 
         # Using self.assertEqual would require filling in 'members' details for
@@ -276,7 +283,7 @@ class TestParseGroup(unittest.TestCase):
 
 
 class TestParseVariable(unittest.TestCase):
-    basevar = {"description": "Var", "type": "string"}
+    basevar = {"description": "Var", "type": "string", "mode": "HIDDEN"}
     basetests = [
         {
             "val": "hiya",
@@ -293,12 +300,17 @@ class TestParseVariable(unittest.TestCase):
         self.assertEqual(
             gotErrors, [
                 ParseError("root", "'description' is a required field"),
-                ParseError("root", "'type' is a required field")
+                ParseError("root", "'type' is a required field"),
+                ParseError("root", "'mode' is a required field")
             ])
         self.assertEqual(got, None)
 
     def test_no_description(self):
-        got, gotErrors = _try_parse_variable("root", {"type": "string"})
+        got, gotErrors = _try_parse_variable(
+            "root", {
+                "type": "string",
+                "mode": "HIDDEN"
+            })
         self.assertEqual(
             gotErrors, [
                 ParseError("root", "'description' is a required field"),
@@ -309,7 +321,8 @@ class TestParseVariable(unittest.TestCase):
         got, gotErrors = _try_parse_variable(
             "root", {
                 "description": {},
-                "type": "string"
+                "type": "string",
+                "mode": "HIDDEN"
             })
         self.assertEqual(
             gotErrors, [
@@ -318,16 +331,31 @@ class TestParseVariable(unittest.TestCase):
         self.assertEqual(got, None)
 
     def test_no_type(self):
-        got, gotErrors = _try_parse_variable("root", {"description": "A var"})
+        got, gotErrors = _try_parse_variable(
+            "root", {
+                "description": "A var",
+                "mode": "HIDDEN"
+            })
         self.assertEqual(
             gotErrors, [ParseError("root", "'type' is a required field")])
+        self.assertEqual(got, None)
+
+    def test_no_mode(self):
+        got, gotErrors = _try_parse_variable(
+            "root", {
+                "description": "A var",
+                "type": "string"
+            })
+        self.assertEqual(
+            gotErrors, [ParseError("root", "'mode' is a required field")])
         self.assertEqual(got, None)
 
     def test_type_wrong_type(self):
         got, gotErrors = _try_parse_variable(
             "root", {
                 "description": "A var",
-                "type": True
+                "type": True,
+                "mode": "HIDDEN"
             })
         self.assertEqual(
             gotErrors, [ParseError("root.type", "must be a string")])
@@ -337,7 +365,8 @@ class TestParseVariable(unittest.TestCase):
         got, gotErrors = _try_parse_variable(
             "root", {
                 "description": "A var",
-                "type": "cooleo"
+                "type": "cooleo",
+                "mode": "HIDDEN"
             })
         self.assertEqual(
             gotErrors, [
@@ -354,7 +383,8 @@ class TestParseVariable(unittest.TestCase):
                 got, gotErrors = _try_parse_variable(
                     "root", {
                         "description": "A var",
-                        "type": v
+                        "type": v,
+                        "mode": "HIDDEN"
                     })
                 self.assertEqual(gotErrors, [])
                 self.assertEqual(
@@ -365,7 +395,8 @@ class TestParseVariable(unittest.TestCase):
                         required=False,
                         values=None,
                         regex=None,
-                        regex_tests=None))
+                        regex_tests=None,
+                        mode=Mode.HIDDEN))
 
     def test_unrequired_fields_not_set(self):
         got, gotErrors = _try_parse_variable("root", self.basevar)
@@ -378,7 +409,8 @@ class TestParseVariable(unittest.TestCase):
                 required=False,
                 values=None,
                 regex=None,
-                regex_tests=None))
+                regex_tests=None,
+                mode=Mode.HIDDEN))
 
     def test_required_wrong_type(self):
         v = dict(self.basevar, **{"required": 42})
@@ -399,7 +431,8 @@ class TestParseVariable(unittest.TestCase):
                 required=False,
                 values=None,
                 regex=None,
-                regex_tests=None))
+                regex_tests=None,
+                mode=Mode.HIDDEN))
 
     def test_required_true(self):
         v = dict(self.basevar, **{"required": True})
@@ -413,7 +446,8 @@ class TestParseVariable(unittest.TestCase):
                 required=True,
                 values=None,
                 regex=None,
-                regex_tests=None))
+                regex_tests=None,
+                mode=Mode.HIDDEN))
 
     def test_values_wrong_type(self):
         v = dict(self.basevar, **{"values": "only one"})
@@ -448,7 +482,8 @@ class TestParseVariable(unittest.TestCase):
                 required=False,
                 values=["one", "two"],
                 regex=None,
-                regex_tests=None))
+                regex_tests=None,
+                mode=Mode.HIDDEN))
 
     def test_regex_wrong_type(self):
         v = dict(self.basevar, **{"regex": []})
@@ -587,7 +622,8 @@ class TestParseVariable(unittest.TestCase):
                 required=False,
                 values=None,
                 regex=".*",
-                regex_tests=self.basetests_parsed))
+                regex_tests=self.basetests_parsed,
+                mode=Mode.HIDDEN))
 
     def test_has_only_extra_fields(self):
         got, gotErrors = _try_parse_variable(
@@ -599,13 +635,14 @@ class TestParseVariable(unittest.TestCase):
             gotErrors, [
                 ParseError("root", "'description' is a required field"),
                 ParseError("root", "'type' is a required field"),
+                ParseError("root", "'mode' is a required field"),
                 ParseError(
                     "root",
-                    "'extra' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests']"
+                    "'extra' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'mode']"
                 ),
                 ParseError(
                     "root",
-                    "'field' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests']"
+                    "'field' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'mode']"
                 )
             ])
         self.assertEqual(got, None)
@@ -628,10 +665,10 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=False,
                 obj={"key": []},
-                return_type=list[str])
+                return_type=List[str])
         self.assertIn(
             "'extract_fn' must be provided if 'return_type' is provided",
             str(e.exception))
@@ -641,7 +678,7 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=False,
                 obj={"key": []},
                 extract_fn=lambda o: [])
@@ -654,7 +691,7 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=True,
                 obj={"keyz": []},
                 default=["Default"])
@@ -757,7 +794,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=dict,
+            json_type=Dict,
             required=False,
             obj={"key": "true"})
         self.assertEqual(
@@ -768,7 +805,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=dict,
+            json_type=Dict,
             required=False,
             obj={"key": {
                 "subkey": "hello there"
@@ -780,7 +817,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=list,
+            json_type=List,
             required=False,
             obj={"key": "true"})
         self.assertEqual(gotErrors, [ParseError("root.key", "must be a list")])
@@ -790,7 +827,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=list,
+            json_type=List,
             required=False,
             obj={"key": [1, 2, 3]})
         self.assertEqual(gotErrors, [])

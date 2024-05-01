@@ -1,6 +1,7 @@
 package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -53,14 +54,14 @@ public final class SimpleEmail {
           .register();
 
   private final String sender;
+  private final Environment environment;
   private final Client client;
-  private final boolean metricsEnabled;
 
   @Inject
   public SimpleEmail(
       AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
-    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
+    this.environment = checkNotNull(environment);
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
@@ -87,6 +88,19 @@ public final class SimpleEmail {
     }
     Histogram.Timer timer = EMAIL_EXECUTION_TIME.startTimer();
 
+    // Add some messaging to non-prod emails to make it easier to
+    // tell that it's not a prod notification.
+    if (!environment.isProd()) {
+      subject = String.format("[Test Message] %s", subject);
+      bodyText =
+          String.format(
+              "This email was generated from our test server.\n\n"
+                  + "If you didn't expect this message please disregard.\n\n"
+                  + "***************************************************\n\n\n"
+                  + "%s",
+              bodyText);
+    }
+
     try {
       Destination destination =
           Destination.builder().toAddresses(toAddresses.toArray(new String[0])).build();
@@ -102,17 +116,13 @@ public final class SimpleEmail {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
-      if (metricsEnabled) {
-        EMAIL_FAIL_COUNT.inc();
-        EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
-      }
+      EMAIL_FAIL_COUNT.inc();
+      EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
     } finally {
-      if (metricsEnabled) {
-        // Increase the count of emails sent.
-        EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
-        // Record the execution time of the email sending process.
-        timer.observeDuration();
-      }
+      // Increase the count of emails sent.
+      EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
+      // Record the execution time of the email sending process.
+      timer.observeDuration();
     }
   }
 
@@ -141,8 +151,6 @@ public final class SimpleEmail {
   }
 
   static class LocalStackClient implements Client {
-    private static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
-
     private final String localEndpoint;
     private final SesClient client;
 

@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import javax.inject.Provider;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
@@ -27,15 +27,16 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlProfileCreator.class);
   protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final Provider<AccountRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
+
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
   protected final SAML2Client saml2Client;
@@ -46,7 +47,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
@@ -76,14 +77,14 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
-    Optional<Applicant> existingApplicant = getExistingApplicant(profile);
+    Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
-  Optional<Applicant> getExistingApplicant(SAML2Profile profile) {
+  Optional<ApplicantModel> getExistingApplicant(SAML2Profile profile) {
     // authority_id is used as the unique stable key for users. This is unique and
     // stable per
     // authentication provider.

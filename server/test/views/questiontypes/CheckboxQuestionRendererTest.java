@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,28 +18,32 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.QuestionDefinitionConfig;
 
 public class CheckboxQuestionRendererTest extends ResetPostgres {
 
-  private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
-      new CheckboxQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world"))),
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2),
-          /* lastModifiedTime= */ Optional.empty());
-
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
+          .setName("question name")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setValidationPredicates(MultiOptionValidationPredicates.create(1, 2))
+          .setId(OptionalLong.of(1))
+          .setLastModifiedTime(Optional.empty())
+          .build();
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(1L, "hello admin", LocalizedStrings.of(Locale.US, "hello")),
+          QuestionOption.create(2L, "happy admin", LocalizedStrings.of(Locale.US, "happy")),
+          QuestionOption.create(3L, "world admin", LocalizedStrings.of(Locale.US, "world")));
+  private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
+      new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
   private final ApplicantData applicantData = new ApplicantData();
 
   private ApplicantQuestion question;
@@ -53,6 +58,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
     renderer = new CheckboxQuestionRenderer(question);
@@ -90,13 +96,50 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         applicantData, question.getContextualizedPath(), 2, 3L);
 
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-error"
-                        + " [A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*fieldset aria-describedby=\"[A-Za-z]{8}-error" + " [A-Za-z]{8}-description\".*"))
         .isTrue();
+  }
+
+  @Test
+  public void renderWithSelection_hasNoAutofocus() {
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 1L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void applicantSelectedQuestionNameMatch_hasAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsNameMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

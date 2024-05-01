@@ -1,10 +1,12 @@
 package auth;
 
+import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.BasicUserProfile;
@@ -36,6 +38,17 @@ public class ProfileUtils {
 
   /**
    * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
+   * request's cookies, using the injected session store to decrypt it.
+   *
+   * @throws MissingOptionalException if we can't find the profile from the request
+   */
+  public CiviFormProfile currentUserProfileOrThrow(Http.RequestHeader request) {
+    return currentUserProfile(request)
+        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+  }
+
+  /**
+   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
    * context's cookies, using the injected session store to decrypt it.
    */
   public Optional<CiviFormProfile> currentUserProfile(WebContext webContext) {
@@ -55,7 +68,7 @@ public class ProfileUtils {
     return profileMaybe.map(BasicUserProfile::getId);
   }
 
-  public Optional<ApiKey> currentApiKey(Http.RequestHeader request) {
+  public Optional<ApiKeyModel> currentApiKey(Http.RequestHeader request) {
     Optional<String> maybeApiKeyId = currentApiKeyId(request);
 
     return maybeApiKeyId.map(profileFactory::retrieveApiKey);
@@ -63,10 +76,10 @@ public class ProfileUtils {
 
   // A temporary placeholder email value, used while the user needs to verify their account.
   private static final String IDCS_PLACEHOLDER_EMAIL_LOWERCASE =
-      "ITD_UCSS_UAT@seattle.gov".toLowerCase();
+      "ITD_UCSS_UAT@seattle.gov".toLowerCase(Locale.ROOT);
   // Testing account to allow for manual verification of the check.
   private static final String IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE =
-      "CiviFormStagingTest@gmail.com".toLowerCase();
+      "CiviFormStagingTest@gmail.com".toLowerCase(Locale.ROOT);
 
   /** Return true if the account is not a fully usable account to the City of Seattle. */
   public boolean accountIsIdcsPlaceholder(CiviFormProfile profile) {
@@ -76,7 +89,7 @@ public class ProfileUtils {
       return false;
     }
 
-    String userEmailLowercase = userEmail.get().toLowerCase();
+    String userEmailLowercase = userEmail.get().toLowerCase(Locale.ROOT);
 
     return IDCS_PLACEHOLDER_EMAIL_LOWERCASE.equals(userEmailLowercase)
         || IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE.equals(userEmailLowercase);

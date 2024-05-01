@@ -1,21 +1,18 @@
 package auth.oidc.applicant;
 
-import auth.ProfileFactory;
 import auth.oidc.OidcClientProvider;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "idcs";
+  private static final String ATTRIBUTE_PREFIX = "idcs.";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
   private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
@@ -24,11 +21,8 @@ public final class IdcsClientProvider extends OidcClientProvider {
       ImmutableList.of("openid", "profile", "email");
 
   @Inject
-  public IdcsClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+  public IdcsClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override
@@ -43,8 +37,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new IdcsApplicantProfileCreator(
-        config, client, profileFactory, applicantRepositoryProvider);
+    return new IdcsApplicantProfileCreator(config, client, params);
   }
 
   @Override
@@ -89,5 +82,10 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   protected ImmutableList<String> getExtraScopes() {
     return ImmutableList.of();
+  }
+
+  @Override
+  protected boolean getUseCsrf() {
+    return false;
   }
 }

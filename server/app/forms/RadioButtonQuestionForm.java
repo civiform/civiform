@@ -1,7 +1,7 @@
 package forms;
 
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
 
 /** Form for updating a radio button question. */
 public class RadioButtonQuestionForm extends MultiOptionQuestionForm {
@@ -10,7 +10,7 @@ public class RadioButtonQuestionForm extends MultiOptionQuestionForm {
     super();
   }
 
-  public RadioButtonQuestionForm(RadioButtonQuestionDefinition qd) {
+  public RadioButtonQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
   }
 

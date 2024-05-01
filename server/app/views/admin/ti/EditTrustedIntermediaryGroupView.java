@@ -19,8 +19,9 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import models.Account;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.TrustedIntermediaryGroupModel;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -32,6 +33,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -47,12 +49,12 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
-  public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    String title = "Trusted Intermediary Groups";
+  public Content render(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
+    String title = "Trusted intermediary groups";
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
@@ -66,11 +68,21 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                                     tiGroup.getTrustedIntermediaries(),
                                     account -> renderTIRow(tiGroup, account, request))))));
 
+    if (request.flash().get("error").isPresent()) {
+      LoggerFactory.getLogger(EditTrustedIntermediaryGroupView.class)
+          .info(request.flash().get("error").get());
+      String error = request.flash().get("error").get();
+      htmlBundle.addToastMessages(
+          ToastMessage.errorNonLocalized(error)
+              .setId("warning-message-ti-form-fill")
+              .setIgnorable(false)
+              .setDuration(0));
+    }
+
     return layout.renderCentered(htmlBundle);
   }
 
-  // TODO https://github.com/seattle-uat/civiform/issues/2762
-  private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewButton(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -80,7 +92,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("group-name-input")
             .setFieldName("emailAddress")
-            .setLabelText("Member Email Address")
+            .setLabelText("Member email address")
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
@@ -91,7 +103,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
-  private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
+  private TrTag renderTIRow(
+      TrustedIntermediaryGroupModel tiGroup, AccountModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -102,13 +115,13 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .with(renderActionsCell(tiGroup, ti, request));
   }
 
-  private TdTag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(AccountModel ti) {
     return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
         .with(div(ti.getEmailAddress()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(AccountModel ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -118,7 +131,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "justify-end", "items-center", "pr-3")
@@ -126,7 +139,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private FormTag renderDeleteButton(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(

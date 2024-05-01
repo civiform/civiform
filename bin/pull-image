@@ -5,6 +5,7 @@
 # DOC: specify what to pull with a flag
 # DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
 # DOC: If multiple flags are passed, all but the first will be ignored.
+# DOC: Use "--help" to display all pull image options
 
 source bin/lib.sh
 
@@ -26,20 +27,23 @@ function pull_all() {
   docker pull civiform/civiform-dev:latest
 
   # Explicitly pull dev dependencies. (in parallel)
-  docker pull docker.io/civiform/oidc-provider:latest &
+  docker pull civiform/oidc-provider:latest &
   docker pull mcr.microsoft.com/azure-storage/azurite &
   docker pull localstack/localstack &
 
-  docker pull docker.io/civiform/civiform-localstack:latest &
-  docker pull docker.io/civiform/formatter:latest &
-  docker pull docker.io/civiform/civiform-browser-test:latest &
-  docker pull docker.io/civiform/mock-web-services:latest &
+  docker pull civiform/civiform-localstack:latest &
+  docker pull civiform/formatter:latest &
+  docker pull civiform/civiform-browser-test:latest &
+  docker pull civiform/mock-web-services:latest &
 
   wait
 
   docker tag civiform/civiform-dev:latest civiform-dev
+  docker tag civiform/formatter:latest civiform-formatter
   docker tag civiform/civiform-localstack:latest civiform-localstack
-  docker tag docker.io/civiform/mock-web-services:latest civiform-mock-web-services
+  docker tag civiform/oidc-provider:latest civiform-oidc-provider
+  docker tag civiform/civiform-browser-test:latest civiform-browser-test
+  docker tag civiform/mock-web-services:latest civiform-mock-web-services
 }
 
 if [[ $# -eq 0 ]]; then
@@ -55,19 +59,19 @@ while [ "${1:-}" != "" ]; do
 
     "--dev")
       echo "Pull dev docker image"
-      docker pull docker.io/civiform/civiform-dev:latest
+      docker pull civiform/civiform-dev:latest
       docker tag civiform/civiform-dev:latest civiform-dev
-
       ;;
 
     "--formatter")
       echo "Pull formatter docker image"
-      docker pull docker.io/civiform/formatter:latest
+      docker pull civiform/formatter:latest
+      docker tag civiform/formatter:latest civiform-formatter
       ;;
 
     "--localstack")
       echo "Pull localstack docker image"
-      docker pull docker.io/civiform/civiform-localstack:latest
+      docker pull civiform/civiform-localstack:latest
       docker tag civiform/civiform-localstack:latest civiform-localstack
       ;;
 
@@ -78,18 +82,38 @@ while [ "${1:-}" != "" ]; do
 
     "--oidc-provider")
       echo "Pull oidc-provider docker image"
-      docker pull docker.io/civiform/oidc-provider:latest
+      docker pull civiform/oidc-provider:latest
+      docker tag civiform/oidc-provider:latest civiform-oidc-provider
       ;;
 
     "--browser-tests")
       echo "Pull browser-tests docker image"
-      docker pull docker.io/civiform/civiform-browser-test:latest
+      docker pull civiform/civiform-browser-test:latest
+      docker tag civiform/civiform-browser-test:latest civiform-browser-test
       ;;
 
     "--mock-web-services")
       echo "Pull mock-web-services docker image"
-      docker pull docker.io/civiform/mock-web-services:latest
-      docker tag docker.io/civiform/mock-web-services:latest civiform-mock-web-services
+      docker pull civiform/mock-web-services:latest
+      docker tag civiform/mock-web-services:latest civiform-mock-web-services
+      ;;
+
+    "--help")
+      echo ""
+      echo "Update all images"
+      echo ""
+      echo "  --all                 All Images"
+      echo ""
+      echo "Update one or more specific images"
+      echo ""
+      echo "  --azurite             Microsoft Azurite"
+      echo "  --browser-tests       CiviForm Browser Test"
+      echo "  --dev                 CiviForm Development"
+      echo "  --formatter           CiviForm Formatter"
+      echo "  --localstack          Localstack (AWS emulator)"
+      echo "  --mock-web-services   CiviForm Mock Web Services"
+      echo "  --oidc-provider       CiviForm OIDC Provider"
+      echo ""
       ;;
 
     *)

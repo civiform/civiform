@@ -5,15 +5,18 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.section;
 
+import auth.CiviFormProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import play.i18n.Messages;
+import play.mvc.Http;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -27,11 +30,12 @@ import views.style.StyleUtils;
 public abstract class ApplicantUpsellView extends BaseHtmlView {
 
   protected static ButtonTag createApplyToProgramsButton(
-      String buttonId, String buttonText, Long applicantId) {
-    return redirectButton(
-            buttonId,
-            buttonText,
-            controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
+      String buttonId,
+      String buttonText,
+      Long applicantId,
+      CiviFormProfile profile,
+      ApplicantRoutes applicantRoutes) {
+    return redirectButton(buttonId, buttonText, applicantRoutes.index(profile, applicantId).url())
         .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
@@ -43,31 +47,35 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return div()
-        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+        .withClasses("w-5/6", StyleUtils.responsiveSmall("w-2/3"), "mx-auto")
         .with(
-            h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-            confirmationSection,
-            createAccountManagementSection(
-                shouldUpsell, messages, authProviderName, actionButtons));
+            div()
+                .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+                .with(
+                    h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+                    confirmationSection,
+                    createAccountManagementSection(
+                        shouldUpsell, messages, authProviderName, actionButtons)));
   }
 
   protected static HtmlBundle createHtmlBundle(
+      Http.Request request,
       ApplicantLayout layout,
       String title,
       Optional<ToastMessage> bannerMessage,
       Modal loginPromptModal,
       DivTag mainContent) {
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title);
     bannerMessage.ifPresent(bundle::addToastMessages);
     bundle
-        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+        .addMainStyles("my-8", StyleUtils.responsiveSmall("my-12"))
         .addMainContent(mainContent)
         .addModals(loginPromptModal);
     return bundle;
   }
 
   /** Don't show "create an account" upsell box to TIs, or anyone with an account already. */
-  protected static boolean shouldUpsell(Account account) {
+  protected static boolean shouldUpsell(AccountModel account) {
     return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
   }
 
@@ -91,7 +99,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
                     "flex-col",
                     "gap-4",
                     "justify-end",
-                    StyleUtils.responsiveMedium("flex-row"))
+                    StyleUtils.responsiveLarge("flex-row"))
                 .with(actionButtons));
   }
 }

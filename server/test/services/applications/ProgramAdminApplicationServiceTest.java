@@ -1,12 +1,14 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -16,10 +18,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
-import models.Account;
-import models.Applicant;
-import models.Application;
-import models.ApplicationEvent;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationEventModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,10 +30,13 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import play.mvc.Http.Request;
+import play.test.Helpers;
+import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -93,12 +98,12 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
-    Optional<Application> result = service.getApplication(application.id, program);
+    Optional<ApplicationModel> result = service.getApplication(application.id, program);
     assertThat(result).isPresent();
     assertThat(result.get().id).isEqualTo(application.id);
   }
@@ -113,9 +118,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication_programMismatch() {
     ProgramDefinition firstProgram =
         ProgramBuilder.newActiveProgram("first-program").buildDefinition();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application firstProgramApplication =
-        Application.create(applicant, firstProgram.toProgram(), LifecycleStage.ACTIVE)
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel firstProgramApplication =
+        ApplicationModel.create(applicant, firstProgram.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     ProgramDefinition secondProgram =
@@ -128,9 +133,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication_emptyAdminName() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     assertThat(service.getApplication(application.id, program)).isEmpty();
@@ -140,9 +145,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getNote_noNotes_empty() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     // Execute, verify.
@@ -154,10 +159,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     String note = "Application note";
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     service.setNote(application, NoteEvent.create("first note"), account);
@@ -182,22 +187,23 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     StatusEvent event =
@@ -206,7 +212,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    service.setStatus(application, event, account);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    service.setStatus(application, event, account, request);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -222,7 +229,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
@@ -242,25 +249,26 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     // Set the user to Korean.
     applicant.getApplicantData().setPreferredLocale(userLocale);
     applicant.save();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     StatusEvent event =
@@ -269,7 +277,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_MULTI_LANGUAGE_EMAIL.statusText())
             .build();
 
-    service.setStatus(application, event, account);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    service.setStatus(application, event, account, request);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(userLocale.toLanguageTag())));
@@ -294,22 +303,23 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow()
             .setSubmitterEmail(tiEmail);
 
@@ -319,7 +329,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    service.setStatus(application, event, account);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    service.setStatus(application, event, account, request);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -354,25 +365,26 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    Applicant tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
     tiApplicant.save();
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow()
             .setSubmitterEmail(tiEmail);
 
@@ -382,7 +394,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    service.setStatus(application, event, account);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    service.setStatus(application, event, account, request);
 
     Messages enMessages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -417,17 +430,18 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     StatusEvent event =
         StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
 
-    assertThrows(
-        StatusNotFoundException.class, () -> service.setStatus(application, event, account));
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+        .isInstanceOf(StatusNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
@@ -438,11 +452,11 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant =
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     // Request email to be sent when there is not one.
@@ -452,8 +466,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
             .build();
 
-    assertThrows(
-        StatusEmailNotFoundException.class, () -> service.setStatus(application, event, account));
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+        .isInstanceOf(StatusEmailNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
@@ -464,10 +479,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     // Request email to be sent when the user doesn't have one.
@@ -477,8 +492,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    assertThrows(
-        AccountHasNoEmailException.class, () -> service.setStatus(application, event, account));
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+        .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
@@ -491,35 +507,37 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
-    Applicant applicant =
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
-    Application application =
-        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
     // Do not request an email to be sent.
     StatusEvent event = StatusEvent.builder().setEmailSent(false).setStatusText(status).build();
 
-    service.setStatus(application, event, account);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    service.setStatus(application, event, account, request);
 
     verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
 
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(status);

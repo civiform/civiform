@@ -5,38 +5,95 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
+import static views.style.AdminStyles.HEADER_BUTTON_STYLES;
 
 import com.google.common.collect.ImmutableList;
+import controllers.admin.PredicateUtils;
+import controllers.admin.ReadablePredicate;
+import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
+import java.util.List;
+import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
-import views.components.ButtonStyles;
 import views.components.Icons;
+import views.components.TextFormatter;
 import views.style.StyleUtils;
 
 abstract class ProgramBaseView extends BaseHtmlView {
 
-  /** Renders a div with internal/admin program information. */
-  protected final DivTag renderProgramInfo(ProgramDefinition programDefinition) {
+  /** Represents different buttons that can be displayed in the program information header. */
+  public enum ProgramHeaderButton {
+    /**
+     * Redirects program to an editable view. Should be used only if the program is currently read
+     * only.
+     */
+    EDIT_PROGRAM,
+    /** Redirects to the program details editing page. */
+    EDIT_PROGRAM_DETAILS,
+    /** Redirects to the program image editing page. */
+    EDIT_PROGRAM_IMAGE,
+    /** Redirects to previewing this program as an applicant. */
+    PREVIEW_AS_APPLICANT,
+    /**
+     * Downloads a PDF preview of the current program version, with all of its blocks and questions.
+     */
+    DOWNLOAD_PDF_PREVIEW,
+  }
+
+  /**
+   * Renders a header div with internal/admin program information.
+   *
+   * @param headerButtons the main action buttons to be displayed in the header
+   * @throws IllegalArgumentException if {@code headerButtons} contains both {@link
+   *     ProgramHeaderButton#EDIT_PROGRAM} and {@link ProgramHeaderButton#EDIT_PROGRAM_DETAILS}.
+   */
+  protected final DivTag renderProgramInfoHeader(
+      ProgramDefinition programDefinition,
+      List<ProgramHeaderButton> headerButtons,
+      Http.Request request) {
+    if (headerButtons.contains(ProgramHeaderButton.EDIT_PROGRAM)
+        && headerButtons.contains(ProgramHeaderButton.EDIT_PROGRAM_DETAILS)) {
+      throw new IllegalArgumentException(
+          "At most one of [EDIT_PROGRAM, EDIT_PROGRAM_DETAILS] should be included");
+    }
     DivTag title =
         div(programDefinition.localizedName().getDefault())
             .withId("program-title")
             .withClasses("text-3xl", "pb-3");
     DivTag description =
-        div(programDefinition.localizedDescription().getDefault()).withClasses("text-sm");
+        div()
+            .with(
+                TextFormatter.formatText(
+                    programDefinition.localizedDescription().getDefault(),
+                    /* preserveEmptyLines= */ false,
+                    /* addRequiredIndicator= */ false))
+            .withClasses("text-sm");
     DivTag adminNote =
         div()
             .withClasses("text-sm")
             .with(span("Admin note: ").withClasses("font-semibold"))
             .with(span(programDefinition.adminDescription()));
-    return div(ViewUtils.makeBadge(getProgramDisplayStatus()), title, description, adminNote)
+    DivTag headerButtonsDiv =
+        div()
+            .withClasses("flex")
+            .with(
+                headerButtons.stream()
+                    .map(
+                        headerButton ->
+                            renderHeaderButton(headerButton, programDefinition, request)));
+    return div(
+            ViewUtils.makeLifecycleBadge(getProgramDisplayStatus()),
+            title,
+            description,
+            adminNote,
+            headerButtonsDiv)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
@@ -57,56 +114,60 @@ abstract class ProgramBaseView extends BaseHtmlView {
                 "items-center",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
 
-    if (predicateDefinition
-        .predicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.SINGLE_QUESTION)) {
-      return container.with(
-          text(predicateDefinition.toDisplayString(blockName, questionDefinitions)));
-    } else if (!predicateDefinition
-        .predicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS)) {
-      throw new IllegalArgumentException(
-          String.format(
-              "Predicate type %s is unsupported.", predicateDefinition.predicateFormat()));
+    ReadablePredicate readablePredicate =
+        PredicateUtils.getReadablePredicateDescription(
+            blockName, predicateDefinition, questionDefinitions);
+
+    container.with(text(readablePredicate.heading()));
+    if (readablePredicate.conditionList().isPresent()) {
+      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
+      readablePredicate.conditionList().get().stream()
+          .forEach(condition -> conditionList.with(li(condition)));
+      container.with(conditionList);
     }
-
-    ImmutableList<PredicateExpressionNode> andNodes =
-        predicateDefinition.rootNode().getOrNode().children();
-
-    if (andNodes.size() == 1) {
-      return container.with(
-          text(
-              blockName
-                  + " is "
-                  + predicateDefinition.action().toDisplayString()
-                  + " "
-                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions)));
-    }
-
-    container.with(
-        text(blockName + " is " + predicateDefinition.action().toDisplayString() + " any of:"));
-    UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
-
-    andNodes.stream()
-        .map(PredicateExpressionNode::getAndNode)
-        .forEach(andNode -> conditionList.with(li(andNode.toDisplayString(questionDefinitions))));
-
-    return container.with(conditionList);
+    return container;
   }
 
-  /**
-   * Returns a standardized Edit Button that can be added to the program info. A typical use case
-   * would be for a subclass to:
-   *
-   * <ul>
-   *   <li>create a button with this method
-   *   <li>add subclass specific navigation behaviour to the button
-   *   <li>add the button to the program info after creating it with renderProductInfo()
-   * </ul>
-   */
-  protected ButtonTag getStandardizedEditButton(String buttonText) {
+  private ButtonTag renderHeaderButton(
+      ProgramHeaderButton headerButton, ProgramDefinition programDefinition, Http.Request request) {
+    switch (headerButton) {
+      case EDIT_PROGRAM:
+        ButtonTag editButton = getStandardizedEditButton("Edit program");
+        String editLink =
+            routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
+        return toLinkButtonForPost(editButton, editLink, request);
+      case EDIT_PROGRAM_DETAILS:
+        return asRedirectElement(
+            getStandardizedEditButton("Edit program details"),
+            routes.AdminProgramController.edit(
+                    programDefinition.id(), ProgramEditStatus.EDIT.name())
+                .url());
+      case EDIT_PROGRAM_IMAGE:
+        return asRedirectElement(
+            ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
+                .withClasses(HEADER_BUTTON_STYLES)
+                .withId("header_edit_program_image_button"),
+            routes.AdminProgramImageController.index(
+                    programDefinition.id(), ProgramEditStatus.EDIT.name())
+                .url());
+      case PREVIEW_AS_APPLICANT:
+        return asRedirectElement(
+            ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
+                .withClasses(HEADER_BUTTON_STYLES),
+            routes.AdminProgramPreviewController.preview(programDefinition.id()).url());
+      case DOWNLOAD_PDF_PREVIEW:
+        return asRedirectElement(
+            ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
+                .withClasses(HEADER_BUTTON_STYLES),
+            routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
+      default:
+        throw new IllegalStateException("All header buttons handled");
+    }
+  }
+
+  private ButtonTag getStandardizedEditButton(String buttonText) {
     return ViewUtils.makeSvgTextButton(buttonText, Icons.EDIT)
-        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5")
+        .withClasses(HEADER_BUTTON_STYLES)
         .withId("header_edit_button");
   }
 

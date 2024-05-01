@@ -9,8 +9,6 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.List;
@@ -20,6 +18,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -36,18 +35,18 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramAdministratorProgramListView(
       AdminLayoutFactory layoutFactory,
       Config config,
       ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -68,16 +67,16 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(p -> buildCardData(request, p))
+                        .map(p -> buildCardData(request, p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
                         .map(cardData -> programCardFactory.renderCard(request, cardData))));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
   private ProgramCardFactory.ProgramCardData buildCardData(
-      Request request, ProgramDefinition activeProgram) {
+      Request request, ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -89,6 +88,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                             renderViewApplicationsLink(request, activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
+        .setProfile(profile)
         .build();
   }
 
@@ -105,8 +105,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             .url();
 
     String buttonText =
-        featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
-                && activeProgram.isCommonIntakeForm()
+        settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
             ? "Forms"
             : "Applications";
     ButtonTag button =
@@ -117,7 +116,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.ApplicantProgramsController.show(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);

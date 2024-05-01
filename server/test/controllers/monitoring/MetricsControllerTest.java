@@ -3,14 +3,15 @@ package controllers.monitoring;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
   public void setUp() {
     resetDatabase();
     CollectorRegistry.defaultRegistry.clear();
+    // TODO(#5933) initializing counters causes the test to fail in bin/sbt-test
     MetricsController.initializeCounters();
   }
 
@@ -31,17 +33,21 @@ public class MetricsControllerTest extends WithMockedProfiles {
   public void getMetrics_returnsMetricData() {
     Config config =
         ConfigFactory.parseMap(
-            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
-    MetricsController controllerWithMetricsEnabled = new MetricsController(config);
+            ImmutableMap.<String, String>builder()
+                .put("civiform_server_metrics_enabled", "true")
+                .build());
+    MetricsController controllerWithMetricsEnabled =
+        new MetricsController(
+            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
-    Application app =
-        new Application(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
@@ -54,21 +60,27 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(metricsContent).contains("ebean_queries_mean_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_max_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_total_latency_micros");
-    assertThat(metricsContent).contains(getEbeanCountName("Program.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Question.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
+    assertThat(metricsContent).contains(getEbeanCountName("models.ProgramModel"));
+    assertThat(metricsContent).contains(getEbeanCountName("models.Question"));
+    assertThat(metricsContent).contains(getEbeanCountName("VersionModel.byId"));
+    assertThat(metricsContent).contains("location=\"VersionRepository.getActiveVersion");
+    assertThat(metricsContent).contains("className=\"models.VersionModel");
   }
 
   @Test
   public void getMetrics_returns404WhenMetricsNotEnabled() {
     Config config =
         ConfigFactory.parseMap(
-            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "false").build());
-    MetricsController controllerWithoutMetricsEnabled = new MetricsController(config);
+            ImmutableMap.<String, String>builder()
+                .put("civiform_server_metrics_enabled", "false")
+                .build());
+    MetricsController controllerWithoutMetricsEnabled =
+        new MetricsController(
+            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
     assertThat(controllerWithoutMetricsEnabled.getMetrics().status()).isEqualTo(404);
   }
 
   private String getEbeanCountName(String queryName) {
-    return String.format("ebean_queries_total{name=\"%s\",}", queryName);
+    return String.format("ebean_queries_total{name=\"%s", queryName);
   }
 }

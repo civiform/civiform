@@ -9,38 +9,41 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
+import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionAnswerer;
 import services.question.types.PhoneQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
-public class PhoneQuestionTest {
+public class PhoneQuestionTest extends ResetPostgres {
   private static final PhoneQuestionDefinition phoneQuestionDefinition =
       new PhoneQuestionDefinition(
-          OptionalLong.of(1),
-          "applicant phone",
-          Optional.empty(),
-          "The applicant Phone Number",
-          LocalizedStrings.of(Locale.US, "What is your phone number?"),
-          LocalizedStrings.of(Locale.US, "This is sample help text."),
-          PhoneQuestionDefinition.PhoneValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("applicant phone")
+              .setDescription("The applicant Phone Number")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
   }
 
@@ -81,17 +84,13 @@ public class PhoneQuestionTest {
     assertThat(phoneQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                phoneQuestion.getCountryCodePath(),
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(
-                        MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED)),
                 phoneQuestion.getPhoneNumberPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_REQUIRED))));
   }
 
   @Test
-  @Parameters({"5552123333", "123asc1234"})
+  @Parameters({"5552123333", "1231234567", "123123459a03", "123td25342"})
   public void withInvalidApplicantData_invalidPhoneNumber(String number) {
     Path phonePath =
         ApplicantData.APPLICANT_PATH
@@ -148,5 +147,35 @@ public class PhoneQuestionTest {
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("2505550199");
     assertThat(phoneQuestion.getCountryCodeValue().get()).isEqualTo("CA");
     ;
+  }
+
+  @Test
+  public void getPhoneValue_returnsPAIValueWhenTagged() {
+
+    PhoneQuestionDefinition phoneQuestionDefinitionWithPAI =
+        new PhoneQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant phone")
+                .setDescription("The applicant Phone Number")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
+                .build());
+
+    // Save applicant's phone number to the PAI column
+    applicant.setPhoneNumber("9178675309");
+
+    PhoneQuestion phoneQuestion =
+        new ApplicantQuestion(phoneQuestionDefinitionWithPAI, applicantData, Optional.empty())
+            .createPhoneQuestion();
+
+    assertThat(phoneQuestion.getPhoneNumberValue().get())
+        .isEqualTo(applicant.getPhoneNumber().get());
+    assertThat(phoneQuestion.getCountryCodeValue().get())
+        .isEqualTo(applicant.getCountryCode().get());
   }
 }

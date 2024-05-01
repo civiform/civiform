@@ -1,13 +1,15 @@
 package services.apikey;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
+import models.ApiKeyModel;
 import play.data.DynamicForm;
 
 /**
- * Holds state relevant to the result of attempting to create an {@link ApiKey}.
+ * Holds state relevant to the result of attempting to create an {@link ApiKeyModel}.
  *
- * <p>If the creation attempt was successful, contains an {@link ApiKey} and the base64 encoded
+ * <p>If the creation attempt was successful, contains an {@link ApiKeyModel} and the base64 encoded
  * credentials string that allows an API consumer to use the key. Attempting to access either of
  * these values when {@code isSuccessful()} is false will throw a runtime exception.
  *
@@ -16,36 +18,47 @@ import play.data.DynamicForm;
  * throw a runtime exception.
  */
 public final class ApiKeyCreationResult {
-  private final Optional<ApiKey> apiKey;
-  private final Optional<String> credentials;
+  private final Optional<ApiKeyModel> apiKey;
+  private final Optional<String> keyId;
+  private final Optional<String> keySecret;
   private final Optional<DynamicForm> form;
 
   /** Constructs an instance in the case of success. */
-  public static ApiKeyCreationResult success(ApiKey apiKey, String credentials) {
+  public static ApiKeyCreationResult success(ApiKeyModel apiKey, String keyId, String keySecret) {
     return new ApiKeyCreationResult(
-        Optional.of(apiKey), Optional.of(credentials), /* form= */ Optional.empty());
+        Optional.of(apiKey),
+        Optional.of(keyId),
+        Optional.of(keySecret),
+        /* form= */ Optional.empty());
   }
 
   /** Constructs an instance in the case of failure. */
   public static ApiKeyCreationResult failure(DynamicForm form) {
     return new ApiKeyCreationResult(
-        /* apiKey= */ Optional.empty(), /* credentials= */ Optional.empty(), Optional.of(form));
+        /* apiKey= */ Optional.empty(),
+        /* keyId= */ Optional.empty(),
+        /* keySecret= */ Optional.empty(),
+        Optional.of(form));
   }
 
   private ApiKeyCreationResult(
-      Optional<ApiKey> apiKey, Optional<String> credentials, Optional<DynamicForm> form) {
+      Optional<ApiKeyModel> apiKey,
+      Optional<String> keyId,
+      Optional<String> keySecret,
+      Optional<DynamicForm> form) {
     this.apiKey = apiKey;
-    this.credentials = credentials;
+    this.keyId = keyId;
+    this.keySecret = keySecret;
     this.form = form;
   }
 
   /** Returns true if the key was created. */
   public boolean isSuccessful() {
-    return credentials.isPresent();
+    return keySecret.isPresent() && keyId.isPresent();
   }
 
   /** Returns the API key if creation was successful. */
-  public ApiKey getApiKey() {
+  public ApiKeyModel getApiKey() {
     return apiKey.get();
   }
 
@@ -55,7 +68,19 @@ public final class ApiKeyCreationResult {
   }
 
   /** Returns the base64 encoded credentials string if creation was successful. */
-  public String getCredentials() {
-    return credentials.get();
+  public String getEncodedCredentials() {
+    return Base64.getEncoder()
+        .encodeToString(
+            String.format("%s:%s", keyId.get(), keySecret.get()).getBytes(StandardCharsets.UTF_8));
+  }
+
+  /** Returns the keyId string if creation was successful. */
+  public String getKeyId() {
+    return keyId.get();
+  }
+
+  /** Returns the keySecret string if creation was successful. */
+  public String getKeySecret() {
+    return keySecret.get();
   }
 }

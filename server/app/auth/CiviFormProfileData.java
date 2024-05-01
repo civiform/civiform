@@ -3,9 +3,10 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
-import models.Account;
-import models.Applicant;
+import models.AccountModel;
+import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -17,6 +18,17 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
 
+  // It is crucial that serialization of this class does not change, so that user profiles continue
+  // to be honored and in-progress applications are not lost.
+  //
+  // However, serialization is highly sensitive to details of the class, well beyond the actual data
+  // being serialized: see https://docs.oracle.com/javase/7/docs/api/java/io/Serializable.html
+  //
+  // The value below corresponds to the value computed by the compiler for the current version of
+  // the class. Specifying this value will prevent us from introducing changes that break
+  // serialization.
+  private static final long serialVersionUID = 3142603030317816700L;
+
   public CiviFormProfileData() {
     super();
   }
@@ -24,6 +36,26 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
+  }
+
+  /**
+   * Sets the "canonical" email field in the profile data. Some identity providers use non-standard
+   * attribute names for email. We use the attribute name provided by pac4j here to ensure all
+   * profiles store the email in the same place to make it is accessible via {@code
+   * CommonProfile.getEmail()}.
+   */
+  public CiviFormProfileData setEmail(String email) {
+    addAttribute(CommonProfileDefinition.EMAIL, email);
+    return this;
+  }
+
+  /**
+   * True if the "canonical" email attribute is set in the profile data. Some identity providers use
+   * non-standard attribute names for email. We use the attribute name provided by pac4j here for
+   * all profiles for consistency.
+   */
+  public boolean hasCanonicalEmail() {
+    return getAttributes().containsKey(CommonProfileDefinition.EMAIL);
   }
 
   /**
@@ -40,9 +72,9 @@ public class CiviFormProfileData extends CommonProfile {
     // asynchronous because the security code that executes it is entirely synchronous.
     supplyAsync(
             () -> {
-              Account acc = new Account();
+              AccountModel acc = new AccountModel();
               acc.save();
-              Applicant newA = new Applicant();
+              ApplicantModel newA = new ApplicantModel();
               newA.setAccount(acc);
               newA.save();
 

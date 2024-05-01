@@ -1,6 +1,5 @@
 package services.question.types;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
@@ -11,94 +10,84 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 
 /** Superclass for all multi-option questions. */
-public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
+public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
-  protected static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
+  public enum MultiOptionQuestionType {
+    CHECKBOX,
+    DROPDOWN,
+    RADIO_BUTTON
+  }
+
+  private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
       MultiOptionValidationPredicates.create(1, 1);
+  private final ImmutableList<QuestionOption> questionOptions;
+  private final MultiOptionQuestionType multiOptionQuestionType;
 
-  private final ImmutableList<QuestionOption> options;
-  private final ImmutableSet<Locale> supportedOptionLocales;
-
-  protected MultiOptionQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ImmutableList<QuestionOption> options,
-      MultiOptionValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
-    this.options = checkNotNull(options);
-    this.supportedOptionLocales = getSupportedOptionLocales(options);
+  public MultiOptionQuestionDefinition(
+      QuestionDefinitionConfig questionDefinitionConfig,
+      ImmutableList<QuestionOption> questionOptions,
+      MultiOptionQuestionType multiOptionQuestionType) {
+    super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
+    this.questionOptions = questionOptions;
+    this.multiOptionQuestionType = multiOptionQuestionType;
   }
 
-  protected MultiOptionQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ImmutableList<QuestionOption> options,
-      MultiOptionValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
-    this.options = checkNotNull(options);
-    this.supportedOptionLocales = getSupportedOptionLocales(options);
+  // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
+  // only one selection can be made.
+  private static QuestionDefinitionConfig fixValidationPredicates(
+      QuestionDefinitionConfig config, MultiOptionQuestionType multiOptionQuestionType) {
+    QuestionDefinitionConfig.Builder builder = config.toBuilder();
+
+    if (multiOptionQuestionType == MultiOptionQuestionType.DROPDOWN
+        || multiOptionQuestionType == MultiOptionQuestionType.RADIO_BUTTON) {
+      builder.setValidationPredicates(SINGLE_SELECT_PREDICATE);
+    }
+
+    return builder.build();
   }
 
-  protected MultiOptionQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ImmutableList<QuestionOption> options) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        MultiOptionValidationPredicates.create());
-    this.options = checkNotNull(options);
-    this.supportedOptionLocales = getSupportedOptionLocales(options);
+  @Override
+  public QuestionType getQuestionType() {
+    switch (multiOptionQuestionType) {
+      case CHECKBOX:
+        return QuestionType.CHECKBOX;
+      case DROPDOWN:
+        return QuestionType.DROPDOWN;
+      case RADIO_BUTTON:
+        return QuestionType.RADIO_BUTTON;
+    }
+    throw new IllegalStateException("Not a valid MultiOptionQuestionType.");
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return MultiOptionValidationPredicates.create();
   }
 
   @Override
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<Locale> questionTextLocales = super.getSupportedLocales();
-    return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, this.supportedOptionLocales));
+    return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, getSupportedOptionLocales()));
   }
 
-  private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
-    if (options.isEmpty()) {
+  private ImmutableSet<Locale> getSupportedOptionLocales() {
+    if (questionOptions.isEmpty()) {
       return ImmutableSet.of();
     }
 
     // The set of locales supported by a question's options is the smallest set of supported locales
     // for a single option
     ImmutableSet<ImmutableSet<Locale>> supportedLocales =
-        options.stream()
+        questionOptions.stream()
             .map(option -> option.optionText().translations().keySet())
             .collect(toImmutableSet());
 
@@ -114,7 +103,16 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public ImmutableList<QuestionOption> getOptions() {
-    return this.options;
+    return this.questionOptions;
+  }
+
+  /**
+   * Get the admin names of the question's options.
+   *
+   * @return a list of option admin names.
+   */
+  public ImmutableList<String> getOptionAdminNames() {
+    return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
   }
 
   /**
@@ -122,7 +120,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    * locale, it will return the options for the default locale.
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
-    return options.stream()
+    return questionOptions.stream()
         .map(option -> option.localizeOrDefault(locale))
         .collect(toImmutableList());
   }
@@ -148,15 +146,15 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocale(Locale locale)
       throws TranslationNotFoundException {
-    if (supportedOptionLocales.contains(locale)) {
-      return this.options.stream()
+    if (getSupportedOptionLocales().contains(locale)) {
+      return this.questionOptions.stream()
           .map(option -> option.localize(locale))
           .collect(toImmutableList());
     } else {
       // As in QuestionDefinition - we need to fetch "en_US" from "en".
-      for (Locale supportedLocale : supportedOptionLocales) {
+      for (Locale supportedLocale : getSupportedOptionLocales()) {
         if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
-          return this.options.stream()
+          return this.questionOptions.stream()
               .map(option -> option.localize(supportedLocale))
               .collect(toImmutableList());
         }
@@ -165,11 +163,11 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  /** Get the default locale representation of the option with the given ID. */
-  public Optional<String> getDefaultLocaleOptionForId(long id) {
-    return getOptionsForDefaultLocale().stream()
+  /** Get the admin name representation of the option with the given ID. */
+  public Optional<String> getOptionAdminNameForId(long id) {
+    return getOptions().stream()
         .filter(o -> o.id() == id)
-        .map(LocalizedQuestionOption::optionText)
+        .map(QuestionOption::adminName)
         .findFirst();
   }
 

@@ -6,13 +6,14 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.StaticContentQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
@@ -20,20 +21,21 @@ public class StaticContentQuestionTest extends ResetPostgres {
 
   private static final StaticContentQuestionDefinition questionDefinition =
       new StaticContentQuestionDefinition(
-          OptionalLong.of(1),
-          "name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "Some text. Not an actual question."),
-          LocalizedStrings.empty(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
+              .setQuestionHelpText(LocalizedStrings.empty())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
   }
 

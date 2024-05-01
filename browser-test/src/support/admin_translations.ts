@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
 
@@ -62,15 +63,15 @@ export class AdminTranslations {
     expectProgramName: string
     expectProgramDescription: string
   }) {
-    const programNameValue = await this.page.inputValue('text=Program name')
-    expect(programNameValue).toEqual(expectProgramName)
-    const programDescriptionValue = await this.page.inputValue(
-      'text=Program description',
-    )
-    expect(programDescriptionValue).toEqual(expectProgramDescription)
+    const programNameValue = this.page.getByLabel('Program name')
+    await expect(programNameValue).toHaveValue(expectProgramName)
+
+    const programDescriptionValue = this.page.getByLabel('Program description')
+    await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
   }
 
   async expectNoProgramStatusTranslations() {
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
     expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
       false,
     )
@@ -85,14 +86,15 @@ export class AdminTranslations {
     expectStatusText: string
     expectStatusEmail: string
   }) {
-    const statusTextValue = await this.page.inputValue(
+    const statusTextValue = this.page.locator(
       this.statusNameFieldSelector(configuredStatusText),
     )
-    expect(statusTextValue).toEqual(expectStatusText)
-    const statusEmailValue = await this.page.inputValue(
+    await expect(statusTextValue).toHaveValue(expectStatusText)
+
+    const statusEmailValue = this.page.locator(
       this.statusEmailFieldSelector(configuredStatusText),
     )
-    expect(statusEmailValue).toEqual(expectStatusEmail)
+    await expect(statusEmailValue).toHaveValue(expectStatusEmail)
   }
 
   async expectProgramStatusTranslationWithNoEmail({
@@ -110,6 +112,31 @@ export class AdminTranslations {
       this.statusEmailFieldSelector(configuredStatusText),
     )
     expect(isStatusEmailVisible).toBe(false)
+  }
+
+  /**
+   * Note that the program name and description must be translated using
+   * {@link editProgramTranslations} before calling this method.
+   */
+  async editProgramImageDescription(imageDescription: string) {
+    await this.page.fill('text=Program image description', imageDescription)
+    await this.page.click('#update-localizations-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectNoProgramImageDescription() {
+    expect(
+      await this.page.getByLabel('Program image description').count(),
+    ).toEqual(0)
+  }
+
+  async expectProgramImageDescriptionTranslation(
+    expectImageDescription: string,
+  ) {
+    const imageDescriptionValue = this.page.getByLabel(
+      'Program image description',
+    )
+    await expect(imageDescriptionValue).toHaveValue(expectImageDescription)
   }
 
   async editQuestionTranslations(

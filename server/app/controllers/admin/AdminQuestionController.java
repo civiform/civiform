@@ -1,18 +1,17 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -46,20 +46,23 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionsListView listView;
   private final QuestionEditView editView;
   private final FormFactory formFactory;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
 
   @Inject
   public AdminQuestionController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext classLoaderExecutionContext) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
   }
 
   /**
@@ -73,7 +76,7 @@ public final class AdminQuestionController extends CiviFormController {
         .thenApplyAsync(
             readOnlyService ->
                 ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -81,7 +84,7 @@ public final class AdminQuestionController extends CiviFormController {
    * it.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(long id) {
+  public CompletionStage<Result> show(Request request, long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -97,13 +100,14 @@ public final class AdminQuestionController extends CiviFormController {
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
                 return ok(
-                    editView.renderViewQuestionForm(questionDefinition, maybeEnumerationQuestion));
+                    editView.renderViewQuestionForm(
+                        request, questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
@@ -146,7 +150,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(Optional.empty(), questionForm).build();
+      questionDefinition = questionForm.getBuilder().build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -154,7 +158,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -230,7 +234,6 @@ public final class AdminQuestionController extends CiviFormController {
 
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
-              // https://github.com/seattle-uat/civiform/issues/2497
               Optional<QuestionDefinition> possibleDraft =
                   readOnlyService
                       .getActiveAndDraftQuestions()
@@ -250,7 +253,7 @@ public final class AdminQuestionController extends CiviFormController {
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** POST endpoint for updating a question in the draft version. */
@@ -286,7 +289,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      errorAndUpdatedQuestionDefinition = service.update(questionDefinition);
+      errorAndUpdatedQuestionDefinition = service.update(maybeExisting, questionDefinition);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
@@ -294,7 +297,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       ToastMessage errorMessage =
-          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
+          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(
@@ -335,43 +338,48 @@ public final class AdminQuestionController extends CiviFormController {
    * text, instead of overwriting all localizations.
    */
   private void updateDefaultLocalizations(
-      QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
+      QuestionDefinition currentQuestionDefinition,
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      QuestionForm questionForm) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
-    updated.setQuestionText(
-        existing
+    updatedQuestionDefinitionBuilder.setQuestionText(
+        currentQuestionDefinition
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
 
     // Question help text is optional. If the admin submits an empty string, delete
     // all translations of it.
     if (questionForm.getQuestionHelpText().isBlank()) {
-      updated.setQuestionHelpText(LocalizedStrings.empty());
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(LocalizedStrings.empty());
     } else {
-      updated.setQuestionHelpText(
-          existing
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(
+          currentQuestionDefinition
               .getQuestionHelpText()
               .updateTranslation(
                   LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
     }
 
-    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+    if (currentQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       updateDefaultLocalizationForEntityType(
-          updated,
-          (EnumeratorQuestionDefinition) existing,
+          updatedQuestionDefinitionBuilder,
+          (EnumeratorQuestionDefinition) currentQuestionDefinition,
           ((EnumeratorQuestionForm) questionForm).getEntityType());
     }
 
     if (questionForm instanceof MultiOptionQuestionForm) {
-      final MultiOptionQuestionDefinition definition;
+      final ImmutableList<QuestionOption> updatedQuestionOptions;
       try {
-        definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
+        updatedQuestionOptions =
+            ((MultiOptionQuestionDefinition) updatedQuestionDefinitionBuilder.build()).getOptions();
       } catch (UnsupportedQuestionTypeException e) {
         // Impossible - we checked the type above.
         throw new RuntimeException(e);
       }
       updateDefaultLocalizationForOptions(
-          updated, (MultiOptionQuestionDefinition) existing, definition.getOptions());
+          updatedQuestionDefinitionBuilder,
+          (MultiOptionQuestionDefinition) currentQuestionDefinition,
+          updatedQuestionOptions);
     }
   }
 
@@ -388,39 +396,55 @@ public final class AdminQuestionController extends CiviFormController {
 
   /** Update the default locale text only for a multi-option question's option text. */
   private void updateDefaultLocalizationForOptions(
-      QuestionDefinitionBuilder updated,
-      MultiOptionQuestionDefinition existing,
-      ImmutableList<QuestionOption> updatedOptions) {
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      MultiOptionQuestionDefinition currentQuestionDefinition,
+      ImmutableList<QuestionOption> updatedQuestionOptions) {
 
-    ImmutableMap<String, QuestionOption> existingTranslations =
-        existing.getOptions().stream()
-            .collect(toImmutableMap(o -> o.optionText().getDefault(), o -> o));
-    // If there are existing translations for an unchanged default locale string, keep those
-    // translations. If we do not have existing translations for a given string, create
-    // a new, empty set of translations.
-    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
-    for (QuestionOption updatedOption : updatedOptions) {
-      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())
-          && existingTranslations.get(updatedOption.optionText().getDefault()).id()
-              == updatedOption.id()) {
-        QuestionOption existingOption =
-            existingTranslations.get(updatedOption.optionText().getDefault());
-        updatedOptionsBuilder.add(
-            existingOption.toBuilder()
-                .setId(updatedOption.id())
-                .setDisplayOrder(updatedOption.displayOrder())
+    var existingOptions = currentQuestionDefinition.getOptions();
+    ImmutableList.Builder<QuestionOption> newOptionsListBuilder = ImmutableList.builder();
+
+    for (QuestionOption updatedQuestionOption : updatedQuestionOptions) {
+      var updatedQuestionOptionText = updatedQuestionOption.optionText();
+
+      var maybeExistingOptionWithSameId =
+          existingOptions.stream()
+              .filter(existingOption -> existingOption.id() == updatedQuestionOption.id())
+              .findFirst();
+      if (maybeExistingOptionWithSameId.isPresent()
+          && maybeExistingOptionWithSameId
+              .get()
+              .optionText()
+              .getDefault()
+              .equals(updatedQuestionOptionText.getDefault())) {
+        // If there's an existing option with the same ID and same default locale text, then use it
+        // and only update the displayOrder, preserving the adminName and translations.
+        newOptionsListBuilder.add(
+            maybeExistingOptionWithSameId.get().toBuilder()
+                .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .build());
+      } else if (maybeExistingOptionWithSameId.isPresent()) {
+        // If there's an existing option with the same ID but different text, then use it
+        // and update the displayOrder and default locale text, preserving the adminName but
+        // clearing any existing translations.
+        newOptionsListBuilder.add(
+            maybeExistingOptionWithSameId.get().toBuilder()
+                .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .setOptionText(updatedQuestionOptionText)
                 .build());
       } else {
-        updatedOptionsBuilder.add(updatedOption);
+        // If there wasn't an option with the same ID, treat it as a new
+        // option with a new adminName, displayOrder, and text.
+        newOptionsListBuilder.add(updatedQuestionOption);
       }
     }
-    updated.setQuestionOptions(updatedOptionsBuilder.build());
+
+    updatedQuestionDefinitionBuilder.setQuestionOptions(newOptionsListBuilder.build());
   }
 
   private String invalidQuestionTypeMessage(String questionType) {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
-        questionType.toUpperCase(), Arrays.toString(QuestionType.values()));
+        questionType.toUpperCase(Locale.ROOT), Arrays.toString(QuestionType.values()));
   }
 
   /**

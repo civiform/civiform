@@ -1,9 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
-import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -22,24 +19,26 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
+import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
+import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -50,35 +49,32 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final String civicEntityShortName;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
-      FeatureFlags featureFlags,
-      TranslationLocales translationLocales,
+      SettingsManifest settingsManifest,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
       ActiveAndDraftPrograms programs,
-      ActiveAndDraftQuestions questions,
+      ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
@@ -89,10 +85,27 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     // Revisit if we introduce internationalization because the word order could change in other
     // languages.
-    String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
-    Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
+    String pageExplanation =
+        "Create, edit and publish programs in "
+            + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
 
+    // TODO: Figure out how to simplify logic so getUpToDateQuestions() can be used in place of
+    // getActiveAndDraftQuestions()
+    ImmutableList<Long> universalQuestionIds =
+        readOnlyQuestionService.getUpToDateQuestions().stream()
+            .filter(QuestionDefinition::isUniversal)
+            .map(QuestionDefinition::getId)
+            .collect(ImmutableList.toImmutableList());
+    Optional<Modal> maybePublishModal =
+        maybeRenderPublishAllModal(
+            programs,
+            readOnlyQuestionService.getActiveAndDraftQuestions(),
+            request,
+            universalQuestionIds);
     Modal demographicsCsvModal = renderDemographicsCsvModal();
+    ImmutableList<Modal> publishSingleProgramModals =
+        buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -126,7 +139,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getActiveProgramDefinition(name),
                                             programs.getDraftProgramDefinition(name),
                                             request,
-                                            profile))
+                                            profile,
+                                            publishSingleProgramModals,
+                                            universalQuestionIds))
                                 .sorted(
                                     ProgramCardFactory
                                         .programTypeThenLastModifiedThenNameComparator())
@@ -136,15 +151,22 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
+
+    publishSingleProgramModals.stream()
+        .forEach(
+            (modal) -> {
+              htmlBundle.addModals(modal);
+            });
+
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
+      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
     } else if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
@@ -154,7 +176,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
-    String downloadActionText = "Download Exported Data (CSV)";
+    String downloadActionText = "Download demographic data (CSV)";
     DivTag downloadDemographicCsvModalContent =
         div()
             .withClasses("px-8")
@@ -166,10 +188,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 Optional.empty(), Optional.empty())
                             .url())
                     .with(
-                        p("This will download all applications for all programs. Use the filters"
-                                + " below to select a date range for the exported data. If you"
-                                + " select a large date range or leave it blank, the data could"
-                                + " be slow to export.")
+                        p("This will download demographic data for all applications for all"
+                                + " programs. Use the filters below to select a date range for the"
+                                + " exported data. If you select a large date range or leave it"
+                                + " blank, the data could be slow to export.")
                             .withClass("text-sm"),
                         fieldset()
                             .withClasses("mt-4", "pt-1", "pb-2", "border")
@@ -192,14 +214,90 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .withType("submit")));
     return Modal.builder()
         .setModalId(modalId)
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(downloadDemographicCsvModalContent)
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
   }
 
+  private ImmutableList<Modal> buildPublishSingleProgramModals(
+      ImmutableList<ProgramDefinition> programs,
+      ImmutableList<Long> universalQuestionIds,
+      Http.Request request) {
+
+    return programs.stream()
+        .map(
+            program -> {
+              FormTag publishSingleProgramForm =
+                  form(makeCsrfTokenInputTag(request))
+                      .withMethod(HttpVerbs.POST)
+                      .withAction(routes.AdminProgramController.publishProgram(program.id()).url());
+
+              DivTag missingUniversalQuestionsWarning =
+                  div()
+                      .with(
+                          ViewUtils.makeAlert(
+                              "Warning: This program does not use all recommended"
+                                  + " universal questions.",
+                              /* hidden= */ false,
+                              /* title= */ Optional.empty(),
+                              BaseStyles.ALERT_WARNING))
+                      .with(
+                          p("We recommend using all universal questions when possible"
+                                  + " to create consistent reuse of data and question"
+                                  + " formatting.")
+                              .withClasses("py-4"));
+
+              DivTag buttons =
+                  div(
+                          submitButton("Publish program").withClasses(ButtonStyles.SOLID_BLUE),
+                          button("Cancel")
+                              .withClasses(
+                                  ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
+                                  ReferenceClasses.MODAL_CLOSE))
+                      .withClasses(
+                          "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
+
+              return Modal.builder()
+                  .setModalId(buildPublishModalId(program.slug()))
+                  .setLocation(Modal.Location.ADMIN_FACING)
+                  .setContent(
+                      publishSingleProgramForm
+                          .condWith(
+                              getCountMissingUniversalQuestions(program, universalQuestionIds) > 0,
+                              missingUniversalQuestionsWarning)
+                          .with(buttons))
+                  .setModalTitle(
+                      "Are you sure you want to publish "
+                          + program.localizedName().getDefault()
+                          + " and all of its draft questions?")
+                  .setTriggerButtonContent(
+                      makeSvgTextButton("Publish", Icons.PUBLISH)
+                          .withClasses(ButtonStyles.CLEAR_WITH_ICON))
+                  .setWidth(Modal.Width.THIRD)
+                  .build();
+            })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private String buildPublishModalId(String programSlug) {
+    return "publish-modal-" + programSlug;
+  }
+
+  private int getCountMissingUniversalQuestions(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    return universalQuestionIds.stream()
+        .filter(id -> !program.getQuestionIdsInProgram().contains(id))
+        .collect(ImmutableList.toImmutableList())
+        .size();
+  }
+
   private Optional<Modal> maybeRenderPublishAllModal(
-      ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
+      ActiveAndDraftPrograms programs,
+      ActiveAndDraftQuestions questions,
+      Http.Request request,
+      ImmutableList<Long> universalQuestionIds) {
     // We should only render the publish modal / button if there is at least one draft.
     if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
       return Optional.empty();
@@ -216,18 +314,43 @@ public final class ProgramIndexView extends BaseHtmlView {
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
 
+    String programString = sortedDraftPrograms.size() == 1 ? "program" : "programs";
+    String questionString = sortedDraftQuestions.size() == 1 ? "question" : "questions";
+
     DivTag publishAllModalContent =
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
-                p("Please be aware that due to the nature of shared questions and versioning,"
-                        + " all questions and programs will need to be published together.")
-                    .withClass("text-sm"),
+                ViewUtils.makeAlert(
+                    "Due to the nature of shared questions and versioning, all questions and"
+                        + " programs will need to be published together.",
+                    /* hidden= */ false,
+                    /* title= */ Optional.of("All draft questions in programs will be published."),
+                    BaseStyles.ALERT_WARNING),
+                div()
+                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
+                    .with(
+                        p(String.format(
+                                "%d draft %s will be published:",
+                                sortedDraftPrograms.size(), programString))
+                            .withClass("font-bold text-lg"))
+                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass("pl-5"))
+                    .condWith(
+                        !sortedDraftPrograms.isEmpty(),
+                        ul().withClasses("list-disc", "list-inside")
+                            .with(
+                                each(
+                                    sortedDraftPrograms,
+                                    program ->
+                                        renderPublishModalProgramItem(
+                                            program, universalQuestionIds)))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
-                        p(String.format("Draft questions (%d):", sortedDraftQuestions.size()))
-                            .withClass("font-semibold"))
+                        p(String.format(
+                                "%d draft %s will be published:",
+                                sortedDraftQuestions.size(), questionString))
+                            .withClass("font-bold text-lg"))
                     .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass("pl-5"))
                     .condWith(
                         !sortedDraftQuestions.isEmpty(),
@@ -235,59 +358,62 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .with(
                                 each(sortedDraftQuestions, this::renderPublishModalQuestionItem))),
                 div()
-                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
+                    .withClasses("flex", "flex-row", "pt-5")
                     .with(
-                        p(String.format("Draft programs (%d):", sortedDraftPrograms.size()))
-                            .withClass("font-semibold"))
-                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass("pl-5"))
-                    .condWith(
-                        !sortedDraftPrograms.isEmpty(),
-                        ul().withClasses("list-disc", "list-inside")
-                            .with(each(sortedDraftPrograms, this::renderPublishModalProgramItem))),
-                p("Would you like to publish all draft questions and programs now?"),
-                div()
-                    .withClasses("flex", "flex-row")
-                    .with(
-                        div().withClass("flex-grow"),
+                        toLinkButtonForPost(
+                            submitButton("Publish all draft programs and questions")
+                                .withClasses(ButtonStyles.SOLID_BLUE),
+                            link,
+                            request),
                         button("Cancel")
                             .withClasses(
-                                ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
-                        toLinkButtonForPost(
-                            submitButton("Confirm").withClasses(ButtonStyles.CLEAR_WITH_ICON),
-                            link,
-                            request)));
+                                ReferenceClasses.MODAL_CLOSE,
+                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY)));
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
     Modal publishAllModal =
         Modal.builder()
             .setModalId("publish-all-programs-modal")
+            .setLocation(Modal.Location.ADMIN_FACING)
             .setContent(publishAllModalContent)
-            .setModalTitle("All draft programs will be published")
+            .setModalTitle("Do you want to publish all draft programs?")
             .setTriggerButtonContent(publishAllButton)
             .build();
     return Optional.of(publishAllModal);
   }
 
-  private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
-    String visibilityText = "";
+  private LiTag renderPublishModalProgramItem(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    String visibilityText = " ";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
-        visibilityText = "Hidden from applicants";
+        visibilityText = " (Hidden from applicants) ";
         break;
       case PUBLIC:
-        visibilityText = "Publicly visible";
+        visibilityText = " (Publicly visible) ";
         break;
       default:
         break;
     }
+
+    Optional<String> maybeUniversalQuestionsText =
+        generateUniversalQuestionText(program, universalQuestionIds);
+
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
-            span(" - " + visibilityText + " "),
+            span(visibilityText)
+                .condWith(
+                    maybeUniversalQuestionsText.isPresent(),
+                    span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
-                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
-                .asAnchorText());
+                .setHref(
+                    controllers.admin.routes.AdminProgramController.edit(
+                            program.id(), ProgramEditStatus.EDIT.name())
+                        .url())
+                .asAnchorText())
+        .withClass("pt-2");
   }
 
   private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
@@ -298,7 +424,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 .setText("Edit")
                 .setHref(
                     controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
-                .asAnchorText());
+                .asAnchorText())
+        .withClass("pt-2");
   }
 
   private ButtonTag renderNewProgramButton() {
@@ -314,13 +441,25 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<CiviFormProfile> profile) {
+      Optional<CiviFormProfile> profile,
+      ImmutableList<Modal> publishSingleProgramModals,
+      ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
+
+      // Add the trigger button belonging to the modal that matches each draft program
+      publishSingleProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                if (modal.modalId().equals(buildPublishModalId(draftProgram.get().slug()))) {
+                  draftRowActions.add(modal.getButton());
+                }
+              });
+
+      draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());
@@ -328,19 +467,14 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      if (featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
-        draftRowExtraActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      }
-      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
-      if (maybeSettingsLink.isPresent()) {
-        draftRowExtraActions.add(maybeSettingsLink.get());
-      }
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
                   .setProgram(draftProgram.get())
                   .setRowActions(ImmutableList.copyOf(draftRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(draftRowExtraActions))
+                  .setUniversalQuestionsText(
+                      generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
                   .build());
     }
 
@@ -353,7 +487,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
-            renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+            renderEditLink(/* isActive= */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
@@ -364,19 +498,40 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setProgram(activeProgram.get())
                   .setRowActions(ImmutableList.copyOf(activeRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(activeRowExtraActions))
+                  .setUniversalQuestionsText(
+                      generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
                   .build());
     }
 
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
+        .setProfile(profile)
         .build();
+  }
+
+  Optional<String> generateUniversalQuestionText(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    int countMissingUniversalQuestionIds =
+        getCountMissingUniversalQuestions(program, universalQuestionIds);
+    int countAllUniversalQuestions = universalQuestionIds.size();
+    if (countAllUniversalQuestions == 0) {
+      return Optional.empty();
+    }
+    String text =
+        countMissingUniversalQuestionIds == 0
+            ? "all"
+            : countAllUniversalQuestions
+                - countMissingUniversalQuestionIds
+                + " of "
+                + countAllUniversalQuestions;
+    return Optional.of("Contains " + text + " universal questions ");
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.ApplicantProgramsController.show(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);
@@ -411,16 +566,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationLocales.translatableLocales().isEmpty()) {
-      return Optional.empty();
-    }
-    String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
-    ButtonTag button =
-        makeSvgTextButton("Manage translations", Icons.LANGUAGE)
-            .withId("program-translations-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return Optional.of(asRedirectElement(button, linkDestination));
+    return layout.createManageTranslationsButton(
+        program.adminName(),
+        /* buttonId= */ Optional.of("program-translations-link-" + program.id()),
+        ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
@@ -429,25 +578,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, linkDestination);
-  }
-
-  private ButtonTag renderPublishProgramLink(ProgramDefinition program, Http.Request request) {
-    String linkDestination = routes.AdminProgramController.publishProgram(program.id()).url();
-    String confirmationMessage =
-        String.format(
-            "Are you sure you want to publish %s and all of its draft questions?",
-            program.localizedName().getDefault());
-    return toLinkButtonForPost(
-            makeSvgTextButton("Publish program", Icons.PUBLISH)
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "publish-program-link"),
-            linkDestination,
-            request)
-        .attr(
-            "onclick",
-            String.format(
-                "if(confirm('%s')){ return true; } else { var e = arguments[0] ||"
-                    + " window.event; e.stopImmediatePropagation(); return false; }",
-                confirmationMessage));
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
@@ -480,8 +610,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
-                  && activeProgram.isCommonIntakeForm()
+          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
               ? "Forms"
               : "Applications";
       ButtonTag button =
@@ -494,26 +623,9 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
+        makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
-  }
-
-  private Optional<ButtonTag> maybeRenderSettingsLink(
-      Http.Request request, ProgramDefinition program) {
-    if (!(featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
-        && featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))) {
-      return Optional.empty();
-    }
-    if (program.isCommonIntakeForm()) {
-      return Optional.empty();
-    }
-    String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
-    ButtonTag button =
-        makeSvgTextButton("Settings", Icons.SETTINGS)
-            .withId("edit-settings-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return Optional.of(asRedirectElement(button, linkDestination));
   }
 }

@@ -2,19 +2,19 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableMap;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +23,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.exception.BadCredentialsException;
 import org.pac4j.play.PlayWebContext;
+import org.slf4j.LoggerFactory;
 import play.Application;
 import play.ApplicationLoader;
 import play.Environment;
@@ -34,6 +35,7 @@ import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.test.Helpers;
 import services.apikey.ApiKeyService;
+import services.settings.SettingsManifest;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
@@ -50,7 +52,9 @@ public class ApiAuthenticatorTest {
   private static final String secret = "secret";
   private static final String validRawCredentials = keyId + ":" + secret;
   private static final SessionStore MOCK_SESSION_STORE = Mockito.mock(SessionStore.class);
-  private ApiKey apiKey;
+  private static final SettingsManifest MOCK_SETTINGS_MANIFEST =
+      Mockito.mock(SettingsManifest.class);
+  private ApiKeyModel apiKey;
   private Injector injector;
 
   @Before
@@ -97,26 +101,41 @@ public class ApiAuthenticatorTest {
   }
 
   @Test
-  public void resolveClientIp_forwarded() {
-    var authenticator =
-        new ApiAuthenticator(
-            injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
+  public void validate_success_direct() {
+    apiAuthenticator.validate(
+        new UsernamePasswordCredentials(keyId, secret),
+        new PlayWebContext(
+            new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
+        MOCK_SESSION_STORE);
 
-    var request = fakeRequest().header("X-Forwarded-For", "1.1.1.1, 2.2.2.2").build();
-
-    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("2.2.2.2");
+    Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
+    Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
+    assertThat(cachedMaybeKey.get().id).isEqualTo(apiKey.id);
   }
 
   @Test
-  public void validate_success() {
-    apiAuthenticator.validate(
+  public void validate_success_forwarded() {
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+
+    var authenticator =
+        new ApiAuthenticator(
+            injector.getProvider(ApiKeyService.class),
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
+    apiKey.setSubnet("3.3.3.3/32");
+    apiKey.save();
+
+    authenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
-        new PlayWebContext(buildFakeRequest(validRawCredentials)),
+        new PlayWebContext(
+            new FakeRequestBuilder()
+                .withRawCredentials(validRawCredentials)
+                .withXForwardedFor("2.2.2.2, 3.3.3.3")
+                .build()),
         MOCK_SESSION_STORE);
 
-    Optional<Optional<ApiKey>> cacheEntry = cacheApi.get(keyId);
-    Optional<ApiKey> cachedMaybeKey = cacheEntry.get();
+    Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
+    Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
     assertThat(cachedMaybeKey.get().id).isEqualTo(apiKey.id);
   }
 
@@ -125,7 +144,7 @@ public class ApiAuthenticatorTest {
     String rawCredentials = "wrong" + ":" + secret;
 
     assertBadCredentialsException(
-        buildFakeRequest(rawCredentials),
+        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
         new UsernamePasswordCredentials("wrong", secret),
         "API key does not exist: wrong");
   }
@@ -136,7 +155,8 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        buildFakeRequest(validRawCredentials), "API key is retired: " + keyId);
+        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        "API key is retired: " + keyId);
   }
 
   @Test
@@ -146,7 +166,8 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        buildFakeRequest(validRawCredentials), "API key is expired: " + keyId);
+        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        "API key is expired: " + keyId);
   }
 
   @Test
@@ -155,8 +176,77 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        buildFakeRequest(validRawCredentials),
-        "IP 1.1.1.1 not in allowed range for key ID: " + keyId);
+        new FakeRequestBuilder()
+            .withRemoteAddress("4.4.4.4")
+            .withRawCredentials(validRawCredentials)
+            .build(),
+        String.format(
+            "Resolved IP 4.4.4.4 is not in allowed range for key ID: %s, which is \"%s\"",
+            keyId, "2.2.2.2/30,3.3.3.3/32"));
+  }
+
+  @Test
+  public void validate_ipNotInSubnet_forwarded() {
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+
+    var authenticator =
+        new ApiAuthenticator(
+            injector.getProvider(ApiKeyService.class),
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
+
+    apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
+    apiKey.save();
+
+    assertBadCredentialsException(
+        authenticator,
+        new FakeRequestBuilder()
+            .withXForwardedFor("5.5.5.5, 6.6.6.6")
+            .withRawCredentials(validRawCredentials)
+            .build(),
+        String.format(
+            "Resolved IP 6.6.6.6 is not in allowed range for key ID: %s, which is \"%s\"",
+            keyId, "2.2.2.2/30,3.3.3.3/32"));
+  }
+
+  @Test
+  public void validate_logsDetailedError() {
+    Logger logger = (Logger) LoggerFactory.getLogger(ApiAuthenticator.class);
+    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+
+    var authenticator =
+        new ApiAuthenticator(
+            injector.getProvider(ApiKeyService.class),
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
+
+    apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
+    apiKey.save();
+
+    assertThatThrownBy(
+            () ->
+                authenticator.validate(
+                    new UsernamePasswordCredentials(keyId, secret),
+                    new PlayWebContext(
+                        new FakeRequestBuilder()
+                            .withRemoteAddress("7.7.7.7")
+                            .withXForwardedFor("5.5.5.5, 6.6.6.6")
+                            .withRawCredentials(validRawCredentials)
+                            .build()),
+                    MOCK_SESSION_STORE))
+        .isInstanceOf(BadCredentialsException.class);
+
+    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
+    assertThat(logsList.get(0).getMessage())
+        .isEqualTo(
+            "UnauthorizedApiRequest(resource: \"/\", Remote Address: \"7.7.7.7\","
+                + " X-Forwarded-For: \"5.5.5.5, 6.6.6.6\", CLIENT_IP_TYPE: \"FORWARDED\", cause:"
+                + " \"Resolved IP 6.6.6.6 is not in allowed range for key ID: keyId, which is"
+                + " \"2.2.2.2/30,3.3.3.3/32\"\")");
   }
 
   @Test
@@ -164,7 +254,7 @@ public class ApiAuthenticatorTest {
     var rawCredentials = keyId + ":" + "notthesecret";
 
     assertBadCredentialsException(
-        buildFakeRequest(rawCredentials),
+        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
         new UsernamePasswordCredentials(keyId, "notthesecret"),
         "Invalid secret for key ID: " + keyId);
   }
@@ -175,18 +265,26 @@ public class ApiAuthenticatorTest {
   }
 
   private void assertBadCredentialsException(
+      ApiAuthenticator apiAuthenticator, Http.Request request, String expectedMessage) {
+    assertBadCredentialsException(
+        apiAuthenticator, request, new UsernamePasswordCredentials(keyId, secret), expectedMessage);
+  }
+
+  private void assertBadCredentialsException(
       Http.Request request, UsernamePasswordCredentials credentials, String expectedMessage) {
+    assertBadCredentialsException(apiAuthenticator, request, credentials, expectedMessage);
+  }
+
+  private void assertBadCredentialsException(
+      ApiAuthenticator apiAuthenticator,
+      Http.Request request,
+      UsernamePasswordCredentials credentials,
+      String expectedMessage) {
     assertThatThrownBy(
             () ->
                 apiAuthenticator.validate(
                     credentials, new PlayWebContext(request), MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class)
         .hasMessage(expectedMessage);
-  }
-
-  private static Http.Request buildFakeRequest(String rawCredentials) {
-    String creds =
-        Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
-    return fakeRequest().remoteAddress("1.1.1.1").header("Authorization", "Basic " + creds).build();
   }
 }

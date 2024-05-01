@@ -30,19 +30,24 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    EmailQuestion emailQuestion = question.createEmailQuestion();
+    EmailQuestion emailQuestion = applicantQuestion.createEmailQuestion();
 
     FieldWithLabel emailField =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setAutocomplete(Optional.of("email"))
             .setValue(emailQuestion.getEmailValue().orElse(""))
+            .setAttribute("inputmode", "email")
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader());
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
+
+    if (params.autofocusSingleField()) {
+      emailField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();

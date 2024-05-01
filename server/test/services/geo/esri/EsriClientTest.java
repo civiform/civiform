@@ -1,8 +1,10 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Optional;
@@ -21,7 +23,9 @@ public class EsriClientTest {
 
   @After
   public void tearDown() throws IOException {
-    helper.stopServer();
+    if (helper != null) {
+      helper.stopServer();
+    }
   }
 
   @Test
@@ -36,8 +40,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -53,8 +57,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.NOT_IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -70,8 +74,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.NOT_IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -87,8 +91,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.FAILED, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.FAILED);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -114,7 +118,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("Address In Area", street);
+    assertThat(street).isEqualTo("Address In Area");
   }
 
   @Test
@@ -133,11 +137,11 @@ public class EsriClientTest {
         helper.getClient().getAddressSuggestions(address);
     Address originalAddress = group.toCompletableFuture().join().getOriginalAddress();
 
-    assertEquals(address.getStreet(), originalAddress.getStreet());
-    assertEquals(address.getLine2(), originalAddress.getLine2());
-    assertEquals(address.getCity(), originalAddress.getCity());
-    assertEquals(address.getState(), originalAddress.getState());
-    assertEquals(address.getZip(), originalAddress.getZip());
+    assertThat(originalAddress.getStreet()).isEqualTo(address.getStreet());
+    assertThat(originalAddress.getLine2()).isEqualTo(address.getLine2());
+    assertThat(originalAddress.getCity()).isEqualTo(address.getCity());
+    assertThat(originalAddress.getState()).isEqualTo(address.getState());
+    assertThat(originalAddress.getZip()).isEqualTo(address.getZip());
   }
 
   @Test
@@ -155,8 +159,8 @@ public class EsriClientTest {
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
-    assertEquals(0, suggestions.size());
-    assertEquals(address, group.getOriginalAddress());
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
   }
 
   @Test
@@ -174,8 +178,104 @@ public class EsriClientTest {
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
-    assertEquals(0, suggestions.size());
-    assertEquals(0, group.getWellKnownId());
-    assertEquals(address, group.getOriginalAddress());
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useRegionAbbrField()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": null,"
+            + "  \"RegionAbbr\": \"WA\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJsonAndAssertResults(
+        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useRegionField()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"WA\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJsonAndAssertResults(
+        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_bothRegionFieldsAreLongStrings()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"Washington\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJsonAndAssertResults(
+        json, "street-expected", "line2-expected", "city-expected", "CA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useLine2AsEnteredIfNull()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": null,"
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"WA\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJsonAndAssertResults(
+        json, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
+  }
+
+  private void runMapAddressAttributesJsonAndAssertResults(
+      String json,
+      String streetExpected,
+      String line2Expected,
+      String cityExpected,
+      String stateExpected,
+      String zipExpected)
+      throws JsonProcessingException {
+    Address userEnteredAddress =
+        Address.builder()
+            .setStreet("street-user")
+            .setLine2("line2-user")
+            .setCity("city-user")
+            .setState("CA")
+            .setZip("11111-user")
+            .build();
+
+    JsonNode jsonNode = new ObjectMapper().readTree(json);
+
+    Address result = EsriClient.mapAddressAttributesJson(jsonNode, userEnteredAddress);
+
+    assertThat(result.getStreet()).isEqualTo(streetExpected);
+    assertThat(result.getLine2()).isEqualTo(line2Expected);
+    assertThat(result.getCity()).isEqualTo(cityExpected);
+    assertThat(result.getState()).isEqualTo(stateExpected);
+    assertThat(result.getZip()).isEqualTo(zipExpected);
   }
 }

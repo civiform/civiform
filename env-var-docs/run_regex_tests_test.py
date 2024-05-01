@@ -109,7 +109,8 @@ class TestMain(unittest.TestCase):
                 "regex": ".*",
                 "regex_tests": [
                     { "val": "will you be my match?", "should_match": false }
-                ]
+                ],
+                "mode": "HIDDEN"
             }
         }
         """
@@ -134,7 +135,8 @@ class TestMain(unittest.TestCase):
                 "regex": ".*",
                 "regex_tests": [
                     { "val": "will you be my match?", "should_match": true }
-                ]
+                ],
+                "mode": "HIDDEN"
             }
         }
         """
@@ -159,7 +161,8 @@ class TestMain(unittest.TestCase):
                         "regex": ".*",
                         "regex_tests": [
                             { "val": "will you be my match?", "should_match": true }
-                        ]
+                        ],
+                        "mode": "HIDDEN"
                     }
                 }
             }

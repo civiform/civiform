@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -8,6 +9,8 @@ import {
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {AdminProgramImage} from './admin_program_image'
+import {validateScreenshot, extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -34,7 +37,19 @@ export interface DownloadedApplication {
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
-  TI_ONLY = 'Trusted Intermediaries ONLY',
+  TI_ONLY = 'Trusted intermediaries only',
+  SELECT_TI = 'Visible to selected trusted intermediaries only',
+  DISABLED = 'Disabled',
+}
+
+export enum Eligibility {
+  IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
+  IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export interface QuestionSpec {
+  name: string
+  isOptional: boolean
 }
 
 function slugify(value: string): string {
@@ -95,8 +110,13 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name. At the end of this method the current
-   * page is going to be block edit page.
+   * Creates program with given name.
+   *
+   * @param {boolean} submitNewProgram - If true, the new program will be submitted
+   * to the database and then the admin will be redirected to the next page in the
+   * program creation flow. If false, the new program information will be filled in
+   * but *not* submitted to the database and the current page will still be the
+   * program creation page.
    */
   async addProgram(
     programName: string,
@@ -105,6 +125,19 @@ export class AdminPrograms {
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
     isCommonIntake = false,
+    selectedTI = 'none',
+    confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
+      '[This is a link](https://www.example.com)\n' +
+      'This is a list:\n' +
+      '* Item 1\n' +
+      '* Item 2\n' +
+      '\n' +
+      'There are some empty lines below this that should be preserved\n' +
+      '\n' +
+      '\n' +
+      'This link should be autodetected: https://www.example.com\n',
+    eligibility = Eligibility.IS_GATING,
+    submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -116,16 +149,61 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
     await this.page.fill('#program-external-link-input', externalLink)
+    await this.page.fill(
+      '#program-confirmation-message-textarea',
+      confirmationMessage,
+    )
 
     await this.page.check(`label:has-text("${visibility}")`)
+    if (visibility == ProgramVisibility.SELECT_TI) {
+      const screenshotname = programName.replaceAll(' ', '-').toLowerCase()
+      await validateScreenshot(this.page, screenshotname)
+      await this.page.check(`label:has-text("${selectedTI}")`)
+    }
+
+    await this.chooseEligibility(eligibility)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
     }
 
+    if (submitNewProgram) {
+      await this.submitProgramDetailsEdits()
+    }
+  }
+
+  async submitProgramDetailsEdits() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+  }
+
+  async expectProgramDetailsSaveAndContinueButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual(
+      'Save and continue to next step',
+    )
+  }
+
+  async expectProgramDetailsSaveButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual('Save')
+  }
+
+  async editProgram(
+    programName: string,
+    visibility = ProgramVisibility.PUBLIC,
+    selectedTI = 'none',
+  ) {
+    await this.gotoAdminProgramsPage()
+    await this.page.click('button :text("View")')
+    await this.page.click('#header_edit_button')
+    await this.page.click('#header_edit_button')
+    await waitForPageJsLoad(this.page)
+
+    await this.page.check(`label:has-text("${visibility}")`)
+    if (visibility == ProgramVisibility.SELECT_TI) {
+      await this.page.check(`label:has-text("${selectedTI}")`)
+    }
+
+    await this.submitProgramDetailsEdits()
   }
 
   async programNames() {
@@ -161,6 +239,25 @@ export class AdminPrograms {
         )
         .count(),
     ).toBe(1)
+  }
+
+  /**
+   * Expects a question card either with or without a universal question badge.
+   */
+  async expectQuestionCardUniversalBadgeState(
+    questionName: string,
+    universal: boolean,
+  ) {
+    expect(
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            '.cf-universal-badge',
+          ),
+        )
+        .count(),
+    ).toBe(universal ? 1 : 0)
   }
 
   // Question card within a program edit or read only page
@@ -223,6 +320,14 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async goToProgramImagePage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program image")')
+    await this.expectProgramImagePage()
+  }
+
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -233,36 +338,29 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Program Admins")',
+        ':text("Manage program admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectManageProgramAdminsPage()
   }
 
-  async gotoProgramSettingsPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
-    )
-
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramSettingsPage()
+  async setProgramEligibility(programName: string, eligibility: Eligibility) {
+    await this.goToProgramDescriptionPage(programName)
+    await this.chooseEligibility(eligibility)
+    await this.submitProgramDetailsEdits()
   }
 
-  async setProgramEligibilityToNongating(programName: string) {
-    await this.gotoProgramSettingsPage(programName)
-    const nonGatingEligibilityValue = await this.page
-      .locator('input[name=eligibilityIsGating]')
-      .inputValue()
-    if (nonGatingEligibilityValue == 'false') {
-      await this.page.locator('#eligibility-toggle').click()
-    }
+  async chooseEligibility(eligibility: Eligibility) {
+    await this.page.check(`label:has-text("${eligibility}")`)
+  }
+
+  getEligibilityIsGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_GATING}")`)
+  }
+
+  getEligibilityIsNotGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
   async gotoEditDraftProgramPage(programName: string) {
@@ -369,9 +467,14 @@ export class AdminPrograms {
     )
   }
 
+  async expectProgramImagePage() {
+    const adminProgramImage = new AdminProgramImage(this.page)
+    await adminProgramImage.expectProgramImagePage()
+  }
+
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Admins for Program',
+      'Manage admins for program',
     )
   }
 
@@ -382,8 +485,9 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'does not have an admin account and cannot be added as a Program Admin.',
+      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
     )
+    expect(toastMessages).toContain('Error: ')
   }
 
   async expectEditVisibilityPredicatePage(blockName: string) {
@@ -423,7 +527,7 @@ export class AdminPrograms {
   async expectProgramBlockReadOnlyPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
-    expect(await this.page.innerText('#header_edit_button'))
+    await expect(this.page.locator('#header_edit_button')).toBeVisible()
     expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 
@@ -453,6 +557,24 @@ export class AdminPrograms {
     await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
+    await this.page.fill('textarea', blockDescription)
+    // Make sure input validation enables the button before clicking.
+    await this.page.click('#update-block-button:not([disabled])')
+
+    for (const questionName of questionNames) {
+      await this.addQuestionFromQuestionBank(questionName)
+    }
+  }
+  async editProgramBlockWithBlockName(
+    programName: string,
+    blockName: string,
+    blockDescription = 'screen description',
+    questionNames: string[] = [],
+  ) {
+    await this.gotoEditDraftProgramPage(programName)
+
+    await clickAndWaitForModal(this.page, 'block-description-modal')
+    await this.page.fill('#block-name-input', blockName)
     await this.page.fill('textarea', blockDescription)
     // Make sure input validation enables the button before clicking.
     await this.page.click('#update-block-button:not([disabled])')
@@ -491,7 +613,7 @@ export class AdminPrograms {
   }
 
   async closeQuestionBank() {
-    await this.page.click('svg.cf-close-question-bank-button')
+    await this.page.click('button.cf-close-question-bank-button')
     await this.waitForQuestionBankAnimationToFinish()
   }
 
@@ -509,9 +631,12 @@ export class AdminPrograms {
     )
   }
 
-  async questionBankNames(): Promise<string[]> {
+  async questionBankNames(universal = false): Promise<string[]> {
+    const loc = '.cf-question-bank-element:visible .cf-question-title'
     const titles = this.page.locator(
-      '.cf-question-bank-element:visible .cf-question-title',
+      universal
+        ? '#question-bank-universal ' + loc
+        : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
   }
@@ -539,10 +664,37 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Creates a new program block with the given questions, all marked as required.
+   *
+   * @deprecated prefer using {@link #addProgramBlockUsingSpec} instead.
+   */
   async addProgramBlock(
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
+  ) {
+    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
+      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
+      return questionSpec
+    })
+    return await this.addProgramBlockUsingSpec(
+      programName,
+      blockDescription,
+      questionSpecs,
+    )
+  }
+
+  /**
+   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
+   *
+   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
+   * but also makes it easy to use optional questions.
+   */
+  async addProgramBlockUsingSpec(
+    programName: string,
+    blockDescription = 'screen description',
+    questions: QuestionSpec[] = [],
   ) {
     await this.gotoEditDraftProgramPage(programName)
 
@@ -550,14 +702,20 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.type('textarea', blockDescription)
+    await this.page.fill('textarea', blockDescription)
     await this.page.click('#update-block-button:not([disabled])')
     // Wait for submit and redirect back to this page.
     await this.page.waitForURL(this.page.url())
     await waitForPageJsLoad(this.page)
 
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    for (const question of questions) {
+      await this.addQuestionFromQuestionBank(question.name)
+      if (question.isOptional) {
+        const optionalToggle = this.page
+          .locator(this.questionCardSelectorInProgramView(question.name))
+          .getByRole('button', {name: 'optional'})
+        await optionalToggle.click()
+      }
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -590,12 +748,12 @@ export class AdminPrograms {
   async publishProgram(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.publishAllPrograms()
+    await this.publishAllDrafts()
     await this.expectActiveProgram(programName)
   }
 
   private static PUBLISH_ALL_MODAL_TITLE =
-    'All draft programs will be published'
+    'Do you want to publish all draft programs?'
 
   publishAllProgramsModalLocator() {
     return this.page.locator(
@@ -603,16 +761,18 @@ export class AdminPrograms {
     )
   }
 
-  async publishAllPrograms() {
+  async publishAllDrafts() {
     await this.gotoAdminProgramsPage()
-    const modal = await this.openPublishAllProgramsModal()
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    const modal = await this.openPublishAllDraftsModal()
+    const confirmHandle = (await modal.$(
+      'button:has-text("Publish all draft programs and questions")',
+    ))!
     await confirmHandle.click()
 
     await waitForPageJsLoad(this.page)
   }
 
-  async openPublishAllProgramsModal() {
+  async openPublishAllDraftsModal() {
     await this.page.click('button:has-text("Publish all drafts")')
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
@@ -628,7 +788,7 @@ export class AdminPrograms {
     expectedQuestionsContents: string[]
     expectedProgramsContents: string[]
   }) {
-    const modal = await this.openPublishAllProgramsModal()
+    const modal = await this.openPublishAllDraftsModal()
 
     const editedQuestions = await modal.$$(
       '.cf-admin-publish-references-question li',
@@ -673,8 +833,7 @@ export class AdminPrograms {
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
   }
@@ -738,6 +897,14 @@ export class AdminPrograms {
     await Promise.all([
       this.page.waitForNavigation(),
       await this.page.click('button:has-text("Filter")'),
+    ])
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clearFilterProgramApplications() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      await this.page.click('a:has-text("Clear")'),
     ])
     await waitForPageJsLoad(this.page)
   }
@@ -941,7 +1108,7 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
-  async getPdf() {
+  async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
@@ -954,6 +1121,19 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
+  async getProgramPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByRole('button', {name: 'Download PDF preview'}).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
@@ -977,7 +1157,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(
-        '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
+        '#download-demographics-csv-modal button:has-text("Download demographic data (CSV)")',
       ),
     ])
     await dismissModal(this.page)
@@ -1027,7 +1207,8 @@ export class AdminPrograms {
       return response.url().includes('edit')
     })
     await this.page.click(':is(button:has-text("Address correction"))')
-    return await responsePromise
+    await responsePromise
+    await this.page.waitForLoadState()
   }
 
   async clickAddressCorrectionToggleByName(questionName: string) {
@@ -1036,11 +1217,13 @@ export class AdminPrograms {
       // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
       return response.url().includes('edit')
     })
+
     await toggleLocator
       .locator('..')
       .locator('button:has-text("Address correction")')
       .click()
-    return await responsePromise
+    await responsePromise
+    await this.page.waitForLoadState()
   }
 
   getCommonIntakeFormToggle() {
@@ -1049,5 +1232,25 @@ export class AdminPrograms {
 
   async clickCommonIntakeFormToggle() {
     await this.page.click('input[name=isCommonIntakeForm]')
+  }
+
+  async isPaginationVisibleForApplicationList(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-list')
+    return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async expectEmailSent(
+    numEmailsBefore: number,
+    userEmail: string,
+    emailBody: string,
+    programName: string,
+  ) {
+    const emailsAfter = await extractEmailsForRecipient(this.page, userEmail)
+    expect(emailsAfter.length).toEqual(numEmailsBefore + 1)
+    const sentEmail = emailsAfter[emailsAfter.length - 1]
+    expect(sentEmail.Subject).toEqual(
+      `[Test Message] An update on your application ${programName}`,
+    )
+    expect(sentEmail.Body.text_part).toContain(emailBody)
   }
 }

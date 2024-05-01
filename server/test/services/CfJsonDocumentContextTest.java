@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
+import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -132,7 +133,33 @@ public class CfJsonDocumentContextTest {
   public void hasValueAtPath_returnsFalseForMissingPath() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
 
-    assertThat(data.hasValueAtPath(Path.create("not_here!"))).isFalse();
+    assertThat(data.hasValueAtPath(Path.create("not_here"))).isFalse();
+  }
+
+  @Test
+  public void hasNullValueAtPath_returnsTrueForNull() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.horses");
+    data.putLong(path, "");
+
+    assertThat(data.hasNullValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasNullValueAtPath_returnsFalseForValue() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.horses");
+    data.putLong(path, 15);
+
+    assertThat(data.hasNullValueAtPath(path)).isFalse();
+  }
+
+  @Test
+  public void hasNullValueAtPath_throwsForMissingPath() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThatThrownBy(() -> data.hasNullValueAtPath(Path.create("not_here")))
+        .isInstanceOf(PathNotFoundException.class);
   }
 
   @Test
@@ -337,6 +364,32 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void putNull_putsNullAtSpecifiedPath() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.age");
+    String expected = "{\"applicant\":{\"age\":null}}";
+
+    data.putNull(path);
+
+    assertThat(data.asJsonString()).isEqualTo(expected);
+    assertThat(data.hasNullValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void putNull_isNoopIfPathIsArrayElement() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.allergies[0]");
+    String expected = "{\"applicant\":{\"allergies\":[\"peanut\",\"kiwi\"]}}";
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+    data.putString(Path.create("applicant.allergies[1]"), "kiwi");
+
+    data.putNull(path);
+
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
@@ -428,40 +481,82 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
-  public void readList_findsCorrectValue() {
+  public void readLongList_findsCorrectValue() {
     String testData = "{\"applicant\":{\"favorite_fruits\":[1, 2]}}";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
-    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.favorite_fruits"));
+    Optional<ImmutableList<Long>> found =
+        data.readLongList(Path.create("applicant.favorite_fruits"));
 
     assertThat(found).hasValue(ImmutableList.of(1L, 2L));
   }
 
   @Test
-  public void readListWithOneValue_findsCorrectValue() {
+  public void readLongList_withOneValue_findsCorrectValue() {
     String testData = "{\"applicant\":{\"favorite_fruits\":[1]}}";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
-    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.favorite_fruits"));
-
+    Optional<ImmutableList<Long>> found =
+        data.readLongList(Path.create("applicant.favorite_fruits"));
     assertThat(found).hasValue(ImmutableList.of(1L));
   }
 
   @Test
-  public void readList_pathNotPresent_returnsEmptyOptional() {
+  public void readLongList_pathNotPresent_returnsEmptyOptional() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
 
-    Optional<ImmutableList<Long>> found = data.readList(Path.create("not.here"));
+    Optional<ImmutableList<Long>> found = data.readLongList(Path.create("not.here"));
 
     assertThat(found).isEmpty();
   }
 
   @Test
-  public void readList_returnsEmptyWhenTypeMismatch() {
+  public void readLongList_withTypeMismatch_returnsEmptyOptional() {
+    String testData = "{ \"applicant\": { \"object\": { \"name\": \"Khalid\" } } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    Optional<ImmutableList<Long>> found = data.readLongList(Path.create("applicant.object.name"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readStringList_findsCorrectValue() {
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\", \"orange\"]}}";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    Optional<ImmutableList<String>> found =
+        data.readStringList(Path.create("applicant.favorite_fruits"));
+
+    assertThat(found).hasValue(ImmutableList.of("apple", "orange"));
+  }
+
+  @Test
+  public void readStringList_withOneValue_findsCorrectValue() {
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\"]}}";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    Optional<ImmutableList<String>> found =
+        data.readStringList(Path.create("applicant.favorite_fruits"));
+    assertThat(found).hasValue(ImmutableList.of("apple"));
+  }
+
+  @Test
+  public void readStringList_pathNotPresent_returnsEmptyOptional() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    Optional<ImmutableList<String>> found = data.readStringList(Path.create("not.here"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readStringList_withTypeMismatch_returnsEmptyOptional() {
     String testData = "{ \"applicant\": { \"object\": { \"age\": 12 } } }";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
-    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.object.name"));
+    Optional<ImmutableList<String>> found =
+        data.readStringList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }
@@ -517,6 +612,46 @@ public class CfJsonDocumentContextTest {
 
     ImmutableList<String> remaining = data.readRepeatedEntities(path);
     assertThat(remaining).containsExactly("b", "d");
+  }
+
+  @Test
+  public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
+    String testData =
+        "{ \"deeply\": { \"nested\": { \"value\": \"long text to stop formatter de-wrapping\" } }"
+            + " }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply"));
+
+    assertThat(prettyJson)
+        .isEqualTo(
+            "{\n"
+                + "  \"nested\" : {\n"
+                + "    \"value\" : \"long text to stop formatter de-wrapping\"\n"
+                + "  }\n"
+                + "}");
+  }
+
+  @Test
+  public void asPrettyJsonString_prettyPrintsNullString() {
+    String testData = "{ \"deeply\": { \"nested\": { \"age\": \"null\" } } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
+
+    // If the leaf node is the String "null", then pretty-print it as a JSON string.
+    assertThat(prettyJson).isEqualTo("\"null\"");
+  }
+
+  @Test
+  public void asPrettyJsonString_prettyPrintsNullValue() {
+    String testData = "{ \"deeply\": { \"nested\": { \"age\": null } } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
+
+    // If the leaf node is the value "null", then pretty-print it as the null value.
+    assertThat(prettyJson).isEqualTo("null");
   }
 
   @Test

@@ -1,4 +1,4 @@
-import TypescriptBuilder.autoImport.compileTypescript
+import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.13",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -23,26 +23,31 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.0",
+      "com.jayway.jsonpath" % "json-path" % "2.9.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
+      "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
+      "org.commonmark" % "commonmark" % "0.22.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.22.0",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.67",
-      "software.amazon.awssdk" % "ses" % "2.20.67",
+      "software.amazon.awssdk" % "s3" % "2.25.31",
+      "software.amazon.awssdk" % "ses" % "2.25.31",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.0",
-      "com.azure" % "azure-storage-blob" % "12.22.1",
+      "com.azure" % "azure-identity" % "1.12.0",
+      "com.azure" % "azure-storage-blob" % "12.25.3",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.6.0",
-      "com.h2database" % "h2" % "2.1.214" % Test,
+      "org.postgresql" % "postgresql" % "42.7.3",
+      "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -51,75 +56,95 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.24.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.24.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.1.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.8",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.9",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.1",
+      "org.pac4j" % "pac4j-core" % "5.7.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.1",
+      "org.pac4j" % "pac4j-http" % "5.7.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.1",
+      "org.pac4j" % "pac4j-oidc" % "5.7.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.1",
+      "org.pac4j" % "pac4j-saml" % "5.7.3",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.1",
-      "com.google.auto.value" % "auto-value" % "1.10.1",
-      "com.google.auto.value" % "auto-value-parent" % "1.10.1" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.4",
+      "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.18.0",
+      "com.google.errorprone" % "error_prone_core" % "2.26.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
-      "commons-validator" % "commons-validator" % "1.7",
+      "commons-validator" % "commons-validator" % "1.8.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.12",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.34",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.4",
+      "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.9.0",
+      "commons-net" % "commons-net" % "3.10.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.7"
+      "ch.qos.logback" % "logback-classic" % "1.4.8"
     ),
-    javacOptions ++= Seq(
-      "-encoding",
-      "UTF-8",
-      "-parameters",
-      "-Xlint:unchecked",
-      "-Xlint:deprecation",
-      "-XDcompilePolicy=simple",
-      // Turn off the AutoValueSubclassLeaked error since the generated
-      // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode",
-      "-implicit:class",
-      "-Werror"
-    ),
+    javacOptions ++= {
+      val defaultCompilerOptions = Seq(
+        "-encoding",
+        "UTF-8",
+        "-parameters",
+        "-Xlint:unchecked",
+        "-Xlint:deprecation",
+        "-XDcompilePolicy=simple",
+        "-implicit:class",
+        // The compile option below is a hack that preserves generated files. Normally,
+        // AutoValue generates .java files, compiles them into .class files, and then deletes
+        // the .java files. This option keeps the .java files in the specified directory,
+        // which allows an IDE to recognize the symbols.
+        "-s",
+        generateSourcePath(scalaVersion = scalaVersion.value)
+      )
+
+      // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
+      // is set to true
+      val errorProneCompilerOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
+        .filter(_ != "true")
+        .map(_ =>
+          Seq(
+            // Turn off the AutoValueSubclassLeaked error since the generated
+            // code contains it - we can't control that.
+            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+            "-Werror"
+          )
+        )
+        .getOrElse(Seq.empty)
+
+      defaultCompilerOptions ++ errorProneCompilerOptions
+    },
+
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
     // incremental compilation.
@@ -128,15 +153,17 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(compileTypescript, digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(compileTypescript, digest, gzip),
+    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+    // Allow tests to print to stdout when running in forking mode (default)
+    Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
@@ -212,9 +239,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.0"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
@@ -232,3 +259,10 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
+// removes the .z component and returns the path to the generated source file directory.
+def generateSourcePath(scalaVersion: String): String = {
+  val version = scalaVersion.split("\\.").take(2).mkString(".")
+  s"target/scala-$version/src_managed/main"
+}

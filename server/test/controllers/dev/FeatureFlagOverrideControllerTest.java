@@ -1,44 +1,34 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
-import java.util.Optional;
-import org.junit.After;
+import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
 import org.junit.Test;
-import play.Application;
-import play.Mode;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.mvc.Result;
-import play.test.Helpers;
+import repository.ResetPostgres;
+import services.DeploymentType;
+import services.settings.SettingsService;
 
-public class FeatureFlagOverrideControllerTest {
+public class FeatureFlagOverrideControllerTest extends ResetPostgres {
 
-  private static final String FLAG_NAME = "flag";
-  private Optional<Application> maybeApp = Optional.empty();
+  private static final String FLAG_NAME = "CF_OPTIONAL_QUESTIONS";
   private FeatureFlagOverrideController controller;
 
-  @After
-  public void stopApplication() {
-    if (maybeApp.isPresent()) {
-      Helpers.stop(maybeApp.get());
-      maybeApp = Optional.empty();
-    }
+  private SettingsService settingsService;
+
+  @Before
+  public void setUp() {
+    settingsService = instanceOf(SettingsService.class);
+    controller = instanceOf(FeatureFlagOverrideController.class);
   }
 
   @Test
   public void disable_nonDevMode_fails() {
-    // Setup
-    setupControllerInMode(Mode.TEST);
-
     // Execute
-    var result = controller.disable(fakeRequest().build(), FLAG_NAME);
+    var result = controller.disable(requestBuilderWithSettings().build(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -47,23 +37,23 @@ public class FeatureFlagOverrideControllerTest {
   @Test
   public void disable() {
     // Setup
-    setupControllerInMode(Mode.DEV);
+    controller =
+        new FeatureFlagOverrideController(
+            instanceOf(SettingsService.class),
+            new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
 
     // Execute
-    var result = controller.disable(fakeRequest().build(), FLAG_NAME);
+    var result = controller.disable(requestBuilderWithSettings().build(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.session().get(FLAG_NAME)).hasValue("false");
+    assertThat(getSettings().get(FLAG_NAME)).isEqualTo("false");
   }
 
   @Test
   public void enable_nonDevMode_fails() {
-    // Setup
-    setupControllerInMode(Mode.TEST);
-
     // Execute
-    var result = controller.enable(fakeRequest().build(), FLAG_NAME);
+    var result = controller.enable(requestBuilderWithSettings().build(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -72,49 +62,20 @@ public class FeatureFlagOverrideControllerTest {
   @Test
   public void enable() {
     // Setup
-    setupControllerInMode(Mode.DEV);
+    controller =
+        new FeatureFlagOverrideController(
+            instanceOf(SettingsService.class),
+            new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
 
     // Execute
-    var result = controller.enable(fakeRequest().build(), FLAG_NAME);
+    var result = controller.enable(requestBuilderWithSettings().build(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.session().get(FLAG_NAME)).hasValue("true");
+    assertThat(getSettings().get(FLAG_NAME)).isEqualTo("true");
   }
 
-  @Test
-  public void index() {
-    // Setup
-    setupControllerInMode(Mode.DEV);
-
-    // Execute
-    var result = controller.index(fakeRequest().build());
-
-    // Verify
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Overrides are allowed");
-  }
-
-  private void setupControllerInMode(Mode mode) {
-    maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
-    controller = maybeApp.get().injector().instanceOf(FeatureFlagOverrideController.class);
-  }
-
-  @Test
-  public void status() {
-    setupControllerInMode(Mode.TEST);
-
-    Result diabledResult = controller.status(fakeRequest().build(), "intake_form_enabled");
-    assertEquals("false", Helpers.contentAsString(diabledResult));
-
-    assertThrows(
-        RuntimeException.class,
-        () -> {
-          controller.status(fakeRequest().build(), "no_flag_by_this_name");
-        });
-
-    Result phoneTypeResult =
-        controller.status(fakeRequest().build(), "phone_question_type_enabled");
-    assertEquals("false", Helpers.contentAsString(phoneTypeResult));
+  private ImmutableMap<String, String> getSettings() {
+    return settingsService.loadSettings().toCompletableFuture().join().get();
   }
 }

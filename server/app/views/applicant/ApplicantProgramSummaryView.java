@@ -1,22 +1,22 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.applicant.routes;
-import featureflags.FeatureFlags;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -24,16 +24,19 @@ import play.twirl.api.Content;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
-import views.ApplicantUtils;
+import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
+import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -44,14 +47,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout, DateConverter dateConverter, FeatureFlags featureFlags) {
+      ApplicantLayout layout,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -72,7 +80,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(params.request());
 
     if (params.loginPromptModal().isPresent()) {
       bundle.addModals(params.loginPromptModal().get());
@@ -86,14 +94,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(renderQuestionSummary(answerData, messages, params.applicantId()));
+      applicationSummary.with(
+          renderQuestionSummary(answerData, messages, params.applicantId(), params.profile()));
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
     // Add submit action (POST).
     String submitLink =
-        routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
-            .url();
+        applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
 
     ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
@@ -102,7 +110,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SUBMIT_BUTTON, ButtonStyles.SOLID_BLUE, "mx-auto");
     } else {
       String applyUrl =
-          routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
+          applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
           a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
@@ -127,37 +135,63 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .request()
         .flash()
         .get("error")
-        .map(ToastMessage::error)
+        .map(msg -> ToastMessage.error(msg, messages))
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        featureFlags.getFlagEnabled(params.request(), INTAKE_FORM_ENABLED)
+        settingsManifest.getIntakeFormEnabled(params.request())
                 && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    Optional<DivTag> maybeBackToAdminViewButton =
+        layout.maybeRenderBackToAdminViewButton(params.request(), params.programId());
+    if (maybeBackToAdminViewButton.isPresent()) {
+      bundle.addMainContent(maybeBackToAdminViewButton.get());
+    }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
-            params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
+            params.programTitle(),
+            params.completedBlockCount(),
+            params.totalBlockCount(),
+            true,
+            messages),
         h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
-        requiredFieldsExplanationContent(),
+        ApplicationBaseView.requiredFieldsExplanationContent(messages),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(
-        params.request(), params.applicantName(), params.messages(), bundle);
+        params.request(),
+        params.applicantPersonalInfo(),
+        params.messages(),
+        bundle,
+        params.applicantId());
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
-  private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
-    DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
-    if (!data.applicantQuestion().isOptional()) {
-      questionPrompt.with(ViewUtils.requiredQuestionIndicator());
-    }
-    DivTag questionContent = div(questionPrompt).withClasses("pr-2");
+  private DivTag renderQuestionSummary(
+      AnswerData data, Messages messages, long applicantId, CiviFormProfile profile) {
+    DivTag questionContent =
+        div(div()
+                .with(
+                    TextFormatter.formatTextWithAriaLabel(
+                        data.questionText(),
+                        /* preserveEmptyLines */ true,
+                        !data.applicantQuestion().isOptional(),
+                        messages
+                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                            .toLowerCase(Locale.ROOT)))
+                .withClasses("font-semibold"))
+            .withClasses("pr-2");
 
-    // Add existing answer.
-    if (data.isAnswered()) {
+    // When applicant info is pre-populated by TI entry, the question is not
+    // considered "answered" but we want the answers to show on the review screen
+    String defaultAnswerString = data.applicantQuestion().getQuestion().getDefaultAnswerString();
+    boolean haveAnswerText =
+        !data.answerText().isBlank() && !data.answerText().equals(defaultAnswerString);
+
+    if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
@@ -211,19 +245,22 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-    if (data.isAnswered()) {
+
+    QuestionDefinition questionDefinition = data.questionDefinition();
+    Optional<String> questionName = Optional.of(questionDefinition.getName());
+    if (data.isAnswered() || haveAnswerText) {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId())
+              applicantRoutes
+                  .blockReview(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId())
+              applicantRoutes
+                  .blockEdit(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
@@ -296,7 +333,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract long applicantId();
 
-    abstract Optional<String> applicantName();
+    abstract ApplicantPersonalInfo applicantPersonalInfo();
 
     abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
@@ -316,6 +353,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<Modal> loginPromptModal();
 
+    abstract CiviFormProfile profile();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -323,7 +362,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantId(long applicantId);
 
-      public abstract Builder setApplicantName(Optional<String> applicantName);
+      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
 
@@ -343,16 +382,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setLoginPromptModal(Modal loginPromptModal);
 
-      abstract Optional<String> applicantName();
+      public abstract Builder setProfile(CiviFormProfile profile);
 
-      abstract Messages messages();
-
-      abstract Params autoBuild();
-
-      public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
-        return autoBuild();
-      }
+      public abstract Params build();
     }
   }
 }

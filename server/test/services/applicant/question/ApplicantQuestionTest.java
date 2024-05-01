@@ -15,12 +15,12 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
@@ -65,15 +65,21 @@ public class ApplicantQuestionTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void errorsPresenterExtendedForAllTypes(QuestionType questionType) {
+    // Null question type is used to handle backend missing questions and
+    // does not get surfaced to applicants
+    if (questionType == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
-    ApplicantQuestion question =
+    ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(definition, Optional.empty()).setOptional(true),
             new ApplicantData(),
             Optional.empty());
 
-    assertThat(question.errorsPresenter().getValidationErrors().isEmpty()).isTrue();
+    assertThat(applicantQuestion.getQuestion().getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test

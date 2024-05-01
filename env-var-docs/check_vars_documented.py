@@ -15,6 +15,10 @@ import pprint
 import re
 import sys
 import typing
+# Needed for <3.10
+from typing import Union
+# Needed for <3.9
+from typing import Dict, Tuple, List
 
 
 def errorexit(msg):
@@ -28,6 +32,14 @@ class Config:
     """Holds file paths read at runtime."""
     app_conf_path: str
     docs_path: str
+
+
+@dataclasses.dataclass
+class ServerVar:
+    """Holds data about a variable found in .conf files"""
+    name: str
+    hocon_name: str
+    file_path: str
 
 
 def make_config() -> Config:
@@ -54,7 +66,8 @@ def make_config() -> Config:
 
 def main():
     config = make_config()
-    vars = vars_from_application_conf(config.app_conf_path)
+    server_vars: Dict[str, ServerVar] = vars_from_application_conf(
+        config.app_conf_path)
     with open(config.docs_path) as f:
         documented_vars, parse_errors = vars_from_docs(f)
         if len(parse_errors) != 0:
@@ -62,11 +75,26 @@ def main():
             msg += env_var_docs.errors_formatter.format(parse_errors)
             errorexit(msg)
 
-    undocumented = vars - documented_vars
-    overdocumented = documented_vars - vars
-
     errors = False
     msg = "CiviForm environment variables are not correctly documented. See https://github.com/civiform/civiform/blob/main/env-var-docs/README.md for information. Issues:\n"
+
+    for name, var in documented_vars.items():
+        if var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
+            try:
+                server_var = server_vars[name]
+                if name.lower() != server_var.hocon_name:
+                    errors = True
+                    msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {server_var.name}\n\tHOCON name: {server_var.hocon_name}\n\tFile:       {server_var.file_path}\n"
+
+            except KeyError:
+                errors = True
+                msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {name}"
+
+    documented_var_names = set(documented_vars.keys())
+    server_var_names = set([var.name for var in server_vars.values()])
+    undocumented = server_var_names - documented_var_names
+    overdocumented = documented_var_names - server_var_names
+
     if len(undocumented) != 0:
         errors = True
         msg += f"\nThe following vars are not documented in {config.docs_path}:\n{pprint.pformat(undocumented)}\n"
@@ -77,7 +105,7 @@ def main():
         errorexit(msg)
 
 
-def vars_from_application_conf(app_conf_path: str) -> set[str]:
+def vars_from_application_conf(app_conf_path: str) -> Dict[str, ServerVar]:
     """Parses an application.conf file and returns the set of referenced environment variables.
 
     If the application.conf file includes other conf files, those files will
@@ -91,12 +119,12 @@ def vars_from_application_conf(app_conf_path: str) -> set[str]:
     include_regex = re.compile(r"^\s*include\s+\"(.+)\"$")
 
     # Matches any UPPER_SNAKE_CASE variables in substitutions like
-    # ${?WHITELABEL_SMALL_LOGO_URL}. Captures the variable name in group 1.
+    # ${?CIVIC_ENTITY_SMALL_LOGO_URL}. Captures the variable name in group 1.
     env_var_regex = re.compile(r"^.*\${\?\s*([A-Z0-9_]+)\s*}")
 
     dir_base = os.path.dirname(app_conf_path)
     files_to_parse = [app_conf_path]
-    vars = set()
+    vars = dict()
 
     while len(files_to_parse) != 0:
         path = files_to_parse.pop()
@@ -126,23 +154,24 @@ def vars_from_application_conf(app_conf_path: str) -> set[str]:
                 if var == None:
                     continue
 
-                vars.add(var)
+                vars[var] = ServerVar(var, line.split("=")[0].strip(), path)
 
     return vars
 
 
 def vars_from_docs(
     docs_file: typing.TextIO
-) -> tuple[set[str] | None, list[env_var_docs.parser.NodeParseError]]:
+) -> Tuple[Union[Dict[str, env_var_docs.parser.Variable], None],
+           List[env_var_docs.parser.NodeParseError]]:
     """If docs_file has no parsing errors, returns the set of defined
     environment variables in an environment variable documentation file.
     Otherwise returns the parsing errors.
     """
-    vars = set()
+    vars = dict()
 
     def add(node: env_var_docs.parser.Node):
         if isinstance(node.details, env_var_docs.parser.Variable):
-            vars.add(node.name)
+            vars[node.name] = node.details
 
     errors = env_var_docs.parser.visit(docs_file, add)
     if len(errors) != 0:

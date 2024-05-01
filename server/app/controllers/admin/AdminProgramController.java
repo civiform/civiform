@@ -1,22 +1,17 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
-import forms.ProgramSettingsForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Program;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -32,10 +27,11 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
+import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
-import views.admin.programs.ProgramSettingsEditView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -46,12 +42,9 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramMetaDataEditView editView;
-  private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
-  private final VersionRepository versionRepository;
-  private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramController(
@@ -60,23 +53,20 @@ public final class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramMetaDataEditView editView,
-      ProgramSettingsEditView programSettingsEditView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
-    this.programSettingsEditView = checkNotNull(programSettingsEditView);
-    this.versionRepository = checkNotNull(versionRepository);
-    this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.featureFlags = featureFlags;
+    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -89,7 +79,7 @@ public final class AdminProgramController extends CiviFormController {
     return ok(
         listView.render(
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
-            questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+            questionService.getReadOnlyQuestionServiceSync(),
             request,
             profileMaybe));
   }
@@ -106,23 +96,26 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
+    // a null element gets added as we always have a hidden
+    // option as part of the checkbox display
+    while (programData.getTiGroups().remove(null)) {}
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
             programData.getAdminName(),
-            programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    if (settingsManifest.getIntakeFormEnabled(request)
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -142,25 +135,32 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            programData.getEligibilityIsGating(),
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+            settingsManifest.getIntakeFormEnabled(request),
+            ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
-      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
-    return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
+
+    return getSaveProgramDetailsRedirect(result.getResult().id(), ProgramEditStatus.CREATION);
   }
 
-  /** Returns an HTML page containing a form to edit a draft program. */
+  /**
+   * Returns an HTML page containing a form to edit a draft program.
+   *
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Request request, long id) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(id);
+  public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program));
+    return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -169,18 +169,14 @@ public final class AdminProgramController extends CiviFormController {
     try {
       versionRepository.publishNewSynchronizedVersion();
       return redirect(routes.AdminProgramController.index());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return badRequest(e.toString());
     }
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
-    if (!featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
-      return redirect(routes.AdminProgramController.index());
-    }
-
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
@@ -199,10 +195,10 @@ public final class AdminProgramController extends CiviFormController {
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
-      Optional<Program> existingDraft =
-          versionRepository
-              .getDraftVersion()
-              .getProgramByName(programService.getProgramDefinition(programId).adminName());
+      Optional<ProgramModel> existingDraft =
+          versionRepository.getProgramByNameForVersion(
+              programService.getFullProgramDefinition(programId).adminName(),
+              versionRepository.getDraftVersionOrCreate());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
         idToEdit = existingDraft.get().id;
@@ -213,35 +209,47 @@ public final class AdminProgramController extends CiviFormController {
       return redirect(controllers.admin.routes.AdminProgramBlocksController.index(idToEdit).url());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return badRequest(e.toString());
     }
   }
 
-  /** POST endpoint for updating the program in the draft version. */
+  /**
+   * POST endpoint for updating the program in the draft version.
+   *
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long programId) throws ProgramNotFoundException {
+  public Result update(Request request, long programId, String editStatus)
+      throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
+
+    // a null element gets added as we always have a hidden
+    // option as part of the checkbox display
+    while (programData.getTiGroups().remove(null)) {}
+
+    ProgramEditStatus programEditStatus = ProgramEditStatus.getStatusFromString(editStatus);
 
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
-            programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
-      return ok(editView.render(request, programDefinition, programData, message));
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
+      return ok(
+          editView.render(request, programDefinition, programEditStatus, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    if (settingsManifest.getIntakeFormEnabled(request)
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -251,6 +259,7 @@ public final class AdminProgramController extends CiviFormController {
             editView.renderChangeCommonIntakeConfirmation(
                 request,
                 programDefinition,
+                programEditStatus,
                 programData,
                 maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
@@ -265,37 +274,23 @@ public final class AdminProgramController extends CiviFormController {
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),
+        programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
-    return redirect(routes.AdminProgramBlocksController.index(programId).url());
+        settingsManifest.getIntakeFormEnabled(request),
+        ImmutableList.copyOf(programData.getTiGroups()));
+    return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 
-  /** Returns an HTML page containing a form to edit program-level settings. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result editProgramSettings(Request request, Long programId)
-      throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    requestChecker.throwIfProgramNotDraft(programId);
-    return ok(programSettingsEditView.render(request, program));
-  }
-
-  /** POST endpoint for editing whether or not eligibility is gating for a specific program. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result setEligibilityIsGating(Request request, long programId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    ProgramSettingsForm programSettingsForm =
-        formFactory.form(ProgramSettingsForm.class).bindFromRequest(request).get();
-
-    try {
-      programService.setEligibilityIsGating(
-          programId,
-          programSettingsForm.getEligibilityIsGating(),
-          featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
+  /** Returns where admins should be taken to after saving program detail edits. */
+  private Result getSaveProgramDetailsRedirect(
+      long programId, ProgramEditStatus programEditStatus) {
+    if (programEditStatus == ProgramEditStatus.CREATION
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
+      // While creating a new program, we want to direct admins to also add a program image.
+      return redirect(
+          routes.AdminProgramImageController.index(programId, programEditStatus.name()).url());
+    } else {
+      return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }
-
-    return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
   }
 }

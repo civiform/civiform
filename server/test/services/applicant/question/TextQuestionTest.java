@@ -7,10 +7,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,40 +21,43 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class TextQuestionTest extends ResetPostgres {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setLastModifiedTime(Optional.empty())
+              .setId(123L)
+              .build());
 
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create(3, 4),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create(3, 4))
+              .setLastModifiedTime(Optional.empty())
+              .setId(123L)
+              .build());
+  ;
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
   private Messages messages;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
     messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
@@ -100,9 +102,9 @@ public class TextQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    ",Must contain at least 3 characters.",
-    "a,Must contain at least 3 characters.",
-    "abcde,Must contain at most 4 characters."
+    ",Error: Must contain at least 3 characters.",
+    "a,Error: Must contain at least 3 characters.",
+    "abcde,Error: Must contain at most 4 characters."
   })
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {

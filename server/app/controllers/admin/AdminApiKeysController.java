@@ -13,7 +13,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.PageNumberBasedPaginationSpec;
+import repository.VersionRepository;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
@@ -30,7 +30,6 @@ public class AdminApiKeysController extends CiviFormController {
   private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ProgramService programService;
   private final FormFactory formFactory;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public AdminApiKeysController(
@@ -40,14 +39,15 @@ public class AdminApiKeysController extends CiviFormController {
       ApiKeyCredentialsView apiKeyCredentialsView,
       ProgramService programService,
       FormFactory formFactory,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.apiKeyService = checkNotNull(apiKeyService);
     this.indexView = checkNotNull(indexView);
     this.newOneView = checkNotNull(newOneView);
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -55,9 +55,28 @@ public class AdminApiKeysController extends CiviFormController {
     return ok(
         indexView.render(
             request,
-            // The backend service supports pagination but the front end doesn't
-            // in its initial implementation so we load all of them here.
-            apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC),
+            /* selectedStatus= */ "Active",
+            apiKeyService.listActiveApiKeys(),
+            programService.getAllProgramNames()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexRetired(Http.Request request) {
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Retired",
+            apiKeyService.listRetiredApiKeys(),
+            programService.getAllProgramNames()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexExpired(Http.Request request) {
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Expired",
+            apiKeyService.listExpiredApiKeys(),
             programService.getAllProgramNames()));
   }
 
@@ -91,7 +110,13 @@ public class AdminApiKeysController extends CiviFormController {
     ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile.get());
 
     if (result.isSuccessful()) {
-      return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
+      return created(
+          apiKeyCredentialsView.render(
+              request,
+              result.getApiKey(),
+              result.getEncodedCredentials(),
+              result.getKeyId(),
+              result.getKeySecret()));
     }
 
     return badRequest(

@@ -2,72 +2,207 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.mvc.Http.Status.*;
-import static play.test.Helpers.fakeRequest;
+import static play.mvc.Http.Status.FOUND;
+import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
-import models.Applicant;
-import models.Program;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
+import models.LifecycleStage;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.ApplicationRepository;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program draftProgram;
-  public Applicant applicant;
+  private ProgramModel activeProgram;
+  public ApplicantModel applicant;
+  public ApplicantModel applicantWithoutProfile;
 
   @Before
-  public void setUpWithFreshApplicant() {
+  public void setUpWithFreshApplicants() {
     resetDatabase();
 
     subject = instanceOf(ApplicantProgramReviewController.class);
     blockController = instanceOf(ApplicantProgramBlocksController.class);
-    draftProgram =
-        ProgramBuilder.newDraftProgram()
+    activeProgram =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
+    applicantWithoutProfile = createApplicant();
   }
 
   @Test
-  public void review_invalidApplicant_returnsUnauthorized() {
+  public void review_invalidApplicant_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.review(badApplicantId, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    Result result = this.review(badApplicantId, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void review_applicantWithoutProfile_redirectsToHome() {
+    Result result = this.review(applicantWithoutProfile.id, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void review_applicantAccessToDraftProgram_redirectsToHome() {
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.review(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void review_civiformAdminAccessToDraftProgram_isOk() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.review(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void review_obsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    Result result = this.review(applicant.id, obsoleteProgram.id);
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
   public void review_toAProgramThatDoesNotExist_returns404() {
-    long badProgramId = draftProgram.id + 1000;
+    long badProgramId = activeProgram.id + 1000;
     Result result = this.review(applicant.id, badProgramId);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void review_rendersSummaryView() {
-    Result result = this.review(applicant.id, draftProgram.id);
+    Result result = this.review(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
-  public void submit_invalid_returnsUnauthorized() {
+  public void submit_invalid_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.submit(badApplicantId, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    Result result = this.submit(badApplicantId, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void submit_applicantWithoutProfile_redirectsToHome() {
+    Result result = this.submit(applicantWithoutProfile.id, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void submit_applicantAccessToDraftProgram_redirectsToHome() {
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.submit(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+
+    ProgramBuilder.newActiveProgram("test program", "desc")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank().applicantName())
+        .buildDefinition();
+    ProgramDefinition draftProgramDefinition =
+        ProgramBuilder.newDraftProgram("test program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    answer(draftProgramDefinition.id());
+
+    Result result = this.submit(applicant.id, draftProgramDefinition.id());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // No application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(0);
+    applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(draftProgramDefinition.id());
+  }
+
+  @Test
+  public void submit_obsoleteProgram_isSuccessful() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    versionRepository.publishNewSynchronizedVersion();
+
+    answer(programDefinition.id());
+
+    Result result = this.submit(applicant.id, programDefinition.id());
+    assertThat(result.status()).isEqualTo(FOUND);
+
+    // An application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(programDefinition.id());
   }
 
   @Test
   public void submit_isSuccessful() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -75,13 +210,24 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
     answer(activeProgram.id);
+
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(FOUND);
+
+    // An application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
   @Test
   public void submit_incomplete_showsError() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -94,28 +240,79 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .contains("There's been an update to the application");
   }
 
+  @Test
+  public void submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+    this.submit(applicant.id, activeProgram.id);
+
+    // Submit the application again without editing
+    Result noEditsResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(noEditsResult.status()).isEqualTo(OK);
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(sameValuesResult.status()).isEqualTo(OK);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
+  }
+
   public Result review(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                            applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
-    return subject.review(request, applicantId, programId).toCompletableFuture().join();
+    return subject
+        .reviewWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
   }
 
   public Result submit(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantProgramReviewController.submit(applicantId, programId)))
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramReviewController.submitWithApplicantId(
+                            applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
-    return subject.submit(request, applicantId, programId).toCompletableFuture().join();
+    return subject
+        .submitWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
   }
 
   private void answer(long programId) {
-
     Request request =
-        fakeRequest(
-                routes.ApplicantProgramBlocksController.update(
-                    applicant.id, programId, /* blockId = */ "1", /* inReview = */ false))
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    programId,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -126,7 +323,13 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result =
         blockController
-            .update(request, applicant.id, programId, /* blockId = */ "1", /* inReview = */ false)
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 

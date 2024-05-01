@@ -1,16 +1,23 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new formatter docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
+# DOC: Build a new formatter docker image
+# DOC: Optional environment variables:
+# DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value
+# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
+# DOC:                to an alternative registry include it in the NAMESPACE.
+# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
+# DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8)
 
 source bin/lib.sh
 
-IMAGE="formatter"
-LOCATION="."
-DOCKERFILE="formatter/formatter.Dockerfile"
+readonly NAMESPACE="${NAMESPACE:=civiform}"
+readonly IMAGE="formatter"
+readonly LOCATION="."
+readonly DOCKERFILE="formatter/formatter.Dockerfile"
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "civiform/${IMAGE}:latest"
-  --cache-from "civiform/${IMAGE}"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
+  --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   "${LOCATION}")
 
@@ -33,4 +40,5 @@ if [[ "${PUSH_IMAGE}" ]]; then
   echo "push ${IMAGE} build"
   docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
-docker tag "civiform/${IMAGE}:latest" "civiform-${IMAGE}:latest"
+
+docker tag "${NAMESPACE}/${IMAGE}:latest" "civiform-${IMAGE}:latest"

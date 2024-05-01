@@ -1,15 +1,12 @@
 package auth.oidc.applicant;
 
-import auth.ProfileFactory;
 import auth.oidc.CiviformOidcLogoutActionBuilder;
+import auth.oidc.OidcClientProviderParams;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
-import repository.UserRepository;
 
 /**
  * Provider for auth0.com. Auth0 mostly implements OIDC protocol so it relies on base implementation
@@ -21,11 +18,8 @@ import repository.UserRepository;
 public class Auth0ClientProvider extends GenericOidcClientProvider {
 
   @Inject
-  public Auth0ClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+  public Auth0ClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override

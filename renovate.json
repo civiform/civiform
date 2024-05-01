@@ -1,6 +1,16 @@
 {
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "labels": ["dependencies"],
+  "docker-compose": {
+    "fileMatch": [
+      "browser-test/browser-test-compose.yml",
+      "browser-test/browser-test-compose.dev.yml",
+      "browser-test/browser-test-compose.dev_local.yml",
+      "test-support/prod-simulator-compose.yml",
+      "test-support/unit-test-docker-compose.yml",
+      "test-support/unit-test-docker-compose.dev.yml"
+    ]
+  },
   "packageRules": [
     {
       "groupName": "autovalue",
@@ -27,7 +37,15 @@
       "matchPackagePrefixes": ["org.pac4j:pac4j"]
     },
     {
-      "matchPaths": [
+      "groupName": "playwright",
+      "matchPackagePrefixes": [
+        "playwright",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ]
+    },
+    {
+      "matchFileNames": [
         ".github/workflows/**",
         "browser-test/**",
         "env-var-docs/**",

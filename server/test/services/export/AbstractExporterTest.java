@@ -1,5 +1,7 @@
 package services.export;
 
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -7,28 +9,43 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.converters.Nullable;
-import models.Account;
-import models.Applicant;
-import models.Application;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
-import models.Question;
+import models.ProgramModel;
+import models.QuestionModel;
 import org.junit.Before;
+import play.mvc.Http.Request;
+import play.test.Helpers;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
 import services.program.EligibilityDefinition;
+import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramDefinition;
+import services.program.ProgramNeedsABlockException;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
-import services.program.predicate.*;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 /**
  * Superclass for tests that exercise exporters. Helps with generating programs, questions, and
@@ -43,31 +60,36 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
 
   private ProgramAdminApplicationService programAdminApplicationService;
+  private static ProgramService programService;
 
-  protected Program fakeProgramWithEnumerator;
-  protected Program fakeProgramWithEligibility;
-  protected Program fakeProgramWithOptionalFileUpload;
-  protected Program fakeProgram;
-  protected ImmutableList<Question> fakeQuestions;
-  protected Applicant applicantOne;
-  protected Applicant applicantFive;
-  protected Applicant applicantSix;
-  protected Applicant applicantTwo;
-  protected Application applicationOne;
-  protected Application applicationTwo;
-  protected Application applicationThree;
-  protected Application applicationFour;
-  protected Application applicationFive;
-  protected Application applicationSix;
+  protected ProgramModel fakeProgramWithEnumerator;
+  protected ProgramModel fakeProgramWithVisibility;
+  protected ProgramModel fakeProgramWithEligibility;
+  protected ProgramModel fakeProgramWithOptionalFileUpload;
+  protected ProgramModel fakeProgram;
+  protected ImmutableList<QuestionModel> fakeQuestions;
+  protected ApplicantModel applicantOne;
+  protected ApplicantModel applicantFive;
+  protected ApplicantModel applicantSix;
+  protected ApplicantModel applicantTwo;
+  protected ApplicantModel applicantSeven;
+  protected ApplicationModel applicationOne;
+  protected ApplicationModel applicationTwo;
+  protected ApplicationModel applicationThree;
+  protected ApplicationModel applicationFour;
+  protected ApplicationModel applicationFive;
+  protected ApplicationModel applicationSix;
+  protected ApplicationModel applicationSeven;
 
   @Before
   public void setup() {
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
+    programService = instanceOf(ProgramService.class);
   }
 
   protected void answerQuestion(
       QuestionType questionType,
-      Question question,
+      QuestionModel question,
       ApplicantData applicantDataOne,
       ApplicantData applicantDataTwo) {
     Path answerPath =
@@ -136,6 +158,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC:
         // Do nothing.
         break;
+      case NULL_QUESTION:
+        // Do nothing.
     }
   }
 
@@ -146,9 +170,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * is a different user in Active state.
    */
   protected void createFakeApplications() throws Exception {
-    Account admin = resourceCreator.insertAccount();
-    Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
-    Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
+    AccountModel admin = resourceCreator.insertAccount();
+    ApplicantModel applicantOne = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
@@ -172,14 +196,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null);
   }
 
-  private Application createFakeApplication(
-      Applicant applicant,
-      @Nullable Account admin,
-      Program program,
+  private ApplicationModel createFakeApplication(
+      ApplicantModel applicant,
+      @Nullable AccountModel admin,
+      ProgramModel program,
       LifecycleStage lifecycleStage,
       @Nullable String status)
       throws Exception {
-    Application application = new Application(applicant, program, lifecycleStage);
+    ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 
@@ -188,12 +212,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     application.setCreateTimeForTest(FAKE_CREATE_TIME);
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     application.save();
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
     if (status != null && admin != null) {
       programAdminApplicationService.setStatus(
           application,
           StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-          admin);
+          admin,
+          request);
     }
     application.refresh();
     return application;
@@ -206,11 +232,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .collect(ImmutableList.toImmutableList());
   }
 
+  protected ImmutableList<QuestionDefinition> getFakeQuestionDefinitions() {
+    return fakeQuestions.stream()
+        .map(QuestionModel::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-    fakeProgram.withName("Fake Program");
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program");
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      int screenNumber = i + 1;
+      fakeProgram
+          .withBlock("Screen " + screenNumber, "description for screen " + screenNumber)
+          .withRequiredQuestion(fakeQuestions.get(i))
+          .build();
+    }
     fakeProgram.withStatusDefinitions(
         new StatusDefinitions()
             .setStatuses(
@@ -227,8 +263,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgramWithOptionalQuestion() {
-    Question fileQuestion = testQuestionBank.applicantFile();
-    Question nameQuestion = testQuestionBank.applicantName();
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
 
     fakeProgramWithOptionalFileUpload =
         ProgramBuilder.newActiveProgram()
@@ -245,6 +281,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
+    applicantFive.getApplicantData().setUserName("Example Five");
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -255,7 +292,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
     applicationFive =
-        new Application(applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+        new ApplicationModel(
+            applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
     applicantFive.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
@@ -271,7 +309,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "",
         "Six");
     applicationSix =
-        new Application(applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+        new ApplicationModel(
+            applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
     applicantSix.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
@@ -280,26 +319,73 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   /**
+   * Creates a program that has an visibility predicate, one applicant, and one application. The
+   * applications have submission times one month apart starting on 2023-01-01.
+   */
+  protected void createFakeProgramWithVisibilityPredicate() {
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+
+    PredicateDefinition colorPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("red"))),
+            PredicateAction.HIDE_BLOCK);
+
+    fakeProgramWithVisibility =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(colorQuestion)
+            .withBlock("Screen 2")
+            .withRequiredQuestion(nameQuestion)
+            .withVisibilityPredicate(colorPredicate)
+            .build();
+
+    applicantSeven = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantSeven.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Jen",
+        "",
+        "Doe");
+    QuestionAnswerer.answerTextQuestion(
+        applicantSeven.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "red");
+    applicantSeven.save();
+    applicationSeven =
+        new ApplicationModel(applicantSeven, fakeProgramWithVisibility, LifecycleStage.ACTIVE);
+    applicationSeven.setApplicantData(applicantSeven.getApplicantData());
+    CfTestHelpers.withMockedInstantNow(
+        "2023-01-01T00:00:00Z", () -> applicationSeven.setSubmitTimeToNow());
+    applicationSeven.save();
+  }
+
+  /**
    * Creates a program that has an eligibility predicate, three applicants, and three applications.
    * The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEligibilityPredicate() {
-    Question nameQuestion = testQuestionBank.applicantName();
-    Question colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
 
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("blue"))),
-            PredicateAction.HIDE_BLOCK);
+            PredicateAction.ELIGIBLE_BLOCK);
     EligibilityDefinition colorEligibilityDefinition =
         EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
     fakeProgramWithEligibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestions(nameQuestion, colorQuestion)
             .withEligibilityDefinition(colorEligibilityDefinition)
             .build();
@@ -320,7 +406,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "coquelicot");
     applicantOne.save();
     applicationOne =
-        new Application(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
@@ -343,31 +429,32 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "blue");
     applicantTwo.save();
     applicationTwo =
-        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
-        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
     applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
   }
+
   /**
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
-  protected void createFakeProgramWithEnumerator() {
-    Question nameQuestion = testQuestionBank.applicantName();
-    Question colorQuestion = testQuestionBank.applicantFavoriteColor();
-    Question monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
-    Question householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
-    Question hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
-    Question hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
-    Question hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
+  protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
+    QuestionModel householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
+    QuestionModel hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
+    QuestionModel hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
     fakeProgramWithEnumerator =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
@@ -429,7 +516,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         100);
     applicantOne.save();
     applicationOne =
-        new Application(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
     applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
@@ -488,17 +575,405 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         333);
     applicantTwo.save();
     applicationTwo =
-        new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
     applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
-        new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
     applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
+  }
+
+  /** A Builder to build a fake program */
+  static class FakeProgramBuilder {
+    ProgramBuilder fakeProgramBuilder;
+    boolean addEnumeratorQuestion = false;
+    boolean addNestedEnumeratorQuestion = false;
+
+    private FakeProgramBuilder(String name) {
+      fakeProgramBuilder = ProgramBuilder.newActiveProgram(name);
+    }
+
+    private FakeProgramBuilder(ProgramBuilder builder) {
+      fakeProgramBuilder = builder;
+    }
+
+    static FakeProgramBuilder newActiveProgram() {
+      return new FakeProgramBuilder("Fake Program");
+    }
+
+    static FakeProgramBuilder newActiveProgram(String name) {
+      return new FakeProgramBuilder(name);
+    }
+
+    static FakeProgramBuilder newDraftOf(ProgramModel program) throws ProgramNotFoundException {
+      ProgramDefinition draft = programService.newDraftOf(program.id);
+      return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draft));
+    }
+
+    static FakeProgramBuilder removeBlockWithQuestion(
+        ProgramModel program, QuestionModel questionToRemove)
+        throws ProgramNotFoundException,
+            ProgramNeedsABlockException,
+            IllegalPredicateOrderingException {
+      ProgramDefinition draft = programService.newDraftOf(program.id);
+      var blockToDelete =
+          draft.blockDefinitions().stream()
+              .filter(
+                  b ->
+                      b.programQuestionDefinitions().stream()
+                          .anyMatch(q -> q.id() == questionToRemove.id))
+              .findFirst()
+              .get()
+              .id();
+
+      ProgramDefinition draftWithoutBlock = programService.deleteBlock(draft.id(), blockToDelete);
+      return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draftWithoutBlock));
+    }
+
+    FakeProgramBuilder withQuestion(QuestionModel question) {
+      fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
+      return this;
+    }
+
+    /**
+     * Adds a question with a visibility predicate. If the text question ({@code applicant favorite
+     * color}) is answered with "red" then the date question ({@code applicant birth date}) isn't
+     * shown to the applicant.
+     *
+     * @return the fake {@link ProgramBuilder}
+     */
+    FakeProgramBuilder withDateQuestionWithVisibilityPredicateOnTextQuestion() {
+      QuestionModel dateQuestion = testQuestionBank.applicantDate();
+      QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+
+      PredicateDefinition colorPredicate =
+          PredicateDefinition.create(
+              PredicateExpressionNode.create(
+                  LeafOperationExpressionNode.create(
+                      colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("red"))),
+              PredicateAction.HIDE_BLOCK);
+
+      fakeProgramBuilder
+          .withBlock()
+          .withRequiredQuestion(colorQuestion)
+          .withBlock()
+          .withRequiredQuestions(dateQuestion)
+          .withVisibilityPredicate(colorPredicate)
+          .build();
+
+      return this;
+    }
+
+    FakeProgramBuilder withHouseholdMembersEnumeratorQuestion() {
+      addEnumeratorQuestion = true;
+      return this;
+    }
+
+    FakeProgramBuilder withHouseholdMembersJobsNestedEnumeratorQuestion() {
+      addNestedEnumeratorQuestion = true;
+      return this;
+    }
+
+    ProgramModel build() {
+      if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
+        fakeProgramBuilder
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .withAnotherRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
+            .build();
+      } else if (addEnumeratorQuestion) {
+        fakeProgramBuilder
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .build();
+      }
+
+      return fakeProgramBuilder.build();
+    }
+  }
+
+  /** A "Builder" to fill a fake application one question at a time. */
+  static class FakeApplicationFiller {
+    AccountModel admin;
+    ApplicantModel applicant;
+    ProgramModel program;
+    Optional<AccountModel> trustedIntermediary = Optional.empty();
+    ApplicationModel application;
+
+    private FakeApplicationFiller(ProgramModel program, ApplicantModel applicant) {
+      this.program = program;
+      this.applicant = applicant;
+      this.admin = resourceCreator.insertAccount();
+    }
+
+    static FakeApplicationFiller newFillerFor(ProgramModel program) {
+      return new FakeApplicationFiller(program, resourceCreator.insertApplicantWithAccount());
+    }
+
+    static FakeApplicationFiller newFillerFor(ProgramModel program, ApplicantModel applicant) {
+      return new FakeApplicationFiller(program, applicant);
+    }
+
+    FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {
+      var tiGroup = resourceCreator.insertTiGroup(tiOrganization);
+      this.trustedIntermediary = Optional.of(resourceCreator.insertAccountWithEmail(tiEmail));
+      this.applicant.getAccount().setManagedByGroup(tiGroup).save();
+      return this;
+    }
+
+    FakeApplicationFiller answerAddressQuestion(
+        String street, String line2, String city, String state, String zip) {
+      Path answerPath =
+          testQuestionBank
+              .applicantAddress()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerAddressQuestion(
+          applicant.getApplicantData(), answerPath, street, line2, city, state, zip);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
+      Path answerPath =
+          testQuestionBank
+              .applicantKitchenTools()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      for (int i = 0; i < optionIds.size(); i++) {
+        QuestionAnswerer.answerMultiSelectQuestion(applicantData, answerPath, i, optionIds.get(i));
+      }
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerCurrencyQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantMonthlyIncome()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerCurrencyQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerDateQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantDate()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerDateQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerDropdownQuestion(Long optionId) {
+      Path answerPath =
+          testQuestionBank
+              .applicantIceCream()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
+      Path answerPath =
+          testQuestionBank
+              .applicantSeason()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerEmailQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantEmail()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerTextQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantFavoriteColor()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var repeatedEntity =
+          repeatedEntities.stream().filter(e -> e.entityName().equals(entityName)).findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberFavoriteShape()
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNestedRepeatedNumberQuestion(
+        String parentEntityName, String entityName, long answer) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var nestedRepeatedEntities =
+          repeatedEntities.stream()
+              .filter(e -> e.entityName().equals(parentEntityName))
+              .findFirst()
+              .get()
+              .createNestedRepeatedEntities(
+                  (EnumeratorQuestionDefinition)
+                      testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                  /* visibility= */ Optional.empty(),
+                  applicant.getApplicantData());
+
+      var nestedRepeatedEntity =
+          nestedRepeatedEntities.stream()
+              .filter(e -> e.entityName().equals(entityName))
+              .findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberDaysWorked()
+              .getQuestionDefinition()
+              .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNumberQuestion(long answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantJugglingNumber()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+      Path answerPath =
+          testQuestionBank
+              .applicantPhone()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerPhoneQuestion(
+          applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMembers()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(
+          applicant.getApplicantData(), answerPath, householdMembers);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNestedEnumeratorQuestion(
+        String parentEntityName, ImmutableList<String> jobNames) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var parentRepeatedEntity =
+          repeatedEntities.stream()
+              .filter(e -> e.entityName().equals(parentEntityName))
+              .findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberJobs()
+              .getQuestionDefinition()
+              .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller submit() {
+      application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
+      application.setApplicantData(applicant.getApplicantData());
+      trustedIntermediary.ifPresent(
+          account -> application.setSubmitterEmail(account.getEmailAddress()));
+      application.save();
+
+      // CreateTime of an application is set through @onCreate to Instant.now(). To change
+      // the value, manually set createTime and save and refresh the application.
+      application.setCreateTimeForTest(FAKE_CREATE_TIME);
+      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.save();
+
+      return this;
+    }
+
+    FakeApplicationFiller markObsolete() {
+      if (application == null) {
+        throw new IllegalStateException(
+            "Cannot mark an application as obsolete unless it has been submitted.");
+      }
+      application.setLifecycleStage(LifecycleStage.OBSOLETE);
+      application.save();
+
+      return this;
+    }
   }
 }

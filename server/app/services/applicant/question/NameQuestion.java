@@ -8,9 +8,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a name question in the context of a specific applicant.
@@ -25,11 +26,6 @@ public final class NameQuestion extends Question {
 
   NameQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.NAME);
   }
 
   @Override
@@ -68,7 +64,12 @@ public final class NameQuestion extends Question {
       return firstNameValue;
     }
 
-    firstNameValue = applicantQuestion.getApplicantData().readString(getFirstNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> firstNameValue = applicantData.readString(getFirstNamePath());
+
+    if (firstNameValue.isEmpty() && isPaiQuestion()) {
+      firstNameValue = applicantData.getApplicantFirstName();
+    }
 
     return firstNameValue;
   }
@@ -78,8 +79,12 @@ public final class NameQuestion extends Question {
       return middleNameValue;
     }
 
-    middleNameValue = applicantQuestion.getApplicantData().readString(getMiddleNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    middleNameValue = applicantData.readString(getMiddleNamePath());
 
+    if (middleNameValue.isEmpty() && isPaiQuestion()) {
+      middleNameValue = applicantData.getApplicantMiddleName();
+    }
     return middleNameValue;
   }
 
@@ -88,8 +93,12 @@ public final class NameQuestion extends Question {
       return lastNameValue;
     }
 
-    lastNameValue = applicantQuestion.getApplicantData().readString(getLastNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    lastNameValue = applicantData.readString(getLastNamePath());
 
+    if (lastNameValue.isEmpty() && isPaiQuestion()) {
+      lastNameValue = applicantData.getApplicantLastName();
+    }
     return lastNameValue;
   }
 
@@ -116,5 +125,11 @@ public final class NameQuestion extends Question {
     };
 
     return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME);
   }
 }

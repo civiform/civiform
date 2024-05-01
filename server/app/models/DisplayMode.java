@@ -15,8 +15,11 @@ public enum DisplayMode {
   PUBLIC,
   // Visible only to Trusted Intermediaries
   TI_ONLY,
+  // The program is hidden from applicants, trusted intermediaries, and program admins.
+  DISABLED,
   // The program should not appear in the applicant's index screen.
-  HIDDEN_IN_INDEX;
+  HIDDEN_IN_INDEX,
+  SELECT_TI;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {

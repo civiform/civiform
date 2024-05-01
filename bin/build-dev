@@ -1,18 +1,26 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new development docker image and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
+# DOC: Build a new development docker image
+# DOC: Optional environment variables:
+# DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value
+# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
+# DOC:                to an alternative registry include it in the NAMESPACE.
+# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
+# DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8)
 
 source bin/lib.sh
 
-IMAGE="civiform-dev"
-LOCATION="."
-DOCKERFILE="Dockerfile"
+readonly NAMESPACE="${NAMESPACE:=civiform}"
+readonly IMAGE="civiform-dev"
+readonly LOCATION="."
+readonly DOCKERFILE="Dockerfile"
 
-BUILD_ARGS="-f ${DOCKERFILE}
-  -t civiform/${IMAGE}:latest
-  --cache-from civiform/${IMAGE}
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
+  --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
-  ${LOCATION}"
+  --build-arg SBT_VERSION="${SBT_VERSION}"
+  "${LOCATION}")
 
 PLATFORM_ARG=()
 if [[ "${PLATFORM}" ]]; then
@@ -21,20 +29,17 @@ fi
 
 # Build the multi-platform image
 echo "start ${IMAGE} build"
-cmd="docker buildx build ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
-$cmd
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
 echo "load ${IMAGE} build"
-cmd="docker buildx build --load ${BUILD_ARGS}"
-$cmd
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
   echo "push ${IMAGE} build"
-  cmd="docker buildx build --push ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
-  $cmd
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 
-docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"
+docker tag "${NAMESPACE}/${IMAGE}:latest" "${IMAGE}:latest"

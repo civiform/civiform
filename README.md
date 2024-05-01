@@ -1,6 +1,5 @@
 [![ci](https://github.com/civiform/civiform/actions/workflows/push_tests.yaml/badge.svg)](https://github.com/civiform/civiform/actions/workflows/push_tests.yaml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
-[![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
 [![AWS Staging Deploy](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml/badge.svg?branch=main)](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml)
 ![codecov.io](https://codecov.io/github/civiform/civiform/coverage.svg?branch=main)
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://google.github.io/styleguide/)
@@ -23,14 +22,8 @@ Key features:
 
 ## Contributing
 
-To get started please first read our
-[Contributing](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#getting-up-to-speed) wiki page.
-
-And more specifically:
-
-- [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
-- [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
+To get started please first read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide).
 
 If you're interested in just digging around and interacting with the code, see
-[Getting started](https://docs.civiform.us/contributor-guide/developer-guide/getting-started) for guidance on
+[Getting started](https://github.com/civiform/civiform/wiki/Getting-started) for guidance on
 setting up your environment and running a local development server.

@@ -1,0 +1,152 @@
+<div
+  th:fragment="address (question, questionRendererParams, stateAbbreviations)"
+  th:with="questionId=${#strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+>
+  <fieldset
+    class="usa-fieldset"
+    th:with="addressQuestion=${question.createAddressQuestion()},
+             firstPathWithError=${addressQuestion.getFirstPathWithError()}"
+  >
+    <!-- Title and Help Text -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!-- Display errors for the entire question -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    ></div>
+
+    <!-- TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. -->
+    <!-- Street address -->
+    <th:block
+      th:with="inputId=${#strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
+    >
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.street}"
+      ></label>
+      <input
+        class="usa-input"
+        th:id="${inputId}"
+        th:name="${streetPath}"
+        th:value="${addressQuestion.getStreetValue().orElse('')}"
+        th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-line1"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
+      />
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)})}"
+      ></div>
+    </th:block>
+
+    <!-- Street address line 2 -->
+    <th:block
+      th:with="inputId=${#strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
+    >
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.addressLine2}"
+      ></label>
+      <input
+        class="usa-input"
+        th:id="${inputId}"
+        th:name="${line2Path}"
+        th:value="${addressQuestion.getLine2Value().orElse('')}"
+        th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
+        autocomplete="address-line2"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
+      />
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)})}"
+      ></div>
+    </th:block>
+
+    <!-- City -->
+    <th:block
+      th:with="inputId=${#strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
+    >
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.city}"
+      ></label>
+      <input
+        class="usa-input"
+        th:id="${inputId}"
+        th:name="${cityPath}"
+        th:value="${addressQuestion.getCityValue().orElse('')}"
+        th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-level2"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(cityPath)}"
+      />
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)})}"
+      ></div>
+    </th:block>
+
+    <!-- State -->
+    <th:block
+      th:with="inputId=${#strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
+    >
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.state}"
+      ></label>
+      <select
+        class="usa-select"
+        th:id="${inputId}"
+        th:name="${statePath}"
+        th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-level1"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(statePath)}"
+      >
+        <option
+          hidden
+          th:selected="${addressQuestion.getStateValue().isEmpty()}"
+          th:label="#{label.selectState}"
+        ></option>
+        <option
+          th:each="option: ${stateAbbreviations}"
+          th:value="${option}"
+          th:text="${option}"
+          th:selected="${addressQuestion.getStateValue().orElse('').equals(option)}"
+        ></option>
+      </select>
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(statePath)})}"
+      ></div>
+    </th:block>
+
+    <!-- ZIP code -->
+    <th:block
+      th:with="inputId=${#strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
+    >
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.zipcode}"
+      ></label>
+      <input
+        class="usa-input usa-input--medium"
+        th:id="${inputId}"
+        th:name="${zipPath}"
+        th:value="${addressQuestion.getZipValue().orElse('')}"
+        th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="postal-code"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(zipPath)}"
+      />
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)})}"
+      ></div>
+    </th:block>
+  </fieldset>
+</div>

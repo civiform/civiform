@@ -1,0 +1,78 @@
+<div
+  th:fragment="name(question, questionRendererParams)"
+  th:with="nameQuestion=${question.createNameQuestion()},
+             questionId=${#strings.randomAlphanumeric(8)},
+             maxInputLength=10000,
+             firstPathWithError=${nameQuestion.getFirstPathWithError()}"
+  th:id="${questionId}"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+  ></div>
+
+  <!-- TODO: errors -->
+  <div
+    th:with="firstNameId=${#strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
+    class="cf-name-first"
+  >
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)})}"
+    ></div>
+    <label th:for="${firstNameId}">
+      <span th:text="#{label.firstName}"></span>
+      <th:block th:if="${!question.isOptional()}">
+        <span class="usa-hint--required"> *</span>
+      </th:block>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      th:maxlength="${maxInputLength}"
+      th:id="${firstNameId}"
+      autocomplete="given-name"
+      th:value="${nameQuestion.getFirstNameValue().orElse('')}"
+      th:name="${firstNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
+    />
+  </div>
+  <div
+    th:with="middleNameId=${#strings.randomAlphanumeric(8)}"
+    class="cf-name-middle"
+  >
+    <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
+    <input
+      type="text"
+      class="usa-input"
+      th:maxlength="${maxInputLength}"
+      th:id="${middleNameId}"
+      autocomplete="additional-name"
+      th:value="${nameQuestion.getMiddleNameValue().orElse('')}"
+      th:name="${nameQuestion.getMiddleNamePath()}"
+    />
+  </div>
+  <div
+    th:with="lastNameId=${#strings.randomAlphanumeric(8)},lastNamePath=${nameQuestion.getLastNamePath()}"
+    class="cf-name-last"
+  >
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)})}"
+    ></div>
+    <label th:for="${lastNameId}">
+      <span th:text="#{label.lastName}"></span>
+      <th:block th:if="${!question.isOptional()}">
+        <span class="usa-hint--required"> *</span>
+      </th:block>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      th:maxlength="${maxInputLength}"
+      th:id="${lastNameId}"
+      autocomplete="family-name"
+      th:value="${nameQuestion.getLastNameValue().orElse('')}"
+      th:name="${lastNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
+    />
+  </div>
+</div>

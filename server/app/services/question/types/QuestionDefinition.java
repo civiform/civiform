@@ -1,12 +1,12 @@
 package services.question.types;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -14,61 +14,27 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
+import java.util.Random;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
+import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
 public abstract class QuestionDefinition {
-  private final OptionalLong id;
-  private final String name;
-  private final Optional<Long> enumeratorId;
-  private final String description;
-  // Note: you must check prefixes anytime you are doing a locale lookup
-  // see getQuestionText body comment for explanation.
-  private final LocalizedStrings questionText;
-  private final LocalizedStrings questionHelpText;
-  private final ValidationPredicates validationPredicates;
-  private final Optional<Instant> lastModifiedTime;
 
-  protected QuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    this.id = checkNotNull(id);
-    this.name = checkNotNull(name);
-    this.enumeratorId = checkNotNull(enumeratorId);
-    this.description = checkNotNull(description);
-    this.questionText = checkNotNull(questionText);
-    this.questionHelpText = checkNotNull(questionHelpText);
-    this.validationPredicates = checkNotNull(validationPredicates);
-    this.lastModifiedTime = checkNotNull(lastModifiedTime);
-  }
+  private QuestionDefinitionConfig config;
 
-  protected QuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates) {
-    this(
-        OptionalLong.empty(),
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        /* lastModifiedTime= */ Optional.empty());
+  protected QuestionDefinition(QuestionDefinitionConfig config) {
+    if (config.validationPredicates().isEmpty()) {
+      config = config.toBuilder().setValidationPredicates(getDefaultValidationPredicates()).build();
+    }
+
+    this.config = config;
   }
 
   public abstract static class ValidationPredicates {
@@ -90,12 +56,27 @@ public abstract class QuestionDefinition {
 
   /** Return true if the question is persisted and has an unique identifier. */
   public final boolean isPersisted() {
-    return this.id.isPresent();
+    return config.id().isPresent();
   }
 
   /** Get the unique identifier for this question. */
   public final long getId() {
-    return this.id.getAsLong();
+    return config.id().getAsLong();
+  }
+
+  /** True if the question is marked as a universal question. */
+  public final boolean isUniversal() {
+    return config.universal();
+  }
+
+  public final ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTags() {
+    return config.primaryApplicantInfoTags();
+  }
+
+  /** True if this QuestionDefinition contains the given PrimaryApplicantInfoTag. */
+  public final boolean containsPrimaryApplicantInfoTag(
+      PrimaryApplicantInfoTag primaryApplicantInfoTag) {
+    return config.primaryApplicantInfoTags().contains(primaryApplicantInfoTag);
   }
 
   /**
@@ -106,17 +87,22 @@ public abstract class QuestionDefinition {
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
   public final String getName() {
-    return this.name;
+    return config.name();
   }
 
   public final Optional<Instant> getLastModifiedTime() {
-    return this.lastModifiedTime;
+    return config.lastModifiedTime();
+  }
+
+  // Note that this formatting logic is duplicated in main.ts formatQuestionName()
+  public final String getQuestionNameKey() {
+    return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
-    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    String formattedName = getQuestionNameKey();
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       return formattedName + Path.ARRAY_SUFFIX;
     }
@@ -156,7 +142,7 @@ public abstract class QuestionDefinition {
    * @return true if this is a repeated question.
    */
   public final boolean isRepeated() {
-    return enumeratorId.isPresent();
+    return config.enumeratorId().isPresent();
   }
 
   /** True if the question is an {@link AddressQuestionDefinition}. */
@@ -178,7 +164,7 @@ public abstract class QuestionDefinition {
    *     exists.
    */
   public final Optional<Long> getEnumeratorId() {
-    return enumeratorId;
+    return config.enumeratorId();
   }
 
   /**
@@ -187,15 +173,15 @@ public abstract class QuestionDefinition {
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
   public final String getDescription() {
-    return this.description;
+    return config.description();
   }
 
   public final LocalizedStrings getQuestionText() {
-    return questionText;
+    return config.questionText();
   }
 
   public final LocalizedStrings getQuestionHelpText() {
-    return questionHelpText;
+    return config.questionHelpText();
   }
 
   /**
@@ -204,38 +190,79 @@ public abstract class QuestionDefinition {
    */
   public ImmutableSet<Locale> getSupportedLocales() {
     // Question help text is optional
-    if (questionHelpText.isEmpty()) {
-      return questionText.locales();
+    if (config.questionHelpText().isEmpty()) {
+      return config.questionText().locales();
     } else {
       return ImmutableSet.copyOf(
-          Sets.intersection(questionText.locales(), questionHelpText.locales()));
+          Sets.intersection(config.questionText().locales(), getQuestionHelpText().locales()));
     }
   }
 
   /** Get the validation predicates. */
   public final ValidationPredicates getValidationPredicates() {
-    return validationPredicates;
+    return config.validationPredicates().orElseGet(this::getDefaultValidationPredicates);
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
   public final String getValidationPredicatesAsString() {
-    return validationPredicates.serializeAsString();
+    return getValidationPredicates().serializeAsString();
   }
 
   /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
 
-  /** Validate that all required fields are present and valid for the question. */
+  /** Get the default validation predicates for this question type. */
+  abstract ValidationPredicates getDefaultValidationPredicates();
+
+  /**
+   * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
+   *
+   * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
+   * previousDefinition} when validating.
+   */
   public final ImmutableSet<CiviFormError> validate() {
+    return validate(Optional.empty());
+  }
+
+  /**
+   * Validate that all required fields are present and valid for the question.
+   *
+   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
+   * QuestionOption} need to pass validation.
+   *
+   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
+   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
+   *     definition.
+   */
+  public final ImmutableSet<CiviFormError> validate(
+      Optional<QuestionDefinition> previousDefinition) {
+    if (previousDefinition.isPresent()
+        && previousDefinition.get().getQuestionType() != getQuestionType()) {
+      throw new IllegalArgumentException(
+          "The previous version of the question definition must be of the same question type as the"
+              + " updated version.");
+    }
+
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (questionText.isEmpty()) {
+    if (config.questionText().isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (questionText.hasEmptyTranslation()) {
+    if (config.questionText().hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (name.isBlank()) {
+    if (config.name().isBlank()) {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
+    }
+    if (getQuestionPathSegment().equals(Path.empty().join(Scalar.ENTITY_NAME).toString())) {
+      errors.add(
+          CiviFormError.of(
+              String.format("Administrative identifier '%s' is not allowed", getName())));
+    }
+    if (getQuestionPathSegment()
+        .equals(Path.empty().join(ApiPathSegment.ENTITY_METADATA).toString())) {
+      errors.add(
+          CiviFormError.of(
+              String.format("Administrative identifier '%s' is not allowed", getName())));
     }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
@@ -244,11 +271,11 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
       }
     }
-    if (isRepeated() && !questionTextAndHelpTextContainsRepeatedEntityNameFormatString()) {
-      errors.add(
-          CiviFormError.of(
-              "Repeated questions must reference '$this' in the text and help text (if present)"));
+
+    if (isRepeated() && !questionTextContainsRepeatedEntityNameFormatString()) {
+      errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
+
     if (getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) this;
@@ -257,21 +284,55 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
       }
 
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
+        errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
+      }
+
+      var existingAdminNames =
+          previousDefinition
+              .map(qd -> (MultiOptionQuestionDefinition) qd)
+              .map(MultiOptionQuestionDefinition::getOptionAdminNames)
+              .orElse(ImmutableList.of())
+              // New option admin names can only be lowercase, but existing option
+              // admin names may have capital letters. We lowercase them before
+              // comparing to avoid collisions.
+              .stream()
+              .map(o -> o.toLowerCase(Locale.ROOT))
+              .collect(ImmutableList.toImmutableList());
+
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
+          // This is O(n^2) but the list is small and it's simpler than creating a Set
+          .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
+          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
+        errors.add(
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+      }
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
       }
 
       int numOptions = multiOptionQuestionDefinition.getOptions().size();
-      int numUniqueOptionDefaultValues =
+      long numUniqueOptionDefaultValues =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::optionText)
-              .map(LocalizedStrings::getDefault)
+              .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
               .distinct()
-              .mapToInt(s -> 1)
-              .sum();
+              .count();
       if (numUniqueOptionDefaultValues != numOptions) {
         errors.add(CiviFormError.of("Multi-option question options must be unique"));
+      }
+
+      long numUniqueOptionAdminNames =
+          multiOptionQuestionDefinition.getOptions().stream()
+              .map(QuestionOption::adminName)
+              .map(e -> e.toLowerCase(Locale.ROOT))
+              .distinct()
+              .count();
+      if (numUniqueOptionAdminNames != numOptions) {
+        errors.add(CiviFormError.of("Multi-option question admin names must be unique"));
       }
 
       OptionalInt minChoicesRequired =
@@ -320,7 +381,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id);
+    return Objects.hash(getId());
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -350,22 +411,40 @@ public abstract class QuestionDefinition {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 
-      return this.getQuestionType().equals(o.getQuestionType())
-          && this.name.equals(o.getName())
-          && this.description.equals(o.getDescription())
-          && this.questionText.equals(o.getQuestionText())
-          && this.questionHelpText.equals(o.getQuestionHelpText())
-          && this.validationPredicates.equals(o.getValidationPredicates());
+      return getQuestionType().equals(o.getQuestionType())
+          && getName().equals(o.getName())
+          && getDescription().equals(o.getDescription())
+          && getQuestionText().equals(o.getQuestionText())
+          && getQuestionHelpText().equals(o.getQuestionHelpText())
+          && getValidationPredicates().equals(o.getValidationPredicates());
     }
     return false;
   }
 
-  private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
-    boolean textMissingFormatString =
-        questionText.translations().values().stream().anyMatch(text -> !text.contains("$this"));
-    boolean helpTextMissingFormatString =
-        questionHelpText.translations().values().stream()
-            .anyMatch(helpText -> !helpText.contains("$this"));
-    return !textMissingFormatString && !helpTextMissingFormatString;
+  private boolean questionTextContainsRepeatedEntityNameFormatString() {
+    return getQuestionText().translations().values().stream()
+        .allMatch(text -> text.contains("$this"));
+  }
+
+  /**
+   * TODO(#5271): remove this. This is only used for {@link QuestionDefinitionBuilder} in order to
+   * construct new instances, and {@link QuestionDefinitionBuilder} should be removed.
+   *
+   * <p>The {@link QuestionDefinitionConfig} should be entirely internal to {@link
+   * QuestionDefinition}.
+   */
+  QuestionDefinitionConfig getConfig() {
+    return config;
+  }
+
+  /**
+   * Tests that use {@link QuestionDefinition} are required to have an ID in the question at some
+   * points, but usually it's not populated until it's inserted in the DB. This method populates the
+   * ID for testing purposes only.
+   */
+  @VisibleForTesting
+  public QuestionDefinition withPopulatedTestId() {
+    config = config.toBuilder().setId(new Random().nextLong()).build();
+    return this;
   }
 }

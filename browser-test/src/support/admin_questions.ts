@@ -1,17 +1,40 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
-import * as assert from 'assert'
+
+type QuestionOption = {
+  adminName: string
+  text: string
+}
 
 type QuestionParams = {
   questionName: string
   minNum?: number | null
   maxNum?: number | null
-  options?: Array<string>
+  options?: Array<QuestionOption>
   description?: string
   questionText?: string
+  expectedQuestionText?: string | null
+  markdownText?: string
   helpText?: string
   enumeratorName?: string
   exportOption?: string
+  universal?: boolean
+  primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
+}
+
+// Should match the fieldName set in PrimaryApplicantInfoTag.java
+export enum PrimaryApplicantInfoField {
+  APPLICANT_DOB = 'primaryApplicantDob',
+  APPLICANT_EMAIL = 'primaryApplicantEmail',
+  APPLICANT_NAME = 'primaryApplicantName',
+  APPLICANT_PHONE = 'primaryApplicantPhone',
+}
+
+export enum PrimaryApplicantInfoAlertType {
+  NOT_UNIVERSAL = '.cf-pai-not-universal-alert',
+  TAG_SET = '.cf-pai-tag-set-alert',
+  TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
 }
 
 export enum QuestionType {
@@ -36,10 +59,24 @@ export class AdminQuestions {
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
 
-  public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
-  public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
-  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
+  public static readonly NO_EXPORT_OPTION =
+    "Don't include in demographic export"
+  public static readonly EXPORT_VALUE_OPTION = 'Include in demographic export'
+  public static readonly EXPORT_OBFUSCATED_OPTION =
+    'Obfuscate and include in demographic export'
   public static readonly NUMBER_QUESTION_TEXT = 'number question text'
+  public static readonly multiOptionInputSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .cf-multi-option-input input`
+  public static readonly multiOptionAdminInputSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .cf-multi-option-admin-input input`
+  public static readonly multiOptionDeleteButtonSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .multi-option-question-field-remove-button`
 
   constructor(page: Page) {
     this.page = page
@@ -58,12 +95,12 @@ export class AdminQuestions {
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
-    await this.page.click(`button:has-text("${buttonText}")`)
+    await this.page.click(`button:text-is("${buttonText}")`)
     await waitForPageJsLoad(this.page)
   }
 
   async expectAdminQuestionsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All Questions')
+    await expect(this.page.locator('h1')).toHaveText('All questions')
   }
 
   selectorForExportOption(exportOption: string) {
@@ -86,16 +123,38 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: string[]) {
+  async expectMultiOptionBlankOptionError(
+    options: QuestionOption[],
+    blankIndices: number[],
+  ) {
     const errors = this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
-    // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
+    // Checks that the error is not hidden when its corresponding option is blank.
+    // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
-      if (options[i] === '') {
-        expect(await errors.nth(i).isHidden()).toEqual(false)
+      if (blankIndices.includes(i)) {
+        await expect(errors.nth(i)).toBeVisible()
       } else {
-        expect(await errors.nth(i).isHidden()).toEqual(true)
+        await expect(errors.nth(i)).toBeHidden()
+      }
+    }
+  }
+
+  async expectMultiOptionInvalidOptionAdminError(
+    options: QuestionOption[],
+    invalidIndices: number[],
+  ) {
+    const errors = this.page.locator(
+      '#question-settings .cf-multi-option-admin-input-error',
+    )
+    // Checks that the error is not hidden when its corresponding option adminName is invalid.
+    // The order of the options array corresponds to the order of the errors array.
+    for (let i = 0; i < options.length; i++) {
+      if (invalidIndices.includes(i)) {
+        await expect(errors.nth(i)).toBeVisible()
+      } else {
+        await expect(errors.nth(i)).toBeHidden()
       }
     }
   }
@@ -107,9 +166,10 @@ export class AdminQuestions {
     helpText,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Question Text")', questionText ?? '')
+    await this.page.fill('label:has-text("Question text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.fill(
       'label:has-text("Administrative identifier")',
@@ -125,6 +185,9 @@ export class AdminQuestions {
     if (exportOption) {
       await this.selectExportOption(exportOption)
     }
+    if (universal) {
+      await this.clickUniversalToggle()
+    }
   }
 
   async selectExportOption(exportOption: string) {
@@ -139,7 +202,7 @@ export class AdminQuestions {
     const questionText = await this.page.textContent('#question-text-textarea')
     const updatedText = questionText! + updateText
 
-    await this.page.fill('text=Question Text', updatedText)
+    await this.page.fill('text=Question text', updatedText)
     return updatedText
   }
 
@@ -264,6 +327,22 @@ export class AdminQuestions {
     return titles.allTextContents()
   }
 
+  // Note the following two functions do not reload the
+  // questions page, so can be used to verify sorting
+  async universalQuestionNames(): Promise<string[]> {
+    const titles = this.page.locator(
+      '#questions-list-universal .cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
+
+  async nonUniversalQuestionNames(): Promise<string[]> {
+    const titles = this.page.locator(
+      '#questions-list-non-universal .cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
+
   private async gotoQuestionEditOrNewVersionPage({
     questionName,
     buttonText,
@@ -302,7 +381,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Restore Archived")',
+        ':text("Restore archived")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -313,7 +392,7 @@ export class AdminQuestions {
     await this.gotoAdminQuestionsPage()
     await this.openDropdownMenu(questionName)
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard draft")'),
     )
     await this.page.click('#discard-button')
     await waitForPageJsLoad(this.page)
@@ -344,13 +423,13 @@ export class AdminQuestions {
       await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
-      const restoreArchiveIsVisible = await this.page.isVisible(
+      const restoreArchiveIsVisible = this.page.locator(
         this.selectWithinQuestionTableRow(
           questionName,
-          ':text("Restore Archived")',
+          ':text("Restore archived")',
         ),
       )
-      expect(restoreArchiveIsVisible).toBe(true)
+      await expect(restoreArchiveIsVisible).toBeVisible()
     }
   }
 
@@ -360,7 +439,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")',
+        ':text("Manage translations")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -375,14 +454,14 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(await this.page.innerText('#question-name-input')).toEqual(
+    await expect(this.page.locator('#question-name-input')).toHaveText(
       questionName,
     )
   }
 
   async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage Question Translations: ${questionName}`,
+      `Manage question translations: ${questionName}`,
     )
   }
 
@@ -397,7 +476,7 @@ export class AdminQuestions {
 
   async changeQuestionHelpText(questionName: string, questionHelpText: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.fill('text=Question Help Text', questionHelpText)
+    await this.page.fill('text=Question help text', questionHelpText)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -438,7 +517,12 @@ export class AdminQuestions {
       case QuestionType.CHECKBOX:
         await this.addCheckboxQuestion({
           questionName,
-          options: ['op1', 'op2', 'op3', 'op4'],
+          options: [
+            {adminName: 'op1_admin', text: 'op1'},
+            {adminName: 'op2_admin', text: 'op2'},
+            {adminName: 'op3_admin', text: 'op3'},
+            {adminName: 'op4_admin', text: 'op4'},
+          ],
         })
         break
       case QuestionType.CURRENCY:
@@ -452,7 +536,11 @@ export class AdminQuestions {
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
-          options: ['op1', 'op2', 'op3'],
+          options: [
+            {adminName: 'op1_admin', text: 'op1'},
+            {adminName: 'op2_admin', text: 'op2'},
+            {adminName: 'op3_admin', text: 'op3'},
+          ],
         })
         break
       case QuestionType.EMAIL:
@@ -472,7 +560,11 @@ export class AdminQuestions {
       case QuestionType.RADIO:
         await this.addRadioButtonQuestion({
           questionName,
-          options: ['one', 'two', 'three'],
+          options: [
+            {adminName: 'one_admin', text: 'one'},
+            {adminName: 'two_admin', text: 'two'},
+            {adminName: 'three_admin', text: 'three'},
+          ],
         })
         break
       case QuestionType.TEXT:
@@ -518,6 +610,7 @@ export class AdminQuestions {
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -532,6 +625,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -548,6 +642,8 @@ export class AdminQuestions {
     helpText = 'Phone question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -562,7 +658,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_PHONE,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -578,6 +681,8 @@ export class AdminQuestions {
     helpText = 'date question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -592,7 +697,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_DOB,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -612,6 +724,7 @@ export class AdminQuestions {
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.createCheckboxQuestion({
       questionName,
@@ -623,7 +736,9 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
     await this.expectDraftQuestionExist(questionName, questionText)
@@ -641,6 +756,7 @@ export class AdminQuestions {
       helpText = 'checkbox question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -657,6 +773,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -672,13 +789,11 @@ export class AdminQuestions {
       )
     }
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
-      )
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -696,6 +811,7 @@ export class AdminQuestions {
       helpText = 'dropdown question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -712,13 +828,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      const matchIndex = index + 1
-      await this.changeMultiOptionAnswer(matchIndex, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -726,12 +843,64 @@ export class AdminQuestions {
     }
   }
 
+  /** Deletes a multi-option answer */
+  async deleteMultiOptionAnswer(index: number) {
+    await this.page.click(AdminQuestions.multiOptionDeleteButtonSelector(index))
+  }
+
   /** Changes the input field of a multi option answer. */
-  async changeMultiOptionAnswer(index: number, text: string) {
+  async changeMultiOptionAnswer(index: number, optionText: string) {
     await this.page.fill(
-      `:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`,
-      text,
+      AdminQuestions.multiOptionInputSelector(index),
+      optionText,
     )
+  }
+
+  async addMultiOptionAnswer(option: QuestionOption) {
+    await this.page.click('#add-new-option')
+    const lastDiv = this.page
+      .locator('#question-settings')
+      .locator('div.cf-multi-option-question-option')
+      .last()
+    await lastDiv.locator('.cf-multi-option-input input').fill(option.text)
+    await lastDiv
+      .locator('.cf-multi-option-admin-input input')
+      .fill(option.adminName)
+  }
+
+  async fillMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.page.fill(
+      AdminQuestions.multiOptionInputSelector(index),
+      option.text,
+    )
+    await this.page.fill(
+      AdminQuestions.multiOptionAdminInputSelector(index),
+      option.adminName,
+    )
+  }
+
+  async expectNewMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.expectMultiOptionAnswer(index, option, true)
+  }
+
+  async expectExistingMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.expectMultiOptionAnswer(index, option, false)
+  }
+
+  async expectMultiOptionAnswer(
+    index: number,
+    option: QuestionOption,
+    adminNameIsEditable: boolean,
+  ) {
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionInputSelector(index)),
+    ).toHaveValue(option.text)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toHaveValue(option.adminName)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toBeEditable({editable: adminNameIsEditable})
   }
 
   async addCurrencyQuestion({
@@ -741,6 +910,7 @@ export class AdminQuestions {
     helpText = 'currency question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -753,6 +923,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
     await this.clickSubmitButtonAndNavigate('Create')
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -768,6 +939,7 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.createDropdownQuestion({
       questionName,
@@ -777,6 +949,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -791,6 +964,7 @@ export class AdminQuestions {
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -805,6 +979,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -818,12 +993,14 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
+    markdownText = '\n[Here is a link](https://www.example.com)\n',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.createStaticQuestion({
       questionName,
       description,
       questionText,
+      markdownText,
       enumeratorName,
     })
 
@@ -838,6 +1015,7 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
+    markdownText = '',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
@@ -846,7 +1024,10 @@ export class AdminQuestions {
     await this.page.click('#create-static-question')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('label:has-text("Question Text")', questionText)
+    await this.page.fill(
+      'label:has-text("Question text")',
+      questionText + markdownText,
+    )
     await this.page.fill(
       'label:has-text("Administrative identifier")',
       questionName,
@@ -867,6 +1048,8 @@ export class AdminQuestions {
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -881,7 +1064,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_NAME,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -897,6 +1087,7 @@ export class AdminQuestions {
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -911,6 +1102,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -953,6 +1145,7 @@ export class AdminQuestions {
       helpText = 'radio button question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -969,15 +1162,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
-      )
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -989,11 +1181,13 @@ export class AdminQuestions {
     questionName,
     description = 'text description',
     questionText = 'text question text',
+    expectedQuestionText = null,
     helpText = 'text question help text',
     minNum = null,
     maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1008,6 +1202,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -1021,7 +1216,57 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    expectedQuestionText = expectedQuestionText ?? questionText
+
+    await this.expectDraftQuestionExist(questionName, expectedQuestionText)
+  }
+
+  async clickUniversalToggle() {
+    await this.page.click('#universal-toggle')
+  }
+
+  async getUniversalToggleValue(): Promise<string> {
+    return this.page.inputValue('#universal-toggle-input')
+  }
+
+  async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
+    await this.page.click(`#${field}-toggle`)
+  }
+
+  async getPrimaryApplicantInfoToggleValue(fieldName: string) {
+    return this.page.inputValue(`#${fieldName}-toggle-input`)
+  }
+
+  async expectPrimaryApplicantInfoAlert(
+    type: PrimaryApplicantInfoAlertType,
+    visible: boolean,
+  ) {
+    const alert = this.page.locator(type.valueOf())
+    await expect(alert).toBeVisible({visible: visible})
+  }
+
+  async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
+    await expect(this.page.locator('#primary-applicant-info')).toBeVisible({
+      visible: visible,
+    })
+  }
+
+  async expectPrimaryApplicantInfoToggleVisible(
+    fieldName: string,
+    visible: boolean,
+  ) {
+    await expect(this.page.locator(`#${fieldName}-toggle`)).toBeVisible({
+      visible: visible,
+    })
+  }
+
+  async expectPrimaryApplicantInfoToggleValue(
+    fieldName: string,
+    value: boolean,
+  ) {
+    expect(await this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
+      value.toString(),
+    )
   }
 
   async addIdQuestion({
@@ -1033,6 +1278,7 @@ export class AdminQuestions {
     maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1047,6 +1293,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -1070,6 +1317,8 @@ export class AdminQuestions {
     helpText = 'email question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1084,7 +1333,14 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_EMAIL,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1102,6 +1358,21 @@ export class AdminQuestions {
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    // await expect(this.page.locator('.cf-entity-name-input label')).toHaveText(
+    //   entityNameInputLabelText,
+    // )
+    // await expect(this.page.locator('.cf-enumerator-delete-button')).toHaveText(
+    //   deleteEntityButtonText,
+    // )
+    // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
+    //   addEntityButtonText,
+    // )
     expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
       entityNameInputLabelText,
     )
@@ -1120,12 +1391,12 @@ export class AdminQuestions {
     questionText: string
     questionHelpText: string
   }) {
-    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+    await expect(this.page.locator('.cf-applicant-question-text')).toHaveText(
       questionText,
     )
-    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
-      questionHelpText,
-    )
+    await expect(
+      this.page.locator('.cf-applicant-question-help-text'),
+    ).toHaveText(questionHelpText)
   }
 
   async expectPreviewOptions(options: string[]) {
@@ -1150,6 +1421,7 @@ export class AdminQuestions {
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = '',
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1164,9 +1436,10 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
-    await this.page.fill('text=Repeated Entity Type', 'Entity')
+    await this.page.fill('text=Repeated entity type', 'Entity')
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1180,5 +1453,10 @@ export class AdminQuestions {
       '.cf-question-bank-element:visible .cf-question-title',
     )
     return titles.allTextContents()
+  }
+
+  /** Clicks on the questions sorting dropdown and selects the specified sortOption. The sortOption should match the value of the desired option. */
+  async sortQuestions(sortOption: string) {
+    return this.page.locator('#question-bank-sort').selectOption(sortOption)
   }
 }

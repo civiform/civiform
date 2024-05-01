@@ -2,7 +2,7 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import models.Account;
+import models.AccountModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.program.ProgramDefinition;
@@ -19,7 +19,7 @@ public class StoredFileAclsTest extends ResetPostgres {
   public void hasProgramReadPermission_emptyPermissions() {
     var acls = new StoredFileAcls();
     var account =
-        new Account().addAdministeredProgram(programOne).addAdministeredProgram(programTwo);
+        new AccountModel().addAdministeredProgram(programOne).addAdministeredProgram(programTwo);
 
     assertThat(acls.hasProgramReadPermission(account)).isFalse();
   }
@@ -27,7 +27,7 @@ public class StoredFileAclsTest extends ResetPostgres {
   @Test
   public void hasProgramReadPermission_hasPermission() {
     var acls = new StoredFileAcls().addProgramToReaders(programOne);
-    var account = new Account().addAdministeredProgram(programOne);
+    var account = new AccountModel().addAdministeredProgram(programOne);
 
     assertThat(acls.hasProgramReadPermission(account)).isTrue();
   }
@@ -35,7 +35,7 @@ public class StoredFileAclsTest extends ResetPostgres {
   @Test
   public void hasProgramReadPermission_doesNotHavePermission() {
     var acls = new StoredFileAcls().addProgramToReaders(programOne);
-    var account = new Account().addAdministeredProgram(programTwo);
+    var account = new AccountModel().addAdministeredProgram(programTwo);
 
     assertThat(acls.hasProgramReadPermission(account)).isFalse();
   }

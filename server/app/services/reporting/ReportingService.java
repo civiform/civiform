@@ -35,6 +35,9 @@ public final class ReportingService {
   private static final String MONTHLY_REPORTING_DATA_CACHE_KEY = "monthly-reporting-data";
   private static final int MONTHLY_REPORTING_DATA_CACHE_TTL_SECONDS = 60 * 60;
 
+  private static final Comparator<ApplicationSubmissionsStat> STAT_TIMESTAMP_DESCENDING =
+      Comparator.comparing((ApplicationSubmissionsStat stat) -> stat.timestamp().get()).reversed();
+
   private final ReportingRepository reportingRepository;
   private final SyncCacheApi reportingDataCache;
   private final DateConverter dateConverter;
@@ -190,7 +193,7 @@ public final class ReportingService {
                 aggregator = aggregators.get(stat.timestamp().get());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp().get());
+                    new ApplicationSubmissionsStat.Aggregator("All", "All", stat.timestamp().get());
                 aggregators.put(stat.timestamp().get(), aggregator);
               }
 
@@ -199,7 +202,7 @@ public final class ReportingService {
 
     return aggregators.values().stream()
         .map(ApplicationSubmissionsStat.Aggregator::getAggregateStat)
-        .sorted(Comparator.comparing(stat -> stat.timestamp().get()))
+        .sorted(STAT_TIMESTAMP_DESCENDING)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -216,7 +219,9 @@ public final class ReportingService {
               if (aggregators.containsKey(stat.programName())) {
                 aggregator = aggregators.get(stat.programName());
               } else {
-                aggregator = new ApplicationSubmissionsStat.Aggregator(stat.programName());
+                aggregator =
+                    new ApplicationSubmissionsStat.Aggregator(
+                        stat.programName(), stat.enUSLocalizedProgramName());
                 aggregators.put(stat.programName(), aggregator);
               }
 
@@ -250,6 +255,7 @@ public final class ReportingService {
         String programName) {
       return monthlySubmissionsByProgram().stream()
           .filter(stat -> stat.programName().equals(programName))
+          .sorted(STAT_TIMESTAMP_DESCENDING)
           .collect(ImmutableList.toImmutableList());
     }
   }

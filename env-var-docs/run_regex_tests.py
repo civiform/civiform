@@ -13,6 +13,10 @@ import os
 import re
 import sys
 import typing
+# Needed for <3.10
+from typing import Union
+# Needed for <3.9
+from typing import Tuple, List
 
 
 def errorexit(msg):
@@ -52,7 +56,7 @@ def main():
 
 def run_tests(
     docs_file: typing.TextIO
-) -> tuple[list[str] | None, list[env_var_docs.parser.NodeParseError]]:
+) -> Tuple[Union[List[str], None], List[env_var_docs.parser.NodeParseError]]:
     """Runs any provided regex tests in an environment variable documentation file.
 
     Returns a list of environment variable names that failed their tests. Test
@@ -96,7 +100,7 @@ class Test:
     variable: str
     regex: str
     regex_error: str
-    matches: list[Match]
+    matches: List[Match]
     failing_matches: bool
 
     def __str__(self) -> str:
@@ -127,7 +131,7 @@ class Test:
 
 def _run_test(
         node_name: str, regex_text: str,
-        tests: list[env_var_docs.parser.RegexTest]) -> Test:
+        tests: List[env_var_docs.parser.RegexTest]) -> Test:
     try:
         regex = re.compile(regex_text)
     except re.error as e:

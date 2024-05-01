@@ -50,13 +50,13 @@ public final class DebugContent extends BaseHtmlView {
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
                     .url()),
             redirectButton(
-                "feature-flags",
-                "Feature Flags",
-                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
+                "additional-tools",
+                "Additional tools",
+                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()),
             redirectButton(
-                "database-seed",
-                "Seed Database",
-                controllers.dev.routes.DatabaseSeedController.index().url()));
+                "show-profile",
+                "Show pac4j profile",
+                controllers.dev.routes.ProfileController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {

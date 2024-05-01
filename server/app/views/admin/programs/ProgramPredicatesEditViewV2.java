@@ -14,11 +14,11 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
@@ -164,7 +164,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
 
     String title =
         String.format("%s condition for %s", predicateTypeNameTitleCase, blockDefinition.name());
-    String removePredicateFormId = UUID.randomUUID().toString();
+    String removePredicateFormId = String.format("form-%s", UUID.randomUUID());
     FormTag removePredicateForm =
         form(csrfTag)
             .withId(removePredicateFormId)
@@ -174,7 +174,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                 submitButton(
                         String.format(
                             "Remove existing %s condition",
-                            predicateTypeNameTitleCase.toLowerCase()))
+                            predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)))
                     .withClasses(ButtonStyles.SOLID_BLUE)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
@@ -209,7 +209,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                             "edit-condition-button",
                             String.format(
                                 "Edit existing %s condition",
-                                predicateTypeNameTitleCase.toLowerCase()),
+                                predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
                         .withClasses(ButtonStyles.SOLID_BLUE)))
@@ -232,22 +232,25 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                             hasExistingPredicate
                                                 ? "Replace condition"
                                                 : "Add condition")
+                                        .withId("add-replace-predicate-condition")
                                         .withClasses(ButtonStyles.SOLID_BLUE))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderProgramInfo(programDefinition)
-                    .with(renderEditProgramDetailsButton(programDefinition)),
+                renderProgramInfoHeader(
+                    programDefinition,
+                    ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
+                    request),
                 content);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
+      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
     } else if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
@@ -265,7 +268,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
     InputTag checkbox =
         input()
             .withType("checkbox")
-            .withClasses("mx-2")
+            .withClasses("mx-2", ReferenceClasses.PREDICATE_QUESTION_OPTIONS)
             .withName(String.format("question-%d", questionDefinition.getId()));
 
     return label()
@@ -283,12 +286,6 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                     div(questionHelpText).withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
-  }
-
-  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
-    ButtonTag editButton = getStandardizedEditButton("Edit program details");
-    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-    return asRedirectElement(editButton, editLink);
   }
 
   @Override

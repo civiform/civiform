@@ -10,26 +10,27 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDobForm;
-import java.util.List;
+import forms.TiClientInfoForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.data.validation.ValidationError;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.AccountRepository;
 import repository.SearchParameters;
-import repository.UserRepository;
 import services.PaginationInfo;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
+import views.applicant.EditTiClientView;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**
@@ -41,165 +42,209 @@ public final class TrustedIntermediaryController {
   private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;
   private final ProfileUtils profileUtils;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final TrustedIntermediaryService tiService;
+  private final EditTiClientView editTiClientView;
 
   @Inject
   public TrustedIntermediaryController(
       ProfileUtils profileUtils,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-      TrustedIntermediaryService tiService) {
+      TrustedIntermediaryService tiService,
+      EditTiClientView editTiClientView) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
-    this.userRepository = Preconditions.checkNotNull(userRepository);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.tiService = Preconditions.checkNotNull(tiService);
+    this.editTiClientView = Preconditions.checkNotNull(editTiClientView);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result dashboard(
       Http.Request request,
       Optional<String> nameQuery,
-      Optional<String> dateQuery,
+      Optional<String> dayQuery,
+      Optional<String> monthQuery,
+      Optional<String> yearQuery,
       Optional<Integer> page) {
     if (page.isEmpty()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(nameQuery, dateQuery, Optional.of(1)));
+          routes.TrustedIntermediaryController.dashboard(
+              nameQuery, dayQuery, monthQuery, yearQuery, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
     SearchParameters searchParameters =
-        SearchParameters.builder().setNameQuery(nameQuery).setDateQuery(dateQuery).build();
+        SearchParameters.builder()
+            .setNameQuery(nameQuery)
+            .setDayQuery(dayQuery)
+            .setMonthQuery(monthQuery)
+            .setYearQuery(yearQuery)
+            .build();
     TrustedIntermediarySearchResult trustedIntermediarySearchResult =
         tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     if (!trustedIntermediarySearchResult.isSuccessful()) {
       throw new BadRequestException(trustedIntermediarySearchResult.getErrorMessage().get());
     }
-    PaginationInfo<Account> pageInfo =
+    PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(
             trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 
+    Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
     return ok(
         tiDashboardView.render(
-            trustedIntermediaryGroup.get(),
-            civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
-            pageInfo.getPageItems(),
-            pageInfo.getPageCount(),
-            pageInfo.getPage(),
-            searchParameters,
-            request,
-            messagesApi.preferred(request)));
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
+            /* managedAccounts= */ pageInfo.getPageItems(),
+            /* totalPageCount= */ pageInfo.getPageCount(),
+            /* page= */ pageInfo.getPage(),
+            /* searchParameters= */ searchParameters,
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* currentTisApplicantId= */ getTiApplicantIdFromCiviformProfile(civiformProfile)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateDateOfBirth(Long accountId, Http.Request request)
-      throws ApplicantNotFoundException {
+  public Result showAddClientForm(Long id, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
-    if (trustedIntermediaryGroup.isEmpty()) {
-      return notFound();
-    }
-    final Form<UpdateApplicantDobForm> form;
-    form =
-        tiService.updateApplicantDateOfBirth(
-            trustedIntermediaryGroup.get(),
-            accountId,
-            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
-
-    if (!form.hasErrors()) {
-      return redirect(
-              routes.TrustedIntermediaryController.dashboard(
-                      /* nameQuery= */ Optional.empty(),
-                      /* dateQuery= */ Optional.empty(),
-                      /* page= */ Optional.empty())
-                  .url())
-          .flashing("success", "Date of Birth is updated");
-    }
-
-    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(form.errors()));
-  }
-
-  @Secure(authorizers = Authorizers.Labels.TI)
-  public Result addApplicant(Long id, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
       return unauthorized();
     }
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        tiService.addNewClient(
-            formFactory
-                .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-                .bindFromRequest(request),
-            trustedIntermediaryGroup.get());
-    if (!form.hasErrors()) {
-      return redirect(
-          routes.TrustedIntermediaryController.dashboard(
-              /* nameQuery= */ Optional.empty(),
-              /* dateQuery= */ Optional.empty(),
-              /* page= */ Optional.empty()));
+    Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
+    return ok(
+        editTiClientView.render(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* accountIdToEdit= */ Optional.empty(),
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
+            /* tiClientInfoForm= */ Optional.empty(),
+            /* applicantIdOfNewlyAddedClient= */ null));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result showEditClientForm(Long accountId, Http.Request request) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
     }
-    return redirectToDashboardWithError(getValidationErros(form.errors()), form);
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    String applicantName = accountRepository.lookupAccount(accountId).get().getApplicantName();
+    return ok(
+        editTiClientView.render(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* accountIdToEdit= */ Optional.of(accountId),
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
+            /* tiClientInfoForm= */ Optional.empty(),
+            /* applicantIdOfNewlyAddedClient= */ null));
   }
 
-  private String getValidationErros(List<ValidationError> errors) {
-    StringBuilder errorMessage = new StringBuilder();
-    errors.stream()
-        .forEach(validationError -> errorMessage.append(validationError.message() + "\n"));
-    return errorMessage.toString();
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result addClient(Long id, Http.Request request) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    if (!trustedIntermediaryGroup.get().id.equals(id)) {
+      return unauthorized();
+    }
+    AddNewApplicantReturnObject addNewApplicantReturnObject =
+        tiService.addNewClient(
+            formFactory.form(TiClientInfoForm.class).bindFromRequest(request),
+            trustedIntermediaryGroup.get(),
+            messagesApi.preferred(request));
+    Form<TiClientInfoForm> form = addNewApplicantReturnObject.getForm();
+    return ok(
+        editTiClientView.render(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setName(
+                        form.value().get().getFirstName() + " " + form.value().get().getLastName())
+                    .build()),
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* accountIdToEdit= */ Optional.empty(),
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
+            /* tiClientInfoForm= */ Optional.of(form),
+            /* applicantIdOfNewlyAddedClient= */ addNewApplicantReturnObject.getApplicantId()));
   }
 
-  private Result redirectToDashboardWithError(
-      String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
-                    /* page= */ Optional.of(1))
-                .url())
-        .flashing("error", errorMessage)
-        .flashing("providedFirstName", form.value().get().getFirstName())
-        .flashing("providedMiddleName", form.value().get().getMiddleName())
-        .flashing("providedLastName", form.value().get().getLastName())
-        .flashing("providedEmail", form.value().get().getEmailAddress())
-        .flashing("providedDateOfBirth", form.value().get().getDob());
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result editClient(Long id, Http.Request request) throws ApplicantNotFoundException {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return unauthorized();
+    }
+    Form<TiClientInfoForm> form = formFactory.form(TiClientInfoForm.class).bindFromRequest(request);
+    form =
+        tiService.updateClientInfo(
+            form, trustedIntermediaryGroup.get(), id, messagesApi.preferred(request));
+    return ok(
+        editTiClientView.render(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setName(
+                        form.value().get().getFirstName() + " " + form.value().get().getLastName())
+                    .build()),
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* accountIdToEdit= */ Optional.of(id),
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
+            /* tiClientInfoForm= */ Optional.of(form),
+            /* applicantIdOfNewlyAddedClient= */ null));
   }
 
-  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  searchDate */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.of(1))
-                .url())
-        .flashing("error", errorMessage);
+  private Long getTiApplicantIdFromCiviformProfile(Optional<CiviFormProfile> civiformProfile) {
+    return civiformProfile.get().getApplicant().toCompletableFuture().join().id;
   }
 }

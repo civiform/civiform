@@ -84,8 +84,6 @@ public abstract class BlockDefinition {
    *
    * @return the BlockDefinition ID for this block definitions enumerator, if it exists
    */
-  // TODO(https://github.com/seattle-uat/civiform/issues/993): migrate and then rename repeaterId
-  //  to enumeratorId
   @JsonProperty("repeaterId")
   public abstract Optional<Long> enumeratorId();
 
@@ -225,6 +223,18 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().size();
   }
 
+  /**
+   * Returns true if any of the question definitions in this block are QuestionType.NULL_QUESTION
+   */
+  @JsonIgnore
+  @Memoized
+  public boolean hasNullQuestion() {
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.NULL_QUESTION));
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -237,8 +247,6 @@ public abstract class BlockDefinition {
     @JsonProperty("description")
     public abstract Builder setDescription(String value);
 
-    // TODO(https://github.com/seattle-uat/civiform/issues/993): migrate and then rename repeaterId
-    //  to enumeratorId
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 

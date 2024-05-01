@@ -14,7 +14,14 @@ public enum QuestionTag {
   // This question should be hashed in the demographic export csv.
   DEMOGRAPHIC_PII,
   // This question should not be exported in the demographic export csv.
-  NON_DEMOGRAPHIC;
+  NON_DEMOGRAPHIC,
+  // This question is a universal question, shown with a badge in the UI
+  UNIVERSAL,
+  // These are question tags that are associated with PrimaryApplicantInfoTags.
+  PRIMARY_APPLICANT_DOB,
+  PRIMARY_APPLICANT_EMAIL,
+  PRIMARY_APPLICANT_NAME,
+  PRIMARY_APPLICANT_PHONE;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {

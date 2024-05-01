@@ -7,7 +7,6 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
 /**
@@ -21,11 +20,6 @@ public final class TextQuestion extends Question {
 
   TextQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.TEXT);
   }
 
   @Override
@@ -78,6 +72,6 @@ public final class TextQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getTextValue().orElse("-");
+    return getTextValue().orElse(getDefaultAnswerString());
   }
 }

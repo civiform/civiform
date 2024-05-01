@@ -10,49 +10,52 @@ import static play.test.Helpers.stubMessagesApi;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
-  private Applicant currentApplicant;
-  private UserRepository userRepository;
+  private ApplicantModel currentApplicant;
+  private AccountRepository accountRepository;
   private ApplicantInformationController controller;
 
   @Before
   public void setup() {
     resetDatabase();
     controller = instanceOf(ApplicantInformationController.class);
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
 
   @Test
-  public void edit_differentApplicant_returnsUnauthorizedResult() {
+  public void setLangFromBrowser_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .edit(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromBrowser(fakeRequest().build(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
-  public void edit_updatesLanguageCode_usingRequestHeaders() {
+  public void setLangFromBrowser_updatesLanguageCode_usingRequestHeaders() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantInformationController.edit(currentApplicant.id))
+                fakeRequest(
+                        routes.ApplicantInformationController.setLangFromBrowser(
+                            currentApplicant.id))
                     .header("Accept-Language", "es-US"))
             .build();
 
-    Result result = controller.edit(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.setLangFromBrowser(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -60,27 +63,30 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_differentApplicant_returnsUnauthorizedResult() {
+  public void setLangFromSwitcher_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .update(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromSwitcher(fakeRequest().build(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
-  public void update_redirectsToProgramIndex_withNonEnglishLocale() {
+  public void setLangFromSwitcher_redirectsToProgramIndex_withNonEnglishLocale() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantInformationController.update(currentApplicant.id))
+                fakeRequest(
+                        routes.ApplicantInformationController.setLangFromSwitcher(
+                            currentApplicant.id))
                     .bodyForm(ImmutableMap.of("locale", "es-US")))
             .build();
 
-    Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -88,18 +94,21 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_ignoresExistingLangCookie() {
+  public void setLangFromSwitcher_ignoresExistingLangCookie() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantInformationController.update(currentApplicant.id))
+                fakeRequest(
+                        routes.ApplicantInformationController.setLangFromSwitcher(
+                            currentApplicant.id))
                     .bodyForm(ImmutableMap.of("locale", "es-US")))
             .langCookie(Locale.US, stubMessagesApi())
             .build();
 
-    Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);

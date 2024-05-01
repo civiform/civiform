@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -39,6 +40,7 @@ import views.style.BaseStyles;
 public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
+  private static final String USWDS_FILEPATH = "dist/uswds.bundle";
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
@@ -58,8 +60,10 @@ public final class HtmlBundle {
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
   private final ViewUtils viewUtils;
+  private final Http.RequestHeader request;
 
-  public HtmlBundle(ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+    this.request = checkNotNull(request);
     this.viewUtils = checkNotNull(viewUtils);
   }
 
@@ -137,6 +141,10 @@ public final class HtmlBundle {
     return this;
   }
 
+  public Http.RequestHeader getRequest() {
+    return request;
+  }
+
   private HtmlTag getContent() {
     return html(renderHead(), renderBody()).withLang(language);
   }
@@ -184,6 +192,9 @@ public final class HtmlBundle {
     }
     footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
 
+    // Add USWDS scripts
+    footerTag.with(viewUtils.makeLocalJsTag(USWDS_FILEPATH));
+
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
     }
@@ -208,7 +219,11 @@ public final class HtmlBundle {
         .with(title(pageTitle))
         // The "orElse" value is never used, but it must be included because the
         // "withHref" evaluates even if the "condWith" is false.
-        .condWith(faviconURL.isPresent(), link().withRel("icon").withHref(faviconURL.orElse("")))
+        .condWith(
+            faviconURL.isPresent(),
+            link().withRel("icon").withHref(faviconURL.orElse("")),
+            link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
+            link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
         .with(metadata)
         .with(stylesheets)
         .with(headScripts);

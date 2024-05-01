@@ -2,10 +2,6 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /**
  * Defines a static content question. A static content question displays static content without
@@ -13,38 +9,8 @@ import services.LocalizedStrings;
  */
 public final class StaticContentQuestionDefinition extends QuestionDefinition {
 
-  public StaticContentQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
-  }
-
-  public StaticContentQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        StaticContentQuestionDefinition.StaticContentValidationPredicates.create(),
-        lastModifiedTime);
+  public StaticContentQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue
@@ -75,5 +41,10 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.STATIC;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return StaticContentValidationPredicates.create();
   }
 }

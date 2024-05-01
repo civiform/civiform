@@ -6,11 +6,13 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import models.Question;
-import models.Version;
+import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -24,16 +26,17 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ReadOnlyCurrentQuestionServiceImpl.class);
 
   public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
-    Version activeVersion = repository.getActiveVersion();
-    Version draftVersion = repository.getDraftVersion();
+    VersionModel activeVersion = repository.getActiveVersion();
+    VersionModel draftVersion = repository.getDraftVersionOrCreate();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
     for (QuestionDefinition qd :
-        draftVersion.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
+        repository.getQuestionDefinitionsForVersion(draftVersion).stream()
             .collect(Collectors.toList())) {
       if (!draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
         // If the question is about to be deleted, it is not "up to date."
@@ -43,8 +46,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
       namesFoundInDraft.add(qd.getName());
     }
     for (QuestionDefinition qd :
-        activeVersion.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
+        repository.getQuestionDefinitionsForVersion(activeVersion).stream()
             .collect(Collectors.toList())) {
 
       questionIdMap.put(qd.getId(), qd);
@@ -94,6 +96,8 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }
-    throw new QuestionNotFoundException(id);
+
+    LOGGER.error("Question not found for ID: {}", id);
+    return new NullQuestionDefinition(id);
   }
 }

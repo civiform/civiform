@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
-import models.Application;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CiviFormProfileMergerTest {
@@ -31,16 +31,16 @@ public class CiviFormProfileMergerTest {
   private static final String EMAIL2 = "bar@foo.com";
   private static final Long ACCOUNT_ID = 12345L;
 
-  @Mock private UserRepository repository;
+  @Mock private AccountRepository repository;
   @Mock private ProfileFactory profileFactory;
   @Mock private CiviFormProfile civiFormProfile;
-  @Mock private Applicant applicant;
+  @Mock private ApplicantModel applicant;
 
   private UserProfile userProfile;
   private OidcProfile oidcProfile;
   private CiviFormProfileData civiFormProfileData;
-  private Account account;
-  private Application dummyApplication;
+  private AccountModel account;
+  private ApplicationModel dummyApplication;
 
   private CiviFormProfileMerger civiFormProfileMerger;
 
@@ -57,17 +57,18 @@ public class CiviFormProfileMergerTest {
     civiFormProfileData.setId(ACCOUNT_ID.toString());
     civiFormProfileData.addAttribute(EMAIL_ATTR, EMAIL2);
 
-    account = new Account();
+    account = new AccountModel();
     account.id = ACCOUNT_ID;
 
     account.setApplicants(Collections.singletonList(applicant));
 
-    dummyApplication = new Application(applicant, null, null);
-
     when(applicant.getAccount()).thenReturn(account);
+
+    dummyApplication = new ApplicationModel(applicant, null, null);
+
     when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
-    when(profileFactory.wrap(any(Applicant.class))).thenReturn(civiFormProfile);
+    when(profileFactory.wrap(any(ApplicantModel.class))).thenReturn(civiFormProfile);
     when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
     when(repository.mergeApplicants(applicant, applicant, account))
         .thenReturn(completedFuture(applicant));
@@ -77,8 +78,8 @@ public class CiviFormProfileMergerTest {
   public void mergeProfiles_succeeds_noExistingApplicantAndNoExistingProfile() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            /* applicantInDatabase = */ Optional.empty(),
-            /* guestProfile = */ Optional.empty(),
+            /* applicantInDatabase= */ Optional.empty(),
+            /* existingProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -93,7 +94,7 @@ public class CiviFormProfileMergerTest {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
-            /* guestProfile = */ Optional.empty(),
+            /* existingProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -127,7 +128,7 @@ public class CiviFormProfileMergerTest {
   public void mergeProfiles_succeeds_noExistingApplicant() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            /* applicantInDatabase = */ Optional.empty(),
+            /* applicantInDatabase= */ Optional.empty(),
             Optional.of(civiFormProfile),
             oidcProfile,
             (civiFormProfile, profile) -> {

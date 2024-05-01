@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine
+FROM node:21-alpine
 
 WORKDIR /usr/app
 ADD test_oidc_provider.js oidc.js

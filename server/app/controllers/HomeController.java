@@ -1,19 +1,17 @@
 package controllers;
 
+import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
-import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -21,52 +19,41 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantData;
-import views.LoginForm;
 
 /** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
 
-  private final LoginForm loginForm;
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
-  private final FeatureFlags featureFlags;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public HomeController(
       Config configuration,
-      LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils,
-      FeatureFlags featureFlags) {
+      ApplicantRoutes applicantRoutes) {
     checkNotNull(configuration);
-    this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
-        Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
-    this.featureFlags = checkNotNull(featureFlags);
+        Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
   }
 
   public CompletionStage<Result> index(Http.Request request) {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
-    boolean bypassLogin =
-        featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS);
-
     // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
-      return bypassLogin
-          ? CompletableFuture.completedFuture(
-              redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()))
-          : CompletableFuture.completedFuture(
-              redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
+      return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
     }
 
     // Otherwise, get the profile and go to the appropriate landing page.
@@ -83,7 +70,9 @@ public class HomeController extends Controller {
           redirect(
               controllers.ti.routes.TrustedIntermediaryController.dashboard(
                   /* nameQuery= */ Optional.empty(),
-                  /* dateQuery= */ Optional.empty(),
+                  /* dayQuery= */ Optional.empty(),
+                  /* monthQuery= */ Optional.empty(),
+                  /* yearQuery= */ Optional.empty(),
                   /* page= */ Optional.empty())));
     } else {
       return profile
@@ -96,24 +85,16 @@ public class HomeController extends Controller {
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
                 if (data.hasPreferredLocale()) {
-                  return redirect(
-                          controllers.applicant.routes.ApplicantProgramsController.index(
-                              applicant.id))
+                  return redirect(applicantRoutes.index(profile, applicant.id))
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(
-                      controllers.applicant.routes.ApplicantInformationController.edit(
-                          applicant.id));
+                      controllers.applicant.routes.ApplicantInformationController
+                          .setLangFromBrowser(applicant.id));
                 }
               },
-              httpExecutionContext.current());
+              classLoaderExecutionContext.current());
     }
-  }
-
-  // TODO(#4705): remove this method
-  public Result loginForm(Http.Request request, Optional<String> message)
-      throws TechnicalException {
-    return ok(loginForm.render(request, messagesApi.preferred(request), message));
   }
 
   public Result playIndex() {
@@ -133,5 +114,25 @@ public class HomeController extends Controller {
   @Secure
   public Result securePlayIndex() {
     return ok("You are logged in.");
+  }
+
+  public Result teapot() {
+    return status(
+        418,
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣘⣿⣿⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⣀⣀⡀⠀⠀⠀⢀⣀⠘⠛⠛⠛⠛⠛⠛⠁⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⢠⡿⠋⠉⠛⠃⣠⣤⣈⣉⡛⠛⠛⠛⠛⠛⠛⢛⣉⣁⣤⣄⠀⠀⣾⣿⡿⠗⠀\n"
+            + "⠀⢸⡇⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⣿⣿⠀⠀⠀\n"
+            + "⠀⢸⣇⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢉⣉⣠⣿⣿⡀⠀⠀\n"
+            + "⠀⠀⠙⠷⡆⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⢰⣿⣿⣿⣿⣿⡇⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠸⣿⣿⣿⣿⠟⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠈⠉⠁⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⢄⣉⠉⠛⠛⠛⠛⠛⠋⢉⣉⡠⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⠿⠿⠿⠿⠿⠿⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n");
   }
 }

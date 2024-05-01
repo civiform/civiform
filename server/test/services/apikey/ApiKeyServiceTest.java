@@ -9,14 +9,18 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import controllers.admin.NotChangeableException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.List;
-import models.ApiKey;
+import java.util.Locale;
+import models.ApiKeyModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.DynamicForm;
@@ -24,8 +28,6 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
@@ -50,31 +52,190 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void listApiKeys() {
-    String keyName1 = "test key 1";
-    String keyName2 = "test key 2";
+  public void listActiveApiKeys() {
+    Instant now = Instant.now();
 
-    for (String keyName : List.of(keyName1, keyName2)) {
+    Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
+    String futureExpirationDate = getApiKeyExpirationDate(future);
+
+    Instant past = now.minusSeconds(60 * 60 * 24); // 1 day in the past.
+    String pastExpirationDate = getApiKeyExpirationDate(past);
+
+    for (int i = 0; i < 3; i++) {
       apiKeyService.createApiKey(
           buildForm(
               ImmutableMap.of(
-                  "keyName", keyName,
-                  "expiration", "2020-01-30",
-                  "subnet", "0.0.0.1/32")),
+                  "keyName",
+                  String.format("test key %s", i),
+                  "expiration",
+                  futureExpirationDate,
+                  "subnet",
+                  "0.0.0.1/32")),
           adminProfile);
     }
 
-    PaginationResult<ApiKey> paginationResult =
-        apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+    for (int i = 0; i < 3; i++) {
+      ApiKeyModel retiredApiKey =
+          apiKeyService
+              .createApiKey(
+                  buildForm(
+                      ImmutableMap.of(
+                          "keyName",
+                          String.format("retired test key %s", i),
+                          "expiration",
+                          futureExpirationDate,
+                          "subnet",
+                          "0.0.0.1/32")),
+                  adminProfile)
+              .getApiKey();
+      apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
+    }
+    for (int i = 0; i < 3; i++) {
+      apiKeyService
+          .createApiKey(
+              buildForm(
+                  ImmutableMap.of(
+                      "keyName",
+                      String.format("expired test key %s", i),
+                      "expiration",
+                      pastExpirationDate,
+                      "subnet",
+                      "0.0.0.1/32")),
+              adminProfile)
+          .getApiKey();
+    }
 
+    ImmutableList<ApiKeyModel> activeKeys = apiKeyService.listActiveApiKeys();
     // Keys should be shown in reverse creation order.
-    assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo(keyName2);
-    assertThat(paginationResult.getPageContents().get(1).getName()).isEqualTo(keyName1);
+    assertThat(activeKeys.stream().map(ApiKeyModel::getName))
+        .containsExactly("test key 2", "test key 1", "test key 0");
+  }
+
+  @Test
+  public void listRetiredApiKeys() {
+    Instant now = Instant.now();
+
+    Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
+    String futureExpirationDate = getApiKeyExpirationDate(future);
+
+    Instant past = now.minusSeconds(60 * 60 * 24); // 1 day in the past.
+    String pastExpirationDate = getApiKeyExpirationDate(past);
+
+    for (int i = 0; i < 3; i++) {
+      apiKeyService.createApiKey(
+          buildForm(
+              ImmutableMap.of(
+                  "keyName",
+                  String.format("test key %s", i),
+                  "expiration",
+                  futureExpirationDate,
+                  "subnet",
+                  "0.0.0.1/32")),
+          adminProfile);
+    }
+
+    for (int i = 0; i < 3; i++) {
+      ApiKeyModel retiredApiKey =
+          apiKeyService
+              .createApiKey(
+                  buildForm(
+                      ImmutableMap.of(
+                          "keyName",
+                          String.format("retired test key %s", i),
+                          "expiration",
+                          futureExpirationDate,
+                          "subnet",
+                          "0.0.0.1/32")),
+                  adminProfile)
+              .getApiKey();
+      apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
+    }
+
+    for (int i = 0; i < 3; i++) {
+      apiKeyService
+          .createApiKey(
+              buildForm(
+                  ImmutableMap.of(
+                      "keyName",
+                      String.format("expired test key %s", i),
+                      "expiration",
+                      pastExpirationDate,
+                      "subnet",
+                      "0.0.0.1/32")),
+              adminProfile)
+          .getApiKey();
+    }
+
+    ImmutableList<ApiKeyModel> result = apiKeyService.listRetiredApiKeys();
+    // Keys should be shown in reverse creation order.
+    assertThat(result.stream().map(ApiKeyModel::getName))
+        .containsExactly("retired test key 2", "retired test key 1", "retired test key 0");
+  }
+
+  @Test
+  public void listExpiredApiKeys() {
+    Instant now = Instant.now();
+
+    Instant future = now.plusSeconds(60 * 60 * 24 * 7); // 1 week into the future.
+    String futureExpirationDate = getApiKeyExpirationDate(future);
+
+    Instant past = now.minusSeconds(60 * 60 * 24); // 1 day in the past.
+    String pastExpirationDate = getApiKeyExpirationDate(past);
+
+    for (int i = 0; i < 3; i++) {
+      // tODO: programmaticaly set expiration date in the future
+      apiKeyService.createApiKey(
+          buildForm(
+              ImmutableMap.of(
+                  "keyName",
+                  String.format("test key %s", i),
+                  "expiration",
+                  futureExpirationDate,
+                  "subnet",
+                  "0.0.0.1/32")),
+          adminProfile);
+    }
+    for (int i = 0; i < 3; i++) {
+      ApiKeyModel retiredApiKey =
+          apiKeyService
+              .createApiKey(
+                  buildForm(
+                      ImmutableMap.of(
+                          "keyName",
+                          String.format("retired test key %s", i),
+                          "expiration",
+                          futureExpirationDate,
+                          "subnet",
+                          "0.0.0.1/32")),
+                  adminProfile)
+              .getApiKey();
+      apiKeyService.retireApiKey(retiredApiKey.id, adminProfile);
+    }
+
+    for (int i = 0; i < 3; i++) {
+      apiKeyService
+          .createApiKey(
+              buildForm(
+                  ImmutableMap.of(
+                      "keyName",
+                      String.format("expired test key %s", i),
+                      "expiration",
+                      pastExpirationDate,
+                      "subnet",
+                      "0.0.0.1/32")),
+              adminProfile)
+          .getApiKey();
+    }
+
+    ImmutableList<ApiKeyModel> result = apiKeyService.listExpiredApiKeys();
+    // Keys should be shown in reverse creation order.
+    assertThat(result.stream().map(ApiKeyModel::getName))
+        .containsExactly("expired test key 2", "expired test key 1", "expired test key 0");
   }
 
   @Test
   public void retireApiKey_retiresAnApiKey() {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
                 buildForm(
@@ -96,7 +257,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void retireApiKey_keyAlreadyRetired_throws() {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
                 buildForm(
@@ -138,17 +299,47 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
     assertThat(apiKeyCreationResult.isSuccessful()).isTrue();
 
-    String credentialString = apiKeyCreationResult.getCredentials();
+    String credentialString = apiKeyCreationResult.getEncodedCredentials();
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
     String keyId =
         Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
-    ApiKey apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
+    ApiKeyModel apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
 
     assertThat(apiKey.getName()).isEqualTo("test key");
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
     assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
     assertThat(apiKey.getExpiration())
-        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfLocalDateInstant("2020-01-30"));
+    assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
+  }
+
+  @Test
+  public void createApiKey_stripsWhitespace() {
+    resourceCreator.insertActiveProgram("test program");
+
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "\t0.0.0.1/32,1.1.1.0/32 ",
+                "grant-program-read[test-program]", "true"));
+
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
+
+    assertThat(apiKeyCreationResult.isSuccessful()).isTrue();
+
+    String credentialString = apiKeyCreationResult.getEncodedCredentials();
+    byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
+    String keyId =
+        Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
+    ApiKeyModel apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
+
+    assertThat(apiKey.getName()).isEqualTo("test key");
+    assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
+    assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
+    assertThat(apiKey.getExpiration())
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfLocalDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
   }
 
@@ -288,5 +479,13 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
     return formFactory.form().bindFromRequest(fakeRequest().bodyForm(formContents).build());
+  }
+
+  private static String getApiKeyExpirationDate(Instant expiration) {
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            .withLocale(Locale.US)
+            .withZone(ZoneId.systemDefault());
+    return formatter.format(expiration);
   }
 }

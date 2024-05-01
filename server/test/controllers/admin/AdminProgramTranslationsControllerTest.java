@@ -10,9 +10,10 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.BadRequestException;
 import java.util.Locale;
 import java.util.Optional;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -55,9 +56,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_defaultLocaleRedirectsWithError() throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "en-US");
+    Result result =
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            program.getProgramDefinition().adminName(),
+            "en-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
@@ -67,9 +72,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_rendersFormWithExistingContent_otherLocale() throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "es-US");
+    Result result =
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            program.getProgramDefinition().adminName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -96,9 +105,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void edit_rendersFormWithExistingContent_noStatusEmail_otherLocale()
       throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
 
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "es-US");
+    Result result =
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            program.getProgramDefinition().adminName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -121,13 +134,17 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_programNotFound_returnsNotFound() {
-    assertThatThrownBy(() -> controller.edit(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
-        .isInstanceOf(ProgramNotFoundException.class);
+    assertThatThrownBy(
+            () ->
+                controller.edit(
+                    addCSRFToken(fakeRequest()).build(), "non-existent program name", "es-US"))
+        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void update_savesNewFields() throws Exception {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -143,13 +160,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("localized-email-1", "updated spanish second status email")
                     .build());
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().orElse(""))
-        .isEqualTo(controllers.admin.routes.AdminProgramController.index().url());
-    assertThat(result.flash().get("success").get())
-        .isEqualTo("Program translations updated for Spanish");
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            program.getProgramDefinition().adminName(),
+            "es-US");
+    assertThat(result.status()).isEqualTo(OK);
 
     ProgramDefinition updatedProgram =
         programRepository
@@ -201,14 +217,18 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_programNotFound() {
-    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
-        .isInstanceOf(ProgramNotFoundException.class);
+    assertThatThrownBy(
+            () ->
+                controller.update(
+                    addCSRFToken(fakeRequest()).build(), "non-existent program name", "es-US"))
+        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void update_validationErrors_rendersEditFormWithMessages()
       throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -226,7 +246,11 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("localized-email-1", "new second status email")
                     .build());
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            program.getProgramDefinition().adminName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -244,7 +268,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_outOfSyncFormData_redirectsToFreshData() throws Exception {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -262,12 +286,17 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("localized-email-1", "updated spanish second status email")
                     .build());
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            program.getProgramDefinition().adminName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation().orElse(""))
         .isEqualTo(
-            controllers.admin.routes.AdminProgramTranslationsController.edit(program.id, "es-US")
+            controllers.admin.routes.AdminProgramTranslationsController.edit(
+                    program.getProgramDefinition().adminName(), "es-US")
                 .url());
     assertThat(result.flash().get("error").get())
         .isEqualTo("The program's associated statuses are out of date.");
@@ -275,7 +304,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertProgramNotChanged(program);
   }
 
-  private void assertProgramNotChanged(Program initialProgram) {
+  private void assertProgramNotChanged(ProgramModel initialProgram) {
     ProgramDefinition freshProgram =
         programRepository
             .lookupProgram(initialProgram.id)
@@ -329,12 +358,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                       .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_TEXT))
               .build());
 
-  private Program createDraftProgramEnglishAndSpanish(
+  private ProgramModel createDraftProgramEnglishAndSpanish(
       ImmutableList<StatusDefinitions.Status> statuses) {
-    Program initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
+    ProgramModel initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
     // ProgamBuilder initializes the localized name and doesn't currently support providing
     // overrides. Here we manually update the localized string in a separate update.
-    Program program =
+    ProgramModel program =
         initialProgram.getProgramDefinition().toBuilder()
             .setLocalizedName(
                 LocalizedStrings.withDefaultValue(ENGLISH_DISPLAY_NAME)

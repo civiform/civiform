@@ -6,19 +6,20 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import models.Account;
-import models.ApiKey;
-import models.Applicant;
-import models.Application;
+import models.AccountModel;
+import models.ApiKeyModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.Models;
-import models.Program;
-import models.Question;
-import models.TrustedIntermediaryGroup;
+import models.ProgramModel;
+import models.QuestionModel;
+import models.TrustedIntermediaryGroupModel;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
@@ -34,11 +35,12 @@ public class ResourceCreator {
   }
 
   /**
-   * Create an API key with subnet of "1.1.1.1/32" and an expiration date one year in the future.
+   * Create an API key with subnet of "8.8.8.8/32,1.1.1.1/32" and an expiration date one year in the
+   * future.
    */
-  public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
-    ApiKey apiKey =
-        new ApiKey()
+  public ApiKeyModel createActiveApiKey(String name, String keyId, String keySecret) {
+    ApiKeyModel apiKey =
+        new ApiKeyModel()
             .setName(name)
             .setKeyId(keyId)
             .setExpiration(Instant.now().plusSeconds(SECONDS_PER_YEAR))
@@ -59,75 +61,133 @@ public class ResourceCreator {
     injector.instanceOf(repository.VersionRepository.class).publishNewSynchronizedVersion();
   }
 
-  public Question insertQuestion(String name) {
+  public QuestionModel insertQuestion(String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
-    Question question = new Question(definition);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }
 
-  public Question insertQuestion() {
+  public QuestionModel insertEnum(String name) {
+    QuestionDefinition enumDefinition =
+        new services.question.types.EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("The applicant's household members")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build(),
+            LocalizedStrings.empty());
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
+    enumQuestion.save();
+    return enumQuestion;
+  }
+
+  public QuestionModel insertEnumQuestion(String enumName, QuestionModel question) {
+    QuestionDefinition enumDefinition =
+        new services.question.types.EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(enumName)
+                .setDescription("The applicant's household member's jobs")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What are the $this's jobs?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Where does $this work?"))
+                .setEnumeratorId(Optional.of(question.id))
+                .build(),
+            LocalizedStrings.empty());
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
+    enumQuestion.save();
+    return enumQuestion;
+  }
+
+  public QuestionModel insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
-    Question question = new Question(definition);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }
 
-  public Program insertActiveProgram(String name) {
+  public ProgramModel insertActiveProgram(String name) {
     return ProgramBuilder.newActiveProgram(name, "description").build();
   }
 
-  public Program insertActiveProgram(Locale locale, String name) {
+  public ProgramModel insertActiveProgram(Locale locale, String name) {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
-  public Program insertActiveCommonIntakeForm(String name) {
+  public ProgramModel insertActiveCommonIntakeForm(String name) {
     return ProgramBuilder.newActiveCommonIntakeForm(name).build();
   }
 
-  public Program insertDraftProgram(String name) {
+  public ProgramModel insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
-  public Application insertActiveApplication(Applicant applicant, Program program) {
-    return Application.create(applicant, program, LifecycleStage.ACTIVE);
+  public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertDraftApplication(Applicant applicant, Program program) {
-    return Application.create(applicant, program, LifecycleStage.DRAFT);
+  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
-  public Application insertApplication(
-      Applicant applicant, Program program, LifecycleStage lifecycleStage) {
-    return Application.create(applicant, program, lifecycleStage);
+  public ApplicationModel insertApplication(
+      ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
+    return ApplicationModel.create(applicant, program, lifecycleStage);
   }
 
-  public Applicant insertApplicant() {
-    Applicant applicant = new Applicant();
+  public ApplicantModel insertApplicant() {
+    ApplicantModel applicant = new ApplicantModel();
     applicant.save();
     return applicant;
   }
 
-  public Account insertAccount() {
-    Account account = new Account();
+  public AccountModel insertAccount() {
+    AccountModel account = new AccountModel();
     account.save();
     return account;
   }
 
-  public Applicant insertApplicantWithAccount() {
+  public TrustedIntermediaryGroupModel insertTiGroup(String groupName) {
+    TrustedIntermediaryGroupModel tiGroup =
+        new TrustedIntermediaryGroupModel(groupName, "A TI group for all your TI needs!");
+    tiGroup.save();
+    return tiGroup;
+  }
+
+  public ApplicantModel insertApplicantWithAccount() {
     return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
   }
 
-  public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
-    Applicant applicant = insertApplicant();
-    Account account = insertAccount();
+  /**
+   * Inserts and Applicant and accompanying Account into the database.
+   *
+   * @param accountEmail an Optional representing the email address of the account. If empty, we
+   *     also don't populate the authority ID, which makes this test user a guest.
+   * @return the applicant
+   */
+  public ApplicantModel insertApplicantWithAccount(Optional<String> accountEmail) {
+    ApplicantModel applicant = insertApplicant();
+    AccountModel account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
+    // If the account has an email, it is an authorized user and should have an
+    // authority ID.
+    accountEmail.ifPresent(unused -> account.setAuthorityId(UUID.randomUUID().toString()));
     account.save();
     applicant.setAccount(account);
     applicant.save();
@@ -135,19 +195,28 @@ public class ResourceCreator {
     return applicant;
   }
 
-  public Account insertAccountWithEmail(String email) {
-    Account account = new Account();
+  /**
+   * Inserts an Account with the given email address into the database. Sets an authority ID such
+   * that the user will be "logged in".
+   *
+   * @param email the email address to use for the account
+   * @return the account
+   */
+  public AccountModel insertAccountWithEmail(String email) {
+    AccountModel account = new AccountModel();
     account.setEmailAddress(email);
+    // User is not a guest, so they should have an authority ID.
+    account.setAuthorityId(UUID.randomUUID().toString());
     account.save();
     return account;
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup() {
     return insertTrustedIntermediaryGroup("");
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup(String name) {
-    TrustedIntermediaryGroup group = new TrustedIntermediaryGroup(name, "description");
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup(String name) {
+    TrustedIntermediaryGroupModel group = new TrustedIntermediaryGroupModel(name, "description");
     group.save();
     return group;
   }

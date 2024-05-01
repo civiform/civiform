@@ -31,29 +31,34 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    DateQuestion dateQuestion = question.createDateQuestion();
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
     FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
+
+    if (params.autofocusSingleField()) {
+      dateField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       dateField.forceAriaInvalid();
     }
+
     if (dateQuestion.getDateValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
-      // the value on roundtrip since inputs with type="date" won't allow
+      // the value on round trip since inputs with type="date" won't allow
       // setting a value that doesn't conform to the expected format.
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);
     }
-    DivTag dateQuestionFormContent = dateField.getDateTag();
 
-    return dateQuestionFormContent;
+    return dateField.getDateTag();
   }
 }

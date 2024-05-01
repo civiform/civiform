@@ -5,23 +5,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import models.LifecycleStage;
-import models.Question;
-import models.Version;
+import models.QuestionModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
 public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
-
-  private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyVersionedQuestionServiceImpl(new Version(LifecycleStage.OBSOLETE));
+  private VersionRepository versionRepository;
   private TestQuestionBank testQuestionBank;
-  private Question nameQuestion;
-  private Question addressQuestion;
-  private Question basicQuestion;
-  private ImmutableList<Question> questions;
+  private QuestionModel nameQuestion;
+  private QuestionModel addressQuestion;
+  private QuestionModel basicQuestion;
+  private ImmutableList<QuestionModel> questions;
   private ReadOnlyQuestionService service;
 
   @Before
@@ -32,13 +32,19 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
     addressQuestion = testQuestionBank.applicantAddress();
     basicQuestion = testQuestionBank.applicantFavoriteColor();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-    Version version = new Version(LifecycleStage.OBSOLETE);
+    versionRepository = instanceOf(VersionRepository.class);
+    VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
-    service = new ReadOnlyVersionedQuestionServiceImpl(version);
+    service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
 
   @Test
   public void getAll_returnsEmpty() {
+    VersionModel obsoleteVersion = new VersionModel(LifecycleStage.OBSOLETE);
+    obsoleteVersion.save();
+    ReadOnlyQuestionService emptyService =
+        new ReadOnlyVersionedQuestionServiceImpl(
+            obsoleteVersion, instanceOf(VersionRepository.class));
     assertThat(emptyService.getAllQuestions()).isEmpty();
   }
 
@@ -70,12 +76,12 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getEnumeratorQuestions() {
-    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
-    Version version = new Version(LifecycleStage.OBSOLETE);
+    VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
     addQuestionsToVersion(version, ImmutableList.of(enumeratorQuestion));
-    var service = new ReadOnlyVersionedQuestionServiceImpl(version);
+    var service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
     assertThat(service.getAllEnumeratorQuestions().get(0))
         .isEqualTo(enumeratorQuestion.getQuestionDefinition());
@@ -90,11 +96,13 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getQuestionDefinition_notFound() throws QuestionNotFoundException {
-    assertThatThrownBy(() -> service.getQuestionDefinition(9999L))
-        .isInstanceOf(QuestionNotFoundException.class);
+    var questionDefinition = service.getQuestionDefinition(9999L);
+
+    assertThat(questionDefinition.getQuestionType()).isEqualTo(QuestionType.NULL_QUESTION);
   }
 
-  private static void addQuestionsToVersion(Version version, ImmutableList<Question> questions) {
+  private static void addQuestionsToVersion(
+      VersionModel version, ImmutableList<QuestionModel> questions) {
     questions.stream().forEach(version::addQuestion);
     version.save();
   }

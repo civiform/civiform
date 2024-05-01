@@ -2,8 +2,12 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
+import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -12,11 +16,11 @@ import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import javax.inject.Provider;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
+import repository.AccountRepository;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -29,11 +33,6 @@ import services.program.ProgramServiceImpl;
 public class MainModule extends AbstractModule {
 
   public static final Slugify SLUGIFIER = Slugify.builder().build();
-
-  @Override
-  public void configure() {
-    bind(ProgramService.class).to(ProgramServiceImpl.class);
-  }
 
   @Provides
   @EnUsLang
@@ -55,6 +54,34 @@ public class MainModule extends AbstractModule {
 
   @Provides
   public ZoneId provideZoneId(Config config) {
-    return ZoneId.of(checkNotNull(config).getString("civiform.time.zoneid"));
+    return ZoneId.of(checkNotNull(config).getString("civiform_time_zone_id"));
+  }
+
+  @Provides
+  @ApplicantAuthProviderName
+  public String provideApplicantAuthProviderName(Config config) {
+    checkNotNull(config);
+
+    if (config.hasPath("applicant_portal_name")
+        && !config.getString("applicant_portal_name").isBlank()) {
+      return config.getString("applicant_portal_name");
+    }
+
+    return config.getString("whitelabel_civic_entity_full_name");
+  }
+
+  @Provides
+  public IdTokensFactory provideIdTokensFactory(Clock clock) {
+    return new IdTokensFactory(clock);
+  }
+
+  @Provides
+  public OidcClientProviderParams provideOidcClientProviderParams(
+      Config config,
+      ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
+      Provider<AccountRepository> accountRepositoryProvider) {
+    return OidcClientProviderParams.create(
+        config, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 }

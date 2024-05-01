@@ -16,13 +16,6 @@ public abstract class CsvExportConfig {
   public abstract static class Builder {
     public abstract CsvExportConfig.Builder setColumns(ImmutableList<Column> columns);
 
-    public abstract ImmutableList.Builder<Column> columnsBuilder();
-
     public abstract CsvExportConfig build();
-
-    public CsvExportConfig.Builder addColumn(Column column) {
-      columnsBuilder().add(column);
-      return this;
-    }
   }
 }

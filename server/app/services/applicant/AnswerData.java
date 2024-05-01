@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Question;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -20,7 +21,7 @@ public abstract class AnswerData {
     return new AutoValue_AnswerData.Builder();
   }
 
-  /** The {@link models.Program} id that this is currently in the context of. */
+  /** The {@link models.ProgramModel} id that this is currently in the context of. */
   public abstract Long programId();
 
   /** The {@link Block} id for where this question resides within the current program. */
@@ -38,7 +39,10 @@ public abstract class AnswerData {
   /** The repeated entity if this is an answer to a repeated question. Otherwise, empty. */
   public abstract Optional<RepeatedEntity> repeatedEntity();
 
-  /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
+  /**
+   * The index of the {@link models.QuestionModel} this is an answer for in the block it appeared
+   * in.
+   */
   public abstract int questionIndex();
 
   /** The localized question text */
@@ -87,6 +91,7 @@ public abstract class AnswerData {
    * Paths and their answers for each scalar (in {@link services.LocalizedStrings#DEFAULT_LOCALE}
    * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
    */
+  // TODO(#4872): remove this attribute and rely on getJsonEntries on a per-question basis.
   public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
 
   @AutoValue.Builder
@@ -128,5 +133,44 @@ public abstract class AnswerData {
     public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
 
     public abstract AnswerData build();
+  }
+
+  /** Creates a {@link Question} for the given {@link AnswerData}'s type. */
+  public Question createQuestion() {
+    switch (questionDefinition().getQuestionType()) {
+      case ENUMERATOR:
+        return applicantQuestion().createEnumeratorQuestion();
+      case STATIC:
+        return applicantQuestion().createStaticContentQuestion();
+      case CHECKBOX:
+        return applicantQuestion().createMultiSelectQuestion();
+      case CURRENCY:
+        return applicantQuestion().createCurrencyQuestion();
+      case NUMBER:
+        return applicantQuestion().createNumberQuestion();
+      case DATE:
+        return applicantQuestion().createDateQuestion();
+      case PHONE:
+        return applicantQuestion().createPhoneQuestion();
+      case NAME:
+        return applicantQuestion().createNameQuestion();
+      case ID:
+        return applicantQuestion().createIdQuestion();
+      case TEXT:
+        return applicantQuestion().createTextQuestion();
+      case EMAIL:
+        return applicantQuestion().createEmailQuestion();
+      case ADDRESS:
+        return applicantQuestion().createAddressQuestion();
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return applicantQuestion().createSingleSelectQuestion();
+      case FILEUPLOAD:
+        return applicantQuestion().createFileUploadQuestion();
+      case NULL_QUESTION: // fallthrough intended
+      default:
+        throw new RuntimeException(
+            String.format("Unknown QuestionType %s", questionDefinition().getQuestionType()));
+    }
   }
 }

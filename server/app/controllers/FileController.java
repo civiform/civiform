@@ -10,49 +10,55 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Account;
-import models.StoredFile;
+import models.AccountModel;
+import models.StoredFileModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
-import services.cloud.StorageClient;
+import repository.VersionRepository;
+import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.ApplicantStorageClient;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
-  private final HttpExecutionContext httpExecutionContext;
-  private final StorageClient storageClient;
+  private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+
+  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public FileController(
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       StoredFileRepository storedFileRepository,
-      StorageClient storageClient,
-      ProfileUtils profileUtils) {
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.storageClient = checkNotNull(storageClient);
+      ApplicantStorageClient applicantStorageClient,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure
   public CompletionStage<Result> show(Request request, long applicantId, String fileKey) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
         .thenApplyAsync(
             v -> {
-              // Ensure the file being accessed indeed belongs to the applicant.
-              // The key is generated when the applicant first uploaded the file, see below link.
-              // https://github.com/seattle-uat/civiform/blob/4d1e90fddd3d6da2c4a249f4f78442d08f9088d3/server/app/views/applicant/ApplicantProgramBlockEditView.java#L128
-              if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
+              // Ensure the file being accessed belongs to the applicant.
+              // The key is generated when the applicant first uploaded the file.
+              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId)) {
                 return notFound();
               }
+
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
-              return redirect(storageClient.getPresignedUrlString(decodedFileKey));
+              return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -76,6 +82,10 @@ public class FileController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result adminShow(Request request, long programId, String fileKey) {
+    // File key may have PII in the filename portion, do not log it.
+    logger.warn(
+        "DEPRECATED: Call to /admin/programs/{}/files/:fileKey occurred. This route is obsolete.",
+        programId);
     return adminShowInternal(request, fileKey);
   }
 
@@ -97,18 +107,18 @@ public class FileController extends CiviFormController {
   private Result adminShowInternal(Request request, String fileKey) {
     String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
 
-    Optional<StoredFile> maybeFile =
+    Optional<StoredFileModel> maybeFile =
         storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
 
     if (maybeFile.isEmpty()) {
       return notFound();
     }
 
-    Account adminAccount =
+    AccountModel adminAccount =
         profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
 
     return maybeFile.get().getAcls().hasProgramReadPermission(adminAccount)
-        ? redirect(storageClient.getPresignedUrlString(decodedFileKey))
+        ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey))
         : unauthorized();
   }
 }

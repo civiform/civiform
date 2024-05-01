@@ -11,9 +11,9 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
-import models.Version;
+import models.VersionModel;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -63,10 +63,10 @@ public final class QuestionService {
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-    Question question = new Question(questionDefinition);
-    question.addVersion(versionRepositoryProvider.get().getDraftVersion());
+    QuestionModel question = new QuestionModel(questionDefinition);
+    question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
     questionRepository.insertQuestionSync(question);
-    return ErrorAnd.of(question.getQuestionDefinition());
+    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 
   /**
@@ -103,37 +103,61 @@ public final class QuestionService {
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
    * questions in a particular version.
    */
-  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version) {
-    return new ReadOnlyVersionedQuestionServiceImpl(version);
+  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(
+      VersionModel version, VersionRepository versionRepository) {
+    return new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
+  }
+
+  /**
+   * Overload of {@code update()} that defaults {@code previousDefinition} to empty.
+   *
+   * <p>See {@link #update(Optional, QuestionDefinition)} for the implications of not providing a
+   * {@code previousDefinition} when updating.
+   *
+   * @param updatedDefinition the {@link QuestionDefinition} to update
+   * @return the updated {@link QuestionDefinition} or a {@link CiviFormError}
+   */
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition updatedDefinition)
+      throws InvalidUpdateException {
+    return update(Optional.empty(), updatedDefinition);
   }
 
   /**
    * Destructive overwrite of a question at a given path.
    *
+   * <p>The {@code previousDefinition} is used during validation. See {@link
+   * QuestionDefinition#validate(Optional)} for the implications of not including a {@code
+   * previousDefinition} when validating.
+   *
    * <p>The write will fail if:
+   * <li>The QuestionDefinition is not persisted yet.
+   * <li>The path is different from the original path.
+   * <li>NOTE: This does not update the version.
    *
-   * <p>- The QuestionDefinition is not persisted yet.
-   *
-   * <p>- The path is different from the original path.
-   *
-   * <p>NOTE: This does not update the version.
+   * @param previousDefinition the previous version of the {@link QuestionDefinition}, defaults to
+   *     empty.
+   * @param updatedDefinition the {@link QuestionDefinition} to update
+   * @return the updated {@link QuestionDefinition} or a {@link CiviFormError}
+   * @throws InvalidUpdateException if a question with the provided ID does not already exist
    */
-  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition questionDefinition)
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(
+      Optional<QuestionDefinition> previousDefinition, QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
-    if (!questionDefinition.isPersisted()) {
+    if (!updatedDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
-    ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
+    ImmutableSet<CiviFormError> validationErrors = updatedDefinition.validate(previousDefinition);
 
-    Optional<Question> maybeQuestion =
-        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+    Optional<QuestionModel> maybeQuestion =
+        questionRepository.lookupQuestion(updatedDefinition.getId()).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new InvalidUpdateException(
-          String.format("question with id %d does not exist", questionDefinition.getId()));
+          String.format("question with id %d does not exist", updatedDefinition.getId()));
     }
-    Question question = maybeQuestion.get();
+    QuestionModel question = maybeQuestion.get();
     ImmutableSet<CiviFormError> immutableMemberErrors =
-        validateQuestionImmutableMembers(question.getQuestionDefinition(), questionDefinition);
+        validateQuestionImmutableMembers(
+            questionRepository.getQuestionDefinition(question), updatedDefinition);
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
@@ -144,13 +168,13 @@ public final class QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    question = questionRepository.createOrUpdateDraft(questionDefinition);
-    return ErrorAnd.of(question.getQuestionDefinition());
+    question = questionRepository.createOrUpdateDraft(updatedDefinition);
+    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */
   public void restoreQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question =
+    Optional<QuestionModel> question =
         questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
@@ -158,11 +182,11 @@ public final class QuestionService {
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
     if (!activeQuestions
-        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .getDeletionStatus(questionRepository.getQuestionDefinition(question.get()).getName())
         .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!draftVersion.removeTombstoneForQuestion(question.get())) {
       throw new InvalidUpdateException("Not tombstoned.");
     }
@@ -171,7 +195,7 @@ public final class QuestionService {
 
   /** If this question is not used in any program, archive it. */
   public void archiveQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question =
+    Optional<QuestionModel> question =
         questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
@@ -179,20 +203,31 @@ public final class QuestionService {
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
     if (!activeQuestions
-        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .getDeletionStatus(questionRepository.getQuestionDefinition(question.get()).getName())
         .equals(DeletionStatus.DELETABLE)) {
       throw new InvalidUpdateException("Question is not archivable.");
     }
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    if (!draftVersion.addTombstoneForQuestion(question.get())) {
-      throw new InvalidUpdateException("Already tombstoned.");
+
+    QuestionModel draftQuestion =
+        questionRepository.createOrUpdateDraft(
+            questionRepository.getQuestionDefinition(question.get()));
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    try {
+      if (!versionRepositoryProvider
+          .get()
+          .addTombstoneForQuestionInVersion(draftQuestion, draftVersion)) {
+        throw new InvalidUpdateException("Already tombstoned.");
+      }
+    } catch (QuestionNotFoundException e) {
+      // Shouldn't happen because we call createOrUpdateDraft before archiving.
+      throw new RuntimeException(e);
     }
     draftVersion.save();
   }
 
   /** If this is a draft question, remove it from the draft version and update all programs. */
   public void discardDraft(Long draftId) throws InvalidUpdateException {
-    Question question =
+    QuestionModel question =
         questionRepository
             .lookupQuestion(draftId)
             .toCompletableFuture()
@@ -200,10 +235,12 @@ public final class QuestionService {
             .orElseThrow(() -> new InvalidUpdateException("Did not find question."));
 
     // Find the Active version.
-    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    VersionModel activeVersion = versionRepositoryProvider.get().getActiveVersion();
     Long activeId =
-        activeVersion
-            .getQuestionByName(question.getQuestionDefinition().getName())
+        versionRepositoryProvider
+            .get()
+            .getQuestionByNameForVersion(
+                questionRepository.getQuestionDefinition(question).getName(), activeVersion)
             // TODO: If nothing depends on this question then it could be removed.
             .orElseThrow(
                 () ->
@@ -214,9 +251,9 @@ public final class QuestionService {
         !draftId.equals(activeId),
         "Draft and Active IDs are the same (%s) for Question %s, this should not be possible.",
         draftId,
-        question.getQuestionDefinition().getName());
+        questionRepository.getQuestionDefinition(question).getName());
 
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!question.removeVersion(draftVersion)) {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
@@ -246,12 +283,12 @@ public final class QuestionService {
   /** Set the export state of the question provided. */
   public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException {
-    Optional<Question> questionMaybe =
+    Optional<QuestionModel> questionMaybe =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (questionMaybe.isEmpty()) {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
-    Question question = questionMaybe.get();
+    QuestionModel question = questionMaybe.get();
     if (CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
         questionDefinition.getQuestionType())) {
       question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
@@ -291,23 +328,28 @@ public final class QuestionService {
    * segment.
    */
   private ImmutableSet<CiviFormError> checkConflicts(QuestionDefinition questionDefinition) {
-    Optional<Question> maybeConflict =
+    Optional<QuestionModel> maybeConflict =
         questionRepository.findConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
-      Question conflict = maybeConflict.get();
+      QuestionModel conflict = maybeConflict.get();
       String errorMessage;
       if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =
             String.format(
-                "Question '%s' conflicts with question id: %s",
-                questionDefinition.getQuestionPathSegment(), conflict.id);
+                "Administrative identifier '%s' generates JSON path '%s' which would conflict with"
+                    + " the existing question with admin ID '%s'",
+                questionDefinition.getName(),
+                questionDefinition.getQuestionPathSegment(),
+                questionRepository.getQuestionDefinition(conflict).getName());
       } else {
         errorMessage =
             String.format(
-                "Question '%s' with Enumerator ID %d conflicts with question id: %d",
-                questionDefinition.getQuestionPathSegment(),
+                "Administrative identifier '%s' with Enumerator ID %d generates JSON path '%s'"
+                    + " which would conflict with the existing question with admin ID '%s'",
+                questionDefinition.getName(),
                 questionDefinition.getEnumeratorId().get(),
-                conflict.id);
+                questionDefinition.getQuestionPathSegment(),
+                questionRepository.getQuestionDefinition(conflict).getName());
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
@@ -359,5 +401,30 @@ public final class QuestionService {
                   questionDefinition.getQuestionType(), toUpdate.getQuestionType())));
     }
     return errors.build();
+  }
+
+  /**
+   * Returns all questions for the specified version. For example passing in version of id 2, would
+   * return questions for version of id 1. Will return a list for draft, active, or obsolete
+   * versions.
+   *
+   * <p>If there is no previous version an empty list is returned.
+   *
+   * @param version The version used to lookup the previous version
+   * @return Populated list of Question Definitions or an empty list
+   */
+  public ImmutableList<QuestionDefinition> getAllPreviousVersionQuestions(VersionModel version) {
+    Optional<VersionModel> optionalPreviousVersion =
+        versionRepositoryProvider.get().getPreviousVersion(version);
+
+    // This should only happen if we only have one version in the system
+    // such as in a fresh install
+    if (optionalPreviousVersion.isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    return getReadOnlyVersionedQuestionService(
+            optionalPreviousVersion.get(), versionRepositoryProvider.get())
+        .getAllQuestions();
   }
 }

@@ -20,9 +20,13 @@ import github
 import os
 import sys
 import typing
+# Needed for <3.10
+from typing import Union
+# Needed for <3.9
+from typing import List, Tuple
 
 
-def errorexit(msg):
+def error_exit(msg):
     """Logs a message and exits"""
     sys.stderr.write(msg + "\n")
     exit(1)
@@ -45,12 +49,12 @@ def make_config() -> Config:
     Exits if any there are any validation errors.
     """
     if "ENV_VAR_DOCS_PATH" not in os.environ:
-        errorexit(
+        error_exit(
             "ENV_VAR_DOCS_PATH must be present in the environment variables")
 
     docs = os.environ["ENV_VAR_DOCS_PATH"]
     if not os.path.isfile(docs):
-        errorexit(f"'{docs}' does not point to a file")
+        error_exit(f"'{docs}' does not point to a file")
 
     local = (os.environ.get("LOCAL_OUTPUT", "false") == "true")
     if local:
@@ -62,11 +66,11 @@ def make_config() -> Config:
             repo = os.environ["TARGET_REPO"]
             path = os.environ["TARGET_PATH"]
             if path[0:1] == "/":
-                errorexit(
+                error_exit(
                     "f{path} must be a relative path starting from the repository root."
                 )
         except KeyError as e:
-            errorexit(
+            error_exit(
                 f"Either LOCAL_OUTPUT=true must be set or {e.args[0]} must be present in the environment variables"
             )
 
@@ -80,7 +84,7 @@ def main():
         if len(parse_errors) != 0:
             msg = f"{config.docs_path} is invalid:\n"
             msg += env_var_docs.errors_formatter.format(parse_errors)
-            errorexit(msg)
+            error_exit(msg)
 
     if config.local_output:
         print(markdown)
@@ -93,8 +97,8 @@ def main():
     path = f"{config.repo_path}/{config.version}.md"
     try:
         file = repo.get_contents(path)
-        if isinstance(file, list):
-            errorexit(f"{path} returns multiple files in the repo, aborting")
+        if isinstance(file, List):
+            error_exit(f"{path} returns multiple files in the repo, aborting")
 
         if file.decoded_content.decode() == markdown:
             print(f"{path} already exists and does not need to be updated.")
@@ -139,7 +143,7 @@ def main():
 
 def generate_markdown(
     docs_file: typing.TextIO
-) -> tuple[str | None, list[env_var_docs.parser.NodeParseError]]:
+) -> Tuple[Union[str, None], List[env_var_docs.parser.NodeParseError]]:
     out = ""
 
     def append_node_to_out(node: env_var_docs.parser.Node):
@@ -160,6 +164,15 @@ def generate_markdown(
         if group is not None:
             desc = group.group_description
         if var is not None:
+            if var.mode == env_var_docs.parser.Mode.ADMIN_WRITEABLE:
+                out += "**Admin writeable**\n\n"
+            elif var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
+                out += "**Admin readable**\n\n"
+            elif var.mode == env_var_docs.parser.Mode.SECRET:
+                out += "**Managed secret**\n\n"
+            else:
+                out += "**Server setting**\n\n"
+
             desc = var.description
             if var.required:
                 desc += " **Required**."
@@ -171,7 +184,7 @@ def generate_markdown(
             if var.values is not None:
                 out += "- Allowed values:\n"
                 for val in var.values:
-                    out += f"   - {val}\n"
+                    out += f"   - `{val}`\n"
             if var.regex is not None:
                 out += f"- Validation regular expression: `{var.regex}`\n"
             if var.regex_tests is not None:
@@ -188,21 +201,30 @@ def generate_markdown(
     return out, []
 
 
-def new_summary(current_summary: str, docs_paths: list[str]) -> str:
+# These are added to support Python <3.9
+def removesuffix(text, suffix):
+    return text[:-len(suffix)] if text.endswith(suffix) else text
+
+
+def removeprefix(text, prefix):
+    return text[len(prefix):] if text.startswith(prefix) else text
+
+
+def new_summary(current_summary: str, docs_paths: List[str]) -> str:
     """In SUMMARY.md we have a '[CiviForm server environment variables]' list
     item that has sublist items for each versioned environment variable
     documentation markdown files. This function updates the sublist items to
     match docs_file_paths.
     """
 
-    def format_docs_links(indent_level: int, docs_paths: list[str]) -> str:
+    def format_docs_links(indent_level: int, docs_paths: List[str]) -> str:
         docs_paths.sort()
         out = ""
         for p in docs_paths:
             indent = " " * indent_level
-            name = os.path.basename(p).removesuffix(".md")
-            link = p.removeprefix(
-                "docs/"
+            name = removesuffix(os.path.basename(p), ".md")
+            link = removeprefix(
+                p, "docs/"
             )  # gitbook root is in docs/ directory of civiform/docs repo.
             out += f"{indent}  * [{name}]({link})\n"
         return out

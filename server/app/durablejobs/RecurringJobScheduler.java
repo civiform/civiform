@@ -11,7 +11,7 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.OptimisticLockException;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
@@ -44,8 +44,8 @@ public final class RecurringJobScheduler {
   }
 
   /**
-   * Checks that each recurring job in {@link DurableJobRegistry} has a {@link PersistedDurableJob}
-   * scheduled sometime in the future and schedules one if not.
+   * Checks that each recurring job in {@link DurableJobRegistry} has a {@link
+   * PersistedDurableJobModel} scheduled sometime in the future and schedules one if not.
    *
    * <p>{@code synchronized} to avoid overlapping executions within the same server.
    */
@@ -66,8 +66,9 @@ public final class RecurringJobScheduler {
               .isPresent();
 
       if (!jobAlreadyScheduled) {
-        PersistedDurableJob newJob =
-            new PersistedDurableJob(registeredJob.getJobName().getJobNameString(), executionTime);
+        PersistedDurableJobModel newJob =
+            new PersistedDurableJobModel(
+                registeredJob.getJobName().getJobNameString(), executionTime);
         try {
           tryScheduleRecurringJob(newJob, SCHEDULER_ATTEMPTS);
         } catch (InterruptedException e) {
@@ -78,7 +79,7 @@ public final class RecurringJobScheduler {
   }
 
   private synchronized void tryScheduleRecurringJob(
-      PersistedDurableJob newJob, int remainingAttempts) throws InterruptedException {
+      PersistedDurableJobModel newJob, int remainingAttempts) throws InterruptedException {
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
 
       // Re-fetch upon each attempt so the transaction prevents duplicates.

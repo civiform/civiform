@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.BadRequestException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import services.CryptographicUtils;
@@ -65,18 +64,12 @@ public final class AddressSuggestionJsonSerializer {
   }
 
   /**
-   * Deserializes the provided address suggestion JSON, throwing a {@link BadApiRequestException} if
-   * deserialization fails or the JSON's signature is invalid.
+   * Deserializes the provided address suggestion JSON, throwing a {@link
+   * controllers.api.BadApiRequestException} if the JSON's signature is invalid.
    */
   public ImmutableList<AddressSuggestion> deserialize(String serializedJson) {
-    String addressJson;
-
-    try {
-      addressJson = new String(Base64.getDecoder().decode(serializedJson), "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new BadRequestException("Address suggestion encoding invalid");
-    }
-
+    String addressJson =
+        new String(Base64.getDecoder().decode(serializedJson), StandardCharsets.UTF_8);
     AddressSuggestionNode node = deserializeJson(addressJson, AddressSuggestionNode.class);
 
     var computedPayloadSignature =

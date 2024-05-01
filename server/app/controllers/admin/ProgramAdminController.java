@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import views.admin.programs.ProgramAdministratorProgramListView;
@@ -19,16 +20,16 @@ import views.admin.programs.ProgramAdministratorProgramListView;
 public class ProgramAdminController extends CiviFormController {
   private final ProgramAdministratorProgramListView listView;
   private final ProgramService programService;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public ProgramAdminController(
       ProgramAdministratorProgramListView listView,
       ProgramService programService,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.listView = Preconditions.checkNotNull(listView);
     this.programService = Preconditions.checkNotNull(programService);
-    this.profileUtils = Preconditions.checkNotNull(profileUtils);
   }
 
   /** Return a HTML page showing all programs the program admin administers. */
@@ -42,7 +43,8 @@ public class ProgramAdminController extends CiviFormController {
 
     ImmutableList<String> administeredPrograms =
         profile.get().getAccount().join().getAdministeredProgramNames();
-    ActiveAndDraftPrograms activeAndDraftPrograms = this.programService.getActiveAndDraftPrograms();
+    ActiveAndDraftPrograms activeAndDraftPrograms =
+        this.programService.getActiveAndDraftProgramsWithoutQuestionLoad();
 
     return ok(listView.render(request, activeAndDraftPrograms, administeredPrograms, profile));
   }

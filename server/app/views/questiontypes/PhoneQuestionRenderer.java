@@ -1,11 +1,12 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.UUID;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -13,7 +14,6 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PhoneQuestion;
 import views.components.FieldWithLabel;
-import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
 public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
@@ -32,35 +32,21 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    PhoneQuestion phoneQuestion = question.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
     Messages messages = params.messages();
 
-    SelectWithLabel countryCodeField =
-        (SelectWithLabel)
-            new SelectWithLabel()
-                .addStyleClass("py-15")
-                .setFieldName(phoneQuestion.getCountryCodePath().toString())
-                .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
-                .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-                .setOptionGroups(
-                    ImmutableList.of(
-                        SelectWithLabel.OptionGroup.builder()
-                            .setLabel(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-                            .setOptions(COUNTRY_OPTIONS)
-                            .build()))
-                .setAriaRequired(!isOptional)
-                .setFieldErrors(
-                    messages,
-                    validationErrors.getOrDefault(
-                        phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
-                .addReferenceClass(ReferenceClasses.PHONE_COUNTRY_CODE)
-                .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
+    // Generating a unique id for the input element. The phone.ts script needs to find the input
+    // element, but the ReferenceClasses point to an outer container element. Relying on finding
+    // the correct input element inside the container is fragile and will break if additional
+    // form elements are added later.
+    String phoneFieldId = String.format("%s-%s", ReferenceClasses.PHONE_NUMBER, UUID.randomUUID());
 
     FieldWithLabel phoneField =
         FieldWithLabel.input()
             .setPlaceholderText("(xxx) xxx-xxxx")
             .setFieldName(phoneQuestion.getPhoneNumberPath().toString())
+            .setAttribute("inputmode", "tel")
             .setValue(phoneQuestion.getPhoneNumberValue().orElse(""))
             .setLabelText(messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName()))
             .setAriaRequired(!isOptional)
@@ -68,23 +54,18 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 messages,
                 validationErrors.getOrDefault(
                     phoneQuestion.getPhoneNumberPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .addReferenceClass(ReferenceClasses.PHONE_NUMBER)
-            .setId(ReferenceClasses.PHONE_NUMBER);
+            .setId(phoneFieldId);
+
+    if (params.autofocusFirstField() || params.autofocusFirstError()) {
+      phoneField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
-      countryCodeField.forceAriaInvalid();
       phoneField.forceAriaInvalid();
     }
 
-    return div()
-        .withClasses("grid")
-        .with(countryCodeField.getSelectTag(), phoneField.getInputTag());
+    return div().with(phoneField.getInputTag());
   }
-
-  private static final ImmutableList<SelectWithLabel.OptionValue> COUNTRY_OPTIONS =
-      ImmutableList.of(
-          SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
-          SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
 }

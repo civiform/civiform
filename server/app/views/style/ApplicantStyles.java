@@ -17,7 +17,7 @@ public final class ApplicantStyles {
           StyleUtils.responsiveSmall("my-12"));
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
-      StyleUtils.joinStyles(BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
+      StyleUtils.joinStyles("bg-blue-900", "text-white", "text-center", "w-full");
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(
@@ -39,8 +39,12 @@ public final class ApplicantStyles {
   public static final String PROGRAM_APPLICATION_TITLE =
       StyleUtils.joinStyles("text-3xl", "text-black", "font-bold", "mt-8", "mb-4");
   public static final String PROGRAM_TITLE =
-      StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, "text-lg", "font-bold");
+      StyleUtils.joinStyles(BaseStyles.TEXT_CIVIFORM_BLUE, "text-lg", "font-bold");
 
+  public static final String PROGRAM_CARDS_PARENT_CONTAINER =
+      StyleUtils.joinStyles("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
+  public static final String PROGRAM_CARDS_GRANDPARENT_CONTAINER =
+      StyleUtils.joinStyles("flex", "flex-col", "place-items-center");
   public static final String PROGRAM_CARDS_SUBTITLE =
       StyleUtils.joinStyles("my-4", "text-lg", "px-4");
   public static final String PROGRAM_CARDS_CONTAINER_BASE =
@@ -48,24 +52,23 @@ public final class ApplicantStyles {
           "grid",
           "grid-cols-1",
           "gap-4",
+          "justify-between",
           "place-items-center",
+          "items-start",
           StyleUtils.responsiveSmall("grid-cols-1"),
           StyleUtils.responsiveLarge("gap-8"));
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
-          "w-full",
           // This width is closely tied to the grid layout in ProgramIndexView.java. Increasing the
           // card size may cause them to overlap on smaller screen sizes.
-          StyleUtils.responsiveSmall("w-72"),
-          "h-80",
+          "w-72",
           "bg-white",
           "rounded-xl",
           "shadow-md",
           "border",
           "border-gray-200",
           "flex",
-          "flex-col",
-          "gap-4");
+          "flex-col");
 
   public static final String PROGRAM_INFORMATION_BOX =
       StyleUtils.joinStyles(
@@ -83,5 +86,11 @@ public final class ApplicantStyles {
   public static final String QUESTION_HELP_TEXT = StyleUtils.joinStyles("text-black", "text-xl");
 
   public static final String APPLICATION_NAV_BAR =
-      StyleUtils.joinStyles("gap-4", "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"));
+      StyleUtils.joinStyles(
+          "gap-4",
+          "flex",
+          "flex-col",
+          StyleUtils.responsiveMedium("flex-row"),
+          "justify-end",
+          "flex-wrap");
 }

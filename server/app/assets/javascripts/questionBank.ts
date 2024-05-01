@@ -9,6 +9,9 @@ class QuestionBankController {
   static readonly QUESTION_BANK_CONTAINER = 'cf-question-bank-container'
   static readonly QUESTION_BANK_HIDDEN = 'cf-question-bank-hidden'
   static readonly BANK_SHOWN_URL_PARAM = 'sqb'
+  static readonly RELEVANT_FILTER_TEXT_DATA_ATTR = 'data-relevantfiltertext'
+
+  static readonly SORT_SELECT_ID = 'question-bank-sort'
 
   constructor() {
     const questionBankFilter = document.getElementById(
@@ -22,6 +25,17 @@ class QuestionBankController {
       QuestionBankController.filterQuestions()
     }
     QuestionBankController.initToggleQuestionBankButtons()
+
+    const questionBankSort = document.getElementById(
+      QuestionBankController.SORT_SELECT_ID,
+    ) as HTMLSelectElement
+
+    if (questionBankSort) {
+      questionBankSort.addEventListener(
+        'change',
+        QuestionBankController.sortQuestions,
+      )
+    }
   }
 
   private static initToggleQuestionBankButtons() {
@@ -126,12 +140,65 @@ class QuestionBankController {
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
-      const questionContents = questionElement.innerText
+      const questionFilterText =
+        questionElement.getAttribute(
+          QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
+        ) ?? questionElement.innerText
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
-          !questionContents.toUpperCase().includes(filterString),
+          !questionFilterText.toUpperCase().includes(filterString),
       )
+    })
+  }
+
+  /**
+   * Sort questions in the question bank based on the criteria selected from the dropdown.
+   */
+  private static sortQuestions() {
+    const questionBankSort = document.getElementById(
+      QuestionBankController.SORT_SELECT_ID,
+    ) as HTMLSelectElement
+
+    const questionSublists = document.querySelectorAll('.cf-sortable-questions')
+    if (!questionBankSort || !questionSublists) {
+      return
+    }
+
+    questionSublists.forEach((questionSublist) => {
+      const questions: HTMLElement[] = Array.from(
+        questionSublist.querySelectorAll('.cf-question-bank-element'),
+      )
+
+      const sortedQuestions = questions.sort((elementA, elementB) => {
+        // questionBankSort.value is expected to be of the format "<data_attribute_name>-<asc|desc>".
+        // Attribute names and order suffix are defined in QuestionSortOption.java.
+        const [attrName, order] = questionBankSort.value.split('-')
+        // Get the data attribute whose name matches the selected sort option so that it can be used to compare the elements.
+        const attrA: string | null = elementA.getAttribute('data-' + attrName)
+        const attrB: string | null = elementB.getAttribute('data-' + attrName)
+        if (!attrA || !attrB) {
+          return 0
+        }
+
+        const compare = function (a: string, b: string): number {
+          switch (attrName) {
+            case 'lastmodified': {
+              const dateA = new Date(a)
+              const dateB = new Date(b)
+              return dateA.getTime() - dateB.getTime()
+            }
+            default:
+              // Default sort is a string sort.
+              return a.localeCompare(b)
+          }
+        }
+        return order == 'asc' ? compare(attrA, attrB) : compare(attrB, attrA)
+      })
+
+      sortedQuestions.forEach((q) => {
+        questionSublist.appendChild(q)
+      })
     })
   }
 }

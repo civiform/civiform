@@ -51,9 +51,17 @@ module.exports = {
           light: '#f3e5f5',
           DEFAULT: '#4a148c',
         },
+        'civiform-yellow': {
+          light: '#ffefc9',
+          DEFAULT: '#6b4b00',
+        },
+        'civiform-teal': {
+          DEFAULT: '#164e63',
+        },
       },
       spacing: {
-        4.5: '18px',
+        4.5: '1.125rem',
+        11.5: '2.875rem',
       },
     },
   },

@@ -16,6 +16,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import play.Environment;
 import play.api.OptionalSourceMapper;
+import play.api.UsefulException;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
 import play.i18n.MessagesApi;
@@ -30,6 +31,7 @@ import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.StatusNotFoundException;
+import views.errors.InternalServerError;
 import views.errors.NotFound;
 
 /**
@@ -43,7 +45,8 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
-  private final NotFound notFoundPage;
+  private final Provider<InternalServerError> internalServerErrorPageProvider;
+  private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
@@ -69,16 +72,17 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
-      NotFound notFoundPage,
+      Provider<InternalServerError> internalServerErrorPageProvider,
+      Provider<NotFound> notFoundPageProvider,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.notFoundPage = checkNotNull(notFoundPage);
+    this.internalServerErrorPageProvider = checkNotNull(internalServerErrorPageProvider);
+    this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
-
     // Unwrap exceptions thrown within a CompletableFuture, to handle the
     // original error stack trace.
     if (exception instanceof CompletionException) {
@@ -125,6 +129,17 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   @Override
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
-        Results.notFound(notFoundPage.render(request, messagesApi.preferred(request))));
+        Results.notFound(
+            notFoundPageProvider.get().render(request, messagesApi.preferred(request))));
+  }
+
+  @Override
+  protected CompletionStage<Result> onProdServerError(
+      RequestHeader request, UsefulException exception) {
+    return CompletableFuture.completedFuture(
+        Results.internalServerError(
+            internalServerErrorPageProvider
+                .get()
+                .render(request, messagesApi.preferred(request), exception.id)));
   }
 }

@@ -3,9 +3,6 @@ package services.question.types;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /**
@@ -24,40 +21,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   private final LocalizedStrings entityType;
 
   public EnumeratorQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      LocalizedStrings entityType,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EnumeratorValidationPredicates.create(),
-        lastModifiedTime);
-    this.entityType = checkNotNull(entityType);
-  }
-
-  public EnumeratorQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      LocalizedStrings entityType) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EnumeratorValidationPredicates.create());
+      QuestionDefinitionConfig config, LocalizedStrings entityType) {
+    super(config);
     this.entityType = checkNotNull(entityType);
   }
 
@@ -68,6 +33,11 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ENUMERATOR;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return EnumeratorValidationPredicates.create();
   }
 
   public LocalizedStrings getEntityType() {

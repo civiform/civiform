@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
 import java.time.Instant;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.PersistedDurableJobRepository;
@@ -55,10 +55,10 @@ public class DurableJobSchedulerTest extends ResetPostgres {
   }
 
   private static DurableJob makeTestJob(
-      PersistedDurableJob persistedDurableJob, Runnable runnable) {
+      PersistedDurableJobModel persistedDurableJob, Runnable runnable) {
     return new DurableJob() {
       @Override
-      public PersistedDurableJob getPersistedDurableJob() {
+      public PersistedDurableJobModel getPersistedDurableJob() {
         return persistedDurableJob;
       }
 

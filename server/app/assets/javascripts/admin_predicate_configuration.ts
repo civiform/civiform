@@ -19,6 +19,13 @@ import {addEventListenerToElements, assertNotNull} from './util'
  * */
 class AdminPredicateConfiguration {
   registerEventListeners() {
+    addEventListenerToElements(
+      '#add-replace-predicate-condition',
+      'click',
+      (event: Event) => this.predicateAddOrReplaceCondition(event),
+    )
+
+    // The rest of the event listeners are specific to the predicate configuration page.
     if (document.querySelector('.predicate-config-value-row') == null) {
       return
     }
@@ -86,10 +93,28 @@ class AdminPredicateConfiguration {
     // Check if any inputs are missing a value.
     document
       ?.querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll('input')
-      .forEach((input) => {
-        if (input.value == '') {
-          hasValueMissing = true
+      ?.querySelectorAll('[data-question-id]')
+      .forEach((questionAnswerGroup) => {
+        const inputs = questionAnswerGroup?.querySelectorAll('input')
+        // Single input field that needs a value, e.g. a textbox or date field.
+        if (inputs.length == 1) {
+          if (inputs[0].value == '') {
+            hasValueMissing = true
+            return // Return early if we've found an issue.
+          }
+        }
+        // Multi-input field that needs a checked option, e.g. checkboxes or dropdowns.
+        if (inputs.length > 1) {
+          let hasCheckedOption = false
+          inputs.forEach((input) => {
+            if (input.checked) {
+              hasCheckedOption = true
+            }
+          })
+          if (!hasCheckedOption) {
+            hasValueMissing = true
+            return // Return early if we've found an issue.
+          }
         }
       })
 
@@ -99,8 +124,6 @@ class AdminPredicateConfiguration {
 
     // If there are issues with any of the fields, we show a toast and prevent submit.
     event.preventDefault()
-    // Scroll to the top of the page to ensure the user sees the error message.
-    window.scrollTo(0, 0)
     let errorMessage
     if (hasSelectionMissing && hasValueMissing) {
       errorMessage =
@@ -113,15 +136,7 @@ class AdminPredicateConfiguration {
         'One or more form fields is missing an entry. Please fill out all form fields before saving.'
     }
 
-    ToastController.showToastMessage({
-      id: `predicate-issue-${Math.random()}`,
-      content: errorMessage,
-      duration: -1,
-      type: 'error',
-      condOnStorageKey: null,
-      canDismiss: true,
-      canIgnore: false,
-    })
+    this.showErrorMessage(errorMessage)
   }
 
   configurePredicateFormOnScalarChange(event: Event) {
@@ -143,6 +158,34 @@ class AdminPredicateConfiguration {
       selectedScalarValue,
       questionId,
     )
+  }
+
+  predicateAddOrReplaceCondition(event: Event) {
+    const numChecked = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        '.cf-predicate-question-options',
+      ),
+    ).filter((el) => el.checked).length
+
+    if (numChecked == 0) {
+      event.preventDefault()
+      this.showErrorMessage('Please select a question.')
+    }
+  }
+
+  /** Scrolls to the top of the page and shows an error toast.  */
+  showErrorMessage(errorMessage: string) {
+    // Scroll to the top of the page to ensure the user sees the error message.
+    window.scrollTo(0, 0)
+    ToastController.showToastMessage({
+      id: `predicate-issue-${Math.random()}`,
+      content: errorMessage,
+      duration: -1,
+      type: 'error',
+      condOnStorageKey: null,
+      canDismiss: true,
+      canIgnore: false,
+    })
   }
 
   /** Updates the value input and hidden behavior of CSV help text when the operator changes.
@@ -310,6 +353,8 @@ class AdminPredicateConfiguration {
           ) {
             // Age-related operators should have number input value
             valueInput.setAttribute('type', 'number')
+            // We should allow for decimals to account for month intervals
+            valueInput.setAttribute('step', '.01')
           } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
             // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')

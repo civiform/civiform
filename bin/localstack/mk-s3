@@ -5,16 +5,24 @@
 source bin/lib.sh
 source bin/localstack/lib.sh
 
-BUCKET_NAME="civiform-local-s3"
-
-check_bucket="s3api get-bucket-location --bucket ${BUCKET_NAME}"
-
-create_s3_bucket="s3api create-bucket
-  --bucket ${BUCKET_NAME}
+#######################################
+# Creates a bucket with the given name if it doesn't already exist.
+# Arguments:
+#   1: The name of the bucket to maybe create.
+#######################################
+function create_bucket_if_not_exists() {
+  # Returns the region the provided bucket resides in, or an error if the bucket does not exist.
+  check_cmd="s3api get-bucket-location --bucket ${1}"
+  create_cmd="s3api create-bucket
+  --bucket ${1}
   --region us-west-2
   --create-bucket-configuration LocationConstraint=us-west-2"
 
-# We first check to see if the desired bucket already exists
-# prior to trying to create it.
-localstack::run_command "${check_bucket}" \
-  || localstack::run_command "${create_s3_bucket}"
+  # We first check to see if the desired bucket already exists
+  # prior to trying to create it.
+  localstack::run_command "${check_cmd}" \
+    || localstack::run_command "${create_cmd}"
+}
+
+create_bucket_if_not_exists ${APPLICANT_BUCKET_NAME}
+create_bucket_if_not_exists ${PUBLIC_BUCKET_NAME}

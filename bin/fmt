@@ -22,6 +22,10 @@ docker::set_project_name_dev
 
 bin/pull-image --formatter
 
+# The settings manifest needs to be formatted after codegen, since it runs quickly
+# we run it on every call to bin/fmt.
+bin/generate-settings-manifest
+
 # Can't use TTY in CI
 interactive_flag="-it"
 if [[ -n "${CI}" ]]; then

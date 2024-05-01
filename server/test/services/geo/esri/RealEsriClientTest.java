@@ -1,7 +1,6 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -33,8 +32,39 @@ public class RealEsriClientTest {
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
-    assertEquals(5, candidates.size());
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(5);
+  }
+
+  @Test
+  public void fetchAddressSuggestionsWorksUsingOldLegacySingleUrlConfigValue() throws Exception {
+    // This is the same as the fetchAddressSuggestions test but forces use of the old config
+    // setting.
+    // Can do away after the removal of the old config setting.
+    helper = new EsriTestHelper(TestType.LEGACY_SINGLE_URL_CONFIG_SETTING);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(5);
+  }
+
+  @Test
+  public void fetchAddressSuggestionsHavingLine2Populated() throws Exception {
+    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    addressJson.put("line2", "Apt 123");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+
+    JsonNode nodeWithLine2 = resp.get("candidates").get(0);
+    String actualLine2Value = nodeWithLine2.get("attributes").get("SubAddr").asText();
+    assertThat(actualLine2Value).isEqualTo("Apt 123");
   }
 
   @Test
@@ -46,7 +76,7 @@ public class RealEsriClientTest {
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(0, candidates.size());
+    assertThat(candidates).isEmpty();
   }
 
   @Test
@@ -56,7 +86,26 @@ public class RealEsriClientTest {
     addressJson.put("street", "380 New York St");
     Optional<JsonNode> maybeResp =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
+  }
+
+  @Test
+  public void fetchAddressSuggestionsMultipleUrls() throws Exception {
+    // TestType.MULTIPLE_ENDPOINTS configures the test web server with multi endpoints
+    // that each return different numbers of results
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+
+    // For this test this value is the merged combination of candidate results
+    // from multiple endpoints.
+    int expectedNumberOfCandidates = 8;
+    assertThat(candidates).hasSize(expectedNumberOfCandidates);
   }
 
   @Test
@@ -73,7 +122,7 @@ public class RealEsriClientTest {
     List<String> features = ctx.read("features[*].attributes.CITYNAME");
     Optional<String> feature = features.stream().filter(val -> "Seattle".equals(val)).findFirst();
     assertThat(feature.isPresent()).isTrue();
-    assertEquals("Seattle", feature.get());
+    assertThat(feature.get()).isEqualTo("Seattle");
   }
 
   @Test
@@ -85,6 +134,6 @@ public class RealEsriClientTest {
             .fetchServiceAreaFeatures(EsriTestHelper.LOCATION, "/query")
             .toCompletableFuture()
             .join();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
   }
 }

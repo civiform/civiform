@@ -3,6 +3,8 @@ package auth.oidc.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.typesafe.config.Config;
@@ -11,7 +13,7 @@ import java.util.Collections;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /** Provider class for the AD OIDC Client. */
 public class AdfsClientProvider implements Provider<OidcClient> {
@@ -19,17 +21,20 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
-  private final Provider<UserRepository> applicantRepositoryProvider;
+  private final IdTokensFactory idTokensFactory;
+  private final Provider<AccountRepository> accountRepositoryProvider;
 
   @Inject
   public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      IdTokensFactory idTokensFactory,
+      Provider<AccountRepository> accountRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
-    this.profileFactory = profileFactory;
-    this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.profileFactory = checkNotNull(profileFactory);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
+    this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
   }
 
   @Override
@@ -78,12 +83,16 @@ public class AdfsClientProvider implements Provider<OidcClient> {
     // combined with the name to create the url.
     client.setCallbackUrl(baseUrl + "/callback");
 
-    // This is specific to the implemention using pac4j. pac4j has concept
+    // This is specific to the implementation using pac4j. pac4j has concept
     // of a profile for different identity profiles we have different creators.
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileCreator(
-            config, client, profileFactory, configuration, applicantRepositoryProvider));
+            config,
+            client,
+            OidcClientProviderParams.create(
+                configuration, profileFactory, idTokensFactory, accountRepositoryProvider)));
+
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;

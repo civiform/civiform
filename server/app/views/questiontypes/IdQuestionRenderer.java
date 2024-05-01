@@ -28,7 +28,7 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    IdQuestion idQuestion = question.createIdQuestion();
+    IdQuestion idQuestion = applicantQuestion.createIdQuestion();
 
     FieldWithLabel idField =
         FieldWithLabel.input()
@@ -39,7 +39,11 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader());
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
+
+    if (params.autofocusSingleField()) {
+      idField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();

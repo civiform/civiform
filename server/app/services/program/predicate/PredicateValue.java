@@ -28,6 +28,10 @@ public abstract class PredicateValue {
     return create(String.valueOf(value), OperatorRightHandType.LONG);
   }
 
+  public static PredicateValue of(double value) {
+    return create(String.valueOf(value), OperatorRightHandType.DOUBLE);
+  }
+
   public static PredicateValue of(String value) {
     // Escape the string value
     return create(surroundWithQuotes(value), OperatorRightHandType.STRING);
@@ -131,11 +135,30 @@ public abstract class PredicateValue {
   private static String parseMultiOptionIdToText(
       MultiOptionQuestionDefinition question, String id) {
     return question
-        .getDefaultLocaleOptionForId(Long.parseLong(id.substring(1, id.length() - 1)))
+        .getOptionAdminNameForId(Long.parseLong(id.substring(1, id.length() - 1)))
         .orElse("<obsolete>");
   }
 
+  /**
+   * Remove any double quotes currently in the string, as this would interfere with how we store the
+   * predicate, then surround the string with a pair of double quotes.
+   *
+   * @param s the string to surround in double quotes
+   * @return the same string with double quotes removed, then surrounded by double quotes
+   */
   private static String surroundWithQuotes(String s) {
-    return "\"" + s + "\"";
+    return '"' + s.replace("\"", "") + '"';
+  }
+
+  /**
+   * Get the stringified value of the predicate without surrounding quotes. Used for displaying the
+   * predicate string in the UI. Only removes surrounding quotes from plain string predicate types.
+   * Lists of strings will still contain double quotes around each item in the list.
+   *
+   * @return A plain string with surrounding double quotes removed, or the result of value() if it
+   *     is not a plain string type.
+   */
+  public String valueWithoutSurroundingQuotes() {
+    return type() == OperatorRightHandType.STRING ? value().replace("\"", "") : value();
   }
 }

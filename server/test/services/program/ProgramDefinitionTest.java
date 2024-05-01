@@ -4,11 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import auth.ProgramAcls;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -53,6 +61,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -79,6 +88,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -98,6 +108,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -221,11 +232,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
     assertThat(program.hasQuestion(questionC)).isFalse();
+    assertThat(program.getQuestionIdsInProgram())
+        .containsOnly(questionA.getId(), questionB.getId());
   }
 
   @Test
@@ -242,6 +256,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -262,6 +277,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void updateNameAndDescription_replacesExistingValue() throws Exception {
+    HashSet<Long> tiGroups = new HashSet<>();
+    tiGroups.add(1L);
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
@@ -274,6 +291,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls(tiGroups))
             .build();
 
     program =
@@ -281,6 +299,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(program.localizedName().updateTranslation(Locale.US, "new name"))
             .build();
     assertThat(program.localizedName().get(Locale.US)).isEqualTo("new name");
+    assertThat(program.acls().getTiProgramViewAcls()).containsOnly(1L);
 
     program =
         program.toBuilder()
@@ -288,6 +307,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 program.localizedDescription().updateTranslation(Locale.US, "new description"))
             .build();
     assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new description");
+    assertThat(program.acls().getTiProgramViewAcls()).containsOnly(1L);
   }
 
   @Test
@@ -306,6 +326,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -354,6 +375,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -417,6 +439,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     // block1
@@ -499,6 +522,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     // block1
@@ -600,6 +624,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockE)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     // blockA (applicantName)
@@ -745,7 +770,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withVisibilityPredicate() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -776,7 +801,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withVisibilityPredicate_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -806,7 +831,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -844,7 +869,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -877,7 +902,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicateAndQuestionInSameBlock() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -915,7 +940,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlockDown_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block after a block that depends on it throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -945,7 +970,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -981,7 +1006,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering_returnsFalseIfQuestionsAreInSameBlockAsPredicate() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1019,6 +1044,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(now)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -1037,6 +1063,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -1057,6 +1084,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLastModifiedTime(now)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -1075,7 +1103,462 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_whenExists() {
+    LocalizedStrings description = LocalizedStrings.of(Locale.US, "summary image description");
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setLocalizedSummaryImageDescription(Optional.of(description))
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(def.localizedSummaryImageDescription().get()).isEqualTo(description);
+  }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_whenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_replacesExistingValue()
+      throws TranslationNotFoundException {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setLocalizedSummaryImageDescription(
+                Optional.of(LocalizedStrings.of(Locale.US, "first image description")))
+            .build();
+
+    def =
+        def.toBuilder()
+            .setLocalizedSummaryImageDescription(
+                Optional.of(
+                    def.localizedSummaryImageDescription()
+                        .get()
+                        .updateTranslation(Locale.US, "new image description")))
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("new image description");
+  }
+
+  @Test
+  public void getSummaryImageFileKey_whenExists() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .build();
+
+    assertThat(def.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(def.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-123/fileKey.png");
+  }
+
+  @Test
+  public void getSummaryImageFileKey_whenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    assertThat(def.summaryImageFileKey().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getSummaryImageFileKey_replacesExistingValue() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .build();
+
+    def =
+        def.toBuilder()
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/newFileKey.png"))
+            .build();
+
+    assertThat(def.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-123/newFileKey.png");
+  }
+
+  @Test
+  public void serializeThenDeserialize_allFieldsPresent() throws JsonProcessingException {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+
+    long programDefinitionId = 654L;
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block A")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionA,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(321L)
+            .setName("Block B")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionC,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ true,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+
+    StatusDefinitions.Status approvedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Approved")
+            .setLocalizedStatusText(
+                LocalizedStrings.of(
+                    Locale.US, "US approved status", Locale.GERMAN, "German approved status"))
+            .build();
+    StatusDefinitions.Status deniedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Denied")
+            .setLocalizedStatusText(
+                LocalizedStrings.of(
+                    Locale.US, "US denied status", Locale.GERMAN, "German denied status"))
+            .build();
+    StatusDefinitions statusDefinitions =
+        new StatusDefinitions(ImmutableList.of(approvedStatus, deniedStatus));
+
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            // The following fields *should* be included in the serialization
+            .setId(programDefinitionId)
+            .setAdminName("serialize-test")
+            .setAdminDescription("Test program for serialization")
+            .setLocalizedName(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "US name",
+                    Locale.FRENCH,
+                    "French name",
+                    Locale.ITALIAN,
+                    "Italian name"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "US description", Locale.GERMAN, "German description"))
+            .setLocalizedConfirmationMessage(
+                LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"))
+            .setLocalizedSummaryImageDescription(
+                Optional.of(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "US summary image description",
+                        Locale.ITALIAN,
+                        "Italian summary image description")))
+            .setExternalLink("external.link")
+            .setStatusDefinitions(statusDefinitions)
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            // The following fields should *not* be included in the serialization
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .setCreateTime(Instant.now())
+            .setLastModifiedTime(Instant.now())
+            .build();
+
+    ObjectMapper objectMapper =
+        instanceOf(ObjectMapper.class)
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module());
+
+    String serializedProgramDefinition = objectMapper.writeValueAsString(programDefinition);
+    ProgramDefinition result =
+        objectMapper.readValue(serializedProgramDefinition, ProgramDefinition.class);
+
+    // Assert that the fields that should have been parsed were parsed correctly.
+    assertThat(result.id()).isEqualTo(654L);
+    assertThat(result.adminName()).isEqualTo("serialize-test");
+    assertThat(result.adminDescription()).isEqualTo("Test program for serialization");
+    assertThat(result.localizedName())
+        .isEqualTo(
+            LocalizedStrings.of(
+                Locale.US,
+                "US name",
+                Locale.FRENCH,
+                "French name",
+                Locale.ITALIAN,
+                "Italian name"));
+    assertThat(result.localizedDescription())
+        .isEqualTo(
+            LocalizedStrings.of(Locale.US, "US description", Locale.GERMAN, "German description"));
+    assertThat(result.localizedConfirmationMessage())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"));
+    assertThat(result.localizedSummaryImageDescription())
+        .hasValue(
+            LocalizedStrings.of(
+                Locale.US,
+                "US summary image description",
+                Locale.ITALIAN,
+                "Italian summary image description"));
+    assertThat(result.externalLink()).isEqualTo("external.link");
+    assertThat(result.statusDefinitions().getStatuses())
+        .containsExactly(approvedStatus, deniedStatus);
+    assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
+    assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.eligibilityIsGating()).isTrue();
+    assertThat(result.acls().getTiProgramViewAcls()).containsExactlyInAnyOrder(987L, 65L, 4321L);
+
+    // Assert that the block definitions were parsed correctly.
+    // Note: A BlockDefinition contains a list of ProgramQuestionDefinitions, which specify the
+    // questions included in the block. ProgramQuestionDefinitions are serialized into JSON and
+    // stored in our database as that JSON string. When we serialize, we specifically exclude
+    // the `programDefinitionId` and `questionDefinition` fields. When it gets deserialized,
+    // we expect those fields to be missing.
+    BlockDefinition expectedBlockA =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block A")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionA.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+    BlockDefinition expectedBlockB =
+        BlockDefinition.builder()
+            .setId(321L)
+            .setName("Block B")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionB.getId(), /* optional= */ false, /* addressCorrectionEnabled= */ true))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionC.getId(), /* optional= */ true, /* addressCorrectionEnabled= */ false))
+            .build();
+    assertThat(result.blockDefinitions()).containsExactly(expectedBlockA, expectedBlockB);
+
+    // Assert that the fields that should not have been parsed were not included.
+    assertThat(result.summaryImageFileKey()).isEmpty();
+    assertThat(result.createTime()).isEmpty();
+    assertThat(result.lastModifiedTime()).isEmpty();
+  }
+
+  @Test
+  public void serializeThenDeserialize_withEnumeratorQuestion() throws JsonProcessingException {
+    long programDefinitionId = 654L;
+
+    QuestionDefinition mainEnumQ =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition qForMainEnum =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    QuestionDefinition nestedEnumQ =
+        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+    QuestionDefinition qForNestedEnum =
+        testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(100L)
+            .setName("Block A Name")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(mainEnumQ, Optional.of(programDefinitionId)))
+            .build();
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(200L)
+            .setName("Block B Name")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(qForMainEnum, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition blockC =
+        BlockDefinition.builder()
+            .setId(300L)
+            .setName("Block C Name")
+            .setDescription("Block C Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(nestedEnumQ, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition blockD =
+        BlockDefinition.builder()
+            .setId(400L)
+            .setName("Block D Name")
+            .setDescription("Block D Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(qForNestedEnum, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(300L))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(programDefinitionId)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockC)
+            .addBlockDefinition(blockD)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    ObjectMapper objectMapper =
+        instanceOf(ObjectMapper.class)
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module());
+
+    String serializedProgramDefinition = objectMapper.writeValueAsString(programDefinition);
+    ProgramDefinition result =
+        objectMapper.readValue(serializedProgramDefinition, ProgramDefinition.class);
+
+    // Assert that the block definitions were parsed correctly to include the enumerator IDs.
+    BlockDefinition expectedBlockA =
+        BlockDefinition.builder()
+            .setId(100L)
+            .setName("Block A Name")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    mainEnumQ.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.empty())
+            .build();
+    BlockDefinition expectedBlockB =
+        BlockDefinition.builder()
+            .setId(200L)
+            .setName("Block B Name")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    qForMainEnum.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition expectedBlockC =
+        BlockDefinition.builder()
+            .setId(300L)
+            .setName("Block C Name")
+            .setDescription("Block C Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nestedEnumQ.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition expectedBlockD =
+        BlockDefinition.builder()
+            .setId(400L)
+            .setName("Block D Name")
+            .setDescription("Block D Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    qForNestedEnum.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(300L))
+            .build();
+    assertThat(result.blockDefinitions())
+        .containsExactly(expectedBlockA, expectedBlockB, expectedBlockC, expectedBlockD);
   }
 }

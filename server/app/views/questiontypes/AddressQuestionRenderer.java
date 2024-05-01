@@ -1,6 +1,6 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -20,16 +20,6 @@ import views.style.ReferenceClasses;
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
-  // 50 states, DC and 8 territories as sourced from https://pe.usps.com/text/pub28/28apb.htm
-  private static final ImmutableList<String> STATE_ABBREVIATIONS =
-      ImmutableList.sortedCopyOf(
-          ImmutableList.of(
-              "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "FM", "GA", "GU",
-              "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MH", "MI", "MN",
-              "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK",
-              "OR", "PA", "PR", "PW", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VI", "VT", "WA",
-              "WI", "WV", "WY"));
-
   public AddressQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
@@ -45,7 +35,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    AddressQuestion addressQuestion = question.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     FieldWithLabel streetAddressField =
         FieldWithLabel.input()
@@ -57,6 +47,14 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1);
+
+    boolean alreadyAutofocused = false;
+    if (params.autofocusFirstField()
+        || (params.autofocusFirstError()
+            && validationErrors.containsKey(addressQuestion.getStreetPath()))) {
+      alreadyAutofocused = true;
+      streetAddressField.focusOnInput();
+    }
 
     FieldWithLabel addressOptionalField =
         FieldWithLabel.input()
@@ -80,6 +78,13 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getCityPath())) {
+      alreadyAutofocused = true;
+      cityField.focusOnInput();
+    }
+
     SelectWithLabel stateField =
         (SelectWithLabel)
             new SelectWithLabel()
@@ -99,16 +104,30 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                         addressQuestion.getStatePath(), ImmutableSet.of()))
                 .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getStatePath())) {
+      alreadyAutofocused = true;
+      stateField.focusOnInput();
+    }
+
     FieldWithLabel zipField =
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getZipPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
+            .setAttribute("inputmode", "numeric")
             .setAutocomplete(Optional.of("postal-code"))
             .setValue(addressQuestion.getZipValue().orElse(""))
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
+
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getZipPath())) {
+      zipField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       streetAddressField.forceAriaInvalid();
@@ -127,11 +146,11 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
     DivTag addressQuestionFormContent =
         div()
             .with(
-                /** First line of address entry: Address line 1 AKA street address */
+                // First line of address entry: Address line 1 AKA street address
                 streetAddressField.getInputTag(),
-                /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
+                // Second line of address entry: Address line 2 AKA apartment, unit, etc.
                 addressOptionalField.getInputTag(),
-                /** Third line of address entry: City, State, Zip */
+                // Third line of address entry: City, State, Zip
                 div()
                     .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
@@ -146,7 +165,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
 
   /** Returns a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
-    return STATE_ABBREVIATIONS.stream()
+    return AddressQuestion.STATE_ABBREVIATIONS.stream()
         .map(state -> SelectWithLabel.OptionValue.builder().setLabel(state).setValue(state).build())
         .collect(ImmutableList.toImmutableList());
   }

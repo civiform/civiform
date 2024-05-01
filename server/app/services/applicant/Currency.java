@@ -1,5 +1,6 @@
 package services.applicant;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -45,9 +46,11 @@ public final class Currency {
       throw new IllegalArgumentException(String.format("Currency is misformatted: %s", currency));
     }
     try {
-      double dollars = NumberFormat.getNumberInstance(Locale.US).parse(currency).doubleValue();
-      Double cents = dollars * 100;
-      return new Currency(cents.longValue());
+      BigDecimal bigDollars =
+          BigDecimal.valueOf(
+              NumberFormat.getNumberInstance(Locale.US).parse(currency).doubleValue());
+      long cents = bigDollars.multiply(new BigDecimal(100)).longValue();
+      return new Currency(cents);
     } catch (ParseException e) {
       throw new IllegalArgumentException(
           String.format("Currency is misformatted: %s", currency), e);

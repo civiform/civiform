@@ -1,8 +1,8 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.AbstractMap;
@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +31,10 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
@@ -57,7 +57,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     staticQuestion = testQuestionBank.staticContent().getQuestionDefinition();
     programDefinition =
-        ProgramBuilder.newDraftProgram("My Program")
+        ProgramBuilder.newDraftProgram("My Program setup")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withRequiredQuestionDefinition(nameQuestion)
@@ -73,7 +73,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    assertThat(subject.getProgramTitle()).isEqualTo("My Program");
+    assertThat(subject.getProgramTitle()).isEqualTo("My Program setup");
   }
 
   @Test
@@ -861,24 +861,24 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getBlock_blockExists_returnsTheBlock() {
+  public void getActiveBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getBlock("1");
+    Optional<Block> maybeBlock = subject.getActiveBlock("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("1");
   }
 
   @Test
-  public void getBlock_blockNotInList_returnsEmpty() {
+  public void getActiveBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getBlock("111");
+    Optional<Block> maybeBlock = subject.getActiveBlock("111");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -911,7 +911,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,
-            new Applicant().getApplicantData(),
+            new ApplicantModel().getApplicantData(),
             ProgramDefinition.builder()
                 .setId(123L)
                 .setAdminName("Admin program name")
@@ -924,6 +924,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
+                .setAcls(new ProgramAcls())
                 .build(),
             FAKE_BASE_URL);
 
@@ -981,7 +982,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getSummaryData_returnsCompletedData() {
+  public void getSummaryDataOnlyActive_returnsCompletedData() {
     // Create a program with lots of questions
     QuestionDefinition singleSelectQuestionDefinition =
         testQuestionBank.applicantSeason().getQuestionDefinition();
@@ -1055,9 +1056,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
-    ImmutableList<AnswerData> result = subject.getSummaryData();
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
-    assertEquals(9, result.size());
+    assertThat(result).hasSize(9);
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
@@ -1078,7 +1079,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 ApplicantData.APPLICANT_PATH
                     .join(multiSelectQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.SELECTIONS),
-                "[toaster, pepper grinder]"));
+                "[toaster, pepper_grinder]"));
 
     // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
@@ -1143,7 +1144,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getSummaryData_returnsLinkForUploadedFile() {
+  public void getSummaryDataOnlyActive_returnsLinkForUploadedFile() {
     // Create a program with a fileupload question and a non-fileupload question
     QuestionDefinition fileUploadQuestionDefinition =
         testQuestionBank.applicantFile().getQuestionDefinition();
@@ -1164,9 +1165,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
-    ImmutableList<AnswerData> result = subject.getSummaryData();
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
-    assertEquals(2, result.size());
+    assertThat(result).hasSize(2);
     // Non-fileupload question does not have a file key
     assertThat(result.get(0).encodedFileKey()).isEmpty();
     // Fileupload question has a file key
@@ -1175,7 +1176,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
   @Test
   @Parameters({"5, true", "1, false"})
-  public void getSummaryData_isEligible(long answer, boolean expectedResult) {
+  public void getSummaryDataOnlyActive_isEligible(long answer, boolean expectedResult) {
     // Create a program with an eligibility condition == 5 and answer it with different values.
     QuestionDefinition numberQuestionDefinition =
         testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
@@ -1209,19 +1210,19 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
-    ImmutableList<AnswerData> result = subject.getSummaryData();
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
-    assertEquals(1, result.size());
+    assertThat(result).hasSize(1);
     assertThat(result.get(0).isEligible()).isEqualTo(expectedResult);
   }
 
   @Test
-  public void getSummaryData_returnsWithEmptyData() {
+  public void getSummaryDataOnlyActive_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    ImmutableList<AnswerData> result = subject.getSummaryData();
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(3);
     assertThat(result.get(0).answerText()).isEqualTo("");

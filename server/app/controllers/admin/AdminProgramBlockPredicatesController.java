@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -13,6 +14,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -52,7 +54,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramPredicatesEditViewV2 predicatesEditViewV2,
       ProgramPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -71,7 +76,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -99,7 +104,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -117,6 +122,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
   }
+
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
@@ -128,7 +134,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
-              programService.getProgramDefinition(programId),
+              programService.getFullProgramDefinition(programId),
               formFactory.form().bindFromRequest(request),
               roQuestionService);
 
@@ -162,7 +168,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -182,7 +188,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       ImmutableList<Long> visibilityQuestionIds =
@@ -218,7 +224,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -238,7 +244,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       ImmutableList<Long> eligibilityQuestionIds =
@@ -305,7 +311,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           EligibilityDefinition.builder()
               .setPredicate(
                   predicateGenerator.generatePredicateDefinition(
-                      programService.getProgramDefinition(programId),
+                      programService.getFullProgramDefinition(programId),
                       formFactory.form().bindFromRequest(request),
                       roQuestionService))
               .build();

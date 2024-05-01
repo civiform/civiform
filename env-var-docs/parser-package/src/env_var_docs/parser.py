@@ -7,10 +7,17 @@ See parser-package/README.md for a description of the expected structure.
 """
 
 import dataclasses
+from enum import Enum
 import typing
 import json
+# Needed for <3.10
+from typing import Union
+# Needed for <3.9
+from typing import Dict, List, Tuple
 
-UnparsedJSON = dict[str, typing.Any]
+UnparsedJSON = Dict[str, typing.Any]
+
+Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE', 'ADMIN_WRITEABLE', 'SECRET'])
 
 
 @dataclasses.dataclass
@@ -20,7 +27,7 @@ class Group:
     See parser-package/README.md for the expected JSON structure.
     """
     group_description: str
-    members: dict[str, UnparsedJSON]
+    members: Dict[str, UnparsedJSON]
 
 
 @dataclasses.dataclass
@@ -46,9 +53,10 @@ class Variable:
     description: str
     type: str
     required: bool
-    values: list[str] | None
-    regex: str | None
-    regex_tests: list[RegexTest] | None
+    values: Union[List[str], None]
+    regex: Union[str, None]
+    regex_tests: Union[List[RegexTest], None]
+    mode: Mode
 
 
 @dataclasses.dataclass
@@ -72,7 +80,7 @@ class Node:
     name: str
     """The group name or variable name. The JSON field key is the name."""
 
-    details: Group | Variable
+    details: Union[Group, Variable]
     """The group details or variable details."""
 
 
@@ -93,7 +101,7 @@ class ParseError:
     """"Why the object is invalid."""
 
 
-ParseErrors = list[ParseError]
+ParseErrors = List[ParseError]
 
 
 @dataclasses.dataclass
@@ -113,7 +121,7 @@ class NodeParseError:
     """Errors from attempting to parse as a Variable."""
 
 
-def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
+def visit(file: typing.TextIO, visit_fn: VisitFn) -> List[NodeParseError]:
     """Parses an environment variable documentation file. The file must be
     valid JSON and be a single object.
 
@@ -143,7 +151,7 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
                 json_root, [ParseError(json_root, f"file is not valid: {e}")],
                 [])
         ]
-    if not isinstance(docs, dict):
+    if not isinstance(docs, Dict):
         return [
             NodeParseError(
                 json_root,
@@ -151,8 +159,8 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
                 [])
         ]
 
-    nodes_to_visit: list[Node] = []
-    parsing_errors: list[NodeParseError] = []
+    nodes_to_visit: List[Node] = []
+    parsing_errors: List[NodeParseError] = []
 
     # The file is an implicit root node. Recursively descend into each top-level field.
     for key, value in docs.items():
@@ -170,7 +178,7 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
 
 def _recursively_parse(
         level: int, parent_path: str, key: str, value: UnparsedJSON,
-        nodes_to_visit: list[Node], parsing_errors: list[NodeParseError]):
+        nodes_to_visit: List[Node], parsing_errors: List[NodeParseError]):
     """Recursively visits a node and its children, in preorder traversal order
     (visit root then children).
 
@@ -211,8 +219,9 @@ def _recursively_parse(
     parsing_errors.append(NodeParseError(path, group_errors, var_errors))
 
 
-def _try_parse_group(parent_path: str,
-                     obj: UnparsedJSON) -> tuple[Group | None, ParseErrors]:
+def _try_parse_group(
+        parent_path: str,
+        obj: UnparsedJSON) -> Tuple[Union[Group, None], ParseErrors]:
     """Attempts to parse a Group from obj. If ParseErrors are encountered, None is returned."""
     errors = []
 
@@ -229,7 +238,7 @@ def _try_parse_group(parent_path: str,
     members, errs = _parse_field(
         parent_path=parent_path,
         key="members",
-        json_type=dict,
+        json_type=Dict,
         required=True,
         obj=obj)
     errors.extend(errs)
@@ -250,7 +259,7 @@ def _try_parse_group(parent_path: str,
 
 def _try_parse_variable(
         parent_path: str,
-        obj: UnparsedJSON) -> tuple[Variable | None, ParseErrors]:
+        obj: UnparsedJSON) -> Tuple[Union[Variable, None], ParseErrors]:
     """Attempts to parse a Variable from obj. If ParseErrors are encountered, None is returned."""
     errors = []
 
@@ -283,8 +292,23 @@ def _try_parse_variable(
         default=False)
     errors.extend(errs)
 
+    # Parse the 'mode' field.
+    def extract_mode(obj: UnparsedJSON) -> Mode:
+        return Mode[obj["mode"]]
+
+    mode, errs = _parse_field(
+        parent_path=parent_path,
+        key="mode",
+        json_type=str,
+        required=True,
+        return_type=Mode,
+        extract_fn=extract_mode,
+        obj=obj,
+        checks=[_variable_check_mode_is_valid])
+    errors.extend(errs)
+
     # Parse the 'values' field. Get out a list[str] instead of a JSON list.
-    def convert_values(obj: UnparsedJSON) -> list[str]:
+    def convert_values(obj: UnparsedJSON) -> List[str]:
         out = []
         for v in obj["values"]:
             out.append(v)
@@ -293,13 +317,13 @@ def _try_parse_variable(
     values, errs = _parse_field(
         parent_path=parent_path,
         key="values",
-        json_type=list,
+        json_type=List,
         required=False,
         obj=obj,
         checks=[
             _variable_check_values, _variable_check_regex_fields_not_defined
         ],
-        return_type=list[str],
+        return_type=List[str],
         extract_fn=convert_values)
     errors.extend(errs)
 
@@ -317,7 +341,7 @@ def _try_parse_variable(
     errors.extend(errs)
 
     # Parse the 'regex_tests' field. Get out a list[RegexTest] instead of a JSON list.
-    def convert_regex_tests(obj: UnparsedJSON) -> list[RegexTest]:
+    def convert_regex_tests(obj: UnparsedJSON) -> List[RegexTest]:
         out = []
         for test in obj["regex_tests"]:
             out.append(RegexTest(test["val"], test["should_match"]))
@@ -326,11 +350,11 @@ def _try_parse_variable(
     regex_tests, errs = _parse_field(
         parent_path=parent_path,
         key="regex_tests",
-        json_type=list,
+        json_type=List,
         required=False,
         obj=obj,
         checks=[_variable_check_regex_defined, _variable_check_regex_tests],
-        return_type=list[RegexTest],
+        return_type=List[RegexTest],
         extract_fn=convert_regex_tests)
     errors.extend(errs)
 
@@ -339,7 +363,7 @@ def _try_parse_variable(
         _ensure_no_extra_fields(
             parent_path, obj, [
                 "description", "type", "required", "values", "regex",
-                "regex_tests"
+                "regex_tests", "mode"
             ]))
 
     if len(errors) != 0:
@@ -349,8 +373,9 @@ def _try_parse_variable(
         assert description is not None
         assert type is not None
         assert required is not None
+        assert mode is not None
         return Variable(
-            description, type, required, values, regex, regex_tests), []
+            description, type, required, values, regex, regex_tests, mode), []
 
 
 CheckFn = typing.Callable[[str, UnparsedJSON], ParseErrors]
@@ -362,15 +387,16 @@ ExtractFn = typing.Callable[[UnparsedJSON], T]
 
 
 def _parse_field(
-        parent_path: str,
-        key: str,
-        json_type: type,
-        required: bool,
-        obj: UnparsedJSON,
-        default: T | None = None,
-        checks: list[CheckFn] = [],
-        return_type: typing.Type[T] | None = None,
-        extract_fn: ExtractFn | None = None) -> tuple[T | None, ParseErrors]:
+    parent_path: str,
+    key: str,
+    json_type: type,
+    required: bool,
+    obj: UnparsedJSON,
+    default: Union[T, None] = None,
+    checks: List[CheckFn] = [],
+    return_type: Union[typing.Type[T], None] = None,
+    extract_fn: Union[ExtractFn, None] = None
+) -> Tuple[Union[T, None], ParseErrors]:
     """Parses a field within obj.
 
     ParseErrors are returned if:
@@ -384,7 +410,7 @@ def _parse_field(
     Required args:
       parent_path: Path to obj.
       key: The key within obj to parse.
-      json_type: The type expected at key. Must be one of [str, bool, dict, list] or ValueError is raised.
+      json_type: The type expected at key. Must be one of [str, bool, Dict, List] or ValueError is raised.
       required: If the field is required.
       obj: The object to parse.
 
@@ -396,9 +422,9 @@ def _parse_field(
         1. key in obj and isinstance(obj[key], json_type).
         2. No checks return any ParseErrors.
     """
-    if json_type not in [str, bool, dict, list]:
+    if json_type not in [str, bool, Dict, List]:
         raise ValueError(
-            f"'{json_type}' is not a valid json_type, valid types are [str, bool, dict, list]"
+            f"'{json_type}' is not a valid json_type, valid types are [str, bool, Dict, List]"
         )
     if required and default is not None:
         raise ValueError("'default' must be None if 'required' is True")
@@ -426,18 +452,16 @@ def _parse_field(
                 t = "string"
             if json_type == bool:
                 t = "bool"
-            if json_type == dict:
+            if json_type == Dict:
                 t = "object"
-            if json_type == list:
+            if json_type == List:
                 t = "list"
             errors.append(ParseError(_path(parent_path, key), f"must be a {t}"))
         else:
             for check in checks:
                 errors.extend(check(parent_path, obj))
             if len(errors) == 0:
-                value = obj[key]
-                if extract_fn is not None:
-                    value = extract_fn(obj)
+                value = obj[key] if extract_fn is None else extract_fn(obj)
 
     return value, errors
 
@@ -459,7 +483,7 @@ def _path(*args: str) -> str:
 
 def _ensure_no_extra_fields(
         parent_path: str, obj: UnparsedJSON,
-        valid_fields: list[str]) -> ParseErrors:
+        valid_fields: List[str]) -> ParseErrors:
     """Returns ParseErrors for any keys in obj that are not in valid_fields."""
     errors = []
     for key in list(obj):
@@ -482,6 +506,22 @@ def _variable_check_type_is_valid(
             ParseError(
                 _path(parent_path, "type"),
                 f"'{t}' is an invalid value, valid values are {valid}"))
+    return errors
+
+
+def _variable_check_mode_is_valid(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+    errors = []
+
+    raw_mode = obj["mode"]
+    try:
+        Mode[raw_mode]
+    except (KeyError) as e:
+        valid = [m.value for m in Mode]
+        errors.append(
+            ParseError(
+                _path(parent_path, "mode"),
+                f"'{raw_mode}' is an invalid mode, valid modes are {valid}"))
     return errors
 
 
@@ -556,7 +596,7 @@ def _variable_check_regex_tests(
         i += 1
         index_path = _path(parent_path, "regex_tests", str(i))
 
-        if not isinstance(test, dict):
+        if not isinstance(test, Dict):
             errors.append(ParseError(index_path, "must be an object"))
         else:
             errors.extend(

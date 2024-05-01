@@ -233,8 +233,6 @@ public final class Block {
    * <p>A block with optional questions that are not answered is not answered.
    */
   public boolean isAnsweredWithoutErrors() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
-    //  instead of all scalar paths.
     return isAnswered() && !hasErrors();
   }
 
@@ -261,6 +259,11 @@ public final class Block {
     return getQuestions().isEmpty()
         || getQuestions().stream()
             .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
+  }
+
+  /** Returns true if this block contains only optional questions and false otherwise. */
+  public boolean hasOnlyOptionalQuestions() {
+    return getQuestions().stream().allMatch(ApplicantQuestion::isOptional);
   }
 
   /**

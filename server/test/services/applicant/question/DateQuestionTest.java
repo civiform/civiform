@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,27 +18,30 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionAnswerer;
 import services.question.types.DateQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
 public class DateQuestionTest extends ResetPostgres {
   private static final DateQuestionDefinition dateQuestionDefinition =
       new DateQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
   }
 
@@ -82,7 +85,33 @@ public class DateQuestionTest extends ResetPostgres {
             ImmutableMap.of(
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED))));
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getDateValue_returnsPAIValueWhenTagged() {
+    DateQuestionDefinition dateQuestionDefinitionWithPAI =
+        new DateQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
+                .build());
+
+    // Save applicant's dob to the PAI column
+    applicant.setDateOfBirth("2001-01-01");
+
+    DateQuestion dateQuestion =
+        new ApplicantQuestion(dateQuestionDefinitionWithPAI, applicantData, Optional.empty())
+            .createDateQuestion();
+
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
   }
 }

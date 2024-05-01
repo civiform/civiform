@@ -4,12 +4,13 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.19_7-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.19-7 as arm64
+FROM eclipse-temurin:11.0.22_7-jdk-alpine as amd64
+FROM bellsoft/liberica-openjdk-alpine:11.0.22-12 as arm64
 
 FROM ${TARGETARCH}
 
-ENV SBT_VERSION "${SBT_VERSION:-1.8.2}"
+ARG SBT_VERSION
+ENV SBT_VERSION "${SBT_VERSION}"
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH "${PATH}:${SBT_HOME}/bin"
@@ -29,10 +30,10 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
+  apk add --no-cache --update bash wget npm git
 
 # Install npm (node)
-RUN npm install -g npm@8.5.1
+RUN npm install -g npm
 
 # Download sbt
 RUN set -o pipefail && \

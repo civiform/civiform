@@ -1,20 +1,25 @@
 package auth.oidc.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.pac4j.play.PlayWebContext;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
@@ -30,12 +35,14 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private IdTokensFactory idTokensFactory;
+  private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -43,8 +50,10 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
         new GenericApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(userRepository),
+            OidcClientProviderParams.create(
+                profileFactory,
+                idTokensFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository)),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
             ImmutableList.of(
@@ -62,12 +71,13 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
+    PlayWebContext context = new PlayWebContext(fakeRequest().build());
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
-    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
@@ -76,5 +86,11 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
+  }
+
+  @Test
+  public void applicantProfileCreator_identityProviderTypeIsCorrect() {
+    assertThat(oidcProfileAdapter.identityProviderType())
+        .isEqualTo(IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
   }
 }

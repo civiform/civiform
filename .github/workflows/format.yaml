@@ -1,12 +1,9 @@
 name: Format
 
 on:
-  # code review question: this commits directly to PR branches.
-  # that seems like what we're looking for, but we could also format only
-  # committed code.
   pull_request:
-    branches:
-      - main
+    branches-ignore:
+      - 'spike/**'
 
 # cancels in-progress jobs on this pull request
 # avoids wasted work when a new commit is pushed
@@ -20,53 +17,37 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '11.0.10'
-          distribution: 'zulu'
-
       - id: file_changes
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v44
         with:
           json: 'true'
 
-      - uses: axel-op/googlejavaformat-action@v3
-        with:
-          version: 1.9
-          skip-commit: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: show diff
+      - name: Re-build formatter if needed
+        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'formatter/')
+        id: formatter_rebuild
+        run: bin/build-formatter
+
+      - name: Run bin/fmt
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/fmt
+
+      - name: Run bin/fmt-sbt
+        env:
+          DOCKER_BUILDKIT: 1
+        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
+        run: bin/fmt-sbt
+      - name: show bin/fmt and bin/fmt-sbt diff
         run: git add .; git diff --exit-code HEAD
 
-      - name: Run npm install
-        run: >
-          cp formatter/package*.json . &&
-          npm install &&
-          rm package*.json
-
-      - name: Prettier diff
-        uses: actionsx/prettier@e90ec5455552f0f640781bdd5f5d2415acb52f1a
-        with:
-          # prettier CLI arguments.
-          args: --check .
-
-      - name: Run ESLint on browser tests
-        working-directory: browser-test
-        run: npm install && npx eslint . --ext .ts
-
-      - name: Run ESLint on server
-        working-directory: server
-        run: npm install && npx eslint . --ext .ts
-
-      - name: show diff
-        run: git add .; git diff --exit-code HEAD
-
-      - name: Check bin scripts have docstrings.
+      - name: Check bin scripts have docstrings
         if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'bin/') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml')
         id: check_bin_script_docs
         run: bin/help
@@ -76,78 +57,5 @@ jobs:
       - name: show bin/validate_java_classes_marked_final diff
         run: git add .; git diff --exit-code HEAD
 
-  formatter-dockerfile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # get main
-      - id: file_changes
-        uses: tj-actions/changed-files@v35
-        with:
-          json: 'true'
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Build formatter
-        uses: docker/build-push-action@v4
-        with:
-          file: formatter/formatter.Dockerfile
-          load: true
-          push: false
-          tags: civiform/formatter
-          cache-from: |
-            civiform/formatter:latest
-      - name: Run Browsertest formatter
-        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'formatter')
-        run: browser-test/bin/fmt
-      - name: show Browsertest diff
-        run: git add .; git diff --exit-code HEAD
-      - name: run bin/fmt
-        run: bin/fmt
-      - name: show bin/fmt diff
-        run: git add .; git diff --exit-code HEAD
-
-  scala-formatting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # get main
-      - id: file_changes
-        uses: tj-actions/changed-files@v35
-        with:
-          json: 'true'
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Run bin/fmt-sbt
-        env:
-          DOCKER_BUILDKIT: 1
-        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
-        run: bin/fmt-sbt
-      - name: show bin/fmt-sbt diff
-        run: git add .; git diff --exit-code HEAD
-
-  shell-formatting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run the shell checker
-        uses: luizm/action-sh-checker@master
-        env:
-          SHELLCHECK_OPTS: -s bash -S error
-          sh_checker_exclude: '*.md'
-          SHFMT_OPTS:
-            -bn -ci -i 2
-            # -i 2   indent 2 spaces
-            # -bn    binary ops like && and | may start a line
-            # -ci    switch cases will be indented
-
-  python-formatting:
-    name: Formatting Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: run YAPF to test if python code is correctly formatted
-        uses: AlexanderMelde/yapf-action@v1.0
-        with:
-          args: "--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'"
+      - name: Run validate_filters_inject_providers
+        run: bin/validate_filters_inject_providers

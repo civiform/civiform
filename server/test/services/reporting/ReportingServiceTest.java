@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -26,9 +26,9 @@ import support.ProgramBuilder;
 public class ReportingServiceTest extends ResetPostgres {
 
   private ReportingService service;
-  private Applicant applicant;
-  private Program programA;
-  private Program programB;
+  private ApplicantModel applicant;
+  private ProgramModel programA;
+  private ProgramModel programB;
 
   @Before
   public void setUp() {
@@ -61,7 +61,7 @@ public class ReportingServiceTest extends ResetPostgres {
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("11/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("01/2021", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
         .containsExactly("12/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
@@ -101,9 +101,9 @@ public class ReportingServiceTest extends ResetPostgres {
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("11/2020", "2", "00:10:25", "00:12:30", "00:14:35", "00:16:35");
+        .containsExactly("01/2021", "2", "00:00:25", "00:00:50", "00:01:15", "00:01:39");
     assertThat(records.get(1).toList())
-        .containsExactly("12/2020", "2", "00:00:25", "00:00:50", "00:01:15", "00:01:39");
+        .containsExactly("12/2020", "2", "00:10:25", "00:12:30", "00:14:35", "00:16:35");
     assertThat(records.size()).isEqualTo(2);
   }
 
@@ -136,9 +136,9 @@ public class ReportingServiceTest extends ResetPostgres {
     instanceOf(ReportingRepository.class).refreshMonthlyReportingView();
   }
 
-  private Application createFakeApplication(
-      Program program, Instant createTime, Instant submitTime) {
-    Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+  private ApplicationModel createFakeApplication(
+      ProgramModel program, Instant createTime, Instant submitTime) {
+    ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 

@@ -30,22 +30,29 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
+            .setAttribute("inputmode", "decimal")
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
+
+    if (params.autofocusSingleField()) {
+      currencyField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       currencyField.forceAriaInvalid();
     }
+
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
     } else {

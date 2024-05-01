@@ -1,6 +1,6 @@
 package auth.oidc.applicant;
 
-import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
@@ -23,7 +22,6 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
@@ -37,15 +35,11 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
 
   public IdcsApplicantProfileCreator(
-      OidcConfiguration configuration,
-      OidcClient client,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
     super(
-        configuration,
+        oidcConfiguration,
         client,
-        profileFactory,
-        applicantRepositoryProvider,
+        params,
         EMAIL_ATTRIBUTE_NAME,
         LOCALE_ATTRIBUTE_NAME,
         ImmutableList.of(NAME_ATTRIBUTE_NAME));

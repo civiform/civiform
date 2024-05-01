@@ -1,20 +1,35 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.stubMessagesApi;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.test.Helpers.fakeApplication;
 
-import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import play.data.validation.ValidationError;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 
 public class FieldWithLabelTest {
 
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private static Messages messages;
+
+  @BeforeClass
+  public static void startPlay() {
+    // Create a fake application here just to get access to the injector.
+    // We don't start the fake application so there's no need for an @AfterClass
+    // method to stop it.
+    messages =
+        fakeApplication()
+            .injector()
+            .instanceOf(MessagesApi.class)
+            .preferred(Set.of(Lang.defaultLang()));
+  }
 
   @Test
   public void createInput_rendersInput() {
@@ -77,7 +92,7 @@ public class FieldWithLabelTest {
   }
 
   @Test
-  public void createInput_setsMaxLength() {
+  public void createInput_setsMaxLengthDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.input();
     // Check that we set the max length.
     assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"10000\"");
@@ -165,11 +180,34 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void input_withToolTip() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input().setToolTipIcon(Icons.INFO).setToolTipText("Live long and prosper");
+    assertThat(fieldWithLabel.getInputTag().render()).contains("Live long and prosper");
+    assertThat(fieldWithLabel.getInputTag().render()).contains(Icons.INFO.path);
+  }
+
+  @Test
+  public void throwsExceptionWhenOnlyToolTipTextOrIconIsSet() {
+    FieldWithLabel fieldWithLabelTextOnly =
+        FieldWithLabel.input().setToolTipText("Live long and prosper");
+    FieldWithLabel fieldWithLabelIconOnly = FieldWithLabel.input().setToolTipIcon(Icons.INFO);
+    String expectedMessage = "Tool tip text and icon must both be defined";
+    assertThatThrownBy(() -> fieldWithLabelTextOnly.getInputTag())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(expectedMessage);
+    assertThatThrownBy(() -> fieldWithLabelIconOnly.getInputTag())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(expectedMessage);
+  }
+
+  @Test
   public void withErrors() {
     FieldWithLabel fieldWithLabel =
         FieldWithLabel.number()
             .setId("field-id")
-            .setFieldErrors(messages, new ValidationError("", "an error message"));
+            .setFieldErrors(
+                messages, new ValidationError("error.internalServerTitle", "an error message"));
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
@@ -201,6 +239,14 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void createTextarea_setsMaxLengthDefault() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.textArea();
+    fieldWithLabel.setMaxLength(4567);
+
+    assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"4567\"");
+  }
+
+  @Test
   public void canEditAfterRender() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.textArea().setId("id");
     String fieldHtml = fieldWithLabel.getTextareaTag().render();
@@ -214,5 +260,39 @@ public class FieldWithLabelTest {
     fieldWithLabel.setId("id");
     fieldWithLabel.setValue("");
     assertThat(fieldWithLabel.getTextareaTag().render()).isEqualTo(fieldHtml);
+  }
+
+  @Test
+  public void whenFocusOnError_autofocusIsPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    fieldWithLabel.focusOnError();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void whenNotFocusOnError_autofocusIsNotPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void whenFocusOnInput_autofocusIsPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    fieldWithLabel.focusOnInput();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void whenNotFocusOnInput_autofocusIsNotPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
   }
 }

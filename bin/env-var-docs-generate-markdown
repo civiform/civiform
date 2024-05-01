@@ -7,20 +7,10 @@
 # DOC: RELEASE_VERSION, GITHUB_ACCESS_TOKEN, TARGET_REPO, and TARGET_PATH.
 
 source bin/lib.sh
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_up
 
-if [[ ! -d env-var-docs/venv ]]; then
-  echo "ERROR: venv directory does not exist. First run 'bin/env-var-docs-create-venv' then run this script."
-  exit 1
-fi
-
-source env-var-docs/venv/bin/activate
-
-# Provide overridable defaults.
-local_output=${LOCAL_OUTPUT:-true}
-export LOCAL_OUTPUT=${local_output}
-
-docs_path=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}
-export ENV_VAR_DOCS_PATH=${docs_path}
-
-echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT}, ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH}..."
-python env-var-docs/generate_markdown.py
+echo "Running env-var-docs/generate_markdown.py with \
+  LOCAL_OUTPUT=${LOCAL_OUTPUT:-true}, \
+  ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}..."
+docker::run_env_var_docs_command python env-var-docs/generate_markdown.py

@@ -1,24 +1,27 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
+import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.ReferenceClasses;
@@ -28,12 +31,15 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
-  private final FeatureFlags featureFlags;
+  private final ProgramImageUtils programImageUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, FeatureFlags featureFlags) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = featureFlags;
+    this.programImageUtils = checkNotNull(programImageUtils);
+    this.settingsManifest = settingsManifest;
   }
 
   public DivTag renderCard(Request request, ProgramCardData cardData) {
@@ -46,14 +52,17 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
+          statusDiv.with(
+              renderProgramRow(
+                  cardData.profile(), /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  /* isActive = */ true,
+                  cardData.profile(),
+                  /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
@@ -63,7 +72,7 @@ public final class ProgramCardFactory {
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/3", "py-7")
+                    .withClasses("w-1/4", "py-7")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -72,7 +81,12 @@ public final class ProgramCardFactory {
                                 "font-bold",
                                 "text-xl"))
                     .with(
-                        p(programDescriptionText)
+                        div()
+                            .with(
+                                TextFormatter.formatText(
+                                    programDescriptionText,
+                                    /* preserveEmptyLines= */ false,
+                                    /* addRequiredIndicator= */ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),
@@ -102,7 +116,10 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
+      Optional<CiviFormProfile> profile,
+      boolean isActive,
+      ProgramCardData.ProgramRow programRow,
+      String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
@@ -124,10 +141,11 @@ public final class ProgramCardFactory {
                 programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
     PTag badge =
-        ViewUtils.makeBadge(
+        ViewUtils.makeLifecycleBadge(
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
+
     return div()
         .withClasses(
             "py-7",
@@ -136,6 +154,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
+            createImageIcon(program, profile),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -145,7 +164,10 @@ public final class ProgramCardFactory {
                             span(String.format("%d", blockCount)).withClass("font-semibold"),
                             span(blockCount == 1 ? " screen, " : " screens, "),
                             span(String.format("%d", questionCount)).withClass("font-semibold"),
-                            span(questionCount == 1 ? " question" : " questions"))),
+                            span(questionCount == 1 ? " question" : " questions"))
+                        .condWith(
+                            programRow.universalQuestionsText().isPresent(),
+                            p(programRow.universalQuestionsText().orElse("")))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -172,7 +194,7 @@ public final class ProgramCardFactory {
 
   private boolean shouldShowCommonIntakeFormIndicator(
       Request request, ProgramDefinition displayProgram) {
-    return featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    return settingsManifest.getIntakeFormEnabled(request)
         && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 
@@ -181,6 +203,25 @@ public final class ProgramCardFactory {
       return cardData.draftProgram().get().program();
     }
     return cardData.activeProgram().get().program();
+  }
+
+  private DivTag createImageIcon(ProgramDefinition program, Optional<CiviFormProfile> profile) {
+    boolean isCiviFormAdmin = profile.isPresent() && profile.get().isCiviFormAdmin();
+    if (!isCiviFormAdmin) {
+      // Only CiviForm admins need the program image preview since they're the only ones that can
+      // modify it. (Specifically, program admins don't need it.)
+      return div();
+    }
+
+    Optional<ImgTag> image =
+        programImageUtils.createProgramImage(
+            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+    if (image.isPresent()) {
+      return div().withClasses("w-16", "h-9").with(image.get());
+    } else {
+      // Show a grayed-out placeholder image if there's no program image.
+      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
+    }
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
@@ -194,7 +235,8 @@ public final class ProgramCardFactory {
             cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH),
             Comparator.reverseOrder())
         .thenComparing(
-            cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
+            cardData ->
+                getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
   }
 
   @AutoValue
@@ -202,6 +244,8 @@ public final class ProgramCardFactory {
     abstract Optional<ProgramRow> activeProgram();
 
     abstract Optional<ProgramRow> draftProgram();
+
+    abstract Optional<CiviFormProfile> profile();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
@@ -212,6 +256,8 @@ public final class ProgramCardFactory {
       public abstract Builder setActiveProgram(Optional<ProgramRow> v);
 
       public abstract Builder setDraftProgram(Optional<ProgramRow> v);
+
+      public abstract Builder setProfile(Optional<CiviFormProfile> profile);
 
       public abstract ProgramCardData build();
     }
@@ -224,6 +270,8 @@ public final class ProgramCardFactory {
 
       abstract ImmutableList<ButtonTag> extraRowActions();
 
+      abstract Optional<String> universalQuestionsText();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -235,6 +283,8 @@ public final class ProgramCardFactory {
         public abstract Builder setRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
+
+        public abstract Builder setUniversalQuestionsText(Optional<String> v);
 
         public abstract ProgramRow build();
       }

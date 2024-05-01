@@ -1,13 +1,12 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.input;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -18,21 +17,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
@@ -49,8 +48,10 @@ import views.components.CreateQuestionButton;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.SvgTag;
+import views.components.QuestionBank;
+import views.components.QuestionSortOption;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -61,75 +62,46 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils,
-      FeatureFlags featureFlags) {
+      ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = checkNotNull(featureFlags);
-    ;
   }
 
   /** Renders a page with a list view of all questions. */
   public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    String title = "All Questions";
+    String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
-
-    InputTag filterInput =
-        input()
-            .withId("question-bank-filter")
-            .withType("text")
-            .withName("questionFilter")
-            .withPlaceholder("Search questions")
-            .withClasses(
-                "h-10",
-                "px-10",
-                "pr-5",
-                "w-full",
-                "rounded-full",
-                "text-sm",
-                "border",
-                "border-gray-200",
-                "shadow",
-                StyleUtils.focus("outline-none"));
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
-    DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    DivTag filterDiv =
-        div().withClasses("mt-6", "mb-2", "relative").with(filterIconDiv, filterInput);
 
     DivTag contentDiv =
         div()
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
-                            /* isPrimaryButton= */ true,
-                            /* phoneQuestionTypeEnabled= */ featureFlags.getFlagEnabled(
-                                request, PHONE_QUESTION_TYPE_ENABLED))),
-                filterDiv,
-                div()
-                    .withClasses("mt-10", "flex")
-                    .with(
-                        div().withClass("flex-grow"),
-                        p("Sorting by most recently updated").withClass("text-sm")))
+                            /* isPrimaryButton= */ true)),
+                QuestionBank.renderFilterAndSort(
+                    ImmutableList.of(
+                        QuestionSortOption.LAST_MODIFIED,
+                        QuestionSortOption.ADMIN_NAME,
+                        QuestionSortOption.NUM_PROGRAMS)))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
             .addMainContent(contentDiv);
@@ -140,7 +112,7 @@ public final class QuestionsListView extends BaseHtmlView {
           ToastMessage.success(flash.get("success").get()).setDismissible(false));
     } else if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(
-          ToastMessage.error(flash.get("error").get()).setDismissible(false));
+          ToastMessage.errorNonLocalized(flash.get("error").get()).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -150,7 +122,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // The total question count should be equivalent to the number of rows in the displayed table,
     // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
-            "Total Questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
+            "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
         .withClasses("float-right", "text-base", "px-4", "my-2");
   }
 
@@ -158,36 +130,100 @@ public final class QuestionsListView extends BaseHtmlView {
     return cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
   }
 
+  private static boolean isQuestionPendingDeletion(
+      QuestionCardData card, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    return isQuestionPendingDeletion(getDisplayQuestion(card), activeAndDraftQuestions);
+  }
+
+  private static boolean isQuestionPendingDeletion(
+      QuestionDefinition question, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    return activeAndDraftQuestions.getDeletionStatus(question.getName())
+        == DeletionStatus.PENDING_DELETION;
+  }
+
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    ImmutableList.Builder<DomContent> rows = ImmutableList.builder();
-    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     ImmutableList<QuestionCardData> cards =
         activeAndDraftQuestions.getQuestionNames().stream()
             .map(
-                name ->
-                    QuestionCardData.builder()
-                        .setActiveQuestion(
-                            activeAndDraftQuestions.getActiveQuestionDefinition(name))
-                        .setDraftQuestion(activeAndDraftQuestions.getDraftQuestionDefinition(name))
-                        .build())
+                name -> {
+                  ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+                      activeAndDraftQuestions.getReferencingPrograms(name);
+                  return QuestionCardData.builder()
+                      .setActiveQuestion(activeAndDraftQuestions.getActiveQuestionDefinition(name))
+                      .setDraftQuestion(activeAndDraftQuestions.getDraftQuestionDefinition(name))
+                      .setReferencingPrograms(
+                          createReferencingPrograms(
+                              referencingPrograms.activeReferences(),
+                              referencingPrograms.draftReferences()))
+                      .build();
+                })
             .sorted(
-                Comparator.<QuestionCardData, Instant>comparing(
+                Comparator.<QuestionCardData, Boolean>comparing(
+                        card -> getDisplayQuestion(card).isUniversal())
+                    .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
                     .thenComparing(
                         card ->
-                            getDisplayQuestion(card).getQuestionText().getDefault().toLowerCase()))
+                            getDisplayQuestion(card)
+                                .getQuestionText()
+                                .getDefault()
+                                .toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
 
+    ImmutableList.Builder<DomContent> universalQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> nonArchivedQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     for (QuestionCardData card : cards) {
       Pair<DivTag, ImmutableList<Modal>> rowAndModals =
           renderQuestionCard(card, activeAndDraftQuestions, request);
-      rows.add(rowAndModals.getLeft());
+      if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
+        archivedQuestionRows.add(rowAndModals.getLeft());
+      } else if (getDisplayQuestion(card).isUniversal()) {
+        universalQuestionRows.add(rowAndModals.getLeft());
+      } else {
+        nonArchivedQuestionRows.add(rowAndModals.getLeft());
+      }
       modals.addAll(rowAndModals.getRight());
     }
-    return Pair.of(div().with(rows.build()), modals.build());
+
+    ImmutableList<DomContent> universalQuestionContent = universalQuestionRows.build();
+    ImmutableList<DomContent> nonArchivedQuestionContent = nonArchivedQuestionRows.build();
+    ImmutableList<DomContent> archivedQuestionContent = archivedQuestionRows.build();
+    DivTag questionContent = div();
+    if (!universalQuestionContent.isEmpty()) {
+      questionContent.with(
+          div()
+              .withId("questions-list-universal")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  ViewUtils.makeAlertSlim(
+                      "We recommend using Universal questions in your program for all personal and"
+                          + " contact information questions.",
+                      /* hidden= */ false,
+                      /* classes...= */ BaseStyles.ALERT_INFO))
+              .with(universalQuestionContent));
+    }
+    questionContent.with(
+        div()
+            .withId("questions-list-non-universal")
+            .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+            .condWith(
+                !universalQuestionContent.isEmpty(),
+                h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+            .with(nonArchivedQuestionContent));
+    if (!archivedQuestionContent.isEmpty()) {
+      questionContent.with(
+          div()
+              .withId("questions-list-archived")
+              .with(h2("Marked for archival").withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(archivedQuestionContent));
+    }
+    return Pair.of(questionContent, modals.build());
   }
 
   @AutoValue
@@ -195,6 +231,8 @@ public final class QuestionsListView extends BaseHtmlView {
     abstract Optional<QuestionDefinition> activeQuestion();
 
     abstract Optional<QuestionDefinition> draftQuestion();
+
+    abstract GroupedReferencingPrograms referencingPrograms();
 
     static Builder builder() {
       return new AutoValue_QuestionsListView_QuestionCardData.Builder();
@@ -205,6 +243,8 @@ public final class QuestionsListView extends BaseHtmlView {
       abstract Builder setActiveQuestion(Optional<QuestionDefinition> v);
 
       abstract Builder setDraftQuestion(Optional<QuestionDefinition> v);
+
+      abstract Builder setReferencingPrograms(GroupedReferencingPrograms v);
 
       abstract QuestionCardData build();
     }
@@ -226,7 +266,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(latestDefinition.getName(), activeAndDraftQuestions);
+        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -238,21 +278,13 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag draftAndActiveRows = div().withClasses("flex-grow");
     if (cardData.draftQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> draftRow =
-          renderActiveOrDraftRow(
-              /* isActive= */ false,
-              cardData.draftQuestion().get(),
-              activeAndDraftQuestions,
-              request);
+          renderActiveOrDraftRow(/* isActive= */ false, cardData, activeAndDraftQuestions, request);
       modals.addAll(draftRow.getRight());
       draftAndActiveRows.with(draftRow.getLeft());
     }
     if (cardData.activeQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> activeRow =
-          renderActiveOrDraftRow(
-              /* isActive= */ true,
-              cardData.activeQuestion().get(),
-              activeAndDraftQuestions,
-              request);
+          renderActiveOrDraftRow(/* isActive= */ true, cardData, activeAndDraftQuestions, request);
       modals.addAll(activeRow.getRight());
       draftAndActiveRows.with(activeRow.getLeft());
     }
@@ -279,8 +311,19 @@ public final class QuestionsListView extends BaseHtmlView {
                 "rounded-lg",
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+            .condWith(
+                getDisplayQuestion(cardData).isUniversal(),
+                ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
-            .with(adminNote);
+            .with(adminNote)
+            // Add data attributes used for sorting.
+            .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), latestDefinition.getName())
+            .withData(
+                QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
+                latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
+            .withData(
+                QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
+                Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
     return Pair.of(rowWithAdminNote, modals.build());
   }
 
@@ -290,21 +333,27 @@ public final class QuestionsListView extends BaseHtmlView {
    */
   private Pair<DivTag, ImmutableList<Modal>> renderActiveOrDraftRow(
       boolean isActive,
-      QuestionDefinition question,
+      QuestionCardData cardData,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
+    QuestionDefinition question =
+        isActive ? cardData.activeQuestion().get() : cardData.draftQuestion().get();
     boolean isSecondRow =
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
 
     Pair<DivTag, ImmutableList<Modal>> actionsCellAndModal =
-        renderActionsCell(isActive, question, activeAndDraftQuestions, request);
+        renderActionsCell(isActive, cardData, activeAndDraftQuestions, request);
 
+    ProgramDisplayType displayType = ProgramDisplayType.ACTIVE;
+    if (!isActive) {
+      displayType =
+          isQuestionPendingDeletion(question, activeAndDraftQuestions)
+              ? ProgramDisplayType.PENDING_DELETION
+              : ProgramDisplayType.DRAFT;
+    }
     PTag badge =
-        ViewUtils.makeBadge(
-            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
-            "ml-2",
-            StyleUtils.responsiveXLarge("ml-8"));
+        ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()
@@ -356,14 +405,7 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
-    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(questionName);
-    Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
-    Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
-    GroupedReferencingPrograms groupedReferencingPrograms =
-        createReferencingPrograms(activePrograms, draftPrograms);
-
+      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
             questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
@@ -381,15 +423,15 @@ public final class QuestionsListView extends BaseHtmlView {
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
-        tag.with(p("Used in " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Used in", numPrograms)));
       }
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        tag.with(p("Added to " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Added to", numPrograms)));
       }
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
-        tag.with(p("Removed from " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms)));
       }
     }
     if (maybeReferencingProgramsModal.isPresent()) {
@@ -399,12 +441,16 @@ public final class QuestionsListView extends BaseHtmlView {
                   "cursor-pointer",
                   "font-medium",
                   "underline",
-                  BaseStyles.TEXT_SEATTLE_BLUE,
+                  BaseStyles.TEXT_CIVIFORM_BLUE,
                   StyleUtils.hover("text-black"))
               .withText("See list"));
     }
     return Pair.of(
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
+  }
+
+  private static String formatReferencingProgramsText(String prefix, int numPrograms) {
+    return String.format("%s %d program%s.", prefix, numPrograms, (numPrograms > 1 ? "s" : ""));
   }
 
   @AutoValue
@@ -421,6 +467,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
     boolean isEmpty() {
       return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    }
+
+    int getTotalNumReferencingPrograms() {
+      return usedPrograms().size() + addedPrograms().size();
     }
 
     @AutoValue.Builder
@@ -516,6 +566,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return Optional.of(
         Modal.builder()
             .setModalId(Modal.randomModalId())
+            .setLocation(Modal.Location.ADMIN_FACING)
             .setContent(referencingProgramModalContent)
             .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
@@ -554,22 +605,24 @@ public final class QuestionsListView extends BaseHtmlView {
     }
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
-                definition.getId())
+                definition.getName())
             .url();
 
     ButtonTag button =
         asRedirectElement(
-            makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+            makeSvgTextButton("Manage translations", Icons.TRANSLATE)
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
             link);
     return Optional.of(button);
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderActionsCell(
       boolean isActive,
-      QuestionDefinition question,
+      QuestionCardData cardData,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
+    QuestionDefinition question =
+        isActive ? cardData.activeQuestion().get() : cardData.draftQuestion().get();
     ImmutableList.Builder<DomContent> extraActions = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     // some actions such as "edit" or "archive" need to be rendered only on one of two rows.
@@ -593,7 +646,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // draft version of the question.
     if (isEditable) {
       Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
-          renderArchiveOptions(question, activeAndDraftQuestions, request);
+          renderArchiveOptions(cardData, question, activeAndDraftQuestions, request);
       extraActions.add(archiveOptionsAndModal.getLeft());
       archiveOptionsAndModal.getRight().ifPresent(modals::add);
     }
@@ -652,11 +705,13 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("p-6", "flex-row", "space-y-6");
 
     ButtonTag discardMenuButton =
-        makeSvgTextButton("Discard Draft", Icons.DELETE).withClasses(ButtonStyles.CLEAR_WITH_ICON);
+        makeSvgTextButton("Discard Draft", Icons.DELETE)
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
 
     Modal modal =
         Modal.builder()
             .setModalId("discard-confirmation-modal")
+            .setLocation(Modal.Location.ADMIN_FACING)
             .setContent(discardConfirmationDiv)
             .setModalTitle("Discard draft?")
             .setTriggerButtonContent(discardMenuButton)
@@ -667,6 +722,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Pair<DomContent, Optional<Modal>> renderArchiveOptions(
+      QuestionCardData cardData,
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
@@ -676,8 +732,8 @@ public final class QuestionsListView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
             toLinkButtonForPost(
-                makeSvgTextButton("Restore Archived", Icons.UNARCHIVE)
-                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+                makeSvgTextButton("Restore archived", Icons.UNARCHIVE)
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
         return Pair.of(unarchiveButton, Optional.empty());
@@ -687,7 +743,7 @@ public final class QuestionsListView extends BaseHtmlView {
         ButtonTag archiveButton =
             toLinkButtonForPost(
                 makeSvgTextButton("Archive", Icons.ARCHIVE)
-                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
         return Pair.of(archiveButton, Optional.empty());
@@ -701,16 +757,13 @@ public final class QuestionsListView extends BaseHtmlView {
                             + " using it. Please remove all usages from the below"
                             + " programs before attempting to archive."));
 
-        ActiveAndDraftQuestions.ReferencingPrograms programs =
-            activeAndDraftQuestions.getReferencingPrograms(definition.getName());
-        GroupedReferencingPrograms referencingPrograms =
-            createReferencingPrograms(programs.activeReferences(), programs.draftReferences());
+        GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
                 definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON)
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
         return Pair.of(cantArchiveButton, maybeModal);

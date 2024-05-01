@@ -17,6 +17,7 @@ public final class SelectWithLabel extends FieldWithLabel {
 
   private ImmutableList<OptionGroup> optionGroups = ImmutableList.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
+  private boolean placeholderVisible = false;
 
   @Override
   public SelectWithLabel addReferenceClass(String referenceClass) {
@@ -49,6 +50,12 @@ public final class SelectWithLabel extends FieldWithLabel {
    */
   public SelectWithLabel setCustomOptions(ImmutableList<OptionTag> customOptions) {
     this.customOptions = customOptions;
+    return this;
+  }
+
+  /** If true, allows selecting the blank placeholder option. Defaults to false. */
+  public SelectWithLabel setPlaceholderVisible(boolean placeholderVisible) {
+    this.placeholderVisible = placeholderVisible;
     return this;
   }
 
@@ -120,8 +127,11 @@ public final class SelectWithLabel extends FieldWithLabel {
 
   public DivTag getSelectTag() {
     SelectTag fieldTag = TagCreator.select();
-    OptionTag placeholder = option(placeholderText).withValue("").isHidden();
+    OptionTag placeholder = option(placeholderText).withValue("");
 
+    if (!placeholderVisible) {
+      placeholder.isHidden();
+    }
     if (this.fieldValue.isEmpty()) {
       placeholder.isSelected();
     }
@@ -134,7 +144,7 @@ public final class SelectWithLabel extends FieldWithLabel {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
-    return applyAttrsAndGenLabel(fieldTag);
+    return applyAttrsClassesAndLabel(fieldTag);
   }
 
   private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {

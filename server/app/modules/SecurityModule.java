@@ -81,7 +81,7 @@ public class SecurityModule extends AbstractModule {
     logoutController.setDefaultUrl(baseUrl + routes.HomeController.index().url());
     logoutController.setLocalLogout(true);
     logoutController.setDestroySession(true);
-    /**
+    /*
      * This mitigates a vulnerability in the logout process described here:
      * https://groups.google.com/g/pac4j-security/c/poWGfZKo-ww/m/S-h4ggaSAgAJ
      *
@@ -120,65 +120,75 @@ public class SecurityModule extends AbstractModule {
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
 
-    bindAdminIdpProvider();
+    bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
   }
 
-  private void bindAdminIdpProvider() {
-    // Currently the only supported admin auth provider. As we add other admin auth providers,
-    // this can be converted into a switch statement.
-    bind(IndirectClient.class)
-        .annotatedWith(AdminAuthClient.class)
-        .toProvider(AdfsClientProvider.class);
+  private void bindAdminIdpProvider(com.typesafe.config.Config config) {
+    AuthIdentityProviderName idpName =
+        AuthIdentityProviderName.adminIdentityProviderfromConfig(config);
+
+    switch (idpName) {
+      case ADFS_ADMIN:
+        bind(IndirectClient.class)
+            .annotatedWith(AdminAuthClient.class)
+            .toProvider(AdfsClientProvider.class);
+        logger.info("Using ADFS for admin auth provider");
+        break;
+      case GENERIC_OIDC_ADMIN:
+        bind(IndirectClient.class)
+            .annotatedWith(AdminAuthClient.class)
+            .toProvider(auth.oidc.admin.GenericOidcClientProvider.class);
+        logger.info("Using Generic OIDC for admin auth provider");
+        break;
+      default:
+        throw new ConfigurationException("Unable to create admin identity provider: " + idpName);
+    }
   }
 
   private void bindApplicantIdpProvider(com.typesafe.config.Config config) {
-    AuthIdentityProviderName idpName = AuthIdentityProviderName.fromConfig(config);
+    AuthIdentityProviderName idpName =
+        AuthIdentityProviderName.applicantIdentityProviderfromConfig(config);
 
-    try {
-      switch (idpName) {
-        case DISABLED_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(Providers.of(null));
-          logger.info("No applicant auth provider");
-          break;
-        case LOGIN_RADIUS_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(LoginRadiusClientProvider.class);
-          logger.info("Using Login Radius for applicant auth provider");
-          break;
-        case IDCS_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(IdcsClientProvider.class);
-          logger.info("Using IDCS for applicant auth provider");
-          break;
-        case GENERIC_OIDC_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(GenericOidcClientProvider.class);
-          logger.info("Using generic OIDC for applicant auth provider");
-          break;
-        case LOGIN_GOV_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(LoginGovClientProvider.class);
-          logger.info("Using login.gov PKCE OIDC for applicant auth provider");
-          break;
-        case AUTH0_APPLICANT:
-          bind(IndirectClient.class)
-              .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(Auth0ClientProvider.class);
-          logger.info("Using Auth0 for applicant auth provider");
-          break;
-        default:
-          logger.info("No provider specified for for applicants");
-      }
-    } catch (RuntimeException e) {
-      logger.error("Error getting applicant auth provider");
-      throw e;
+    switch (idpName) {
+      case DISABLED_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(Providers.of(null));
+        logger.info("No applicant auth provider");
+        break;
+      case LOGIN_RADIUS_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(LoginRadiusClientProvider.class);
+        logger.info("Using Login Radius for applicant auth provider");
+        break;
+      case IDCS_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(IdcsClientProvider.class);
+        logger.info("Using IDCS for applicant auth provider");
+        break;
+      case GENERIC_OIDC_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(GenericOidcClientProvider.class);
+        logger.info("Using generic OIDC for applicant auth provider");
+        break;
+      case LOGIN_GOV_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(LoginGovClientProvider.class);
+        logger.info("Using login.gov PKCE OIDC for applicant auth provider");
+        break;
+      case AUTH0_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(Auth0ClientProvider.class);
+        logger.info("Using Auth0 for applicant auth provider");
+        break;
+      default:
+        logger.info("No provider specified for for applicants");
     }
   }
 

@@ -167,19 +167,28 @@ public final class QuestionConfig {
    */
   private static DivTag multiOptionQuestionField(
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
-    DivTag optionInput =
+    DivTag optionAdminName =
         FieldWithLabel.input()
-            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Question option")
+            .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
+            .setLabelText("Admin ID")
             .setRequired(true)
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
             .setFieldErrors(
                 messages,
-                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
             .showFieldErrors(false)
+            .setReadOnly(!isForNewOption)
             .getInputTag()
-            .withClasses("flex", "ml-2", "gap-x-3", ReferenceClasses.MULTI_OPTION_INPUT);
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-1",
+                "row-span-2");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -191,33 +200,67 @@ public final class QuestionConfig {
                 .withClasses("hidden");
     ButtonTag moveUpButton =
         button()
-            .with(Icons.svg(Icons.ARROW_UPWARD).withClasses("w-6", "h-6"))
+            .with(Icons.svg(Icons.KEYBOARD_ARROW_UP).withClasses("w-6", "h-6"))
             .withClasses(
-                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button", "ml-4")
+                AdminStyles.MOVE_BLOCK_BUTTON,
+                "col-start-8",
+                "multi-option-question-field-move-up-button",
+                "row-start-1")
             .attr("aria-label", "move up");
     ButtonTag moveDownButton =
         button()
-            .with(Icons.svg(Icons.ARROW_DOWNWARD).withClasses("w-6", "h-6"))
+            .with(Icons.svg(Icons.KEYBOARD_ARROW_DOWN).withClasses("w-6", "h-6"))
             .withClasses(
-                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-down-button")
+                AdminStyles.MOVE_BLOCK_BUTTON,
+                "col-start-8",
+                "multi-option-question-field-move-down-button",
+                "row-start-2")
             .attr("aria-label", "move down");
-    ButtonTag removeOptionButton =
-        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
-            .withType("button")
+    DivTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
             .withClasses(
-                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                "ml-4",
-                "multi-option-question-field-remove-button");
-
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
+    ButtonTag removeOptionButton =
+        button()
+            .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
+            .withClasses(
+                AdminStyles.DELETE_ICON_BUTTON,
+                "multi-option-question-field-remove-button",
+                "col-start-8",
+                "row-span-2")
+            .attr("aria-label", "delete");
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-            "flex",
-            "flex-row",
-            "mb-4",
-            "items-center")
-        .with(optionInput, optionIndexInput, moveUpButton, moveDownButton, removeOptionButton);
+            "grid",
+            "grid-cols-8",
+            "grid-rows-4",
+            "items-center",
+            "mb-4")
+        .with(
+            optionIndexInput,
+            optionAdminName,
+            moveUpButton,
+            moveDownButton,
+            optionInput,
+            removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
@@ -225,7 +268,7 @@ public final class QuestionConfig {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
-        "Options and Option Indexes need to be the same size.");
+        "Options and Option indexes need to be the same size.");
     ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
     int optionIndex = 0;
     for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
@@ -235,18 +278,24 @@ public final class QuestionConfig {
                   LocalizedQuestionOption.create(
                       multiOptionQuestionForm.getOptionIds().get(i),
                       optionIndex,
+                      multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
       optionIndex++;
     }
-    for (String newOption : multiOptionQuestionForm.getNewOptions()) {
+
+    for (int i = 0; i < multiOptionQuestionForm.getNewOptions().size(); i++) {
       optionsBuilder.add(
           multiOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, optionIndex, newOption, LocalizedStrings.DEFAULT_LOCALE)),
+                      -1,
+                      optionIndex,
+                      multiOptionQuestionForm.getNewOptionAdminNames().get(i),
+                      multiOptionQuestionForm.getNewOptions().get(i),
+                      LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
       optionIndex++;
@@ -258,7 +307,13 @@ public final class QuestionConfig {
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON));
+                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON))
+        .with(
+            FieldWithLabel.number()
+                .setFieldName("nextAvailableId")
+                .setValue(multiOptionQuestionForm.getNextAvailableId())
+                .getNumberTag()
+                .withClasses("hidden"));
     return this;
   }
 

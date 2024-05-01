@@ -2,7 +2,7 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -40,7 +40,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
   @Test
   public void getEnumeratorQuestions() {
     // The question bank initializes this question in the active version.
-    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
 
@@ -55,7 +55,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
     // The question bank initializes these in the active version.
-    Question nameQuestion = testQuestionBank.applicantName();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
     long questionId = nameQuestion.id;
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);

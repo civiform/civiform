@@ -3,9 +3,10 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.ViewUtils.ProgramDisplayType.ACTIVE;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.BlockForm;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
@@ -48,7 +50,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
       QuestionService questionService,
       ProgramBlocksView.Factory programBlockViewFactory,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(programBlockViewFactory.create(DRAFT));
@@ -78,7 +83,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result readOnlyIndex(long programId) {
-    return index(programId, /* readOnly=*/ true);
+    return index(programId, /* readOnly= */ true);
   }
 
   /**
@@ -90,7 +95,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   private Result index(long programId, boolean readOnly) {
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
 
       String redirectUrl =
@@ -129,7 +134,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ? program.getLastBlockDefinition()
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
-        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
@@ -150,7 +155,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 
       Optional<ToastMessage> maybeToastMessage =
@@ -170,7 +175,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotActive(programId);
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
       return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
@@ -190,7 +195,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
-        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }
@@ -245,7 +250,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     return ok(
         editView.render(
-            request, program, block, message, roQuestionService.getUpToDateQuestions()));
+            request,
+            program,
+            block,
+            message,
+            roQuestionService.getUpToDateQuestions(),
+            ImmutableList.of()));
   }
 
   private Result renderReadOnlyViewWithMessage(
@@ -253,9 +263,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    var allQuestions = roQuestionService.getUpToDateQuestions();
+    var allPreviousVersionQuestions =
+        questionService.getAllPreviousVersionQuestions(versionRepository.getActiveVersion());
+
     return ok(
         readOnlyView.render(
-            request, program, block, Optional.empty(), roQuestionService.getUpToDateQuestions()));
+            request, program, block, Optional.empty(), allQuestions, allPreviousVersionQuestions));
   }
 
   private Result renderEditViewWithMessage(
@@ -278,7 +292,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               blockDefinition,
               blockDefinition.programQuestionDefinitions(),
               message,
-              roQuestionService.getUpToDateQuestions()));
+              roQuestionService.getUpToDateQuestions(),
+              ImmutableList.of()));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

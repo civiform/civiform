@@ -14,17 +14,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
-import models.Application;
+import models.ApplicationModel;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
-import services.export.JsonExporter;
+import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -36,25 +37,27 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   public static final String UNTIL_DATE_PARAM_NAME = "toDate";
   private final DateConverter dateConverter;
   private final ProgramService programService;
-  private final HttpExecutionContext httpContext;
-  private final JsonExporter jsonExporter;
+  private final HttpExecutionContext classLoaderExecutionContext;
+  private final JsonExporterService jsonExporterService;
   private final int maxPageSize;
 
   @Inject
   public ProgramApplicationsApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ApiPayloadWrapper apiPayloadWrapper,
       DateConverter dateConverter,
       ProfileUtils profileUtils,
-      JsonExporter jsonExporter,
-      HttpExecutionContext httpContext,
+      JsonExporterService jsonExporterService,
+      HttpExecutionContext classLoaderExecutionContext,
       ProgramService programService,
+      VersionRepository versionRepository,
       Config config) {
-    super(apiPaginationTokenSerializer, profileUtils);
+    super(apiPaginationTokenSerializer, apiPayloadWrapper, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
-    this.httpContext = checkNotNull(httpContext);
-    this.jsonExporter = checkNotNull(jsonExporter);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.jsonExporterService = checkNotNull(jsonExporterService);
     this.programService = checkNotNull(programService);
-    this.maxPageSize = checkNotNull(config).getInt("api_applications_list_max_page_size");
+    this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
   }
 
   public CompletionStage<Result> list(
@@ -97,34 +100,25 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             .orElse(new IdentifierBasedPaginationSpec<>(pageSize, Long.MAX_VALUE));
 
     return programService
-        .getActiveProgramDefinitionAsync(programSlug)
+        .getActiveFullProgramDefinitionAsync(programSlug)
         .thenApplyAsync(
             programDefinition -> {
-              PaginationResult<Application> paginationResult;
-
-              // By now the program specified by the request has already been found and
-              // retrieved, so if a ProgramNotFoundException occurs in the following code
-              // it's due to an error in the server code, not a bad request.
-              try {
-                paginationResult =
-                    programService.getSubmittedProgramApplicationsAllVersions(
-                        programDefinition.id(), F.Either.Left(paginationSpec), filters);
-              } catch (ProgramNotFoundException e) {
-                throw new RuntimeException(e);
-              }
+              PaginationResult<ApplicationModel> paginationResult =
+                  programService.getSubmittedProgramApplicationsAllVersions(
+                      programDefinition.id(), F.Either.Left(paginationSpec), filters, request);
 
               String applicationsJson =
-                  jsonExporter.export(programDefinition, paginationResult).getLeft();
+                  jsonExporterService.exportPage(programDefinition, paginationResult);
 
               String responseJson =
-                  getResponseJson(
+                  apiPayloadWrapper.wrapPayload(
                       applicationsJson,
                       getNextPageToken(
                           paginationResult, programSlug, pageSize, filters.submitTimeFilter()));
 
               return ok(responseJson).as("application/json");
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -139,7 +133,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   }
 
   private Optional<ApiPaginationTokenPayload> getNextPageToken(
-      PaginationResult<Application> paginationResult,
+      PaginationResult<ApplicationModel> paginationResult,
       String programSlug,
       int pageSize,
       TimeFilter timeFilter) {
@@ -227,7 +221,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
 
   private Instant parseParamDateToInstant(String paramName, String paramDate) {
     try {
-      return dateConverter.parseIso8601DateToStartOfDateInstant(paramDate);
+      return dateConverter.parseIso8601DateToStartOfLocalDateInstant(paramDate);
     } catch (DateTimeParseException e) {
       throw new BadApiRequestException("Malformed query param: " + paramName);
     }

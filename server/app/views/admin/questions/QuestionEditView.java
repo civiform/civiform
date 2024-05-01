@@ -2,23 +2,28 @@ package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.em;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.join;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import java.util.Locale;
 import java.util.Optional;
 import models.QuestionTag;
 import play.i18n.Lang;
@@ -27,31 +32,39 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.export.CsvExporterService;
+import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
+  private final QuestionService questionService;
+  private final SettingsManifest settingsManifest;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -62,11 +75,15 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      FileUploadViewStrategy fileUploadViewStrategy) {
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      QuestionService questionService,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
+    this.questionService = checkNotNull(questionService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Render a fresh New Question Form. */
@@ -98,12 +115,13 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("New %s question", questionType.getLabel().toLowerCase());
+    String title =
+        String.format("New %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title, questionForm)
+        buildQuestionContainer(title)
             .with(
-                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
+                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -111,7 +129,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
   /** Render a fresh Edit Question Form. */
@@ -147,13 +166,21 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<ToastMessage> message) {
 
+    Modal unsetUniversalModal = buildUnsetUniversalModal(questionForm);
+
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("Edit %s question", questionType.getLabel().toLowerCase());
+    String title =
+        String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title, questionForm)
+        buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
+                buildEditQuestionForm(
+                        id,
+                        questionForm,
+                        maybeEnumerationQuestionDefinition,
+                        request,
+                        unsetUniversalModal)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -161,48 +188,61 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, Optional.of(unsetUniversalModal));
   }
 
   /** Render a read-only non-submittable question form. */
   public Content renderViewQuestionForm(
+      Request request,
       QuestionDefinition questionDefinition,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("View %s question", questionType.toString().toLowerCase());
+    String title =
+        String.format("View %s question", questionType.toString().toLowerCase(Locale.ROOT));
 
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     DivTag formContent =
-        buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
-            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
+        buildQuestionContainer(title)
+            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
-  private Content renderWithPreview(DivTag formContent, QuestionType type, String title) {
+  private Content renderWithPreview(
+      Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
+        QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
+        layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
+
+    if (modal.isPresent()) {
+      htmlBundle.addModals(modal.get());
+    }
     return layout.render(htmlBundle);
   }
 
   private FormTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
-    return buildQuestionForm(questionForm, enumeratorOptions, /* submittable= */ true, forCreate);
+      QuestionForm questionForm,
+      SelectWithLabel enumeratorOptions,
+      boolean forCreate,
+      Request request) {
+    return buildQuestionForm(
+        questionForm, enumeratorOptions, /* submittable= */ true, forCreate, request);
   }
 
   private FormTag buildReadOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions, Request request) {
     return buildQuestionForm(
-        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
+        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false, request);
   }
 
-  private DivTag buildQuestionContainer(String title, QuestionForm questionForm) {
+  private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
         .withClasses(
@@ -217,38 +257,31 @@ public final class QuestionEditView extends BaseHtmlView {
             "relative",
             "w-2/5")
         .with(renderHeader(title))
-        .with(multiOptionQuestionField(questionForm));
+        .with(multiOptionQuestionField());
   }
 
   // A hidden template for multi-option questions.
-  private DivTag multiOptionQuestionField(QuestionForm questionForm) {
-    DivTag multiOptionQuestionField =
-        div()
-            .with(
-                QuestionConfig.multiOptionQuestionFieldTemplate(messages)
-                    .withId("multi-option-question-answer-template")
-                    // Add "hidden" to other classes, so that the template is not shown
-                    .withClasses(
-                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-                        "hidden",
-                        "flex",
-                        "flex-row",
-                        "mb-4"));
-    if (questionForm instanceof MultiOptionQuestionForm) {
-      multiOptionQuestionField.with(
-          FieldWithLabel.number()
-              .setFieldName("nextAvailableId")
-              .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
-              .getNumberTag()
-              .withClasses("hidden"));
-    }
-    return multiOptionQuestionField;
+  private DivTag multiOptionQuestionField() {
+    return div()
+        .with(
+            QuestionConfig.multiOptionQuestionFieldTemplate(messages)
+                .withId("multi-option-question-answer-template")
+                // Add "hidden" to other classes, so that the template is not shown
+                .withClasses(
+                    ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                    ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
+                    "hidden",
+                    "grid",
+                    "grid-cols-8",
+                    "grid-rows-4",
+                    "items-center",
+                    "mb-4"));
   }
 
   private FormTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Request request) {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
@@ -256,7 +289,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (Strings.isNullOrEmpty(cancelUrl)) {
       cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
     }
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -277,27 +310,62 @@ public final class QuestionEditView extends BaseHtmlView {
   private FormTag buildEditQuestionForm(
       long id,
       QuestionForm questionForm,
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
+      Request request,
+      Modal unsetUniversalModal) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
-    formTag
-        .withAction(
-            controllers.admin.routes.AdminQuestionController.update(
-                    id, questionForm.getQuestionType().toString())
-                .url())
-        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
+    formTag.withAction(
+        controllers.admin.routes.AdminQuestionController.update(
+                id, questionForm.getQuestionType().toString())
+            .url());
+
+    formTag.with(unsetUniversalModal.getButton());
+
     return formTag;
+  }
+
+  private Modal buildUnsetUniversalModal(QuestionForm questionForm) {
+    ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
+    FormTag confirmUnsetUniversalForm =
+        form()
+            .with(
+                div("This question will no longer be set as a recommended "
+                        + questionForm.getQuestionType().getLabel()
+                        + " question.")
+                    .withClasses("mb-8"),
+                div(
+                        submitButton("Remove from universal questions")
+                            .withId("accept-question-updates-button")
+                            .attr("form", "full-edit-form")
+                            .withClasses(ButtonStyles.SOLID_BLUE),
+                        button("Cancel")
+                            .withClasses(
+                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
+                                ReferenceClasses.MODAL_CLOSE))
+                    .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
+    return Modal.builder()
+        .setModalId("confirm-question-updates-modal")
+        .setLocation(Modal.Location.ADMIN_FACING)
+        .setContent(confirmUnsetUniversalForm)
+        .setModalTitle(
+            "Are you sure you want to remove this question from the universal questions set?")
+        .setTriggerButtonContent(triggerModalButton)
+        .setWidth(Modal.Width.THIRD)
+        .build();
   }
 
   private FormTag buildQuestionForm(
       QuestionForm questionForm,
       SelectWithLabel enumeratorOptions,
       boolean submittable,
-      boolean forCreate) {
+      boolean forCreate,
+      Request request) {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag =
         form()
+            .withId("full-edit-form")
             .withMethod("POST")
             .with(
                 // Hidden input indicating the type of question to be created.
@@ -331,9 +399,15 @@ public final class QuestionEditView extends BaseHtmlView {
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.
-    formTag.with(
-        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
-        administrativeNameField(questionForm.getQuestionName(), !forCreate));
+    formTag
+        .with(
+            h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
+            administrativeNameField(questionForm.getQuestionName(), !forCreate))
+        .condWith(
+            forCreate,
+            p().withId("question-name-preview")
+                .withClasses("text-xs", "text-gray-500", "pb-3")
+                .with(span("Visible in the API as: "), span("").withId("formatted-name")));
     if (!forCreate) {
       formTag.with(
           input()
@@ -361,9 +435,17 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
 
+    questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
+
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+        && questionForm.getEnumeratorId().isEmpty()
+        && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
+      questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));
+    }
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
+
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -374,30 +456,124 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
+  private DomContent buildUniversalQuestion(QuestionForm questionForm) {
+    return fieldset()
+        .with(
+            legend("Universal question").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span(
+                        "Universal questions will be recommended as a standardized type of"
+                            + " question to be added to all programs.")),
+            ViewUtils.makeToggleButton(
+                /* fieldName= */ "isUniversal",
+                /* enabled= */ questionForm.isUniversal(),
+                /* hidden= */ false,
+                /* idPrefix= */ Optional.of("universal"),
+                /* text= */ Optional.of("Set as a universal question")));
+  }
+
+  private FieldsetTag buildPrimaryApplicantInfoSection(QuestionForm questionForm) {
+    FieldsetTag result =
+        fieldset()
+            .withId("primary-applicant-info")
+            .with(legend("Primary applicant information").withClass(BaseStyles.INPUT_LABEL));
+    PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(questionForm.getQuestionType())
+        .forEach(
+            primaryApplicantInfoTag -> {
+              Optional<QuestionDefinition> currentQuestionForTag =
+                  questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions().stream()
+                      .filter(
+                          qd -> qd.getPrimaryApplicantInfoTags().contains(primaryApplicantInfoTag))
+                      .findFirst();
+              boolean differentQuestionHasTag =
+                  currentQuestionForTag
+                      .map(question -> !question.getName().equals(questionForm.getQuestionName()))
+                      .orElse(false);
+              String otherQuestionName =
+                  currentQuestionForTag.map(QuestionDefinition::getName).orElse("");
+              String nonUniversalAlertText =
+                  "You cannot make this question a Primary applicant information question because"
+                      + " the question is not a Universal question.";
+              String alreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question named \"%s\" is already set as a Primary"
+                          + " applicant information question.",
+                      otherQuestionName);
+              String nonUniversalAlreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question is not a Universal question and because the"
+                          + " question named \"%s\" is already set as a Primary applicant"
+                          + " information question.",
+                      otherQuestionName);
+              DivTag tagSubsection =
+                  div()
+                      .withClass("cf-primary-applicant-info-subsection")
+                      .with(
+                          p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                              .with(
+                                  span(primaryApplicantInfoTag.getDescription()),
+                                  ViewUtils.makeToggleButton(
+                                      /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
+                                      /* enabled= */ questionForm
+                                          .primaryApplicantInfoTags()
+                                          .contains(primaryApplicantInfoTag),
+                                      /* hidden= */ !questionForm.isUniversal()
+                                          || differentQuestionHasTag,
+                                      /* idPrefix= */ Optional.of(
+                                          primaryApplicantInfoTag.getFieldName()),
+                                      /* text= */ Optional.of(
+                                          primaryApplicantInfoTag.getDisplayName()))))
+                      .condWith(
+                          !differentQuestionHasTag,
+                          ViewUtils.makeAlertSlim(
+                              nonUniversalAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-not-universal-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertSlim(
+                              alreadySetAlertText,
+                              /* hidden= */ !questionForm.isUniversal(),
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-tag-set-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertSlim(
+                              nonUniversalAlreadySetAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-tag-set-not-universal-alert",
+                              "usa-alert-remove-top-margin"));
+              result.with(tagSubsection);
+            });
+    return result;
+  }
+
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
 
     QuestionTag exportState = questionForm.getQuestionExportStateTag();
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
         .with(
-            legend("Data privacy settings")
+            legend("Demographic data privacy settings")
                 .with(ViewUtils.requiredQuestionIndicator())
                 .withClass(BaseStyles.INPUT_LABEL),
             p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                 .with(
-                    span("Learn more about each of the data export settings in the "),
-                    new LinkElement()
-                        .setHref(
-                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
-                        .setText("documentation")
-                        .opensInNewTab()
-                        .asAnchorText(),
-                    span(".")),
+                    span(
+                        "The setting below only controls what is exported in the demographic"
+                            + " export. Answers are always exported via the API.")),
             FieldWithLabel.radio()
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Don't allow answers to be exported")
+                .setLabelText("Don't include in demographic export")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
@@ -405,7 +581,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Export exact answers")
+                .setLabelText("Include in demographic export")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
@@ -413,10 +589,18 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Export obfuscated answers")
+                .setLabelText("Obfuscate and include in demographic export")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
-                .getRadioTag());
+                .getRadioTag(),
+            span("Learn more about each of the demographic data export settings in the "),
+            new LinkElement()
+                .setHref(
+                    "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
+                .setText("documentation")
+                .opensInNewTab()
+                .asAnchorText(),
+            span("."));
   }
 
   /**
@@ -483,22 +667,38 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DivTag repeatedQuestionInformation() {
-    return div("By selecting an enumerator, you are creating a repeated question - a question that"
-            + " is asked for each repeated entity enumerated by the applicant. Please"
-            + " reference the applicant-defined repeated entity name to give the applicant"
-            + " context on which repeated entity they are answering the question for by"
-            + " using \"$this\" in the question's text and help text. To reference the"
-            + " repeated entities containing this one, use \"$this.parent\","
-            + " \"this.parent.parent\", etc.")
+    return div()
+        .with(
+            p(
+                "By selecting an enumerator, you are creating a repeated question - a question that"
+                    + " is asked for each repeated entity enumerated by the applicant."),
+            p(
+                join(
+                    "Please reference the applicant-defined repeated entity name to give the"
+                        + " applicant context on which repeated entity they are answering the"
+                        + " question for by using ",
+                    em("\"$this\""),
+                    "in the ",
+                    strong("question's text"),
+                    " and optionally the ",
+                    strong("help text. "))),
+            p(
+                join(
+                    "To reference the repeated entities containing this one, use ",
+                    em("\"$this.parent\""),
+                    ", ",
+                    em("\"$this.parent.parent\""),
+                    ", etc.")))
         .withId("repeated-question-information")
         .withClasses(
             "hidden",
-            "text-blue-500",
+            "text-blue-600",
             "text-sm",
             "p-2",
             "font-mono",
             "border-4",
-            "border-blue-400");
+            "border-blue-400",
+            "space-y-4");
   }
 
   private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
@@ -515,6 +715,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .setId("question-name-input")
         .setFieldName(QUESTION_NAME_FIELD)
         .setLabelText("Administrative identifier. This value can't be changed later")
+        .setToolTipText(
+            "This will be used to identify questions in the API and CSV export.  It will be"
+                + " formatted so that white spaces are replaced with underscores, uppercase"
+                + " letters are converted to lowercase and all non-alphabetic characters are"
+                + " stripped.")
+        .setToolTipIcon(Icons.INFO)
         .setRequired(true)
         .setValue(adminName)
         .getInputTag();

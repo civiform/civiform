@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
 import modules.MainModule;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService;
@@ -35,7 +36,8 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
   }
 
-  public Content render(CiviFormProfile profile, ReportingService.MonthlyStats monthlyStats) {
+  public Content render(
+      Http.Request request, CiviFormProfile profile, ReportingService.MonthlyStats monthlyStats) {
     ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats =
         monthlyStats.monthlySubmissionsAggregated();
     ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram =
@@ -55,7 +57,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
 
     HtmlBundle htmlBundle =
-        layout.setAdminType(profile).getBundle().setTitle(title).addMainContent(contentDiv);
+        layout.setAdminType(profile).getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
@@ -163,7 +165,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         tr(
                             td(
                                 new LinkElement()
-                                    .setText(stat.programName())
+                                    .setText(stat.enUSLocalizedProgramName())
                                     .setHref(
                                         controllers.admin.routes.AdminReportingController.show(
                                                 MainModule.SLUGIFIER.slugify(stat.programName()))

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -32,6 +31,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -237,11 +237,13 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(String.format("Configure %s predicate", typeDisplayName))
             .addMainContent(
-                renderProgramInfo(programDefinition)
-                    .with(renderEditProgramDetailsButton(programDefinition)),
+                renderProgramInfoHeader(
+                    programDefinition,
+                    ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
+                    request),
                 content);
     return layout.renderCentered(htmlBundle);
   }
@@ -272,7 +274,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             .withAction(formAction)
             .withMethod(POST)
             .withClasses(
-                "p-8", "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
+                "overflow-x-scroll",
+                "p-8",
+                "bg-gray-100",
+                "predicate-config-form",
+                ReferenceClasses.PREDICATE_OPTIONS);
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
@@ -431,7 +437,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       int groupId,
       Optional<AndNode> maybeAndNode) {
-    DivTag row = div().withClasses("flex", "mb-6", "predicate-config-value-row");
+    DivTag innerRow = div().withClasses("flex");
+    DivTag row = div(innerRow).withClasses("flex", "mb-6", "predicate-config-value-row");
     DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
 
     if (maybeAndNode.isPresent()) {
@@ -446,14 +453,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       for (var qd : questionDefinitions) {
         var leafNode = questionIdLeafNodeMap.get(qd.getId());
 
-        row.condWith(columnNumber++ != 1, andText)
+        innerRow
+            .condWith(columnNumber++ != 1, andText)
             .with(createValueField(qd, groupId, Optional.of(leafNode)));
       }
     } else {
       int columnNumber = 1;
 
       for (var questionDefinition : questionDefinitions) {
-        row.condWith(columnNumber++ != 1, andText)
+        innerRow
+            .condWith(columnNumber++ != 1, andText)
             .with(
                 createValueField(
                     questionDefinition, groupId, /* maybeLeafNode= */ Optional.empty()));
@@ -522,7 +531,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                           .withValue(scalar.name())
                           // Add the scalar type as data so we can determine which operators to
                           // allow.
-                          .withData("type", scalar.toScalarType().name().toLowerCase());
+                          .withData("type", scalar.toScalarType().name().toLowerCase(Locale.ROOT));
 
                   if (maybeSelectedScalar.isPresent()
                       && maybeSelectedScalar.get().name().equals(scalar.name())) {
@@ -614,7 +623,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                       option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> optionTag.withData(type.name().toLowerCase(), ""));
+                      .forEach(
+                          type -> optionTag.withData(type.name().toLowerCase(Locale.ROOT), ""));
 
                   if (maybeSelectedOperator.isPresent()
                       && operator.name().equals(maybeSelectedOperator.get().name())) {
@@ -812,7 +822,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .collect(Collectors.joining(","));
           }
 
-          return predicateValue.value();
+          return predicateValue.valueWithoutSurroundingQuotes();
         }
 
       default:
@@ -837,12 +847,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
         .splitToStream(value.substring(1, value.length() - 1))
         // Join to CSV
         .collect(Collectors.joining(","));
-  }
-
-  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
-    ButtonTag editButton = getStandardizedEditButton("Edit program details");
-    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-    return asRedirectElement(editButton, editLink);
   }
 
   @Override

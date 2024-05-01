@@ -19,6 +19,9 @@ import sys
 #   1. tags the git commit for the release with the release number
 #   2. tags the docker image for the release with the release number
 #   3. creates a new draft release on github
+#
+# The labels included in the body of the release notes are managed by:
+#    https://github.com/civiform/civiform/blob/main/.github/release.yml
 
 
 def shell_cmd(command_string, timeout=None):

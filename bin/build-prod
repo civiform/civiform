@@ -1,10 +1,18 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new production docker image, tagged with short commit SHA and unix seconds timestamp, and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
+# DOC: Build a new production docker image, tagged with short commit SHA and unix seconds timestamp,
+# DOC: Builds for "linux/amd64" unless PLATFORM is set
+# DOC: Optional environment variables:
+# DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value. Default: no value
+# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
+# DOC:                to an alternative registry include it in the NAMESPACE.
+# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
+# DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8). Default: linux/amd64
 
 source bin/lib.sh
 
 export DOCKER_BUILDKIT=1
+readonly NAMESPACE="${NAMESPACE:=civiform}"
 readonly SHORT_SHA="$(git rev-parse --short HEAD)"
 readonly GIT_SHA="$(git rev-parse HEAD)"
 readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
@@ -14,50 +22,35 @@ readonly LOCATION="."
 readonly DOCKERFILE="prod.Dockerfile"
 readonly HOST_CPU_ARCH="$(docker info --format='{{.Architecture}}')"
 
-if [[ "${HOST_CPU_ARCH}" != "x86_64" ]]; then
-  echo "----------------------------------------------------------------"
-  echo " WARNING"
-  echo "----------------------------------------------------------------"
-  echo " Detected ${HOST_CPU_ARCH} as host system cpu architecture."
-  echo " Currently only x86_64 is supported by our prod.Dockerfile."
-  echo ""
-  echo " For more info: https://github.com/civiform/civiform/issues/4785"
-  echo "----------------------------------------------------------------"
-  echo ""
-  exit 1
-fi
-
 echo "Building ${SNAPSHOT_TAG}..."
 
-BUILD_ARGS="-f ${DOCKERFILE}
-  -t civiform/${IMAGE}
-  -t civiform/${IMAGE}:latest
-  -t civiform/${IMAGE}:${SNAPSHOT_TAG}
-  --cache-from civiform/${IMAGE}
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
+  --tag "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
+  --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
-  --build-arg git_commit_sha=${GIT_SHA}
-  --build-arg image_tag=${SNAPSHOT_TAG}
-  ${LOCATION}"
+  --build-arg git_commit_sha="${GIT_SHA}"
+  --build-arg image_tag="${SNAPSHOT_TAG}"
+  --build-arg SBT_VERSION="${SBT_VERSION}"
+  "${LOCATION}")
 
 readonly PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
 readonly PLATFORM_ARG=(--platform "${PLATFORM}")
 
 # Build the multi-platform image
 echo "start ${IMAGE} build"
-cmd="docker buildx build ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
-$cmd
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
 echo "load ${IMAGE} build"
-cmd="docker buildx build --load ${BUILD_ARGS}"
-$cmd
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
   echo "push ${IMAGE} build"
-  cmd="docker buildx build --push ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
-  $cmd
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 
-docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"
+docker tag "${NAMESPACE}/${IMAGE}:latest" "${IMAGE}:latest"

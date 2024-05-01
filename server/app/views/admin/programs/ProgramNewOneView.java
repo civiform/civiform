@@ -5,12 +5,13 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.AccountRepository;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -24,8 +25,11 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
   @Inject
   public ProgramNewOneView(
-      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
-    super(configuration, featureFlags);
+      AdminLayoutFactory layoutFactory,
+      Config configuration,
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
+    super(configuration, settingsManifest, accountRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -66,11 +70,11 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     DivTag contentDiv =
         div(
                 renderHeader(title),
-                buildProgramForm(request, programForm, /* editExistingProgram = */ false)
+                buildProgramForm(request, programForm, ProgramEditStatus.CREATION)
                     .with(makeCsrfTokenInputTag(request))
                     .withAction(controllers.admin.routes.AdminProgramController.create().url()))
             .withClasses("mx-4", "my-12", "flex", "flex-col");
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     toastMessage.ifPresent(htmlBundle::addToastMessages);
     modal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);

@@ -30,8 +30,8 @@ public final class EsriModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    String url = config.getString("esri_find_address_candidates_url");
-    String className = url.isEmpty() ? FAKE_ESRI_CLIENT_CLASS_NAME : REAL_ESRI_CLIENT_CLASS_NAME;
+    String className =
+        useRealEsriClient() ? REAL_ESRI_CLIENT_CLASS_NAME : FAKE_ESRI_CLIENT_CLASS_NAME;
 
     LOGGER.info(String.format("Using %s class for Esri client", className));
 
@@ -44,5 +44,27 @@ public final class EsriModule extends AbstractModule {
       throw new RuntimeException(
           String.format("Failed to load esri client class: %s", className), e);
     }
+  }
+
+  /**
+   * @return True if either esri_find_address_candidates_urls or esri_find_address_candidates_url
+   *     have a value, otherwise false
+   */
+  private Boolean useRealEsriClient() {
+    if (!config.getStringList("esri_find_address_candidates_urls").isEmpty()) {
+      return true;
+    }
+
+    if (!config.getString("esri_find_address_candidates_url").isEmpty()) {
+      LOGGER.warn(
+          "Address correction is enabled, but configured with the environment value"
+              + " `ESRI_FIND_ADDRESS_CANDIDATES_URL`. Please migrate to using the"
+              + " `ESRI_FIND_ADDRESS_CANDIDATES_URLS` See the latest server environment variable"
+              + " documentation for details."
+              + " https://docs.civiform.us/it-manual/sre-playbook/upgrading-to-a-new-release/server-environment-variables");
+      return true;
+    }
+
+    return false;
   }
 }

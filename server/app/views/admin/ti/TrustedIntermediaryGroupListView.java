@@ -20,7 +20,7 @@ import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.List;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -47,16 +47,16 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
-  public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
+  public Content render(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     String title = "Manage trusted intermediaries";
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader("Create New Trusted Intermediary").withClass("mt-8"),
+                renderHeader("Create new trusted intermediary").withClass("mt-8"),
                 renderAddNewButton(request),
-                renderHeader("Existing Trusted Intermediaries"),
+                renderSubHeader("Existing trusted intermediaries").withClass("mt-8"),
                 renderTiGroupCards(tis, request));
 
     if (request.flash().get("error").isPresent()) {
@@ -64,7 +64,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
       htmlBundle.addToastMessages(
-          ToastMessage.error(error)
+          ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
               .setIgnorable(false)
               .setDuration(0));
@@ -72,7 +72,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {
+  private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-full")
@@ -107,7 +107,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
-  private TrTag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
+  private TrTag renderGroupRow(TrustedIntermediaryGroupModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
             "border-b",
@@ -118,13 +118,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .with(renderActionsCell(ti, request));
   }
 
-  private TdTag renderInfoCell(TrustedIntermediaryGroup tiGroup) {
+  private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
         .with(div(tiGroup.getDescription()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderMemberCountCell(TrustedIntermediaryGroup tiGroup) {
+  private TdTag renderMemberCountCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
@@ -132,14 +132,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private TdTag renderActionsCell(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "items-center", "justify-end", "gap-3", "pr-3")
                 .with(renderEditButton(tiGroup), renderDeleteButton(tiGroup, request)));
   }
 
-  private FormTag renderDeleteButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private FormTag renderDeleteButton(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(routes.TrustedIntermediaryManagementController.delete(tiGroup.id).url())
@@ -149,7 +149,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
   }
 
-  private ButtonTag renderEditButton(TrustedIntermediaryGroup tiGroup) {
+  private ButtonTag renderEditButton(TrustedIntermediaryGroupModel tiGroup) {
     return asRedirectElement(
         ViewUtils.makeSvgTextButton("Edit members", Icons.EDIT)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),

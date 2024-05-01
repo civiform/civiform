@@ -4,14 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
-import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Question;
+import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -19,18 +16,21 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
-import views.components.QuestionBank;
+import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -39,7 +39,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlockQuestionsController(
@@ -47,12 +47,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
       VersionRepository versionRepository,
       FormFactory formFactory,
       RequestChecker requestChecker,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.programService = checkNotNull(programService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -71,7 +71,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     // The users' browser may be out of date. Find the last revision of each question.
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     for (Long qId : questionIds) {
-      Optional<Question> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
+      Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
       }
@@ -92,7 +92,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     return redirect(
-        QuestionBank.addShowQuestionBankParam(
+        ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
@@ -158,16 +158,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
   /** POST endpoint for editing whether or not a question has address correction enabled. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result setAddressCorrectionEnabled(
+  public Result toggleAddressCorrectionEnabledState(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
-      if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
+      if (!settingsManifest.getEsriAddressCorrectionEnabled(request)
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
               .getBlockDefinition(blockDefinitionId)
@@ -177,18 +178,22 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 programId, blockDefinitionId));
       }
 
-      ProgramQuestionDefinitionAddressCorrectionEnabledForm
-          programQuestionDefinitionAddressCorrectionEnabledForm =
-              formFactory
-                  .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
-                  .bindFromRequest(request)
-                  .get();
+      Optional<ProgramQuestionDefinition> programQuestionDefinition =
+          blockDefinition.programQuestionDefinitions().stream()
+              .filter(pqd -> pqd.id() == questionDefinitionId)
+              .findFirst();
+
+      if (programQuestionDefinition.isEmpty()) {
+        throw new ProgramQuestionDefinitionNotFoundException(
+            programId, blockDefinitionId, questionDefinitionId);
+      }
 
       programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
           programId,
           blockDefinitionId,
           questionDefinitionId,
-          programQuestionDefinitionAddressCorrectionEnabledForm.getAddressCorrectionEnabled());
+          // Flop the bit to the next (desired state) from the current setting.
+          !programQuestionDefinition.get().addressCorrectionEnabled());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

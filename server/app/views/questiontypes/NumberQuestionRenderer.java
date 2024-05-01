@@ -31,12 +31,12 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    NumberQuestion numberQuestion = question.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     FieldWithLabel numberField =
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setAriaRequired(!isOptional)
@@ -45,9 +45,15 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
+
+    if (params.autofocusSingleField()) {
+      numberField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();
     }
+
     if (numberQuestion.getNumberValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="number" won't allow

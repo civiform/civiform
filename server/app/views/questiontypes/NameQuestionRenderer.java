@@ -33,7 +33,8 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    NameQuestion nameQuestion = question.createNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+    boolean alreadyAutofocused = false;
 
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
@@ -46,6 +47,12 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_FIRST);
+    if (params.autofocusFirstField()
+        || (params.autofocusFirstError()
+            && validationErrors.containsKey(nameQuestion.getFirstNamePath()))) {
+      alreadyAutofocused = true;
+      firstNameField.focusOnInput();
+    }
 
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
@@ -69,6 +76,12 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
+
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(nameQuestion.getLastNamePath())) {
+      lastNameField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       firstNameField.forceAriaInvalid();

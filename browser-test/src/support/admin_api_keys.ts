@@ -1,7 +1,6 @@
-import axios from 'axios'
+import {APIRequestContext, expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {BASE_URL} from './config'
 
 type CreateApiKeyParamsType = {
   name: string
@@ -12,9 +11,11 @@ type CreateApiKeyParamsType = {
 
 export class AdminApiKeys {
   public page!: Page
+  public request!: APIRequestContext
 
-  constructor(page: Page) {
+  constructor(page: Page, request: APIRequestContext) {
     this.page = page
+    this.request = request
   }
 
   // Create a new ApiKey, returning the credentials string
@@ -40,14 +41,27 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
-  async callCheckAuth(credentials: string): Promise<{status: number}> {
-    return await axios.get(BASE_URL + '/api/v1/checkAuth', {
-      headers: {Authorization: 'Basic ' + credentials},
+  async submitInvalidApiKeyRequest(programSlugs: Array<string>) {
+    await this.gotoNewApiKeyPage()
+
+    for (const slug of programSlugs) {
+      await this.page.check(`#${slug}`)
+    }
+
+    await this.page.click('#apikey-submit-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async callCheckAuth(credentials: string) {
+    return await this.request.get('/api/v1/checkAuth', {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
     })
   }
 
   async expectApiKeyCredentialsPage(name: string) {
-    expect(await this.page.innerText('h1')).toEqual(`Created API key: ${name}`)
+    await expect(this.page.locator('h1')).toHaveText(`Created API key: ${name}`)
   }
 
   async gotoNewApiKeyPage() {
@@ -58,7 +72,7 @@ export class AdminApiKeys {
   }
 
   async expectNewApiKeyPage() {
-    expect(await this.page.innerText('h1')).toEqual('Create a new API key')
+    await expect(this.page.locator('h1')).toHaveText('Create a new API key')
   }
 
   async expectKeyCallCount(
@@ -134,7 +148,7 @@ export class AdminApiKeys {
   }
 
   async expectApiKeyIsRetired(keyName: string) {
-    await this.gotoApiKeyIndexPage()
+    await this.gotoRetiredApiKeyIndexPage()
     expect(await this.page.innerText('.cf-api-key-name')).toContain(
       `${keyName} retired`,
     )
@@ -146,7 +160,14 @@ export class AdminApiKeys {
     await this.expectApiKeysIndexPage()
   }
 
+  async gotoRetiredApiKeyIndexPage() {
+    await this.page.click('nav :text("API keys")')
+    await waitForPageJsLoad(this.page)
+    await this.page.click('a:has-text("Retired")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectApiKeysIndexPage() {
-    expect(await this.page.innerText('h1')).toEqual('API Keys')
+    await expect(this.page.locator('h1')).toHaveText('API Keys')
   }
 }

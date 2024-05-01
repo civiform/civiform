@@ -10,6 +10,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -17,18 +18,21 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
-import models.Version;
+import models.VersionModel;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 /**
- * QuestionRepository performs complicated operations on {@link Question} that often involve other
- * EBean models or asynchronous handling.
+ * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
+ * other EBean models or asynchronous handling.
  */
 public final class QuestionRepository {
+  private final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("QuestionRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -43,39 +47,83 @@ public final class QuestionRepository {
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
-  public CompletionStage<Set<Question>> listQuestions() {
-    return supplyAsync(() -> database.find(Question.class).findSet(), executionContext);
+  public CompletionStage<Set<QuestionModel>> listQuestions() {
+    return supplyAsync(
+        () ->
+            database
+                .find(QuestionModel.class)
+                .setLabel("QuestionModel.findSet")
+                .setProfileLocation(queryProfileLocationBuilder.create("listQuestions"))
+                .findSet(),
+        executionContext);
   }
 
-  public CompletionStage<Optional<Question>> lookupQuestion(long id) {
+  public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    return question.getQuestionDefinition();
+  }
+
+  public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {
     return supplyAsync(
-        () -> database.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+        () ->
+            database
+                .find(QuestionModel.class)
+                .setLabel("QuestionModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
+                .setId(id)
+                .findOneOrEmpty(),
+        executionContext);
   }
 
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.
    */
-  public Question createOrUpdateDraft(QuestionDefinition definition) {
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew())) {
-      Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
+  public QuestionModel createOrUpdateDraft(QuestionDefinition definition) {
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+      Optional<QuestionModel> existingDraft =
+          versionRepositoryProvider
+              .get()
+              .getQuestionByNameForVersion(definition.getName(), draftVersion);
       try {
         if (existingDraft.isPresent()) {
-          Question updatedDraft =
-              new Question(
+          QuestionModel updatedDraft =
+              new QuestionModel(
                   new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
           this.updateQuestionSync(updatedDraft);
           transaction.commit();
           return updatedDraft;
         }
-        Question newDraftQuestion =
-            new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+        QuestionModel newDraftQuestion =
+            new QuestionModel(new QuestionDefinitionBuilder(definition).setId(null).build());
         insertQuestionSync(newDraftQuestion);
         // Fetch the tags off the old question.
-        Question oldQuestion = new Question(definition);
+        QuestionModel oldQuestion = new QuestionModel(definition);
         oldQuestion.refresh();
         oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
+
+        // TODO (#6058): Add export state to QuestionDefinition so that the QuestionDefinition
+        // is the source of truth for the state of the tags and tags are set when creating
+        // the Question, rather than having to copy the tags from the old question.
+        //
+        // Since we track the universal question state in the QuestionDefinition,
+        // if we're adding UNIVERSAL to the question, it will add the tag when the Question
+        // is created. But if we're trying to remove UNIVERSAL, then it's going to get
+        // copied from the old question and we now need to remove it here.
+        if (!definition.isUniversal()) {
+          newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
+        }
+
+        // Similar to the UNIVERSAL question tag above, we have to remove any QuestionTags for
+        // PrimaryApplicantInfoTags that are not present.
+        PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(definition.getQuestionType())
+            .forEach(
+                primaryApplicantInfoTag -> {
+                  if (!definition.containsPrimaryApplicantInfoTag(primaryApplicantInfoTag)) {
+                    newDraftQuestion.removeTag(primaryApplicantInfoTag.getQuestionTag());
+                  }
+                });
 
         newDraftQuestion.addVersion(draftVersion).save();
         draftVersion.refresh();
@@ -107,16 +155,16 @@ public final class QuestionRepository {
    * newEnumeratorId}.
    */
   public void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    VersionRepository versionRepository = versionRepositoryProvider.get();
     // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
     // Investigate further.
     Stream.concat(
-            versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
-            versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
+            versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()).stream(),
+            versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
         // Find questions that reference the old enumerator ID.
         .filter(
             question ->
-                question
-                    .getQuestionDefinition()
+                getQuestionDefinition(question)
                     .getEnumeratorId()
                     .equals(Optional.of(oldEnumeratorId)))
         // Update to the new enumerator ID.
@@ -124,7 +172,7 @@ public final class QuestionRepository {
             question -> {
               try {
                 createOrUpdateDraft(
-                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                    new QuestionDefinitionBuilder(getQuestionDefinition(question))
                         .setEnumeratorId(Optional.of(newEnumeratorId))
                         .build());
               } catch (UnsupportedQuestionTypeException e) {
@@ -135,7 +183,7 @@ public final class QuestionRepository {
   }
 
   /**
-   * Maybe find a {@link Question} that conflicts with {@link QuestionDefinition}.
+   * Maybe find a {@link QuestionModel} that conflicts with {@link QuestionDefinition}.
    *
    * <p>This is intended to be used for new question definitions, since updates will collide with
    * themselves and previous versions, and new versions of an old question will conflict with the
@@ -144,32 +192,38 @@ public final class QuestionRepository {
    * <p>Questions collide if they share a {@link QuestionDefinition#getQuestionPathSegment()} and
    * {@link QuestionDefinition#getEnumeratorId()}.
    */
-  public Optional<Question> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
+  public Optional<QuestionModel> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
     ConflictDetector conflictDetector =
         new ConflictDetector(
             newQuestionDefinition.getEnumeratorId(),
             newQuestionDefinition.getQuestionPathSegment(),
             newQuestionDefinition.getName());
     database
-        .find(Question.class)
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findConflict")
+        .setProfileLocation(queryProfileLocationBuilder.create("findConflictingQuestion"))
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
   }
 
   /** Get the questions with the specified tag which are in the active version. */
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
-    Version active = versionRepositoryProvider.get().getActiveVersion();
+    VersionModel active = versionRepositoryProvider.get().getActiveVersion();
     ImmutableSet<Long> activeQuestionIds =
-        active.getQuestions().stream().map(q -> q.id).collect(ImmutableSet.toImmutableSet());
+        versionRepositoryProvider.get().getQuestionsForVersion(active).stream()
+            .map(q -> q.id)
+            .collect(ImmutableSet.toImmutableSet());
     return database
-        .find(Question.class)
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getAllQuestionsForTag"))
         .where()
         .arrayContains("question_tags", tag)
         .findList()
         .stream()
         .filter(question -> activeQuestionIds.contains(question.id))
-        .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
-        .map(Question::getQuestionDefinition)
+        .sorted(Comparator.comparing(question -> getQuestionDefinition(question).getName()))
+        .map(q -> getQuestionDefinition(q))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -179,14 +233,16 @@ public final class QuestionRepository {
     // with the same name can exist. We achieve this by a custom merge function that chooses the
     // value with the greater ID.
     return database
-        .find(Question.class)
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getExistingQuestions"))
         .where()
         .in("name", questionNames)
         .orderBy()
         .asc("id")
         .findList()
         .stream()
-        .map(Question::getQuestionDefinition)
+        .map(this::getQuestionDefinition)
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
@@ -194,8 +250,8 @@ public final class QuestionRepository {
                 (q1, q2) -> q1.getId() > q2.getId() ? q1 : q2));
   }
 
-  private static final class ConflictDetector {
-    private Optional<Question> conflictedQuestion = Optional.empty();
+  private final class ConflictDetector {
+    private Optional<QuestionModel> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
     private final String questionPathSegment;
     private final String questionName;
@@ -207,12 +263,12 @@ public final class QuestionRepository {
       this.questionName = checkNotNull(questionName);
     }
 
-    private Optional<Question> getConflictedQuestion() {
+    private Optional<QuestionModel> getConflictedQuestion() {
       return conflictedQuestion;
     }
 
-    private boolean hasConflict(Question question) {
-      QuestionDefinition definition = question.getQuestionDefinition();
+    private boolean hasConflict(QuestionModel question) {
+      QuestionDefinition definition = getQuestionDefinition(question);
       boolean isSameName = definition.getName().equals(questionName);
       boolean isSameEnumId = definition.getEnumeratorId().equals(enumeratorId);
       boolean isSamePath = definition.getQuestionPathSegment().equals(questionPathSegment);
@@ -224,7 +280,7 @@ public final class QuestionRepository {
     }
   }
 
-  public CompletionStage<Question> insertQuestion(Question question) {
+  public CompletionStage<QuestionModel> insertQuestion(QuestionModel question) {
     return supplyAsync(
         () -> {
           database.insert(question);
@@ -233,12 +289,12 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public Question insertQuestionSync(Question question) {
+  public QuestionModel insertQuestionSync(QuestionModel question) {
     database.insert(question);
     return question;
   }
 
-  public CompletionStage<Question> updateQuestion(Question question) {
+  public CompletionStage<QuestionModel> updateQuestion(QuestionModel question) {
     return supplyAsync(
         () -> {
           database.update(question);
@@ -247,7 +303,7 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public Question updateQuestionSync(Question question) {
+  public QuestionModel updateQuestionSync(QuestionModel question) {
     database.update(question);
     return question;
   }

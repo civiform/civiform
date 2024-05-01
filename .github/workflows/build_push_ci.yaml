@@ -35,11 +35,11 @@ jobs:
     name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Check if we should push
         if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
@@ -97,12 +97,12 @@ jobs:
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v44
         with:
           json: 'true'
         if: ${{ github.event_name != 'workflow_dispatch' }}
@@ -121,10 +121,10 @@ jobs:
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push

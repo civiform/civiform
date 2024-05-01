@@ -2,35 +2,39 @@
   "Branding": {
     "group_description": "Configuration options for CiviForm branding.",
     "members": {
-      "WHITELABEL_SMALL_LOGO_URL": {
+      "CIVIC_ENTITY_SMALL_LOGO_URL": {
+        "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
-        "type": "string"
-      },
-      "WHITELABEL_LOGO_WITH_NAME_URL": {
-        "description": "Logo with civic entity name used on the applicant-facing program index page.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "FAVICON_URL": {
+        "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
       }
     }
   },
-  "External service dependencies": {
+  "External Services": {
     "group_description": "Configures connections to external services the CiviForm server relies on.",
     "members": {
       "Applicant Identity Provider": {
-        "group_description": "Configuration options for the [applicant identity provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#applicant-authentication).",
+        "group_description": "Configuration options for the [applicant identity provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#applicant-authentication).",
         "members": {
           "CIVIFORM_APPLICANT_IDP": {
+            "mode": "ADMIN_READABLE",
             "description": "What identity provider to use for applicants.",
             "type": "string",
             "values": [
@@ -40,143 +44,175 @@
               "login-gov",
               "auth0",
               "disabled"
-            ]
+            ],
+            "required": true
           },
           "APPLICANT_REGISTER_URI": {
+            "mode": "ADMIN_READABLE",
             "description": "URI to create a new account in the applicant identity provider.",
             "type": "string"
           },
           "APPLICANT_PORTAL_NAME": {
+            "mode": "ADMIN_WRITEABLE",
             "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
-            "type": "string"
+            "type": "string",
+            "required": true
           },
           "Oracle Identity Cloud Service": {
-            "group_description": "Configuration options for the [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs) provider.",
+            "group_description": "Configuration options for the [idcs](https://github.com/civiform/civiform/wiki/Authentication-Providers#oracle-idcs) provider.",
             "members": {
               "IDCS_CLIENT_ID": {
+                "mode": "SECRET",
                 "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers, specifically communicating with IDCS. A Civiform instance is always the client.",
                 "type": "string"
               },
               "IDCS_SECRET": {
+                "mode": "SECRET",
                 "description": "A secret known only to the client (Civiform) and authorization server, specifically for IDCS OIDC systems. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
                 "type": "string"
               },
               "IDCS_DISCOVERY_URI": {
+                "mode": "HIDDEN",
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
                 "type": "string"
               }
             }
           },
           "Login Radius": {
-            "group_description": "Configuration options for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
+            "group_description": "Configuration options for the [login-radius](https://github.com/civiform/civiform/wiki/Authentication-Providers#loginradius-saml) provider",
             "members": {
               "LOGIN_RADIUS_API_KEY": {
+                "mode": "HIDDEN",
                 "description": "The API key used to interact with LoginRadius.",
                 "type": "string"
               },
               "LOGIN_RADIUS_METADATA_URI": {
+                "mode": "HIDDEN",
                 "description": "The base URL to construct SAML endpoints, based on the SAML2 spec.",
                 "type": "string"
               },
               "LOGIN_RADIUS_SAML_APP_NAME": {
+                "mode": "HIDDEN",
                 "description": "The name for the app, based on the SAML2 spec.",
                 "type": "string"
               },
               "LOGIN_RADIUS_KEYSTORE_NAME": {
+                "mode": "HIDDEN",
                 "description": "Name of the SAML2 keystore, used to store digital certificates and private keys for SAML auth.",
                 "type": "string"
               },
               "LOGIN_RADIUS_KEYSTORE_PASS": {
+                "mode": "HIDDEN",
                 "description": "The password used the protect the integrity of the SAML keystore file.",
                 "type": "string"
               },
               "LOGIN_RADIUS_PRIVATE_KEY_PASS": {
+                "mode": "HIDDEN",
                 "description": "The password used to protect the private key of the SAML digital certificate.",
                 "type": "string"
               }
             }
           },
           "OpenID Connect": {
-            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "group_description": "Configuration options for the [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc) provider.",
             "members": {
               "APPLICANT_OIDC_PROVIDER_LOGOUT": {
-                "description": "Enables [central logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).",
+                "mode": "HIDDEN",
+                "description": "Enables [central logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
                 "type": "bool"
               },
               "APPLICANT_OIDC_OVERRIDE_LOGOUT_URL": {
+                "mode": "HIDDEN",
                 "description": "By default the 'end_session_endpoint' from the auth provider discovery metadata file is used as the logout endpoint. However for some integrations that standard flow might not work and we need to override logout URL.",
                 "type": "string"
               },
               "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM": {
+                "mode": "HIDDEN",
                 "description": "URL param used to pass the post logout redirect url in the logout request to the auth provider. It defaults to 'post_logout_redirect_uri' if this variable is unset. If this variable is set to the empty string, the post logout redirect url is not passed at all and instead it needs to be hardcoded on the the auth provider (otherwise the user won't be redirected back to civiform after logout).",
                 "type": "string"
               },
               "APPLICANT_OIDC_PROVIDER_NAME": {
+                "mode": "HIDDEN",
                 "description": "The name of the OIDC (OpenID Connect) auth provider (server), such as “Auth0” or “LoginRadius”.",
                 "type": "string"
               },
               "APPLICANT_OIDC_CLIENT_ID": {
+                "mode": "HIDDEN",
                 "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers. A Civiform instance is always the client.",
                 "type": "string"
               },
               "APPLICANT_OIDC_CLIENT_SECRET": {
+                "mode": "SECRET",
                 "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
                 "type": "string"
               },
               "APPLICANT_OIDC_DISCOVERY_URI": {
+                "mode": "HIDDEN",
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth provider.",
                 "type": "string"
               },
               "APPLICANT_OIDC_RESPONSE_MODE": {
+                "mode": "HIDDEN",
                 "description": "Informs the auth server of the desired auth processing flow, based on the OpenID Connect spec.",
                 "type": "string"
               },
               "APPLICANT_OIDC_RESPONSE_TYPE": {
+                "mode": "HIDDEN",
                 "description": "Informs the auth server of the mechanism to be used for returning response params from the auth endpoint, based on the OpenID Connect spec.",
                 "type": "string"
               },
               "APPLICANT_OIDC_ADDITIONAL_SCOPES": {
+                "mode": "HIDDEN",
                 "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides.",
                 "type": "string"
               },
               "APPLICANT_OIDC_LOCALE_ATTRIBUTE": {
+                "mode": "HIDDEN",
                 "description": "The locale of the user, such as “en-US”.",
                 "type": "string"
               },
               "APPLICANT_OIDC_EMAIL_ATTRIBUTE": {
+                "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s email address.",
                 "type": "string"
               },
               "APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE": {
+                "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s first name.",
                 "type": "string"
               },
               "APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE": {
+                "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s middle name.",
                 "type": "string"
               },
               "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE": {
+                "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s last name.",
                 "type": "string"
               }
             }
           },
           "Login.gov": {
-            "group_description": "Configuration options for the [login-gov](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#login.gov-oidc) provider",
+            "group_description": "Configuration options for the [login-gov](https://github.com/civiform/civiform/wiki/Authentication-Providers#logingov-oidc) provider",
             "members": {
               "LOGIN_GOV_CLIENT_ID": {
+                "mode": "HIDDEN",
                 "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers, specifically communicating with Login.gov. A Civiform instance is always the client.",
                 "type": "string"
               },
               "LOGIN_GOV_DISCOVERY_URI": {
+                "mode": "HIDDEN",
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth provider, specifically for Login.gov.",
                 "type": "string"
               },
               "LOGIN_GOV_ADDITIONAL_SCOPES": {
+                "mode": "HIDDEN",
                 "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides. Scopes should be separated by a space.",
                 "type": "string"
               },
               "LOGIN_GOV_ACR_VALUE": {
+                "mode": "HIDDEN",
                 "description": "[Authentication Context Class Reference requests](https://developers.login.gov/oidc/#request-parameters). ial/1 is for open registration, email only. ial/2 is for requiring identity verification.",
                 "type": "string",
                 "values": [
@@ -189,31 +225,104 @@
         }
       },
       "Administrator Identity Provider": {
-        "group_description": "Configuration options for the [administrator identity provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#admin-authentication).",
+        "group_description": "Configuration options for the [administrator identity provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#admin-authentication).",
         "members": {
-          "ADFS_CLIENT_ID": {
-            "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers, specifically communicating with ADFS. A Civiform instance is always the client.",
-            "type": "string"
+          "CIVIFORM_ADMIN_IDP": {
+            "mode": "ADMIN_READABLE",
+            "description": "What identity provider to use for admins.",
+            "type": "string",
+            "values": ["adfs", "generic-oidc-admin"],
+            "required": false
           },
-          "ADFS_SECRET": {
-            "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
-            "type": "string"
+          "Active Directory Federation Services": {
+            "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",
+            "members": {
+              "ADFS_CLIENT_ID": {
+                "mode": "HIDDEN",
+                "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers, specifically communicating with ADFS. A Civiform instance is always the client.",
+                "type": "string"
+              },
+              "ADFS_SECRET": {
+                "mode": "SECRET",
+                "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
+                "type": "string"
+              },
+              "ADFS_DISCOVERY_URI": {
+                "mode": "HIDDEN",
+                "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
+                "type": "string"
+              },
+              "ADFS_ADMIN_GROUP": {
+                "mode": "HIDDEN",
+                "description": "The name of the admin group in Active Directory, typically used to tell if a user is a global admin.",
+                "type": "string"
+              },
+              "ADFS_ADDITIONAL_SCOPES": {
+                "mode": "HIDDEN",
+                "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides. Scopes should be separated by a space.",
+                "type": "string"
+              },
+              "AD_GROUPS_ATTRIBUTE_NAME": {
+                "mode": "HIDDEN",
+                "description": "The attribute name for looking up the groups associated with a particular user.",
+                "type": "string"
+              }
+            }
           },
-          "ADFS_DISCOVERY_URI": {
-            "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
-            "type": "string"
-          },
-          "ADFS_GLOBAL_ADMIN_GROUP": {
-            "description": "The name of the admin group in Active Directory, typically used to tell if a user is a global admin.",
-            "type": "string"
-          },
-          "ADFS_ADDITIONAL_SCOPES": {
-            "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides. Scopes should be separated by a space.",
-            "type": "string"
-          },
-          "AD_GROUPS_ATTRIBUTE_NAME": {
-            "description": "The attribute name for looking up the groups associated with a particular user.",
-            "type": "string"
+          "OpenID Connect": {
+            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "members": {
+              "ADMIN_OIDC_PROVIDER_NAME": {
+                "mode": "HIDDEN",
+                "description": "The name of the OIDC (OpenID Connect) auth provider (server), such as 'Auth0' or 'Okta'.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_CLIENT_ID": {
+                "mode": "HIDDEN",
+                "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers. A Civiform instance is always the client.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_CLIENT_SECRET": {
+                "mode": "HIDDEN",
+                "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_DISCOVERY_URI": {
+                "mode": "HIDDEN",
+                "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth provider.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_RESPONSE_MODE": {
+                "mode": "HIDDEN",
+                "description": "Informs the auth server of the desired auth processing flow, based on the OpenID Connect spec.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_RESPONSE_TYPE": {
+                "mode": "HIDDEN",
+                "description": "Informs the auth server of the mechanism to be used for returning response params from the auth endpoint, based on the OpenID Connect spec.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_USE_CSRF": {
+                "mode": "HIDDEN",
+                "description": "OIDC client should provide CSRF protection.",
+                "type": "bool"
+              },
+              "ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME": {
+                "mode": "HIDDEN",
+                "description": "Name of attribute that provides the groups associated with an account.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_ADMIN_GROUP_NAME": {
+                "mode": "HIDDEN",
+                "description": "Name of group that indicates an account is a global admin.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_ADDITIONAL_SCOPES": {
+                "mode": "HIDDEN",
+                "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides.",
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -221,60 +330,119 @@
         "group_description": "Configures the connection to the PostgreSQL database.",
         "members": {
           "DATABASE_APPLY_DESTRUCTIVE_CHANGES": {
+            "mode": "HIDDEN",
             "description": "If enabled, [playframework down evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts) are automatically applied on server start if needed.",
             "type": "bool"
           },
           "DATABASE_CONNECTION_POOL_SIZE": {
+            "mode": "HIDDEN",
             "description": "Sets how many connections to the database are maintained.",
             "type": "int"
           },
           "DB_JDBC_STRING": {
+            "mode": "HIDDEN",
             "description": "The database URL.",
             "type": "string"
           },
           "DB_USERNAME": {
+            "mode": "SECRET",
             "description": "The username used to connect to the database.",
             "type": "string"
           },
           "DB_PASSWORD": {
+            "mode": "SECRET",
             "description": "The password used to connect to the database.",
             "type": "string"
           }
         }
       },
+      "Thread pools": {
+        "group_description": "Configures the Play framework [thread pools](https://www.playframework.com/documentation/2.8.x/ThreadPools).",
+        "members": {
+          "AKKA_DEFAULT_EXECUTOR": {
+            "mode": "HIDDEN",
+            "description": "Determines which kind of ExecutorService to use for the default dispatcher. The default is 'fork-join-executor'",
+            "type": "string"
+          },
+          "FORK_JOIN_PARALLELISM_MIN": {
+            "mode": "HIDDEN",
+            "description": "Min number of threads to cap factor-based parallelism number to for the 'fork-join-executor'",
+            "type": "int"
+          },
+          "FORK_JOIN_PARALLELISM_MAX": {
+            "mode": "HIDDEN",
+            "description": "Max number of threads to cap factor-based parallelism number to for the 'fork-join-executor'",
+            "type": "int"
+          },
+          "FORK_JOIN_PARALLELISM_FACTOR": {
+            "mode": "HIDDEN",
+            "description": "The parallelism factor is used to determine thread pool size for the 'fork-join-executor' using the following formula: ceil(available processors * factor). Resulting size is then bounded by the parallelism-min and parallelism-max values.",
+            "type": "int"
+          },
+          "THREAD_POOL_EXECUTOR_FIXED_POOL_SIZE": {
+            "mode": "HIDDEN",
+            "description": "The size of the thread pool for the 'thread-pool-executor' type. If not defined, this will use the [default](https://github.com/akka/akka/blob/main/akka-actor/src/main/resources/reference.conf#L492) core and max pool sizes.",
+            "type": "int"
+          },
+          "AKKA_THROUGHPUT": {
+            "mode": "HIDDEN",
+            "description": "The number of messages that are processed in a batch before the thread is returned to the pool. Set to 1 for as fair as possible.",
+            "type": "int"
+          }
+        }
+      },
       "AWS_REGION": {
+        "mode": "HIDDEN",
         "description": "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also the region where the AWS s3 service exists.",
         "type": "string"
       },
-      "AWS_SES_SENDER": {
+      "SENDER_EMAIL_ADDRESS": {
+        "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
         "members": {
           "STORAGE_SERVICE_NAME": {
+            "mode": "HIDDEN",
             "description": "What static file storage provider to use.",
             "type": "string",
             "values": ["s3", "azure-blob"]
           },
           "AWS_S3_BUCKET_NAME": {
+            "mode": "HIDDEN",
             "description": "s3 bucket to store files in.",
             "type": "string"
           },
           "AWS_S3_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
             "description": "The max size (in Mb) of files uploaded to s3.",
             "type": "string"
           },
+          "AWS_S3_PUBLIC_BUCKET_NAME": {
+            "mode": "HIDDEN",
+            "description": "s3 bucket to store **publicly accessible** files in.",
+            "type": "string"
+          },
+          "AWS_S3_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to s3.",
+            "type": "string"
+          },
           "AZURE_STORAGE_ACCOUNT_NAME": {
+            "mode": "HIDDEN",
             "description": "The azure account name where the blob storage service exists.",
             "type": "string"
           },
           "AZURE_STORAGE_ACCOUNT_CONTAINER": {
+            "mode": "HIDDEN",
             "description": "Azure blob storage container name to store files in.",
             "type": "string"
           },
           "AZURE_LOCAL_CONNECTION_STRING": {
+            "mode": "HIDDEN",
             "description": "Allows local [Azurite emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be used for developer deployments.",
             "type": "string"
           }
@@ -283,64 +451,81 @@
       "ESRI Address Validation": {
         "group_description": "Configuration options for the ESRI GIS client and address validation/correction feature.",
         "members": {
-          "ESRI_ADDRESS_CORRECTION_ENABLED": {
-            "description": "Enables the feature that allows address correction for address questions.",
-            "type": "bool"
-          },
           "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
-            "description": "The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+            "mode": "ADMIN_READABLE",
+            "description": "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
             "type": "string"
           },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
-            "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
-            "type": "bool"
+          "ESRI_FIND_ADDRESS_CANDIDATES_URLS": {
+            "mode": "ADMIN_READABLE",
+            "description": "The list of URLs CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). These are used sequentially and not all of them may need to be used for every correction. If any results have a score of 90 or higher, lower priority urls will not be called.",
+            "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
+            "mode": "ADMIN_READABLE",
             "description": "Human readable labels used to present the service area validation options in CiviForm’s admin UI.",
             "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS": {
+            "mode": "ADMIN_READABLE",
             "description": "The value CiviForm uses to validate if an address is in a service area.",
             "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS": {
+            "mode": "ADMIN_READABLE",
             "description": "The URL CiviForm will use to call Esri’s [map query service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm) for service area validation.",
             "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES": {
+            "mode": "ADMIN_READABLE",
             "description": "The attribute CiviForm checks from the service area validation response to get the service area validation ID.",
             "type": "index-list"
           },
           "ESRI_EXTERNAL_CALL_TRIES": {
+            "mode": "ADMIN_READABLE",
             "description": "The number of tries CiviForm will attempt requests to external Esri services.",
+            "type": "int"
+          },
+          "ESRI_WELLKNOWN_ID_OVERRIDE": {
+            "mode": "ADMIN_READABLE",
+            "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
             "type": "int"
           }
         }
       }
     }
   },
-  "Email addresses": {
+  "Email Addresses": {
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "IT_EMAIL_ADDRESS": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },
-      "STAGING_ADMIN_LIST": {
+      "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
+        "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
-      "STAGING_TI_LIST": {
+      "STAGING_TI_NOTIFICATION_MAILING_LIST": {
+        "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
-      "STAGING_APPLICANT_LIST": {
+      "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
+        "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       }
     }
   },
@@ -348,33 +533,45 @@
     "group_description": "Text specific to a civic entity.",
     "members": {
       "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "The text for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string"
       },
       "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
-        "type": "string"
+        "type": "string",
+        "regex": "^(http://|https://).+",
+        "regex_tests": [
+          {"val": "http://my-civiform.org", "should_match": true},
+          {"val": "https://my-civiform.org", "should_match": true},
+          {"val": "my-civiform.org", "should_match": false}
+        ]
       }
     }
   },
   "SECRET_KEY": {
+    "mode": "SECRET",
     "description": "The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used to sign Play's session cookie. This must be changed for production.",
     "type": "string"
   },
   "BASE_URL": {
+    "mode": "ADMIN_READABLE",
     "description": "The URL of the CiviForm deployment.  Must start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(http://|https://)",
+    "regex": "^(http://|https://).+",
     "regex_tests": [
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
       {"val": "my-civiform.org", "should_match": false}
-    ]
+    ],
+    "required": true
   },
   "STAGING_HOSTNAME": {
+    "mode": "HIDDEN",
     "description": "DNS name of the staging deployment.  Must not start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(?!http://|https://)",
+    "regex": "^(?!http://|https://).+",
     "regex_tests": [
       {"val": "my-civiform.org", "should_match": true},
       {"val": "http://my-civiform.org", "should_match": false},
@@ -382,34 +579,52 @@
     ]
   },
   "CIVIFORM_SUPPORTED_LANGUAGES": {
-    "description": "The languages that applicants can choose from when specifying their language preference and that admins can choose from when adding translations for programs and applications.",
+    "mode": "HIDDEN",
+    "description": "The full list of languages available to CiviForm. These are the language that admins can choose from when adding translations for programs and applications, as well as the default list that applicants can choose from when specifying their language preference. See CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to applicants.",
+    "type": "index-list"
+  },
+  "CIVIFORM_APPLICANT_ENABLED_LANGUAGES": {
+    "mode": "HIDDEN",
+    "description": "If populated, this filters the languages that are visible to the applicant to just those in the list. This allows program admins to develop languages support for programs and questions, but not let the applicant use a language that is not yet ready.",
     "type": "index-list"
   },
   "CIVIFORM_TIME_ZONE_ID": {
+    "mode": "ADMIN_READABLE",
     "description": "A Java [time zone ID](https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html) indicating the time zone for this CiviForm deployment. All times in the system will be calculated in this zone. Default value is 'America/Los_Angeles'",
-    "type": "string"
+    "type": "string",
+    "required": true
   },
   "CIVIFORM_IMAGE_TAG": {
+    "mode": "ADMIN_READABLE",
     "description": "The tag of the docker image this server is running inside. Is added as a HTML meta tag with name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.",
     "type": "string"
   },
   "CIVIFORM_VERSION": {
+    "mode": "ADMIN_READABLE",
     "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
     "type": "string"
   },
   "CLIENT_IP_TYPE": {
+    "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
+  },
+  "NUM_TRUSTED_PROXIES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
+    "type": "int"
   },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
       "CIVIFORM_SERVER_METRICS_ENABLED": {
+        "mode": "ADMIN_READABLE",
         "description": "If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If disabled, '/metrics' returns a 404.",
         "type": "bool"
       },
       "MEASUREMENT_ID": {
+        "mode": "ADMIN_READABLE",
         "description": "The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the CiviForm pages.",
         "type": "string"
       }
@@ -419,14 +634,17 @@
     "group_description": "Configuration options for the [CiviForm API](https://docs.civiform.us/it-manual/api).",
     "members": {
       "CIVIFORM_API_SECRET_SALT": {
+        "mode": "SECRET",
         "description": "A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for salting API keys before storing their hash values in the database. This value should be kept strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be changed and all active API keys should be retired and reissued. Default value is 'changeme'.",
         "type": "string"
       },
       "CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET": {
+        "mode": "HIDDEN",
         "description": "When true prevents the CiviForm admin from issuing API keys that allow callers from all IP addresses (i.e. a CIDR mask of /0).",
         "type": "bool"
       },
       "CIVIFORM_API_APPLICATIONS_LIST_MAX_PAGE_SIZE": {
+        "mode": "ADMIN_READABLE",
         "description": "An integer specifying the maximum number of entries returned in a page of results for the applications export API.",
         "type": "int"
       }
@@ -436,14 +654,17 @@
     "group_description": "Configuration options for the CiviForm Job Runner.",
     "members": {
       "DURABLE_JOBS_POLL_INTERVAL_SECONDS": {
+        "mode": "HIDDEN",
         "description": "An integer specifying the polling interval in seconds for the durable job system. A smaller number here increases the polling frequency, which results in jobs running sooner when they are scheduled to be run immediately, at the cost of more pressure on the database. Default value is 5.",
         "type": "int"
       },
       "DURABLE_JOBS_JOB_TIMEOUT_MINUTES": {
+        "mode": "HIDDEN",
         "description": "An integer specifying the timeout in minutes for durable jobs i.e. how long a single job is allowed to run before the system attempts to interrupt it. Default value is 30.",
         "type": "int"
       },
       "DURABLE_JOBS_THREAD_POOL_SIZE": {
+        "mode": "HIDDEN",
         "description": "The number of server threads available for the durable job runner. More than a single thread will the server execute multiple jobs in parallel. Default value is 1.",
         "type": "int"
       }
@@ -452,57 +673,109 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "APPLICATION_EXPORTABLE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
+        "type": "bool"
+      },
+      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows programs to be disabled from CiviForm",
+        "type": "bool"
+      },
+      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+        "type": "bool"
+      },
+      "ESRI_ADDRESS_CORRECTION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows address correction for address questions.",
+        "type": "bool"
+      },
       "CF_OPTIONAL_QUESTIONS": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
         "type": "bool"
       },
       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by default.",
         "type": "bool"
       },
       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
-      "PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED": {
-        "description": "Enables the [program eligibility](https://github.com/civiform/civiform/issues/3744) feature.",
-        "type": "bool"
-      },
-      "FEATURE_FLAG_OVERRIDES_ENABLED": {
-        "description": "Allows feature flags to be overridden via request cookies. Is used by browswer tests. Should only be enabled in test and staging deployments.",
-        "type": "bool"
-      },
       "INTAKE_FORM_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the Common Intake Form feature.",
         "type": "bool"
       },
-      "NONGATED_ELIGIBILITY_ENABLED": {
-        "description": "Enables the feature that allows setting eligibility criteria to non-gating.",
-        "type": "bool"
-      },
-
       "STAGING_ADD_NOINDEX_META_TAG": {
+        "mode": "HIDDEN",
         "description": "If this is a staging deployment and this variable is set to true, a [robots noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata tag is added to the CiviForm pages. This causes the staging site to not be listed on search engines.",
         "type": "bool"
       },
       "STAGING_DISABLE_DEMO_MODE_LOGINS": {
+        "mode": "HIDDEN",
         "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
         "type": "bool"
       },
-      "STAGING_DISABLE_APPLICANT_GUEST_LOGIN": {
-        "description": "If this is a staging deployment and this variable is set to true, the 'CONTINUE AS GUEST' button is not shown on the login page.",
+      "API_GENERATED_DOCS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the API docs tab on CiviForm.",
         "type": "bool"
       },
-      "PHONE_QUESTION_TYPE_ENABLED": {
-        "description": "Enables the phone number question type.",
+      "VERSION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for versions and their associated data.",
         "type": "bool"
       },
-      "BYPASS_LOGIN_LANGUAGE_SCREENS": {
-        "description": "Bypasses the login and language screens and takes applicant straight to programs page.",
+      "PROGRAM_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for programs and their associated data.",
         "type": "bool"
       },
-      "PUBLISH_SINGLE_PROGRAM_ENABLED": {
-        "description": "Enables the feature that allows publishing a single program on its own.",
+      "QUESTION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for questions and their associated data.",
+        "type": "bool"
+      },
+      "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables populating more fields in OIDC logout requests to admin identity provider.",
+        "type": "bool"
+      },
+      "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
+        "type": "bool"
+      },
+      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
+        "type": "bool"
+      },
+      "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
+        "type": "bool"
+      },
+      "SAVE_ON_ALL_ACTIONS": {
+        "mode": "ADMIN_READABLE",
+        "description": "Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+        "type": "bool"
+      },
+      "NORTH_STAR_APPLICANT_UI": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
         "type": "bool"
       }
     }

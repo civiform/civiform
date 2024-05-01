@@ -1,7 +1,9 @@
 import env_var_docs.parser
+# Needed for <3.9
+from typing import List
 
 
-def format(errors: list[env_var_docs.parser.NodeParseError]) -> str:
+def format(errors: List[env_var_docs.parser.NodeParseError]) -> str:
     """Formats a list of NodeParseErrors returned from
     env_var_docs.parser.visit as a human-readable string.
 

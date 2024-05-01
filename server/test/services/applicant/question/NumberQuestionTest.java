@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,41 +23,44 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
 import services.question.types.NumberQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest extends ResetPostgres {
 
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create(50, 100),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  NumberQuestionDefinition.NumberValidationPredicates.create(50, 100))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
   private Messages messages;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
     messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
@@ -114,11 +117,11 @@ public class NumberQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "-1,Number must be a positive whole number and can only contain numeric characters 0-9.",
-    "0,Must be at least 50.",
-    "49,Must be at least 50.",
-    "101,Must be at most 100.",
-    "999,Must be at most 100."
+    "-1,Error: Number must be a positive whole number and can only contain numeric characters 0-9.",
+    "0,Error: Must be at least 50.",
+    "49,Error: Must be at least 50.",
+    "101,Error: Must be at most 100.",
+    "999,Error: Must be at most 100."
   })
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {

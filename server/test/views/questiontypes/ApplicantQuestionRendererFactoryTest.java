@@ -5,7 +5,10 @@ import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.ConfigFactory;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -15,7 +18,10 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import views.AwsFileUploadViewStrategy;
+import services.settings.SettingsManifest;
+import support.cloud.FakeApplicantStorageClient;
+import views.applicant.ApplicantFileUploadRenderer;
+import views.fileupload.AwsFileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 @RunWith(JUnitParamsRunner.class)
@@ -32,8 +38,20 @@ public class ApplicantQuestionRendererFactoryTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
+    // A null question type is not allowed to be created and won't show in the list
+    if (type == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
+    var applicantRoutes = new ApplicantRoutes();
+
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+        new ApplicantQuestionRendererFactory(
+            new ApplicantFileUploadRenderer(
+                new AwsFileUploadViewStrategy(),
+                applicantRoutes,
+                new FakeApplicantStorageClient(),
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -47,9 +65,21 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(source = QuestionType.class)
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
+    // A null question type is not allowed to be created and won't show in the list
+    if (type == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
+    var applicantRoutes = new ApplicantRoutes();
+
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+        new ApplicantQuestionRendererFactory(
+            new ApplicantFileUploadRenderer(
+                new AwsFileUploadViewStrategy(),
+                applicantRoutes,
+                new FakeApplicantStorageClient(),
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -70,10 +100,13 @@ public class ApplicantQuestionRendererFactoryTest {
       case FILEUPLOAD:
       case ID:
       case NUMBER:
-      case STATIC:
       case PHONE:
+      case STATIC:
       case TEXT:
         assertThat(renderedContent).doesNotContain("fieldset");
+        break;
+        // This is here because errorprone doesn't like that it was missing
+      case NULL_QUESTION:
         break;
     }
   }

@@ -1,6 +1,7 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
-import {waitForPageJsLoad} from './wait'
+import {readFileSync, writeFileSync, unlinkSync} from 'fs'
+import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
 export class ApplicantQuestions {
@@ -85,12 +86,20 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string) {
+  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
-      name: 'file.txt',
+      name: fileName,
       mimeType: 'text/plain',
       buffer: Buffer.from(text),
     })
+  }
+
+  /** Creates a file with the given size in MB and uploads it to the file upload question. */
+  async answerFileUploadQuestionWithMbSize(mbSize: int) {
+    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    await this.page.setInputFiles('input[type=file]', filePath)
+    unlinkSync(filePath)
   }
 
   async answerIdQuestion(id: string, index = 0) {
@@ -110,15 +119,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerPhoneQuestion(country: string, phone: string, index = 0) {
-    // United States
-    await this.page.selectOption(
-      `.cf-phone-country-code select >> nth=${index}`,
-      {
-        label: country,
-      },
-    )
-    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  async answerPhoneQuestion(phone: string, index = 0) {
+    await this.page.fill(`.cf-question-phone input >> nth=${index}`, phone)
   }
 
   async answerNumberQuestion(number: string, index = 0) {
@@ -153,7 +155,7 @@ export class ApplicantQuestions {
   }
 
   async addEnumeratorAnswer(entityName: string) {
-    await this.page.click('button:text("＋ Add entity")')
+    await this.page.click('button:has-text("Add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill(
       '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
@@ -169,6 +171,22 @@ export class ApplicantQuestions {
       entityName,
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
     )
+  }
+
+  /** On the review page, click "Answer" on a previously unanswered question. */
+  async answerQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+    )
+    await waitForPageJsLoad(this.page)
+  }
+
+  /** On the review page, click "Edit" to change an answer to a previously answered question. */
+  async editQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
+    )
+    await waitForPageJsLoad(this.page)
   }
 
   async validateInputTypePresent(type: string) {
@@ -200,9 +218,9 @@ export class ApplicantQuestions {
     // If we are as a guest, we will get a prompt to log in before continuing to the
     // application. Bypass this to continue as a guest.
     const loginPromptButton = await this.page.$(
-      '[id^="bypass-login-prompt-button-"]',
+      `[id^="bypass-login-prompt-button-"]:visible`,
     )
-    if (loginPromptButton) {
+    if (loginPromptButton !== null) {
       await loginPromptButton.click()
     }
 
@@ -256,15 +274,12 @@ export class ApplicantQuestions {
     wantInProgressPrograms: string[]
     wantSubmittedPrograms: string[]
   }) {
-    const gotNotStartedProgramNames = await this.programNamesForSection(
-      'Not started',
-    )
-    const gotInProgressProgramNames = await this.programNamesForSection(
-      'In progress',
-    )
-    const gotSubmittedProgramNames = await this.programNamesForSection(
-      'Submitted',
-    )
+    const gotNotStartedProgramNames =
+      await this.programNamesForSection('Not started')
+    const gotInProgressProgramNames =
+      await this.programNamesForSection('In progress')
+    const gotSubmittedProgramNames =
+      await this.programNamesForSection('Submitted')
 
     // Sort results before comparing since we don't care about order.
     gotNotStartedProgramNames.sort()
@@ -280,9 +295,8 @@ export class ApplicantQuestions {
   }
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
-    const commonIntakeFormSectionNames = await this.programNamesForSection(
-      'Find services',
-    )
+    const commonIntakeFormSectionNames =
+      await this.programNamesForSection('Get Started')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
@@ -327,8 +341,30 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickDownload() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download PDF"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null || readFileSync(path, 'utf8').length === 0) {
+      throw new Error('download failed')
+    }
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickConfirmAddress() {
+    await this.page.getByRole('button', {name: 'Confirm address'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.getByRole('button', {name: 'Go back and edit'}).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -345,7 +381,7 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
+    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
   async downloadSingleQuestionFromReviewPage() {
@@ -367,9 +403,7 @@ export class ApplicantQuestions {
 
   async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
-    expect(await this.page.innerText('h1')).toContain(
-      'Application confirmation',
-    )
+    await this.expectConfirmationPage()
     await this.clickApplyToAnotherProgramButton()
 
     // If we are a guest, we will get a prompt to log in before going back to the
@@ -378,15 +412,25 @@ export class ApplicantQuestions {
     if (pageContent!.includes('Continue without an account')) {
       await this.page.click('text="Continue without an account"')
     }
-    await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
+    await this.expectProgramsPage()
+  }
+
+  async expectProgramsPage() {
+    await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Program application summary',
+    )
+  }
+
+  async expectConfirmationPage() {
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
     )
   }
 
@@ -403,11 +447,11 @@ export class ApplicantQuestions {
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits your client may qualify for',
+        'Programs your client may qualify for',
       )
     } else {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits you may qualify for',
+        'Programs you may qualify for',
       )
     }
 
@@ -434,6 +478,17 @@ export class ApplicantQuestions {
 
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
+  }
+
+  async clickGoBackAndEditOnIneligiblePage() {
+    await this.page.click('text="Go back and edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectDuplicatesPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'There are no changes to save',
+    )
   }
 
   async expectIneligibleQuestion(questionText: string) {
@@ -464,16 +519,25 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress ? 'Verify address' : 'No valid address found'
-    expect(await this.page.innerText('h2')).toContain(header)
+  async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
+    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    // Note: If there's only one suggestion, the heading will be "Suggested address"
+    // not "Suggested addresses". But, our browser setup always returns multiple
+    // suggestions so we can safely assert the heading is always "Suggested addresses".
+    await expect(
+      this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
   }
 
   async expectAddressPage() {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async expectAddressHasBeenCorrected(
+  async selectAddressSuggestion(addressName: string) {
+    await this.page.check(`label:has-text("${addressName}")`)
+  }
+
+  async expectQuestionAnsweredOnReviewPage(
     questionText: string,
     answerText: string,
   ) {
@@ -493,36 +557,108 @@ export class ApplicantQuestions {
     await this.clickSubmit()
   }
 
+  async downloadFromConfirmationPage() {
+    // Assert that we're on the review page.
+    await this.expectConfirmationPage()
+
+    // Click on download button.
+    await this.clickDownload()
+  }
+
   async validateHeader(lang: string) {
-    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang)
+    await expect(this.page.locator('html')).toHaveAttribute('lang', lang)
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validateQuestionIsOnPage(questionText: string) {
+    await expect(
+      this.page
+        .locator('.cf-applicant-question-text')
+        .filter({hasText: questionText}),
+    ).toBeVisible()
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(true)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeVisible()
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(false)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeHidden()
   }
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectRequiredQuestionError(questionLocator: string) {
+    expect(await this.page.innerText(questionLocator)).toContain(
+      'This question is required',
+    )
+  }
+
+  async expectErrorOnReviewModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Continue to review page without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+  async clickReviewWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to review page without saving")',
+    )
+  }
+
+  async expectErrorOnPreviousModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Continue to previous questions without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+
+  async clickPreviousWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to previous questions without saving")',
+    )
+  }
+
+  async clickStayAndFixAnswers() {
+    await this.page.click('button:has-text("Stay and fix your answers")')
+  }
+
+  async completeApplicationWithPaiQuestions(
+    programName: string,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+  ) {
+    await this.applyProgram(programName)
+    await this.answerNameQuestion(firstName, lastName, middleName)
+    await this.answerEmailQuestion(email)
+    await this.answerPhoneQuestion(phone)
+    await this.clickNext()
+    await this.submitFromReviewPage()
+    await this.page.click('text=End session')
   }
 }

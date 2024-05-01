@@ -8,8 +8,8 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a single-select question in the context of a specific applicant.
@@ -26,11 +26,6 @@ public final class SingleSelectQuestion extends Question {
   SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     selectedOptionValueCache = Optional.empty();
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override
@@ -76,6 +71,19 @@ public final class SingleSelectQuestion extends Question {
         .findFirst();
   }
 
+  public Optional<String> getSelectedOptionAdminName() {
+    Optional<Long> maybeSelectedOptionId = getSelectedOptionId();
+    if (maybeSelectedOptionId.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Long selectedOptionId = maybeSelectedOptionId.get();
+    return getQuestionDefinition().getOptions().stream()
+        .filter(option -> selectedOptionId == option.id())
+        .findFirst()
+        .map(QuestionOption::adminName);
+  }
+
   public MultiOptionQuestionDefinition getQuestionDefinition() {
     return (MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -100,6 +108,8 @@ public final class SingleSelectQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getSelectedOptionValue().map(LocalizedQuestionOption::optionText).orElse("-");
+    return getSelectedOptionValue()
+        .map(LocalizedQuestionOption::optionText)
+        .orElse(getDefaultAnswerString());
   }
 }

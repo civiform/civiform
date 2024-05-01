@@ -65,7 +65,7 @@ public class MainModuleTest {
   public void testTimeZone_configValueProvided(String timeZone) {
     Application app =
         new GuiceApplicationBuilder()
-            .configure(ConfigFactory.parseMap(ImmutableMap.of("civiform.time.zoneid", timeZone)))
+            .configure(ConfigFactory.parseMap(ImmutableMap.of("civiform_time_zone_id", timeZone)))
             .build();
     maybeApp = Optional.of(app);
 

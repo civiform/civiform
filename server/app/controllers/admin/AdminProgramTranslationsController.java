@@ -1,9 +1,10 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
@@ -13,9 +14,9 @@ import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
@@ -35,10 +36,13 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
   @Inject
   public AdminProgramTranslationsController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       ProgramService service,
       ProgramTranslationView translationView,
       FormFactory formFactory,
       TranslationLocales translationLocales) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
@@ -53,14 +57,15 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * already has separate UI.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result redirectToFirstLocale(Http.Request request, long programId) {
+  public Result redirectToFirstLocale(Http.Request request, String programName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
     }
+
     return redirect(
         routes.AdminProgramTranslationsController.edit(
-                programId, maybeFirstTranslatableLocale.get().toLanguageTag())
+                programName, maybeFirstTranslatableLocale.get().toLanguageTag())
             .url());
   }
 
@@ -73,12 +78,12 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, long programId, String locale)
+  public Result edit(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
-        request.flash().get("error").map(m -> new ToastMessage(m, ERROR));
+        request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -93,6 +98,16 @@ public class AdminProgramTranslationsController extends CiviFormController {
             errorMessage));
   }
 
+  private ProgramDefinition getDraftProgramDefinition(String programName) {
+    return service
+        .getActiveAndDraftPrograms()
+        .getDraftProgramDefinition(programName)
+        .orElseThrow(
+            () ->
+                new BadRequestException(
+                    String.format("No draft found for program: \"%s\"", programName)));
+  }
+
   /**
    * Save updates to a program's localizations.
    *
@@ -102,9 +117,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, long programId, String locale)
+  public Result update(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
@@ -114,27 +129,27 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
     ProgramTranslationForm translationForm =
         ProgramTranslationForm.bindFromRequest(
-            request, formFactory, program.statusDefinitions().getStatuses().size());
+            request,
+            formFactory,
+            program.statusDefinitions().getStatuses().size(),
+            program.localizedSummaryImageDescription().isPresent());
 
     final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {
       result =
           service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
     } catch (OutOfDateStatusesException e) {
-      return redirect(routes.AdminProgramTranslationsController.edit(programId, locale))
+      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
               request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
     }
-    return redirect(routes.AdminProgramController.index().url())
-        .flashing(
-            "success",
-            String.format(
-                "Program translations updated for %s",
-                localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
+    return ok(
+        translationView.render(
+            request, localeToUpdate, program, translationForm, /*message=*/ Optional.empty()));
   }
 }

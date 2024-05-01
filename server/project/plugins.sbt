@@ -1,6 +1,6 @@
 // Play plugins
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")
-addSbtPlugin("com.typesafe.play" % "sbt-play-ebean" % "6.2.0-RC4")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.20")
+addSbtPlugin("com.typesafe.play" % "sbt-play-ebean" % "6.2.0")
 
 // Dependency tree plugin. To use, open an sbt shell and run dependencyBrowseTree
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
@@ -16,7 +16,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
 
 // Formatting plugin
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 
 // This is needed per https://eed3si9n.com/sbt-1.8.0-beta
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

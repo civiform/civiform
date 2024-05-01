@@ -8,7 +8,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents an enumerator question in the context of a specific applicant.
@@ -19,11 +18,6 @@ public final class EnumeratorQuestion extends Question {
 
   EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.ENUMERATOR);
   }
 
   @Override

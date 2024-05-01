@@ -6,13 +6,25 @@ changelog:
       - infrastructure
 
   categories:
+    - title: Database Changes
+      labels:
+        - database
+
     - title: Features
       labels:
         - feature
 
+    - title: Enhancements
+      labels:
+        - enhancement
+
     - title: Bug fixes
       labels:
         - bug
+
+    - title: Under Development
+      labels:
+        - under-development
 
     - title: Dependencies
       labels:

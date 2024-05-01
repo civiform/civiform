@@ -2,21 +2,21 @@ package durablejobs.jobs;
 
 import com.google.common.base.Preconditions;
 import durablejobs.DurableJob;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import repository.ReportingRepository;
 
 public final class ReportingDashboardMonthlyRefreshJob extends DurableJob {
   private final ReportingRepository reportingRepository;
-  private final PersistedDurableJob persistedDurableJob;
+  private final PersistedDurableJobModel persistedDurableJob;
 
   public ReportingDashboardMonthlyRefreshJob(
-      ReportingRepository persistedDurableJobRepository, PersistedDurableJob persistedDurableJob) {
-    this.reportingRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
+      ReportingRepository reportingRepository, PersistedDurableJobModel persistedDurableJob) {
+    this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
 
   @Override
-  public PersistedDurableJob getPersistedDurableJob() {
+  public PersistedDurableJobModel getPersistedDurableJob() {
     return persistedDurableJob;
   }
 

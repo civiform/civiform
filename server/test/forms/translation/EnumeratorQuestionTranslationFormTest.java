@@ -3,11 +3,11 @@ package forms.translation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 
 public class EnumeratorQuestionTranslationFormTest {
 
@@ -15,11 +15,12 @@ public class EnumeratorQuestionTranslationFormTest {
   public void buildsQuestion_newLocale_savesUpdates() throws Exception {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "desc",
-            LocalizedStrings.withDefaultValue("existing"),
-            LocalizedStrings.withDefaultValue("existing"),
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("desc")
+                .setQuestionText(LocalizedStrings.withDefaultValue("existing"))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("existing"))
+                .build(),
             LocalizedStrings.withDefaultValue("existing"));
 
     EnumeratorQuestionTranslationForm form = new EnumeratorQuestionTranslationForm();
@@ -40,11 +41,12 @@ public class EnumeratorQuestionTranslationFormTest {
   public void buildsQuestion_existingLocale_savesUpdates() throws Exception {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "desc",
-            LocalizedStrings.of(Locale.FRANCE, "existing"),
-            LocalizedStrings.of(Locale.FRANCE, "existing"),
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("desc")
+                .setQuestionText(LocalizedStrings.of(Locale.FRANCE, "existing"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.FRANCE, "existing"))
+                .build(),
             LocalizedStrings.of(Locale.FRANCE, "existing"));
 
     EnumeratorQuestionTranslationForm form = new EnumeratorQuestionTranslationForm();

@@ -1,12 +1,6 @@
 package views.style;
 
-/**
- * Constant class containing the names of styles that we have added to tailwind.
- *
- * <p>This file is special - strings in this file, within double quotes, are *not* stripped from the
- * tailwind CSS during production optimization. If you add a string here, run bin/refresh-styles or
- * restart bin/run-dev.
- */
+/** Constant class containing the names of styles that we have added to tailwind. */
 public final class BaseStyles {
 
   public static final String LINK_TEXT = "text-blue-600";
@@ -20,14 +14,16 @@ public final class BaseStyles {
 
   public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
+  public static final String BG_CIVIFORM_BLUE = "bg-seattle-blue";
+  public static final String TEXT_CIVIFORM_BLUE = "text-seattle-blue";
+  public static final String BORDER_CIVIFORM_BLUE = "border-seattle-blue";
 
   public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
   public static final String TEXT_CIVIFORM_PURPLE = "text-civiform-purple";
   public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
+  public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
+  public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
@@ -61,7 +57,7 @@ public final class BaseStyles {
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           "rounded-lg",
           "w-full",
-          StyleUtils.focus(BORDER_SEATTLE_BLUE));
+          StyleUtils.focus(BORDER_CIVIFORM_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
   public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, "placeholder-gray-500");
@@ -82,6 +78,7 @@ public final class BaseStyles {
    * text.</label>
    */
   public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
+
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
@@ -94,8 +91,16 @@ public final class BaseStyles {
 
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
+
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
+
+  /** For use on a `select` element. */
+  public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
+
+  /** For use on a `select` element with an error, using INPUT_WITH_ERROR instead of INPUT. */
+  public static final String SELECT_WITH_ERROR =
+      StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes
@@ -104,9 +109,11 @@ public final class BaseStyles {
   /** The modal container contains modals, and the glass pane, and covers the whole page. */
   public static final String MODAL_CONTAINER =
       StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen", "z-20");
+
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
       StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
+
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(
@@ -128,27 +135,7 @@ public final class BaseStyles {
           "sticky", "top-0", "px-2", "pt-2", "flex", "gap-4", "place-items-center");
   public static final String MODAL_TITLE =
       StyleUtils.joinStyles("text-2xl", "text-gray-600", "my-5", "mx-4");
-  /** Generic style for the modal button. */
-  public static final String MODAL_BUTTON =
-      StyleUtils.joinStyles(
-          "block",
-          "py-2",
-          "text-center",
-          "rounded-full",
-          BaseStyles.BG_SEATTLE_BLUE,
-          StyleUtils.hover("bg-blue-700"),
-          "text-white",
-          "rounded-full");
-  /** Generic styles for the button to close the modal. This is shared across all modals. */
-  public static final String MODAL_CLOSE_BUTTON =
-      StyleUtils.joinStyles(
-          "font-bold",
-          "cursor-pointer",
-          "opacity-60",
-          "w-7",
-          "h-7",
-          "m-4",
-          StyleUtils.hover("opacity-100"));
+
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
    * and sizing.
@@ -198,9 +185,15 @@ public final class BaseStyles {
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
-          "bg-transparent",
-          "text-black",
-          "underline",
-          "font-bold",
-          StyleUtils.hover("bg-gray-200", "opacity-90"));
+          "text-black", "underline", "font-bold", StyleUtils.hover("bg-gray-200", "opacity-90"));
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // USWDS Alert style classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static String ALERT_INFO = "usa-alert--info";
+  public static String ALERT_WARNING = "usa-alert--warning";
+  public static String ALERT_ERROR = "usa-alert--error";
+  public static String ALERT_SUCCESS = "usa-alert--success";
+  public static String ALERT_SLIM = "usa-alert--slim";
 }

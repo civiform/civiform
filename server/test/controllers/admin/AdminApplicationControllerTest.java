@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
@@ -18,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
-import featureflags.FeatureFlags;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,12 +24,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import models.Account;
-import models.Applicant;
-import models.Application;
-import models.ApplicationEvent;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationEventModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.session.SessionStore;
@@ -42,22 +40,25 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.export.CsvExporterService;
-import services.export.JsonExporter;
-import services.export.PdfExporter;
+import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -128,11 +129,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void index() throws Exception {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    Program program = ProgramBuilder.newActiveProgram().build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.refresh();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     application.refresh();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
@@ -150,10 +151,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
   @Test
   public void updateStatus_programNotFound() {
-    Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     assertThatThrownBy(() -> controller.updateStatus(request, Long.MAX_VALUE, application.id))
@@ -162,10 +163,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
   @Test
   public void updateStatus_notAdmin() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.updateStatus(request, program.id, application.id);
@@ -175,15 +176,15 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_invalidNewStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -201,23 +202,22 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    assertThrows(
-        StatusNotFoundException.class,
-        () -> controller.updateStatus(request, program.id, application.id));
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(StatusNotFoundException.class);
   }
 
   @Test
   public void updateStatus_invalidCurrentStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -246,13 +246,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_noNewStatus_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -279,13 +279,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_noCurrentStatus_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -312,13 +312,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_invalidSendEmail_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -347,22 +347,24 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    Request blankRequest = addCSRFToken(Helpers.fakeRequest()).build();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     programAdminApplicationService.setStatus(
         application,
         StatusEvent.builder()
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
             .build(),
-        adminAccount);
+        adminAccount,
+        blankRequest);
 
     Request request =
         addCSRFToken(
@@ -392,16 +394,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_succeeds() throws Exception {
     // Setup
     Instant start = Instant.now();
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant =
+    ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -425,7 +427,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
@@ -438,15 +440,15 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
@@ -471,17 +473,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
   }
 
   @Test
   public void updateNote_programNotFound() {
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     assertThatThrownBy(() -> controller.updateNote(request, Long.MAX_VALUE, application.id))
@@ -490,10 +492,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
   @Test
   public void updateNote_notAdmin() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.updateNote(request, program.id, application.id);
@@ -503,12 +505,12 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateNote_noNote_fails() throws Exception {
     // Setup.
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     // Execute.
@@ -524,12 +526,12 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup.
     Instant start = Instant.now();
     String noteText = "Test note content.";
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
@@ -542,7 +544,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
@@ -554,12 +556,12 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateNote_emptyNote_succeeds() throws Exception {
     // Setup.
     String noteText = "";
-    Account adminAccount = resourceCreator.insertAccount();
+    AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
@@ -572,20 +574,21 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.
-  AdminApplicationController makeNoOpProfileController(Optional<Account> adminAccount) {
+  AdminApplicationController makeNoOpProfileController(Optional<AccountModel> adminAccount) {
     ProfileTester profileTester =
         new ProfileTester(
             instanceOf(DatabaseExecutionContext.class),
             instanceOf(HttpExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
-            instanceOf(FeatureFlags.class),
-            adminAccount);
+            instanceOf(SettingsManifest.class),
+            adminAccount,
+            instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
         new ProfileUtilsNoOpTester(
             instanceOf(SessionStore.class), instanceOf(ProfileFactory.class), profileTester);
@@ -594,15 +597,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(ApplicantService.class),
         instanceOf(CsvExporterService.class),
         instanceOf(FormFactory.class),
-        instanceOf(JsonExporter.class),
-        instanceOf(PdfExporter.class),
+        instanceOf(JsonExporterService.class),
+        instanceOf(PdfExporterService.class),
         instanceOf(ProgramApplicationListView.class),
         instanceOf(ProgramApplicationView.class),
         instanceOf(ProgramAdminApplicationService.class),
         profileUtilsNoOpTester,
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
-        Providers.of(LocalDateTime.now(ZoneId.systemDefault())));
+        Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
+        instanceOf(VersionRepository.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
@@ -625,15 +629,21 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // A test version of CiviFormProfile that disable functionality that is hard
     // to otherwise test around.
     public static class ProfileTester extends CiviFormProfile {
-      Optional<Account> adminAccount;
+      Optional<AccountModel> adminAccount;
 
       public ProfileTester(
           DatabaseExecutionContext dbContext,
-          HttpExecutionContext httpContext,
+          HttpExecutionContext classLoaderExecutionContext,
           CiviFormProfileData profileData,
-          FeatureFlags featureFlags,
-          Optional<Account> adminAccount) {
-        super(dbContext, httpContext, profileData, featureFlags);
+          SettingsManifest settingsManifest,
+          Optional<AccountModel> adminAccount,
+          AccountRepository accountRepository) {
+        super(
+            dbContext,
+            classLoaderExecutionContext,
+            profileData,
+            settingsManifest,
+            accountRepository);
         this.adminAccount = adminAccount;
       }
 
@@ -645,7 +655,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
       }
 
       @Override
-      public CompletableFuture<Account> getAccount() {
+      public CompletableFuture<AccountModel> getAccount() {
         return CompletableFuture.completedFuture(adminAccount.get());
       }
     }

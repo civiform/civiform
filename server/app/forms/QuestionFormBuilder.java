@@ -5,20 +5,18 @@ import play.mvc.Http.Request;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -108,13 +106,13 @@ public final class QuestionFormBuilder {
       case ADDRESS:
         return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
       case CHECKBOX:
-        return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
+        return new CheckboxQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
       case CURRENCY:
         return new CurrencyQuestionForm((CurrencyQuestionDefinition) questionDefinition);
       case DATE:
         return new DateQuestionForm((DateQuestionDefinition) questionDefinition);
       case DROPDOWN:
-        return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+        return new DropdownQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
       case EMAIL:
         return new EmailQuestionForm((EmailQuestionDefinition) questionDefinition);
       case FILEUPLOAD:
@@ -126,7 +124,7 @@ public final class QuestionFormBuilder {
       case NUMBER:
         return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
-        return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
+        return new RadioButtonQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
       case ENUMERATOR:
         return new EnumeratorQuestionForm((EnumeratorQuestionDefinition) questionDefinition);
       case STATIC:

@@ -47,8 +47,14 @@ Variables have the following fields:
   configures.
 - `type`: The value type expected. Can be 'string', 'int', 'bool', or
   '[index-list(#index-lists)'.
-- `required`: If the environment variable is required to be set. If the
-  `required` field is not set, the environment variable is not required.
+- `mode`: Determines where the variable is set and displayed. `HIDDEN` vars are
+  set in the environment and not visible to admins, `ADMIN_READABLE` vars are set
+  in the environment and displayed to the admin in the Settings UI, `ADMIN_WRITEABLE`
+  vars are set by CiviForm admins in the CiviForm UI, `SECRET` vars are set in the
+  environment by the cloud provider's secrets manager and not displayed to the admin.
+- `required`: If the environment variable is required to be set in the
+  [config.sh file](https://github.com/civiform/civiform-deploy/blob/957a90fc27b5816de464231d92dc5886dac26b93/civiform_config.example.sh). Attempting to deploy while missing variables marked "required" will throw an error.
+  If the `required` field is not set, the environment variable is not required.
 - `values`: If `type` is string, a list of valid strings can be provided. If
   `values` is defined, `regex` and `regex_tests` can not be defined.
 - `regex`: If `type` is string, a regular expression using [python re
@@ -66,7 +72,7 @@ Variables have the following fields:
   complexity of `regex`, many more tests should be specified that test the
   corner-cases.
 
-The `description` and `type` fields must be defined for each variable.
+The `description`, `type`, and `mode` fields must be defined for each variable.
 
 ### Index lists
 
@@ -92,7 +98,8 @@ Here is an example environment variable documentation file (validated in
         "members": {
             "TITLE": {
                 "description": "Sets the CiviForm title.",
-                "type": "string"
+                "type": "string",
+                "mode": "ADMIN_READABLE"
             },
             "LOGO_URL": {
                 "description": "URL of the logo.",
@@ -102,23 +109,27 @@ Here is an example environment variable documentation file (validated in
                     { "val": "http://mylogo.png", "should_match": true },
                     { "val": "https://my-secure-logo.png", "should_match": true },
                     { "val": "props-not-a-valid-URL", "should_match": false }
-                ]
+                ],
+                "mode": "ADMIN_READABLE"
             }
         }
     },
     "SOME_NUMBER": {
         "description": "Sets a very important number.",
         "type": "int",
-        "required": true
+        "required": true,
+        "mode": "HIDDEN"
     },
     "CLOUD_PROVIDER": {
         "description": "What cloud services to connect to.",
         "type": "string",
-        "values": ["aws", "azure", "gcp"]
+        "values": ["aws", "azure", "gcp"],
+        "mode": "HIDDEN"
     },
     "LANGUAGES": {
         "description": "Supported languages.",
-        "type": "index-list"
+        "type": "index-list",
+        "mode": "ADMIN_READABLE"
     }
 }
 ```

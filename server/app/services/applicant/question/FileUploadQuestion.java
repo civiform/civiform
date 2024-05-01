@@ -8,7 +8,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a file upload question in the context of a specific applicant.
@@ -30,11 +29,6 @@ public final class FileUploadQuestion extends Question {
   }
 
   @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.FILEUPLOAD);
-  }
-
-  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     // TODO(#1944): Validate that the file has been uploaded.
@@ -43,14 +37,11 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of();
+    return ImmutableList.of(getFileKeyPath());
   }
 
   @Override
   public boolean isAnswered() {
-    // TODO(#1944): Consider adding getFileKeyPath to getAllPaths.
-    // Adding it currently would cause the value to start being exported
-    // by the demographics exporter.
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 
@@ -102,12 +93,17 @@ public final class FileUploadQuestion extends Question {
   @Override
   public String getAnswerString() {
     if (getFilename().isEmpty()) {
-      return "-- NO FILE SELECTED --";
+      return getDefaultAnswerString();
     }
 
     String displayFileName =
         getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get();
 
     return String.format("-- %s UPLOADED (click to download) --", displayFileName);
+  }
+
+  @Override
+  public String getDefaultAnswerString() {
+    return "-- NO FILE SELECTED --";
   }
 }

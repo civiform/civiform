@@ -2,15 +2,11 @@ package auth;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.typesafe.config.Config;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.apache.commons.net.util.SubnetUtils;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -18,12 +14,13 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.BadCredentialsException;
+import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.apikey.ApiKeyService;
 
 /**
- * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKey}
+ * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKeyModel}
  * resource. Background: https://en.wikipedia.org/wiki/Basic_access_authentication
  *
  * <p>When referenced by a request, {@code ApiKey}s are stored in the "api-keys" named cache, keyed
@@ -53,12 +50,13 @@ public class ApiAuthenticator implements Authenticator {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;
-  private final ClientIpType clientIpType;
+  private final ClientIpResolver clientIpResolver;
 
   @Inject
-  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService, Config config) {
+  public ApiAuthenticator(
+      Provider<ApiKeyService> apiKeyService, ClientIpResolver clientIpResolver) {
     this.apiKeyService = checkNotNull(apiKeyService);
-    this.clientIpType = checkNotNull(config).getEnum(ClientIpType.class, "client_ip_type");
+    this.clientIpResolver = clientIpResolver;
   }
 
   /**
@@ -84,13 +82,13 @@ public class ApiAuthenticator implements Authenticator {
     // Cache the API key for quick lookup in the controller, also for subsequent requests.
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
-    Optional<ApiKey> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+    Optional<ApiKeyModel> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     if (maybeApiKey.isEmpty()) {
       throwUnauthorized(context, "API key does not exist: " + keyId);
     }
 
-    ApiKey apiKey = maybeApiKey.get();
+    ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
       throwUnauthorized(context, "API key is retired: " + keyId);
@@ -100,11 +98,13 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    if (!isAllowedIp(apiKey, resolveClientIp(context))) {
+    String resolvedIp = clientIpResolver.resolveClientIp((PlayWebContext) context);
+    if (!isAllowedIp(apiKey, resolvedIp)) {
       throwUnauthorized(
           context,
           String.format(
-              "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
+              "Resolved IP %s is not in allowed range for key ID: %s, which is \"%s\"",
+              resolvedIp, keyId, String.join(",", apiKey.getSubnetSet())));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
@@ -113,7 +113,7 @@ public class ApiAuthenticator implements Authenticator {
     }
   }
 
-  private boolean isAllowedIp(ApiKey apiKey, String clientIp) {
+  private boolean isAllowedIp(ApiKeyModel apiKey, String clientIp) {
     return apiKey.getSubnetSet().stream()
         .map(SubnetUtils::new)
         // Setting this to true includes the network and broadcast addresses.
@@ -123,36 +123,16 @@ public class ApiAuthenticator implements Authenticator {
         .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(clientIp));
   }
 
-  @VisibleForTesting
-  String resolveClientIp(WebContext context) {
-    switch (clientIpType) {
-      case DIRECT:
-        return context.getRemoteAddr();
-      case FORWARDED:
-        String forwardedFor =
-            context
-                .getRequestHeader("X-Forwarded-For")
-                .orElseThrow(
-                    () ->
-                        new RuntimeException(
-                            "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
-                                + " header!"));
-        // AWS appends the original client IP to the end of the X-Forwarded-For
-        // header if it is present in the original request.
-        // See
-        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html
-        return Iterables.getLast(Splitter.on(",").split(forwardedFor)).strip();
-      default:
-        throw new IllegalStateException(
-            String.format("Unrecognized ClientIpType: %s", clientIpType));
-    }
-  }
-
   private void throwUnauthorized(WebContext context, String cause) {
     logger.warn(
         String.format(
-            "UnauthorizedApiRequest(resource: \"%s\", ip: \"%s\", cause: \"%s\")",
-            context.getPath(), context.getRemoteAddr(), cause));
+            "UnauthorizedApiRequest(resource: \"%s\", Remote Address: \"%s\", X-Forwarded-For:"
+                + " \"%s\", CLIENT_IP_TYPE: \"%s\", cause: \"%s\")",
+            context.getPath(),
+            context.getRemoteAddr(),
+            context.getRequestHeader(ClientIpResolver.X_FORWARDED_FOR).orElse(""),
+            clientIpResolver.getClientIpType().toString(),
+            cause));
 
     throw new BadCredentialsException(cause);
   }

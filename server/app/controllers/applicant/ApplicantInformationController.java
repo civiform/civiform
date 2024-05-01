@@ -1,13 +1,12 @@
 package controllers.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -15,22 +14,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Session;
 import play.mvc.Result;
 import play.mvc.Results;
-import repository.UserRepository;
+import repository.AccountRepository;
+import repository.VersionRepository;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantService;
 import services.applicant.exception.ApplicantNotFoundException;
-import views.applicant.ApplicantInformationView;
 import views.applicant.ApplicantLayout;
 
 /**
@@ -39,36 +36,30 @@ import views.applicant.ApplicantLayout;
  */
 public final class ApplicantInformationController extends CiviFormController {
 
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
-  private final ApplicantInformationView informationView;
-  private final UserRepository repository;
+  private final AccountRepository repository;
   private final FormFactory formFactory;
-  private final ProfileUtils profileUtils;
-  private final ApplicantService applicantService;
   private final ApplicantLayout layout;
-  private final FeatureFlags featureFlags;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantInformationController(
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
-      ApplicantInformationView informationView,
-      UserRepository repository,
+      AccountRepository repository,
       FormFactory formFactory,
-      ApplicantService applicantService,
       ProfileUtils profileUtils,
       ApplicantLayout layout,
-      FeatureFlags featureFlags) {
-    this.httpExecutionContext = httpExecutionContext;
-    this.messagesApi = messagesApi;
-    this.informationView = informationView;
-    this.repository = repository;
-    this.formFactory = formFactory;
-    this.profileUtils = profileUtils;
-    this.applicantService = applicantService;
-    this.layout = layout;
-    this.featureFlags = featureFlags;
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
+    super(profileUtils, versionRepository);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.repository = checkNotNull(repository);
+    this.formFactory = checkNotNull(formFactory);
+    this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -76,18 +67,11 @@ public final class ApplicantInformationController extends CiviFormController {
    * accordingly.
    */
   @Secure
-  public CompletionStage<Result> edit(Http.Request request, long applicantId) {
-    // If we haven't enabled the new login changes, use the old edit logic.
-    if (!featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS)) {
-      return legacyEdit(request, applicantId);
-    }
+  public CompletionStage<Result> setLangFromBrowser(Http.Request request, long applicantId) {
 
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+    return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(
@@ -95,7 +79,7 @@ public final class ApplicantInformationController extends CiviFormController {
                     applicantId,
                     Locale.forLanguageTag(
                         layout.languageSelector.getPreferredLangage(request).code())),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -107,18 +91,21 @@ public final class ApplicantInformationController extends CiviFormController {
                 redirectLink =
                     controllers.ti.routes.TrustedIntermediaryController.dashboard(
                             /* nameQuery= */ Optional.empty(),
-                            /* dateQuery= */ Optional.empty(),
+                            /* dayQuery= */ Optional.empty(),
+                            /* monthQuery= */ Optional.empty(),
+                            /* yearQuery= */ Optional.empty(),
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
 
               return redirect(redirectLink)
                   .withLang(preferredLocale, messagesApi)
                   .withSession(request.session());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -136,47 +123,11 @@ public final class ApplicantInformationController extends CiviFormController {
   }
 
   /**
-   * Used for the language selection screen. Does not set the applicant's language based on browser
-   * session; instead asks them to specify it themselves.
+   * Sets the applicant's preferred language based on their language form selection, then redirects
+   * them.
    */
-  // TODO(#4705): remove this method when BYPASS_LOGIN_LANGUAGE_SCREENS flag is removed.
-  private CompletionStage<Result> legacyEdit(Http.Request request, long applicantId) {
-    Optional<String> redirectTo =
-        request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)
-            ? Optional.of(request.session().data().get(REDIRECT_TO_SESSION_KEY))
-            : Optional.empty();
-
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
-        .thenApplyAsync(
-            // Since this is before we set the applicant's preferred language, use
-            // the default language for now.
-            v ->
-                ok(
-                    informationView.render(
-                        request,
-                        applicantStage.toCompletableFuture().join(),
-                        messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
-                        applicantId,
-                        redirectTo,
-                        profileUtils.currentUserProfile(request).get().isTrustedIntermediary())),
-            httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                if (ex.getCause() instanceof SecurityException) {
-                  return unauthorized();
-                }
-              }
-
-              throw new RuntimeException(ex);
-            });
-  }
-
   @Secure
-  public CompletionStage<Result> update(Http.Request request, long applicantId) {
+  public CompletionStage<Result> setLangFromSwitcher(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
 
     if (form.hasErrors()) {
@@ -186,22 +137,23 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     if (infoForm.getRedirectLink().isEmpty()) {
-      redirectLocation = routes.ApplicantProgramsController.index(applicantId).url();
+      redirectLocation = applicantRoutes.index(profile, applicantId).url();
       session = request.session();
     } else {
       redirectLocation = infoForm.getRedirectLink();
       session = request.session().removing(REDIRECT_TO_SESSION_KEY);
     }
 
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(maybeApplicant, applicantId, infoForm.getLocale()),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -210,7 +162,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   .withLang(preferredLocale, messagesApi)
                   .withSession(session);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -227,17 +179,17 @@ public final class ApplicantInformationController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Applicant> updateApplicantPreferredLanguage(
-      Optional<Applicant> maybeApplicant, long applicantId, Locale locale) {
+  private CompletionStage<ApplicantModel> updateApplicantPreferredLanguage(
+      Optional<ApplicantModel> maybeApplicant, long applicantId, Locale locale) {
     // Set preferred locale.
     if (maybeApplicant.isPresent()) {
-      Applicant applicant = maybeApplicant.get();
+      ApplicantModel applicant = maybeApplicant.get();
       ApplicantData data = applicant.getApplicantData();
       data.setPreferredLocale(locale);
       // Update the applicant, then pass the updated applicant to the next stage.
       return repository
           .updateApplicant(applicant)
-          .thenApplyAsync(v -> applicant, httpExecutionContext.current());
+          .thenApplyAsync(v -> applicant, classLoaderExecutionContext.current());
     } else {
       return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
     }

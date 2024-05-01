@@ -1,23 +1,24 @@
 package auth;
 
-import static featureflags.FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS;
+import static java.util.Comparator.comparing;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlags;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
-import models.Account;
-import models.Applicant;
+import models.AccountModel;
+import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CiviFormProfile
 
@@ -28,38 +29,59 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfile {
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final CiviFormProfileData profileData;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
+  private final AccountRepository accountRepository;
 
-  @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       CiviFormProfileData profileData,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
-    this.httpContext = Preconditions.checkNotNull(httpContext);
+    this.classLoaderExecutionContext = Preconditions.checkNotNull(classLoaderExecutionContext);
     this.profileData = Preconditions.checkNotNull(profileData);
-    this.featureFlags = Preconditions.checkNotNull(featureFlags);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
-  /** Get the latest {@link Applicant} associated with the profile. */
-  public CompletableFuture<Applicant> getApplicant() {
+  /** Get the latest {@link ApplicantModel} associated with the profile. */
+  public CompletableFuture<ApplicantModel> getApplicant() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      long applicantId =
+          profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+      return accountRepository
+          .lookupApplicant(applicantId)
+          .thenApply(
+              optionalApplicant -> {
+                return optionalApplicant.orElseThrow(
+                    () -> new MissingOptionalException(ApplicantModel.class));
+              })
+          .toCompletableFuture();
+    }
+
+    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
-            (a) ->
-                a.getApplicants().stream()
-                    .min(Comparator.comparing(Applicant::getWhenCreated))
-                    .orElseThrow(),
-            httpContext.current());
+            (account) ->
+                getApplicantForAccount(account)
+                    .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
+            classLoaderExecutionContext.current());
   }
 
-  /** Look up the {@link Account} associated with the profile from database. */
-  public CompletableFuture<Account> getAccount() {
+  private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
+    // Accounts (should) correspond to a single applicant.
+    return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
+  }
+
+  /** Look up the {@link AccountModel} associated with the profile from database. */
+  public CompletableFuture<AccountModel> getAccount() {
     return supplyAsync(
         () -> {
-          Account account = new Account();
+          AccountModel account = new AccountModel();
           account.id = Long.valueOf(this.profileData.getId());
           try {
             account.refresh();
@@ -115,7 +137,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Sets the authority id for the associated {@link Account} if none is set.
+   * Sets the authority id for the associated {@link AccountModel} if none is set.
    *
    * <p>If an id is already present this may only be called with the same exact ID.
    *
@@ -144,7 +166,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Set email address for the associated {@link Account} if none is set.
+   * Set email address for the associated {@link AccountModel} if none is set.
    *
    * <p>If email address is present and different from the address to be set, a
    * `CompletionException` is thrown caused by a `ProfileMergeConflictException`.
@@ -157,6 +179,7 @@ public class CiviFormProfile {
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
+
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
                 throw new ProfileMergeConflictException(
                     String.format(
@@ -164,27 +187,39 @@ public class CiviFormProfile {
                             + " the new email address %s.",
                         existingEmail, emailAddress));
               }
+
               a.setEmailAddress(emailAddress);
               a.save();
+              profileData.setEmail(emailAddress);
+
               return null;
             },
             dbContext);
   }
 
-  /** Returns the authority id from the {@link Account} associated with the profile. */
+  /** Returns the authority id from the {@link AccountModel} associated with the profile. */
   public CompletableFuture<String> getAuthorityId() {
-    return this.getAccount().thenApplyAsync(Account::getAuthorityId, httpContext.current());
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getAuthorityId, classLoaderExecutionContext.current());
   }
 
   /**
-   * Get the email address from the {@link Account} associated with the profile.
+   * Get the email address from the session's {@link CiviFormProfileData} if present, otherwise get
+   * it from the {@link AccountModel} associated with the profile.
    *
    * <p>This value could be null.
    *
    * @return the future of the address to be retrieved.
    */
   public CompletableFuture<String> getEmailAddress() {
-    return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
+    // Email address should be present in the profile for authenticated users
+    if (profileData.hasCanonicalEmail()) {
+      return completedFuture(profileData.getEmail());
+    }
+
+    // If it's not present i.e. if user is a guest, fall back to the address in the database
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
 
   /** Get the profile data. */
@@ -211,7 +246,7 @@ public class CiviFormProfile {
                             .flatMap(tiGroup -> Optional.of(tiGroup.getManagedAccounts().stream()))
                             .orElse(Stream.of()),
                         Stream.of(account))
-                    .map(Account::ownedApplicantIds)
+                    .map(AccountModel::ownedApplicantIds)
                     .reduce(
                         ImmutableList.of(),
                         (one, two) ->
@@ -242,7 +277,7 @@ public class CiviFormProfile {
         .thenApply(
             account -> {
               if (account.getGlobalAdmin()
-                  && featureFlags.getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS)) {
+                  && settingsManifest.getAllowCiviformAdminAccessPrograms(request)) {
                 return null;
               }
               if (account.getAdministeredProgramNames().stream()
@@ -253,5 +288,31 @@ public class CiviFormProfile {
                   String.format(
                       "Account %s is not authorized to access program %s.", getId(), programName));
             });
+  }
+
+  /**
+   * Stores applicant id in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(Long applicantId) {
+    if (!profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      profileData.addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
+    }
+  }
+
+  /**
+   * Stores applicant id corresponding to this account in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(AccountModel account) {
+    Long applicantId =
+        getApplicantForAccount(account)
+            .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))
+            .id;
+    storeApplicantIdInProfile(applicantId);
   }
 }

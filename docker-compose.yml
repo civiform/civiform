@@ -1,22 +1,27 @@
 # Use postgres/example user/password credentials
-version: '3.4'
-
 services:
   localstack:
-    image: localstack/localstack:2.0.2
+    image: localstack/localstack:3.3.0
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
     environment:
       - SERVICES=s3,ses
-      - PROVIDER_OVERRIDE_S3=legacy
+    links:
+      # Once a file is uploaded to localstack, localstack redirects back to CiviForm.
+      # It does this by mapping any 'localhost' domain to the 'civiform' domain (see
+      # localstack/localstack.nginx.conf). So, we need the localstack service to be
+      # aware of the civiform service to do that redirect correctly.
+      - 'civiform:civiform-service'
     networks:
       default:
         aliases:
           # We use hosted-style for s3 bucket urls. Which matches production.
           # https://docs.localstack.cloud/user-guide/aws/s3/
           # So we need to add host mapping for test bucket civiform-local-s3
-          - civiform-local-s3.localhost.localstack.cloud
+          # and civiform-local-s3-public
+          - civiform-local-s3.s3.localhost.localstack.cloud
+          - civiform-local-s3-public.s3.localhost.localstack.cloud
           - localhost.localstack.cloud
 
   azurite:
@@ -30,7 +35,7 @@ services:
   # container name in their /etc/hosts file for the web brower to load the auth url.
   # EG: 127.0.0.1 dev-oidc
   dev-oidc:
-    image: civiform/oidc-provider
+    image: civiform-oidc-provider
     restart: always
     expose:
       - 3390
@@ -39,10 +44,10 @@ services:
       - OIDC_PORT=3390
 
   mock-web-services:
-    image: civiform/mock-web-services
+    image: civiform-mock-web-services
 
   db:
-    image: postgres:12.14
+    image: postgres:12.18
     restart: always
     expose:
       - '5432'
@@ -65,8 +70,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-test}
       - AWS_REGION
-      - AWS_SES_SENDER
+      - SENDER_EMAIL_ADDRESS
       - AWS_S3_BUCKET_NAME
+      - AWS_S3_PUBLIC_BUCKET_NAME
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
       - AZURE_LOCAL_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME
@@ -80,6 +86,7 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP=generic-oidc
+      - CIVIFORM_ADMIN_IDP=adfs
       # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
@@ -88,6 +95,13 @@ services:
       - APPLICANT_REGISTER_URI
       - ADFS_CLIENT_ID
       - ADFS_SECRET
+      - ADMIN_OIDC_PROVIDER_NAME
+      - ADMIN_OIDC_CLIENT_ID
+      - ADMIN_OIDC_CLIENT_SECRET
+      - ADMIN_OIDC_DISCOVERY_URI
+      - ADMIN_OIDC_RESPONSE_MODE
+      - ADMIN_OIDC_RESPONSE_TYPE
+      - ADMIN_OIDC_ADDITIONAL_SCOPES
       - APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM
       - APPLICANT_OIDC_LOGOUT_CLIENT_PARAM=client_id
       - APPLICANT_OIDC_OVERRIDE_LOGOUT_URL
@@ -108,9 +122,9 @@ services:
       - LOGIN_GOV_ADDITIONAL_SCOPES
       - LOGIN_GOV_ACR_VALUE
       - CF_OPTIONAL_QUESTIONS
-      - WHITELABEL_SMALL_LOGO_URL
-      - WHITELABEL_LOGO_WITH_NAME_URL
+      - CIVIC_ENTITY_SMALL_LOGO_URL
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
+      - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
     entrypoint: /bin/bash

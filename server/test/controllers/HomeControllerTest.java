@@ -10,18 +10,24 @@ import org.pac4j.core.context.HttpConstants;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
+import support.CfTestHelpers;
+import support.CfTestHelpers.ResultWithFinalRequestUri;
 
 public class HomeControllerTest extends ResetPostgres {
-
   @Test
-  public void testUnauthenticatedSecurePage() {
+  public void testSecurePage() {
+    // This test accesses a resource that is protected by a @Secure annotation.
+    // The test ensures that the requester gets a pac4j profile so that it can access
+    // the resource.
     Http.RequestBuilder request =
         fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
-    Result result = route(app, request);
-    assertThat(result.status()).isNotEqualTo(HttpConstants.OK);
+    ResultWithFinalRequestUri resultWithFinalRequestUri =
+        CfTestHelpers.doRequestWithInternalRedirects(app, request);
 
-    assertThat(result.redirectLocation().get()).isEqualTo(routes.HomeController.index().url());
+    assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
+    assertThat(resultWithFinalRequestUri.getFinalRequestUri())
+        .isEqualTo(routes.HomeController.securePlayIndex().url());
   }
 
   @Test
@@ -29,13 +35,19 @@ public class HomeControllerTest extends ResetPostgres {
     Http.RequestBuilder request =
         fakeRequest(routes.HomeController.favicon())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+    ResultWithFinalRequestUri resultWithFinalRequestUri =
+        CfTestHelpers.doRequestWithInternalRedirects(app, request);
+    Result result = resultWithFinalRequestUri.getResult();
+    assertThat(result.redirectLocation()).isNotEmpty();
+    assertThat(result.redirectLocation().get()).contains("civiform.us/favicon");
+  }
+
+  @Test
+  public void testPlayIndex() {
+    Http.RequestBuilder request =
+        fakeRequest(routes.HomeController.playIndex())
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
-    assertThat(result.status())
-        .as("Result status should 302 redirect")
-        .isEqualTo(HttpConstants.FOUND);
-    assertThat(result.redirectLocation().isPresent()).as("Should have redirect location").isTrue();
-    assertThat(result.redirectLocation().get())
-        .as("Should redirect to set favicon")
-        .contains("civiform.us");
+    assertThat(result.status()).isEqualTo(200);
   }
 }

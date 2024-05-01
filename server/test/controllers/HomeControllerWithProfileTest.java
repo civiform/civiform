@@ -5,10 +5,11 @@ import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
-import models.Applicant;
+import controllers.applicant.ApplicantRoutes;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,8 +18,8 @@ import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
-import repository.UserRepository;
-import views.LoginForm;
+import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
@@ -29,33 +30,37 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
   @Test
   public void testLanguageSelectorShown() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     HomeController controller = instanceOf(HomeController.class);
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantInformationController.edit(applicant.id).url());
+            controllers.applicant.routes.ApplicantInformationController.setLangFromBrowser(
+                    applicant.id)
+                .url());
   }
 
   @Test
   public void testLanguageSelectorNotShownOneLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
+    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    LanguageUtils languageUtils =
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     HomeController controller =
         new HomeController(
             instanceOf(Config.class),
-            instanceOf(LoginForm.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
             languageUtils,
-            instanceOf(FeatureFlags.class));
+            new ApplicantRoutes());
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+    assertThat(result.redirectLocation()).isNotEmpty();
+    assertThat(
+            result.redirectLocation().orElseThrow(() -> new MissingOptionalException(String.class)))
+        .endsWith("/programs");
   }
 }

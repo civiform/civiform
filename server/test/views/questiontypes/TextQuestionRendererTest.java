@@ -3,10 +3,10 @@ package views.questiontypes;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -17,21 +17,23 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
-import support.QuestionAnswerer;
 
 public class TextQuestionRendererTest extends ResetPostgres {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextValidationPredicates.create(2, 3),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setLastModifiedTime(Optional.empty())
+              .setValidationPredicates(TextValidationPredicates.create(2, 3))
+              .setId(123L)
+              .build());
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -53,6 +55,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
     renderer = new TextQuestionRenderer(question);
   }
@@ -85,13 +88,55 @@ public class TextQuestionRendererTest extends ResetPostgres {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*input type=\"text\" value=\"\""
-                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*input type=\"text\" value=\"\""
+                    + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMatch_autofocusIsPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

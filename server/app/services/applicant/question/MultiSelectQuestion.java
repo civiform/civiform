@@ -12,8 +12,8 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a multi-select question in the context of a specific applicant.
@@ -32,18 +32,13 @@ public final class MultiSelectQuestion extends Question {
   }
 
   @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
-  }
-
-  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateOptions());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateOptions() {
     MultiOptionQuestionDefinition definition = getQuestionDefinition();
-    int numberOfSelections = getSelectedOptionsValue().map(ImmutableList::size).orElse(0);
+    int numberOfSelections = getSelectedOptionValues().map(ImmutableList::size).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMultiOptionValidationPredicates().minChoicesRequired().isPresent()) {
@@ -69,7 +64,7 @@ public final class MultiSelectQuestion extends Question {
   }
 
   public boolean hasValue() {
-    return getSelectedOptionsValue().isPresent();
+    return getSelectedOptionValues().isPresent();
   }
 
   @Override
@@ -78,18 +73,18 @@ public final class MultiSelectQuestion extends Question {
   }
 
   /** Get the selected options in the applicant's preferred locale. */
-  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionValues() {
     if (selectedOptionsValue == null) {
       selectedOptionsValue =
-          getSelectedOptionsValue(applicantQuestion.getApplicantData().preferredLocale());
+          getSelectedOptionValues(applicantQuestion.getApplicantData().preferredLocale());
     }
     return selectedOptionsValue;
   }
 
   /** Get the selected options in the specified locale. */
-  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue(Locale locale) {
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionValues(Locale locale) {
     Optional<ImmutableList<Long>> maybeOptionIds =
-        applicantQuestion.getApplicantData().readList(getSelectionPath());
+        applicantQuestion.getApplicantData().readLongList(getSelectionPath());
 
     if (maybeOptionIds.isEmpty()) {
       selectedOptionsValue = Optional.empty();
@@ -104,9 +99,25 @@ public final class MultiSelectQuestion extends Question {
             .collect(toImmutableList()));
   }
 
+  public Optional<ImmutableList<String>> getSelectedOptionAdminNames() {
+    Optional<ImmutableList<Long>> maybeSelectedOptionIds =
+        applicantQuestion.getApplicantData().readLongList(getSelectionPath());
+
+    if (maybeSelectedOptionIds.isEmpty()) {
+      return Optional.empty();
+    }
+
+    ImmutableList<Long> selectedOptionIds = maybeSelectedOptionIds.get();
+    return Optional.of(
+        getQuestionDefinition().getOptions().stream()
+            .filter(option -> selectedOptionIds.contains(option.id()))
+            .map(QuestionOption::adminName)
+            .collect(toImmutableList()));
+  }
+
   public boolean optionIsSelected(LocalizedQuestionOption option) {
-    return getSelectedOptionsValue().isPresent()
-        && getSelectedOptionsValue().get().contains(option);
+    return getSelectedOptionValues().isPresent()
+        && getSelectedOptionValues().get().contains(option);
   }
 
   public MultiOptionQuestionDefinition getQuestionDefinition() {
@@ -138,7 +149,7 @@ public final class MultiSelectQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getSelectedOptionsValue()
+    return getSelectedOptionValues()
         .map(
             options ->
                 options.stream()

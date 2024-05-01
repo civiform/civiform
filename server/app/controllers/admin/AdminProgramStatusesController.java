@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import forms.admin.ProgramStatusesForm;
@@ -13,6 +14,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -39,7 +41,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
       ProgramService service,
       ProgramStatusesView statusesView,
       RequestChecker requestChecker,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
@@ -54,7 +59,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     return ok(
         statusesView.render(
             request,
-            service.getProgramDefinition(programId),
+            service.getFullProgramDefinition(programId),
             /* maybeStatusForm= */ Optional.empty()));
   }
 
@@ -72,7 +77,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   public Result createOrUpdate(Http.Request request, long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = service.getFullProgramDefinition(programId);
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
     Optional<StatusDefinitions.Status> previousDefaultStatus =
         program.toProgram().getDefaultStatus();
@@ -196,7 +201,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = service.getFullProgramDefinition(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);

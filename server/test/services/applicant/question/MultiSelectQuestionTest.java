@@ -10,37 +10,46 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.QuestionDefinitionConfig;
 
-public class MultiSelectQuestionTest {
+public class MultiSelectQuestionTest extends ResetPostgres {
+
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
+          .setName("name")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setValidationPredicates(
+              MultiOptionValidationPredicates.builder()
+                  .setMinChoicesRequired(2)
+                  .setMaxChoicesAllowed(3)
+                  .build())
+          .setLastModifiedTime(Optional.empty())
+          .setId(OptionalLong.of(1))
+          .build();
+
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(1L, "uno", LocalizedStrings.of(Locale.US, "valid")),
+          QuestionOption.create(2L, "dos", LocalizedStrings.of(Locale.US, "ok")),
+          QuestionOption.create(3L, "tres", LocalizedStrings.of(Locale.US, "third")),
+          QuestionOption.create(4L, "cuatro", LocalizedStrings.of(Locale.US, "fourth")));
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
-      new CheckboxQuestionDefinition(
-          OptionalLong.of(1),
-          "name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "valid")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "ok")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "third")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fourth"))),
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
-              .setMinChoicesRequired(2)
-              .setMaxChoicesAllowed(3)
-              .build(),
-          /* lastModifiedTime= */ Optional.empty());
+      new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
 
   private ApplicantData applicantData;
 
@@ -153,6 +162,22 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void getSelectedOptionAdminNames_getsAdminNames() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+
+    Optional<ImmutableList<String>> adminNames =
+        applicantQuestion.createMultiSelectQuestion().getSelectedOptionAdminNames();
+
+    assertThat(adminNames).isPresent();
+    assertThat(adminNames.get()).containsExactlyInAnyOrder("uno", "dos");
   }
 
   @Test

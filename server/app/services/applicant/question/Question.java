@@ -1,12 +1,12 @@
 package services.applicant.question;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -29,21 +29,17 @@ public abstract class Question {
 
   public Question(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = Preconditions.checkNotNull(applicantQuestion);
-    if (!validQuestionTypes().contains(applicantQuestion.getType())) {
+
+    QuestionType supportedQuestionType = applicantQuestion.getType();
+    if (!getClass().equals(supportedQuestionType.getSupportedQuestion())) {
       throw new RuntimeException(
           String.format(
-              "Question is not a question of the following types: [%s]: %s (type: %s)",
-              Joiner.on(", ").join(validQuestionTypes().stream().toArray()),
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
+              "The Question class %s is not equal to the one supported by %s, which is %s.",
+              getClass(),
+              supportedQuestionType,
+              supportedQuestionType.getSupportedQuestion().toString()));
     }
   }
-
-  /**
-   * The set of acceptable question types for the {@link ApplicantQuestion} provided in the
-   * constructor. This is used for validation purposes.
-   */
-  protected abstract ImmutableSet<QuestionType> validQuestionTypes();
 
   /**
    * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the relevant
@@ -109,7 +105,7 @@ public abstract class Question {
    * it will be considered unanswered.
    */
   public boolean isAnswered() {
-    return getAllPaths().stream().anyMatch(p -> applicantQuestion.getApplicantData().hasPath(p));
+    return getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
   }
 
   /**
@@ -120,10 +116,30 @@ public abstract class Question {
    */
   public abstract String getAnswerString();
 
+  /** Returns the default to use when there is no answer */
+  public String getDefaultAnswerString() {
+    return "-";
+  }
+
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
+  /** Return the first Path with a validation error, or an empty Optional if no errors */
+  public Optional<Path> getFirstPathWithError() {
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        getValidationErrors();
+    return getAllPaths().stream()
+        .filter(validationErrors::containsKey)
+        .findFirst()
+        .map(path -> Optional.of(path))
+        .orElse(Optional.empty());
+  }
+
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();
+  }
+
+  public ApplicantQuestion getApplicantQuestion() {
+    return applicantQuestion;
   }
 }

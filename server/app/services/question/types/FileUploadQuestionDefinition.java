@@ -2,46 +2,12 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines a file upload question. */
 public final class FileUploadQuestionDefinition extends QuestionDefinition {
 
-  public FileUploadQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        FileUploadValidationPredicates.create(),
-        lastModifiedTime);
-  }
-
-  public FileUploadQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        FileUploadValidationPredicates.create());
+  public FileUploadQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue
@@ -69,5 +35,10 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.FILEUPLOAD;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return FileUploadValidationPredicates.create();
   }
 }

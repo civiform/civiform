@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * Stores permissions for {@link models.ApiKey}s.
+ * Stores permissions for {@link models.ApiKeyModel}s.
  *
  * <p>Permissions are represented as a resource identifier paired with an ability. E.g.
  * "utility-discount" program with "read" ability. Multiple permissions may be stored for the same

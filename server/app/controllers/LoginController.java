@@ -70,7 +70,7 @@ public class LoginController extends Controller {
 
   public Result register(Http.Request request) {
     String registerUrl =
-        config.hasPath("auth.register_uri") ? config.getString("auth.register_uri") : "";
+        config.hasPath("applicant_register_uri") ? config.getString("applicant_register_uri") : "";
     if (registerUrl.isBlank()) {
       logger.warn("Register uri is expected, but not set in the config.");
       return login(request, applicantClient);

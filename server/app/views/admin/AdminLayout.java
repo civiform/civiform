@@ -1,24 +1,32 @@
 package views.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
+import static views.BaseHtmlView.asRedirectElement;
+import static views.ViewUtils.makeSvgTextButton;
 
 import auth.CiviFormProfile;
-import com.typesafe.config.Config;
+import controllers.AssetsFinder;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
+import java.util.Optional;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.TranslationLocales;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -36,21 +44,28 @@ public final class AdminLayout extends BaseHtmlLayout {
     QUESTIONS,
     INTERMEDIARIES,
     REPORTING,
-    API_KEYS
+    API_KEYS,
+    SETTINGS,
+    API_DOCS,
+    EXPORT,
+    IMPORT,
   }
 
   private final NavPage activeNavPage;
+  private final TranslationLocales translationLocales;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
       ViewUtils viewUtils,
-      Config configuration,
       NavPage activeNavPage,
-      FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
-    super(viewUtils, configuration, featureFlags, deploymentType);
+      SettingsManifest settingsManifest,
+      TranslationLocales translationLocales,
+      DeploymentType deploymentType,
+      AssetsFinder assetsFinder) {
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.activeNavPage = activeNavPage;
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -64,12 +79,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   public Content renderCentered(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ true);
+    return render(bundle, /* isCentered= */ true);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ false);
+    return render(bundle, /* isCentered= */ false);
   }
 
   private Content render(HtmlBundle bundle, boolean isCentered) {
@@ -82,15 +97,34 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   protected String getTitleSuffix() {
-    return "CiviForm Admin Console";
+    return "CiviForm admin console";
   }
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
+    return super.getBundle(bundle)
+        .addHeaderContent(renderNavBar(bundle.getRequest()))
+        .setJsBundle(JsBundle.ADMIN);
   }
 
-  private NavTag renderNavBar() {
+  /**
+   * Creates a button that will redirect to the translations management page. Returns an empty
+   * optional if there are no locales to translate to.
+   */
+  public Optional<ButtonTag> createManageTranslationsButton(
+      String programAdminName, Optional<String> buttonId, String buttonStyles) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
+    String linkDestination =
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(programAdminName).url();
+    ButtonTag button =
+        makeSvgTextButton("Manage translations", Icons.LANGUAGE).withClass(buttonStyles);
+    buttonId.ifPresent(button::withId);
+    return Optional.of(asRedirectElement(button, linkDestination));
+  }
+
+  private NavTag renderNavBar(Http.RequestHeader request) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
@@ -104,21 +138,28 @@ public final class AdminLayout extends BaseHtmlLayout {
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
             .with(span("Civi"), span("Form").withClasses("font-thin"));
 
-    NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
+    NavTag navBar = nav().with(getGovBanner(Optional.empty())).withClasses(AdminStyles.NAV_STYLES);
+
+    DivTag adminHeader =
+        div().with(headerIcon, headerTitle).withClasses(AdminStyles.INNER_NAV_STYLES);
 
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String programAdminProgramsLink = controllers.admin.routes.ProgramAdminController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
+    String apiDocsLink = controllers.api.routes.ApiDocsController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
+    String exportLink = controllers.admin.routes.AdminExportController.index().url();
+    String importLink = controllers.admin.routes.AdminImportController.index().url();
+    String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
     String activeNavStyle =
         StyleUtils.joinStyles(
-            BaseStyles.TEXT_SEATTLE_BLUE,
+            BaseStyles.TEXT_CIVIFORM_BLUE,
             "font-medium",
             "border-b-2",
-            BaseStyles.BORDER_SEATTLE_BLUE);
+            BaseStyles.BORDER_CIVIFORM_BLUE);
 
     DomContent reportingHeaderLink =
         headerLink(
@@ -152,19 +193,54 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
 
-    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      adminHeader.with(programAdminProgramsHeaderLink).with(reportingHeaderLink);
-    } else {
-      adminHeader
-          .with(programsHeaderLink)
-          .with(questionsHeaderLink)
-          .with(intermediariesHeaderLink)
-          .with(apiKeysHeaderLink)
-          .with(reportingHeaderLink);
+    ATag apiDocsHeaderLink =
+        headerLink(
+            "API docs", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag exportHeaderLink =
+        headerLink(
+            "Export", exportLink, NavPage.EXPORT.equals(activeNavPage) ? activeNavStyle : "");
+    ATag importHeaderLink =
+        headerLink(
+            "Import", importLink, NavPage.IMPORT.equals(activeNavPage) ? activeNavStyle : "");
+
+    switch (primaryAdminType) {
+      case CIVI_FORM_ADMIN:
+        {
+          adminHeader
+              .with(programsHeaderLink)
+              .with(questionsHeaderLink)
+              .with(intermediariesHeaderLink)
+              .with(reportingHeaderLink)
+              .with(apiKeysHeaderLink)
+              .condWith(
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink)
+              .condWith(getSettingsManifest().getProgramMigrationEnabled(request), exportHeaderLink)
+              .condWith(
+                  getSettingsManifest().getProgramMigrationEnabled(request), importHeaderLink);
+          break;
+        }
+      case PROGRAM_ADMIN:
+        {
+          adminHeader
+              .with(programAdminProgramsHeaderLink)
+              .with(reportingHeaderLink)
+              .condWith(
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
+          break;
+        }
     }
 
-    return adminHeader.with(
-        headerLink("Logout", logoutLink, "float-right").withId("logout-button"));
+    adminHeader.with(
+        headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
+        primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
+            ? a(Icons.svg(Icons.COG)
+                    .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))
+                .withHref(settingsLink)
+                .withClasses("float-right")
+            : null);
+
+    return navBar.with(adminHeader);
   }
 
   private ATag headerLink(String text, String href, String... styles) {

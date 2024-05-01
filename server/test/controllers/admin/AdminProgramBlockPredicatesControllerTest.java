@@ -8,7 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -22,7 +22,7 @@ import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
-  private Program programWithThreeBlocks;
+  private ProgramModel programWithThreeBlocks;
 
   private AdminProgramBlockPredicatesController controller;
 
@@ -30,7 +30,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void setup() {
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
     programWithThreeBlocks =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
             .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("Screen 2")
@@ -63,7 +63,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void edit_withInvalidBlock_notFound() {
     Http.Request request = addCSRFToken(fakeRequest()).build();
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.editEligibility(request, program.id, 543L);
 
@@ -73,7 +73,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void editEligibility_withInvalidBlock_notFound() {
     Http.Request request = addCSRFToken(fakeRequest()).build();
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.editEligibility(request, program.id, 543L);
 

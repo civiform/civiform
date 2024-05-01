@@ -2,22 +2,45 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
+import static views.BaseHtmlView.iconOnlyButton;
 
 import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import play.i18n.Messages;
+import services.MessageKey;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Utility class for rendering a modal box. */
+/**
+ * DEPRECATED
+ *
+ * <p>Utility class for rendering a modal box.
+ *
+ * <p>Note that this is deprecated in favor of the USWDS modal component. Prefer using {@link
+ * views.ViewUtils#makeUSWDSModal} instead of this class. See
+ * https://github.com/civiform/civiform/issues/6264.
+ */
 @AutoValue
 public abstract class Modal {
 
   public abstract String modalId();
+
+  /**
+   * Informs where this modal is seen.
+   *
+   * <p>If the location is {@code Location.APPLICANT_FACING}, then {@code messages()} is required to
+   * be present so that the modal is correctly localized.
+   */
+  public abstract Location location();
+
+  /** Required to be set if this modal is applicant-facing; optional otherwise. */
+  public abstract Optional<Messages> messages();
 
   public abstract ContainerTag<?> content();
 
@@ -40,7 +63,11 @@ public abstract class Modal {
   }
 
   public interface RequiredModalId {
-    RequiredContent setModalId(String modalId);
+    RequiredLocation setModalId(String modalId);
+  }
+
+  public interface RequiredLocation {
+    RequiredContent setLocation(Location location);
   }
 
   public interface RequiredContent {
@@ -52,7 +79,10 @@ public abstract class Modal {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder implements RequiredModalId, RequiredTitle, RequiredContent {
+  public abstract static class Builder
+      implements RequiredModalId, RequiredLocation, RequiredTitle, RequiredContent {
+    public abstract Builder setMessages(Messages messages);
+
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -66,6 +96,10 @@ public abstract class Modal {
 
     abstract String modalId();
 
+    abstract Location location();
+
+    abstract Optional<Messages> messages();
+
     // This is the build method that AutoValue will generate an implementation for.
     abstract Modal autoBuild();
 
@@ -74,6 +108,9 @@ public abstract class Modal {
     public Modal build() {
       if (modalTitle() == null) {
         setModalTitle(modalId());
+      }
+      if (location() == Location.APPLICANT_FACING && messages().isEmpty()) {
+        throw new IllegalArgumentException("Messages must be set if the modal is applicant-facing");
       }
       return autoBuild();
     }
@@ -95,6 +132,16 @@ public abstract class Modal {
     public String getStyle() {
       return this.width;
     }
+  }
+
+  /** Describes where this modal will be seen. */
+  public enum Location {
+    /** This modal is seen by applicants. */
+    APPLICANT_FACING,
+    /** This modal is only seen by admins, never applicants. */
+    ADMIN_FACING,
+    /** This modal is only seen when debug mode is enabled. */
+    DEBUG,
   }
 
   /**
@@ -139,7 +186,17 @@ public abstract class Modal {
   }
 
   public DivTag getContainerTag() {
-    DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
+    DivTag divTag =
+        div()
+            .withId(modalId())
+            .attr("aria-labelledby", getModalTitleId())
+            .attr("tabindex", 0)
+            .with(getModalHeader())
+            .with(getContent())
+            // https://designsystem.digital.gov/components/modal/ recommends putting the close
+            // button at the end of the modal so screen readers don't put focus on the close
+            // button first.
+            .with(getCloseButton());
 
     String modalStyles =
         StyleUtils.joinStyles(
@@ -149,7 +206,8 @@ public abstract class Modal {
     }
     divTag.withClasses(modalStyles);
     if (repeatOpenBehavior().showOnlyOnce()) {
-      divTag.attr("only-show-once-group", repeatOpenBehavior().group().name().toLowerCase());
+      divTag.attr(
+          "only-show-once-group", repeatOpenBehavior().group().name().toLowerCase(Locale.ROOT));
       if (repeatOpenBehavior().bypassUrl().isPresent()) {
         divTag.attr("bypass-url", repeatOpenBehavior().bypassUrl().get());
       }
@@ -171,18 +229,41 @@ public abstract class Modal {
     return modalId() + "-button";
   }
 
+  private String getModalTitleId() {
+    return modalId() + "-title";
+  }
+
   private DivTag getContent() {
     return div(content()).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
   private DivTag getModalHeader() {
     return div()
+        .withId(getModalTitleId())
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
-        .with(div().withClasses("flex-grow"))
-        .with(
-            Icons.svg(Icons.CLOSE)
-                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
+        // Leave enough space for the close button so the close button and title
+        // don't overlap.
+        .with(div().withClasses("w-12"));
+  }
+
+  private ButtonTag getCloseButton() {
+    String closeButtonLabel;
+    if (messages().isPresent()) {
+      closeButtonLabel = messages().get().at(MessageKey.BUTTON_CLOSE.getKeyName());
+    } else {
+      closeButtonLabel = "Close";
+    }
+    return iconOnlyButton(closeButtonLabel)
+        .withClasses(
+            ReferenceClasses.MODAL_CLOSE,
+            ButtonStyles.CLEAR_WITH_ICON,
+            "top-0",
+            "right-0",
+            "absolute",
+            "my-6",
+            "mx-4")
+        .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
   }
 
   public static String randomModalId() {

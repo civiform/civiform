@@ -8,5 +8,7 @@ public final class WellKnownPaths {
   public static Path APPLICANT_MIDDLE_NAME = Path.create("applicant.name.middle_name");
   public static Path APPLICANT_LAST_NAME = Path.create("applicant.name.last_name");
   public static Path APPLICANT_NAME = Path.create("applicant.name");
-  public static Path APPLICANT_DOB = Path.create("applicant.applicant_date_of_birth");
+  public static Path APPLICANT_DOB = Path.create("applicant.applicant_date_of_birth.date");
+  public static Path APPLICANT_DOB_DEPRECATED = Path.create("applicant.applicant_date_of_birth");
+  public static Path APPLICANT_PHONE_NUMBER = Path.create("applicant.applicant_phone_number");
 }

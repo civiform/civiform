@@ -1,8 +1,6 @@
-version: '3.1'
-
 services:
   db:
-    image: postgres:12.14
+    image: postgres:12.18
     restart: always
     ports:
       - 5432:5432
@@ -10,14 +8,17 @@ services:
       POSTGRES_PASSWORD: example
 
   civiform:
+    platform: linux/amd64
     image: civiform:prod
     restart: always
-    container_name: play
+    container_name: civiform_prod
     links:
       - 'db:database'
     ports:
-      - 9000:9000
+      - 8888:9000
     environment:
-      - IDCS_CLIENT_ID=client
-      - IDCS_SECRET=SECRET_KEY
-      - SECRET_KEY
+      - SECRET_KEY=notarealsecret
+      - APPLICANT_OIDC_CLIENT_ID=client
+      - APPLICANT_OIDC_CLIENT_SECRET=notarealsecret
+      - APPLICANT_OIDC_DISCOVERY_URI=https://civiform-staging.us.auth0.com/.well-known/openid-configuration
+      - CIVIFORM_APPLICANT_IDP=auth0

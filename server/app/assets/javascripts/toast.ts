@@ -32,7 +32,7 @@ export class ToastController {
       'absolute',
       'hidden',
       'left-1/2',
-      'top-0',
+      'top-6',
       'transform',
       '-translate-x-1/2',
       'z-20',

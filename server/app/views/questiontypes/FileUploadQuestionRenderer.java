@@ -2,6 +2,8 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +16,7 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.FileUploadViewStrategy;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
@@ -26,7 +28,7 @@ import views.style.ReferenceClasses;
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
 public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final FileUploadQuestion fileUploadQuestion;
   // The ID used to associate the file input field with its screen reader label.
   private final String fileInputId;
@@ -45,10 +47,10 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   }
 
   public FileUploadQuestionRenderer(
-      ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
+      ApplicantQuestion question, ApplicantFileUploadRenderer applicantFileUploadRenderer) {
     super(question);
     this.fileUploadQuestion = question.createFileUploadQuestion();
-    this.fileUploadViewStrategy = fileUploadViewStrategy;
+    this.applicantFileUploadRenderer = applicantFileUploadRenderer;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
@@ -65,15 +67,23 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             label()
                 .withFor(fileInputId)
                 .withClass("sr-only")
-                .withText(question.getQuestionTextForScreenReader()))
+                .withText(applicantQuestion.getQuestionTextForScreenReader()))
         .with(
-            fileUploadViewStrategy.signedFileUploadFields(
+            applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .with(
             label()
                 .withFor(fileInputId)
-                .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer"));
+                .with(
+                    span()
+                        .attr("role", "button")
+                        .attr("tabindex", 0)
+                        .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
+                        .withClasses(
+                            ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
+        .with(
+            p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
+                .withClasses("text-sm", "text-gray-600", "my-2"));
   }
 
   @Override

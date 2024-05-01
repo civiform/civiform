@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+# DOC: Generates the SettingsManifest.java file based on the contents of env_var_docs.json
+
+source bin/lib.sh
+
+# Check if we have an unstaged, staged, or committed changes to the env-var-docs.json
+# file or if we are running in CI. If not no need to re-run.
+if [[ -z "$(git diff --diff-filter=M origin/main -- server/conf/env-var-docs.json)" && -z "${CI}" ]]; then
+  echo "No changes detected to server/conf/env-var-docs.json. Not regenerating settings manifest."
+  exit 0
+fi
+
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_up
+
+LOCAL_OUTPUT=false docker::run_env_var_docs_command \
+  python env-var-docs/parser-package/src/env_var_docs/settings_manifest.py
+
+echo "Wrote server/app/services/settings/SettingsManifest.java"

@@ -2,10 +2,10 @@ package auth.oidc.applicant;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
-import auth.ProfileFactory;
+import auth.IdentityProviderType;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
-import com.beust.jcommander.internal.Nullable;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -14,11 +14,11 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Provider;
+import javax.annotation.Nullable;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -38,12 +38,11 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   public ApplicantProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider,
+      OidcClientProviderParams params,
       String emailAttributeName,
       @Nullable String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {
-    super(configuration, client, profileFactory, applicantRepositoryProvider);
+    super(configuration, client, params);
     this.emailAttributeName = Preconditions.checkNotNull(emailAttributeName);
     this.localeAttributeName = Optional.ofNullable(localeAttributeName);
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
@@ -78,13 +77,10 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
     return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
-  protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
-    return profile.getAccount().join().getMemberOfGroup().isPresent();
-  }
-
   @Override
   protected final ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (isTrustedIntermediary(profile)) {
+      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
       return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_APPLICANT);
@@ -98,7 +94,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   @Override
   protected final CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
 
@@ -122,6 +118,11 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
           .join();
     }
 
-    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return super.mergeCiviFormProfile(civiformProfile, oidcProfile, context);
+  }
+
+  @Override
+  protected IdentityProviderType identityProviderType() {
+    return IdentityProviderType.APPLICANT_IDENTITY_PROVIDER;
   }
 }

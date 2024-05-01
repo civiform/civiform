@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,27 +18,34 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
-import services.question.types.DropdownQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.QuestionDefinitionConfig;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class DropdownQuestionRendererTest extends ResetPostgres {
 
-  private static final DropdownQuestionDefinition QUESTION =
-      new DropdownQuestionDefinition(
-          OptionalLong.of(1),
-          "favorite ice cream",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))),
-          /* lastModifiedTime= */ Optional.empty());
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
+          .setName("favorite ice cream")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setLastModifiedTime(Optional.empty())
+          .setId(OptionalLong.of(1))
+          .build();
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(1L, "chocolate admin", LocalizedStrings.of(Locale.US, "chocolate")),
+          QuestionOption.create(
+              2L, "peanut butter admin", LocalizedStrings.of(Locale.US, "peanut butter")),
+          QuestionOption.create(3L, "vanilla admin", LocalizedStrings.of(Locale.US, "vanilla")),
+          QuestionOption.create(
+              4L, "raspberry admin", LocalizedStrings.of(Locale.US, "raspberry")));
+  private static final MultiOptionQuestionDefinition QUESTION =
+      new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -86,8 +94,49 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
-    assertThat(result.render().matches(".*select aria-describedby=\"[A-Za-z]{8}-description\".*"))
+    assertThat(cleanHtml.matches(".*select aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMatch_autofocusIsPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

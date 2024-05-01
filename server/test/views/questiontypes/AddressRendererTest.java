@@ -3,6 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -16,21 +17,23 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionAnswerer;
 import services.question.types.AddressQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 
 public class AddressRendererTest extends ResetPostgres {
 
   private static final AddressQuestionDefinition ADDRESS_QUESTION =
       new AddressQuestionDefinition(
-          OptionalLong.of(1),
-          "Address Question",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create(),
-          Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("Address Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
+  ;
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -79,5 +82,46 @@ public class AddressRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
     assertThat(result.render()).contains("selected>WA");
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMatch_autofocusIsPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

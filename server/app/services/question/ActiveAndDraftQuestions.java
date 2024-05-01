@@ -8,8 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.Question;
-import models.Version;
+import models.VersionModel;
 import repository.VersionRepository;
 import services.DeletionStatus;
 import services.program.ProgramDefinition;
@@ -40,22 +39,20 @@ public final class ActiveAndDraftQuestions {
    * state.
    */
   public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
-    return new ActiveAndDraftQuestions(
-        repository.getActiveVersion(),
-        repository.getDraftVersion(),
-        repository.previewPublishNewSynchronizedVersion());
+    return new ActiveAndDraftQuestions(repository);
   }
 
-  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
+  private ActiveAndDraftQuestions(VersionRepository repository) {
+    VersionModel active = repository.getActiveVersion();
+    VersionModel draft = repository.getDraftVersionOrCreate();
+    VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
-        active.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
+        repository.getQuestionDefinitionsForVersion(active).stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
-        draft.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
+        repository.getQuestionDefinitionsForVersion(draft).stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();
 
@@ -71,9 +68,8 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsByName = VersionRepository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        VersionRepository.buildReferencingProgramsMap(withDraftEdits);
+    this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsByName = repository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(

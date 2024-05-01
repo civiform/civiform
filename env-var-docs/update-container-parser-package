@@ -1,0 +1,32 @@
+#! /bin/bash
+
+# DOC: This script is for running inside the civiform-vars-parser-package
+# container, which is why it is not located in the civiform/bin directory.
+# It installs PyGithub if it isn't already installed (i.e. container startup)
+# and checks if the env-var-docs parser-package has any changes since the
+# package was last installed in the container, or if it isn't yet installed.
+# If so, it installs the package.
+
+# Install PyGithub if it isn't installed yet
+# Using grep -q would cause a broken pipe error since it exits as soon
+# as it finds what it needs, so send the output to /dev/null instead
+pip list | grep PyGithub >/dev/null
+if [[ "$?" -gt 0 ]]; then
+  echo "Installing PyGithub"
+  pip install PyGithub --quiet
+fi
+
+# Check if env-var-docs/parser-package needs installation or updating.
+# Uses a hash of each file to determine if there are any changes. If
+# this is during container startup and the hash file doesn't exist,
+# diff will exit 2. Otherwise, it will exit 1 when there are changes
+# and 0 when there aren't.
+find env-var-docs/parser-package -type f \
+  -not -path "env-var-docs/parser-package/src/env_var_docs.egg-info/*" \
+  | xargs md5sum >/parser-package-hashes-new
+
+if ! cmp -s /parser-package-hashes /parser-package-hashes-new; then
+  echo "Installing parser-package"
+  mv /parser-package-hashes-new /parser-package-hashes
+  pip install --quiet -e env-var-docs/parser-package[test]
+fi

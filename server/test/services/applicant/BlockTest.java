@@ -2,7 +2,6 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -22,13 +21,14 @@ import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.QuestionAnswerer;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.ScalarType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
-import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 public class BlockTest {
@@ -43,13 +43,14 @@ public class BlockTest {
       (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
       new StaticContentQuestionDefinition(
-          OptionalLong.of(123L),
-          "more info about something",
-          Optional.empty(),
-          "Shows more info to the applicant",
-          LocalizedStrings.of(Locale.US, "This is more info"),
-          LocalizedStrings.of(Locale.US, ""),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("more info about something")
+              .setDescription("Shows more info to the applicant")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+              .setId(OptionalLong.of(123L))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   @Test
   public void createNewBlock() {
@@ -511,7 +512,7 @@ public class BlockTest {
                 .anyMatch(
                     q ->
                         q
-                            .errorsPresenter()
+                            .getQuestion()
                             .getValidationErrors()
                             .get(q.getContextualizedPath())
                             .stream()
@@ -687,6 +688,87 @@ public class BlockTest {
   }
 
   @Test
+  public void hasOnlyOptionalQuestions_blockHasOnlyRequiredQuestions_false() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isFalse();
+  }
+
+  @Test
+  public void hasOnlyOptionalQuestions_blockHasRequiredAndOptionalQuestions_false() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isFalse();
+  }
+
+  @Test
+  public void hasOnlyOptionalQuestions_blockHasOnlyOptionalQuestions_true() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isTrue();
+  }
+
+  @Test
   public void getLeafAddressNodeServiceAreaIds() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
@@ -719,7 +801,7 @@ public class BlockTest {
     Optional<ImmutableList<String>> serviceAreaIds = block.getLeafAddressNodeServiceAreaIds();
 
     assertThat(serviceAreaIds.isPresent()).isTrue();
-    assertEquals("Seattle", serviceAreaIds.get().get(0));
+    assertThat(serviceAreaIds.get().get(0)).isEqualTo("Seattle");
   }
 
   @Test

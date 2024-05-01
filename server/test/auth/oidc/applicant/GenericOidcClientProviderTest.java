@@ -3,6 +3,8 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -16,15 +18,16 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class GenericOidcClientProviderTest extends ResetPostgres {
   private GenericOidcClientProvider genericOidcProvider;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private IdTokensFactory idTokensFactory;
+  private static AccountRepository accountRepository;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -32,8 +35,9 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -55,7 +59,11 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     genericOidcProvider =
         new GenericOidcClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+            OidcClientProviderParams.create(
+                config,
+                profileFactory,
+                idTokensFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test

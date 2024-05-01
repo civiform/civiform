@@ -15,7 +15,7 @@ public class QuestionOptionTest {
   @Test
   public void localize_unsupportedLocale_throws() {
     QuestionOption questionOption =
-        QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"));
+        QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"));
 
     Throwable thrown = catchThrowable(() -> questionOption.localize(Locale.CANADA));
 
@@ -24,23 +24,26 @@ public class QuestionOptionTest {
 
   @Test
   public void localizeOrDefault_returnsDefaultForUnsupportedLocale() {
-    QuestionOption option = QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "default"));
+    QuestionOption option =
+        QuestionOption.create(1L, "default admin", LocalizedStrings.of(Locale.US, "default"));
 
     assertThat(option.localizeOrDefault(Locale.CHINESE))
-        .isEqualTo(LocalizedQuestionOption.create(1L, 1L, "default", Locale.US));
+        .isEqualTo(LocalizedQuestionOption.create(1L, 1L, "default admin", "default", Locale.US));
   }
 
   @Test
-  public void builder_builds() {
+  public void localize_localizes() {
     QuestionOption option =
         QuestionOption.builder()
             .setId(123L)
+            .setAdminName("test admin")
             .setOptionText(LocalizedStrings.withDefaultValue("test"))
             .setDisplayOrder(OptionalLong.of(1L))
             .build();
 
     assertThat(option.localize(LocalizedStrings.DEFAULT_LOCALE))
         .isEqualTo(
-            LocalizedQuestionOption.create(123L, 1L, "test", LocalizedStrings.DEFAULT_LOCALE));
+            LocalizedQuestionOption.create(
+                123L, 1L, "test admin", "test", LocalizedStrings.DEFAULT_LOCALE));
   }
 }

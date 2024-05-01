@@ -2,6 +2,7 @@ package auth.oidc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -19,36 +20,42 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
- * This class provides the base applicant OIDC implementation. It's abstract because AD and other
+ * This class provides the base user OIDC implementation. It's abstract because AD and other
  * providers need slightly different implementations and profile creators, and use different config
  * values.
  */
 public abstract class OidcClientProvider implements Provider<OidcClient> {
 
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
+  protected final OidcClientProviderParams params;
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final IdTokensFactory idTokensFactory;
+  protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
+  protected final SettingsManifest settingsManifest;
 
-  public OidcClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    this.civiformConfig = checkNotNull(configuration);
-    this.profileFactory = checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
+  public OidcClientProvider(OidcClientProviderParams params) {
+    this.params = params;
+    this.civiformConfig = checkNotNull(params.configuration());
+    this.profileFactory = checkNotNull(params.profileFactory());
+    this.idTokensFactory = checkNotNull(params.idTokensFactory());
+    this.accountRepositoryProvider = checkNotNull(params.accountRepositoryProvider());
 
     this.baseUrl =
         getBaseConfigurationValue("base_url")
             .orElseThrow(() -> new RuntimeException("base_url must be set"));
+    this.settingsManifest = new SettingsManifest(this.civiformConfig);
   }
 
   /*
-   * The prefix used in the application.conf for retriving oidc options.
+   * The prefix used in the application.conf for retrieving oidc options.
+   *
+   * If a '.' is intended to be included in the attribute name, it must be included at the end of the prefix.
    */
   protected abstract String attributePrefix();
 
@@ -98,27 +105,31 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected abstract ImmutableList<String> getExtraScopes();
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Whether the `state` CSRF parameter should be set in the requests.
+   */
+  protected abstract boolean getUseCsrf();
+
+  /*
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final Optional<String> getConfigurationValue(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name);
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final String getConfigurationValueOrThrow(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name)
         .orElseThrow(() -> new RuntimeException(name + " must be set"));
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf.
    */
   protected final Optional<String> getBaseConfigurationValue(String name) {
     if (civiformConfig.hasPath(name)) {
@@ -137,7 +148,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
 
   /*
    * Helper function for combining the default and additional scopes,
-   * and return them in the space-seperated string required bu OIDC.
+   * and return them in the space-separated string required by OIDC.
    */
   @VisibleForTesting
   public final String getScopesAttribute() {
@@ -194,7 +205,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     config.setResponseType(responseType);
 
     config.setUseNonce(true);
-    config.setWithState(false);
+    config.setWithState(getUseCsrf());
 
     config.setScope(scope);
     return config;
@@ -215,15 +226,19 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
       client.setName(providerName.get());
     }
     client.setCallbackUrl(callbackURL);
-    client.setProfileCreator(getProfileCreator(config, client));
+    ProfileCreator profileCreator = getProfileCreator(config, client);
+    IdentityProviderType identityProviderType =
+        ((CiviformOidcProfileCreator) profileCreator).identityProviderType();
+    client.setProfileCreator(profileCreator);
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
-        new CiviformOidcLogoutActionBuilder(civiformConfig, config, config.getClientId()));
+        new CiviformOidcLogoutActionBuilder(
+            config, config.getClientId(), params, identityProviderType));
 
     try {
       client.init();
-    } catch (Exception e) {
-      logger.error("Error while initilizing OIDC provider", e);
+    } catch (RuntimeException e) {
+      logger.error("Error while initializing OIDC provider", e);
       throw e;
     }
     var providerMetadata = client.getConfiguration().getProviderMetadata();

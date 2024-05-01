@@ -160,6 +160,7 @@ public enum Scalar {
         // do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
 
+      case NULL_QUESTION: // Fallthrough intended
       default:
         throw new UnsupportedQuestionTypeException(questionType);
     }

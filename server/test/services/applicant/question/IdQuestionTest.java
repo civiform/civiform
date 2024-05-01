@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,40 +22,43 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
 import services.question.types.IdQuestionDefinition;
-import support.QuestionAnswerer;
+import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
 public class IdQuestionTest extends ResetPostgres {
   private static final IdQuestionDefinition idQuestionDefinition =
       new IdQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private static final IdQuestionDefinition minAndMaxLengthIdQuestionDefinition =
       new IdQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create(3, 4),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(3, 4))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
+  ;
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
   private Messages messages;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
     messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
@@ -99,10 +102,10 @@ public class IdQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    ",Must contain at least 3 characters.",
-    "1,Must contain at least 3 characters.",
-    "12334,Must contain at most 4 characters.",
-    "abc,Must contain only numbers."
+    ",Error: Must contain at least 3 characters.",
+    "1,Error: Must contain at least 3 characters.",
+    "12334,Error: Must contain at most 4 characters.",
+    "abc,Error: Must contain only numbers."
   })
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {

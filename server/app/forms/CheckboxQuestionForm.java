@@ -1,6 +1,6 @@
 package forms;
 
-import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating a checkbox question. */
@@ -10,7 +10,7 @@ public class CheckboxQuestionForm extends MultiOptionQuestionForm {
     super();
   }
 
-  public CheckboxQuestionForm(CheckboxQuestionDefinition qd) {
+  public CheckboxQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
   }
 

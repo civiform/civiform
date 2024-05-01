@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TrTag;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -32,7 +33,7 @@ public final class IconsView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render() {
+  public Content render(Http.Request request) {
     TableTag content =
         table()
             .withClasses(ReferenceClasses.DEV_ICONS)
@@ -40,7 +41,11 @@ public final class IconsView extends BaseHtmlView {
                 tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
                 each(ImmutableList.copyOf(Icons.values()), this::renderIconRow));
     HtmlBundle bundle =
-        layout.getBundle().setTitle("Icons").addMainContent(content).setJsBundle(JsBundle.ADMIN);
+        layout
+            .getBundle(request)
+            .setTitle("Icons")
+            .addMainContent(content)
+            .setJsBundle(JsBundle.ADMIN);
     return layout.render(bundle);
   }
 

@@ -4,7 +4,6 @@
  */
 
 import * as main from './main'
-import * as accordion from './accordion'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
@@ -13,10 +12,10 @@ import * as fileUpload from './file_upload'
 import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
+import * as apiDocs from './api_docs'
 
 window.addEventListener('load', () => {
   main.init()
-  accordion.init()
   enumerator.init()
   radio.init()
   toast.init()
@@ -25,4 +24,6 @@ window.addEventListener('load', () => {
   azureDelete.init()
   azureUpload.init()
   phoneNumber.init()
+  // API docs are publicly visible, so we need the supporting scripts here.
+  apiDocs.init()
 })

@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
@@ -38,7 +38,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 2,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -66,7 +69,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 1);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 1,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -91,7 +97,11 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     // only 2 statuses provided in the request body, attempting to parse a 3rd should not throw
     // an error and just return a list of 2 updates.
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 3);
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 3,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -139,7 +149,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 2,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -158,12 +171,142 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   }
 
   @Test
+  public void bindFromRequest_hasSummaryImageDescriptionFalse_notIncluded() {
+    Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+                    .put(
+                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .build())
+            .build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 0,
+            /* hasSummaryImageDescription= */ false);
+
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void bindFromRequest_hasSummaryImageDescriptionFalse_formContentDropped() {
+    Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+                    .put(
+                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    // When the form sets an image description...
+                    .put(
+                        ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME,
+                        "fake image description")
+                    .build())
+            .build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 0,
+            // ... But the form is set up to not have a description...
+            /* hasSummaryImageDescription= */ false);
+
+    // ... Then the localization update doesn't contain the image description from the form.
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void bindFromRequest_hasSummaryImageDescriptionTrue_included() {
+    Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+                    .put(
+                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(
+                        ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME,
+                        "fake image description")
+                    .build())
+            .build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 0,
+            /* hasSummaryImageDescription= */ true);
+
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().get())
+        .isEqualTo("fake image description");
+  }
+
+  @Test
+  public void bindFromRequest_missingSummaryImageDescriptionIsOmitted() {
+    // When the request doesn't have an image description set...
+    Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+                    .put(
+                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .build())
+            .build();
+
+    // ...even though the form says there is an image description...
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 0,
+            /* hasSummaryImageDescription= */ true);
+
+    // ... Then the form should still parse successfully.
+    assertThat(form.getUpdateData().localizedDisplayName()).isEqualTo("display name");
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().get()).isEqualTo("");
+  }
+
+  @Test
+  public void bindFromRequest_emptyImageDescriptionUsed() {
+    Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+                    .put(
+                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME, "")
+                    .build())
+            .build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 0,
+            /* hasSummaryImageDescription= */ true);
+
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().get()).isEqualTo("");
+  }
+
+  @Test
   public void fromProgram() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("english-name", "english-description")
             .withLocalizedName(Locale.FRENCH, "french-name")
             .withLocalizedDescription(Locale.FRENCH, "french-description")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "us-image-desc", Locale.FRENCH, "french-image-desc"))
             .withStatusDefinitions(
                 new StatusDefinitions(
                     ImmutableList.of(
@@ -194,6 +337,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setLocalizedDisplayName("french-name")
                 .setLocalizedDisplayDescription("french-description")
                 .setLocalizedConfirmationMessage("")
+                .setLocalizedSummaryImageDescription("french-image-desc")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -205,5 +349,17 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setLocalizedStatusText(Optional.of("second-status-french"))
                             .build()))
                 .build());
+  }
+
+  @Test
+  public void fromProgram_noSummaryImageDescription_fieldNotIncluded() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("english-name", "english-description").build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.fromProgram(
+            program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
+
+    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isFalse();
   }
 }

@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import models.Account;
-import models.Program;
+import models.AccountModel;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -18,12 +18,12 @@ import support.ProgramBuilder;
 
 public class RoleServiceTest extends ResetPostgres {
 
-  private UserRepository userRepository;
+  private AccountRepository accountRepository;
   private RoleService service;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     service = instanceOf(RoleService.class);
   }
 
@@ -31,23 +31,23 @@ public class RoleServiceTest extends ResetPostgres {
   public void makeProgramAdmins_allPromoted() throws ProgramNotFoundException {
     String email1 = "fake@email.com";
     String email2 = "fake2.com";
-    Account account1 = new Account();
+    AccountModel account1 = new AccountModel();
     account1.setEmailAddress(email1);
     account1.save();
-    Account account2 = new Account();
+    AccountModel account2 = new AccountModel();
     account2.setEmailAddress(email2);
     account2.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> result =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
 
     assertThat(result).isEmpty();
 
-    account1 = userRepository.lookupAccountByEmail(email1).get();
-    account2 = userRepository.lookupAccountByEmail(email2).get();
+    account1 = accountRepository.lookupAccountByEmail(email1).get();
+    account2 = accountRepository.lookupAccountByEmail(email2).get();
 
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
@@ -57,12 +57,12 @@ public class RoleServiceTest extends ResetPostgres {
   public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(emailUpperCase);
     account.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     // Make the lower case email a program admin.
     Optional<CiviFormError> lowerCaseResult =
@@ -73,12 +73,13 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program"
-                            + " Admin. ",
+                        "Cannot add %s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. ",
                         emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
-    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).isEmpty();
 
     // Now make the upper case Email a program admin.
@@ -87,7 +88,7 @@ public class RoleServiceTest extends ResetPostgres {
     assertThat(result).isEmpty();
 
     // Lookup the upper case account. They now have permissions to the program.
-    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
@@ -113,7 +114,7 @@ public class RoleServiceTest extends ResetPostgres {
     String email = "admin_does_not_exist@email.com";
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email));
@@ -123,8 +124,9 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program"
-                            + " Admin. ",
+                        "Cannot add %s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. ",
                         email))));
   }
 
@@ -135,7 +137,7 @@ public class RoleServiceTest extends ResetPostgres {
     String email2 = "second_admin_does_not_exist@email.com";
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
@@ -145,9 +147,12 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%1$s does not have an admin account and cannot be added as a Program"
-                            + " Admin. %2$s does not have an admin account and cannot be added as"
-                            + " a Program Admin. ",
+                        "Cannot add %1$s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. Cannot add %2$s as a Program"
+                            + " Admin because they do not have an admin account. Have the user log"
+                            + " in as admin on the home page, then they can be added as a Program"
+                            + " Admin. ",
                         email1, email2))));
   }
 
@@ -158,13 +163,13 @@ public class RoleServiceTest extends ResetPostgres {
     String extraName = "extra";
     ProgramDefinition extra = ProgramBuilder.newDraftProgram(extraName).buildDefinition();
 
-    Account one = new Account();
+    AccountModel one = new AccountModel();
     String emailOne = "one@test.com";
     one.setEmailAddress(emailOne);
     one.addAdministeredProgram(toRemove);
     one.save();
 
-    Account two = new Account();
+    AccountModel two = new AccountModel();
     String emailTwo = "two@test.com";
     two.setEmailAddress(emailTwo);
     two.addAdministeredProgram(toRemove);
@@ -176,9 +181,9 @@ public class RoleServiceTest extends ResetPostgres {
 
     service.removeProgramAdmins(toRemove.id(), ImmutableSet.of(emailOne, emailTwo));
 
-    assertThat(userRepository.lookupAccountByEmail(emailOne).get().getAdministeredProgramNames())
+    assertThat(accountRepository.lookupAccountByEmail(emailOne).get().getAdministeredProgramNames())
         .isEmpty();
-    assertThat(userRepository.lookupAccountByEmail(emailTwo).get().getAdministeredProgramNames())
+    assertThat(accountRepository.lookupAccountByEmail(emailTwo).get().getAdministeredProgramNames())
         .containsOnly(extraName);
   }
 
@@ -191,13 +196,13 @@ public class RoleServiceTest extends ResetPostgres {
   @Test
   public void makeProgramAdmins_blockGlobalAdmin() throws ProgramNotFoundException {
     String globalAdminEmail = "global@admin";
-    Account globalAdmin = new Account();
+    AccountModel globalAdmin = new AccountModel();
     globalAdmin.setEmailAddress(globalAdminEmail);
     globalAdmin.setGlobalAdmin(true);
     globalAdmin.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     assertThat(service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
         .isEqualTo(

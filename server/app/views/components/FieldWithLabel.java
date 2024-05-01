@@ -3,9 +3,11 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -17,6 +19,7 @@ import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.TextareaTag;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +29,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import views.ViewUtils;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
@@ -45,8 +50,10 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. * */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
+
   /** For use with fields of type `number`. */
   protected OptionalLong minValue = OptionalLong.empty();
+
   /** For use with fields of type `number`. */
   protected OptionalLong maxValue = OptionalLong.empty();
 
@@ -54,8 +61,12 @@ public class FieldWithLabel {
 
   /** For use with fields of type `textarea`. */
   private OptionalLong rows = OptionalLong.empty();
+
   /** For use with fields of type `textarea`. */
   private OptionalLong cols = OptionalLong.empty();
+
+  /** The maximum length allowed for the user input. */
+  private int maxLength = MAX_INPUT_TEXT_LENGTH_DEFAULT;
 
   private String formId = "";
   private String id = "";
@@ -63,20 +74,26 @@ public class FieldWithLabel {
   private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
+  private Optional<String> toolTipText = Optional.empty();
+  private Optional<Icons> toolTipIcon = Optional.empty();
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
+  private boolean focusOnError = false;
   private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
+  private boolean readOnly = false;
   private boolean required = false;
   private boolean ariaRequired = false;
+  private boolean focusOnInput = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
-  private final ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
+  private final ImmutableMap.Builder<String, Optional<String>> attributesMapBuilder =
+      ImmutableMap.builder();
 
-  private static final String MAX_INPUT_TEXT_LENGTH = "10000";
+  private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
     public String fieldErrorsId;
@@ -162,6 +179,16 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setToolTipText(String toolTipText) {
+    this.toolTipText = Optional.of(toolTipText);
+    return this;
+  }
+
+  public FieldWithLabel setToolTipIcon(Icons icon) {
+    this.toolTipIcon = Optional.of(icon);
+    return this;
+  }
+
   FieldWithLabel setIsCurrency() {
     // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
@@ -192,7 +219,13 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    this.attributesSetBuilder.add(attribute);
+    this.attributesMapBuilder.put(attribute, Optional.empty());
+    return this;
+  }
+
+  /** Sets an attribute/value pairing. */
+  public FieldWithLabel setAttribute(String attribute, String value) {
+    this.attributesMapBuilder.put(attribute, Optional.of(value));
     return this;
   }
 
@@ -230,6 +263,12 @@ public class FieldWithLabel {
     }
 
     this.cols = value;
+    return this;
+  }
+
+  /** Sets the maximum length allowed for the user input. */
+  public FieldWithLabel setMaxLength(int value) {
+    this.maxLength = value;
     return this;
   }
 
@@ -276,6 +315,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setDisabled(boolean disabled) {
     this.disabled = disabled;
+    return this;
+  }
+
+  public FieldWithLabel setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
     return this;
   }
 
@@ -352,6 +396,14 @@ public class FieldWithLabel {
     return this;
   }
 
+  public void focusOnError() {
+    this.focusOnError = true;
+  }
+
+  public void focusOnInput() {
+    this.focusOnInput = true;
+  }
+
   /** Attribute getters * */
   public String getFieldType() {
     return this.fieldType;
@@ -361,7 +413,7 @@ public class FieldWithLabel {
   private InputTag nonNumberGenTagApplyAttrs() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
@@ -376,23 +428,27 @@ public class FieldWithLabel {
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
 
-  private DivTag getNonNumberInputTag() throws RuntimeException {
+  private DivTag getNonNumberInputTag(boolean isUSWDS) {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
       throw new RuntimeException("non-number tag expected");
     }
-    return applyAttrsAndGenLabel(inputFieldTag);
+    return isUSWDS
+        ? applyUSWDSAttrsClassesAndLabel(inputFieldTag)
+        : applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   /** Public final tag getters * */
-  public DivTag getTextareaTag() throws RuntimeException {
+  // TODO: Once we've eliminated all uses of this method (when all textarea fields are using USWDS),
+  //  remove it and rename `getUSWDSTextareaTag` to `getTextareaTag`.
+  public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
-      applyAttributesFromSet(textareaFieldTag);
+      applyAttributesFromMap(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
         textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
@@ -400,7 +456,24 @@ public class FieldWithLabel {
       if (this.cols.isPresent()) {
         textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
       }
-      return applyAttrsAndGenLabel(textareaFieldTag);
+      return applyAttrsClassesAndLabel(textareaFieldTag);
+    }
+
+    throw new RuntimeException("needs to be textarea tag");
+  }
+
+  public DivTag getUSWDSTextareaTag() {
+    if (isTagTypeTextarea()) {
+      TextareaTag textareaFieldTag = TagCreator.textarea();
+      applyAttributesFromMap(textareaFieldTag);
+      textareaFieldTag.withText(this.fieldValue);
+      if (this.rows.isPresent()) {
+        textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
+      }
+      if (this.cols.isPresent()) {
+        textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
+      }
+      return applyUSWDSAttrsClassesAndLabel(textareaFieldTag);
     }
 
     throw new RuntimeException("needs to be textarea tag");
@@ -411,41 +484,53 @@ public class FieldWithLabel {
   }
 
   public DivTag getCurrencyTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getInputTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
-  public DivTag getNumberTag() throws RuntimeException {
+  public DivTag getUSWDSInputTag() {
+    return getNonNumberInputTag(true);
+  }
+
+  public DivTag getNumberTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(inputFieldTag);
     } else {
       throw new RuntimeException("number tag expected");
     }
-    return applyAttrsAndGenLabel(inputFieldTag);
+    return applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   public DivTag getDateTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getEmailTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
-  protected void applyAttributesFromSet(Tag fieldTag) {
-    this.attributesSetBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
+  protected void applyAttributesFromMap(Tag fieldTag) {
+    ImmutableMap<String, Optional<String>> attributesMap = this.attributesMapBuilder.build();
+    attributesMap
+        .entrySet()
+        .forEach(entry -> fieldTag.attr(entry.getKey(), entry.getValue().orElse(null)));
   }
 
   private DivTag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
-    return div(each(fieldErrors, error -> div(error.format(messages))))
+    return div(each(
+            fieldErrors,
+            error ->
+                div(
+                    messages.apply(
+                        MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(), error.format(messages)))))
         .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
@@ -461,14 +546,28 @@ public class FieldWithLabel {
     }
   }
 
-  private LabelTag genLabelTag() {
+  private LabelTag genLabelTag(boolean isUSWDS) {
+    if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
+      throw new RuntimeException("Tool tip text and icon must both be defined");
+    }
+    // Add some space between text and icon when there is a tool tip
+    String text =
+        labelText.isEmpty()
+            ? screenReaderText
+            : toolTipText.isPresent() ? labelText + " " : labelText;
     return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
-        .withText(labelText.isEmpty() ? screenReaderText : labelText)
-        .condWith(required, ViewUtils.requiredQuestionIndicator());
+        .withClass(
+            labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
+        .withText(text)
+        .condWith(required, ViewUtils.requiredQuestionIndicator())
+        // The DomContent is evaluated even if the condition is false, so provide
+        // some defaults we will never use.
+        .condWith(
+            toolTipText.isPresent(),
+            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
@@ -507,23 +606,45 @@ public class FieldWithLabel {
     }
   }
 
-  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsClassesToTag(
-      T fieldTag, boolean hasFieldErrors) {
+  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsToTag(T fieldTag) {
     // Here we use `.condAttr` instead of the more typesafe methods in 3 instances  here
     // since not all types of the `fieldTag` argument passed to this have those attributes.
     //
     // Adding useless attributes does not hurt the DOM, and helps us avoid putting those calls
     // before the calls to this method, thus simplifying the code.
     fieldTag
-        .withClasses(
-            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
+        .condAttr(this.readOnly, Attr.READONLY, Attr.READONLY)
         .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId)
+        .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
+  }
+
+  private String getFieldClasses(Tag fieldTag) {
+    boolean isSelectTag = fieldTag instanceof SelectTag;
+    boolean hasFieldErrors = hasFieldErrors();
+    if (isSelectTag) {
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+    } else {
+      return hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT;
+    }
+  }
+
+  private String getUSWDSFieldClasses(Tag fieldTag) {
+    boolean isSelectTag = fieldTag instanceof SelectTag;
+    boolean hasFieldErrors = hasFieldErrors();
+    if (isTagTypeTextarea()) {
+      return hasFieldErrors ? "usa-textarea usa-input--error" : "usa-textarea";
+    }
+    if (isSelectTag) {
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+    } else {
+      return hasFieldErrors ? "usa-input usa-input--error" : "usa-input";
+    }
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>>
@@ -544,21 +665,23 @@ public class FieldWithLabel {
     fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
-    fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
+    fieldTag.condAttr(focusOnError, Attr.AUTOFOCUS, "");
+
+    fieldTag.attr("maxlength", this.maxLength);
     if (ariaRequired) {
       fieldTag.attr("aria-required", "true");
     }
-
-    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 
     return fieldErrorsInfo;
   }
 
   protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>>
-      LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
+      LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) {
     genRandIdIfEmpty();
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
+    generalApplyAttrsToTag(fieldTag);
+    generalApplyClassesToTag(fieldTag);
 
     // Generate label / container
     if (getFieldType().equals("checkbox") || getFieldType().equals("radio")) {
@@ -567,11 +690,36 @@ public class FieldWithLabel {
     throw new RuntimeException("needs to be a checkbox or radio type for this method");
   }
 
-  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsClassesAndLabel(
+      T fieldTag) {
     genRandIdIfEmpty();
     // Apply attributes
     FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
-    LabelTag labelTag = genLabelTag();
+    generalApplyAttrsToTag(fieldTag);
+    generalApplyClassesToTag(fieldTag);
+
+    LabelTag labelTag = genLabelTag(false);
+    // Generate label / container
+    return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
+  }
+
+  private void generalApplyClassesToTag(Tag fieldTag) {
+    fieldTag.withClasses(
+        getFieldClasses(fieldTag),
+        // TODO(#5623): Use unified styles for disabled inputs
+        this.readOnly ? "read-only:text-gray-500" : "",
+        this.readOnly ? "read-only:bg-gray-100" : "");
+  }
+
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyUSWDSAttrsClassesAndLabel(
+      T fieldTag) {
+    genRandIdIfEmpty();
+    // Apply attributes
+    FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
+    generalApplyAttrsToTag(fieldTag);
+    fieldTag.withClasses(getUSWDSFieldClasses(fieldTag));
+
+    LabelTag labelTag = genLabelTag(true);
     // Generate label / container
     return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
   }
@@ -591,6 +739,7 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(styleClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+            ReferenceClasses.RADIO_OPTION,
             labelText.isEmpty() ? "w-min" : "")
         .withCondFor(!this.id.isEmpty(), this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))

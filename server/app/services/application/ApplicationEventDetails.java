@@ -31,9 +31,9 @@ public abstract class ApplicationEventDetails {
   @JsonProperty("status_event")
   public abstract Optional<StatusEvent> statusEvent();
 
+  /** Type NOTE_EVENT representing a note associated with the Application. */
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("note_event")
-  /** Type NOTE_EVENT representing a note associated with the Application. */
   public abstract Optional<NoteEvent> noteEvent();
 
   public static Builder builder() {

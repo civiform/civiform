@@ -8,16 +8,15 @@ concurrency:
 
 on:
   pull_request:
-    branches:
-      - 'main'
+    branches-ignore:
+      - 'spike/**'
     paths:
       - 'server/**'
       - 'bin/**'
       - 'browser-test/**'
       - 'test-support/**'
       - 'mock-web-services/**'
-      - 'Dockerfile'
-      - 'prod.Dockerfile'
+      - '**.Dockerfile'
       - '.github/workflows/**'
 
 permissions: read-all

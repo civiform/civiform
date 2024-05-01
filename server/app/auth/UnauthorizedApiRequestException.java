@@ -1,6 +1,6 @@
 package auth;
 
-import models.ApiKey;
+import models.ApiKeyModel;
 
 /**
  * Thrown when an API request is authenticated but not authorized for the resource it requested.
@@ -9,7 +9,7 @@ import models.ApiKey;
  */
 public final class UnauthorizedApiRequestException extends RuntimeException {
 
-  public UnauthorizedApiRequestException(ApiKey apiKey, String resourceIdentifier) {
+  public UnauthorizedApiRequestException(ApiKeyModel apiKey, String resourceIdentifier) {
     super(
         String.format(
             "API key %s does not have access to %s", apiKey.getKeyId(), resourceIdentifier));

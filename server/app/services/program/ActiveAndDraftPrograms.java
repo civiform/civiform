@@ -9,7 +9,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.Version;
+import models.DisplayMode;
+import models.VersionModel;
 import repository.VersionRepository;
 
 /**
@@ -32,8 +33,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
+    return new ActiveAndDraftPrograms(repository, Optional.of(service));
   }
 
   /**
@@ -43,33 +43,44 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
+    return new ActiveAndDraftPrograms(repository, Optional.empty());
   }
 
-  private ActiveAndDraftPrograms(Version active, Version draft, Optional<ProgramService> service) {
+  private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
+      VersionRepository repository,
+      Optional<ProgramService> service,
+      VersionModel versionModel,
+      Optional<DisplayMode> excludeDisplayMode) {
+    return repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
+        .map(
+            program ->
+                service.isPresent()
+                    ? getFullProgramDefinition(service.get(), program.id)
+                    : program.getProgramDefinition())
+        .filter(
+            program ->
+                excludeDisplayMode.isPresent()
+                    ? program.displayMode() != excludeDisplayMode.get()
+                    : true)
+        .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+  }
+
+  private ImmutableMap<String, ProgramDefinition> mapNameToProgram(
+      VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
+    return mapNameToProgramWithFilter(repository, service, versionModel, Optional.empty());
+  }
+
+  private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
+    VersionModel active = repository.getActiveVersion();
+    VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        checkNotNull(active).getPrograms().stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        mapNameToProgram(repository, service, active);
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        checkNotNull(draft).getPrograms().stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        mapNameToProgram(repository, service, draft);
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
@@ -98,10 +109,18 @@ public final class ActiveAndDraftPrograms {
   }
 
   public Optional<ProgramDefinition> getActiveProgramDefinition(String name) {
+    if (!versionedByName.containsKey(name)) {
+      return Optional.empty();
+    }
+
     return versionedByName.get(name).first();
   }
 
   public Optional<ProgramDefinition> getDraftProgramDefinition(String name) {
+    if (!versionedByName.containsKey(name)) {
+      return Optional.empty();
+    }
+
     return versionedByName.get(name).second();
   }
 
@@ -123,9 +142,9 @@ public final class ActiveAndDraftPrograms {
     return draftPrograms.size() > 0;
   }
 
-  private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
+  private ProgramDefinition getFullProgramDefinition(ProgramService service, long id) {
     try {
-      return service.getProgramDefinition(id);
+      return service.getFullProgramDefinition(id);
     } catch (ProgramNotFoundException e) {
       // This is not possible because we query with existing program ids.
       throw new RuntimeException(e);

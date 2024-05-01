@@ -8,8 +8,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
-import repository.UserRepository;
+import models.AccountModel;
+import models.ProgramModel;
+import repository.AccountRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -19,21 +20,21 @@ import services.program.ProgramService;
 public final class RoleService {
 
   private final ProgramService programService;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
 
   @Inject
-  public RoleService(ProgramService programRepository, UserRepository userRepository) {
+  public RoleService(ProgramService programRepository, AccountRepository accountRepository) {
     this.programService = programRepository;
-    this.userRepository = userRepository;
+    this.accountRepository = accountRepository;
   }
 
   /**
-   * Get a set of {@link Account}s that have the role {@link Role#ROLE_CIVIFORM_ADMIN}.
+   * Get a set of {@link AccountModel}s that have the role {@link Role#ROLE_CIVIFORM_ADMIN}.
    *
-   * @return an {@link ImmutableSet} of {@link Account}s that are CiviForm admins.
+   * @return an {@link ImmutableSet} of {@link AccountModel}s that are CiviForm admins.
    */
-  public ImmutableSet<Account> getGlobalAdmins() {
-    return userRepository.getGlobalAdmins();
+  public ImmutableSet<AccountModel> getGlobalAdmins() {
+    return accountRepository.getGlobalAdmins();
   }
 
   /**
@@ -43,7 +44,7 @@ public final class RoleService {
    * admins. Instead, we return a {@link CiviFormError} listing the admin accounts that could not be
    * promoted to program admins.
    *
-   * @param programId the ID of the {@link models.Program} these accounts administer
+   * @param programId the ID of the {@link ProgramModel} these accounts administer
    * @param accountEmails a {@link ImmutableSet} of account emails to make program admins
    * @return {@link Optional#empty()} if all accounts were promoted to program admins, or an {@link
    *     Optional} of a {@link CiviFormError} listing the accounts that could not be promoted to
@@ -55,12 +56,12 @@ public final class RoleService {
       return Optional.empty();
     }
 
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     // Filter out CiviForm admins from the list of emails - a CiviForm admin cannot be a program
     // admin.
     ImmutableSet<String> globalAdminEmails =
         getGlobalAdmins().stream()
-            .map(Account::getEmailAddress)
+            .map(AccountModel::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
@@ -70,7 +71,8 @@ public final class RoleService {
       if (globalAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
       } else {
-        Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
+        Optional<CiviFormError> maybeError =
+            accountRepository.addAdministeredProgram(email, program);
 
         // Concatenate error messages.
         if (maybeError.isPresent()) {
@@ -111,8 +113,8 @@ public final class RoleService {
   public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
       throws ProgramNotFoundException {
     if (!accountEmails.isEmpty()) {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      accountEmails.forEach(email -> accountRepository.removeAdministeredProgram(email, program));
     }
   }
 }

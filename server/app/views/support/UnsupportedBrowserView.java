@@ -8,6 +8,7 @@ import static j2html.TagCreator.img;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -24,8 +25,8 @@ public final class UnsupportedBrowserView extends BaseHtmlView {
     this.applicantLayout = checkNotNull(applicantLayout);
   }
 
-  public Content render() {
-    HtmlBundle bundle = applicantLayout.getBundle();
+  public Content render(Http.Request request) {
+    HtmlBundle bundle = applicantLayout.getBundle(request);
 
     bundle.setTitle("The browser you are currently using is not supported");
     DivTag container =

@@ -1,7 +1,12 @@
 # Builds on docker-compose.yml
-version: '3.4'
-
 services:
+  # Load custom postgres config that disables durability for performance
+  # Not for use in a production environment
+  db:
+    volumes:
+      - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+
   localstack:
     ports:
       - 6645:4566
@@ -24,6 +29,7 @@ services:
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - APPLICANT_REGISTER_URI=http://dev-oidc:3390/
+      - CIVIFORM_ADMIN_IDP=adfs
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=${BASE_URL:-http://civiform:9000}
       - LOCALSTACK_URL=http://localhost.localstack.cloud:4566

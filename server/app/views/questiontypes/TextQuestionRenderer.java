@@ -28,7 +28,7 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    TextQuestion textQuestion = question.createTextQuestion();
+    TextQuestion textQuestion = applicantQuestion.createTextQuestion();
 
     FieldWithLabel textField =
         FieldWithLabel.input()
@@ -39,7 +39,11 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader());
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
+
+    if (params.autofocusSingleField()) {
+      textField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();

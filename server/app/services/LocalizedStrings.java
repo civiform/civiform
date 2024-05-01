@@ -67,6 +67,11 @@ public abstract class LocalizedStrings {
     return create(ImmutableMap.of(DEFAULT_LOCALE, defaultValue));
   }
 
+  /** Creates localized strings with an empty string for the default locale. */
+  public static LocalizedStrings withEmptyDefault() {
+    return LocalizedStrings.create(ImmutableMap.of(DEFAULT_LOCALE, ""));
+  }
+
   /** Creates localized strings with no translations, that are not required. */
   public static LocalizedStrings empty() {
     return create(ImmutableMap.of(), true);

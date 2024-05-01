@@ -10,6 +10,7 @@ docker::compose_dev \
   --no-deps \
   --wait \
   -d
+
 docker::compose_dev exec \
   -e "PGPASSWORD=example" \
   db \

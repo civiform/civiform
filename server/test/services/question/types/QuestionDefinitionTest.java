@@ -1,6 +1,7 @@
 package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
@@ -19,11 +20,14 @@ import services.TranslationNotFoundException;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
   private QuestionDefinitionBuilder builder;
+  private QuestionDefinitionConfig.Builder configBuilder;
 
   @Before
   public void setup() {
@@ -36,6 +40,12 @@ public class QuestionDefinitionTest {
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .setEntityType(LocalizedStrings.empty())
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
+    configBuilder =
+        QuestionDefinitionConfig.builder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"));
   }
 
   @Test
@@ -128,9 +138,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void isEnumerator_false() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.isEnumerator()).isFalse();
   }
@@ -138,21 +146,13 @@ public class QuestionDefinitionTest {
   @Test
   public void isEnumerator_true() {
     QuestionDefinition question =
-        new EnumeratorQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty(),
-            LocalizedStrings.empty());
+        new EnumeratorQuestionDefinition(configBuilder.build(), LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }
 
   @Test
   public void isRepeated_false() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -160,23 +160,13 @@ public class QuestionDefinitionTest {
   @Test
   public void isRepeated_true() {
     QuestionDefinition question =
-        new TextQuestionDefinition(
-            "", Optional.of(123L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+        new TextQuestionDefinition(configBuilder.setEnumeratorId(Optional.of(123L)).build());
     assertThat(question.isRepeated()).isTrue();
   }
 
   @Test
   public void newQuestionHasCorrectFields() throws Exception {
-    QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.TEXT)
-            .setId(123L)
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
-            .build();
+    QuestionDefinition question = builder.setId(123L).build();
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getName()).isEqualTo("name");
@@ -184,18 +174,13 @@ public class QuestionDefinitionTest {
     assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("help text");
     assertThat(question.getValidationPredicates())
-        .isEqualTo(TextValidationPredicates.builder().setMinLength(0).build());
+        .isEqualTo(TextValidationPredicates.builder().setMaxLength(128).build());
+    assertThat(question.isUniversal()).isFalse();
   }
 
   @Test
   public void getQuestionTextForUnknownLocale_throwsException() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "not french"),
-            LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
@@ -205,13 +190,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.of(Locale.US, "help text"));
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
@@ -223,7 +202,10 @@ public class QuestionDefinitionTest {
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            configBuilder
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
     assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
 
@@ -231,11 +213,7 @@ public class QuestionDefinitionTest {
   public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.withDefaultValue("default"),
-            LocalizedStrings.empty());
+            configBuilder.setQuestionText(LocalizedStrings.withDefaultValue("default")).build());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -245,11 +223,9 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.withDefaultValue("default"));
+            configBuilder
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("default"))
+                .build());
 
     assertThat(question.getQuestionHelpText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -257,66 +233,42 @@ public class QuestionDefinitionTest {
 
   @Test
   public void maybeGetQuestionText_returnsOptionalWithText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "hello"),
-            LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
-    assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
+    assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("question?");
   }
 
   @Test
   public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
   public void maybeGetQuestionHelpText_returnsOptionalWithText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.of(Locale.US, "world"));
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
-    assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
+    assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("help text");
   }
 
   @Test
   public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
   public void newQuestionHasTypeText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
 
   @Test
   public void validateWellFormedQuestion_returnsNoErrors() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "question?"),
-            LocalizedStrings.empty());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
     assertThat(question.validate()).isEmpty();
   }
 
@@ -324,7 +276,12 @@ public class QuestionDefinitionTest {
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            configBuilder
+                .setName("")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Administrative identifier cannot be blank"),
@@ -334,11 +291,7 @@ public class QuestionDefinitionTest {
   @Test
   public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+        builder
             .setEntityType(LocalizedStrings.withDefaultValue(""))
             .setQuestionType(QuestionType.ENUMERATOR)
             .build();
@@ -350,21 +303,10 @@ public class QuestionDefinitionTest {
   @Test
   public void validate_withRepeatedQuestion_missingEntityNameFormatString_returnsErrors()
       throws Exception {
-    QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
-            .build();
+    QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
 
     assertThat(question.validate())
-        .containsOnly(
-            CiviFormError.of(
-                "Repeated questions must reference '$this' in the text and help text (if"
-                    + " present)"));
+        .containsOnly(CiviFormError.of("Repeated questions must reference '$this' in the text"));
   }
 
   @Test
@@ -372,35 +314,62 @@ public class QuestionDefinitionTest {
       validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
           throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
+        builder
             .setQuestionText(
                 LocalizedStrings.of(
-                    Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
+                    Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
             .setQuestionHelpText(
                 LocalizedStrings.of(
-                    Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
             .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
             .build();
 
     assertThat(question.validate())
-        .containsOnly(
-            CiviFormError.of(
-                "Repeated questions must reference '$this' in the text and help text (if"
-                    + " present)"));
+        .containsOnly(CiviFormError.of("Repeated questions must reference '$this' in the text"));
+  }
+
+  @Test
+  public void validate_withRepeatedQuestion_withHelpTextThatDoesHaveFormatString_returnsNoErrors()
+      throws Exception {
+    QuestionDefinition question =
+        builder
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
+  public void
+      validate_withRepeatedQuestion_withHelpTextThatDoesNotHaveFormatString_returnsNoErrors()
+          throws Exception {
+    QuestionDefinition question =
+        builder
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Locale.US, "this is not present", Locale.FRANCE, "this is not present"))
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    assertThat(question.validate()).isEmpty();
   }
 
   @Test
   public void validate_withRepeatedQuestion_withNoHelpText_returnsNoErrors() throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
+        builder
             .setQuestionText(LocalizedStrings.withDefaultValue("something with $this"))
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
             .build();
 
     assertThat(question.validate()).isEmpty();
@@ -410,59 +379,303 @@ public class QuestionDefinitionTest {
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(Locale.US, ""),
-            LocalizedStrings.empty());
+            configBuilder
+                .setQuestionText(LocalizedStrings.of(Locale.US, ""))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
 
   @Test
-  public void validate_multiOptionQuestion_withoutOptions_returnsError() {
+  public void validate_nameIsNotEntityName() {
     QuestionDefinition question =
-        new CheckboxQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.withDefaultValue("test"),
-            LocalizedStrings.empty(),
-            ImmutableList.of(),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+        new TextQuestionDefinition(
+            configBuilder
+                .setName("entity name")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Name Test"))
+                .build());
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Administrative identifier 'entity name' is not allowed"));
+  }
+
+  @Test
+  public void validate_nameIsNotEntityMetadata() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder
+                .setName("entity metadata")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Metadata Test"))
+                .build());
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of("Administrative identifier 'entity metadata' is not allowed"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withoutOptions_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, /* questionOptions */ ImmutableList.of(), MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions must have at least one option"));
   }
 
   @Test
   public void validate_multiOptionQuestion_withBlankOption_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
     QuestionDefinition question =
-        new CheckboxQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.withDefaultValue("test"),
-            LocalizedStrings.empty(),
-            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue(""))),
+            MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions cannot have blank options"));
   }
 
   @Test
-  public void validate_multiOptionQuestion_withDuplicateOptions_returnsError() {
+  public void validate_multiOptionQuestion_withBlankOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
     QuestionDefinition question =
-        new CheckboxQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.withDefaultValue("test"),
-            LocalizedStrings.empty(),
-            ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-                QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a"))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(QuestionOption.create(1L, "", LocalizedStrings.withDefaultValue("a"))),
+            MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsExactlyInAnyOrder(
+            CiviFormError.of("Multi-option questions cannot have blank admin names"),
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withDuplicateOptions_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("a")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withDuplicateOptionsWithDifferentCase_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, "Parks_and_Recreation", LocalizedStrings.withDefaultValue("a1")),
+            QuestionOption.create(
+                2L, "Parks_and_recreation", LocalizedStrings.withDefaultValue("a2")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .contains(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withDuplicateOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt1", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withUniqueOptionAdminNames_doesNotReturnError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a_one-1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_two-2", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withInvalidOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withCapitalLetterInOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "A_invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+  }
+
+  @Test
+  public void
+      validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousDefinition_doesNotReturnError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "c_valid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion))).isEmpty();
+  }
+
+  @Test
+  public void
+      validate_multiOptionQuestion_withValidOptionAdminNameInPreviousAndDuplicateNameInUpdate_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a_valid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "A_valid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
+        .containsOnly(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void
+      validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousAndUpdatedDefinition_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "c invalid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+  }
+
+  @Test
+  public void validate_throwsExceptionWhenQuestionTypesMismatched() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a_one-1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_two-2", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+
+    var throwableAssert =
+        assertThatThrownBy(() -> question.validate(Optional.of(previousQuestion)))
+            .isInstanceOf(IllegalArgumentException.class);
+    throwableAssert.hasMessage(
+        "The previous version of the question definition must be of the same question type as the"
+            + " updated version.");
   }
 
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
@@ -514,20 +727,22 @@ public class QuestionDefinitionTest {
       OptionalInt minChoicesRequired,
       OptionalInt maxChoicesAllowed,
       Optional<String> wantErrorMessage) {
+    QuestionDefinitionConfig config =
+        configBuilder
+            .setValidationPredicates(
+                MultiOptionValidationPredicates.builder()
+                    .setMinChoicesRequired(minChoicesRequired)
+                    .setMaxChoicesAllowed(maxChoicesAllowed)
+                    .build())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("b")));
+
     QuestionDefinition question =
-        new CheckboxQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.withDefaultValue("test"),
-            LocalizedStrings.empty(),
-            ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-                QuestionOption.create(2L, LocalizedStrings.withDefaultValue("b"))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
-                .setMinChoicesRequired(minChoicesRequired)
-                .setMaxChoicesAllowed(maxChoicesAllowed)
-                .build());
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
 
     ImmutableSet<CiviFormError> errors = question.validate();
     if (wantErrorMessage.isEmpty()) {
@@ -541,23 +756,24 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(
-                Locale.US,
-                "question?",
-                Locale.forLanguageTag("es-US"),
-                "pregunta",
-                Locale.FRANCE,
-                "question"),
-            LocalizedStrings.of(
-                Locale.US,
-                "help",
-                Locale.forLanguageTag("es-US"),
-                "ayuda",
-                Locale.GERMAN,
-                "Hilfe"));
+            configBuilder
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "question?",
+                        Locale.forLanguageTag("es-US"),
+                        "pregunta",
+                        Locale.FRANCE,
+                        "question"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "help",
+                        Locale.forLanguageTag("es-US"),
+                        "ayuda",
+                        Locale.GERMAN,
+                        "Hilfe"))
+                .build());
 
     assertThat(definition.getSupportedLocales())
         .containsExactly(Locale.US, Locale.forLanguageTag("es-US"));
@@ -567,17 +783,17 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_emptyHelpText_returnsLocalesForQuestionText() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(
-                Locale.US,
-                "question?",
-                Locale.forLanguageTag("es-US"),
-                "pregunta",
-                Locale.FRANCE,
-                "question"),
-            LocalizedStrings.empty());
+            configBuilder
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "question?",
+                        Locale.forLanguageTag("es-US"),
+                        "pregunta",
+                        Locale.FRANCE,
+                        "question"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
 
     assertThat(definition.getSupportedLocales())
         .containsExactly(Locale.US, Locale.forLanguageTag("es-US"), Locale.FRANCE);

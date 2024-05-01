@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
 
 public class PathTest {
 
@@ -101,6 +102,49 @@ public class PathTest {
   }
 
   @Test
+  public void asApplicationPath_firstSegmentIsApplicant() {
+    Path path = Path.create("applicant.two.three");
+    assertThat(path.asApplicationPath()).isEqualTo(Path.create("application.two.three"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_noArrayElements() {
+    Path path = Path.create("one.two.three");
+    assertThat(path.asNestedEntitiesPath()).isEqualTo(Path.create("one.two.three"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_firstSegmentArrayElement() {
+    Path path = Path.create("one[2].three.four");
+    assertThat(path.asNestedEntitiesPath()).isEqualTo(Path.create("one.entities[2].three.four"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_lastSegmentArrayElement() {
+    Path path = Path.create("one.two.three[4]");
+    assertThat(path.asNestedEntitiesPath()).isEqualTo(Path.create("one.two.three.entities[4]"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_middleSegmentArrayElement() {
+    Path path = Path.create("one.two[3].four");
+    assertThat(path.asNestedEntitiesPath()).isEqualTo(Path.create("one.two.entities[3].four"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_multipleSegmentArrayElement() {
+    Path path = Path.create("one.two[3].four[5].six");
+    assertThat(path.asNestedEntitiesPath())
+        .isEqualTo(Path.create("one.two.entities[3].four.entities[5].six"));
+  }
+
+  @Test
+  public void asNestedEntitiesPath_isIdempotent() {
+    Path path = Path.create("one.two.entities[3]");
+    assertThat(path.asNestedEntitiesPath()).isEqualTo(Path.create("one.two.entities[3]"));
+  }
+
+  @Test
   public void isArrayElement() {
     assertThat(Path.create("one.two[3]").isArrayElement()).isTrue();
   }
@@ -136,6 +180,18 @@ public class PathTest {
   public void withoutArrayReference_forNonIndexedArrayPath() {
     Path path = Path.create("one.two[]");
     assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
+  public void safeWithoutArrayReference() {
+    Path path = Path.create("one.two[3]");
+    assertThat(path.safeWithoutArrayReference()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
+  public void safeWithoutArrayReference_withNoArrayReference() {
+    Path path = Path.create("one.two");
+    assertThat(path.safeWithoutArrayReference()).isEqualTo(Path.create("one.two"));
   }
 
   @Test
@@ -184,6 +240,18 @@ public class PathTest {
     Path path = Path.create("start").join(Scalar.FIRST_NAME);
 
     assertThat(path).isEqualTo(Path.create("start.first_name"));
+  }
+
+  @Test
+  public void join_withApiPathSegmentEnum() {
+    Path path = Path.create("start").join(ApiPathSegment.QUESTION_TYPE);
+    assertThat(path).isEqualTo(Path.create("start.question_type"));
+  }
+
+  @Test
+  public void join_withPath() {
+    Path path = Path.create("start").join(Path.create("middle.end"));
+    assertThat(path).isEqualTo(Path.create("start.middle.end"));
   }
 
   @Test

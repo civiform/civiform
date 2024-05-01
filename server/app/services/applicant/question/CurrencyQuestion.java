@@ -9,7 +9,6 @@ import services.Path;
 import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a currency question in the context of a specific applicant.
@@ -24,11 +23,6 @@ public final class CurrencyQuestion extends Question {
   CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     this.currencyCache = Optional.empty();
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CURRENCY);
   }
 
   @Override
@@ -74,6 +68,6 @@ public final class CurrencyQuestion extends Question {
    */
   @Override
   public String getAnswerString() {
-    return getCurrencyValue().map(Currency::getDollarsString).orElse("-");
+    return getCurrencyValue().map(Currency::getDollarsString).orElse(getDefaultAnswerString());
   }
 }

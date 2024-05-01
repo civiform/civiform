@@ -2,13 +2,11 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlag;
-import models.Account;
-import models.Applicant;
+import models.AccountModel;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -45,10 +43,10 @@ public class CiviFormProfileTest extends ResetPostgres {
   @Test
   public void checkAuthorization_passesForOneOfSeveralIdsInAccount() {
     // We need to save these first so that the IDs are populated.
-    Applicant one = resourceCreator.insertApplicant();
-    Applicant two = resourceCreator.insertApplicant();
-    Applicant three = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    ApplicantModel one = resourceCreator.insertApplicant();
+    ApplicantModel two = resourceCreator.insertApplicant();
+    ApplicantModel three = resourceCreator.insertApplicant();
+    AccountModel account = resourceCreator.insertAccount();
 
     // Set the accounts on applicants and the applicants on the account. Saving required!
     one.setAccount(account);
@@ -80,7 +78,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -92,7 +93,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     profile.getAccount().join().addAdministeredProgram(programOne);
 
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program2", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program2", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -111,7 +115,10 @@ public class CiviFormProfileTest extends ResetPostgres {
         .join();
 
     profile.getAccount().join().addAdministeredProgram(programOne);
-    assertThat(profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+    assertThat(
+            profile
+                .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                .join())
         .isEqualTo(null);
   }
 
@@ -120,7 +127,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -128,9 +138,8 @@ public class CiviFormProfileTest extends ResetPostgres {
   public void checkProgramAuthorization_CiviformAdminAllowed_success() {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
-    ImmutableMap<String, String> civiformAdminAllowedMap =
-        ImmutableMap.of(FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS.toString(), "true");
-    Request civiformAdminAllowedRequest = fakeRequest().session(civiformAdminAllowedMap).build();
+    Request civiformAdminAllowedRequest =
+        requestBuilderWithSettings("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true").build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())
         .isEqualTo(null);

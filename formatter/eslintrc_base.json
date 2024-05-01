@@ -4,6 +4,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:no-unsanitized/DOM",
     // TODO(#3361): enable
     // "plugin:@typescript-eslint/strict",
     "google",
@@ -23,10 +24,16 @@
     // enums.
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/unbound-method": ["error", {"ignoreStatic": true}],
+    "@typescript-eslint/unbound-method": [
+      "error",
+      {
+        "ignoreStatic": true
+      }
+    ],
     // See TypeScript best practices in
     // https://docs.civiform.us/contributor-guide/developer-guide/development-standards
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unsafe-enum-comparison": "off"
   },
   "parserOptions": {
     "project": ["../server/tsconfig.json", "../browser-test/src/tsconfig.json"]

@@ -6,11 +6,14 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.ProgramService;
 import services.reporting.ReportingService;
 import views.admin.reporting.AdminReportingIndexView;
@@ -21,7 +24,6 @@ public final class AdminReportingController extends CiviFormController {
 
   private final Provider<AdminReportingIndexView> adminReportingIndexView;
   private final Provider<AdminReportingShowView> adminReportingShowView;
-  private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final ReportingService reportingService;
 
@@ -31,10 +33,11 @@ public final class AdminReportingController extends CiviFormController {
       Provider<AdminReportingShowView> adminReportingShowView,
       ProfileUtils profileUtils,
       ProgramService programService,
+      VersionRepository versionRepository,
       ReportingService reportingService) {
+    super(profileUtils, versionRepository);
     this.adminReportingIndexView = Preconditions.checkNotNull(adminReportingIndexView);
     this.adminReportingShowView = Preconditions.checkNotNull(adminReportingShowView);
-    this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.programService = Preconditions.checkNotNull(programService);
     this.reportingService = Preconditions.checkNotNull(reportingService);
   }
@@ -44,7 +47,7 @@ public final class AdminReportingController extends CiviFormController {
     return ok(
         adminReportingIndexView
             .get()
-            .render(getCiviFormProfile(request), reportingService.getMonthlyStats()));
+            .render(request, getCiviFormProfile(request), reportingService.getMonthlyStats()));
   }
 
   private CiviFormProfile getCiviFormProfile(Http.Request request) {
@@ -54,29 +57,28 @@ public final class AdminReportingController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result show(Http.Request request, String programSlug) {
-    String programName =
-        programService
-            .getActiveProgramDefinitionAsync(programSlug)
-            .toCompletableFuture()
-            .join()
-            .adminName();
-
-    return ok(
-        adminReportingShowView
-            .get()
-            .render(
-                getCiviFormProfile(request),
-                programSlug,
-                programName,
-                reportingService.getMonthlyStats()));
+  public CompletionStage<Result> show(Http.Request request, String programSlug) {
+    return programService
+        .getActiveFullProgramDefinitionAsync(programSlug)
+        .thenApply(
+            programDefinition ->
+                ok(
+                    adminReportingShowView
+                        .get()
+                        .render(
+                            request,
+                            getCiviFormProfile(request),
+                            programSlug,
+                            programDefinition.adminName(),
+                            programDefinition.localizedName().getDefault(),
+                            reportingService.getMonthlyStats())));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadProgramCsv(String programSlug) {
     String programName =
         programService
-            .getActiveProgramDefinitionAsync(programSlug)
+            .getActiveFullProgramDefinitionAsync(programSlug)
             .toCompletableFuture()
             .join()
             .adminName();
@@ -124,6 +126,6 @@ public final class AdminReportingController extends CiviFormController {
             "Content-Disposition",
             String.format(
                 "attachment; filename=\"%s\"",
-                String.format("CiviForm_%s.csv", dataSetName.toLowerCase())));
+                String.format("CiviForm_%s.csv", dataSetName.toLowerCase(Locale.ROOT))));
   }
 }
