@@ -306,6 +306,17 @@ test.describe(
       )
     })
 
+    test('shows log in button for guest users', async () => {
+      const {page} = ctx
+
+      // We cannot check that the login/create account buttons redirect the user to a particular
+      // URL because it varies between environments, so just check for their existence.
+      expect(await page.textContent('#login-button')).toContain('Log in')
+      expect(await page.textContent('#create-account')).toContain(
+        'Create account',
+      )
+    })
+
     test('categorizes programs for draft and applied applications as guest user', async () => {
       const {applicantQuestions, page} = ctx
 

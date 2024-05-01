@@ -1,12 +1,15 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.applicant.ApplicantRoutes;
+import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -22,6 +25,7 @@ import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
   private final SettingsManifest settingsManifest;
+  private final String authProviderName;
 
   @Inject
   NorthStarProgramIndexView(
@@ -30,10 +34,12 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.authProviderName = checkNotNull(authProviderName);
   }
 
   public String render(
@@ -86,6 +92,11 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable("sections", sectionParamsBuilder.build());
+    context.setVariable("authProviderName", authProviderName);
+    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
+    context.setVariable("createAccountLink", routes.LoginController.register().url());
+    context.setVariable("isGuest", personalInfo.getType() == GUEST);
+
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
 }
