@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Ch�
 toast.errorMessageOutline=Lỗi: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Đóng
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Xem lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
 
@@ -58,9 +60,14 @@ button.deleteFile=Xoá
 button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
-button.review=Xem lại
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
@@ -107,6 +114,8 @@ title.allProgramsSection=Tất cả các chương trình ({0})
 title.status=Trạng thái
 title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=Đã gửi
 toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
 toast.programCompleted=Đăng ký thành công.
@@ -171,11 +180,11 @@ content.warning=Không có đơn đăng ký nào được gửi cho khách hàng
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(không có địa chỉ email)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=Chưa đăng nhập
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=Đã đăng nhập nhưng chưa gửi đơn đăng ký nào
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=Đơn đăng ký gần đây nhất được gửi vào ngày {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của khách hàng này không?
 
@@ -199,11 +208,11 @@ label.dobExample=Ví dụ: Ngày 28 tháng 1 năm 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Lỗi: Cần phải nhập ngày sinh
+label.errorDOB=Date of birth required
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Lỗi: Cần phải nhập tên
+label.errorFirstName=First name required
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Lỗi: Cần phải nhập họ
+label.errorLastName=Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -232,15 +241,19 @@ title.allClients=Tất cả khách hàng
 # This is the heading above a new client creation form.
 title.createClient=Tạo hồ sơ khách hàng mới
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=Chỉnh sửa thông tin khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Đang hiện {0} khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Đang hiện 1 khách hàng
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=Hiện tất cả khách hàng
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Thành viên của tổ chức
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -248,8 +261,12 @@ title.orgMembers=Thành viên của tổ chức
 
 button.submit=Gửi
 button.continue=Tiếp tục
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Không đủ tiêu chuẩn
 link.edit=Chỉnh sửa
 link.answer=Câu trả lời
@@ -257,8 +274,10 @@ content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 ariaLabel.answer=Câu trả lời {0}
 
 ariaLabel.edit=Chỉnh sửa {0}
-title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -374,6 +393,38 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
