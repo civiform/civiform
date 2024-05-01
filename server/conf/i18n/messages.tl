@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka r
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Isara
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Pagsusuri
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 
@@ -58,9 +60,14 @@ button.deleteFile=Burahin
 button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
-button.review=Pagsusuri
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
@@ -107,6 +114,8 @@ title.allProgramsSection=Lahat ng programa ({0})
 title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 toast.programCompleted=Nakumpleto na ang aplikasyon.
@@ -171,11 +180,11 @@ content.warning=Walang application na naisumite para sa kliyenteng ito, kaya wal
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(walang email address)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=Hindi pa naka-log in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=Naka-log in, walang isinumiteng aplikasyon
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=Huling nagsumite ng aplikasyon noong {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
 
@@ -213,9 +222,9 @@ label.nameExample=Halimbawa: Gu o Darren o Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Mga Tala
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Numero ng Telepono
+label.phoneNum=Numero ng telepono
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
+label.searchByDob=Maghanap ayon sa petsa ng kapanganakan
 # The label above the name search field of the client search.
 label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
@@ -228,19 +237,23 @@ link.edit=I-edit
 link.selectNewClient=Pumili ng bagong kliyente
 
 # This is the header above the list of clients and the client search.
-title.allClients=Lahat ng Kliyente
+title.allClients=Lahat ng kliyente
 # This is the heading above a new client creation form.
 title.createClient=Gumawa ng bagong kliyente
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=I-edit ang impormasyon ng kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Nagpapakita ng 1 kliyente
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=Ipinapakita ang lahat ng kliyente
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Mga miyembro ng organisasyon
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -248,8 +261,12 @@ title.orgMembers=Mga miyembro ng organisasyon
 
 button.submit=Isumite
 button.continue=Magsimula dito
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=Hindi kwalipikado
 link.edit=I-edit
 link.answer=Sagot
@@ -257,8 +274,10 @@ content.previouslyAnsweredOn=Sinagutan noong {0}
 ariaLabel.answer=Sagot {0}
 
 ariaLabel.edit=I-edit {0}
-title.programSummary=Buod ng application para sa programa
 title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Buod ng application para sa programa
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -374,6 +393,38 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
