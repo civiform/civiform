@@ -208,11 +208,11 @@ label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Date of birth required
+label.errorDOB=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸວັນເດືອນປີເກີດ
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=First name required
+label.errorFirstName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸຊື່
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Last name required
+label.errorLastName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸນາມສະກຸນ
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
