@@ -168,7 +168,25 @@ test.describe('Date question for applicant flow', () => {
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+      })
+
+      test('Renders existing values', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2022',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+        // Return to page.
+        await applicantQuestions.clickReview()
+        await validateScreenshot(
+          page,
+          'date-filled-in-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
       })
     },
   )

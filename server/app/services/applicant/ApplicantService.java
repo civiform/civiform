@@ -1863,15 +1863,23 @@ public final class ApplicantService {
                 DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
                 String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+                boolean hasMemorableDateValue =
+                    formData.containsKey(dateQuestion.getYearPath().toString())
+                        || formData.containsKey(dateQuestion.getMonthPath().toString())
+                        || formData.containsKey(dateQuestion.getDayPath().toString());
 
-                // If the value is not present or empty, check the 3 individual input paths.
-                if (singleDateValue == null || singleDateValue.isEmpty()) {
-                  String yearValue = formData.get(dateQuestion.getYearPath().toString());
-                  String monthValue = formData.get(dateQuestion.getMonthPath().toString());
-                  String dayValue = formData.get(dateQuestion.getDayPath().toString());
-                  // Note: We intentionally don't check for null or empty strings in the individual
-                  // values, because in those cases we want to generate an invalid date so the
-                  // update can be rejected and we can show a proper error message.
+                // If the value in the single input is not present or empty, and there is at least
+                // one memorable date value, convert to a date.
+                if ((singleDateValue == null || singleDateValue.isEmpty()) && hasMemorableDateValue) {
+                  // Note: If a memorable date input value is not present, replace it with a
+                  // placeholder. This will fail to parse as a date without throwing a
+                  // NullPointerException when building the date string.
+                  String yearValue =
+                      formData.getOrDefault(dateQuestion.getYearPath().toString(), "xxxx");
+                  String monthValue =
+                      formData.getOrDefault(dateQuestion.getMonthPath().toString(), "xx");
+                  String dayValue =
+                      formData.getOrDefault(dateQuestion.getDayPath().toString(), "xx");
                   String dateString =
                       String.format(
                           "%s-%s-%s",

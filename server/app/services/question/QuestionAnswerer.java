@@ -128,13 +128,6 @@ public final class QuestionAnswerer {
     applicantData.putDate(contextualizedPath.join(Scalar.DATE), value);
   }
 
-  public static void answerDateQuestion(
-      ApplicantData applicantData, Path contextualizedPath, long year, long month, long day) {
-    applicantData.putLong(contextualizedPath.join(Scalar.YEAR), year);
-    applicantData.putLong(contextualizedPath.join(Scalar.MONTH), month);
-    applicantData.putLong(contextualizedPath.join(Scalar.DAY), day);
-  }
-
   public static void answerEmailQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putString(contextualizedPath.join(Scalar.EMAIL), value);
