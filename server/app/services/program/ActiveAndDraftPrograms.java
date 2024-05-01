@@ -87,23 +87,26 @@ public final class ActiveAndDraftPrograms {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
+
+    // active but not disabled programs
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         mapNameToProgramWithFilter(repository, service, active, Optional.of(DisplayMode.DISABLED));
-
+    // all active programs
     ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
         mapNameToProgram(repository, service, active);
-
+    // in draft but not disabled programs
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
-
+    // all programs in draft
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
-
+    // active and disabled programs
     ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
         mapNameToProgram(repository, service, active);
-
+    // in draft and disabled programs
     ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
         mapNameToProgram(repository, service, draft);
+
     switch (type) {
       case INUSE:
         this.activePrograms = ImmutableList.copyOf(activeNameToProgram.values());
