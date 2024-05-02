@@ -29,9 +29,12 @@ public final class ActiveAndDraftPrograms {
       versionedByName;
 
   enum ActiveAndDraftProgramsType {
-    DISABLED,
-    IN_USE
+    IN_USE,
+    DISABLED
   }
+
+  private static ImmutableList<ActiveAndDraftProgramsType> allProgramTypes =
+      ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED);
 
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
@@ -40,8 +43,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, Optional.of(service), ImmutableList.of(ActiveAndDraftProgramsType.DISABLED));
+    return new ActiveAndDraftPrograms(repository, Optional.of(service), allProgramTypes);
   }
 
   /**
@@ -49,27 +51,22 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), ImmutableList.of(ActiveAndDraftProgramsType.DISABLED, ActiveAndDraftProgramsType.IN_USE));
+    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
   }
 
-  /**
-   * Queries the existing in use active and draft versions and builds a snapshotted view of the
-   * program state. These programs won't include the question definition, since ProgramService is
-   * not provided.
-   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
+      VersionRepository repository) {
+    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
+  }
+
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository, Optional.empty(), ImmutableList.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
-  /**
-   * Queries the existing disabled active and draft versions and builds a snapshotted view of the
-   * program state. These programs won't include the question definition, since ProgramService is
-   * not provided.
-   */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
@@ -103,8 +100,7 @@ public final class ActiveAndDraftPrograms {
   private ActiveAndDraftPrograms(
       VersionRepository repository,
       Optional<ProgramService> service,
-      ImmutableList<ActiveAndDraftProgramsType> types
-      ) {
+      ImmutableList<ActiveAndDraftProgramsType> types) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
@@ -127,30 +123,33 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    if (types.size() == 2 && types.contains(ActiveAndDraftProgramsType.DISABLED) && types.contains(ActiveAndDraftProgramsType.IN_USE)){
-      this.activePrograms = activeNameToProgramAll.values().asList();
-      this.draftPrograms = draftNameToProgramAll.values().asList();
-      this.versionedByName =
-        createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-    } else if (types.size() == 1){
-      ActiveAndDraftProgramsType type = types.get(0);
-      if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
-        this.activePrograms = activeNameToProgram.values().asList();
-        this.draftPrograms = draftNameToProgram.values().asList();
-        // Disabled active programs.
-        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-        // Disabled draft programs.
-        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+    if (types.size() < 3) {
+      if (types.contains(ActiveAndDraftProgramsType.DISABLED)
+          && types.contains(ActiveAndDraftProgramsType.IN_USE)) {
+        this.activePrograms = activeNameToProgramAll.values().asList();
+        this.draftPrograms = draftNameToProgramAll.values().asList();
         this.versionedByName =
-          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-      } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
+            createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
+      } else if (types.size() == 1) {
+        ActiveAndDraftProgramsType type = types.get(0);
         this.activePrograms = activeNameToProgram.values().asList();
         this.draftPrograms = draftNameToProgram.values().asList();
-        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+        if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
+          // Disabled active programs.
+          ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+              filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+          // Disabled draft programs.
+          ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+              filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+          this.versionedByName =
+              createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+        } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
+          this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+        } else {
+          throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
+        }
       } else {
-        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
+        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
       }
     } else {
       throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
@@ -158,19 +157,19 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Returns an ImmutableMap containing all key-value pairs from `allNameToProgram` whose keys are
-   * not present in `nameToProgram`. In other words, this filters out any entries that are shared
+   * Returns an ImmutableMap containing all key-value pairs from `fullProgramMap` whose keys are not
+   * present in `excludeProgramMap`. In other words, this filters out any entries that are shared
    * between the two maps.
    *
-   * @param allNameToProgram The complete map of program definitions.
-   * @param nameToProgram The map containing entries to exclude.
+   * @param fullProgramMap The complete map of program definitions.
+   * @param excludeProgramMap The map containing entries to exclude.
    * @return A new ImmutableMap with the filtered entries.
    */
   private ImmutableMap<String, ProgramDefinition> filterMapNameToProgram(
-      ImmutableMap<String, ProgramDefinition> allNameToProgram,
-      ImmutableMap<String, ProgramDefinition> nameToProgram) {
-    return allNameToProgram.entrySet().stream()
-        .filter(entry -> !nameToProgram.containsKey(entry.getKey()))
+      ImmutableMap<String, ProgramDefinition> fullProgramMap,
+      ImmutableMap<String, ProgramDefinition> excludeProgramMap) {
+    return fullProgramMap.entrySet().stream()
+        .filter(entry -> !excludeProgramMap.containsKey(entry.getKey()))
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
