@@ -33,6 +33,9 @@ public final class ActiveAndDraftPrograms {
     DISABLED
   }
 
+  private final ImmutableList<ActiveAndDraftProgramsType> allProgramTypes =
+      ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED);
+
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
    * state. Since a ProgramService argument is included, we will get the full program definition,
@@ -40,10 +43,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository,
-        Optional.of(service),
-        ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED));
+    return new ActiveAndDraftPrograms(repository, Optional.of(service), allProgramTypes);
   }
 
   /**
@@ -53,10 +53,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository,
-        Optional.empty(),
-        ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED));
+    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -109,8 +106,9 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    if (types.size() == 2
-        && types.contains(ActiveAndDraftProgramsType.DISABLED)
+    if (types.size() >= 3) {
+      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
+    } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)
         && types.contains(ActiveAndDraftProgramsType.IN_USE)) {
       this.activePrograms = activeNameToProgramAll.values().asList();
       this.draftPrograms = draftNameToProgramAll.values().asList();
@@ -118,9 +116,9 @@ public final class ActiveAndDraftPrograms {
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
     } else if (types.size() == 1) {
       ActiveAndDraftProgramsType type = types.get(0);
+      this.activePrograms = activeNameToProgram.values().asList();
+      this.draftPrograms = draftNameToProgram.values().asList();
       if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
-        this.activePrograms = activeNameToProgram.values().asList();
-        this.draftPrograms = draftNameToProgram.values().asList();
         // Disabled active programs.
         ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
             filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
@@ -130,14 +128,10 @@ public final class ActiveAndDraftPrograms {
         this.versionedByName =
             createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
       } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
-        this.activePrograms = activeNameToProgram.values().asList();
-        this.draftPrograms = draftNameToProgram.values().asList();
         this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
       } else {
         throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
       }
-    } else {
-      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
     }
   }
 
