@@ -9,20 +9,7 @@
       <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
       <div role="main" class="grid-row flex-justify-center bg-base-lightest">
         <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      <div class="tablet:grid-col-8 desktop:grid-col-6 margin-4 bg-white padding-3">
-
-      <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
-        <div
-          class="tablet:grid-col-8 desktop:grid-col-6 flex-align-self-center margin-4"
-        >
+      <div class="tablet:grid-col-8 desktop:grid-col-6 margin-4 bg-white padding-3 cf-form-body">
           <form
             id="cf-block-form"
             th:action="${submitFormAction}"
@@ -47,42 +34,36 @@
 
             <div
               th:each="question: ${applicationParams.block().getQuestions()}"
+              class="margin-y-3"
             >
               <div
                 th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
               ></div>
             </div>
-
+            <div class="margin-bottom-3">
+            <button
+            type="submit"
+            th:formaction="${previousFormAction}"
+            id="cf-block-previous"
+            class="usa-button usa-button--outline"
+            th:text="#{button.back}"
+          ></button>
             <button
               type="submit"
               id="cf-block-submit"
-              class="usa-button"
+              class="usa-button margin-1"
               th:text="#{button.continue}"
             ></button>
+          </div>
             <button
               type="submit"
               th:formaction="${reviewFormAction}"
               id="review-application-button"
-              class="usa-button usa-button--outline"
-              th:text="#{button.review}"
+              class="usa-button usa-button--unstyled margin-right-1"
+              th:text="#{button.saveAndExit}"
             ></button>
           </form>
         </div>
-        <button
-          type="submit"
-          id="cf-block-submit"
-          class="usa-button margin-1"
-          th:text="#{button.continue}"
-        ></button>
-        <button
-          type="submit"
-          th:formaction="${reviewFormAction}"
-          id="review-application-button"
-          class="usa-button usa-button--outline margin-1"
-          th:text="#{button.review}"
-        ></button>
-      </form>
-      </div>
       </div>
     </div>
     <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>

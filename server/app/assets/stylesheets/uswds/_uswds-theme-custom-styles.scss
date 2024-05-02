@@ -103,3 +103,11 @@ See the radio-option below as an example.
 h1.usa-step-indicator__heading {
   line-height: inherit;
 }
+
+/**
+ * Within the form body, allow inputs to expand to fill the available width.
+ */
+.cf-form-body .usa-input,
+.cf-form-body .usa-select {
+  max-width: 100%;
+}
