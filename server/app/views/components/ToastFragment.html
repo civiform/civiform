@@ -22,9 +22,9 @@
   ></div>
 </div>
 
-<!--/*Render the toasts used in the Block Edit page */-->
+<!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
-  <!--/*Eligibility success toast */-->
+  <!--/* Eligibility success toast */-->
   <th:block
     th:if="${applicationParams.bannerMessage().isPresent()}"
     th:with="toastId=${#strings.randomAlphanumeric(8)}"
@@ -33,7 +33,7 @@
       th:replace="~{this :: success(${toastId}, ${applicationParams.bannerMessage().get()}, true, false, 0, null)}"
     ></div>
   </th:block>
-  <!--/*Locale not supported toast */-->
+  <!--/* Locale not supported toast */-->
   <th:block
     th:if="${!applicationParams.preferredLanguageSupported()}"
     th:with="toastId=${'locale-not-supported-'+ applicationParams.applicantId() + '-' + applicationParams.programId()}"

@@ -8,23 +8,23 @@
              dateQuestion=${question.createDateQuestion()},
              firstPathWithError=${dateQuestion.getFirstPathWithError()}"
   >
-    <!--/*Title and Help Text */-->
+    <!--/* Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!--/*Display errors */-->
+    <!--/* Display errors */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
-    <!--/*Display error messages for the shared date path. We actually use 3 different paths for
+    <!--/* Display error messages for the shared date path. We actually use 3 different paths for
     inputs, but all errors are reported on the date path. */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())})}"
     ></div>
 
     <div class="usa-memorable-date">
-      <!--/*Month Input */-->
+      <!--/* Month Input */-->
       <div
         class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
         th:with="monthId=${#strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
@@ -105,7 +105,7 @@
           ></option>
         </select>
       </div>
-      <!--/*Day of month input */-->
+      <!--/* Day of month input */-->
       <div
         class="usa-form-group usa-form-group--day cf-date-day"
         th:with="dayId=${#strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
@@ -126,7 +126,7 @@
           th:value="${dateQuestion.getDayValue().orElse('')}"
         />
       </div>
-      <!--/*Year input */-->
+      <!--/* Year input */-->
       <div
         class="usa-form-group usa-form-group--year cf-date-year"
         th:with="yearId=${#strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"

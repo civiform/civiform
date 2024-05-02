@@ -6,14 +6,14 @@
 </th:block>
 
 <th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
-  <!--/*Question title */-->
+  <!--/* Question title */-->
   <legend class="usa-legend">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
     ></div>
   </legend>
 
-  <!--/*Question help text */-->
+  <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
     th:text="${question.getQuestionHelpText()}"
@@ -23,14 +23,14 @@
 <th:block
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
 >
-  <!--/*Question title */-->
+  <!--/* Question title */-->
   <label class="usa-label" th:for="${inputId}">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
     ></div>
   </label>
 
-  <!--/*Question help text */-->
+  <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
     th:text="${question.getQuestionHelpText()}"
@@ -39,7 +39,7 @@
 
 <th:block th:fragment="titleContent(question)">
   <span th:text="${question.getQuestionText()}"></span>
-  <!--/*Required asterisk */-->
+  <!--/* Required asterisk */-->
   <th:block th:if="${!question.isOptional()}">
     <span class="usa-hint--required"> *</span>
   </th:block>
