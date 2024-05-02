@@ -8,17 +8,17 @@
     th:aria-describedby="${questionId} + '-description'"
     th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}"
   >
-    <!-- Title and Help Text -->
+    <!--/*Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!-- Display errors -->
+    <!--/*Display errors */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
 
-    <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
+    <!--/*Hidden input that we have checked to allow clearing data from a multi-select question */-->
     <input
       type="checkbox"
       class="hidden"
@@ -26,7 +26,7 @@
       th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
       checked
     />
-    <!-- Render each checkbox option -->
+    <!--/*Render each checkbox option */-->
     <div
       class="usa-checkbox"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
