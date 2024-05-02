@@ -23,8 +23,6 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())})}"
     ></div>
 
-    <!-- Hidden input to delete the old single date value. -->
-    <input hidden th:name="${dateQuestion.getDatePath()}" value="" />
     <div class="usa-memorable-date">
       <!-- Month Input -->
       <div
