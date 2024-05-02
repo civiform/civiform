@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../support/civiform_fixtures'
 import {
-  createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -11,11 +10,12 @@ import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
-test.describe('program creation', () => {
-  const ctx = createTestContext()
-
-  test('create program page', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
+  test('create program page', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -40,8 +40,11 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program with disabled visibility condition feature enabled', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('create program with disabled visibility condition feature enabled', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
@@ -72,8 +75,11 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program with disabled visibility condition feature disabled', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('create program with disabled visibility condition feature disabled', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await disableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
@@ -104,8 +110,11 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program then go back prevents URL edits', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('create program then go back prevents URL edits', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -136,8 +145,11 @@ test.describe('program creation', () => {
     expect(await page.locator('#program-name-input').count()).toEqual(0)
   })
 
-  test('create program then go back can still go forward', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('create program then go back can still go forward', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -155,9 +167,7 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('program details page screenshot', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('program details page screenshot', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
@@ -165,8 +175,10 @@ test.describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  test('program details page redirects to block page', async () => {
-    const {page, adminPrograms} = ctx
+  test('program details page redirects to block page', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program Name'
@@ -177,9 +189,10 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage()
   })
 
-  test('shows correct formatting during question creation', async () => {
-    const {page, adminQuestions} = ctx
-
+  test('shows correct formatting during question creation', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.createStaticQuestion({
@@ -200,9 +213,10 @@ test.describe('program creation', () => {
     )
   })
 
-  test('preserves blank lines in question preview', async () => {
-    const {page, adminQuestions} = ctx
-
+  test('preserves blank lines in question preview', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.createStaticQuestion({
@@ -224,9 +238,11 @@ test.describe('program creation', () => {
     )
   })
 
-  test('create program and search for questions', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create program and search for questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({
@@ -269,9 +285,11 @@ test.describe('program creation', () => {
     )
   })
 
-  test('create program with enumerator and repeated questions', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create program with enumerator and repeated questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({questionName: 'apc-address'})
@@ -333,9 +351,11 @@ test.describe('program creation', () => {
     )
   })
 
-  test('create program with address and address correction feature enabled', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create program with address and address correction feature enabled', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -375,8 +395,11 @@ test.describe('program creation', () => {
     ).not.toContain('Address correction')
   })
 
-  test('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     const helpText =
       'This screen already contains a question with address correction enabled'
 
@@ -462,9 +485,11 @@ test.describe('program creation', () => {
     ).not.toContain('Address correction')
   })
 
-  test('create program with address and address correction feature disabled', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create program with address and address correction feature disabled', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -485,9 +510,11 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput).toHaveValue('false')
   })
 
-  test('change questions order within block', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('change questions order within block', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const color = 'favorite-color'
@@ -530,9 +557,11 @@ test.describe('program creation', () => {
     await validateScreenshot(page, 'program-creation')
   })
 
-  test('create question from question bank', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create question from question bank', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
@@ -593,9 +622,11 @@ test.describe('program creation', () => {
     ])
   })
 
-  test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
@@ -751,9 +782,7 @@ test.describe('program creation', () => {
    * and then go to edit the program, it would error
    * because it would go to the block with ID == 1
    */
-  test('delete first block and edit', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('delete first block and edit', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program 5'
@@ -767,9 +796,7 @@ test.describe('program creation', () => {
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
-  test('delete last block and edit', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('delete last block and edit', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program 6'
@@ -779,9 +806,10 @@ test.describe('program creation', () => {
     await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
-  test('correctly renders delete screen confirmation modal', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('correctly renders delete screen confirmation modal', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
@@ -805,9 +833,10 @@ test.describe('program creation', () => {
     }
   }
 
-  test('eligibility is gating selected by default', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('eligibility is gating selected by default', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -820,9 +849,10 @@ test.describe('program creation', () => {
     ).not.toBeChecked()
   })
 
-  test('can select eligibility is not gating', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('can select eligibility is not gating', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -838,9 +868,10 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('create common intake form with intake form feature enabled', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('create common intake form with intake form feature enabled', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -865,9 +896,10 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('correctly renders common intake form change confirmation modal', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('correctly renders common intake form change confirmation modal', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
     await loginAsAdmin(page)
 
@@ -915,9 +947,10 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('regular program has eligibility conditions', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('regular program has eligibility conditions', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -935,9 +968,10 @@ test.describe('program creation', () => {
     expect(await page.innerText('main')).toContain('Eligibility')
   })
 
-  test('common intake form does not have eligibility conditions', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('common intake form does not have eligibility conditions', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -955,9 +989,11 @@ test.describe('program creation', () => {
     expect(await page.innerText('main')).not.toContain('Eligibility')
   })
 
-  test('create program with universal questions', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test('create program with universal questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({
