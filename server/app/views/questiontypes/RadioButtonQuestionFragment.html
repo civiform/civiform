@@ -1,6 +1,6 @@
 <div
   th:fragment="radio(question, questionRendererParams)"
-  th:with="questionId=${#strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
   <fieldset
@@ -22,7 +22,7 @@
     <div
       class="usa-radio"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-      th:with="inputId=${#strings.randomAlphanumeric(8)}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
     >
       <input
         class="usa-radio__input usa-radio__input--tile"

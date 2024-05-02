@@ -1,7 +1,7 @@
 <div
   th:fragment="name(question, questionRendererParams)"
   th:with="nameQuestion=${question.createNameQuestion()},
-             questionId=${#strings.randomAlphanumeric(8)},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
              maxInputLength=10000,
              firstPathWithError=${nameQuestion.getFirstPathWithError()}"
   th:id="${questionId}"
@@ -13,7 +13,7 @@
 
   <!-- TODO: errors -->
   <div
-    th:with="firstNameId=${#strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
+    th:with="firstNameId=${'id-' + #strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
     class="cf-name-first"
   >
     <div
@@ -37,7 +37,7 @@
     />
   </div>
   <div
-    th:with="middleNameId=${#strings.randomAlphanumeric(8)}"
+    th:with="middleNameId=${'id-' + #strings.randomAlphanumeric(8)}"
     class="cf-name-middle"
   >
     <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
@@ -52,7 +52,7 @@
     />
   </div>
   <div
-    th:with="lastNameId=${#strings.randomAlphanumeric(8)},lastNamePath=${nameQuestion.getLastNamePath()}"
+    th:with="lastNameId=${'id-' + #strings.randomAlphanumeric(8)},lastNamePath=${nameQuestion.getLastNamePath()}"
     class="cf-name-last"
   >
     <div

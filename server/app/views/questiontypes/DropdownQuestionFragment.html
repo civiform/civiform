@@ -1,8 +1,8 @@
 <div
   th:fragment="dropdown(question, questionRendererParams)"
   th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
-              questionId=${#strings.randomAlphanumeric(8)},
-              inputId=${#strings.randomAlphanumeric(8)}"
+              questionId=${'id-' + #strings.randomAlphanumeric(8)},
+              inputId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
   <!-- Title and Help Text -->

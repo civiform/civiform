@@ -27,7 +27,7 @@
   <!-- Eligibility success toast -->
   <th:block
     th:if="${applicationParams.bannerMessage().isPresent()}"
-    th:with="toastId=${#strings.randomAlphanumeric(8)}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
   >
     <div
       th:replace="~{this :: success(${toastId}, ${applicationParams.bannerMessage().get()}, true, false, 0, null)}"

@@ -2,7 +2,7 @@
 <div
   th:fragment="enumerator(question)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
-             questionId=${#strings.randomAlphanumeric(8)}"
+             questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
   class="cf-question-enumerator"
 >
@@ -29,8 +29,8 @@
       <div id="enumerator-fields">
         <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
           <div
-            th:replace="~{this :: enumeratorField(fieldId=${#strings.randomAlphanumeric(8)},
-                                                  inputId=${#strings.randomAlphanumeric(8)},
+            th:replace="~{this :: enumeratorField(fieldId=${'id-' + #strings.randomAlphanumeric(8)},
+                                                  inputId=${'id-' + #strings.randomAlphanumeric(8)},
                                                   path=${question.getContextualizedPath()},
                                                   existingEntity=${option},
                                                   visibleIndex=${iterator.count},

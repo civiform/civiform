@@ -4,7 +4,7 @@
 >
   <fieldset
     class="usa-fieldset"
-    th:with="questionId=${#strings.randomAlphanumeric(8)},
+    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
              dateQuestion=${question.createDateQuestion()},
              firstPathWithError=${dateQuestion.getFirstPathWithError()}"
   >
@@ -27,7 +27,7 @@
       <!-- Month Input -->
       <div
         class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
-        th:with="monthId=${#strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
+        th:with="monthId=${'id-' + #strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
       >
         <label
           class="usa-label"
@@ -108,7 +108,7 @@
       <!-- Day of month input -->
       <div
         class="usa-form-group usa-form-group--day cf-date-day"
-        th:with="dayId=${#strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
+        th:with="dayId=${'id-' + #strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
       >
         <label
           class="usa-label"
@@ -129,7 +129,7 @@
       <!-- Year input -->
       <div
         class="usa-form-group usa-form-group--year cf-date-year"
-        th:with="yearId=${#strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"
+        th:with="yearId=${'id-' + #strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"
       >
         <label
           class="usa-label"
