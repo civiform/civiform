@@ -5,12 +5,12 @@
              inputId=${'cf-phone-number-' +#strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
-  <!-- Title and Help Text -->
+  <!--/* Title and Help Text */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
 
-  <!-- Display errors -->
+  <!--/* Display errors */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
   ></div>

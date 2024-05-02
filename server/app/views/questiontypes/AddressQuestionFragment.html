@@ -8,18 +8,18 @@
     th:with="addressQuestion=${question.createAddressQuestion()},
              firstPathWithError=${addressQuestion.getFirstPathWithError()}"
   >
-    <!-- Title and Help Text -->
+    <!--/* Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!-- Display errors for the entire question -->
+    <!--/* Display errors for the entire question */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
 
-    <!-- TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. -->
-    <!-- Street address -->
+    <!--/* TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. */-->
+    <!--/* Street address */-->
     <th:block
       th:with="inputId=${#strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
     >
@@ -43,7 +43,7 @@
       ></div>
     </th:block>
 
-    <!-- Street address line 2 -->
+    <!--/* Street address line 2 */-->
     <th:block
       th:with="inputId=${#strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
     >
@@ -66,7 +66,7 @@
       ></div>
     </th:block>
 
-    <!-- City -->
+    <!--/* City */-->
     <th:block
       th:with="inputId=${#strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
     >
@@ -90,7 +90,7 @@
       ></div>
     </th:block>
 
-    <!-- State -->
+    <!--/* State */-->
     <th:block
       th:with="inputId=${#strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
     >
@@ -125,7 +125,7 @@
       ></div>
     </th:block>
 
-    <!-- ZIP code -->
+    <!--/* ZIP code */-->
     <th:block
       th:with="inputId=${#strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
     >

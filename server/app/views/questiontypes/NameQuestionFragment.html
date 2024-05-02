@@ -6,12 +6,12 @@
              firstPathWithError=${nameQuestion.getFirstPathWithError()}"
   th:id="${questionId}"
 >
-  <!-- Title and Help Text -->
+  <!--/* Title and Help Text */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
   ></div>
 
-  <!-- TODO: errors -->
+  <!--/* TODO: errors */-->
   <div
     th:with="firstNameId=${#strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
     class="cf-name-first"
