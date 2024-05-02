@@ -8,44 +8,56 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div role="main">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
-
+      <div class="grid-row">
         <div
-          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-        ></div>
+          class="tablet:grid-col-8 desktop:grid-col-6 flex-align-self-center margin-4"
+        >
+          <form
+            id="cf-block-form"
+            th:action="${submitFormAction}"
+            method="POST"
+          >
+            <input hidden th:value="${csrfToken}" name="csrfToken" />
+            <button
+              type="submit"
+              th:formaction="${previousFormAction}"
+              id="cf-block-previous"
+              class="usa-button usa-button--outline"
+              th:text="#{button.previousScreen}"
+            ></button>
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
-        ></div>
+            <div
+              th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+            ></div>
 
-        <div th:each="question: ${applicationParams.block().getQuestions()}">
-          <div
-            th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
-          ></div>
+            <div
+              th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+            ></div>
+
+            <div
+              th:each="question: ${applicationParams.block().getQuestions()}"
+            >
+              <div
+                th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
+              ></div>
+            </div>
+
+            <button
+              type="submit"
+              id="cf-block-submit"
+              class="usa-button"
+              th:text="#{button.continue}"
+            ></button>
+            <button
+              type="submit"
+              th:formaction="${reviewFormAction}"
+              id="review-application-button"
+              class="usa-button usa-button--outline"
+              th:text="#{button.review}"
+            ></button>
+          </form>
         </div>
-
-        <button
-          type="submit"
-          id="cf-block-submit"
-          class="usa-button"
-          th:text="#{button.continue}"
-        ></button>
-        <button
-          type="submit"
-          th:formaction="${reviewFormAction}"
-          id="review-application-button"
-          class="usa-button usa-button--outline"
-          th:text="#{button.review}"
-        ></button>
-      </form>
+      </div>
     </div>
     <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
     <footer
