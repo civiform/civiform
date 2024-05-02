@@ -37,9 +37,7 @@ public class QuestionDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setEntityType(LocalizedStrings.empty())
-            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"));
     configBuilder =
         QuestionDefinitionConfig.builder()
             .setName("name")
@@ -166,13 +164,24 @@ public class QuestionDefinitionTest {
 
   @Test
   public void newQuestionHasCorrectFields() throws Exception {
-    QuestionDefinition question = builder.setId(123L).build();
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setId(123L)
+            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build())
+            .setUniversal(false)
+            .build();
+    QuestionDefinition question = new TextQuestionDefinition(config);
 
-    assertThat(question.getId()).isEqualTo(123L);
+    assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
     assertThat(question.getName()).isEqualTo("name");
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("help text");
+    assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getValidationPredicates())
         .isEqualTo(TextValidationPredicates.builder().setMaxLength(128).build());
     assertThat(question.isUniversal()).isFalse();
@@ -289,12 +298,10 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
+  public void validate_enumeratorQuestion_withEmptyEntityString_returnsErrors() throws Exception {
     QuestionDefinition question =
-        builder
-            .setEntityType(LocalizedStrings.withDefaultValue(""))
-            .setQuestionType(QuestionType.ENUMERATOR)
-            .build();
+        new EnumeratorQuestionDefinition(
+            configBuilder.build(), LocalizedStrings.withDefaultValue(""));
 
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));

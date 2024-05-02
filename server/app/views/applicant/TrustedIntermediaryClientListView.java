@@ -166,7 +166,8 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                             searchParameters.monthQuery().orElse(""),
                             searchParameters.yearQuery().orElse(""),
                             messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
-                            !isValidSearch)
+                            !isValidSearch,
+                            Optional.of(messages))
                         .withClass("ml-6"),
                     makeCsrfTokenInputTag(request),
                     div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
@@ -237,11 +238,12 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                     searchParameters.dayQuery(),
                     searchParameters.monthQuery(),
                     searchParameters.yearQuery(),
-                    Optional.of(pageNumber))));
+                    Optional.of(pageNumber)),
+            Optional.of(messages)));
   }
 
   private LiTag renderClientCard(AccountModel account, Messages messages) {
-    return li().withClass("usa-card tablet-lg:grid-col-6 widescreen:grid-col-4")
+    return li().withClass("usa-card grid-col-12")
         .with(
             div()
                 .withClass("usa-card__container")
@@ -263,7 +265,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                         .withClasses("usa-card__body", "flex")
                         .with(
                             renderCardContactInfo(account, messages).withClasses("w-2/5"),
-                            renderCardApplications(account).withClasses("ml-10 w-2/5"),
+                            renderCardApplications(account, messages).withClasses("ml-10 w-2/5"),
                             renderCardNotes(account.getTiNote(), messages)
                                 .withClasses("ml-10 w-3/5"))));
   }
@@ -311,7 +313,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
     }
   }
 
-  private DivTag renderCardApplications(AccountModel account) {
+  private DivTag renderCardApplications(AccountModel account, Messages messages) {
     Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
@@ -346,13 +348,17 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
             .collect(Collectors.joining(", "));
 
     return div(
-        label(
-                String.format(
-                    "%s application%s submitted",
-                    applicationCount, applicationCount == 1 ? "" : "s"))
+        label(createApplicationsSubmittedText(applicationCount, messages))
             .withFor("card_applications")
             .withClass("whitespace-nowrap"),
         p(programs).withClass("text-xs").withId("card_applications"));
+  }
+
+  private String createApplicationsSubmittedText(int applicationCount, Messages messages) {
+    if (applicationCount == 1) {
+      return messages.at(MessageKey.CONTENT_ONE_APP_SUBMITTED.getKeyName());
+    }
+    return messages.at(MessageKey.CONTENT_NUMBER_OF_APP_SUBMITTED.getKeyName(), applicationCount);
   }
 
   private DivTag renderCardNotes(String notes, Messages messages) {

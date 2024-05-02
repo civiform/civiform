@@ -164,12 +164,14 @@ public final class DurableJobRunner {
         String msg =
             String.format(
                 "Job was not found in the registry and there was an error deleting the job. Error:"
-                    + " %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d, duration_s=%f",
+                    + " %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d, duration_s=%f,"
+                    + " message: %s",
                 e.getClass().getSimpleName(),
                 persistedDurableJob.getJobName(),
                 persistedDurableJob.id,
                 persistedDurableJob.getRemainingAttempts(),
-                getJobDurationInSeconds(startTime));
+                getJobDurationInSeconds(startTime),
+                e.getMessage());
         LOGGER.error(msg);
         persistedDurableJob.appendErrorMessage(msg).save();
       }
@@ -177,12 +179,14 @@ public final class DurableJobRunner {
       String msg =
           String.format(
               "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
-                  + " duration_s=%f",
+                  + " duration_s=%f,"
+                  + " message: %s",
               e.getClass().getSimpleName(),
               persistedDurableJob.getJobName(),
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
-              getJobDurationInSeconds(startTime));
+              getJobDurationInSeconds(startTime),
+              e.getMessage());
       LOGGER.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {

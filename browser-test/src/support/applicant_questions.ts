@@ -89,7 +89,7 @@ export class ApplicantQuestions {
   async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
-      mimeType: 'text/plain',
+      mimeType: 'image/png',
       buffer: Buffer.from(text),
     })
   }
@@ -160,6 +160,16 @@ export class ApplicantQuestions {
     await this.page.fill(
       '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
       entityName,
+    )
+  }
+
+  async editEnumeratorAnswer(
+    existingEntityName: string,
+    newEntityName: string,
+  ) {
+    await this.page.fill(
+      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      newEntityName,
     )
   }
 

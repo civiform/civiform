@@ -8,6 +8,7 @@ import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.question.types.QuestionType;
+import views.style.BaseStyles;
 
 @RunWith(JUnitParamsRunner.class)
 public class IconsTest {
@@ -35,5 +36,13 @@ public class IconsTest {
 
   private EnumSet<QuestionType> defaultTypes() {
     return TYPES_WITH_DEFAULT_ICON;
+  }
+
+  @Test
+  public void setColor_overridesDefaultColor() {
+    SvgTag svgWithColor =
+        Icons.setColor(Icons.svg(Icons.MARKDOWN), BaseStyles.FORM_LABEL_TEXT_COLOR);
+    assertThat(svgWithColor.render()).contains(BaseStyles.FORM_LABEL_TEXT_COLOR);
+    assertThat(svgWithColor.render()).doesNotContain("currentColor");
   }
 }

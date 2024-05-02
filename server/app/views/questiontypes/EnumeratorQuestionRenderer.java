@@ -163,6 +163,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         localizedEntityType)
                     + indexString)
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT);
+    if (!isDisabled) {
+      entityNameInputField.setAttribute("data-entity-input");
+    }
     if (elementId.isPresent()) {
       entityNameInputField.setId(elementId.get());
     }

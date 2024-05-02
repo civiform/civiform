@@ -86,7 +86,7 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickNext()
 
       // Check that we are on the enumerator page
-      await expect(page.locator('.cf-question-enumerator')).toBeVisible(true)
+      await expect(page.locator('.cf-question-enumerator')).toBeVisible()
 
       // Validate that enumerators are accessible
       await validateAccessibility(page)
@@ -303,6 +303,59 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       await logout(page)
     })
 
+    test('Enumerator add button is enabled/disabled correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Set up application', async () => {
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('Add button is enabled with a non-blank entity', async () => {
+        await applicantQuestions.addEnumeratorAnswer('Bugs')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is disabled if an entity is blank', async () => {
+        await applicantQuestions.addEnumeratorAnswer('')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is re-enabled when the blank item is removed', async () => {
+        await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is still enabled after navigating away and back', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickPrevious()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).not.toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is disabled when an existing item is blanked', async () => {
+        await applicantQuestions.editEnumeratorAnswer('Bugs', '')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+    })
+
     test('Applicant can navigate to previous blocks', async ({
       page,
       applicantQuestions,
@@ -396,13 +449,13 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
     {tag: ['@northstar']},
     () => {
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await setupEnumeratorQuestion(
           page,
           adminQuestions,
           adminPrograms,
           /* shouldValidateScreenshot= */ false,
         )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {

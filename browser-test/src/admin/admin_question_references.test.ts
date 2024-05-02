@@ -111,9 +111,9 @@ test.describe(
 
         await adminQuestions.expectProgramReferencesModalContains({
           questionName,
-          expectedUsedProgramReferences: ['first-program'],
-          expectedAddedProgramReferences: ['third-program'],
-          expectedRemovedProgramReferences: ['second-program'],
+          expectedUsedProgramReferences: ['First program'],
+          expectedAddedProgramReferences: ['Third program'],
+          expectedRemovedProgramReferences: ['Second program'],
         })
 
         await adminQuestions.clickOnProgramReferencesModal(questionName)

@@ -16,8 +16,7 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
   @AutoValue
   public abstract static class StaticContentValidationPredicates extends ValidationPredicates {
 
-    public static StaticContentQuestionDefinition.StaticContentValidationPredicates parse(
-        String jsonString) {
+    public static StaticContentValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString,
@@ -27,15 +26,13 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    public static StaticContentQuestionDefinition.StaticContentValidationPredicates create() {
+    public static StaticContentValidationPredicates create() {
       return new AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates();
     }
   }
 
-  public StaticContentQuestionDefinition.StaticContentValidationPredicates
-      getStaticContentValidationPredicates() {
-    return (StaticContentQuestionDefinition.StaticContentValidationPredicates)
-        getValidationPredicates();
+  public StaticContentValidationPredicates getStaticContentValidationPredicates() {
+    return (StaticContentValidationPredicates) getValidationPredicates();
   }
 
   @Override

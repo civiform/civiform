@@ -19,6 +19,7 @@ import play.i18n.Messages;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
 import services.PhoneValidationUtils;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -60,7 +61,7 @@ public final class TrustedIntermediaryService {
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
     form = validatePhoneNumber(form, preferredLanguage);
-    form = validateDateOfBirth(form);
+    form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
       return new AddNewApplicantReturnObject(form);
     }
@@ -78,7 +79,8 @@ public final class TrustedIntermediaryService {
     return new AddNewApplicantReturnObject(form, clientApplicantId);
   }
 
-  private Form<TiClientInfoForm> validateDateOfBirth(Form<TiClientInfoForm> form) {
+  private Form<TiClientInfoForm> validateDateOfBirth(
+      Form<TiClientInfoForm> form, Messages messages) {
     String dob = form.value().get().getDob();
     if (Strings.isNullOrEmpty(dob)) {
       return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth required");
@@ -87,7 +89,9 @@ public final class TrustedIntermediaryService {
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
     } catch (DateTimeParseException e) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM/dd/yyyy format");
+      return form.withError(
+          FORM_FIELD_NAME_DOB,
+          messages.at(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT.getKeyName()));
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
       return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");
@@ -174,7 +178,7 @@ public final class TrustedIntermediaryService {
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
     form = validatePhoneNumber(form, preferredLanguage);
-    form = validateDateOfBirth(form);
+    form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
       return form;
     }
