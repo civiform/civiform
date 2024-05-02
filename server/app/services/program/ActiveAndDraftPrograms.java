@@ -88,41 +88,43 @@ public final class ActiveAndDraftPrograms {
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
 
-    // active but not disabled programs
+    // Active, non-disabled programs.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         mapNameToProgramWithFilter(repository, service, active, Optional.of(DisplayMode.DISABLED));
-    // all active programs
+
+    // All active programs (including disabled).
     ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
         mapNameToProgram(repository, service, active);
-    // in draft but not disabled programs
+
+    // Draft, non-disabled programs.
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
-    // all programs in draft
+
+    // All draft programs (including disabled).
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
-        mapNameToProgram(repository, service, draft);
-    // active and disabled programs
-    ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-        mapNameToProgram(repository, service, active);
-    // in draft and disabled programs
-    ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
         mapNameToProgram(repository, service, draft);
 
     switch (type) {
       case INUSE:
-        this.activePrograms = ImmutableList.copyOf(activeNameToProgram.values());
-        this.draftPrograms = ImmutableList.copyOf(draftNameToProgram.values());
+        this.activePrograms = activeNameToProgram.values().asList();
+        this.draftPrograms = draftNameToProgram.values().asList();
         this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
         break;
       case DISABLED:
-        this.activePrograms = ImmutableList.copyOf(activeNameToProgram.values());
-        this.draftPrograms = ImmutableList.copyOf(draftNameToProgram.values());
-        // Pass only the maps, not the sets, as that's what the method expects.
+        this.activePrograms = activeNameToProgram.values().asList();
+        this.draftPrograms = draftNameToProgram.values().asList();
+        // Disabled active programs.
+        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+        // Disabled draft programs.
+        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
         this.versionedByName =
             createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
         break;
       case ALL:
-        this.activePrograms = ImmutableList.copyOf(activeNameToProgramAll.values());
-        this.draftPrograms = ImmutableList.copyOf(draftNameToProgramAll.values());
+        this.activePrograms = activeNameToProgramAll.values().asList();
+        this.draftPrograms = draftNameToProgramAll.values().asList();
         this.versionedByName =
             createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
         break;
@@ -131,6 +133,36 @@ public final class ActiveAndDraftPrograms {
     }
   }
 
+  /**
+   * Returns an ImmutableMap containing all key-value pairs from `allNameToProgram` whose keys are
+   * not present in `nameToProgram`. In other words, this filters out any entries that are shared
+   * between the two maps.
+   *
+   * @param allNameToProgram The complete map of program definitions.
+   * @param nameToProgram The map containing entries to exclude.
+   * @return A new ImmutableMap with the filtered entries.
+   */
+  private ImmutableMap<String, ProgramDefinition> filterMapNameToProgram(
+      ImmutableMap<String, ProgramDefinition> allNameToProgram,
+      ImmutableMap<String, ProgramDefinition> nameToProgram) {
+    return allNameToProgram.entrySet().stream()
+        .filter(entry -> !nameToProgram.containsKey(entry.getKey()))
+        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  /**
+   * Creates an ImmutableMap that associates each program name with a Pair containing: - An Optional
+   * of the ProgramDefinition from the `activeNameToProgram` map, if present. - An Optional of the
+   * ProgramDefinition from the `draftNameToProgram` map, if present.
+   *
+   * <p>This allows lookup to see if a program exists in either the active or draft state, and to
+   * access its programDefinition if it does.
+   *
+   * @param activeNameToProgram A map of active program names to their ProgramDefinition.
+   * @param draftNameToProgram A map of draft program names to their ProgramDefinition.
+   * @return An ImmutableMap where keys are program names and values are Pairs of Optional
+   *     ProgramDefinitions.
+   */
   private ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       createVersionedByNameMap(
           ImmutableMap<String, ProgramDefinition> activeNameToProgram,
