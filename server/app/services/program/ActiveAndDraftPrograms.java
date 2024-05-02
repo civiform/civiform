@@ -142,19 +142,19 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Returns an ImmutableMap containing all key-value pairs from `allNameToProgram` whose keys are
-   * not present in `nameToProgram`. In other words, this filters out any entries that are shared
+   * Returns an ImmutableMap containing all key-value pairs from `fullProgramMap` whose keys are
+   * not present in `excludeProgramMap`. In other words, this filters out any entries that are shared
    * between the two maps.
    *
-   * @param allNameToProgram The complete map of program definitions.
-   * @param nameToProgram The map containing entries to exclude.
+   * @param fullProgramMap The complete map of program definitions.
+   * @param excludeProgramMap The map containing entries to exclude.
    * @return A new ImmutableMap with the filtered entries.
    */
   private ImmutableMap<String, ProgramDefinition> filterMapNameToProgram(
-      ImmutableMap<String, ProgramDefinition> allNameToProgram,
-      ImmutableMap<String, ProgramDefinition> nameToProgram) {
-    return allNameToProgram.entrySet().stream()
-        .filter(entry -> !nameToProgram.containsKey(entry.getKey()))
+      ImmutableMap<String, ProgramDefinition> fullProgramMap,
+      ImmutableMap<String, ProgramDefinition> excludeProgramMap) {
+    return fullProgramMap.entrySet().stream()
+        .filter(entry -> !excludeProgramMap.containsKey(entry.getKey()))
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
