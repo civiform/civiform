@@ -1863,10 +1863,14 @@ public final class ApplicantService {
                 DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
                 String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+                String yearValue = formData.get(dateQuestion.getYearPath().toString());
+                String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+                String dayValue = formData.get(dateQuestion.getDayPath().toString());
+                // Whether at least one of the three values is present and non-empty.
                 boolean hasMemorableDateValue =
-                    formData.containsKey(dateQuestion.getYearPath().toString())
-                        || formData.containsKey(dateQuestion.getMonthPath().toString())
-                        || formData.containsKey(dateQuestion.getDayPath().toString());
+                    !(yearValue == null || yearValue.isEmpty())
+                        || !(monthValue == null || monthValue.isEmpty())
+                        || !(dayValue == null || dayValue.isEmpty());
 
                 // If the value in the single input is not present or empty, and there is at least
                 // one memorable date value, convert to a date.
@@ -1875,18 +1879,12 @@ public final class ApplicantService {
                   // Note: If a memorable date input value is not present, replace it with a
                   // placeholder. This will fail to parse as a date without throwing a
                   // NullPointerException when building the date string.
-                  String yearValue =
-                      formData.getOrDefault(dateQuestion.getYearPath().toString(), "xxxx");
-                  String monthValue =
-                      formData.getOrDefault(dateQuestion.getMonthPath().toString(), "xx");
-                  String dayValue =
-                      formData.getOrDefault(dateQuestion.getDayPath().toString(), "xx");
                   String dateString =
                       String.format(
                           "%s-%s-%s",
                           yearValue,
-                          Strings.padStart(monthValue, 2, '0'),
-                          Strings.padStart(dayValue, 2, '0'));
+                          monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
+                          dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
                   newFormData.put(dateQuestion.getDatePath().toString(), dateString);
                   // Remove the 3 individual paths, so they won't be stored.
                   newFormData.remove(dateQuestion.getYearPath().toString());
