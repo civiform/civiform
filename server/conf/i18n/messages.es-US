@@ -208,11 +208,11 @@ label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Debes ingresar la fecha de nacimiento
+label.errorDOB=Date of birth required
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: Debes ingresar el nombre
+label.errorFirstName=First name required
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Debes ingresar el apellido
+label.errorLastName=Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -394,29 +394,29 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 
 validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - February
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - March
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - April
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - May
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - June
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - July
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - August
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - September
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - October
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - November
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - December
 # A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=Select
 # An error message that appears when the user tries to search by date without completing all the fields.
