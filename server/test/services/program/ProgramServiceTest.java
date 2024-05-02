@@ -121,7 +121,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+  public void getAllActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
@@ -141,9 +141,9 @@ public class ProgramServiceTest extends ResetPostgres {
         .buildDefinition();
 
     ImmutableList<ProgramDefinition> draftPrograms =
-        ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+        ps.getAllActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
-        ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+        ps.getAllActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
@@ -704,7 +704,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(updatedProgram.id());
 
     assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).hasSize(1);
-    assertThat(ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms()).hasSize(1);
+    assertThat(ps.getAllActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms()).hasSize(1);
     assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
     assertThat(found.lastModifiedTime().isPresent()).isTrue();
     assertThat(originalProgram.lastModifiedTime().isPresent()).isTrue();
