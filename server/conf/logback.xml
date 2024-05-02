@@ -1,26 +1,30 @@
-<!-- https://www.playframework.com/documentation/latest/SettingsLogger -->
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+
 <configuration>
+  <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" />
+  <import class="ch.qos.logback.classic.AsyncAppender" />
+  <import class="ch.qos.logback.core.FileAppender" />
+  <import class="ch.qos.logback.core.ConsoleAppender" />
 
-  <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
-
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
-    <encoder>
+    <encoder class="PatternLayoutEncoder">
       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
     </encoder>
   </appender>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{20}</pattern>
+  <appender name="STDOUT" class="ConsoleAppender">
+    <encoder class="PatternLayoutEncoder">
+      <pattern>%highlight(%-5level) %logger{15} - %message%n%xException{20}</pattern>
     </encoder>
   </appender>
 
-  <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
+  <appender name="ASYNCFILE" class="AsyncAppender">
     <appender-ref ref="FILE" />
   </appender>
 
-  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+  <appender name="ASYNCSTDOUT" class="AsyncAppender">
     <appender-ref ref="STDOUT" />
   </appender>
 
@@ -33,10 +37,9 @@
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
   <logger name="auth" level="INFO" />
-  <logger name="repository.ApplicationRepository" level="INFO" />
 
   <!-- Increase the level of this one to avoid leaking PII (such as email and name) into logs -->
-  <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN"/>
+  <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN" />
 
   <!-- Off these ones as they are annoying. -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />
@@ -46,5 +49,4 @@
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>
-
 </configuration>

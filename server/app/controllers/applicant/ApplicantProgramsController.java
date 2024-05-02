@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -40,7 +40,7 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
@@ -52,7 +52,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Inject
   public ApplicantProgramsController(
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
