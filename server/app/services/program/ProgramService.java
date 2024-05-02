@@ -34,7 +34,7 @@ import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ProgramRepository;
@@ -81,7 +81,7 @@ public final class ProgramService {
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
@@ -92,7 +92,7 @@ public final class ProgramService {
       QuestionService questionService,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);

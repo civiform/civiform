@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -79,7 +79,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView;
   private final FormFactory formFactory;
@@ -99,7 +99,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public ApplicantProgramBlocksController(
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantProgramBlockEditViewFactory editViewFactory,
       NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView,
       FormFactory formFactory,

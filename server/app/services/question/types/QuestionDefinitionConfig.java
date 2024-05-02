@@ -68,6 +68,8 @@ public abstract class QuestionDefinitionConfig {
     Builder setQuestionText(LocalizedStrings questionText);
   }
 
+  // This is a step builder:
+  // https://github.com/google/auto/blob/main/value/userguide/builders-howto.md#-create-a-step-builder
   @AutoValue.Builder
   public abstract static class Builder
       implements RequiredName, RequiredDescription, RequiredQuestionText {

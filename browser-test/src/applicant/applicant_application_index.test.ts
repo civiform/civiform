@@ -1,7 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -52,7 +51,6 @@ test.describe('applicant program index page', () => {
 
     await adminPrograms.publishAllDrafts()
     await logout(page)
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('shows log in button for guest users', async () => {
@@ -253,18 +251,115 @@ test.describe('applicant program index page', () => {
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
+})
 
-  test.describe('with northstar UI', {tag: ['@northstar']}, () => {
-    test('validate initial page load with guest user', async () => {
-      const {page} = ctx
+test.describe(
+  'applicant program index page with northstar UI',
+  {tag: ['@northstar']},
+  () => {
+    const ctx = createTestContext(/* clearDb= */ false)
+
+    const primaryProgramName = 'Application index primary program'
+    const otherProgramName = 'Application index other program'
+
+    const firstQuestionText = 'This is the first question'
+    const secondQuestionText = 'This is the second question'
+
+    test.beforeAll(async () => {
+      const {page, adminPrograms, adminQuestions} = ctx
+
+      await loginAsAdmin(page)
+
+      // Create a program with two questions on separate blocks so that an applicant can partially
+      // complete an application.
+      await adminPrograms.addProgram(primaryProgramName)
+      await adminQuestions.addTextQuestion({
+        questionName: 'first-q',
+        questionText: firstQuestionText,
+      })
+      await adminQuestions.addTextQuestion({
+        questionName: 'second-q',
+        questionText: secondQuestionText,
+      })
+      await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
+        'first-q',
+      ])
+      await adminPrograms.addProgramBlock(primaryProgramName, 'second block', [
+        'second-q',
+      ])
+
+      await adminPrograms.addProgram(otherProgramName)
+      await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
+        'first-q',
+      ])
+
+      await adminPrograms.publishAllDrafts()
+      await logout(page, false)
       await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('validate initial page load as guest user', async () => {
+      const {page} = ctx
       await validateScreenshot(
         page,
         'program-index-page-initial-load-northstar',
       )
     })
-  })
-})
+
+    test('shows log in button for guest users', async () => {
+      const {page} = ctx
+
+      // We cannot check that the login/create account buttons redirect the user to a particular
+      // URL because it varies between environments, so just check for their existence.
+      expect(await page.textContent('#login-button')).toContain('Log in')
+      expect(await page.textContent('#create-account')).toContain(
+        'Create account',
+      )
+    })
+
+    test('categorizes programs for draft and applied applications as guest user', async () => {
+      const {applicantQuestions, page} = ctx
+
+      await test.step('Programs start in not started', async () => {
+        await applicantQuestions.expectPrograms({
+          wantNotStartedPrograms: [primaryProgramName, otherProgramName],
+          wantInProgressPrograms: [],
+          wantSubmittedPrograms: [],
+        })
+      })
+
+      await test.step('First application is in "in progress" section once filled out', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('first answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.expectPrograms({
+          wantNotStartedPrograms: [otherProgramName],
+          wantInProgressPrograms: [primaryProgramName],
+          wantSubmittedPrograms: [],
+        })
+        await validateScreenshot(
+          page,
+          'program-index-page-inprogress-northstar',
+        )
+      })
+
+      await test.step('First application is in "Submitted" section once submitted', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('second answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.returnToProgramsFromSubmissionPage()
+        await applicantQuestions.expectPrograms({
+          wantNotStartedPrograms: [otherProgramName],
+          wantInProgressPrograms: [],
+          wantSubmittedPrograms: [primaryProgramName],
+        })
+        await validateScreenshot(page, 'program-index-page-submitted-northstar')
+      })
+    })
+  },
+)
 
 test.describe('applicant program index page with images', () => {
   const ctx = createTestContext()
