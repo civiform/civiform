@@ -1,6 +1,6 @@
 <div
   th:fragment="checkbox(question, questionRendererParams)"
-  th:with="questionId=${#strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
   <fieldset
