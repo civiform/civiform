@@ -40,18 +40,18 @@
                 th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
               ></div>
             </div>
-            <div class="margin-bottom-3">
+            <div class="margin-bottom-2">
             <button
             type="submit"
             th:formaction="${previousFormAction}"
             id="cf-block-previous"
-            class="usa-button usa-button--outline"
+            class="usa-button usa-button--outline margin-bottom-1"
             th:text="#{button.back}"
           ></button>
             <button
               type="submit"
               id="cf-block-submit"
-              class="usa-button margin-1"
+              class="usa-button margin-bottom-1"
               th:text="#{button.continue}"
             ></button>
           </div>
