@@ -18,6 +18,11 @@
         th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
+    <th:block th:case="'Date'">
+      <div
+        th:replace="~{questiontypes/DateQuestionFragment :: date(${question}, ${questionRendererParams})}"
+      ></div>
+    </th:block>
     <th:block th:case="'Dropdown'">
       <div
         th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question}, ${questionRendererParams})}"

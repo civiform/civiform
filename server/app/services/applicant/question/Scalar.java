@@ -51,6 +51,12 @@ public enum Scalar {
   // Scalars for Phone Question
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
   COUNTRY_CODE("country_code", ScalarType.STRING),
+
+  // Scalars for Date Question using memorable date (3 different inputs)
+  DAY("day", ScalarType.LONG),
+  MONTH("month", ScalarType.LONG),
+  YEAR("year", ScalarType.LONG),
+
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),
   PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
@@ -87,7 +93,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 
-  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
+  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE, YEAR, MONTH, DAY);
 
   private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
 

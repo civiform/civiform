@@ -678,6 +678,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 formData ->
                     applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
                 classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                formData ->
+                    applicantService.cleanDateQuestions(applicantId, programId, blockId, formData),
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
