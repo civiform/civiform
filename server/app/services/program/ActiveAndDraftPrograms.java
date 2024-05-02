@@ -33,7 +33,7 @@ public final class ActiveAndDraftPrograms {
     DISABLED
   }
 
-  private final ImmutableList<ActiveAndDraftProgramsType> allProgramTypes =
+  private static ImmutableList<ActiveAndDraftProgramsType> allProgramTypes =
       ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED);
 
   /**
@@ -106,32 +106,36 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    if (types.size() >= 3) {
-      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
-    } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)
-        && types.contains(ActiveAndDraftProgramsType.IN_USE)) {
-      this.activePrograms = activeNameToProgramAll.values().asList();
-      this.draftPrograms = draftNameToProgramAll.values().asList();
-      this.versionedByName =
-          createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-    } else if (types.size() == 1) {
-      ActiveAndDraftProgramsType type = types.get(0);
-      this.activePrograms = activeNameToProgram.values().asList();
-      this.draftPrograms = draftNameToProgram.values().asList();
-      if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
-        // Disabled active programs.
-        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-        // Disabled draft programs.
-        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+    if (types.size() < 3) {
+      if (types.contains(ActiveAndDraftProgramsType.DISABLED)
+          && types.contains(ActiveAndDraftProgramsType.IN_USE)) {
+        this.activePrograms = activeNameToProgramAll.values().asList();
+        this.draftPrograms = draftNameToProgramAll.values().asList();
         this.versionedByName =
-            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-      } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
-        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+            createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
+      } else if (types.size() == 1) {
+        ActiveAndDraftProgramsType type = types.get(0);
+        this.activePrograms = activeNameToProgram.values().asList();
+        this.draftPrograms = draftNameToProgram.values().asList();
+        if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
+          // Disabled active programs.
+          ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+              filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+          // Disabled draft programs.
+          ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+              filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+          this.versionedByName =
+              createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+        } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
+          this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+        } else {
+          throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
+        }
       } else {
-        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
+        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
       }
+    } else {
+      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
     }
   }
 
