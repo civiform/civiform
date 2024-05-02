@@ -78,7 +78,7 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
-            programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getInActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
             "In use",

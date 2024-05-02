@@ -50,21 +50,31 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(repository, Optional.empty(), ActiveAndDraftProgramsType.ALL);
   }
 
   /**
-   * Queries the existing active and draft and disabled versions and builds a snapshotted view of
-   * the program state. These programs won't include the question definition, since ProgramService
-   * is not provided.
+   * Queries the existing in use active and draft versions and builds a snapshotted view of the
+   * program state. These programs won't include the question definition, since ProgramService is
+   * not provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabled(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), ActiveAndDraftProgramsType.DISABLED
-    );
+        repository, Optional.empty(), ActiveAndDraftProgramsType.INUSE);
+  }
+
+  /**
+   * Queries the existing disabled active and draft versions and builds a snapshotted view of the
+   * program state. These programs won't include the question definition, since ProgramService is
+   * not provided.
+   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(
+      VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        repository, Optional.empty(), ActiveAndDraftProgramsType.DISABLED);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -147,12 +157,12 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Returns an ImmutableMap containing all key-value pairs from `allNameToProgram`
-   * whose keys are not present in `nameToProgram`. In other words, this filters out
-   * any entries that are shared between the two maps.
+   * Returns an ImmutableMap containing all key-value pairs from `allNameToProgram` whose keys are
+   * not present in `nameToProgram`. In other words, this filters out any entries that are shared
+   * between the two maps.
    *
    * @param allNameToProgram The complete map of program definitions.
-   * @param nameToProgram    The map containing entries to exclude.
+   * @param nameToProgram The map containing entries to exclude.
    * @return A new ImmutableMap with the filtered entries.
    */
   private ImmutableMap<String, ProgramDefinition> filterMapNameToProgram(
@@ -164,16 +174,17 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Creates an ImmutableMap that associates each program name with a Pair containing:
-   *  - An Optional of the ProgramDefinition from the `activeNameToProgram` map, if present.
-   *  - An Optional of the ProgramDefinition from the `draftNameToProgram` map, if present.
+   * Creates an ImmutableMap that associates each program name with a Pair containing: - An Optional
+   * of the ProgramDefinition from the `activeNameToProgram` map, if present. - An Optional of the
+   * ProgramDefinition from the `draftNameToProgram` map, if present.
    *
-   * This allows lookup to see if a program exists in either the active or draft state,
-   * and to access its programDefinition if it does.
+   * <p>This allows lookup to see if a program exists in either the active or draft state, and to
+   * access its programDefinition if it does.
    *
-   * @param activeNameToProgram  A map of active program names to their ProgramDefinition.
-   * @param draftNameToProgram   A map of draft program names to their ProgramDefinition.
-   * @return An ImmutableMap where keys are program names and values are Pairs of Optional ProgramDefinitions.
+   * @param activeNameToProgram A map of active program names to their ProgramDefinition.
+   * @param draftNameToProgram A map of draft program names to their ProgramDefinition.
+   * @return An ImmutableMap where keys are program names and values are Pairs of Optional
+   *     ProgramDefinitions.
    */
   private ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       createVersionedByNameMap(

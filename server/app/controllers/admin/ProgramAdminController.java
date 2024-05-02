@@ -44,7 +44,7 @@ public class ProgramAdminController extends CiviFormController {
     ImmutableList<String> administeredPrograms =
         profile.get().getAccount().join().getAdministeredProgramNames();
     ActiveAndDraftPrograms activeAndDraftPrograms =
-        this.programService.getActiveAndDraftProgramsWithoutQuestionLoad();
+        this.programService.getAllActiveAndDraftProgramsWithoutQuestionLoad();
 
     return ok(listView.render(request, activeAndDraftPrograms, administeredPrograms, profile));
   }
