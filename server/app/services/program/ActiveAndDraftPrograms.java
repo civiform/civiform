@@ -142,8 +142,8 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Returns an ImmutableMap containing all key-value pairs from `fullProgramMap` whose keys are
-   * not present in `excludeProgramMap`. In other words, this filters out any entries that are shared
+   * Returns an ImmutableMap containing all key-value pairs from `fullProgramMap` whose keys are not
+   * present in `excludeProgramMap`. In other words, this filters out any entries that are shared
    * between the two maps.
    *
    * @param fullProgramMap The complete map of program definitions.
