@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -317,8 +318,13 @@ test.describe(
       )
     })
 
-    test('categorizes programs for draft and applied applications as guest user', async () => {
+    test('categorizes programs for draft and applied applications', async () => {
       const {applicantQuestions, page} = ctx
+
+      // TODO (#7377): Remove once we have a header with login/logout.
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await loginAsTestUser(page)
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
 
       await test.step('Programs start in not started', async () => {
         await applicantQuestions.expectPrograms({
@@ -356,6 +362,18 @@ test.describe(
           wantSubmittedPrograms: [primaryProgramName],
         })
         await validateScreenshot(page, 'program-index-page-submitted-northstar')
+      })
+
+      await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
+        // TODO (#7377): Remove once we have a header with login/logout.
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+        await logout(page, false)
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.expectPrograms({
+          wantNotStartedPrograms: [otherProgramName, primaryProgramName],
+          wantInProgressPrograms: [],
+          wantSubmittedPrograms: [],
+        })
       })
     })
   },
