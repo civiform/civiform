@@ -1,7 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../support/civiform_fixtures'
 import {
-  createTestContext,
-  dropTables,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -13,114 +11,118 @@ import {
   waitForPageJsLoad,
 } from '../support'
 
-test.describe('csv export for multioption question', () => {
-  const ctx = createTestContext()
-
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
-    await seedQuestions(page)
-  })
-  test('multioption csv into its own column', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
-    const noApplyFilters = false
-
-    await loginAsAdmin(page)
-    const programName = 'Checkbox question program for export'
-    await adminQuestions.createCheckboxQuestion(
-      {
-        questionName: 'csv-color',
-        questionText: 'Sample question text',
-        helpText: 'Sample question help text',
-        options: [
-          {adminName: 'red_admin', text: 'red'},
-          {adminName: 'green_admin', text: 'green'},
-          {adminName: 'orange_admin', text: 'orange'},
-          {adminName: 'blue_admin', text: 'blue'},
-        ],
-        maxNum: 3,
-        minNum: 2,
-      },
-      /* clickSubmit= */ true,
-    )
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'csv-color'],
-      programName,
-    )
-    await logout(page)
-
-    await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.answerNameQuestion('Jane', 'Doe')
-    await applicantQuestions.answerCheckboxQuestion(['blue', 'red'])
-    await applicantQuestions.clickNext()
-
-    // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage()
-    await logout(page)
-
-    await loginAsAdmin(page)
-    await adminQuestions.gotoQuestionEditPage('csv-color')
-    // deleting red and orange
-    await adminQuestions.deleteMultiOptionAnswer(0)
-    await adminQuestions.deleteMultiOptionAnswer(1)
-    await waitForPageJsLoad(page)
-    // adding black and white
-    await page.click('#add-new-option')
-    await adminQuestions.fillMultiOptionAnswer(2, {
-      adminName: 'black_admin',
-      text: 'black',
+test.describe(
+  'csv export for multioption question',
+  {tag: ['@uses-fixtures']},
+  () => {
+    test.beforeEach(async ({page}) => {
+      await seedQuestions(page)
+      await page.goto('/')
     })
-    await page.click('#add-new-option')
-    await adminQuestions.fillMultiOptionAnswer(3, {
-      adminName: 'white_admin',
-      text: 'white',
+    test('multioption csv into its own column', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const noApplyFilters = false
+
+      await loginAsAdmin(page)
+      const programName = 'Checkbox question program for export'
+      await adminQuestions.createCheckboxQuestion(
+        {
+          questionName: 'csv-color',
+          questionText: 'Sample question text',
+          helpText: 'Sample question help text',
+          options: [
+            {adminName: 'red_admin', text: 'red'},
+            {adminName: 'green_admin', text: 'green'},
+            {adminName: 'orange_admin', text: 'orange'},
+            {adminName: 'blue_admin', text: 'blue'},
+          ],
+          maxNum: 3,
+          minNum: 2,
+        },
+        /* clickSubmit= */ true,
+      )
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['Name', 'csv-color'],
+        programName,
+      )
+      await logout(page)
+
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNameQuestion('Jane', 'Doe')
+      await applicantQuestions.answerCheckboxQuestion(['blue', 'red'])
+      await applicantQuestions.clickNext()
+
+      // Applicant submits answers from review page.
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+
+      await loginAsAdmin(page)
+      await adminQuestions.gotoQuestionEditPage('csv-color')
+      // deleting red and orange
+      await adminQuestions.deleteMultiOptionAnswer(0)
+      await adminQuestions.deleteMultiOptionAnswer(1)
+      await waitForPageJsLoad(page)
+      // adding black and white
+      await page.click('#add-new-option')
+      await adminQuestions.fillMultiOptionAnswer(2, {
+        adminName: 'black_admin',
+        text: 'black',
+      })
+      await page.click('#add-new-option')
+      await adminQuestions.fillMultiOptionAnswer(3, {
+        adminName: 'white_admin',
+        text: 'white',
+      })
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await waitForPageJsLoad(page)
+      await adminPrograms.publishProgram(programName)
+
+      await logout(page)
+
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await page.click('text="Continue"')
+      await waitForPageJsLoad(page)
+      await applicantQuestions.answerNameQuestion('John', 'Do')
+      await applicantQuestions.answerCheckboxQuestion(['black', 'green'])
+      await applicantQuestions.clickNext()
+      await page.click('text="Submit"')
+
+      await logout(page)
+      await loginAsProgramAdmin(page)
+
+      await adminPrograms.viewApplications(programName)
+      const csvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContent).toContain(
+        'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
+      )
+      // colors headers are - red,green,orange,blue,black,white
+      expect(csvContent).toContain(
+        ',John,,Do,NOT_AN_OPTION_AT_PROGRAM_VERSION,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_SELECTED,SELECTED,NOT_SELECTED',
+      )
+      expect(csvContent).toContain(
+        ',Jane,,Doe,SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_AN_OPTION_AT_PROGRAM_VERSION',
+      )
     })
-    await adminQuestions.clickSubmitButtonAndNavigate('Update')
-    await waitForPageJsLoad(page)
-    await adminPrograms.publishProgram(programName)
+  },
+)
 
-    await logout(page)
-
-    await applicantQuestions.clickApplyProgramButton(programName)
-    await page.click('text="Continue"')
-    await waitForPageJsLoad(page)
-    await applicantQuestions.answerNameQuestion('John', 'Do')
-    await applicantQuestions.answerCheckboxQuestion(['black', 'green'])
-    await applicantQuestions.clickNext()
-    await page.click('text="Submit"')
-
-    await logout(page)
-    await loginAsProgramAdmin(page)
-
-    await adminPrograms.viewApplications(programName)
-    const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
-    )
-    // colors headers are - red,green,orange,blue,black,white
-    expect(csvContent).toContain(
-      ',John,,Do,NOT_AN_OPTION_AT_PROGRAM_VERSION,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_SELECTED,SELECTED,NOT_SELECTED',
-    )
-    expect(csvContent).toContain(
-      ',Jane,,Doe,SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_AN_OPTION_AT_PROGRAM_VERSION',
-    )
-  })
-})
-
-test.describe('normal application flow', () => {
-  const ctx = createTestContext()
-
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
+test.describe('normal application flow', {tag: ['@uses-fixtures']}, () => {
+  test.beforeEach(async ({page}) => {
     await seedQuestions(page)
+    await page.goto('/')
   })
 
-  test('all major steps', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('all major steps', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     const noApplyFilters = false
     const applyFilters = true
 
@@ -369,14 +371,15 @@ test.describe('normal application flow', () => {
     }
   })
 
-  test('download finished application', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('download finished application', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
-    await adminQuestions.addNameQuestion({questionName: 'Name'})
     await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
 
     await logout(page)

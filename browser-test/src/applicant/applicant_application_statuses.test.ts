@@ -1,6 +1,5 @@
-import {test} from '@playwright/test'
+import {test} from '../support/civiform_fixtures'
 import {
-  createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -12,41 +11,39 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('with program statuses', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
+test.describe('with program statuses', {tag: ['@uses-fixtures']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
-  test.beforeAll(async () => {
-    const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
-    await loginAsAdmin(page)
+  test.beforeEach(
+    async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
-    await adminProgramStatuses.createStatus(approvedStatusName)
-    await adminPrograms.publishProgram(programName)
-    await adminPrograms.expectActiveProgram(programName)
-    await logout(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+      await adminProgramStatuses.createStatus(approvedStatusName)
+      await adminPrograms.publishProgram(programName)
+      await adminPrograms.expectActiveProgram(programName)
+      await logout(page)
 
-    // Submit an application as a test user so that we can navigate back to the applications page.
-    await loginAsTestUser(page)
-    await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromReviewPage()
-    await logout(page)
+      // Submit an application as a test user so that we can navigate back to the applications page.
+      await loginAsTestUser(page)
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
 
-    // Navigate to the submitted application as the program admin and set a status.
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    const modal =
-      await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
-    await adminPrograms.confirmStatusUpdateModal(modal)
-    await logout(page)
-  })
+      // Navigate to the submitted application as the program admin and set a status.
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programName)
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      const modal =
+        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
+      await adminPrograms.confirmStatusUpdateModal(modal)
+      await logout(page)
+    },
+  )
 
-  test('displays status and passes accessibility checks', async () => {
-    const {page} = ctx
+  test('displays status and passes accessibility checks', async ({page}) => {
     await loginAsTestUser(page)
     await validateAccessibility(page)
     await validateScreenshot(page, 'program-list-with-status')
@@ -56,8 +53,7 @@ test.describe('with program statuses', () => {
     'applicant program index page with northstar UI',
     {tag: ['@northstar']},
     () => {
-      test('displays status', async () => {
-        const {page} = ctx
+      test('displays status', async ({page}) => {
         await loginAsTestUser(page)
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await validateScreenshot(page, 'program-list-with-status-northstar')
