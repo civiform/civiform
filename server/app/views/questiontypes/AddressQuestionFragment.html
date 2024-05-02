@@ -19,8 +19,11 @@
     ></div>
 
     <!--/* Street address */-->
+
     <div
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
+      th:with="inputId=${'id-' #strings.randomAlphanumeric(8)},
+               streetPath=${addressQuestion.getStreetPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)}"
       class="cf-address-street-1"
     >
       <label
@@ -30,6 +33,7 @@
       ></label>
       <input
         class="usa-input"
+        th:classappend="${fieldErrors == null || fieldErrors.isEmpty() ? '' : 'usa-input--error'}"
         th:id="${inputId}"
         th:name="${streetPath}"
         th:value="${addressQuestion.getStreetValue().orElse('')}"
@@ -39,13 +43,15 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
     </div>
 
     <!--/* Street address line 2 */-->
     <div
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               line2Path=${addressQuestion.getLine2Path()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)}"
       class="cf-address-street-2"
     >
       <label
@@ -55,6 +61,7 @@
       ></label>
       <input
         class="usa-input"
+        th:classappend="${fieldErrors == null || fieldErrors.isEmpty() ? '' : 'usa-input--error'}"
         th:id="${inputId}"
         th:name="${line2Path}"
         th:value="${addressQuestion.getLine2Value().orElse('')}"
@@ -63,13 +70,15 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
     </div>
 
     <!--/* City */-->
     <div
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               cityPath=${addressQuestion.getCityPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)}"
       class="cf-address-city"
     >
       <label
@@ -79,6 +88,7 @@
       ></label>
       <input
         class="usa-input"
+        th:classappend="${fieldErrors == null || fieldErrors.isEmpty() ? '' : 'usa-input--error'}"
         th:id="${inputId}"
         th:name="${cityPath}"
         th:value="${addressQuestion.getCityValue().orElse('')}"
@@ -88,13 +98,15 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(cityPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
     </div>
 
     <!--/* State */-->
     <div
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               statePath=${addressQuestion.getStatePath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(statePath)}"
       class="cf-address-state"
     >
       <label
@@ -104,6 +116,7 @@
       ></label>
       <select
         class="usa-select"
+        th:classappend="${fieldErrors == null || fieldErrors.isEmpty() ? '' : 'usa-input--error'}"
         th:id="${inputId}"
         th:name="${statePath}"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
@@ -111,11 +124,7 @@
         autocomplete="address-level1"
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(statePath)}"
       >
-        <option
-          hidden
-          th:selected="${addressQuestion.getStateValue().isEmpty()}"
-          th:label="#{label.selectState}"
-        ></option>
+        <option value th:text="#{label.selectState}"></option>
         <option
           th:each="option: ${stateAbbreviations}"
           th:value="${option}"
@@ -124,13 +133,15 @@
         ></option>
       </select>
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(statePath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
     </div>
 
     <!--/* ZIP code */-->
     <div
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               zipPath=${addressQuestion.getZipPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)}"
       class="cf-address-zip"
     >
       <label
@@ -140,6 +151,7 @@
       ></label>
       <input
         class="usa-input usa-input--medium"
+        th:classappend="${fieldErrors == null || fieldErrors.isEmpty() ? '' : 'usa-input--error'}"
         th:id="${inputId}"
         th:name="${zipPath}"
         th:value="${addressQuestion.getZipValue().orElse('')}"
@@ -149,7 +161,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(zipPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
     </div>
   </fieldset>
