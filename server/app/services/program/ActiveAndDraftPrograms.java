@@ -29,9 +29,8 @@ public final class ActiveAndDraftPrograms {
       versionedByName;
 
   enum ActiveAndDraftProgramsType {
-    INUSE,
-    DISABLED,
-    ALL
+    IN_USE,
+    DISABLED
   }
 
   /**
@@ -42,7 +41,9 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.of(service), ActiveAndDraftProgramsType.ALL);
+        repository,
+        Optional.of(service),
+        ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED));
   }
 
   /**
@@ -52,7 +53,10 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), ActiveAndDraftProgramsType.ALL);
+    return new ActiveAndDraftPrograms(
+        repository,
+        Optional.empty(),
+        ImmutableList.of(ActiveAndDraftProgramsType.IN_USE, ActiveAndDraftProgramsType.DISABLED));
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -82,7 +86,7 @@ public final class ActiveAndDraftPrograms {
   private ActiveAndDraftPrograms(
       VersionRepository repository,
       Optional<ProgramService> service,
-      ActiveAndDraftProgramsType type) {
+      ImmutableList<ActiveAndDraftProgramsType> types) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
@@ -105,13 +109,16 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    switch (type) {
-      case INUSE:
-        this.activePrograms = activeNameToProgram.values().asList();
-        this.draftPrograms = draftNameToProgram.values().asList();
-        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
-        break;
-      case DISABLED:
+    if (types.size() == 2
+        && types.contains(ActiveAndDraftProgramsType.DISABLED)
+        && types.contains(ActiveAndDraftProgramsType.IN_USE)) {
+      this.activePrograms = activeNameToProgramAll.values().asList();
+      this.draftPrograms = draftNameToProgramAll.values().asList();
+      this.versionedByName =
+          createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
+    } else if (types.size() == 1) {
+      ActiveAndDraftProgramsType type = types.get(0);
+      if (type.equals(ActiveAndDraftProgramsType.DISABLED)) {
         this.activePrograms = activeNameToProgram.values().asList();
         this.draftPrograms = draftNameToProgram.values().asList();
         // Disabled active programs.
@@ -122,15 +129,15 @@ public final class ActiveAndDraftPrograms {
             filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
         this.versionedByName =
             createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-        break;
-      case ALL:
-        this.activePrograms = activeNameToProgramAll.values().asList();
-        this.draftPrograms = draftNameToProgramAll.values().asList();
-        this.versionedByName =
-            createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-        break;
-      default:
+      } else if (type.equals(ActiveAndDraftProgramsType.IN_USE)) {
+        this.activePrograms = activeNameToProgram.values().asList();
+        this.draftPrograms = draftNameToProgram.values().asList();
+        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+      } else {
         throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + type);
+      }
+    } else {
+      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
     }
   }
 
