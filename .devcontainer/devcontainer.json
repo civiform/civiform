@@ -17,6 +17,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {},
     "ghcr.io/devcontainers/features/java:1.4.1": {
       "version": "11",
       "jdkDistro": "tem", // Eclipse Adoptium Temurin per https://sdkman.io/jdks#tem See also: whichjdk.com
