@@ -156,33 +156,38 @@ public class ProgramBuilder {
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
-        ProgramType.COMMON_INTAKE_FORM);
+        ProgramType.COMMON_INTAKE_FORM,
+        DisplayMode.PUBLIC.getValue());
+  }
+
+  public static ProgramBuilder newActiveDisabledProgram(String adminName, String displayName, String description) {
+    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT, DisplayMode.DISABLED.getValue();
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
-    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
+    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT, DisplayMode.PUBLIC.getValue());
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
-      String adminName, String displayName, String description, ProgramType programType) {
+      String adminName, String displayName, String description, ProgramType programType, DisplayMode displayMode) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     ProgramModel program =
         new ProgramModel(
-            adminName,
-            description,
-            displayName,
-            description,
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getActiveVersion(),
-            programType,
+            /* adminName */ adminName,
+            /* adminDescription */ description,
+            /* defaultDisplayName */ displayName,
+            /* defaultDisplayDescription */ description,
+            /* defaultConfirmationMessage */ "",
+            /* externalLink */"",
+            /* displayMode */ displayMode,
+            /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
+            /* associatedVersion */ versionRepository.getActiveVersion(),
+            /* programType */ programType,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

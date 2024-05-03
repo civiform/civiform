@@ -137,7 +137,7 @@ public final class ProgramService {
    * Get the data object about the disabled programs that are in the active or draft version without
    * the full question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getDisabledProgramsWithoutQuestionLoad() {
+  public ActiveAndDraftPrograms getDisabledActiveAndDraftProgramsWithoutQuestionLoad() {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedDisabledProgram(
         versionRepository);
   }
