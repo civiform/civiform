@@ -1,7 +1,8 @@
 import {ToastController} from './toast'
 import {addEventListenerToElements, assertNotNull} from './util'
 
-/** Dynamic behavior for ProgramBlockPredicateConfigureView.
+/**
+ * Dynamic behavior for ProgramBlockPredicateConfigureView.
  *
  * To configure a predicate, the admin specifies the scalar of a question
  * the predicate refers to, a comparison operator, and a comparison value
@@ -16,7 +17,7 @@ import {addEventListenerToElements, assertNotNull} from './util'
  * input(s) to provide the appropriate input semantics.
  *
  * When operator is selected, only value input(s) are updated.
- * */
+ */
 class AdminPredicateConfiguration {
   registerEventListeners() {
     addEventListenerToElements(
@@ -264,8 +265,8 @@ class AdminPredicateConfiguration {
   }
 
   /**
-   *  Setup the the html attributes for value inputs so they acccept the correct
-   *  type of input (nubers, text, email, etc.)
+   *  Setup the the html attributes for value inputs so they accept the correct
+   *  type of input (numbers, text, email, etc.)
    *  @param {string} selectedScalarType The type of the selected option.
    *  @param {string} selectedScalarValue The value of the selected option.
    *  @param {number} questionId The ID of the question for this predicate value.
