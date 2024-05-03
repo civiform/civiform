@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.1.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.2.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
