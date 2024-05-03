@@ -68,8 +68,8 @@ lazy val root = (project in file("."))
       "com.google.guava" % "guava-testlib" % "33.1.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "javax.activation" % "activation" % "1.1.1",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
+      "jakarta.activation" % "jakarta.activation-api" % "2.1.3",
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.5",
 
       // Security libraries
