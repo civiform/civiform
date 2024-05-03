@@ -131,16 +131,17 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
-
-    contentDiv.with(
-        renderFilterLink(
-            "In use",
-            selectedStatus,
-            controllers.admin.routes.AdminProgramController.index().url()),
-        renderFilterLink(
-            "Disabled",
-            selectedStatus,
-            controllers.admin.routes.AdminProgramController.indexDisabled().url()));
+    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+      contentDiv.with(
+          renderFilterLink(
+              "In use",
+              selectedStatus,
+              controllers.admin.routes.AdminProgramController.index().url()),
+          renderFilterLink(
+              "Disabled",
+              selectedStatus,
+              controllers.admin.routes.AdminProgramController.indexDisabled().url()));
+    }
 
     contentDiv.with(
         div()

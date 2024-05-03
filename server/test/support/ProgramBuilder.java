@@ -346,8 +346,6 @@ public class ProgramBuilder {
       return this;
     }
 
-    
-
     public BlockBuilder withVisibilityPredicate(PredicateDefinition predicate) {
       blockDefBuilder.setVisibilityPredicate(predicate);
       return this;
