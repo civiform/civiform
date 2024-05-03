@@ -36,6 +36,12 @@
       ]
     },
     {
+      "groupName": "guava",
+      "matchPackagePrefixes": [
+        "com.google.guava"
+      ]
+    },
+    {
       "groupName": "jackson",
       "matchPackagePrefixes": [
         "com.fasterxml.jackson"
