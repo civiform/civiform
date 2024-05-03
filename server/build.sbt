@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "32.1.2-jre",
+      "com.google.guava" % "guava" % "33.2.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -42,11 +42,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.43",
-      "software.amazon.awssdk" % "ses" % "2.25.43",
+      "software.amazon.awssdk" % "s3" % "2.25.44",
+      "software.amazon.awssdk" % "ses" % "2.25.44",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.12.0",
+      "com.azure" % "azure-identity" % "1.12.1",
       "com.azure" % "azure-storage-blob" % "12.25.4",
 
       // Database and database testing libraries
@@ -65,12 +65,12 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.1.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.2.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.9",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
+      "jakarta.activation" % "jakarta.activation-api" % "2.1.3",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.5",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -91,16 +91,16 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.27.0",
+      "com.google.errorprone" % "error_prone_core" % "2.27.1",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.10.0",
+      "org.apache.commons" % "commons-csv" % "1.11.0",
       "commons-validator" % "commons-validator" % "1.8.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.35",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.36",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

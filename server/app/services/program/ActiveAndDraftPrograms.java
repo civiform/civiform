@@ -34,7 +34,7 @@ public final class ActiveAndDraftPrograms {
     DISABLED
   }
 
-  private static EnumSet<ActiveAndDraftProgramsType> allProgramTypes =
+  private static final EnumSet<ActiveAndDraftProgramsType> allProgramTypes =
       EnumSet.allOf(ActiveAndDraftProgramsType.class);
 
   /**
@@ -52,11 +52,6 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
-      VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
-  }
-
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
@@ -128,19 +123,19 @@ public final class ActiveAndDraftPrograms {
       this.activePrograms = activeNameToProgramAll.values().asList();
       this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
-        createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
+          createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
     } else {
       this.activePrograms = activeNameToProgram.values().asList();
       this.draftPrograms = draftNameToProgram.values().asList();
       if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
         // Disabled active programs.
         ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
         // Disabled draft programs.
         ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
         this.versionedByName =
-          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
       } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
         this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
       } else {

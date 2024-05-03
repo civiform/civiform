@@ -1,22 +1,22 @@
 <div
   th:fragment="file-upload(question, questionRendererParams, fileUploadViewStrategy)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
-    questionId=${#strings.randomAlphanumeric(8)},
-    inputId=${#strings.randomAlphanumeric(8)}"
+    questionId=${'id-' + #strings.randomAlphanumeric(8)},
+    inputId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
   class="cf-question-fileupload"
 >
-  <!-- Title and Help Text -->
+  <!--/* Title and Help Text */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
 
-  <!-- Display errors -->
+  <!--/* Display errors */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
   ></div>
 
-  <!-- Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) -->
+  <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->
   <input
     type="hidden"
     th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
@@ -31,7 +31,7 @@
     aria-live="polite"
   ></div>
 
-  <!-- TODO(#7335): Display errors for file too large and file selection failed -->
+  <!--/* TODO(#7335): Display errors for file too large and file selection failed */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
@@ -43,7 +43,7 @@
   />
 </div>
 
-<!-- Fragment for rendering file key fields within hidden inputs -->
+<!--/* Fragment for rendering file key fields within hidden inputs */-->
 <div th:fragment="file-key-field(fileUploadQuestion, clearData)">
   <input
     th:name="${fileUploadQuestion.getFileKeyPath()}"

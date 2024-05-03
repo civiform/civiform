@@ -66,6 +66,9 @@ public class DateQuestionTest extends ResetPostgres {
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo("2021-05-10");
     assertThat(dateQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(dateQuestion.getYearValue().get()).isEqualTo(2021);
+    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(5);
+    assertThat(dateQuestion.getDayValue().get()).isEqualTo(10);
   }
 
   @Test
