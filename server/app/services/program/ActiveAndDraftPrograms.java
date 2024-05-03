@@ -107,30 +107,28 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    this.activePrograms =
-        types.equals(allProgramTypes)
-            ? activeNameToProgramAll.values().asList()
-            : activeNameToProgram.values().asList();
-    this.draftPrograms =
-        types.equals(allProgramTypes)
-            ? draftNameToProgramAll.values().asList()
-            : draftNameToProgram.values().asList();
-    if (types.equals(allProgramTypes)) {
+    if (types.containsAll(allProgramTypes)) {
+      this.activePrograms = activeNameToProgramAll.values().asList();
+      this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-    } else if (types.equals(EnumSet.of(ActiveAndDraftProgramsType.DISABLED))) {
-      // Disabled active programs.
-      ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-      // Disabled draft programs.
-      ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
-      this.versionedByName =
-          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-    } else if (types.equals(EnumSet.of(ActiveAndDraftProgramsType.IN_USE))) {
-      this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
     } else {
-      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
+      this.activePrograms = activeNameToProgram.values().asList();
+      this.draftPrograms = draftNameToProgram.values().asList();
+      if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
+        // Disabled active programs.
+        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+        // Disabled draft programs.
+        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+        this.versionedByName =
+            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+      } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
+        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+      } else {
+        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
+      }
     }
   }
 
