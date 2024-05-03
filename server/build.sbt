@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "32.1.2-jre",
+      "com.google.guava" % "guava" % "33.2.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
