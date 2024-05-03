@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -107,30 +108,25 @@ public abstract class PredicateValue {
     // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
       if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-        return Splitter.on(", ")
-            .splitToStream(value().substring(1, value().length() - 1))
+        return splitListString(value())
             .map(PredicateValue::formatCurrencyString)
             .collect(Collectors.joining(" and "));
       }
       return formatCurrencyString(value());
     }
 
-    // Convert to a human-readable date.
     if (type() == OperatorRightHandType.DATE) {
       return formatDateString(value());
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_DATES) {
-      return Splitter.on(", ")
-          .splitToStream(value().substring(1, value().length() - 1))
+      return splitListString(value())
           .map(PredicateValue::formatDateString)
           .collect(Collectors.joining(" and "));
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-      return Splitter.on(", ")
-          .splitToStream(value().substring(1, value().length() - 1))
-          .collect(Collectors.joining(" and "));
+      return splitListString(value()).collect(Collectors.joining(" and "));
     }
 
     // For all other "simple" questions use the stored value directly.
@@ -145,14 +141,21 @@ public abstract class PredicateValue {
     // evaluation.
     MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
     if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-      return Splitter.on(", ")
-          // Un quote-escape each value.
-          .splitToStream(value().substring(1, value().length() - 1))
+      return splitListString(value())
           .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
           .collect(toImmutableList())
           .toString();
     }
     return parseMultiOptionIdToText(multiOptionQuestion, value());
+  }
+
+  /**
+   * Splits a List in its toString format (e.g. "[123, 456]" or "[abc, def]" to a stream of strings
+   * (e.g. "123", "456" or "abc", "def"). The strings can be further parsed to an expected type
+   * (e.g. long).
+   */
+  private static Stream<String> splitListString(String listString) {
+    return Splitter.on(", ").splitToStream(listString.substring(1, listString.length() - 1));
   }
 
   private static String parseMultiOptionIdToText(

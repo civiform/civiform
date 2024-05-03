@@ -8,6 +8,12 @@ type PredicateSpec = {
   operator: string
   value?: string
   values?: string[]
+  complexValues?: PredicateValue[]
+}
+
+type PredicateValue = {
+  value: string
+  secondValue?: string
 }
 
 export class AdminPredicates {
@@ -80,6 +86,12 @@ export class AdminPredicates {
     return questionId as string
   }
 
+  /**
+   * Configures a predicate with the given inputs. For the values, it uses the first defined parameter in this order:
+   * 1. complexValues
+   * 2. values
+   * 3. value
+   */
   async configurePredicate({
     questionName,
     action,
@@ -87,6 +99,7 @@ export class AdminPredicates {
     operator,
     value,
     values,
+    complexValues,
   }: PredicateSpec) {
     const questionId = await this.getQuestionId(questionName)
 
@@ -108,16 +121,33 @@ export class AdminPredicates {
       },
     )
 
-    const valuesToSet = values ? values : value ? [value] : []
+    const valuesToSet = this.coalesceValueOptions(complexValues, values, value)
     let groupNum = 1
     for (const valueToSet of valuesToSet) {
       await this.fillValue(scalar, valueToSet, groupNum++, questionId)
     }
   }
 
+  coalesceValueOptions(
+    complexValues?: PredicateValue[],
+    values?: string[],
+    value?: string,
+  ): PredicateValue[] {
+    if (complexValues) {
+      return complexValues
+    }
+    if (values) {
+      return values.map((v) => ({value: v}))
+    }
+    if (value) {
+      return [{value: value}]
+    }
+    return []
+  }
+
   async fillValue(
     scalar: string,
-    valueToSet: string,
+    valueToSet: PredicateValue,
     groupNum: number,
     questionId: string,
   ) {
@@ -133,7 +163,7 @@ export class AdminPredicates {
         )
       }
 
-      await valueSelect.selectOption({label: valueToSet})
+      await valueSelect.selectOption({label: valueToSet.value})
       return
     }
 
@@ -142,13 +172,21 @@ export class AdminPredicates {
     )
 
     if (valueInput) {
-      await valueInput.fill(valueToSet || '')
+      await valueInput.fill(valueToSet.value || '')
     } else {
       // We have a checkbox for the value.
-      const valueArray = valueToSet.split(',')
+      const valueArray = valueToSet.value.split(',')
       for (const value of valueArray) {
         await this.page.check(`label:has-text("${value}")`)
       }
+    }
+
+    const secondValueInput = await this.page.$(
+      `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
+    )
+    if (secondValueInput) {
+      // second value inputs are always a single input box
+      await secondValueInput.fill(valueToSet.secondValue || '')
     }
   }
 
