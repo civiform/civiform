@@ -52,30 +52,31 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
   }
 
   /**
-   * Queries the existing active and draft versions of disabled programs and builds a snapshotted view
-   * of their state. Like its counterpart, this does not include question definitions due to the
-   * absence of ProgramService.
-   *
+   * Queries the existing active and draft versions of disabled programs and builds a snapshotted
+   * view of their state. Like its counterpart, this does not include question definitions due to
+   * the absence of ProgramService.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(VersionRepository repository){
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(
+      VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-      repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
+        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
   }
 
   /**
-   * Queries the existing active and draft versions of non-disabled programs and builds a snapshotted
-   * view of the program state. These programs won't include the question definition, since
-   * ProgramService is not provided.
+   * Queries the existing active and draft versions of non-disabled programs and builds a
+   * snapshotted view of the program state. These programs won't include the question definition,
+   * since ProgramService is not provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(VersionRepository repository) {
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
+      VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-    repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(

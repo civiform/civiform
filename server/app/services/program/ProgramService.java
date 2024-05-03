@@ -130,7 +130,7 @@ public final class ProgramService {
    * question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedAllProgram(versionRepository);
+    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
   /**
@@ -139,12 +139,12 @@ public final class ProgramService {
    */
   public ActiveAndDraftPrograms getDisabledProgramsWithoutQuestionLoad() {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedDisabledProgram(
-      versionRepository);
+        versionRepository);
   }
 
   /**
-   * Get the data object about the non-disabled programs that are in the active or draft version without
-   * the full question definitions attached to the programs.
+   * Get the data object about the non-disabled programs that are in the active or draft version
+   * without the full question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftProgramsWithoutQuestionLoad() {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedInUseProgram(versionRepository);
