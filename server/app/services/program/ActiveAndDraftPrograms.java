@@ -124,14 +124,18 @@ public final class ActiveAndDraftPrograms {
     ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
         mapNameToProgram(repository, service, draft);
 
-    if (types.equals(EnumSet.allOf(ActiveAndDraftProgramsType.class))) {
-      this.activePrograms = activeNameToProgramAll.values().asList();
-      this.draftPrograms = draftNameToProgramAll.values().asList();
+    this.activePrograms =
+        types.equals(allProgramTypes)
+            ? activeNameToProgramAll.values().asList()
+            : activeNameToProgram.values().asList();
+    this.draftPrograms =
+        types.equals(allProgramTypes)
+            ? draftNameToProgramAll.values().asList()
+            : draftNameToProgram.values().asList();
+    if (types.equals(allProgramTypes)) {
       this.versionedByName =
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
     } else if (types.equals(EnumSet.of(ActiveAndDraftProgramsType.DISABLED))) {
-      this.activePrograms = activeNameToProgram.values().asList();
-      this.draftPrograms = draftNameToProgram.values().asList();
       // Disabled active programs.
       ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
           filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
@@ -141,8 +145,6 @@ public final class ActiveAndDraftPrograms {
       this.versionedByName =
           createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
     } else if (types.equals(EnumSet.of(ActiveAndDraftProgramsType.IN_USE))) {
-      this.activePrograms = activeNameToProgram.values().asList();
-      this.draftPrograms = draftNameToProgram.values().asList();
       this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
     } else {
       throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
