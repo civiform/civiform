@@ -17,16 +17,11 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {},
     "ghcr.io/devcontainers/features/java:1.4.1": {
       "version": "11",
       "jdkDistro": "tem", // Eclipse Adoptium Temurin per https://sdkman.io/jdks#tem See also: whichjdk.com
       "installMaven": "true",
       "installGradle": "false"
-    },
-    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {
-      "jdkVersion": "11",
-      "jdkDistro": "tem"
     },
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers/features/python:1": {}
@@ -69,7 +64,7 @@
     }
   },
 
-  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
+  "onCreateCommand": ".devcontainer/onCreateCommand.sh",
   "updateContentCommand": "bin/vscode-setup",
   "postCreateCommand": "pip install requests && echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
