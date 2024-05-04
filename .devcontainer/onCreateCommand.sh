@@ -7,5 +7,8 @@
 sudo apt update
 sudo apt install -y tmux
 
-# Graphite
-npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test
+# Install Graphite
+npm install -g @withgraphite/graphite-cli@stable
+
+# Install Playwright
+npm install --no-save @playwright/test
