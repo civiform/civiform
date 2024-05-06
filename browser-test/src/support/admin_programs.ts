@@ -72,6 +72,11 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async gotoDisabledProgramIndexPage() {
+    await this.page.click('a:has-text("Disabled")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectAdminProgramsPage() {
     expect(await this.page.innerText('h1')).toEqual('Program dashboard')
     expect(await this.page.innerText('h2')).toEqual(
@@ -819,6 +824,37 @@ export class AdminPrograms {
     expect(editedProgramsContents).toEqual(expectedProgramsContents)
 
     await dismissModal(this.page)
+  }
+
+  async createNewVersionForDisabledProgram(
+    programName: string,
+    programReadOnlyViewEnabled = true,
+  ) {
+    await this.gotoAdminProgramsPage()
+    await this.gotoDisabledProgramIndexPage()
+    await this.expectActiveProgram(programName)
+
+    if (programReadOnlyViewEnabled) {
+      await this.page.click(
+        this.withinProgramCardSelector(
+          programName,
+          'Active',
+          '.cf-with-dropdown',
+        ),
+      )
+    }
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
+    )
+    await waitForPageJsLoad(this.page)
+
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
+
+    await this.submitProgramDetailsEdits()
+    await this.gotoAdminProgramsPage()
+    await this.gotoDisabledProgramIndexPage()
+    await this.expectDraftProgram(programName)
   }
 
   async createNewVersion(
