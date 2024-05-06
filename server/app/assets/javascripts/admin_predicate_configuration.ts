@@ -1,7 +1,8 @@
 import {ToastController} from './toast'
 import {addEventListenerToElements, assertNotNull} from './util'
 
-/** Dynamic behavior for ProgramBlockPredicateConfigureView.
+/**
+ * Dynamic behavior for ProgramBlockPredicateConfigureView.
  *
  * To configure a predicate, the admin specifies the scalar of a question
  * the predicate refers to, a comparison operator, and a comparison value
@@ -16,7 +17,7 @@ import {addEventListenerToElements, assertNotNull} from './util'
  * input(s) to provide the appropriate input semantics.
  *
  * When operator is selected, only value input(s) are updated.
- * */
+ */
 class AdminPredicateConfiguration {
   registerEventListeners() {
     addEventListenerToElements(
@@ -153,7 +154,7 @@ class AdminPredicateConfiguration {
       selectedScalarType,
       selectedScalarValue,
     )
-    this.configurePredicateValueInput(
+    this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
       questionId,
@@ -206,44 +207,28 @@ class AdminPredicateConfiguration {
       operatorDropdownContainer.dataset.questionId,
     )
 
+    // Each value input has its own help text
     const csvHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
     )
-
-    // The help text div is present for inputs that allow specifying
-    // multiple values in a single text input. It won't be present
-    // for other input types e.g. multiselect inputs.
-    if (csvHelpTexts != null) {
-      const shouldShowCommaSeperatedHelpText =
+    csvHelpTexts.forEach((div: Element) =>
+      div.classList.toggle(
+        'hidden',
         selectedOperatorValue.toUpperCase() !== 'IN' &&
-        selectedOperatorValue.toUpperCase() !== 'NOT_IN'
-
-      for (const commaSeparatedHelpText of Array.from(csvHelpTexts)) {
-        commaSeparatedHelpText.classList.toggle(
-          'hidden',
-          shouldShowCommaSeperatedHelpText,
-        )
-      }
-    }
-
-    const betweenHelpText = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
+          selectedOperatorValue.toUpperCase() !== 'NOT_IN',
+      ),
     )
 
-    // The between help text div is present for inputs that allow specifying
-    // two number values in a single text input. It won't be present
-    // for other input types.
-    if (betweenHelpText != null) {
-      const shouldShowBetweenOperatorHelpText =
-        selectedOperatorValue.toUpperCase() !== 'AGE_BETWEEN'
-
-      for (const commaSeparatedHelpText of Array.from(betweenHelpText)) {
-        commaSeparatedHelpText.classList.toggle(
-          'hidden',
-          shouldShowBetweenOperatorHelpText,
-        )
-      }
-    }
+    // Each value input has its own help text
+    const betweenHelpTexts = document.querySelectorAll(
+      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
+    )
+    betweenHelpTexts.forEach((div: Element) =>
+      div.classList.toggle(
+        'hidden',
+        selectedOperatorValue.toUpperCase() !== 'AGE_BETWEEN',
+      ),
+    )
 
     // Update the value field to reflect the new Operator selection.
     const scalarDropdown = this.getElementWithQuestionId(
@@ -256,7 +241,7 @@ class AdminPredicateConfiguration {
     )
     const selectedScalarValue =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].value
-    this.configurePredicateValueInput(
+    this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
       questionId,
@@ -264,13 +249,13 @@ class AdminPredicateConfiguration {
   }
 
   /**
-   *  Setup the the html attributes for value inputs so they acccept the correct
-   *  type of input (nubers, text, email, etc.)
+   *  Setup the the html attributes for value inputs so they accept the correct
+   *  type of input (numbers, text, email, etc.)
    *  @param {string} selectedScalarType The type of the selected option.
    *  @param {string} selectedScalarValue The value of the selected option.
    *  @param {number} questionId The ID of the question for this predicate value.
    */
-  configurePredicateValueInput(
+  configurePredicateValueInputs(
     selectedScalarType: string | null,
     selectedScalarValue: string | null,
     questionId: string,

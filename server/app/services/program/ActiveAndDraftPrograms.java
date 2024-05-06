@@ -62,7 +62,7 @@ public final class ActiveAndDraftPrograms {
    * view of their state. Like its counterpart, this does not include question definitions due to
    * the absence of ProgramService.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(
+  public static ActiveAndDraftPrograms buildDisabledProgramsFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
@@ -73,7 +73,7 @@ public final class ActiveAndDraftPrograms {
    * snapshotted view of the program state. These programs won't include the question definition,
    * since ProgramService is not provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
+  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));

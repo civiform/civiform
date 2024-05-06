@@ -52,7 +52,8 @@ public enum Scalar {
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
   COUNTRY_CODE("country_code", ScalarType.STRING),
 
-  // Scalars for Date Question using memorable date (3 different inputs)
+  // Scalars for Date Question using memorable date (3 different inputs). They are not used
+  // for storage or predicates, so they are not included in getScalars.
   DAY("day", ScalarType.LONG),
   MONTH("month", ScalarType.LONG),
   YEAR("year", ScalarType.LONG),
@@ -110,7 +111,7 @@ public enum Scalar {
       case CURRENCY:
         return ImmutableSet.of(CURRENCY_CENTS);
       case DATE:
-        return ImmutableSet.of(DATE, YEAR, MONTH, DAY);
+        return ImmutableSet.of(DATE);
       case EMAIL:
         return ImmutableSet.of(EMAIL);
       case FILEUPLOAD:

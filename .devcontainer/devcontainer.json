@@ -23,10 +23,6 @@
       "installMaven": "true",
       "installGradle": "false"
     },
-    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {
-      "jdkVersion": "11",
-      "jdkDistro": "tem"
-    },
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers/features/python:1": {}
   },
@@ -68,7 +64,7 @@
     }
   },
 
-  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
+  "onCreateCommand": ".devcontainer/onCreateCommand.sh",
   "updateContentCommand": "bin/vscode-setup",
   "postCreateCommand": "pip install requests && echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
