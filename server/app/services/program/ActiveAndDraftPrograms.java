@@ -52,21 +52,31 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedAllProgram(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
   }
 
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
-      VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
-  }
-
+  /**
+   * Queries the existing active and draft versions of disabled programs and builds a snapshotted
+   * view of their state. Like its counterpart, this does not include question definitions due to
+   * the absence of ProgramService.
+   */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedDisabledProgram(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
+  }
+
+  /**
+   * Queries the existing active and draft versions of non-disabled programs and builds a
+   * snapshotted view of the program state. These programs won't include the question definition,
+   * since ProgramService is not provided.
+   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsyncedInUseProgram(
+      VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -124,23 +134,24 @@ public final class ActiveAndDraftPrograms {
       this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-    } else {
+    } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
+      // Disabled active programs.
+      ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+      // Disabled draft programs.
+      ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+
+      this.activePrograms = disabledActiveNameToProgram.values().asList();
+      this.draftPrograms = disabledDraftNameToProgram.values().asList();
+      this.versionedByName =
+          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+    } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
       this.activePrograms = activeNameToProgram.values().asList();
       this.draftPrograms = draftNameToProgram.values().asList();
-      if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
-        // Disabled active programs.
-        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-        // Disabled draft programs.
-        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
-        this.versionedByName =
-            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-      } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
-        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
-      } else {
-        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
-      }
+      this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+    } else {
+      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
     }
   }
 

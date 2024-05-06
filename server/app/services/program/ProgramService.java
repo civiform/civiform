@@ -130,7 +130,7 @@ public final class ProgramService {
    * question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getAllActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedAllProgram(versionRepository);
+    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
   public ActiveAndDraftPrograms getDisabledProgramsWithoutQuestionLoad() {
