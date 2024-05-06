@@ -263,11 +263,6 @@ public class ProgramBuilder {
     return this;
   }
 
-  public ProgramBuilder withDisplayMode(DisplayMode displayMode) {
-    builder.setDisplayMode(displayMode);
-    return this;
-  }
-
   public ProgramBuilder withLocalizedDescription(Locale locale, String description) {
     builder.addLocalizedDescription(locale, description);
     return this;
