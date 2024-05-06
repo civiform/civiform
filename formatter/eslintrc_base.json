@@ -31,7 +31,7 @@
       }
     ],
     // See TypeScript best practices in
-    // https://docs.civiform.us/contributor-guide/developer-guide/development-standards
+    // https://github.com/civiform/civiform/wiki/Development-standards#typescript-code
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unsafe-enum-comparison": "off",
     // Add method that we use to sanitize our HTML
