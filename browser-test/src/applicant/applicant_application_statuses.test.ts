@@ -1,6 +1,8 @@
 import {test} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -49,4 +51,19 @@ test.describe('with program statuses', () => {
     await validateAccessibility(page)
     await validateScreenshot(page, 'program-list-with-status')
   })
+
+  test.describe(
+    'applicant program index page with northstar UI',
+    {tag: ['@northstar']},
+    () => {
+      test('displays status', async () => {
+        const {page} = ctx
+        await loginAsTestUser(page)
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await validateScreenshot(page, 'program-list-with-status-northstar')
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+        await logout(page)
+      })
+    },
+  )
 })

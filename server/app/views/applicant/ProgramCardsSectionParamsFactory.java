@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.MessageKey;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.program.ProgramDefinition;
@@ -23,16 +25,20 @@ import views.components.Modal;
  */
 public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
+  private final ProfileUtils profileUtils;
 
   @Inject
-  public ProgramCardsSectionParamsFactory(ApplicantRoutes applicantRoutes) {
+  public ProgramCardsSectionParamsFactory(
+      ApplicantRoutes applicantRoutes, ProfileUtils profileUtils) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /**
    * Returns ProgramSectionParams containing a list of cards for the provided list of program data.
    */
   public ProgramSectionParams getSection(
+      Request request,
       Messages messages,
       Optional<MessageKey> title,
       MessageKey buttonText,
@@ -44,7 +50,14 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramSectionParams.Builder sectionBuilder =
         ProgramSectionParams.builder()
             .setCards(
-                getCards(messages, buttonText, programData, preferredLocale, profile, applicantId));
+                getCards(
+                    request,
+                    messages,
+                    buttonText,
+                    programData,
+                    preferredLocale,
+                    profile,
+                    applicantId));
 
     if (title.isPresent()) {
       sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
@@ -56,6 +69,7 @@ public final class ProgramCardsSectionParamsFactory {
 
   /** Returns a list of ProgramCardParams corresponding with the provided list of program data. */
   public ImmutableList<ProgramCardParams> getCards(
+      Request request,
       Messages messages,
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
@@ -78,20 +92,59 @@ public final class ProgramCardsSectionParamsFactory {
           .setActionUrl(actionUrl)
           .setActionText(messages.at(buttonText.getKeyName()));
 
+      if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
+        cardBuilder.setApplicationStatus(
+            programDatum
+                .latestSubmittedApplicationStatus()
+                .get()
+                .localizedStatusText()
+                .getOrDefault(preferredLocale));
+      }
+
+      if (shouldShowEligibilityTag(programDatum)) {
+        boolean isEligible = programDatum.isProgramMaybeEligible().get();
+        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+        boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+        MessageKey mayQualifyMessage =
+            isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+        MessageKey mayNotQualifyMessage =
+            isTrustedIntermediary
+                ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
+                : MessageKey.TAG_MAY_NOT_QUALIFY;
+
+        cardBuilder.setEligible(isEligible);
+        cardBuilder.setEligibilityMessage(
+            messages.at(
+                isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
+      }
+
       cardsListBuilder.add(cardBuilder.build());
     }
 
     return cardsListBuilder.build();
   }
 
+  /**
+   * If eligibility is gating, the eligibility tag should always show when present. If eligibility
+   * is non-gating, the eligibility tag should only show if the user may be eligible.
+   */
+  private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+    if (!programData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+
+    return programData.program().eligibilityIsGating()
+        || programData.isProgramMaybeEligible().get();
+  }
+
   @AutoValue
   public abstract static class ProgramSectionParams {
-    public abstract ImmutableList<ProgramCardParams> getCards();
+    public abstract ImmutableList<ProgramCardParams> cards();
 
-    public abstract Optional<String> getTitle();
+    public abstract Optional<String> title();
 
     /** The id of the section. Only needs to be specified if a title is also specified. */
-    public abstract Optional<String> getId();
+    public abstract Optional<String> id();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramSectionParams.Builder();
@@ -113,13 +166,19 @@ public final class ProgramCardsSectionParamsFactory {
 
   @AutoValue
   public abstract static class ProgramCardParams {
-    public abstract String getTitle();
+    public abstract String title();
 
-    public abstract String getActionText();
+    public abstract String actionText();
 
-    public abstract String getBody();
+    public abstract String body();
 
-    public abstract String getActionUrl();
+    public abstract String actionUrl();
+
+    public abstract Optional<Boolean> eligible();
+
+    public abstract Optional<String> eligibilityMessage();
+
+    public abstract Optional<String> applicationStatus();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
@@ -136,6 +195,12 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setBody(String body);
 
       public abstract Builder setActionUrl(String actionUrl);
+
+      public abstract Builder setEligible(Boolean eligible);
+
+      public abstract Builder setEligibilityMessage(String eligibilityMessage);
+
+      public abstract Builder setApplicationStatus(String applicationStatus);
 
       public abstract ProgramCardParams build();
     }
