@@ -133,6 +133,23 @@ public final class ProgramService {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
+  /**
+   * Get the data object about the disabled programs that are in the active or draft version without
+   * the full question definitions attached to the programs.
+   */
+  public ActiveAndDraftPrograms getDisabledActiveAndDraftProgramsWithoutQuestionLoad() {
+    return ActiveAndDraftPrograms.buildDisabledProgramsFromCurrentVersionsUnsynced(
+        versionRepository);
+  }
+
+  /**
+   * Get the data object about the non-disabled programs that are in the active or draft version
+   * without the full question definitions attached to the programs.
+   */
+  public ActiveAndDraftPrograms getInUseActiveAndDraftProgramsWithoutQuestionLoad() {
+    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsUnsynced(versionRepository);
+  }
+
   /*
    * Looks at the most recent version of each program and returns the program marked as the
    * common intake form if it exists. The most recent version may be in the draft or active stage.

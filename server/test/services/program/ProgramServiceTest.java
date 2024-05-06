@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.when;
+import static play.test.Helpers.fakeRequest;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,9 +36,11 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
+import play.mvc.Http.Request;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -56,6 +60,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -67,6 +72,8 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
+  private SettingsManifest mockSettingsManifest;
+  private final Request request = fakeRequest().build();
 
   @Before
   public void setProgramServiceImpl() {
@@ -83,6 +90,8 @@ public class ProgramServiceTest extends ResetPostgres {
     secondaryAddressQuestion = testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
   }
 
   @Test
@@ -144,6 +153,73 @@ public class ProgramServiceTest extends ResetPostgres {
         ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
         ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
+    ProgramDefinition activeProgramDef = activePrograms.get(0);
+    assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
+
+    ProgramBuilder.newDisabledDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionThree)
+        .buildDefinition();
+    ProgramBuilder.newDisabledActiveProgram("program2")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .buildDefinition();
+
+    ImmutableList<ProgramDefinition> draftPrograms =
+        ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms =
+        ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+
+    ProgramDefinition activeProgramDef = activePrograms.get(0);
+    assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
+  }
+
+  @Test
+  public void getInUseActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
+
+    ProgramBuilder.newDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionThree)
+        .buildDefinition();
+    ProgramBuilder.newActiveProgram("program2")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .buildDefinition();
+
+    ImmutableList<ProgramDefinition> draftPrograms =
+        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms =
+        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
