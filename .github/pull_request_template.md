@@ -32,7 +32,7 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Followed steps to [internationalize new strings](https://github.com/civiform/civiform/wiki/Internationalization-%28i18n%29#internationalization-for-application-strings)
   - [ ] Added context strings to new [messages](https://github.com/civiform/civiform/blob/main/server/conf/i18n/messages)
   - [ ] Didn't use a message in applicant facing code that isn't translated yet (unless behind a flag)
-  - [ ] Follow the workflow [here](https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#workflow-for-adding-or-editing-translations)
+  - [ ] Follow the workflow [here](<https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#workflow-for-adding-or-editing-translations>)
 - [ ] Wrote browser tests using the [validateAccessibility](https://sourcegraph.com/github.com/civiform/civiform/-/blob/browser-test/src/support/index.ts?L437:14&subtree=true) method
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
