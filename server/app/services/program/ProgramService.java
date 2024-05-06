@@ -138,7 +138,7 @@ public final class ProgramService {
    * the full question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getDisabledActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedDisabledProgram(
+    return ActiveAndDraftPrograms.buildDisabledProgramsFromCurrentVersionsUnsynced(
         versionRepository);
   }
 
@@ -147,7 +147,7 @@ public final class ProgramService {
    * without the full question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsyncedInUseProgram(versionRepository);
+    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsUnsynced(versionRepository);
   }
 
   /*
