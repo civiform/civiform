@@ -163,7 +163,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_() {
+  public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
     when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
@@ -183,21 +183,23 @@ public class ProgramServiceTest extends ResetPostgres {
         .withRequiredQuestionDefinition(questionOne)
         .buildDefinition();
 
+    System.out.println("hi");
+    System.out.println(ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms());
     ImmutableList<ProgramDefinition> draftPrograms =
         ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
         ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
 
-    ProgramDefinition draftProgramDef = draftPrograms.get(0);
-    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
-    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
     ProgramDefinition activeProgramDef = activePrograms.get(0);
     assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
     assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
   }
 
   @Test
-  public void getInUseActiveAndDraftProgramsWithoutQuestionLoad_() {
+  public void getInUseActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
