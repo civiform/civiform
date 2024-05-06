@@ -214,8 +214,7 @@ class AdminPredicateConfiguration {
     csvHelpTexts.forEach((div: Element) =>
       div.classList.toggle(
         'hidden',
-        selectedOperatorValue.toUpperCase() !== 'IN' &&
-          selectedOperatorValue.toUpperCase() !== 'NOT_IN',
+        selectedOperatorValue !== 'IN' && selectedOperatorValue !== 'NOT_IN',
       ),
     )
 
@@ -224,10 +223,7 @@ class AdminPredicateConfiguration {
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
     )
     betweenHelpTexts.forEach((div: Element) =>
-      div.classList.toggle(
-        'hidden',
-        selectedOperatorValue.toUpperCase() !== 'AGE_BETWEEN',
-      ),
+      div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
     )
 
     // Update the value field to reflect the new Operator selection.
@@ -264,9 +260,9 @@ class AdminPredicateConfiguration {
     // for the 'Value' field (there's a set of checkboxes instead), so return immediately.
     if (
       selectedScalarValue &&
-      (selectedScalarValue.toUpperCase() === 'SELECTION' ||
-        selectedScalarValue.toUpperCase() === 'SELECTIONS' ||
-        selectedScalarValue.toUpperCase() === 'SERVICE_AREA')
+      (selectedScalarValue === 'SELECTION' ||
+        selectedScalarValue === 'SELECTIONS' ||
+        selectedScalarValue === 'SERVICE_AREA')
     ) {
       return
     }
@@ -295,9 +291,9 @@ class AdminPredicateConfiguration {
         continue
       }
 
-      switch (selectedScalarType.toUpperCase()) {
+      switch (selectedScalarType) {
         case 'STRING':
-          if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+          if (selectedScalarValue === 'EMAIL') {
             // Need to look at the selected scalar *value* for email since the type is just a
             // string, but emails have a special type in HTML inputs.
             valueInput.setAttribute('type', 'email')
@@ -306,10 +302,7 @@ class AdminPredicateConfiguration {
           valueInput.setAttribute('type', 'text')
           break
         case 'CURRENCY_CENTS':
-          if (
-            operatorValue.toUpperCase() === 'IN' ||
-            operatorValue.toUpperCase() === 'NOT_IN'
-          ) {
+          if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
             // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')
           } else {
@@ -319,10 +312,7 @@ class AdminPredicateConfiguration {
           }
           break
         case 'LONG':
-          if (
-            operatorValue.toUpperCase() === 'IN' ||
-            operatorValue.toUpperCase() === 'NOT_IN'
-          ) {
+          if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
             // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')
           } else {
@@ -333,14 +323,14 @@ class AdminPredicateConfiguration {
           break
         case 'DATE':
           if (
-            operatorValue.toUpperCase() === 'AGE_OLDER_THAN' ||
-            operatorValue.toUpperCase() === 'AGE_YOUNGER_THAN'
+            operatorValue === 'AGE_OLDER_THAN' ||
+            operatorValue === 'AGE_YOUNGER_THAN'
           ) {
             // Age-related operators should have number input value
             valueInput.setAttribute('type', 'number')
             // We should allow for decimals to account for month intervals
             valueInput.setAttribute('step', '.01')
-          } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
+          } else if (operatorValue === 'AGE_BETWEEN') {
             // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')
           } else {
@@ -484,8 +474,8 @@ class AdminPredicateConfiguration {
       // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
       // exclude these operators from single-select predicates to simplify the code on both
       // the form processing side and on the admin user side.
-      !(selectedScalarType in operatorOption.dataset) ||
-      (selectedScalarValue.toUpperCase() === 'SELECTION' &&
+      !(selectedScalarType.toLowerCase() in operatorOption.dataset) ||
+      (selectedScalarValue === 'SELECTION' &&
         (operatorOption.value === 'EQUAL_TO' ||
           operatorOption.value === 'NOT_EQUAL_TO'))
     )
