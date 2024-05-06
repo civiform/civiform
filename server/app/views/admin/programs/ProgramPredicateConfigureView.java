@@ -523,7 +523,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                           .withValue(scalar.name())
                           // Add the scalar type as data so we can determine which operators to
                           // allow.
-                          .withData("type", scalar.toScalarType().name().toLowerCase(Locale.ROOT));
+                          .withData("type", scalar.toScalarType().name());
 
                   if (maybeSelectedScalar.isPresent()
                       && maybeSelectedScalar.get().name().equals(scalar.name())) {
