@@ -134,23 +134,24 @@ public final class ActiveAndDraftPrograms {
       this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
-    } else {
+    } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
+      // Disabled active programs.
+      ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
+          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+      // Disabled draft programs.
+      ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
+          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+
+      this.activePrograms = disabledActiveNameToProgram.values().asList();
+      this.draftPrograms = disabledDraftNameToProgram.values().asList();
+      this.versionedByName =
+          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+    } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
       this.activePrograms = activeNameToProgram.values().asList();
       this.draftPrograms = draftNameToProgram.values().asList();
-      if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
-        // Disabled active programs.
-        ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-            filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-        // Disabled draft programs.
-        ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-            filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
-        this.versionedByName =
-            createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
-      } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
-        this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
-      } else {
-        throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
-      }
+      this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
+    } else {
+      throw new IllegalArgumentException("Unsupported ActiveAndDraftProgramsType: " + types);
     }
   }
 

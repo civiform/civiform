@@ -77,7 +77,6 @@ public class ProgramBuilder {
    * draft state, with disabled visibility.
    */
   public static ProgramBuilder newDisabledDraftProgram(String name) {
-    System.out.println("arbitrary text");
     return newDraftProgram(name, "", DisplayMode.DISABLED);
   }
 
@@ -89,7 +88,6 @@ public class ProgramBuilder {
   public static ProgramBuilder newDraftProgram(
       String name, String description, DisplayMode displayMode) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    System.out.println("made it to newDraftProgram line 92");
     ProgramModel program =
         new ProgramModel(
             name,
@@ -104,11 +102,9 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls());
-    System.out.println("made it to newDraftProgram line 107");
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
-    System.out.println("made it to newDraftProgram line 111");
     return new ProgramBuilder(program.id, builder);
   }
 

@@ -183,8 +183,6 @@ public class ProgramServiceTest extends ResetPostgres {
         .withRequiredQuestionDefinition(questionOne)
         .buildDefinition();
 
-    System.out.println("hi");
-    System.out.println(ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms());
     ImmutableList<ProgramDefinition> draftPrograms =
         ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
