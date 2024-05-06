@@ -1886,11 +1886,11 @@ public final class ApplicantService {
                           monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
                           dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
                   newFormData.put(dateQuestion.getDatePath().toString(), dateString);
-                  // Remove the 3 individual paths, so they won't be stored.
-                  newFormData.remove(dateQuestion.getYearPath().toString());
-                  newFormData.remove(dateQuestion.getMonthPath().toString());
-                  newFormData.remove(dateQuestion.getDayPath().toString());
                 }
+                // Remove the 3 individual paths, so they won't be stored.
+                newFormData.remove(dateQuestion.getYearPath().toString());
+                newFormData.remove(dateQuestion.getMonthPath().toString());
+                newFormData.remove(dateQuestion.getDayPath().toString());
               }
 
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
