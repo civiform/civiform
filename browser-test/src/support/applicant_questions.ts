@@ -89,7 +89,7 @@ export class ApplicantQuestions {
   async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
-      mimeType: 'text/plain',
+      mimeType: 'image/png',
       buffer: Buffer.from(text),
     })
   }
@@ -139,6 +139,19 @@ export class ApplicantQuestions {
   async checkDateQuestionValue(date: string) {
     await this.validateInputTypePresent('date')
     await this.validateInputValue(date)
+  }
+
+  async answerMemorableDateQuestion(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+    await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
+      label: month,
+    })
+    await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
   }
 
   async answerTextQuestion(text: string, index = 0) {

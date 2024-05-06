@@ -1,6 +1,6 @@
 <div
   th:fragment="address (question, questionRendererParams, stateAbbreviations)"
-  th:with="questionId=${#strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
   <fieldset
@@ -8,20 +8,20 @@
     th:with="addressQuestion=${question.createAddressQuestion()},
              firstPathWithError=${addressQuestion.getFirstPathWithError()}"
   >
-    <!-- Title and Help Text -->
+    <!--/* Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!-- Display errors for the entire question -->
+    <!--/* Display errors for the entire question */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
 
-    <!-- TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. -->
-    <!-- Street address -->
+    <!--/* TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. */-->
+    <!--/* Street address */-->
     <th:block
-      th:with="inputId=${#strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
     >
       <label
         class="usa-label"
@@ -43,9 +43,9 @@
       ></div>
     </th:block>
 
-    <!-- Street address line 2 -->
+    <!--/* Street address line 2 */-->
     <th:block
-      th:with="inputId=${#strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
     >
       <label
         class="usa-label"
@@ -66,9 +66,9 @@
       ></div>
     </th:block>
 
-    <!-- City -->
+    <!--/* City */-->
     <th:block
-      th:with="inputId=${#strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
     >
       <label
         class="usa-label"
@@ -90,9 +90,9 @@
       ></div>
     </th:block>
 
-    <!-- State -->
+    <!--/* State */-->
     <th:block
-      th:with="inputId=${#strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
     >
       <label
         class="usa-label"
@@ -125,9 +125,9 @@
       ></div>
     </th:block>
 
-    <!-- ZIP code -->
+    <!--/* ZIP code */-->
     <th:block
-      th:with="inputId=${#strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
     >
       <label
         class="usa-label"

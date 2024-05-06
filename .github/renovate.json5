@@ -36,6 +36,12 @@
       ]
     },
     {
+      "groupName": "guava",
+      "matchPackagePrefixes": [
+        "com.google.guava"
+      ]
+    },
+    {
       "groupName": "jackson",
       "matchPackagePrefixes": [
         "com.fasterxml.jackson"
@@ -85,7 +91,7 @@
       "matchPackageNames": [
         "postgres"
       ],
-      "allowedVersions": "<13.0.0"
+      "allowedVersions": "<17.0.0"
     }
   ]
 }

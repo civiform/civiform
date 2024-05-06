@@ -14,9 +14,9 @@
 </footer>
 
 <div th:fragment="requiredFieldsExplanation">
-  <!-- This uses utext because the parameter passed into the message is html,
+  <!--/* This uses utext because the parameter passed into the message is html,
     it is a placeholder span with the red asterisk. We need it to be html and not
-    raw text to recreate the red style -->
+    raw text to recreate the red style */-->
   <p th:utext="#{content.requiredFieldsNote(~{this :: requiredAsterisk})}"></p>
 </div>
 
@@ -29,7 +29,7 @@
   class="usa-step-indicator usa-step-indicator--center"
   aria-label="progress"
 >
-  <!-- The progress bar itself -->
+  <!--/* The progress bar itself */-->
   <ol class="usa-step-indicator__segments">
     <th:block
       th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
@@ -48,7 +48,7 @@
     </th:block>
   </ol>
 
-  <!-- Text with "X of Y BlockName" -->
+  <!--/* Text with "X of Y BlockName" */-->
   <div class="usa-step-indicator__header">
     <h4 class="usa-step-indicator__heading">
       <span class="usa-step-indicator__heading-counter">

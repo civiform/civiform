@@ -12,38 +12,53 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.applicant.question.AddressQuestion;
+import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.StorageUploadRequest;
 import views.ApplicationBaseViewParams;
+import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
+  private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      FileUploadViewStrategy fileUploadViewStrategy) {
     super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
-    context.setVariable(
-        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
-    context.setVariable(
-        "previousFormAction",
-        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-    context.setVariable(
-        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
-    // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
-    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
-    return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+    context.setVariable(
+        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+    // Include file upload specific parameters.
+    if (applicationParams.block().isFileUpload()) {
+      this.addFileUploadParameters(applicationParams, context);
+
+      return templateEngine.process(
+          "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
+    } else {
+      context.setVariable(
+          "previousFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+      context.setVariable(
+          "reviewFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+      // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
+      context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+    }
   }
 
   private String getFormAction(
@@ -59,6 +74,25 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
         .url();
   }
 
+  private String redirectWithFile(
+      ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
+    return params.baseUrl()
+        + applicantRoutes
+            .updateFile(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview(),
+                nextAction)
+            .url();
+  }
+
+  private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
+    return ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+        params.applicantId(), params.programId(), params.block().getId());
+  }
+
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
       ApplicationBaseViewParams params) {
@@ -72,15 +106,25 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
                   if (question.hasErrors()) {
                     ordinalErrorCount.incrementAndGet();
                   }
-                  return ApplicantQuestionRendererParams.builder()
-                      .setMessages(params.messages())
-                      .setErrorDisplayMode(params.errorDisplayMode())
-                      .setAutofocus(
-                          calculateAutoFocusTarget(
-                              params.errorDisplayMode(),
-                              params.block().hasErrors(),
-                              ordinalErrorCount.get()))
-                      .build();
+                  ApplicantQuestionRendererParams.Builder paramsBuilder =
+                      ApplicantQuestionRendererParams.builder()
+                          .setMessages(params.messages())
+                          .setErrorDisplayMode(params.errorDisplayMode())
+                          .setAutofocus(
+                              calculateAutoFocusTarget(
+                                  params.errorDisplayMode(),
+                                  params.block().hasErrors(),
+                                  ordinalErrorCount.get()));
+                  if (params.block().isFileUpload()) {
+                    StorageUploadRequest signedRequest =
+                        params
+                            .applicantStorageClient()
+                            .getSignedUploadRequest(
+                                getFileUploadSignedRequestKey(params),
+                                redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
+                    paramsBuilder.setSignedFileUploadRequest(signedRequest);
+                  }
+                  return paramsBuilder.build();
                 }));
   }
 
@@ -100,5 +144,33 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+  }
+
+  private void addFileUploadParameters(
+      ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
+    context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable(
+        "nextBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
+    context.setVariable(
+        "previousBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable(
+        "reviewPageWithFile", redirectWithFile(params, ApplicantRequestedAction.REVIEW_PAGE));
+    context.setVariable(
+        "previousBlockWithoutFile",
+        params.baseUrl()
+            + applicantRoutes
+                .blockPreviousOrReview(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.blockIndex(),
+                    params.inReview())
+                .url());
+    context.setVariable(
+        "reviewPageWithoutFile",
+        params.baseUrl()
+            + applicantRoutes
+                .review(params.profile(), params.applicantId(), params.programId())
+                .url());
   }
 }

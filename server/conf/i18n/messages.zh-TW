@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「
 toast.errorMessageOutline=發生錯誤: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=關閉
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=檢查
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
 
@@ -58,9 +60,14 @@ button.deleteFile=刪除
 button.keepFile=繼續
 button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
-button.review=檢查
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
 link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
@@ -107,6 +114,8 @@ title.allProgramsSection=所有計畫 ({0})
 title.status=狀態
 title.inProgressProgramsUpdated=進行中
 title.activeProgramsUpdated=未開始
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 toast.programCompleted=已完成申請。
@@ -171,11 +180,11 @@ content.warning=這個客戶沒有任何申請書提交記錄，因此不會遺�
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(無電子郵件地址)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=尚未登入
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=已登入但尚未提交任何申請書
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=上次提交申請書的日期：{0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=確定要刪除這個客戶的帳戶嗎？
 
@@ -232,15 +241,19 @@ title.allClients=所有客戶
 # This is the heading above a new client creation form.
 title.createClient=建立新客戶
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=編輯客戶資訊
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=目前顯示 {0} 個客戶
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=目前顯示 1 個客戶
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=目前顯示所有客戶
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=機構成員
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -248,8 +261,12 @@ title.orgMembers=機構成員
 
 button.submit=提交
 button.continue=繼續
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=不符合資格
 link.edit=編輯
 link.answer=回答問題
@@ -257,8 +274,10 @@ content.previouslyAnsweredOn=已於 {0}回答
 ariaLabel.answer=回答以下問題：{0}
 
 ariaLabel.edit=編輯「{0}」
-title.programSummary=計畫申請摘要
 title.commonIntakeSummary=福利預先篩選表單摘要
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=計畫申請摘要
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -374,6 +393,38 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

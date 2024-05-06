@@ -51,9 +51,23 @@ public enum Scalar {
   // Scalars for Phone Question
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
   COUNTRY_CODE("country_code", ScalarType.STRING),
+
+  // Scalars for Date Question using memorable date (3 different inputs)
+  DAY("day", ScalarType.LONG),
+  MONTH("month", ScalarType.LONG),
+  YEAR("year", ScalarType.LONG),
+
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),
   PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
+
+  private static final ImmutableSet<Scalar> METADATA_SCALARS =
+      ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
+  private static final ImmutableSet<String> METADATA_SCALAR_KEYS =
+      METADATA_SCALARS.stream()
+          .map(Scalar::name)
+          .map(String::toLowerCase)
+          .collect(ImmutableSet.toImmutableSet());
 
   private final String displayString;
   private final ScalarType scalarType;
@@ -72,50 +86,6 @@ public enum Scalar {
     return this.scalarType;
   }
 
-  private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
-      ImmutableSet.of(
-          STREET,
-          LINE2,
-          CITY,
-          STATE,
-          ZIP,
-          CORRECTED,
-          LATITUDE,
-          LONGITUDE,
-          WELL_KNOWN_ID,
-          SERVICE_AREA);
-
-  private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
-
-  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
-
-  private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
-
-  private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS =
-      ImmutableSet.of(FILE_KEY, ORIGINAL_FILE_NAME);
-
-  private static final ImmutableSet<Scalar> ID_SCALARS = ImmutableSet.of(ID);
-
-  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTIONS);
-
-  private static final ImmutableSet<Scalar> NAME_SCALARS =
-      ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
-
-  private static final ImmutableSet<Scalar> NUMBER_SCALARS = ImmutableSet.of(NUMBER);
-
-  private static final ImmutableSet<Scalar> SINGLE_SELECT_SCALARS = ImmutableSet.of(SELECTION);
-
-  private static final ImmutableSet<Scalar> TEXT_SCALARS = ImmutableSet.of(TEXT);
-
-  private static final ImmutableSet<Scalar> STATIC_SCALARS = ImmutableSet.of();
-
-  private static final ImmutableSet<Scalar> PHONE_SCALARS =
-      ImmutableSet.of(PHONE_NUMBER, COUNTRY_CODE);
-  private static final ImmutableSet<Scalar> METADATA_SCALARS =
-      ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
-
-  private static ImmutableSet<String> metadataScalarKeys;
-
   /**
    * Returns the scalars for a specific {@link QuestionType}.
    *
@@ -126,40 +96,45 @@ public enum Scalar {
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     switch (questionType) {
       case ADDRESS:
-        return ADDRESS_SCALARS;
+        return ImmutableSet.of(
+            STREET,
+            LINE2,
+            CITY,
+            STATE,
+            ZIP,
+            CORRECTED,
+            LATITUDE,
+            LONGITUDE,
+            WELL_KNOWN_ID,
+            SERVICE_AREA);
       case CURRENCY:
-        return CURRENCY_SCALARS;
+        return ImmutableSet.of(CURRENCY_CENTS);
       case DATE:
-        return DATE_SCALARS;
+        return ImmutableSet.of(DATE, YEAR, MONTH, DAY);
       case EMAIL:
-        return EMAIL_SCALARS;
+        return ImmutableSet.of(EMAIL);
       case FILEUPLOAD:
-        return FILE_UPLOAD_SCALARS;
+        return ImmutableSet.of(FILE_KEY, ORIGINAL_FILE_NAME);
       case ID:
-        return ID_SCALARS;
+        return ImmutableSet.of(ID);
       case NAME:
-        return NAME_SCALARS;
+        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
       case NUMBER:
-        return NUMBER_SCALARS;
+        return ImmutableSet.of(NUMBER);
       case TEXT:
-        return TEXT_SCALARS;
-
+        return ImmutableSet.of(TEXT);
       case CHECKBOX: // QuestionTypes with multi-selection
-        return MULTI_SELECT_SCALARS;
-
+        return ImmutableSet.of(SELECTIONS);
       case DROPDOWN: // QuestionTypes with single-selection
       case RADIO_BUTTON:
-        return SINGLE_SELECT_SCALARS;
-
+        return ImmutableSet.of(SELECTION);
       case STATIC:
-        return STATIC_SCALARS;
-
+        return ImmutableSet.of();
       case PHONE:
-        return PHONE_SCALARS;
+        return ImmutableSet.of(PHONE_NUMBER, COUNTRY_CODE);
       case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
         // do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
-
       case NULL_QUESTION: // Fallthrough intended
       default:
         throw new UnsupportedQuestionTypeException(questionType);
@@ -172,13 +147,6 @@ public enum Scalar {
 
   /** A set of Scalars as strings that represent keys where metadata is stored. */
   public static ImmutableSet<String> getMetadataScalarKeys() {
-    if (metadataScalarKeys == null) {
-      metadataScalarKeys =
-          METADATA_SCALARS.stream()
-              .map(Scalar::name)
-              .map(String::toLowerCase)
-              .collect(ImmutableSet.toImmutableSet());
-    }
-    return metadataScalarKeys;
+    return METADATA_SCALAR_KEYS;
   }
 }
