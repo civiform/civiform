@@ -1264,7 +1264,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "Active Directory Federation Services",
                               "Configuration options for the"
-                                  + " [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc)"
+                                  + " [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1318,7 +1318,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "OpenID Connect",
                               "Configuration options for the"
-                                  + " [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc)"
+                                  + " [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(

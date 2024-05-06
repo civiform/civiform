@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
