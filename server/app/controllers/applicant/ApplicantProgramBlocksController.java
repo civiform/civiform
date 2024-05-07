@@ -1024,32 +1024,38 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
       CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
-      ApplicationBaseViewParams applicationParams = buildApplicationBaseViewParams(
-        request,
-        applicantId,
-        programId,
-        blockId,
-        inReview,
-        roApplicantProgramService,
-        thisBlockUpdated,
-        personalInfo,
-        ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
-        applicantRoutes,
-        profile);
-        if (settingsManifest.getNorthStarApplicantUi(request)) {
-          return CompletableFuture.completedFuture(ok(northStarAddressCorrectionBlockView.render(
-                  request, applicationParams, addressSuggestionGroup))
-              .as(Http.MimeTypes.HTML));
-        } else {
-          return CompletableFuture.completedFuture(ok(addressCorrectionBlockView.render(
-            applicationParams,
-            messagesApi.preferred(request),
-            addressSuggestionGroup,
-            applicantRequestedAction,
-            isEligibilityEnabledOnThisBlock))
-        .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
-        }
-
+      ApplicationBaseViewParams applicationParams =
+          buildApplicationBaseViewParams(
+              request,
+              applicantId,
+              programId,
+              blockId,
+              inReview,
+              roApplicantProgramService,
+              thisBlockUpdated,
+              personalInfo,
+              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+              applicantRoutes,
+              profile);
+      if (settingsManifest.getNorthStarApplicantUi(request)) {
+        return CompletableFuture.completedFuture(
+            ok(northStarAddressCorrectionBlockView.render(
+                    request,
+                    applicationParams,
+                    addressSuggestionGroup,
+                    applicantRequestedAction,
+                    isEligibilityEnabledOnThisBlock))
+                .as(Http.MimeTypes.HTML));
+      } else {
+        return CompletableFuture.completedFuture(
+            ok(addressCorrectionBlockView.render(
+                    applicationParams,
+                    messagesApi.preferred(request),
+                    addressSuggestionGroup,
+                    applicantRequestedAction,
+                    isEligibilityEnabledOnThisBlock))
+                .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+      }
     }
   }
 

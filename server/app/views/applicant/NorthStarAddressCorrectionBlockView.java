@@ -1,21 +1,19 @@
 package views.applicant;
 
-import org.thymeleaf.TemplateEngine;
-
 import com.google.inject.Inject;
-
 import controllers.AssetsFinder;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.geo.AddressSuggestionGroup;
 import views.ApplicationBaseViewParams;
 
 public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseView {
-    
-      @Inject
-      NorthStarAddressCorrectionBlockView(
+
+  @Inject
+  NorthStarAddressCorrectionBlockView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
@@ -23,14 +21,21 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
     super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
   }
 
-public String render(Request request, ApplicationBaseViewParams params, AddressSuggestionGroup addressSuggestionGroup) {
+  public String render(
+      Request request,
+      ApplicationBaseViewParams params,
+      AddressSuggestionGroup addressSuggestionGroup,
+      ApplicantRequestedAction applicantRequestedAction,
+      Boolean isEligibilityEnabled) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
-    context.setVariable("confirmAddressMethod", getFormAction(params, ApplicantRequestedAction.NEXT_BLOCK));
-    context.setVariable("suggestions", addressSuggestionGroup.getAddressSuggestions());
+    context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
+    context.setVariable("goBackAction", goBackAction(params));
+    context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
+    context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);
   }
 
-    private String getFormAction(
+  private String getFormAction(
       ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
     return applicantRoutes
         .confirmAddress(
@@ -40,6 +45,17 @@ public String render(Request request, ApplicationBaseViewParams params, AddressS
             params.block().getId(),
             params.inReview(),
             applicantRequestedAction)
+        .url();
+  }
+
+  private String goBackAction(ApplicationBaseViewParams params) {
+    return applicantRoutes
+        .blockEditOrBlockReview(
+            params.profile(),
+            params.applicantId(),
+            params.programId(),
+            params.block().getId(),
+            params.inReview())
         .url();
   }
 }

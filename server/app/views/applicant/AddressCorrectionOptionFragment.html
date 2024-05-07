@@ -1,0 +1,19 @@
+<label
+  th:fragment="address-correction-option(address, selected, hideButton, singleLineAddress)"
+>
+  <input
+    type="radio"
+    name="selectedAddress"
+    th:value="${singleLineAddress}"
+    th:checked="${selected}"
+    th:attr="hidden=${hideButton ? '' : null}"
+  />
+  <div>
+    <div th:text="${address.getStreet()}"></div>
+    <div th:if="${address.hasLine2()}" th:text="${address.getLine2()}"></div>
+    <!--/* City, State Zip */-->
+    <div
+      th:text="|${address.getCity()}, ${address.getState()} ${address.getZip()}|"
+    ></div>
+  </div>
+</label>

@@ -2,15 +2,63 @@
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
   <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
   <body data-load-modal="true">
-    <form id="cf-block-form" th:action="${confirmAddressMethod}" method="POST" th:with="anySuggestions=${suggestions.size() > 0}">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
-<!-- Add progress bar -->
-        <h2 th:text="#{title.confirmAddress}"></h2>
-        <div th:text="#{content.confirmAddressLine1}"></div>
-        <div th:if="anySuggestions" th:text="#{content.content.foundSimilarAddressLine2}"></div>
-        <div th:if="!anySuggestions" th:text="#{content.content.noValidAddressLine2}"></div>
+    <form
+      id="cf-block-form"
+      th:action="${confirmAddressAction}"
+      method="POST"
+      th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
+                   anySuggestions=${suggestions.size() > 0}"
+    >
+      <input hidden th:value="${csrfToken}" name="csrfToken" />
+      <!-- TODO  Add progress bar -->
+      <h2 th:text="#{title.confirmAddress}"></h2>
+      <div th:text="#{content.confirmAddressLine1}"></div>
+      <div
+        th:if="${anySuggestions}"
+        th:text="#{content.foundSimilarAddressLine2}"
+      ></div>
+      <div
+        th:if="${!anySuggestions}"
+        th:text="#{content.noValidAddressLine2}"
+      ></div>
 
+      <!-- If in -->
+      <div th:if="${!isEligibilityEnabled}">
+        <h3 th:text="#{content.addressEntered}"></h3>
+        <div
+          th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${addressSuggestionGroup.getOriginalAddress()}, ${!anySuggestions}, ${!anySuggestions}, 'USER_KEEPING_ADDRESS_VALUE')}"
+        ></div>
+      </div>
 
+      <!-- render suggested addresses -->
+      <div th:if="${anySuggestions}">
+        <h3
+          th:if="${suggestions.size() == 1}"
+          th:text="#{content.suggestedAddress}"
+        ></h3>
+        <h3
+          th:if="${suggestions.size() > 1}"
+          th:text="#{content.suggestedAddresses}"
+        ></h3>
+
+        <th:block
+          th:each="suggestion, iterator: ${suggestions}"
+          th:if="${iterator.index &lt; 3}"
+        >
+          <div
+            th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${suggestions.get(iterator.index)}, ${iterator.index == 0}, false, suggestion.getSingleLineAddress())}"
+          ></div>
+        </th:block>
+      </div>
+      <!--/* Bottom nav buttons */-->
+      <div>
+        <button
+          type="submit"
+          class="usa-button"
+          th:text="#{button.confirmAddress}"
+        ></button>
+        <button class="usa-button" th:text="#{button.goBackAndEdit}"></button>
+      </div>
     </form>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
