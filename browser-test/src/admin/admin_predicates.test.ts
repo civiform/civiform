@@ -400,6 +400,51 @@ test.describe('create and edit predicates', () => {
     })
   }
 
+  test('show operator help texts', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addNameQuestion({questionName: 'name-question'})
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+
+    const programName = 'Help text program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'name', [
+      'name-question',
+      'date-question',
+    ])
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+
+    await adminPredicates.selectQuestionForPredicate('name-question')
+    await adminPredicates.selectQuestionForPredicate('date-question')
+    await adminPredicates.clickAddConditionButton()
+
+    await adminPredicates.addValueRows(1)
+
+    await adminPredicates.configurePredicate({
+      questionName: 'name-question',
+      scalar: 'first name',
+      operator: 'is one of',
+    })
+    await adminPredicates.configurePredicate({
+      questionName: 'date-question',
+      scalar: 'date',
+      operator: 'age is between',
+    })
+
+    await validateScreenshot(
+      page.locator('#predicate-config-value-row-container'),
+      'operator-help-text',
+    )
+  })
+
   test.describe('test predicates', () => {
     test.beforeEach(async ({page, adminQuestions}) => {
       await loginAsAdmin(page)

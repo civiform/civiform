@@ -209,7 +209,7 @@ class AdminPredicateConfiguration {
 
     // Each value input has its own help text
     const csvHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-comma-help-text`,
     )
     csvHelpTexts.forEach((div: Element) =>
       div.classList.toggle(
@@ -220,7 +220,7 @@ class AdminPredicateConfiguration {
 
     // Each value input has its own help text
     const betweenHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-between-help-text`,
     )
     betweenHelpTexts.forEach((div: Element) =>
       div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
