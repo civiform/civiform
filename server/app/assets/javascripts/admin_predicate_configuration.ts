@@ -93,7 +93,7 @@ class AdminPredicateConfiguration {
 
     // Check if any inputs are missing a value.
     document
-      ?.querySelector('#predicate-config-value-row-container')
+      .querySelector('#predicate-config-value-row-container')
       ?.querySelectorAll('[data-question-id]')
       .forEach((questionAnswerGroup) => {
         const inputs = questionAnswerGroup?.querySelectorAll('input')
@@ -275,71 +275,82 @@ class AdminPredicateConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-    const valueInputs = assertNotNull(
-      document
-        ?.querySelector('#predicate-config-value-row-container')
-        ?.querySelectorAll(`[data-question-id="${questionId}"] input`),
-    )
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll(`[data-question-id="${questionId}"] input`)
+      .forEach((valueInput) =>
+        this.setInputAttributes(
+          valueInput,
+          selectedScalarType,
+          selectedScalarValue,
+          operatorValue,
+        ),
+      )
+  }
 
-    for (const valueInput of Array.from(valueInputs)) {
-      // Reset defaults
-      valueInput.setAttribute('type', 'text')
-      valueInput.removeAttribute('step')
-      valueInput.removeAttribute('placeholder')
+  setInputAttributes(
+    valueInput: Element,
+    selectedScalarType: string | null,
+    selectedScalarValue: string | null,
+    operatorValue: string,
+  ) {
+    // Reset defaults
+    valueInput.setAttribute('type', 'text')
+    valueInput.removeAttribute('step')
+    valueInput.removeAttribute('placeholder')
 
-      if (selectedScalarType == null || selectedScalarValue == null) {
-        continue
-      }
+    if (selectedScalarType == null || selectedScalarValue == null) {
+      return
+    }
 
-      switch (selectedScalarType) {
-        case 'STRING':
-          if (selectedScalarValue === 'EMAIL') {
-            // Need to look at the selected scalar *value* for email since the type is just a
-            // string, but emails have a special type in HTML inputs.
-            valueInput.setAttribute('type', 'email')
-            break
-          }
+    switch (selectedScalarType) {
+      case 'STRING':
+        if (selectedScalarValue === 'EMAIL') {
+          // Need to look at the selected scalar *value* for email since the type is just a
+          // string, but emails have a special type in HTML inputs.
+          valueInput.setAttribute('type', 'email')
+          break
+        }
+        valueInput.setAttribute('type', 'text')
+        break
+      case 'CURRENCY_CENTS':
+        if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
+          // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
           valueInput.setAttribute('type', 'text')
-          break
-        case 'CURRENCY_CENTS':
-          if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
-            // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('step', '.01')
-            valueInput.setAttribute('placeholder', '$0.00')
-            valueInput.setAttribute('type', 'number')
-          }
-          break
-        case 'LONG':
-          if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
-            // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('step', '1')
-            valueInput.setAttribute('placeholder', '0')
-            valueInput.setAttribute('type', 'number')
-          }
-          break
-        case 'DATE':
-          if (
-            operatorValue === 'AGE_OLDER_THAN' ||
-            operatorValue === 'AGE_YOUNGER_THAN'
-          ) {
-            // Age-related operators should have number input value
-            valueInput.setAttribute('type', 'number')
-            // We should allow for decimals to account for month intervals
-            valueInput.setAttribute('step', '.01')
-          } else if (operatorValue === 'AGE_BETWEEN') {
-            // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('type', 'date')
-          }
-          break
-        default:
+        } else {
+          valueInput.setAttribute('step', '.01')
+          valueInput.setAttribute('placeholder', '$0.00')
+          valueInput.setAttribute('type', 'number')
+        }
+        break
+      case 'LONG':
+        if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
+          // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
           valueInput.setAttribute('type', 'text')
-      }
+        } else {
+          valueInput.setAttribute('step', '1')
+          valueInput.setAttribute('placeholder', '0')
+          valueInput.setAttribute('type', 'number')
+        }
+        break
+      case 'DATE':
+        if (
+          operatorValue === 'AGE_OLDER_THAN' ||
+          operatorValue === 'AGE_YOUNGER_THAN'
+        ) {
+          // Age-related operators should have number input value
+          valueInput.setAttribute('type', 'number')
+          // We should allow for decimals to account for month intervals
+          valueInput.setAttribute('step', '.01')
+        } else if (operatorValue === 'AGE_BETWEEN') {
+          // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
+          valueInput.setAttribute('type', 'text')
+        } else {
+          valueInput.setAttribute('type', 'date')
+        }
+        break
+      default:
+        valueInput.setAttribute('type', 'text')
     }
   }
 
