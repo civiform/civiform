@@ -64,6 +64,7 @@ import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -89,6 +90,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
+  private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
@@ -111,6 +113,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
+      NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -132,6 +135,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
     this.northStarApplicantProgramBlockEditView =
         checkNotNull(northStarApplicantProgramBlockEditView);
+    this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
     this.programService = checkNotNull(programService);
   }
 
@@ -1020,25 +1024,32 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
       CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
-      return CompletableFuture.completedFuture(
-          ok(addressCorrectionBlockView.render(
-                  buildApplicationBaseViewParams(
-                      request,
-                      applicantId,
-                      programId,
-                      blockId,
-                      inReview,
-                      roApplicantProgramService,
-                      thisBlockUpdated,
-                      personalInfo,
-                      ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
-                      applicantRoutes,
-                      profile),
-                  messagesApi.preferred(request),
-                  addressSuggestionGroup,
-                  applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock))
-              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+      ApplicationBaseViewParams applicationParams = buildApplicationBaseViewParams(
+        request,
+        applicantId,
+        programId,
+        blockId,
+        inReview,
+        roApplicantProgramService,
+        thisBlockUpdated,
+        personalInfo,
+        ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+        applicantRoutes,
+        profile);
+        if (settingsManifest.getNorthStarApplicantUi(request)) {
+          return CompletableFuture.completedFuture(ok(northStarAddressCorrectionBlockView.render(
+                  request, applicationParams, addressSuggestionGroup))
+              .as(Http.MimeTypes.HTML));
+        } else {
+          return CompletableFuture.completedFuture(ok(addressCorrectionBlockView.render(
+            applicationParams,
+            messagesApi.preferred(request),
+            addressSuggestionGroup,
+            applicantRequestedAction,
+            isEligibilityEnabledOnThisBlock))
+        .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+        }
+
     }
   }
 
