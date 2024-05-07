@@ -129,7 +129,7 @@ public final class ProgramService {
    * Get the data object about the programs that are in the active or draft version without the full
    * question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getAllActiveAndDraftProgramsWithoutQuestionLoad() {
+  public ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad() {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
