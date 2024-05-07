@@ -380,8 +380,18 @@ export class AdminPrograms {
     return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
-  async gotoEditDraftProgramPage(programName: string) {
+  async gotoEditDisabledDraftProgramPage(programName: string) {
+    await this.gotoEditDraftProgramPage(programName, true)
+  }
+
+  async gotoEditDraftProgramPage(
+    programName: string,
+    isDisabled: boolean = false,
+  ) {
     await this.gotoAdminProgramsPage()
+    if (isDisabled) {
+      await this.gotoDisabledProgramIndexPage()
+    }
     await this.expectDraftProgram(programName)
     await this.page.click(
       this.withinProgramCardSelector(
@@ -702,6 +712,20 @@ export class AdminPrograms {
     )
   }
 
+  async addDisabledProgramBlockUsingSpec(
+    programName: string,
+    blockDescription = 'screen description',
+    questions: QuestionSpec[] = [],
+    disabled: boolean = true,
+  ) {
+    await this.addProgramBlockUsingSpec(
+      programName,
+      blockDescription,
+      questions,
+      disabled,
+    )
+  }
+
   /**
    * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
    *
@@ -712,8 +736,13 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questions: QuestionSpec[] = [],
+    disabled: boolean = false,
   ) {
-    await this.gotoEditDraftProgramPage(programName)
+    if (disabled) {
+      await this.gotoEditDisabledDraftProgramPage(programName)
+    } else {
+      await this.gotoEditDraftProgramPage(programName)
+    }
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
