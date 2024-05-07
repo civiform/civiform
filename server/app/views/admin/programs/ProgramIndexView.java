@@ -33,6 +33,7 @@ import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
@@ -60,6 +61,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
+  private final ProgramService programService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -67,10 +69,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       SettingsManifest settingsManifest,
-      ProgramCardFactory programCardFactory) {
+      ProgramCardFactory programCardFactory,
+      ProgramService programService) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
+    this.programService = checkNotNull(programService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -99,9 +103,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
+
+    // Include all programs in draft in publishAllDraft modal.
+    ActiveAndDraftPrograms allPrograms =
+        programService.getActiveAndDraftProgramsWithoutQuestionLoad();
     Optional<Modal> maybePublishModal =
         maybeRenderPublishAllModal(
-            programs,
+            allPrograms,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
             request,
             universalQuestionIds);
