@@ -2,8 +2,12 @@
   th:fragment="currency(question, questionRendererParams)"
   th:with="currencyQuestion=${question.createCurrencyQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+             inputId=${'id-' + #strings.randomAlphanumeric(8)},
+             questionErrors=${currencyQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${!currencyQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
+  th:class="cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -12,10 +16,13 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${currencyQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
   ></div>
 
-  <div class="usa-input-group">
+  <div
+    class="usa-input-group"
+    th:classappend="${hasErrors ? 'usa-input-group--error' : ''}"
+  >
     <div class="usa-input-prefix">$</div>
     <input
       th:with="value=${currencyQuestion.getCurrencyValue().isPresent() ?
@@ -33,8 +40,4 @@
       th:autofocus="${questionRendererParams.autofocusFirstError()}"
     />
   </div>
-  <!--/* Display field specific error messages */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${currencyQuestion.getValidationErrors().get(currencyQuestion.getCurrencyPath())})}"
-  ></div>
 </div>

@@ -32,3 +32,17 @@ See the radio-option below as an example.
 #program-image-upload-file-input .usa-file-input {
   max-width: none;
 }
+
+.cf-question-error-message {
+  @include u-text('secondary-dark', 'bold');
+  @include u-font('sans', 'xs');
+  @include u-padding-top('05');
+}
+
+.cf-question-with-error {
+  @include u-border-left('05', 'secondary-dark');
+}
+
+.cf-applicant-question {
+  @include u-padding-left(2)
+}

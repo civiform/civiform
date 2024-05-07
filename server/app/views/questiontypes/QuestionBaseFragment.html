@@ -1,7 +1,8 @@
 <th:block th:fragment="validationErrors(validationErrors)">
   <div
     th:each="error: ${validationErrors}"
-    th:text="#{${error.key.getKeyName()}(${error.args})}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+    class="cf-question-error-message"
   ></div>
 </th:block>
 
