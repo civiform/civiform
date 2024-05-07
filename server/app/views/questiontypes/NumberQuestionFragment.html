@@ -2,8 +2,11 @@
   th:fragment="number(question, questionRendererParams)"
   th:with="numberQuestion=${question.createNumberQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+             inputId=${'id-' + #strings.randomAlphanumeric(8)},
+             hasErrors=${!idQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
+  class="cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -21,6 +24,7 @@
                     max=${numberQuestion.getQuestionDefinition().getMax().isPresent() ? numberQuestion.getQuestionDefinition().getMax().getAsLong() : null}"
     type="number"
     class="usa-input"
+    th:classappend="${hasErrors ? 'usa-input--error' : ''}"
     inputmode="decimal"
     th:id="${inputId}"
     th:name="${numberQuestion.getNumberPath()}"

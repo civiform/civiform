@@ -1,0 +1,40 @@
+<div
+  th:fragment="dropdown(question, questionRendererParams)"
+  th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
+              questionId=${'id-' + #strings.randomAlphanumeric(8)},
+              inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+>
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!--/* Display errors */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <select
+    class="usa-select"
+    name="options"
+    th:id="${inputId}"
+    th:name="${singleSelectQuestion.getSelectionPath()}"
+    th:aria-required="${!question.isOptional()}"
+    th:aria-describedby="${questionId} + '-description'"
+    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+  >
+    <option
+      value
+      hidden
+      th:selected="${!singleSelectQuestion.hasValue()}"
+      th:text="#{placeholder.noDropdownSelection}"
+    ></option>
+    <option
+      th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+      th:value="${option.id()}"
+      th:text="${option.optionText()}"
+      th:selected="${singleSelectQuestion.optionIsSelected(option)}"
+    ></option>
+  </select>
+</div>

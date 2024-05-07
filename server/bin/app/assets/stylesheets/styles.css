@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Add global styles and classes here.
+ */
+@layer base {
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  /* Must define the body color explicitly rather than relying on the browser default because,
+  if left undefined, USWDS will apply its slightly lighter color */
+  body {
+    color: rgb(0 0 0);
+  }
+
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
+  }
+
+  /* TODO: Remove these extra USWDS button styles once all our buttons use USWDS classes.
+    Right now, the general button styles above interfere with the USWDS button styles, so
+    we have to override them explicitly here. */
+  .usa-button {
+    @apply py-3 px-5;
+  }
+
+  .usa-button:not(.usa-button--outline) {
+    background-color: #005ea2;
+  }
+
+  .usa-button.usa-button--outline {
+    background-color: transparent;
+    color: #005ea2;
+  }
+
+  button:hover {
+    @apply bg-blue-700;
+  }
+
+  button:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
+  }
+
+  button[aria-expanded='true'] > .cf-accordion-button {
+    @apply rotate-180;
+  }
+
+  /* Remove number steppers (https://www.w3schools.com/howto/howto_css_hide_arrow_number.asp) */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  /**
+   * USWDS's alignment strategy makes alerts look a little odd for us, so override
+   * to remove the extra margin to make the alert body left-justified. It doesn't
+   * respect using the margin-left-0 class or Tailwind's ml-0, so we override it here.
+   */
+  .usa-alert .usa-alert__body {
+    margin-left: 0;
+  }
+
+  /* USWDS defaults to 1rem, which ends up looking weird and unbalanced on some pages. */
+  .usa-alert-remove-top-margin {
+    margin-top: 0
+  }
+
+  /**
+   * For explanation of why we need two different hidden classes see
+   * initToggleQuestionBankButtons() in questionBank.ts
+   */
+  .cf-question-bank-hidden .cf-question-bank-panel {
+    @apply translate-x-full;
+  }
+  .cf-question-bank-hidden .cf-question-bank-glasspane {
+    @apply opacity-0;
+  }
+
+  @media screen and (min-width: 640px) {
+    /* When expanded, the banner header was moving to the center because of margin-auto */
+    .usa-banner__header--expanded .usa-banner__inner {
+      margin-left: 0px;
+    }
+  }
+
+  /* Rather than having a focus outline around the checkbox or radio button,
+  it is around the label */
+  input[type='radio']:focus,
+  input[type='checkbox']:focus {
+    @apply outline-none;
+  }
+  /* Mimics the focus outline styles from the checkbox or radio input on the label */
+  .cf-radio-option:focus-within {
+    @apply border-4;
+  }
+
+  /* Overriding the style set by USWDS for this element */
+  #name-search {
+    @apply mt-0;
+  }
+
+  .ti-header-band {
+    background-color: #f0f0f0;
+  }
+}

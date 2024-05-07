@@ -1,0 +1,537 @@
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+button.logout=ka bixida
+label.selectLanguage=Fadlan dooro luqadda aad doorbidayso.
+button.untranslatedSubmit=Gudbi
+footer.supportLinkDescription=Taageero farsamo, la xidhiidh
+guest=Marti
+label.languageSr=Dooro luqad
+header.endSession=Dhammee kullanka
+toast.sessionEnded=Kullankaagii wuu dhammaaday.
+header.guestIndicator=Waxaad tahay isticmaale marti ah
+header.userName=U soo gal sidii {0}
+validation.isRequired=Su''aashan ayaa loo baahan yahay.
+validation.invalidInput=Fadlan geli qiimaha sadar kasta.
+validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
+content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
+content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
+content.optional=(Ikhtiyaar)
+content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
+toast.errorMessageOutline=Khalad: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Xidh
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Dib u eeg
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=waxay ku furaysaa bog cusub
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
+title.login=Soo gal
+content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
+button.createAnAccount=Samee koonto
+button.login=Halkan ka gal
+content.alternativeLoginPrompt=Akoon ma lihid?
+content.or=ama
+button.createAccount=Akoon samayso
+button.guestLogin=Ku sii wad marti ahaan
+content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
+content.adminLoginPrompt=Wax kale miyaad raadinaysay?
+content.adminFooterPrompt=Miyaad tahay maamule?
+link.adminLogin=Admin login
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+input.fileAlreadyUploaded=Faylka la soo geliyay: {0}
+button.deleteFile=Tirtir
+button.keepFile=Sii wad
+button.nextScreen=Tan Xiga
+button.previousScreen=Hore
+button.skipFileUpload=Ka bood
+content.blockProgress={0} ee {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
+toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
+link.allDone=Waan dhameeyay
+link.applyToAnotherProgram=Codso barnaamij kale
+link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aadna bilawdo inaad dib u eegto?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aad gasho boggii hore?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad joogto oo aad hagaajisid jawaabahaaga, ama aad tagto bogga dib u eegista adoon kaydin jawaabahaaga?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad joogto oo aad hagaajisid jawaabahaaga, ama aad tagtid boggii hore ee su'aalaha adoon kaydin jawaabahaaga?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=Sii wad inaad dib u eegto bogga adigoon kaydin
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=Sii wad su'aalahii hore adigoon kaydin
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.stayAndFixButton=Joog oo hagaaji jawaabahaaga
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+button.apply=Codso
+button.applySr=Ka Codso {0}
+button.edit=Tifatir
+button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
+button.continueSr=U sii wad codsiga ila {0}
+button.startHere=Halkan ka bilow.
+button.continueToApplication=Ku sii soco codsiga
+button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
+button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
+button.continueCommonIntakeSr=Sii wad buuxinta {0}
+content.submittedDate=La gudbiyay {0}
+content.findPrograms=Hel barnaamijyo
+content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
+content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
+content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
+link.programDetails=Faahfaahinta barnaamijka
+link.programDetailsSr=Faahfaahinta barnaamijka ee{0}, waxay ku furmaysaa bog cusub
+title.programs=Barnaamijyada iyo adeegyada
+title.getStartedSection=Ku Billow
+title.allProgramsSection=Dhammaan barnaamijyada ({0})
+title.status=Heerka
+title.inProgressProgramsUpdated=Socda hadda
+title.activeProgramsUpdated=Lama bilaabin
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
+title.submittedPrograms=La gudbiyay
+toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
+toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=Akoonkan lama tirtiri karo.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=Akoonkan lama tirtiri karo maadaama ay leedahay abbyo furan.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=Macluumaadka macmiilka si guul leh ayaa loo cusboonaysiiyay.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=Akoonka macmiilka ee "{0}" si guul leh ayaa loo tirtiray.
+# Message when a user successfully creates a client account.
+banner.newClientCreated=Macmiil cusub ayaa si guul leh loo sameeyay.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Waxaad codsanaysaa {0}. Ma waxaad isku dayaysaa inaad u codsato macamiil kale?
+
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=Kudar macmiil cusub
+# Button that brings the user back to the list of their clients.
+button.backToClientList=Ku laabo liiska macmiilka
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=Ku laabo tafatirka
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=Baaji
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=Ka tirtir raadinta
+# Button for a user to delete their client's account
+button.deleteAcct=Tirtir akoonka
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=Hayso akoonka
+# Button to navigate to the next page.
+button.nextPage=Kan xiga
+# Button to save information that has been entered.
+button.save=Keydi
+# Button to execute a search to filter a client list.
+button.search=Raadi
+# Button to select a client.
+button.select=Dooro
+# Button to start an application on behalf of a client.
+button.startApp=Biloow codsi
+# Button to view the applications belonging to an applicant.
+button.viewApplications=Eeg codsiyada
+# Button to view and add clients
+button.viewAndAddClients=Arag oo ku dar macaamiisha
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=Macmiilkaaga cusub {0} waxaa lagu daray liiska macmiilkaaga. Hadda waxaad bilaabi kartaa soo gudbinta codsiyada macmiilkan.
+# The tooltip of the email input field.
+content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la'aan, adiga ama ururkaaga bulshada ayaa mas'uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted={0} Codsiyada waa la gudbiyey
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 codsi ayaa la gudbiyay
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=Ma jiraan wax codsiyo ah oo loo gudbiyay macmiilkan, markaa ma jiraan codsiyo dhumi doonaan.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(ma jiro ciwaan iimayl ah)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Wali aan soo galin
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Soo galay, wax codsiyo ah lama soo gudbin
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Codsigii u dambeeyay ee la gudbiyay {0}
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=Ma hubtaa inaad doonayso inaad tirtirto akoonka macmiilkan?
+
+# Header for the page with the Organization Members table.
+header.acctSettings=Dejimaha akoonka
+# Tab label for getting to the client list page
+header.clientList=Liiska macmiilka
+# Label for search
+header.search=Raadi
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
+label.acctStatus=Xaaladda akoonka
+# Label above the phone number for each client on the client list.
+label.contactInfo=Macluumaadka xiriirka
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=Maalin
+# Label above the birth date input field when creating or editing a client
+label.dob=Taariikhda dhalashada
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=Tusaale Janaayo 28 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=Iimayl
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Khalad: Taariikhda dhalashada ayaa loo baahan yahay
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Khalad: Magaca koowaad ayaa loo baahan yahay
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Khalad: Magaca awoowgaa ayaa loo baahan yahay
+# The label above the dropdown select field for the month of the client birth date.
+label.month=Bisha
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=Magaca
+# Example above the name input field for the client search.
+label.nameExample=Tusaale: Gu ama Darren ama Darren Gu
+# Label above the text input field for notes about a client.
+label.notes=Qoraalo
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=Lambarka telefoonka
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=Ku raadi taariikhda dhalashada
+# The label above the name search field of the client search.
+label.searchByName=Ku raadi magaca(yada)
+# The label above the input field for the year of the client birth date.
+label.year=Sanadka
+# Label showing the user when there is no name
+label.unnamedUser=Isticmaale aan la magacaabin
+
+link.edit=Wax ka beddel
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Dooro macamiil cusub
+
+# This is the header above the list of clients and the client search.
+title.allClients=Dhammaan macaamiisha
+# This is the heading above a new client creation form.
+title.createClient=Abuur macmiil cusub
+# This is the heading above the client editing form.
+title.editClient=Wax ka beddel macluumaadka macmiilka
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients=Muujinaya {0} macaamiisha
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=Muujinaya 1 macaamil
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Muujinaya dhamaan macaamiisha
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=Xubnaha ururka
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+button.submit=Gudbi
+button.continue=Sii wad
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.doesNotQualify=Uma qalmo
+link.edit=Wax ka beddel
+link.answer=Jawaab
+content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
+ariaLabel.answer=Jawaab {0}
+
+ariaLabel.edit=Wax ka beddel {0}
+title.commonIntakeSummary=Faa'iidooyinka hore u baadhaha oo kooban
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=Soo koobida barnaamijka codsiga
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
+title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga su'aalaha soo socda, macmiilkaagu waxa laga yaabaa inuusan u qalmin {0}.
+content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
+content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
+button.goBackAndEdit=Dib u noqo oo wax ka beddel
+toast.mayQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inuu u qalmo {0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
+toast.mayQualify=Iyada oo ku saleysan jawaabahaaga, waxaad u qalmi kartaa{0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
+tag.mayQualify=Waxa dhici karta inaad u qalanto
+tag.mayQualifyTi=Macmiilkaaga waxa dhici karta inuu u qalmo
+tag.mayNotQualify=Waxa dhici karta inaanad u qalmin
+tag.mayNotQualifyTi=Macmiilkaaga waxa dhici karta inuusan u qalmin
+
+toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u qalmin {0}. Haddi imacluumaadkaagu uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
+
+toast.mayNotQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}. Haddi imacluumaadka macmiilku uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
+banner.errorSavingApplication=Khalad ayaa ka imaaday kadib kaydinta codsiga
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+title.applicationConfirmation=AXaqiijinta codsiga
+content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
+title.createAnAccount=Akoon samee ama gal oo sign in garee
+content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
+content.generalLoginModalPrompt=Adigu akoon kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka bedasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
+button.continueWithoutAnAccount=Sii soco koonto la'aan
+title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
+title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
+content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
+content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
+content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
+# A header above a list of other programs the applicant might be interested in applying to.
+content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
+button.downloadPdf=Soo.deji.PDF
+button.applyToPrograms=Codso barnaamijyada
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=Ma jirana isbeddelo si loo kaydiyo {0}
+content.noChanges=Kumaad samayn wax isbeddelo ah codsiga weli. Ma jeclaan lahayd inaad sii wado wax ka beddelka?
+button.continueEditing=Sii wad wax ka beddelka
+button.exitApplication=Ka bax codsiga
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+label.addressLine2=Dabaqa, qolal, iwm. (ikhtiyaar)
+label.city=Magaalada
+label.state=Gobolka
+label.selectState=Dooro Gobolka
+label.street=Cinwaan
+label.zipcode=Siib Koodhka
+
+validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.
+validation.cityRequired=Fadlan magaalada gali.
+validation.currencyMisformatted=Lacagtu waa inay noqotaa mid ka mid ah qaababka soo socda: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Fadlan geli gobolka.
+validation.invalidZipcode=Fadlan geli sib koodhka shanta lambarka ah oo saxsan.
+validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (PO BOX).
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Hubi ciwaankaada
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Fadlan ka sax ciwaankaaga higaada ama ka dooro liiska la bixiyay.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Fadlan ka hubi ciwaankaaga higaada oo wax ka beddel si aad u sii waddo.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Ciwaanka aad gelisay:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Cinwaanka la soo jeediyay:
+content.suggestedAddresses=Cinwaanada la soo jeediyay:
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Hubi ciwaankaaga
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+placeholder.noDropdownSelection=Dooro ikhtiyaar:
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=Wadanka
+label.phoneNumber=Geli lambarka telefoonka
+validation.phoneNumberRequired=Waxaa loo baahan yahay lambarka telefoonka
+validation.phoneCountryCodeRequired=Wadanka waa in la doortaa
+validation.phoneNumberMustContainNumbersOnly=Lambarka telefoonku kama koobnaan karo xarfo aan tiro ahayn
+validation.invalidPhoneNumberProvided=Lambarkan telefoonku sax maaha
+validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+button.addEntity=Ku dar {0}
+button.removeEntity=Ka saar {0}
+dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad midkaan saarto{0}? Isbeddelkan waxa la kaydin doonaa marka aad gujiso "Dib-u-eeg", "Hore", ama "Xiga" oo dhammaan xogta la xiriirta tan {0} way lumi doontaa.
+validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
+validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
+placeholder.entityName=Naanaysta {0}
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+validation.fileRequired=Fadlan dooro fayl.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Faylkaagu aad buu u weyn yahay. Fadlan dooro fayl ka yar {0} MB.
+button.chooseFile=Dooro Fayl
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
+validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
+validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.tooFewSelections=Fadlan dooro ugu yaraan {0}.
+validation.tooManySelections=Fadlan dooro wax ka yar {0}
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+label.firstName=Magaca hore
+label.lastName=Magaca dambe
+label.middleName=Magaca dhexe
+
+placeholder.firstName=Magaca hore
+placeholder.lastName=Magaca dambe
+placeholder.middleName=Magaca dhexe
+
+validation.firstNameRequired=Fadlan gali magacaga koowaad.
+validation.lastNameRequired=Fadlan geli magacaaga dambe.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+validation.numberTooBig=Waa inuu noqdaa ugu badnaan {0}.
+validation.numberTooSmall=Waa inuu ahaadaa ugu yaraan {0}.
+validation.numberNonInteger=Fadlan geli qiimaha sadar kasta.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+validation.textTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
+validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
+adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaan karaan xarfaha yaryar, lambaro, calaamada hoose, iyo dhibcaha jiidan.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
+error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
+error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
+error.notFoundDescriptionLink=bogga internatka
+error.internalServerTitle=Khalad ayaa dhacay
+error.internalServerDescription=Fadlan la xidhiidh taageerada farsamada ee kaalmada xaga%s oo ku dar aqoonsiga khaladkan {0}.
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
+email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
+email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
+email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
+email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
+email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.
+email.applicationUpdateSubject=Cosboonaysiinta codsigaaga {0}
+email.tiApplicationUpdateSubject=Cusboonaysiinta codsiga barnaamijka {0} iyadoo la metelaayo codsadaha {1}
+email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u beddelmay {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=Tani waa websaydka rasmiga ah ee dowladda.
+banner.link=Halkan waxaa ah sida aad u garanayso
+banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
+banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
+banner.httpsSectionHeader=Websyadyada amniga ah ee .gov waxay isticmaalaan HTTPS
+banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxaad si amni ah ugu xidhan tahay websaydka .gov. Keliya ku wadaag macluumaadka xasaasiga ah websaydyada rasmiga ah, ee amniga ah.

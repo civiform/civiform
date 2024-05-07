@@ -5,11 +5,11 @@
              inputId=${'id-' + #strings.randomAlphanumeric(8)},
              fieldErrors=${currencyQuestion.getValidationErrors().get(currencyQuestion.getCurrencyPath())},
              questionErrors=${currencyQuestion.getValidationErrors().get(question.getContextualizedPath())},
-             allErrors=${currencyQuestion.getValidationErrors().values()}"
+             hasErrors=${!currencyQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  th:class="padding-left-105"
-  th:classappend="${allErrors == null || allErrors.isEmpty() ? '' : 'border-secondary-dark border-left-width-05'}"
-  >
+  th:class="cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
+>
   <!--/* Title and Help Text */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
@@ -23,8 +23,9 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors})}"
   ></div>
 
-  <div class="usa-input-group"
-      th:classappend="${allErrors == null || allErrors.isEmpty() ? '' : 'usa-input-group--error'}"
+  <div
+    class="usa-input-group"
+    th:classappend="${hasErrors ? 'usa-input-group--error' : ''}"
   >
     <div class="usa-input-prefix">$</div>
     <input

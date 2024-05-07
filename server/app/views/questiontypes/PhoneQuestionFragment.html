@@ -2,8 +2,13 @@
   th:fragment="phone(question, questionRendererParams)"
   th:with="phoneQuestion=${question.createPhoneQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             inputId=${'cf-phone-number-' +'id-' + #strings.randomAlphanumeric(8)}"
+             inputId=${'cf-phone-number-' +'id-' + #strings.randomAlphanumeric(8)},
+             fieldErrors=${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())},
+             questionErrors=${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${!phoneQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
+  class="cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -12,13 +17,17 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
+  ></div>
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors})}"
   ></div>
 
   <div class="cf-phone-number">
     <input
       type="text"
       class="usa-input"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
       maxlength="10000"
       inputmode="tel"
       th:id="${inputId}"
@@ -30,8 +39,5 @@
       th:aria-invalid="${!phoneQuestion.getValidationErrors().isEmpty()}"
       th:autofocus="${questionRendererParams.autofocusFirstError()}"
     />
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())})}"
-    ></div>
   </div>
 </div>

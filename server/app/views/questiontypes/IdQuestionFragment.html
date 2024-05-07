@@ -2,9 +2,11 @@
   th:fragment="id(question, questionRendererParams)"
   th:with="idQuestion=${question.createIdQuestion()},
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
-              inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+              inputId=${'id-' + #strings.randomAlphanumeric(8)},
+              hasErrors=${!idQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-question-text"
+  class="cf-applicant-question cf-question-text"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -19,6 +21,7 @@
   <input
     type="text"
     class="usa-input"
+    th:classappend="${hasErrors ? 'usa-input--error' : ''}"
     th:id="${inputId}"
     th:name="${idQuestion.getIdPath()}"
     th:value="${idQuestion.getIdValue().orElse('')}"
