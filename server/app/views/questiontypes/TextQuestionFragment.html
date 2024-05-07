@@ -2,9 +2,13 @@
   th:fragment="text(question, questionRendererParams)"
   th:with="textQuestion=${question.createTextQuestion()},
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
-              inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+              inputId=${'id-' + #strings.randomAlphanumeric(8)},
+              fieldErrors=${textQuestion.getValidationErrors().get(textQuestion.getTextPath())},
+              questionErrors=${textQuestion.getValidationErrors().get(question.getContextualizedPath())},
+              hasErrors=${!textQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-question-text"
+  class="cf-question-text cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -13,12 +17,16 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${textQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
+  ></div>
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors})}"
   ></div>
 
   <input
     type="text"
     class="usa-input"
+    th:classappend="${hasErrors ? 'usa-input--error' : ''}"
     maxlength="10000"
     th:id="${inputId}"
     th:name="${textQuestion.getTextPath()}"
