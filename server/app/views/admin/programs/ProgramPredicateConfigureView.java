@@ -735,8 +735,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .setValue(
                     maybeLeafOperationNode.map(
                         leafNode ->
-                            formatPredicateValue(
-                                leafNode.scalar(), leafNode.operator(), leafNode.comparedValue())))
+                            formatPredicateValue(leafNode.scalar(), leafNode.comparedValue())))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                 .getInputTag())
         .with(
@@ -759,64 +758,47 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                     BaseStyles.FORM_LABEL_TEXT_COLOR));
   }
 
-  private static String formatPredicateValue(
-      Scalar scalar, Operator operator, PredicateValue predicateValue) {
+  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
+    String value = predicateValue.value();
+    OperatorRightHandType predicateType = predicateValue.type();
     switch (scalar.toScalarType()) {
       case CURRENCY_CENTS:
-        {
-          long storedCents = Long.parseLong(predicateValue.value());
-          long dollars = storedCents / 100;
-          long cents = storedCents % 100;
-          return String.format("%d.%02d", dollars, cents);
-        }
-
+        long storedCents = Long.parseLong(value);
+        long dollars = storedCents / 100;
+        long cents = storedCents % 100;
+        return String.format("%d.%02d", dollars, cents);
       case DATE:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LONG)) {
-            return predicateValue.value();
-          }
-          return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
-              .atZone(ZoneId.systemDefault())
-              .toLocalDate()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
+          return formatListOfLongs(value);
         }
-
+        if (predicateType == OperatorRightHandType.LONG
+            || predicateType == OperatorRightHandType.DOUBLE) {
+          return value;
+        }
+        return Instant.ofEpochMilli(Long.parseLong(value))
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       case LONG:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-
-          return predicateValue.value();
+        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
+          return formatListOfLongs(value);
         }
-
+        return value;
       case LIST_OF_STRINGS:
       case STRING:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_STRINGS)) {
-            String value = predicateValue.value();
-
-            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-            return Splitter.on(", ")
-                // Remove opening and closing brackets
-                .splitToStream(value.substring(1, value.length() - 1))
-                // Remove quotes
-                .map(item -> item.substring(1, item.length() - 1))
-                // Join to CSV
-                .collect(Collectors.joining(","));
-          }
-
-          return predicateValue.valueWithoutSurroundingQuotes();
+        if (predicateType == OperatorRightHandType.LIST_OF_STRINGS) {
+          // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
+          return Splitter.on(", ")
+              // Remove opening and closing brackets
+              .splitToStream(value.substring(1, value.length() - 1))
+              // Remove quotes
+              .map(item -> item.substring(1, item.length() - 1))
+              // Join to CSV
+              .collect(Collectors.joining(","));
         }
-
+        return predicateValue.valueWithoutSurroundingQuotes();
       default:
-        {
-          throw new RuntimeException(
-              String.format("Unknown scalar type: %s", scalar.toScalarType()));
-        }
+        throw new RuntimeException(String.format("Unknown scalar type: %s", scalar.toScalarType()));
     }
   }
 
