@@ -10,7 +10,8 @@
                    anySuggestions=${suggestions.size() > 0}"
     >
       <input hidden th:value="${csrfToken}" name="csrfToken" />
-      <!-- TODO  Add progress bar -->
+      <div th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"></div>
+
       <h2 th:text="#{title.confirmAddress}"></h2>
       <div th:text="#{content.confirmAddressLine1}"></div>
       <div
@@ -22,7 +23,7 @@
         th:text="#{content.noValidAddressLine2}"
       ></div>
 
-      <!-- If in -->
+      <!--/* If this question is used for eligibility, we must use the corrected address */-->
       <div th:if="${!isEligibilityEnabled}">
         <h3 th:text="#{content.addressEntered}"></h3>
         <div
@@ -30,7 +31,7 @@
         ></div>
       </div>
 
-      <!-- render suggested addresses -->
+      <!--/* render suggested addresses */-->
       <div th:if="${anySuggestions}">
         <h3
           th:if="${suggestions.size() == 1}"
@@ -46,7 +47,7 @@
           th:if="${iterator.index &lt; 3}"
         >
           <div
-            th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${suggestions.get(iterator.index)}, ${iterator.index == 0}, false, suggestion.getSingleLineAddress())}"
+            th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${suggestions.get(iterator.index).getAddress()}, ${iterator.index == 0}, false, ${suggestion.getSingleLineAddress()})}"
           ></div>
         </th:block>
       </div>
@@ -56,10 +57,17 @@
           type="submit"
           class="usa-button"
           th:text="#{button.confirmAddress}"
+          th:formaction="${confirmAddressAction}"
         ></button>
-        <button class="usa-button" th:text="#{button.goBackAndEdit}"></button>
+        <button
+          class="usa-button"
+          th:text="#{button.goBackAndEdit}"
+          th:attr="data-redirect-to=${goBackAction}"
+          type="button"
+        ></button>
       </div>
     </form>
+    <div id="modal-container"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

@@ -20,8 +20,9 @@
 
     <!--/* TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. */-->
     <!--/* Street address */-->
-    <th:block
+    <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
+      class="cf-address-street-1"
     >
       <label
         class="usa-label"
@@ -41,11 +42,12 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)})}"
       ></div>
-    </th:block>
+    </div>
 
     <!--/* Street address line 2 */-->
-    <th:block
+    <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},line2Path=${addressQuestion.getLine2Path()}"
+      class="cf-address-street-2"
     >
       <label
         class="usa-label"
@@ -64,11 +66,12 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)})}"
       ></div>
-    </th:block>
+    </div>
 
     <!--/* City */-->
-    <th:block
+    <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},cityPath=${addressQuestion.getCityPath()}"
+      class="cf-address-city"
     >
       <label
         class="usa-label"
@@ -88,11 +91,12 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)})}"
       ></div>
-    </th:block>
+    </div>
 
     <!--/* State */-->
-    <th:block
+    <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},statePath=${addressQuestion.getStatePath()}"
+      class="cf-address-state"
     >
       <label
         class="usa-label"
@@ -123,11 +127,12 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(statePath)})}"
       ></div>
-    </th:block>
+    </div>
 
     <!--/* ZIP code */-->
-    <th:block
+    <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},zipPath=${addressQuestion.getZipPath()}"
+      class="cf-address-zip"
     >
       <label
         class="usa-label"
@@ -147,6 +152,6 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)})}"
       ></div>
-    </th:block>
+    </div>
   </fieldset>
 </div>

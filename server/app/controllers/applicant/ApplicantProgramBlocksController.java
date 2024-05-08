@@ -1045,7 +1045,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     addressSuggestionGroup,
                     applicantRequestedAction,
                     isEligibilityEnabledOnThisBlock))
-                .as(Http.MimeTypes.HTML));
+                .as(Http.MimeTypes.HTML)
+                .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
       } else {
         return CompletableFuture.completedFuture(
             ok(addressCorrectionBlockView.render(

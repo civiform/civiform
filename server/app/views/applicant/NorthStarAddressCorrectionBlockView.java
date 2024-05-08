@@ -32,6 +32,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
     context.setVariable("goBackAction", goBackAction(params));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
+    context.setVariable("applicationParams", params);
     return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);
   }
 
