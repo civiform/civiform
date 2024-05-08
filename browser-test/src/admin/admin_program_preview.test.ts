@@ -1,7 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
-test.describe('admin program preview', {tag: ['@uses-fixtures']}, () => {
+test.describe('admin program preview', () => {
   test('preview draft program and submit', async ({
     page,
     adminPrograms,

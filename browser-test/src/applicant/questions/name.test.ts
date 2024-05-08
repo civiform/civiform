@@ -14,7 +14,7 @@ import {
 const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
-test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
+test.describe('name applicant flow', () => {
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 

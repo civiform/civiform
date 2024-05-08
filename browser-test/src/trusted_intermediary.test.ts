@@ -13,7 +13,7 @@ import {
   enableFeatureFlag,
 } from './support'
 
-test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,

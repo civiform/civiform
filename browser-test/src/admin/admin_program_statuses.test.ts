@@ -7,7 +7,7 @@ import {
 } from '../support'
 import {waitForAnyModal} from '../support/wait'
 
-test.describe('modify program statuses', {tag: ['@uses-fixtures']}, () => {
+test.describe('modify program statuses', () => {
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
   })

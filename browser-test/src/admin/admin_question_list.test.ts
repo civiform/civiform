@@ -6,7 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-test.describe('Admin question list', {tag: ['@uses-fixtures']}, () => {
+test.describe('Admin question list', () => {
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,

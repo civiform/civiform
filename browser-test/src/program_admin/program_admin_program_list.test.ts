@@ -8,7 +8,7 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Program admin program list', {tag: ['@uses-fixtures']}, () => {
+test.describe('Program admin program list', () => {
   test('shows all the programs that are active', async ({
     page,
     adminPrograms,

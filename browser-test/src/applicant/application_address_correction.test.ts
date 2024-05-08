@@ -10,7 +10,7 @@ import {
 } from '../support'
 
 /** Tests for the address correction view and navigation to and from that view. */
-test.describe('address correction', {tag: ['@uses-fixtures']}, () => {
+test.describe('address correction', () => {
   const multiBlockMultiAddressProgram =
     'Address correction multi-block, multi-address program'
   const singleBlockMultiAddressProgram =

@@ -1,7 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('manage program admins', {tag: ['@uses-fixtures']}, () => {
+test.describe('manage program admins', () => {
   test('does not add a program admin that does not exist', async ({
     page,
     adminPrograms,

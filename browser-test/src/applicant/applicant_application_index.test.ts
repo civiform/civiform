@@ -15,7 +15,7 @@ import {
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('applicant program index page', {tag: ['@uses-fixtures']}, () => {
+test.describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
