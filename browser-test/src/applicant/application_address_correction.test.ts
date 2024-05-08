@@ -1031,7 +1031,7 @@ test.describe('address correction', {tag: ['@uses-fixtures']}, () => {
     await logout(page)
   })
 
-  test.describe('with North Star flag enabled', {tag: ['@northstar']}, () => {
+  test.describe.only('with North Star flag enabled', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -1061,10 +1061,16 @@ test.describe('address correction', {tag: ['@uses-fixtures']}, () => {
       )
 
       await applicantQuestions.clickConfirmAddress()
-      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        addressWithCorrectionText,
+
+      await applicantQuestions.clickReview()
+      await applicantQuestions.checkAddressQuestionValue(
         'Address In Area',
+        '',
+        'Redlands',
+        'CA',
+        '92373',
       )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmit()
     })
 

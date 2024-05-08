@@ -560,8 +560,8 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async selectAddressSuggestion(addressName: string) {
-    await this.page.check(`label:has-text("${addressName}")`)
+  async selectAddressSuggestion(addressName: string, northStarEnabled = false) {
+    await this.page.click(`label:has-text("${addressName}")`)
   }
 
   async expectQuestionAnsweredOnReviewPage(
