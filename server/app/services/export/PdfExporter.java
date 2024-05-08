@@ -90,7 +90,10 @@ public final class PdfExporter {
    * generate the required PDF.
    */
   public InMemoryPdf exportApplication(
-      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks)
+      ApplicationModel application,
+      boolean showEligibilityText,
+      boolean includeHiddenBlocks,
+      boolean isAdmin)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -115,10 +118,12 @@ public final class PdfExporter {
             answersOnlyActive,
             answersOnlyHidden,
             applicantNameWithApplicationId,
+            application.getApplicantData().getApplicant().id,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),
-            showEligibilityText);
+            showEligibilityText,
+            isAdmin);
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -132,10 +137,12 @@ public final class PdfExporter {
       ImmutableList<AnswerData> answersOnlyActive,
       ImmutableList<AnswerData> answersOnlyHidden,
       String applicantNameWithApplicationId,
+      Long applicantId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
       String submitTime,
-      boolean showEligibilityText)
+      boolean showEligibilityText,
+      boolean isAdmin)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -176,7 +183,9 @@ public final class PdfExporter {
         if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
-              controllers.routes.FileController.adminShow(programDefinition.id(), encodedFileKey)
+              (isAdmin
+                      ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                      : controllers.routes.FileController.show(applicantId, encodedFileKey))
                   .url();
           Anchor anchor = new Anchor(answerData.answerText());
           anchor.setReference(baseUrl + fileLink);

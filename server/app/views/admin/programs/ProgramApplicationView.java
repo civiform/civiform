@@ -151,7 +151,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     blocks,
                     block ->
                         renderApplicationBlock(
-                            programId, block, blockToAnswers.get(block), hasEligibilityEnabled)))
+                            block, blockToAnswers.get(block), hasEligibilityEnabled)))
             .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
     HtmlBundle htmlBundle =
@@ -184,7 +184,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationBlock(
-      long programId, Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
+      Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
     DivTag topContent =
         div()
             .withClasses("flex")
@@ -203,7 +203,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     answers,
                     answer ->
                         renderAnswer(
-                            programId,
                             answer,
                             // If an eligibility predicate is defined for the block, check if
                             // the question is part of the predicate to determine whether to
@@ -227,13 +226,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(long programId, AnswerData answerData, boolean showEligibilityText) {
+  private DivTag renderAnswer(AnswerData answerData, boolean showEligibilityText) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
-      String fileLink =
-          controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
+      String fileLink = controllers.routes.FileController.acledAdminShow(encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
       answerContent = div(answerData.answerText().replace("\n", "; "));
