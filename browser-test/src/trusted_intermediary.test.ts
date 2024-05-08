@@ -49,6 +49,33 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+  test('expect client info to be updated with empty emails', async ({
+    page,
+    tiDashboard,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: '',
+      firstName: 'Tony',
+      middleName: '',
+      lastName: 'Stark',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientTiNoteAndPhone(
+      client,
+      'Technology',
+      '4259746122',
+    )
+    await tiDashboard.expectSuccessAlertOnUpdate()
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client)
+  })
 
   test('verify success toast screenshot on adding new client', async ({
     page,
