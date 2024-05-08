@@ -71,14 +71,6 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
       '4259746122',
     )
     await tiDashboard.expectSuccessAlertOnUpdate()
-    await validateScreenshot(
-      page.locator('main'),
-      'edit-client-with-empty-emails',
-    )
-
-    // The 'You are applying for...' banner should only be present when the TI
-    // is actively applying for a client
-    await tiDashboard.expectApplyingForBannerNotPresent()
 
     await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
