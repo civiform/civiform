@@ -15,7 +15,7 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
     <!--/* Render each radio button option */-->

@@ -5,7 +5,7 @@
               inputId=${'id-' + #strings.randomAlphanumeric(8)},
               fieldErrors=${textQuestion.getValidationErrors().get(textQuestion.getTextPath())},
               questionErrors=${textQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${!textQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !textQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
   class="cf-question-text cf-applicant-question"
   th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
@@ -17,10 +17,10 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
   ></div>
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
   ></div>
 
   <input
@@ -33,7 +33,7 @@
     th:value="${textQuestion.getTextValue().orElse('')}"
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
-    th:aria-invalid="${!textQuestion.getValidationErrors().isEmpty()}"
+    th:aria-invalid="${!hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>

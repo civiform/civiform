@@ -13,7 +13,7 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
   ></div>
 
   <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->

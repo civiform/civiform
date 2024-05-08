@@ -15,7 +15,7 @@
 
     <!--/* Display errors for the entire question */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
     <!--/* TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. */-->
@@ -40,7 +40,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)}, ${questionRendererParams})}"
       ></div>
     </div>
 
@@ -64,7 +64,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)}, ${questionRendererParams})}"
       ></div>
     </div>
 
@@ -89,7 +89,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(cityPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)}, ${questionRendererParams})}"
       ></div>
     </div>
 
@@ -125,7 +125,7 @@
         ></option>
       </select>
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(statePath)})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(statePath)}, ${questionRendererParams})}"
       ></div>
     </div>
 
@@ -150,7 +150,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(zipPath)}"
       />
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)}, ${questionRendererParams})}"
       ></div>
     </div>
   </fieldset>

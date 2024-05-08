@@ -11,13 +11,16 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
   ></div>
 
-  <!--/* TODO: errors */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+  ></div>
+
   <div
     th:with="firstNameId=${'id-' + #strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
     class="cf-name-first"
   >
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)}, ${questionRendererParams})}"
     ></div>
     <label th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
@@ -56,7 +59,7 @@
     class="cf-name-last"
   >
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams})}"
     ></div>
     <label th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
