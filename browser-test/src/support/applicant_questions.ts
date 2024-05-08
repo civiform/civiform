@@ -560,7 +560,7 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async selectAddressSuggestion(addressName: string, northStarEnabled = false) {
+  async selectAddressSuggestion(addressName: string) {
     await this.page.click(`label:has-text("${addressName}")`)
   }
 
