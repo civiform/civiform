@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선
 toast.errorMessageOutline=오류: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=닫기
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
 
@@ -58,9 +60,14 @@ button.deleteFile=삭제
 button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
-button.review=검토
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
@@ -107,6 +114,8 @@ title.allProgramsSection=모든 프로그램({0})
 title.status=상태
 title.inProgressProgramsUpdated=진행 중
 title.activeProgramsUpdated=시작 안 함
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
@@ -171,11 +180,11 @@ content.warning=이 클라이언트에 대해 제출된 애플리케이션이 �
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(이메일 주소 없음)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=아직 로그인하지 않음
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=로그인함, 신청을 제출하지 않음
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate={0}에 마지막으로 신청을 제출함
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=이 클라이언트의 계정을 삭제하시겠습니까?
 
@@ -232,15 +241,19 @@ title.allClients=모든 클라이언트
 # This is the heading above a new client creation form.
 title.createClient=새 클라이언트 만들기
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=클라이언트 정보 수정
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=클라이언트 {0}명 표시 중
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=클라이언트 1명 표시 중
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=모든 클라이언트 표시
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=조직 구성원
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -248,8 +261,12 @@ title.orgMembers=조직 구성원
 
 button.submit=제출
 button.continue=계속
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=자격요건을 충족하지 않음
 link.edit=편집
 link.answer=답변
@@ -257,8 +274,10 @@ content.previouslyAnsweredOn={0}에 답변됨
 ariaLabel.answer={0}에 답변
 
 ariaLabel.edit={0} 편집
-title.programSummary=프로그램 신청 요약
 title.commonIntakeSummary=혜택 사전 선별 요약
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=프로그램 신청 요약
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -374,6 +393,38 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

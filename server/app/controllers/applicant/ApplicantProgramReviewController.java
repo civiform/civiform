@@ -18,8 +18,9 @@ import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Call;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -39,6 +40,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -53,9 +55,10 @@ import views.components.ToastMessage;
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
@@ -65,9 +68,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      NorthStarApplicantProgramSummaryView northStarSummaryView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
@@ -80,6 +84,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -164,8 +169,27 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
               }
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+                int completedBlockCount =
+                    roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
 
-              return ok(summaryView.render(params.build()));
+                NorthStarApplicantProgramSummaryView.Params northStarParams =
+                    NorthStarApplicantProgramSummaryView.Params.builder()
+                        .setBlocks(roApplicantProgramService.getAllActiveBlocks())
+                        .setApplicantId(applicantId)
+                        .setProfile(
+                            submittingProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setProgramId(programId)
+                        .setCompletedBlockCount(completedBlockCount)
+                        .setTotalBlockCount(totalBlockCount)
+                        .build();
+                return ok(northStarSummaryView.render(request, northStarParams))
+                    .as(Http.MimeTypes.HTML);
+              } else {
+                return ok(summaryView.render(params.build()));
+              }
             },
             classLoaderExecutionContext.current())
         .exceptionally(

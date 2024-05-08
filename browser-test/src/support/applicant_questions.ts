@@ -89,7 +89,7 @@ export class ApplicantQuestions {
   async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
-      mimeType: 'text/plain',
+      mimeType: 'image/png',
       buffer: Buffer.from(text),
     })
   }
@@ -141,6 +141,19 @@ export class ApplicantQuestions {
     await this.validateInputValue(date)
   }
 
+  async answerMemorableDateQuestion(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+    await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
+      label: month,
+    })
+    await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
+  }
+
   async answerTextQuestion(text: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, text)
   }
@@ -160,6 +173,16 @@ export class ApplicantQuestions {
     await this.page.fill(
       '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
       entityName,
+    )
+  }
+
+  async editEnumeratorAnswer(
+    existingEntityName: string,
+    newEntityName: string,
+  ) {
+    await this.page.fill(
+      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      newEntityName,
     )
   }
 
@@ -422,10 +445,14 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async expectReviewPage() {
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+  async expectReviewPage(northStarEnabled = false) {
+    if (northStarEnabled) {
+      await expect(this.page.locator('h1')).toContainText("Let's get started")
+    } else {
+      await expect(this.page.locator('h2')).toContainText(
+        'Program application summary',
+      )
+    }
   }
 
   async expectConfirmationPage() {
@@ -549,9 +576,9 @@ export class ApplicantQuestions {
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
 
-  async submitFromReviewPage() {
+  async submitFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    await this.expectReviewPage()
+    await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
     await this.clickSubmit()

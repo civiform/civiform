@@ -1,0 +1,97 @@
+{
+  "extends": [
+    "config:recommended"
+  ],
+  // Default timezone is UTC. Not running during the "work day" will free up github
+  // actions to run and lessen calls to docker hub.
+  //
+  // This will allow the schedule to run within this time range:
+  //   PST/PDT -> 9pm - 3am
+  //   EST/EDT -> Midnight - 6am 
+  "schedule": [
+    "after 4am",
+    "before 10am"
+  ],
+  // Github label(s) applied to the generated pull request, unless overridden below
+  "labels": [
+    "dependencies"
+  ],
+  // These files deviate from standard compose naming convention. 
+  // This makes sure renovate finds them.
+  "docker-compose": {
+    "fileMatch": [
+      "browser-test/browser-test-compose.yml",
+      "browser-test/browser-test-compose.dev.yml",
+      "browser-test/browser-test-compose.dev_local.yml",
+      "test-support/prod-simulator-compose.yml",
+      "test-support/unit-test-docker-compose.yml",
+      "test-support/unit-test-docker-compose.dev.yml"
+    ]
+  },
+  "packageRules": [
+    {
+      "groupName": "autovalue",
+      "matchPackagePrefixes": [
+        "com.google.auto.value:"
+      ]
+    },
+    {
+      "groupName": "guava",
+      "matchPackagePrefixes": [
+        "com.google.guava"
+      ]
+    },
+    {
+      "groupName": "jackson",
+      "matchPackagePrefixes": [
+        "com.fasterxml.jackson"
+      ]
+    },
+    {
+      "groupName": "jdk and jre",
+      "matchPackagePrefixes": [
+        "bellsoft/liberica-openjdk-alpine",
+        "eclipse-temurin"
+      ],
+      "allowedVersions": "<12.0.0"
+    },
+    {
+      "groupName": "jupiter",
+      "matchPackagePrefixes": [
+        "org.junit.jupiter:"
+      ]
+    },
+    {
+      "groupName": "pac4j",
+      "matchPackagePrefixes": [
+        "org.pac4j:pac4j"
+      ]
+    },
+    {
+      "groupName": "playwright",
+      "matchPackagePrefixes": [
+        "playwright",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ]
+    },
+    {
+      "matchFileNames": [
+        ".github/workflows/**",
+        "browser-test/**",
+        "env-var-docs/**",
+        "formatter/**"
+      ],
+      "labels": [
+        "dependencies",
+        "ignore-for-release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "postgres"
+      ],
+      "allowedVersions": "<17.0.0"
+    }
+  ]
+}

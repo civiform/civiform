@@ -11,7 +11,7 @@ import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.RandomStringUtils;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ProgramRepository;
@@ -28,7 +28,7 @@ public final class ProfileFactory {
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   public static final String APPLICANT_ID_ATTRIBUTE_NAME = "applicant_id";
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ProgramRepository> programRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
@@ -38,7 +38,7 @@ public final class ProfileFactory {
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ProgramRepository> programRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,

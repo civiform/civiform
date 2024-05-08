@@ -222,6 +222,9 @@ public final class QuestionConfig {
             .setLabelText("Option Text")
             .setRequired(true)
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Some markdown is supported, ")
+            .setMarkdownLinkText("see how it works")
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(
                 messages,

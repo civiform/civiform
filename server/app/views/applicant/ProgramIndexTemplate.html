@@ -1,0 +1,70 @@
+<!--/* 
+  Shows list of programs.  
+  
+  Parameters:
+
+  isGuest: Boolean 
+    True if the user is a guest, false if user is logged in.
+
+  section: List<ProgramSectionParams>
+    List of ProgramSectionParams defining each section.
+
+  loginLink: String
+    Server-relative link to login.
+
+  createAccountLink: String
+    Server-relative link to create an account
+
+  civicEntityShortName: String
+    Name of the civic entity.
+
+  authProviderName: String
+    Auth provider, for logging in.
+
+*/-->
+<!doctype html>
+<html>
+  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
+  <body>
+    <div
+      id="top-content"
+      class="relative flex flex-col items-center bg-blue-900 text-white text-center w-full"
+    >
+      <h1
+        th:text="${isGuest}? #{content.saveTimeServices} : #{content.findPrograms}"
+      ></h1>
+      <div
+        th:text="${isGuest}? #{content.guestDescription(${authProviderName})} : #{content.findProgramsDescription(${civicEntityShortName})}"
+      ></div>
+      <ul th:if="${isGuest}" class="usa-button-group">
+        <li class="usa-button-group__item">
+          <button
+            type="button"
+            class="usa-button usa-button--inverse"
+            th:text="#{button.login}"
+            id="login-button"
+            th:attr="data-redirect-to=${loginLink}"
+          ></button>
+        </li>
+        <li class="usa-button-group__item">
+          <button
+            type="button"
+            class="usa-button usa-button--inverse"
+            th:text="#{button.createAccount}"
+            id="create-account"
+            th:attr="data-redirect-to=${createAccountLink}"
+          ></button>
+        </li>
+      </ul>
+    </div>
+    <th:block th:each="section : ${sections}">
+      <div
+        th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
+      ></div>
+    </th:block>
+    <div id="modal-container"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>

@@ -68,8 +68,9 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
 
   private int ESRI_EXTERNAL_CALL_TRIES;
   private final Optional<Integer> ESRI_WELLKNOWN_ID_OVERRIDE;
+  private final Optional<String> ESRI_ARCGIS_API_TOKEN;
 
-  private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+  private static final Logger LOGGER = LoggerFactory.getLogger(RealEsriClient.class);
 
   @Inject
   public RealEsriClient(
@@ -81,21 +82,40 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
 
+    this.ESRI_EXTERNAL_CALL_TRIES = settingsManifest.getEsriExternalCallTries().orElse(3);
+    this.ESRI_WELLKNOWN_ID_OVERRIDE = settingsManifest.getEsriWellknownIdOverride();
+    this.ESRI_ARCGIS_API_TOKEN = settingsManifest.getEsriArcgisApiToken();
+    this.ESRI_FIND_ADDRESS_CANDIDATES_URLS = getFindAddressCandidateUrls(settingsManifest);
+  }
+
+  /** Get the list of urls that will be used to correct addresses */
+  private static ImmutableList<String> getFindAddressCandidateUrls(
+      SettingsManifest settingsManifest) {
+    Optional<String> esriArcgisApiToken = settingsManifest.getEsriArcgisApiToken();
+
     // Default to using the new setting which is a list
-    this.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+    ImmutableList<String> urls =
         settingsManifest.getEsriFindAddressCandidatesUrls().orElse(ImmutableList.of());
 
     // Fallback to using the old setting if the list is empty
-    if (this.ESRI_FIND_ADDRESS_CANDIDATES_URLS.isEmpty()
+    if (urls.isEmpty()
         && !settingsManifest.getEsriFindAddressCandidatesUrl().orElse("").isEmpty()) {
-      this.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+      urls =
           ImmutableList.<String>builder()
               .add(settingsManifest.getEsriFindAddressCandidatesUrl().get())
               .build();
     }
 
-    this.ESRI_EXTERNAL_CALL_TRIES = settingsManifest.getEsriExternalCallTries().orElse(3);
-    this.ESRI_WELLKNOWN_ID_OVERRIDE = settingsManifest.getEsriWellknownIdOverride();
+    if (urls.stream().anyMatch(url -> isArcGisOnlineService(url) && esriArcgisApiToken.isEmpty())) {
+      LOGGER.error(
+          "ArcGis Online requires an api token, but one was not configured. ArcGis Online will not"
+              + " be used for address correction.");
+    }
+
+    return urls.stream()
+        // Remove any arcgis.com urls if the api token is not set
+        .filter(url -> !(isArcGisOnlineService(url) && esriArcgisApiToken.isEmpty()))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Retries failed requests up to the provided value */
@@ -250,6 +270,10 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     Optional<String> postal =
         Optional.ofNullable(addressJson.findPath(AddressField.ZIP.getValue()).textValue());
 
+    if (isArcGisOnlineService(url)) {
+      ESRI_ARCGIS_API_TOKEN.ifPresent(val -> request.addQueryParameter("token", val));
+    }
+
     address.ifPresent(val -> request.addQueryParameter("address", val));
     address2.ifPresent(val -> request.addQueryParameter("address2", val));
     city.ifPresent(val -> request.addQueryParameter("city", val));
@@ -257,6 +281,16 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     postal.ifPresent(val -> request.addQueryParameter("postal", val));
 
     return request;
+  }
+
+  /**
+   * Check if this url is for Esri's ArcGIS Online service
+   *
+   * @param url endpoint used to call an esri service
+   * @return True if the url is for an ArcGIS Online service, otherwise False
+   */
+  private static boolean isArcGisOnlineService(String url) {
+    return url.contains("arcgis.com");
   }
 
   /** Determines if the node has a candidates property that is an array */

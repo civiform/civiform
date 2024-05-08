@@ -725,12 +725,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
         assertLeafOperationNode(maybeLeafNode);
 
-    Optional<PredicateValue> maybePredicateValue =
-        maybeLeafOperationNode.map(LeafOperationExpressionNode::comparedValue);
-    Optional<Scalar> maybeScalar = maybeLeafOperationNode.map(LeafOperationExpressionNode::scalar);
-    Optional<Operator> maybeOperator =
-        maybeLeafOperationNode.map(LeafOperationExpressionNode::operator);
-
     return valueField
         .withData("question-id", String.valueOf(questionDefinition.getId()))
         .with(
@@ -739,9 +733,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                     String.format(
                         "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
                 .setValue(
-                    maybePredicateValue.map(
-                        predicateValue ->
-                            formatPredicateValue(maybeScalar.get(), maybeOperator, predicateValue)))
+                    maybeLeafOperationNode.map(
+                        leafNode ->
+                            formatPredicateValue(
+                                leafNode.scalar(), leafNode.operator(), leafNode.comparedValue())))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                 .getInputTag())
         .with(
@@ -765,7 +760,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   }
 
   private static String formatPredicateValue(
-      Scalar scalar, Optional<Operator> maybeOperator, PredicateValue predicateValue) {
+      Scalar scalar, Operator operator, PredicateValue predicateValue) {
     switch (scalar.toScalarType()) {
       case CURRENCY_CENTS:
         {
@@ -777,10 +772,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
       case DATE:
         {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
+          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
             return formatListOfLongs(predicateValue.value());
           }
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LONG)) {
+          if (operator.getRightHandTypes().contains(OperatorRightHandType.LONG)) {
             return predicateValue.value();
           }
           return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
@@ -791,7 +786,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
       case LONG:
         {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
+          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
             return formatListOfLongs(predicateValue.value());
           }
 
@@ -801,7 +796,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       case LIST_OF_STRINGS:
       case STRING:
         {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_STRINGS)) {
+          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_STRINGS)) {
             String value = predicateValue.value();
 
             // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
@@ -823,13 +818,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
               String.format("Unknown scalar type: %s", scalar.toScalarType()));
         }
     }
-  }
-
-  private static boolean hasOperatorRightHandType(
-      Optional<Operator> maybeOperator, OperatorRightHandType operatorRightHandType) {
-    return maybeOperator
-        .map(operator -> operator.getRightHandTypes().contains(operatorRightHandType))
-        .orElse(false);
   }
 
   private static String formatListOfLongs(String value) {

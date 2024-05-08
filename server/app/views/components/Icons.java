@@ -439,7 +439,14 @@ public enum Icons {
           + " 2 11.99 2ZM15.22 17.39L12 15.45L8.78 17.39C8.4 17.62 7.93 17.28 8.03 16.85L8.88"
           + " 13.19L6.05 10.74C5.72 10.45 5.9 9.9 6.34 9.86L10.08 9.54L11.54 6.09C11.71 5.68 12.29"
           + " 5.68 12.46 6.09L13.92 9.53L17.66 9.85C18.1 9.89 18.28 10.44 17.94 10.73L15.11"
-          + " 13.18L15.96 16.85C16.06 17.28 15.6 17.62 15.22 17.39Z");
+          + " 13.18L15.96 16.85C16.06 17.28 15.6 17.62 15.22 17.39Z"),
+  MARKDOWN(
+      "0 -960 960 960",
+      "m640-360 120-120-42-43-48 48v-125h-60v125l-48-48-42 43 120 120ZM140-160q-24"
+          + " 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42"
+          + " 18H140Zm0-60h680v-520H140v520Zm0 0v-520"
+          + " 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14 0-27"
+          + " 13t-13 27v200Z");
 
   public final String path;
   private final int size;
@@ -530,6 +537,11 @@ public enum Icons {
         icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
 
     return svg().with(path(icon.path)).attr("viewBox", iconViewBox);
+  }
+
+  /** Helper method to override the default "currentColor" setting for svgs with a custom color */
+  public static SvgTag setColor(SvgTag svg, String color) {
+    return svg.attr("fill", color).attr("stroke", color);
   }
 
   private static SvgTag svg() {

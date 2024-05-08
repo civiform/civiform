@@ -1,16 +1,15 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
-  createTestContext,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
   validateScreenshot,
 } from './support'
 
-test.describe('Pagination', () => {
-  const ctx = createTestContext()
-
-  test('shows 1 page and no previous or next buttons when there are 10 clients', async () => {
-    const {page, tiDashboard} = ctx
+test.describe('Pagination', {tag: ['@uses-fixtures']}, () => {
+  test('shows 1 page and no previous or next buttons when there are 10 clients', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -44,8 +43,10 @@ test.describe('Pagination', () => {
     )
   })
 
-  test('shows 2 pages when there are 11 clients', async () => {
-    const {page, tiDashboard} = ctx
+  test('shows 2 pages when there are 11 clients', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -97,8 +98,10 @@ test.describe('Pagination', () => {
     expect(await page.innerHTML('.usa-current')).toContain('2')
   })
 
-  test('shows 7 pages and no ellipses when there are 65 clients', async () => {
-    const {page, tiDashboard} = ctx
+  test('shows 7 pages and no ellipses when there are 65 clients', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -133,8 +136,10 @@ test.describe('Pagination', () => {
     )
   })
 
-  test('shows one ellipses on the right when more than 7 pages and current page is < 5', async () => {
-    const {page, tiDashboard} = ctx
+  test('shows one ellipses on the right when more than 7 pages and current page is < 5', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -173,8 +178,10 @@ test.describe('Pagination', () => {
     )
   })
 
-  test('shows two ellipses when there are 9 pages and there is overflow on both sides', async () => {
-    const {page, tiDashboard} = ctx
+  test('shows two ellipses when there are 9 pages and there is overflow on both sides', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -208,8 +215,10 @@ test.describe('Pagination', () => {
     )
   })
 
-  test('shows one ellipses on the left when more than 7 pages and current page is one of the last 4 pages', async () => {
-    const {page, tiDashboard} = ctx
+  test('shows one ellipses on the left when more than 7 pages and current page is one of the last 4 pages', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)

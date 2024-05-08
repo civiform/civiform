@@ -444,7 +444,7 @@ class AdminPredicateConfiguration {
   /**
    * Filter the operators available for each scalar type based on the current scalar selected.
    *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
-   *   @param {string} selectedScalarType The tyoe of the selected option.
+   *   @param {string} selectedScalarType The type of the selected option.
    *   @param {string} selectedScalarValue The value of the selected option.
    */
   filterOperators(
@@ -476,7 +476,7 @@ class AdminPredicateConfiguration {
 
   /**
    * Determines if an operator should be hidden.
-   *   @param {string} selectedScalarType The tyoe of the selected option.
+   *   @param {string} selectedScalarType The type of the selected option.
    *   @param {string} selectedScalarValue The value of the selected option.
    *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
    * @return {boolean} If the operator should be hidden.

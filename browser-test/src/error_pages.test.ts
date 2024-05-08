@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test' // Does not need to use civiform_fixture
+import {test, expect} from './support/civiform_fixtures'
 import {selectApplicantLanguage} from './support'
 
 test.describe(

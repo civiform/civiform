@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም �
 toast.errorMessageOutline=ስህተት: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=ዝጋ
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
 
@@ -58,9 +60,14 @@ button.deleteFile=ሰርዝ
 button.keepFile=ቀጥል
 button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
-button.review=ገምግም
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} of {1} completed
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
@@ -107,6 +114,8 @@ title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
 title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section completed
 title.submittedPrograms=የገቡ
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
@@ -171,11 +180,11 @@ content.warning=ለዚህ ደንበኛ የቀረቡ ማመልከቻዎች የሉ
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(የኢሜይል አድራሻ የለም)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Not yet logged in
+content.notLoggedIn=እስካሁን አልገቡም
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Logged in, no applications submitted
+content.noApplications=ገብተዋል፣ ግን ምንም ማመልከቻ አልገባም
 # The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Last submitted application on {0}
+content.lastApplicationDate=ለመጨረሻ ጊዜ ማመልከቻ የገባው በ{0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=የዚህን ደንበኛ መለያ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት?
 
@@ -232,15 +241,19 @@ title.allClients=ሁሉም ደንበኞች
 # This is the heading above a new client creation form.
 title.createClient=አዲስ ደንበኛን ይፍጠሩ
 # This is the heading above the client editing form.
-title.editClient=Edit client info
+title.editClient=የደንበኛ መረጃን ያርትዑ።
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients={0} ደንበኞችን በማሳየት ላይ
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=1 ደንበኛን በማሳየት ላይ
 # This is the heading above an unfiltered list of clients.
-title.displayingAllClients=Displaying all clients
+title.displayingAllClients=ሁሉንም ደንበኞች በማሳየት ላይ
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=የድርጅት አባላት
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -248,8 +261,12 @@ title.orgMembers=የድርጅት አባላት
 
 button.submit=አስገባ
 button.continue=ቀጥል
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Start
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
 content.doesNotQualify=ብቁ አይደለም
 link.edit=አርትዕ
 link.answer=መልስ
@@ -257,8 +274,10 @@ content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥ�
 ariaLabel.answer=መልስ {0}
 
 ariaLabel.edit={0}ን አርትዕ
-title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Let''s get started.
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -374,6 +393,38 @@ validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አ�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=እባክዎ ቀንን በትክክለኛው ቅርጸት ያስገቡ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=January
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=February
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=March
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=April
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=May
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=June
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=July
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=August
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=September
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=October
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=November
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=December
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Select
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Please enter month, day and year.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Date of Birth should be in the past
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -119,6 +119,7 @@ function removeExistingEnumeratorField(event: Event) {
     enumeratorFieldDiv.querySelector('input'),
   )
   enumeratorInput.classList.add('hidden')
+  enumeratorInput.removeAttribute('data-entity-input')
 
   // Create a copy of the hidden deleted entity template. Set the value to this
   // button's ID, and set disabled to false so the data is submitted with the form.

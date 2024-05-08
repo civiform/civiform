@@ -1,0 +1,78 @@
+<html>
+  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
+  <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
+  <body data-load-modal="true">
+    <h1 th:text="#{title.getStarted}"></h1>
+    <p th:text="#{content.reviewPageIntro}"></p>
+    <ul class="usa-card-group">
+      <li class="usa-card grid-col-12" th:each="block: ${blocks}">
+        <div class="usa-card__container">
+          <div class="usa-card__header">
+            <span
+              class="usa-tag"
+              th:if="${block.answeredQuestionsCount() == 0}"
+              th:text="#{title.activeProgramsUpdated}"
+            ></span>
+            <span
+              class="usa-tag"
+              th:if="${block.isCompletedInProgramWithoutErrors() && block.answeredQuestionsCount() != 0}"
+              th:text="#{title.programSectionCompleted}"
+            ></span>
+            <span
+              class="usa-tag"
+              th:if="${!block.isCompletedInProgramWithoutErrors() && block.answeredQuestionsCount() != 0}"
+              th:text="#{title.inProgressProgramsUpdated}"
+            ></span>
+            <h2 class="usa-card__heading" th:text="${block.getName()}"></h2>
+          </div>
+          <div class="usa-card__body">
+            <p th:text="${block.getDescription()}"></p>
+            <p
+              th:if="${block.isFileUpload()}"
+              th:text="#{content.fileUploadBlockProgressFull(${block.answeredQuestionsCount()}, ${block.getQuestions().size()})}"
+            ></p>
+            <p
+              th:unless="${block.isFileUpload()}"
+              th:text="#{content.blockProgressFull(${block.answeredQuestionsCount()}, ${block.getQuestions().size()})}"
+            ></p>
+          </div>
+          <div class="usa-card__footer">
+            <a
+              class="usa-button"
+              th:href="${blockEditUrlMap.get(block.getId())}"
+              th:if="${block.isCompletedInProgramWithoutErrors()}"
+              th:text="#{button.review}"
+            ></a>
+            <a
+              class="usa-button"
+              th:href="${blockEditUrlMap.get(block.getId())}"
+              th:unless="${block.isCompletedInProgramWithoutErrors()}"
+              >Start</a
+            >
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <form th:action="${submitUrl}" method="POST">
+      <input hidden th:value="${csrfToken}" name="csrfToken" />
+      <button
+        th:if="${hasCompletedAllBlocks}"
+        th:text="#{button.submit}"
+        type="submit"
+        class="usa-button"
+      ></button>
+      <a
+        th:unless="${hasCompletedAllBlocks}"
+        th:href="${continueUrl}"
+        th:text="#{button.continue}"
+        id="continue-application-button"
+        class="usa-button"
+      ></a>
+    </form>
+    <div id="modal-container"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>

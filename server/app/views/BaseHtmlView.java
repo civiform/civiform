@@ -29,6 +29,7 @@ import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,6 +37,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
+import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import views.components.Icons;
 import views.html.helper.CSRF;
@@ -150,9 +152,14 @@ public abstract class BaseHtmlView {
    * @param page The current page number
    * @param pageCount The total number of pages
    * @param linkForPage The href for the current view
+   * @param optionalMessages Optional messages to be used for i18n
    * @return NavTag
    */
-  protected NavTag renderPagination(int page, int pageCount, Function<Integer, Call> linkForPage) {
+  protected NavTag renderPagination(
+      int page,
+      int pageCount,
+      Function<Integer, Call> linkForPage,
+      Optional<Messages> optionalMessages) {
     List<Integer> pageRange =
         IntStream.range(2, pageCount + 1).boxed().collect(Collectors.toList());
 
@@ -164,7 +171,7 @@ public abstract class BaseHtmlView {
         .attr("aria-label", "Pagination")
         .with(
             ul().withClass("usa-pagination__list")
-                .condWith(page != 1, renderPreviousPageButton(page, linkForPage))
+                .condWith(page != 1, renderPreviousPageButton(page, linkForPage, optionalMessages))
                 .with(
                     // Always show first page
                     renderPaginationPageButton(1, page == 1, linkForPage))
@@ -215,7 +222,8 @@ public abstract class BaseHtmlView {
                         pageNum ->
                             renderPaginationPageButton(pageNum, page == pageNum, linkForPage)),
                     renderPaginationPageButton(pageCount, page == pageCount, linkForPage))
-                .condWith(page != pageCount, renderNextPageButton(page, linkForPage)));
+                .condWith(
+                    page != pageCount, renderNextPageButton(page, linkForPage, optionalMessages)));
   }
 
   private LiTag renderPaginationPageButton(
@@ -230,7 +238,8 @@ public abstract class BaseHtmlView {
                 .condAttr(isCurrentPage, "aria-current", "page"));
   }
 
-  private LiTag renderPreviousPageButton(int page, Function<Integer, Call> linkForPage) {
+  private LiTag renderPreviousPageButton(
+      int page, Function<Integer, Call> linkForPage, Optional<Messages> optionalMessages) {
     return li().withClass("usa-pagination__item usa-pagination__arrow")
         .with(
             a().withClass("usa-pagination__link usa-pagination__previous-page")
@@ -241,17 +250,26 @@ public abstract class BaseHtmlView {
                         .withClasses("usa-icon", "h-4", "w-4")
                         .attr("role", "img")
                         .attr("aria-hidden", "true"),
-                    span("Previous").withClass("usa-pagination__link-text")));
+                    span(optionalMessages.isPresent()
+                            ? optionalMessages
+                                .get()
+                                .at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName())
+                            : "Previous")
+                        .withClass("usa-pagination__link-text")));
   }
 
-  private LiTag renderNextPageButton(int page, Function<Integer, Call> linkForPage) {
+  private LiTag renderNextPageButton(
+      int page, Function<Integer, Call> linkForPage, Optional<Messages> optionalMessages) {
     return li().withClass("usa-pagination__item usa-pagination__arrow")
         .with(
             a().withClass("usa-pagination__link usa-pagination__next-page")
                 .attr("aria-label", "Next page")
                 .withHref(linkForPage.apply(page + 1).url())
                 .with(
-                    span("Next").withClass("usa-pagination__link-text"),
+                    span(optionalMessages.isPresent()
+                            ? optionalMessages.get().at(MessageKey.BUTTON_NEXT.getKeyName())
+                            : "Next")
+                        .withClass("usa-pagination__link-text"),
                     Icons.svg(Icons.NAVIGATE_NEXT)
                         .withClasses("usa-icon", "h-4", "w-4")
                         .attr("role", "img")

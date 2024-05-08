@@ -16,8 +16,8 @@ import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
@@ -69,6 +69,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
@@ -112,7 +113,7 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -135,7 +136,7 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
@@ -551,6 +552,7 @@ public final class ApplicantService {
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
+
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
             (v) -> {
@@ -1494,7 +1496,7 @@ public final class ApplicantService {
           case DATE:
             try {
               applicantData.putDate(currentPath, update.value());
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
@@ -1826,6 +1828,68 @@ public final class ApplicantService {
                   newFormData.put(
                       phoneQuestion.getCountryCodePath().toString(),
                       result.getCountryCode().orElse(""));
+                }
+              }
+
+              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
+            });
+  }
+
+  /**
+   * Checks the block for any {@link DateQuestion}. Since there are two different UI components that
+   * can display date questions, consolidate any Date questions into the central date path so UI
+   * differences are not reflected in the database.
+   */
+  public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Get a writeable map so the existing paths can be replaced
+              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+
+              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+                if (applicantQuestion.getType() != QuestionType.DATE) {
+                  continue;
+                }
+
+                DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+                String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+                String yearValue = formData.get(dateQuestion.getYearPath().toString());
+                String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+                String dayValue = formData.get(dateQuestion.getDayPath().toString());
+                // Whether at least one of the three values is present and non-empty.
+                boolean hasMemorableDateValue =
+                    !(yearValue == null || yearValue.isEmpty())
+                        || !(monthValue == null || monthValue.isEmpty())
+                        || !(dayValue == null || dayValue.isEmpty());
+
+                // If the value in the single input is not present or empty, and there is at least
+                // one memorable date value, convert to a date.
+                if ((singleDateValue == null || singleDateValue.isEmpty())
+                    && hasMemorableDateValue) {
+                  // Note: If a memorable date input value is not present, replace it with a
+                  // placeholder. This will fail to parse as a date without throwing a
+                  // NullPointerException when building the date string.
+                  String dateString =
+                      String.format(
+                          "%s-%s-%s",
+                          yearValue,
+                          monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
+                          dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
+                  newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+                  // Remove the 3 individual paths, so they won't be stored.
+                  newFormData.remove(dateQuestion.getYearPath().toString());
+                  newFormData.remove(dateQuestion.getMonthPath().toString());
+                  newFormData.remove(dateQuestion.getDayPath().toString());
                 }
               }
 

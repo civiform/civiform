@@ -47,6 +47,6 @@ public class NullQuestionDefinition extends QuestionDefinition {
   /** Get the default validation predicates for this question type. */
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
-    return new NullQuestionDefinition.NullValidationPredicates();
+    return new NullValidationPredicates();
   }
 }

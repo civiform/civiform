@@ -92,14 +92,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request,
-      CiviFormProfile profile,
-      ProgramDefinition program,
-      ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberBasedPaginationSpec paginationSpec,
-      PaginationResult<ApplicationModel> paginatedApplications,
-      RenderFilterParams filterParams,
-      Optional<String> selectedApplicationUri) {
+    Http.Request request,
+    CiviFormProfile profile,
+    ProgramDefinition program,
+    ImmutableList<String> allPossibleProgramApplicationStatuses,
+    PageNumberBasedPaginationSpec paginationSpec,
+    PaginationResult<ApplicationModel> paginatedApplications,
+    RenderFilterParams filterParams,
+    Optional<String> selectedApplicationUri) {
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
     Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
@@ -128,21 +128,23 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         .withClasses("usa-table-container", "usa-table--borderless")
                         .withTabindex(0)),
                 div(div()
-                        .condWith(
-                            paginatedApplications.getNumPages() > 1,
-                            renderPagination(
-                                paginationSpec.getCurrentPage(),
-                                paginatedApplications.getNumPages(),
-                                pageNumber ->
-                                    routes.AdminApplicationController.index(
-                                        program.id(),
-                                        filterParams.search(),
-                                        Optional.of(pageNumber),
-                                        filterParams.fromDate(),
-                                        filterParams.untilDate(),
-                                        filterParams.selectedApplicationStatus(),
-                                        /* selectedApplicationUri= */ Optional.empty()))))
+                  .condWith(
+                    paginatedApplications.getNumPages() > 1,
+                    renderPagination(
+                      paginationSpec.getCurrentPage(),
+                      paginatedApplications.getNumPages(),
+                      pageNumber ->
+                        routes.AdminApplicationController.index(
+                          program.id(),
+                          filterParams.search(),
+                          Optional.of(pageNumber),
+                          filterParams.fromDate(),
+                          filterParams.untilDate(),
+                          filterParams.selectedApplicationStatus(),
+                          /* selectedApplicationUri= */ Optional.empty()),
+                      /* optionalMessages */ Optional.empty())))
                     .withClasses("flex", "items-start"))
+
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
