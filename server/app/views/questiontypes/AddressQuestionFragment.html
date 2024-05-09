@@ -18,7 +18,6 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
-    <!--/* TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. */-->
     <!--/* Street address */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},streetPath=${addressQuestion.getStreetPath()}"
