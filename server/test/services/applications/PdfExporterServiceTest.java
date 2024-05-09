@@ -36,11 +36,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(
-            applicationOne,
-            /* showEligibilityText= */ true,
-            /* includeHiddenBlocks= */ false,
-            /* isAdmin= */ true);
+        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 

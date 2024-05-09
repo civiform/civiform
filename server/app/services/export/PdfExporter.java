@@ -89,11 +89,7 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf exportApplication(
-      ApplicationModel application,
-      boolean showEligibilityText,
-      boolean includeHiddenBlocks,
-      boolean isAdmin)
+  public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -103,7 +99,7 @@ public final class PdfExporter {
 
     ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
     ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
-    if (includeHiddenBlocks) {
+    if (isAdmin) {
       answersOnlyHidden = roApplicantService.getSummaryDataOnlyHidden();
     }
 
@@ -122,7 +118,6 @@ public final class PdfExporter {
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),
-            showEligibilityText,
             isAdmin);
     return new InMemoryPdf(bytes, filename);
   }
@@ -141,7 +136,6 @@ public final class PdfExporter {
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
       String submitTime,
-      boolean showEligibilityText,
       boolean isAdmin)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
@@ -204,7 +198,7 @@ public final class PdfExporter {
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         Paragraph eligibility = new Paragraph();
-        if (showEligibilityText && isEligibilityEnabledInProgram) {
+        if (isAdmin && isEligibilityEnabledInProgram) {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
                 programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
