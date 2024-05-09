@@ -16,9 +16,11 @@
   ></div>
 
   <!--/* Display errors */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
-  ></div>
+  <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
   ></div>
