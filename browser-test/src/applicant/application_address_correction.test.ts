@@ -1041,103 +1041,121 @@ test.describe('address correction', {tag: ['@uses-fixtures']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      await applicantQuestions.answerAddressQuestion(
-        'Legit Address',
-        '',
-        'Redlands',
-        'CA',
-        '92373',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.expectVerifyAddressPage(true)
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      await validateScreenshot(
-        page,
-        'north-star-verify-address-with-suggestions',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
 
-      await applicantQuestions.clickConfirmAddress()
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-with-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
-      await applicantQuestions.clickReview()
-      await applicantQuestions.checkAddressQuestionValue(
-        'Address In Area',
-        '',
-        'Redlands',
-        'CA',
-        '92373',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.checkAddressQuestionValue(
+          'Address In Area',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickSubmit()
+      })
     })
 
     test('prompts user to edit if no suggestions are returned', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        'Bogus Address',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.expectVerifyAddressPage(false)
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      await validateScreenshot(
-        page,
-        'north-star-verify-address-no-suggestions',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(false)
 
-      // Can continue on anyway
-      await applicantQuestions.clickConfirmAddress()
-      await applicantQuestions.clickSubmit()
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-no-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.clickSubmit()
+      })
     })
 
     test('go back and edit does not save address selection', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      await applicantQuestions.answerAddressQuestion(
-        'Legit Address',
-        '',
-        'Redlands',
-        'CA',
-        '92373',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.expectVerifyAddressPage(true)
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      // Select an address suggestion, but then click "Go back and edit",
-      // which shouldn't save the suggestion
-      await applicantQuestions.selectAddressSuggestion(
-        'Address With No Service Area Features',
-      )
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+      })
 
-      await applicantQuestions.clickGoBackAndEdit()
+      await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
+        await applicantQuestions.selectAddressSuggestion(
+          'Address With No Service Area Features',
+        )
 
-      await applicantQuestions.validateQuestionIsOnPage(
-        addressWithCorrectionText,
-      )
+        await applicantQuestions.clickGoBackAndEdit()
 
-      // Verify the original address (not the suggested address) is filled in on the block page
-      await applicantQuestions.checkAddressQuestionValue(
-        'Legit Address',
-        '',
-        'Redlands',
-        'CA',
-        '92373',
-      )
+        await applicantQuestions.validateQuestionIsOnPage(
+          addressWithCorrectionText,
+        )
+
+        // Verify the original address (not the suggested address) is filled in on the block page
+        await applicantQuestions.checkAddressQuestionValue(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+      })
     })
   })
 })
