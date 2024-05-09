@@ -1030,4 +1030,132 @@ test.describe('address correction', () => {
     await applicantQuestions.clickSubmit()
     await logout(page)
   })
+
+  test.describe('with North Star flag enabled', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+    })
+
+    test('can correct address single-block, single-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-with-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.checkAddressQuestionValue(
+          'Address In Area',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickSubmit()
+      })
+    })
+
+    test('prompts user to edit if no suggestions are returned', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-no-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.clickSubmit()
+      })
+    })
+
+    test('go back and edit does not save address selection', async ({
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+      })
+
+      await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
+        await applicantQuestions.selectAddressSuggestion(
+          'Address With No Service Area Features',
+        )
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        await applicantQuestions.validateQuestionIsOnPage(
+          addressWithCorrectionText,
+        )
+
+        // Verify the original address (not the suggested address) is filled in on the block page
+        await applicantQuestions.checkAddressQuestionValue(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+      })
+    })
+  })
 })

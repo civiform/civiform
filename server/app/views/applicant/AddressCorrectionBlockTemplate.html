@@ -1,0 +1,75 @@
+<html>
+  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
+  <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
+  <body data-load-modal="true">
+    <form
+      id="cf-block-form"
+      th:action="${confirmAddressAction}"
+      method="POST"
+      th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
+                   anySuggestions=${suggestions.size() > 0}"
+    >
+      <input hidden th:value="${csrfToken}" name="csrfToken" />
+      <div th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"></div>
+
+      <h2 th:text="#{title.confirmAddress}"></h2>
+      <div th:text="#{content.confirmAddressLine1}"></div>
+      <div
+        th:if="${anySuggestions}"
+        th:text="#{content.foundSimilarAddressLine2}"
+      ></div>
+      <div
+        th:if="${!anySuggestions}"
+        th:text="#{content.noValidAddressLine2}"
+      ></div>
+
+      <!--/* If this question is used for eligibility, we must use the corrected address */-->
+      <div th:if="${!isEligibilityEnabled}">
+        <h3 th:text="#{content.addressEntered}"></h3>
+        <div
+          th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${addressSuggestionGroup.getOriginalAddress()}, ${!anySuggestions}, ${!anySuggestions}, 'USER_KEEPING_ADDRESS_VALUE')}"
+        ></div>
+      </div>
+
+      <!--/* render suggested addresses */-->
+      <div th:if="${anySuggestions}">
+        <h3
+          th:if="${suggestions.size() == 1}"
+          th:text="#{content.suggestedAddress}"
+        ></h3>
+        <h3
+          th:if="${suggestions.size() > 1}"
+          th:text="#{content.suggestedAddresses}"
+        ></h3>
+
+        <th:block
+          th:each="suggestion, iterator: ${suggestions}"
+          th:if="${iterator.index &lt; 3}"
+        >
+          <div
+            th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${suggestions.get(iterator.index).getAddress()}, ${iterator.index == 0}, false, ${suggestion.getSingleLineAddress()})}"
+          ></div>
+        </th:block>
+      </div>
+      <!--/* Bottom nav buttons */-->
+      <div>
+        <button
+          type="submit"
+          class="usa-button"
+          th:text="#{button.confirmAddress}"
+          th:formaction="${confirmAddressAction}"
+        ></button>
+        <button
+          class="usa-button"
+          th:text="#{button.goBackAndEdit}"
+          th:attr="data-redirect-to=${goBackAction}"
+          type="button"
+        ></button>
+      </div>
+    </form>
+    <div id="modal-container"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
