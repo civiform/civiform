@@ -282,6 +282,42 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
+    DivTag helpTextRow = div().withClasses("flex", "predicate-help-text-row");
+    valueRowContainer.with(helpTextRow);
+    DivTag spacerText = div().withClasses("w-16");
+
+    int columnNumber = 0;
+    for (QuestionDefinition questionDefinition : questionDefinitions) {
+      helpTextRow
+          .with(
+              div()
+                  .withClasses("w-48")
+                  .with(
+                      div()
+                          .withClasses(
+                              ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
+                              "hidden",
+                              "text-xs",
+                              "pb-4",
+                              BaseStyles.FORM_LABEL_TEXT_COLOR)
+                          .withText(
+                              "Enter a list of comma-separated values. For example, \"v1,v2,v3\".")
+                          .withData("question-id", String.valueOf(questionDefinition.getId())))
+                  .with(
+                      div("Enter two comma-separated or dash-separated values. For example"
+                              + " \"18,30\" or \"18-30\". The condition will become true on the"
+                              + " applicant's birthday for the first age, and will become false on"
+                              + " the applicant's birthday for the second age.")
+                          .withClasses(
+                              ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
+                              "hidden",
+                              "text-xs",
+                              "pb-4",
+                              BaseStyles.FORM_LABEL_TEXT_COLOR)
+                          .withData("question-id", String.valueOf(questionDefinition.getId()))))
+          .condWith(columnNumber++ != 1, spacerText);
+    }
+
     if (maybeExistingPredicate.isPresent()) {
       PredicateDefinition existingPredicate = maybeExistingPredicate.get();
 
@@ -737,25 +773,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                         leafNode ->
                             formatPredicateValue(leafNode.scalar(), leafNode.comparedValue())))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                .getInputTag())
-        .with(
-            div()
-                .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR)
-                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."))
-        .with(
-            div("Enter two comma-separated or dash-separated values. For example \"18,30\" or"
-                    + " \"18-30\". The condition will become true on the applicant's birthday"
-                    + " for the first age, and will become false on the applicant's birthday"
-                    + " for the second age.")
-                .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR));
+                .getInputTag());
   }
 
   private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
