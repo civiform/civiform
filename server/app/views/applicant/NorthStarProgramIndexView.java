@@ -26,7 +26,6 @@ import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
-  private final SettingsManifest settingsManifest;
   private final String authProviderName;
 
   @Inject
@@ -38,9 +37,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 

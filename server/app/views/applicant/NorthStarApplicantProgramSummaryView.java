@@ -13,6 +13,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.applicant.Block;
+import services.settings.SettingsManifest;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
@@ -22,8 +23,9 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
-      ApplicantRoutes applicantRoutes) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest) {
+    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
   }
 
   public String render(Request request, Params params) {

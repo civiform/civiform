@@ -14,6 +14,7 @@ import play.mvc.Http.Request;
 import services.applicant.question.AddressQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
@@ -29,8 +30,9 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
-      FileUploadViewStrategy fileUploadViewStrategy) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      FileUploadViewStrategy fileUploadViewStrategy,
+      SettingsManifest settingsManifest) {
+    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 

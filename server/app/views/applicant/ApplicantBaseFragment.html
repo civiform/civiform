@@ -1,5 +1,5 @@
 <!doctype html>
-<head th:fragment="pageHeader">
+<head th:fragment="pageHeaderScriptsAndLinks">
   <meta charset="UTF-8" />
   <title>Title</title>
 
@@ -12,6 +12,34 @@
   <script th:src="${applicantJsBundle}" type="text/javascript"></script>
   <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
 </footer>
+
+<th:block th:fragment="pageHeader">
+<div class="usa-overlay"></div>
+<header class="usa-header usa-header--basic">
+  <div class="usa-nav-container">
+    <div class="usa-navbar">
+      <div class="usa-logo">
+        <em class="usa-logo__text"
+          ><a href="/" title="<Project title>">&lt;Project title&gt;</a></em
+        >
+      </div>
+      <button type="button" class="usa-menu-btn">Menu</button>
+    </div>
+    <nav aria-label="Primary navigation" class="usa-nav">
+      <button type="button" class="usa-nav__close">
+        <img src="/assets/img/usa-icons/close.svg" role="img" alt="Close" />
+      </button>
+      <ul class="usa-nav__primary usa-accordion">
+        <li class="usa-nav__primary-item">
+          <a href="javascript:void(0);" class="usa-nav-link"
+            ><span>&lt;Simple link&gt;</span></a
+          >
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+</th:block>
 
 <div th:fragment="requiredFieldsExplanation">
   <!--/* This uses utext because the parameter passed into the message is html,
