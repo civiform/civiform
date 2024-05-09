@@ -2,7 +2,7 @@ import {test} from './support/civiform_fixtures'
 import {loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
-test.describe('deleting question lifecycle', {tag: ['@uses-fixtures']}, () => {
+test.describe('deleting question lifecycle', () => {
   test('create, publish, delete unused questions', async ({
     page,
     adminQuestions,

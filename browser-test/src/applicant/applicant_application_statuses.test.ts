@@ -11,7 +11,7 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('with program statuses', {tag: ['@uses-fixtures']}, () => {
+test.describe('with program statuses', () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 

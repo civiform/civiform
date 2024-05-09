@@ -16,7 +16,7 @@ import {
 } from '../support'
 import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Applicant navigation flow', {tag: ['@uses-fixtures']}, () => {
+test.describe('Applicant navigation flow', () => {
   test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'

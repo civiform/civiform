@@ -111,7 +111,7 @@ test.describe(
   },
 )
 
-test.describe('normal application flow', {tag: ['@uses-fixtures']}, () => {
+test.describe('normal application flow', () => {
   test.beforeEach(async ({page}) => {
     await seedQuestions(page)
     await page.goto('/')

@@ -12,7 +12,7 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
+test.describe('create and edit predicates', () => {
   test('add a hide predicate', async ({
     page,
     adminQuestions,

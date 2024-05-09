@@ -10,7 +10,7 @@ import {
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
-test.describe('Applicant auth', {tag: ['@uses-fixtures']}, () => {
+test.describe('Applicant auth', () => {
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')

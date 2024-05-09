@@ -1,7 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {validateAccessibility, validateScreenshot} from '../support'
 
-test.describe('developer tools', {tag: ['@uses-fixtures']}, () => {
+test.describe('developer tools', () => {
   test('dev link exists', async ({page}) => {
     const header = page.locator('nav')
 

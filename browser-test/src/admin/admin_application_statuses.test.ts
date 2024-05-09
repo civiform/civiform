@@ -16,7 +16,7 @@ import {
   AdminProgramStatuses,
 } from '../support'
 
-test.describe('view program statuses', {tag: ['@uses-fixtures']}, () => {
+test.describe('view program statuses', () => {
   const programWithStatusesName = 'Test program with statuses'
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'

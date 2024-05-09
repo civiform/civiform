@@ -7,7 +7,7 @@ import {
 } from '../support'
 import {readFileSync} from 'fs'
 
-test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
+test.describe('program migration', () => {
   test('export a program', async ({
     page,
     adminPrograms,

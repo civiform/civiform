@@ -10,7 +10,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
+test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'

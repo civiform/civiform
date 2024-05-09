@@ -1,7 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('admin program view page', {tag: ['@uses-fixtures']}, () => {
+test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
