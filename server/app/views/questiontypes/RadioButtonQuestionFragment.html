@@ -3,9 +3,9 @@
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
   singleSelectQuestion=${question.createSingleSelectQuestion()},
   hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
-th:id="${questionId}"
-class="cf-applicant-question-field"
-th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <fieldset
     class="usa-fieldset"
