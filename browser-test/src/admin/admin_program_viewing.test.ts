@@ -85,19 +85,26 @@ test.describe('admin program view page', () => {
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
-    await adminPrograms.editProgramBlockWithBlockName(
-      programName,
-      'Screen 2 ooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name:
+        'Screen 2 ooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
-      'dummy description oooooooooooooooooooooooooooooooooooooo' +
+      description:
+        'dummy description oooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
-      ['address-q'],
-    )
+      questions: [
+        {
+          name: 'address-q',
+        },
+      ],
+    })
+
     await adminPrograms.publishAllDrafts()
 
     await adminPrograms.gotoViewActiveProgramPage(programName)

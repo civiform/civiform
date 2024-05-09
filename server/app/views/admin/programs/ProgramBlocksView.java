@@ -692,6 +692,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request) {
     DivTag ret =
         div()
+            .withData("testid", "question-admin-name-" + questionDefinition.getName())
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
                 "my-2",
