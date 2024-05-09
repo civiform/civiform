@@ -576,16 +576,14 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    // Make sure input validation enables the button before clicking.
-    await this.page.click('#update-block-button:not([disabled])')
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
-    }
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => {
+        return {
+          name: questionName,
+        }
+      }),
+    })
   }
 
   /**
@@ -598,21 +596,21 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.addQuestionFromQuestionBank(optionalQuestionName)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple option buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    const block: BlockSpec = {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => {
+        return {
+          name: questionName,
+        }
+      }),
     }
+
+    block.questions.push({
+      name: optionalQuestionName,
+      isOptional: true,
+    })
+
+    await this.editProgramBlockUsingSpec(programName, block)
   }
 
   /**
