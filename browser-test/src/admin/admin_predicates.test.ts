@@ -1212,7 +1212,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       )
       await applicantQuestions.expectIneligibleQuestionsCount(1)
 
-      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
 
@@ -1284,7 +1284,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestionsCount(1)
-      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
 
       // Less than or equal to 100.01 is ineligible
       await applicantQuestions.answerQuestionFromReviewPage(
