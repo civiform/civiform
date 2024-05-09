@@ -11,6 +11,7 @@ import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -25,11 +26,12 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
   @Inject
   public ProgramNewOneView(
-      AdminLayoutFactory layoutFactory,
-      Config configuration,
-      SettingsManifest settingsManifest,
-      AccountRepository accountRepository) {
-    super(configuration, settingsManifest, accountRepository);
+    AdminLayoutFactory layoutFactory,
+    Config configuration,
+    SettingsManifest settingsManifest,
+    AccountRepository accountRepository,
+    CategoryRepository categoryRepository) {
+    super(configuration, settingsManifest, accountRepository, categoryRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

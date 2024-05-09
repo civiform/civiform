@@ -118,6 +118,7 @@ public class DevDatabaseSeedController extends Controller {
     }
     ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
 
+    devDatabaseSeedTask.seedProgramCategories();
     devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DevDatabaseSeedController.index().url())

@@ -121,6 +121,13 @@ public class ProgramModel extends BaseModel {
       inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<VersionModel> versions;
 
+  @ManyToMany(mappedBy = "programs")
+  @JoinTable(
+    name = "programs_categories",
+    joinColumns = @JoinColumn(name = "programs_id"),
+    inverseJoinColumns = @JoinColumn(name = "categories_id"))
+  private List<CategoryModel> categories;
+
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
   private List<ApplicationModel> applications;
@@ -198,7 +205,9 @@ public class ProgramModel extends BaseModel {
       VersionModel associatedVersion,
       ProgramType programType,
       boolean eligibilityIsGating,
-      ProgramAcls programAcls) {
+      ProgramAcls programAcls,
+      List<CategoryModel> categories
+      ) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
@@ -214,6 +223,7 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
+    this.categories = categories;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -236,6 +246,7 @@ public class ProgramModel extends BaseModel {
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
+    categories = programDefinition.categories();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -260,7 +271,8 @@ public class ProgramModel extends BaseModel {
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
-            .setAcls(acls);
+            .setAcls(acls)
+            .setCategories(categories);
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

@@ -1,5 +1,7 @@
 package forms;
 
+import models.CategoryModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public final class ProgramForm {
   private Boolean confirmedChangeCommonIntakeForm;
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
+  private List<CategoryModel> categories;
 
   public ProgramForm() {
     adminName = "";
@@ -32,6 +35,7 @@ public final class ProgramForm {
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
+    categories = new ArrayList<>();
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -120,5 +124,9 @@ public final class ProgramForm {
 
   public List<Long> getTiGroups() {
     return this.tiGroups;
+  }
+
+  public List<CategoryModel> getCategories() {
+    return this.categories;
   }
 }

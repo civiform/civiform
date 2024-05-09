@@ -140,7 +140,8 @@ public final class AdminProgramController extends CiviFormController {
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
             settingsManifest.getIntakeFormEnabled(request),
-            ImmutableList.copyOf(programData.getTiGroups()));
+            ImmutableList.copyOf(programData.getTiGroups()),
+            programData.getCategories());
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {

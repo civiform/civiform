@@ -18,6 +18,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import modules.MainModule;
@@ -139,6 +142,9 @@ public abstract class ProgramDefinition {
   // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
+
+  @JsonIgnore
+  public abstract List<CategoryModel> categories();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -829,6 +835,7 @@ public abstract class ProgramDefinition {
         Optional<LocalizedStrings> localizedSummaryImageDescription);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
+    public abstract Builder setCategories(List<CategoryModel> categories);
 
     public abstract ProgramDefinition build();
 

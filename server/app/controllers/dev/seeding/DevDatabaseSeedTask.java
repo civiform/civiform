@@ -30,15 +30,19 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
+
+import models.CategoryModel;
 import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -83,6 +87,7 @@ public final class DevDatabaseSeedTask {
 
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final CategoryRepository categoryRepository;
 
   private final VersionRepository versionRepository;
   private final Database database;
@@ -91,8 +96,10 @@ public final class DevDatabaseSeedTask {
   public DevDatabaseSeedTask(
       QuestionService questionService,
       ProgramService programService,
+      CategoryRepository categoryRepository,
       VersionRepository versionRepository) {
     this.questionService = checkNotNull(questionService);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
@@ -151,6 +158,25 @@ public final class DevDatabaseSeedTask {
     }
   }
 
+  public List<CategoryModel> seedProgramCategories() {
+    List<CategoryModel> categories = new ArrayList<>();
+    categories.add(new CategoryModel("Education"));
+    categories.add(new CategoryModel("Housing"));
+    categories.add(new CategoryModel("General"));
+
+    List<CategoryModel> dbCategories = new ArrayList<>();
+    categories.forEach(
+        category -> {
+          inSerializableTransaction(
+              () -> {
+                dbCategories.add(categoryRepository.fetchOrInsertUniqueCategory(category));
+              },
+              1);
+        });
+
+    return dbCategories;
+  }
+
   public void insertMinimalSampleProgram(ImmutableList<QuestionDefinition> createdSampleQuestions) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
@@ -165,7 +191,8 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.copyOf(new ArrayList<>()),
+              new ArrayList<>());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -207,7 +234,8 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.copyOf(new ArrayList<>()),
+              new ArrayList<>());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }

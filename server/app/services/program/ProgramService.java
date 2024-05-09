@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import models.AccountModel;
 import models.ApplicationModel;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
@@ -37,6 +38,7 @@ import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
@@ -84,6 +86,7 @@ public final class ProgramService {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
+  private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   @Inject
@@ -92,6 +95,7 @@ public final class ProgramService {
       QuestionService questionService,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
+      CategoryRepository categoryRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
@@ -99,6 +103,7 @@ public final class ProgramService {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
@@ -308,17 +313,18 @@ public final class ProgramService {
    *     failed
    */
   public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String adminName,
-      String adminDescription,
-      String defaultDisplayName,
-      String defaultDisplayDescription,
-      String defaultConfirmationMessage,
-      String externalLink,
-      String displayMode,
-      boolean eligibilityIsGating,
-      ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled,
-      ImmutableList<Long> tiGroups) {
+    String adminName,
+    String adminDescription,
+    String defaultDisplayName,
+    String defaultDisplayDescription,
+    String defaultConfirmationMessage,
+    String externalLink,
+    String displayMode,
+    boolean eligibilityIsGating,
+    ProgramType programType,
+    Boolean isIntakeFormFeatureEnabled,
+    ImmutableList<Long> tiGroups,
+    List<CategoryModel> categories) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -359,7 +365,8 @@ public final class ProgramService {
             versionRepository.getDraftVersionOrCreate(),
             programType,
             eligibilityIsGating,
-            programAcls);
+            programAcls,
+            categories);
 
     return ErrorAnd.of(
         programRepository.getShallowProgramDefinition(
