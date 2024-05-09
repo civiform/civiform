@@ -211,9 +211,7 @@ public final class UpsellController extends CiviFormController {
             check -> {
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
-                      applicationMaybe.join().get(),
-                      /* showEligibilityText= */ false,
-                      /* includeHiddenBlocks= */ false);
+                      applicationMaybe.join().get(), /* isAdmin= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")
