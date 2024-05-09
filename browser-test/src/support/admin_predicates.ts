@@ -18,13 +18,9 @@ export class AdminPredicates {
     this.page = page
   }
 
-  async addValueRows(predicateSpec: PredicateSpec) {
-    const values = predicateSpec.values
-
-    if (values && values.length > 1) {
-      for (let i = 1; i < values.length; i++) {
-        await this.page.click('#predicate-add-value-row')
-      }
+  async addValueRows(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.page.click('#predicate-add-value-row')
     }
   }
 
@@ -48,7 +44,8 @@ export class AdminPredicates {
     }
 
     await this.clickAddConditionButton()
-    await this.addValueRows(predicateSpecs[0])
+    const totalRowsNeeded = predicateSpecs[0]?.values?.length ?? 0
+    await this.addValueRows(Math.max(totalRowsNeeded - 1, 0))
 
     for (const predicateSpec of predicateSpecs) {
       await this.configurePredicate(predicateSpec)
