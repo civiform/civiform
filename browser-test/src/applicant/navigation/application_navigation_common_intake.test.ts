@@ -59,13 +59,12 @@ test.describe('Applicant navigation flow', () => {
           secondProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          'nav-predicate-number-q',
-          /* action= */ null,
-          'number',
-          'is equal to',
-          secondProgramCorrectAnswer,
-        )
+        await adminPredicates.addPredicates({
+          questionName: 'nav-predicate-number-q',
+          scalar: 'number',
+          operator: 'is equal to',
+          value: secondProgramCorrectAnswer,
+        })
 
         await adminPrograms.publishAllDrafts()
         await logout(page)

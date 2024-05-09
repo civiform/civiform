@@ -746,13 +746,12 @@ test.describe('Trusted intermediaries', () => {
           fullProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          eligibilityQuestionId,
-          /* action= */ null,
-          'number',
-          'is equal to',
-          '5',
-        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
 
         await adminPrograms.addProgramBlock(
           fullProgramName,

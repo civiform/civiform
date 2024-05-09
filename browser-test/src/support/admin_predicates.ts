@@ -1,6 +1,5 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -38,7 +37,7 @@ export class AdminPredicates {
     )
   }
 
-  async addPredicates(predicateSpecs: PredicateSpec[]) {
+  async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
     }
@@ -143,32 +142,6 @@ export class AdminPredicates {
         }
       }
     }
-  }
-
-  // For multi-option questions where the value is a checkbox of options, provide a comma-separated
-  // list of the options you would like to check as the value. Ex: blue,red,green
-  //
-  // If action is null the action selector will not be set.
-  async addPredicate(
-    questionName: string,
-    action: string | null,
-    scalar: string,
-    operator: string,
-    value: string,
-  ) {
-    await this.selectQuestionForPredicate(questionName)
-    await this.clickAddConditionButton()
-
-    await this.configurePredicate({
-      questionName,
-      action,
-      scalar,
-      operator,
-      value,
-    })
-
-    await this.clickSaveConditionButton()
-    await waitForPageJsLoad(this.page)
   }
 
   async expectPredicateDisplayTextContains(condition: string) {
