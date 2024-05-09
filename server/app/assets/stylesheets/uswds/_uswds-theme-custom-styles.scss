@@ -39,10 +39,17 @@ See the radio-option below as an example.
   @include u-padding-top('05');
 }
 
-.cf-question-with-error {
+.cf-question-field-with-error {
   @include u-border-left('05', 'secondary-dark');
 }
 
-.cf-applicant-question {
+.cf-applicant-question-field {
   @include u-padding-left(2)
+}
+
+/*
+ * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ */
+ .cf-applicant-question-field.cf-question-field-with-error {
+  @include u-padding-left('105')
 }

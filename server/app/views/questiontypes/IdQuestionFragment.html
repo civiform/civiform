@@ -7,8 +7,8 @@
               questionErrors=${idQuestion.getValidationErrors().get(question.getContextualizedPath())},
               hasErrors=${questionRendererParams.shouldShowErrors() && !idQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-applicant-question cf-question-text"
-  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
+  class="cf-applicant-question-field cf-question-text"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
