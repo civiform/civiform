@@ -2,7 +2,8 @@
   th:fragment="address (question, questionRendererParams, stateAbbreviations)"
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
-  data-testid="questionRoot"
+class="cf-applicant-question"
+data-testid="questionRoot"
 >
   <fieldset
     class="usa-fieldset"

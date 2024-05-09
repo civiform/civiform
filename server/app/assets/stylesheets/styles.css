@@ -34,7 +34,7 @@
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline):not(.usa-button--unstyled) {
+  .usa-button {
     background-color: #005ea2;
   }
 
@@ -46,6 +46,10 @@
   .usa-button.usa-modal__close {
     background-color: transparent;
     color: #71767a;
+  }
+  
+  .usa-button.usa-button--unstyled {
+    background-color: transparent;
   }
 
   button:hover {
