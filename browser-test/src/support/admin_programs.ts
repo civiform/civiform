@@ -588,7 +588,10 @@ export class AdminPrograms {
 
   /**
    * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
-   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that the new method will place
+   * the optional question in the order as defined in the question array. The older method could only handle one
+   * optional question and forced it to be the first question on the list. Tests may need to be updated to handle
+   * a different question order.
    */
   async editProgramBlockWithOptional(
     programName: string,
@@ -598,16 +601,18 @@ export class AdminPrograms {
   ) {
     const block: BlockSpec = {
       description: blockDescription,
-      questions: questionNames.map((questionName) => {
-        return {
-          name: questionName,
-        }
-      }),
+      questions: [],
     }
 
     block.questions.push({
       name: optionalQuestionName,
       isOptional: true,
+    })
+
+    questionNames.forEach((questionName) => {
+      block.questions.push({
+        name: questionName,
+      })
     })
 
     await this.editProgramBlockUsingSpec(programName, block)
