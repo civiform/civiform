@@ -72,59 +72,46 @@ class AdminPredicateConfiguration {
     let hasValueMissing = false
 
     // Check if any scalars are missing a value.
-    Array.from(
-      document.querySelectorAll<HTMLSelectElement>('.cf-scalar-select select'),
-    ).forEach((el: HTMLSelectElement) => {
-      if (el.options[el.options.selectedIndex].value == '') {
-        hasSelectionMissing = true
-      }
-    })
-
-    // Check if any operators are missing a value.
-    Array.from(
-      document.querySelectorAll<HTMLSelectElement>(
-        '.cf-operator-select select',
-      ),
-    ).forEach((el: HTMLSelectElement) => {
-      if (el.options[el.options.selectedIndex].value == '') {
-        hasSelectionMissing = true
-      }
-    })
-
-    // Check if any inputs are missing a value.
     document
-      .querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll('[data-question-id]')
-      .forEach((questionAnswerGroup) => {
-        const inputs = questionAnswerGroup?.querySelectorAll('input')
-        // Single input field that needs a value, e.g. a textbox or date field.
-        if (inputs.length == 1) {
-          if (inputs[0].value == '') {
-            hasValueMissing = true
-            return // Return early if we've found an issue.
-          }
-        }
-        // Multi-input field that needs a checked option, e.g. checkboxes or dropdowns.
-        if (inputs.length > 1) {
-          let hasCheckedOption = false
-          inputs.forEach((input) => {
-            if (input.checked) {
-              hasCheckedOption = true
-            }
-          })
-          if (!hasCheckedOption) {
-            hasValueMissing = true
-            return // Return early if we've found an issue.
-          }
+      .querySelectorAll<HTMLSelectElement>('.cf-scalar-select select')
+      .forEach((el: HTMLSelectElement) => {
+        if (el.options[el.options.selectedIndex].value == '') {
+          hasSelectionMissing = true
         }
       })
 
-    if (!hasValueMissing && !hasSelectionMissing) {
-      return
-    }
+    // Check if any operators are missing a value.
+    document
+      .querySelectorAll<HTMLSelectElement>('.cf-operator-select select')
+      .forEach((el: HTMLSelectElement) => {
+        if (el.options[el.options.selectedIndex].value == '') {
+          hasSelectionMissing = true
+        }
+      })
+
+    // Check if any inputs are missing a value.
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll('[data-question-id]')
+      .forEach((questionAnswerGroup) => {
+        let needsCheckedOption = false
+        let hasCheckedOption = false
+        questionAnswerGroup.querySelectorAll('input').forEach((input) => {
+          if (input.type == 'checkbox') {
+            needsCheckedOption = true
+            if (input.checked) {
+              hasCheckedOption = true
+            }
+          } else if (input.value == '') {
+            hasValueMissing = true
+          }
+        })
+        if (needsCheckedOption && !hasCheckedOption) {
+          hasValueMissing = true
+        }
+      })
 
     // If there are issues with any of the fields, we show a toast and prevent submit.
-    event.preventDefault()
     let errorMessage
     if (hasSelectionMissing && hasValueMissing) {
       errorMessage =
@@ -132,12 +119,15 @@ class AdminPredicateConfiguration {
     } else if (hasSelectionMissing) {
       errorMessage =
         'One or more dropdowns is missing a selection. Please fill out all dropdowns before saving.'
-    } else {
+    } else if (hasValueMissing) {
       errorMessage =
         'One or more form fields is missing an entry. Please fill out all form fields before saving.'
     }
 
-    this.showErrorMessage(errorMessage)
+    if (errorMessage) {
+      event.preventDefault()
+      this.showErrorMessage(errorMessage)
+    }
   }
 
   configurePredicateFormOnScalarChange(event: Event) {
