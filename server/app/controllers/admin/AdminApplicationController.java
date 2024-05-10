@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.program.ColumnType.APPLICATION_ID;
 import static views.admin.programs.ProgramApplicationView.CURRENT_STATUS;
 import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
 import static views.admin.programs.ProgramApplicationView.NOTE;
@@ -17,6 +18,7 @@ import controllers.CiviFormController;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -326,6 +328,50 @@ public final class AdminApplicationController extends CiviFormController {
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));
+  }
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateStatuses(Http.Request request, long programId) throws ProgramNotFoundException,
+    StatusEmailNotFoundException,
+    StatusNotFoundException,
+    AccountHasNoEmailException {
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    String programName = program.adminName();
+    try {
+      checkProgramAdminAuthorization(request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+
+   Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    //System.out.println(formData);
+    formData.entrySet().stream().forEach(key -> {
+
+      if(key.getKey().contains("selected")) {
+        System.out.println("value - " + key.getValue());
+
+        System.out.println("------------------------ ");
+      }
+
+
+//      Optional<String> maybeApplicationId = Optional.ofNullable(formData.get(APPLICATION_ID));
+//      Long applicationId = Long.parseLong(key.getKey());
+//      //Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
+//      //Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+//     // Optional<String> maybeAppId = Optional.ofNullable(formData.get(SEND_EMAIL));
+//      //Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
+//
+//      Optional<ApplicationModel> applicationMaybe =
+//        programAdminApplicationService.getApplication(applicationId, program);
+    });
+    return redirect(
+      routes.AdminApplicationController.index(
+        programId,
+        Optional.empty(),
+        Optional.of(1),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty()));
   }
 
   /**

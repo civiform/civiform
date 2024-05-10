@@ -16,7 +16,6 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
-import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
@@ -32,12 +31,15 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import models.ApplicationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
+
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -59,6 +61,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -124,7 +127,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             allPossibleProgramApplicationStatuses,
                             hasEligibilityEnabled,
                             defaultStatus,
-                            program))
+                            program, request))
                         .withClasses("usa-table-container", "usa-table--borderless")
                         .withTabindex(0)),
                 div(div()
@@ -374,14 +377,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationsTable(
-      ImmutableList<ApplicationModel> applications,
-      ImmutableList<String> allPossibleProgramApplicationStatuses,
-      boolean hasEligibilityEnabled,
-      Optional<StatusDefinitions.Status> defaultStatus,
-      ProgramDefinition program) {
+    ImmutableList<ApplicationModel> applications,
+    ImmutableList<String> allPossibleProgramApplicationStatuses,
+    boolean hasEligibilityEnabled,
+    Optional<StatusDefinitions.Status> defaultStatus,
+    ProgramDefinition program, Http.Request request) {
     boolean displayStatus = allPossibleProgramApplicationStatuses.size() > 0;
+    AtomicInteger count = new AtomicInteger();
     DivTag table =
-        div(
+      div(form().withId("bulk-status-update")
+          .withMethod("POST")
+          .withAction(
+            routes.AdminApplicationController.updateStatuses(program.id()).url())
+        .with(
             table()
                 .withClasses("usa-table")
                 .with(renderGroupTableHeader(displayStatus))
@@ -397,13 +405,15 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         ? applicantService.getApplicationEligibilityStatus(
                                             application, program)
                                         : Optional.empty(),
-                                    defaultStatus)))));
+                                    defaultStatus, count.getAndIncrement()))))).with(makeCsrfTokenInputTag(request),
+          submitButton("Submit")));
     return table;
   }
 
   private j2html.tags.specialized.TheadTag renderGroupTableHeader(boolean displayStatus) {
     return thead(
-        tr().with(th("Name").withScope("col"))
+        tr()//.with(th(input().withName("selectall").withType("checked").withClasses(BaseStyles.CHECKBOX)))
+      .with(th("Name").withScope("col"))
             .with(th("Eligibility").withScope("col"))
             .condWith(displayStatus, th("Status").withScope("col"))
             .with(th("Submission date").withScope("col")));
@@ -413,7 +423,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ApplicationModel application,
       boolean displayStatus,
       Optional<Boolean> maybeEligibilityStatus,
-      Optional<StatusDefinitions.Status> defaultStatus) {
+      Optional<StatusDefinitions.Status> defaultStatus, int count) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -435,7 +445,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
             ? "Meets eligibility"
             : "Doesn't meet eligibility";
-    return tr().with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
+    System.out.print("count " + count);
+    return tr().withClasses("has:checked:text-red-500")
+        .with(td(
+//          input()
+//            .withName("applicationid" + count)
+//            .withValue(Long.toString(application.id))
+//            .isHidden(),
+          input().withType("checkbox").withName("selected"+count).withValue(Long.toString(application.id))
+           .withClasses(BaseStyles.CHECKBOX)
+          ))
+        .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .with(td(eligibility))
         .condWith(displayStatus, td(statusString))
         .with(td(renderSubmitTime(application)))

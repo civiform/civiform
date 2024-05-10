@@ -122,6 +122,7 @@ POST    /admin/programs/:programId/applications/:applicationId/updateStatus cont
 POST    /admin/programs/:programId/applications/:applicationId/updateNote   controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download     controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 GET     /admin/demographics                                                 controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
+POST    /admin/programs/:programId/applications/updateStatuses                controllers.admin.AdminApplicationController.updateStatuses(request: Request, programId: Long)
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
