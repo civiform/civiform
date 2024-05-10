@@ -92,6 +92,8 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.27.1",
+      // Why did I add this for java 17?? -- Gwen
+      "org.checkerframework" % "dataflow-errorprone" % "3.42.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
@@ -138,10 +140,22 @@ lazy val root = (project in file("."))
         .filter(_ != "true")
         .map(_ =>
           Seq(
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+//            "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+//            "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+//
+//            "-processorpath error_prone_core-2.26.1-with-dependencies.jar:dataflow-errorprone-3.42.0.jar",
             // Turn off the AutoValueSubclassLeaked error since the generated
             // code contains it - we can't control that.
-            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-            "-Werror"
+//            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+//            "-Werror"
           )
         )
         .getOrElse(Seq.empty)
