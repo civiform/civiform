@@ -156,7 +156,7 @@ public final class ApiKeyService {
     ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
+      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey.id));
     }
 
     apiKey.retire(getAuthorityId(profile));
