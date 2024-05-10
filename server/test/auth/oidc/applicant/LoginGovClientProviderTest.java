@@ -124,7 +124,9 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
         client.getLogoutAction(
-          new CallContext(webContext, mockSessionStore), new CiviFormProfileData(1L), afterLogoutUri);
+            new CallContext(webContext, mockSessionStore),
+            new CiviFormProfileData(1L),
+            afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)

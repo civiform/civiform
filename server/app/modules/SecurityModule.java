@@ -121,7 +121,8 @@ public class SecurityModule extends AbstractModule {
     PlayCookieSessionStore sessionStore =
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
 
-    CiviFormSessionStoreFactory civiFormSessionStoreFactory = new CiviFormSessionStoreFactory(aesKey);
+    CiviFormSessionStoreFactory civiFormSessionStoreFactory =
+        new CiviFormSessionStoreFactory(aesKey);
 
     bind(SessionStore.class).toInstance(sessionStore);
     bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);

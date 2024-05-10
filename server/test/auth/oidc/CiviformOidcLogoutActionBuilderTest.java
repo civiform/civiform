@@ -117,7 +117,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -159,7 +160,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -202,7 +204,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
