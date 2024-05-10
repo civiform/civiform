@@ -197,7 +197,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT, "font-light");
+        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
         answerContent.withClasses("font-light", "text-sm");
