@@ -39,13 +39,12 @@ test.describe('Applicant navigation flow', () => {
           fullProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          'nav-predicate-number-q',
-          /* action= */ null,
-          'number',
-          'is equal to',
-          '5',
-        )
+        await adminPredicates.addPredicates({
+          questionName: 'nav-predicate-number-q',
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
 
         await adminPrograms.addProgramBlock(
           fullProgramName,
@@ -369,13 +368,12 @@ test.describe('Applicant navigation flow', () => {
         programName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
-        questionName,
-        /* action= */ null,
-        'text',
-        'is equal to',
-        'foo',
-      )
+      await adminPredicates.addPredicates({
+        questionName: questionName,
+        scalar: 'text',
+        operator: 'is equal to',
+        value: 'foo',
+      })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
       await logout(page)
