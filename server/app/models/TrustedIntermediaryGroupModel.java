@@ -1,11 +1,11 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.Comparator;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 /**
  * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
