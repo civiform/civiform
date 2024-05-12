@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.api.libs.concurrent.AkkaSchedulerProvider;
+import play.api.libs.concurrent.PekkoSchedulerProvider;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
@@ -28,7 +28,7 @@ import services.apikey.ApiKeyService;
  */
 public class ApiKeyUsageFilter extends EssentialFilter {
 
-  private final AkkaSchedulerProvider akkaSchedulerProvider;
+  private final PekkoSchedulerProvider pekkoSchedulerProvider;
   private final Provider<ApiKeyService> apiKeyServiceProvider;
   private final Executor exec;
   private final Provider<ProfileUtils> profileUtilsProvider;
@@ -37,12 +37,12 @@ public class ApiKeyUsageFilter extends EssentialFilter {
 
   @Inject
   public ApiKeyUsageFilter(
-      AkkaSchedulerProvider akkaSchedulerProvider,
+      PekkoSchedulerProvider pekkoSchedulerProvider,
       Provider<ApiKeyService> apiKeyServiceProvider,
       Executor exec,
       Provider<ProfileUtils> profileUtilsProvider,
       ClientIpResolver clientIpResolver) {
-    this.akkaSchedulerProvider = checkNotNull(akkaSchedulerProvider);
+    this.pekkoSchedulerProvider = checkNotNull(pekkoSchedulerProvider);
     this.apiKeyServiceProvider = checkNotNull(apiKeyServiceProvider);
     this.exec = checkNotNull(exec);
     this.profileUtilsProvider = checkNotNull(profileUtilsProvider);
@@ -67,7 +67,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
                           if (maybeApiKeyId.isPresent()) {
                             String remoteAddress = clientIpResolver.resolveClientIp(request);
 
-                            akkaSchedulerProvider
+                            pekkoSchedulerProvider
                                 .get()
                                 .scheduleOnce(
                                     Duration.ZERO,

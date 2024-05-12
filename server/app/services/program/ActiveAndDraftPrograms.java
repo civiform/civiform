@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import akka.japi.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -14,6 +13,7 @@ import java.util.Set;
 import java.util.function.Function;
 import models.DisplayMode;
 import models.VersionModel;
+import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
 
 /**

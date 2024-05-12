@@ -3,11 +3,11 @@ package durablejobs;
 import models.PersistedDurableJobModel;
 
 /**
- * Represents code that runs in a background thread. In contrast to Akka tasks, they are backed by
- * {@link PersistedDurableJobModel} records in the database, making them durable to server failures
- * and allowing automated retry logic. The behavior of a {@code DurableJob} is determined by its
- * implementing class, which is identified by its associated {@link PersistedDurableJobModel} record
- * via the {@code jobName} attribute.
+ * Represents code that runs in a background thread. In contrast to org.apache.pekko tasks, they are
+ * backed by {@link PersistedDurableJobModel} records in the database, making them durable to server
+ * failures and allowing automated retry logic. The behavior of a {@code DurableJob} is determined
+ * by its implementing class, which is identified by its associated {@link PersistedDurableJobModel}
+ * record via the {@code jobName} attribute.
  */
 public abstract class DurableJob {
 

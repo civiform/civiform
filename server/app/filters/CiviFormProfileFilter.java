@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static play.mvc.Results.redirect;
 
-import akka.stream.Materializer;
 import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
@@ -12,6 +11,7 @@ import controllers.routes;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import org.apache.pekko.stream.Materializer;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;

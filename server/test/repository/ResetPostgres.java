@@ -2,7 +2,6 @@ package repository;
 
 import static play.test.Helpers.fakeApplication;
 
-import akka.stream.Materializer;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Clock;
@@ -11,6 +10,7 @@ import java.time.ZoneId;
 import models.LifecycleStage;
 import models.Models;
 import models.VersionModel;
+import org.apache.pekko.stream.Materializer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

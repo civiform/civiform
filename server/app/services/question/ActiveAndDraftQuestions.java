@@ -1,6 +1,5 @@
 package services.question;
 
-import akka.japi.Pair;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -9,6 +8,7 @@ import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
 import models.VersionModel;
+import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
 import services.DeletionStatus;
 import services.program.ProgramDefinition;
