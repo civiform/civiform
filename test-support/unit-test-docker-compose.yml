@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   db:
-    image: postgres:16.2
+    image: postgres:16.3
     restart: always
     expose:
       - '5432'
