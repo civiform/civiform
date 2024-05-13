@@ -729,7 +729,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     malformedQuestionDefinition,
                     p("Edit the program and try republishing").withClass("text-red-500")),
                 div().with(TextFormatter.formatText(questionDefinition.getQuestionText().getDefault())),
-                p(questionHelpText).withClasses("mt-1", "text-sm"),
+                div().with(TextFormatter.formatText(questionHelpText)).withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));
 
