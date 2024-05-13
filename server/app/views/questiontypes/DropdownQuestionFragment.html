@@ -4,7 +4,7 @@
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
               inputId=${'id-' + #strings.randomAlphanumeric(8)},
               questionErrors=${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${questionErrors != null && !questionErrors.isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()}"
   th:id="${questionId}"
   th:class="cf-applicant-question"
   th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
@@ -16,7 +16,7 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
   ></div>
 
   <select

@@ -15,7 +15,7 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
     <!--/* Hidden input that we have checked to allow clearing data from a multi-select question */-->
