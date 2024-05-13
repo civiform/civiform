@@ -7,15 +7,15 @@
   th:id="${questionId}"
 >
   <!--/* Title and Help Text */-->
-  <div   class="cf-applicant-question-field">
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-  ></div>
+  <div class="cf-question-header">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
 
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
-  ></div>
-</div>
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+    ></div>
+  </div>
 
   <div
     th:with="firstNameId=${'id-' + #strings.randomAlphanumeric(8)},

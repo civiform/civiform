@@ -2,22 +2,23 @@
   th:fragment="address (question, questionRendererParams, stateAbbreviations)"
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
-  class="cf-applicant-question-field"
 >
   <fieldset
     class="usa-fieldset"
     th:with="addressQuestion=${question.createAddressQuestion()},
              firstPathWithError=${addressQuestion.getFirstPathWithError()}"
   >
-    <!--/* Title and Help Text */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+    <div class="cf-question-header">
+      <!--/* Title and Help Text */-->
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+      ></div>
 
-    <!--/* Display errors for the entire question */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
-    ></div>
+      <!--/* Display errors for the entire question */-->
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+      ></div>
+    </div>
 
     <!--/* Street address */-->
     <div

@@ -43,7 +43,8 @@ See the radio-option below as an example.
   @include u-border-left('05', 'secondary-dark');
 }
 
-.cf-applicant-question-field {
+.cf-applicant-question-field,
+.cf-question-header {
   @include u-padding-left(2)
 }
 
