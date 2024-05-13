@@ -56,6 +56,7 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.ProgramQuestionBank;
 import views.components.SvgTag;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -727,7 +728,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iff(
                     malformedQuestionDefinition,
                     p("Edit the program and try republishing").withClass("text-red-500")),
-                p(questionDefinition.getQuestionText().getDefault()),
+                div().with(TextFormatter.formatText(questionDefinition.getQuestionText().getDefault())),
                 p(questionHelpText).withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));

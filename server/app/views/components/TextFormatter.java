@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import j2html.tags.DomContent;
 import java.util.List;
+
+import javax.management.ImmutableDescriptor;
+
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
@@ -36,6 +39,11 @@ public final class TextFormatter {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
     builder.add(rawHtml(formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator)));
     return builder.build();
+  }
+
+  /** Passes provided text through Markdown formatter without preserving empty lines or required indicators. */
+  public static ImmutableList<DomContent> formatText(String text) {
+    return formatText(text, false, false);
   }
 
   /**

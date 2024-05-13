@@ -52,6 +52,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -110,7 +111,6 @@ public final class QuestionsListView extends BaseHtmlView {
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
             .addMainContent(contentDiv);
-
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(
@@ -390,18 +390,19 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag questionText =
         div()
             .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
-            .with(
-                Icons.questionTypeSvg(definition.getQuestionType())
-                    .withClasses("w-6", "h-6", "shrink-0"))
-            .with(
-                div(definition.getQuestionText().getDefault())
-                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
-    DivTag questionDescription =
-        div(
-            div(definition.getQuestionHelpText().isEmpty()
-                    ? ""
-                    : definition.getQuestionHelpText().getDefault())
-                .withClasses("pl-10"));
+                    .with(
+                            Icons.questionTypeSvg(definition.getQuestionType())
+                                    .withClasses("w-6", "h-6", "shrink-0"))
+                    .with(
+                        div()
+                            .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                            .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
+    String questionDescriptionString = definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
+    DivTag questionDescription = div(
+            div().with(TextFormatter.formatText(questionDescriptionString))
+                    .withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
