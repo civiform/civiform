@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.46",
-      "software.amazon.awssdk" % "ses" % "2.25.46",
+      "software.amazon.awssdk" % "s3" % "2.25.50",
+      "software.amazon.awssdk" % "ses" % "2.25.50",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.12.1",
