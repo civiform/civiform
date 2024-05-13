@@ -2,6 +2,7 @@
   <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"></head>
   <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
   <body data-load-modal="true">
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <h1 th:text="#{title.getStarted}"></h1>
     <p th:text="#{content.reviewPageIntro}"></p>
     <ul class="usa-card-group">
