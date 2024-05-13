@@ -15,7 +15,7 @@
     "axe-core": "4.9.1",
     "eslint": "8.57.0",
     "eslint-plugin-no-unsanitized": "^4.0.2",
-    "eslint-plugin-playwright": "1.6.0",
+    "eslint-plugin-playwright": "1.6.1",
     "glob": "10.3.12",
     "playwright": "1.44.0",
     "sharp": "0.33.3",
