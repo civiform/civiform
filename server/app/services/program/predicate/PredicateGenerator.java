@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.tuple.Pair;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
@@ -123,6 +122,14 @@ public final class PredicateGenerator {
     }
   }
 
+  /**
+   * Generates LeafExpressionNodes from the form input
+   *
+   * @throws ProgramQuestionDefinitionNotFoundException if a parsed questionId is not in the {@link
+   *     ProgramDefinition}
+   * @throws QuestionNotFoundException if a parsed questionId is not in the current active or draft
+   *     version.
+   */
   private static Multimap<Integer, LeafExpressionNode> getLeafNodes(
       ProgramDefinition programDefinition,
       DynamicForm predicateForm,
@@ -135,50 +142,45 @@ public final class PredicateGenerator {
       Matcher singleValueMatcher = SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
       Matcher multiValueMatcher = MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
 
-      final int groupId;
-      final long questionId;
-      final Scalar scalar;
-      final Operator operator;
+      Matcher matcher =
+          singleValueMatcher.find()
+              ? singleValueMatcher
+              : multiValueMatcher.find() ? multiValueMatcher : null;
+      if (matcher == null) {
+        continue;
+      }
+      final int groupId = Integer.parseInt(matcher.group(1));
+      final long questionId = Long.parseLong(matcher.group(2));
+
+      // Validate the questionId - these throw exceptions
+      roQuestionService.getQuestionDefinition(questionId);
+      programDefinition.getProgramQuestionDefinition(questionId);
+
+      final Scalar scalar = getScalar(predicateForm, questionId);
+      final Operator operator = getOperator(predicateForm, questionId);
       final PredicateValue predicateValue;
 
-      if (singleValueMatcher.find()) {
-        Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(programDefinition, roQuestionService, singleValueMatcher);
-        groupId = groupIdQuestionIdPair.getLeft();
-        questionId = groupIdQuestionIdPair.getRight();
-        Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
-        scalar = scalarOperatorPair.getLeft();
-        operator = scalarOperatorPair.getRight();
-
-        if (scalar.equals(Scalar.SERVICE_AREA)) {
-          ProgramQuestionDefinition questionDefinition =
-              programDefinition.getProgramQuestionDefinition(questionId);
-          if (!questionDefinition.getQuestionDefinition().isAddress()) {
-            throw new BadRequestException(
-                String.format("%d is not an address question", questionId));
-          }
-
-          if (!questionDefinition.addressCorrectionEnabled()) {
-            throw new BadRequestException(
-                String.format(
-                    "Address correction not enabled for Question ID %d in program ID %d",
-                    questionId, programDefinition.id()));
-          }
+      if (scalar.equals(Scalar.SERVICE_AREA)) {
+        ProgramQuestionDefinition questionDefinition =
+            programDefinition.getProgramQuestionDefinition(questionId);
+        if (!questionDefinition.getQuestionDefinition().isAddress()) {
+          throw new BadRequestException(String.format("%d is not an address question", questionId));
         }
 
+        if (!questionDefinition.addressCorrectionEnabled()) {
+          throw new BadRequestException(
+              String.format(
+                  "Address correction not enabled for Question ID %d in program ID %d",
+                  questionId, programDefinition.id()));
+        }
+      }
+
+      if (matcher == singleValueMatcher) {
         predicateValue =
             parsePredicateValue(scalar, operator, predicateForm.get(key), ImmutableList.of());
-      } else if (multiValueMatcher.find() && !consumedMultiValueKeys.contains(key)) {
+      } else if (matcher == multiValueMatcher && !consumedMultiValueKeys.contains(key)) {
         // For the first encountered key of a multivalued question, we process all the keys now for
         // the question, then skip them later.
-        Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(programDefinition, roQuestionService, multiValueMatcher);
-        groupId = groupIdQuestionIdPair.getLeft();
-        questionId = groupIdQuestionIdPair.getRight();
-        Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
-        scalar = scalarOperatorPair.getLeft();
-        operator = scalarOperatorPair.getRight();
-
         ImmutableList<String> multiSelectKeys =
             predicateForm.rawData().keySet().stream()
                 .filter(
@@ -219,45 +221,33 @@ public final class PredicateGenerator {
     return leafNodes;
   }
 
-  /**
-   * Gets the groupId and questionId for the provided predicate value matcher.
-   *
-   * @throws ProgramQuestionDefinitionNotFoundException if the resulting questionId is not in the
-   *     {@link ProgramDefinition}
-   * @throws QuestionNotFoundException if the resulting questionId is not in the current active or
-   *     draft version.
-   */
-  private static Pair<Integer, Long> getGroupIdAndQuestionId(
-      ProgramDefinition programDefinition,
-      ReadOnlyQuestionService readOnlyQuestionService,
-      Matcher matcher)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
-    int groupId = Integer.parseInt(matcher.group(1));
-    long questionId = Long.parseLong(matcher.group(2));
-
-    readOnlyQuestionService.getQuestionDefinition(questionId);
-    programDefinition.getProgramQuestionDefinition(questionId);
-
-    return Pair.of(groupId, questionId);
+  private static Scalar getScalar(DynamicForm predicateForm, Long questionId) {
+    String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
+    if (rawScalarValue == null) {
+      throw new BadRequestException(
+          String.format("Missing scalar for predicate update form: %s", predicateForm.rawData()));
+    }
+    try {
+      return Scalar.valueOf(rawScalarValue);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException(
+          String.format("Bad scalar for predicate update form: %s", predicateForm.rawData()));
+    }
   }
 
-  private static Pair<Scalar, Operator> getScalarAndOperator(
-      DynamicForm predicateForm, Long questionId) {
-    String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
+  private static Operator getOperator(DynamicForm predicateForm, Long questionId) {
     String rawOperatorValue = predicateForm.get(String.format("question-%d-operator", questionId));
 
-    if (rawOperatorValue == null || rawScalarValue == null) {
+    if (rawOperatorValue == null) {
       throw new BadRequestException(
-          String.format(
-              "Missing scalar or operator for predicate update form: %s", predicateForm.rawData()));
+          String.format("Missing operator for predicate update form: %s", predicateForm.rawData()));
     }
 
     try {
-      return Pair.of(Scalar.valueOf(rawScalarValue), Operator.valueOf(rawOperatorValue));
+      return Operator.valueOf(rawOperatorValue);
     } catch (IllegalArgumentException e) {
       throw new BadRequestException(
-          String.format(
-              "Bad scalar or operator for predicate update form: %s", predicateForm.rawData()));
+          String.format("Bad operator for predicate update form: %s", predicateForm.rawData()));
     }
   }
 
