@@ -8,14 +8,6 @@
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
       <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
-
         <div
           th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
         ></div>

@@ -62,3 +62,17 @@ See the radio-option below as an example.
 .cf-north-star-enumerator-field:last-child {
   @include u-padding-bottom(0)
 }
+
+/**
+ * The USWDS header doesn't give enough space for the logo and title, so we add some.
+ */
+@media (min-width: 64em) {
+  .usa-header--basic .usa-navbar {
+    width: 50%;
+  }
+
+  .usa-header--basic .usa-nav {
+    @include u-padding-top(4);
+    @include u-padding-bottom(2);
+  }
+}

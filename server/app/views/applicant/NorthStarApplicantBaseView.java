@@ -2,13 +2,17 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Optional;
+
 import controllers.AssetsFinder;
 import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.settings.SettingsManifest;
+import views.components.Icons;
 import views.html.helper.CSRF;
+import controllers.routes;
 
 public abstract class NorthStarApplicantBaseView {
   protected final TemplateEngine templateEngine;
@@ -41,6 +45,8 @@ public abstract class NorthStarApplicantBaseView {
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("smallLogoUrl", settingsManifest.getCivicEntitySmallLogoUrl().orElse(assetsFinder.path("Images/civiform-staging.png")));
     context.setVariable("civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
+    context.setVariable("closeIcon", Icons.CLOSE);
+    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     return context;
   }
 }
