@@ -39,7 +39,8 @@ public abstract class NorthStarApplicantBaseView {
     this.languageUtils = checkNotNull(languageUtils);
   }
 
-  protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(Request request, Long applicantId) {
+  protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
+      Request request, Long applicantId) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
@@ -71,8 +72,8 @@ public abstract class NorthStarApplicantBaseView {
   }
 
   private String getUpdateLanguageAction(Long applicantId) {
-    return
-    controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(applicantId)
-            .url();
+    return controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
+            applicantId)
+        .url();
   }
 }

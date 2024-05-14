@@ -37,7 +37,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
   }
 
   public String render(Request request, Params params) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request, params.applicantId());
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(request, params.applicantId());
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));

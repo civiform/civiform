@@ -37,7 +37,8 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request, params.applicantId());
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(request, params.applicantId());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
     context.setVariable("goBackAction", goBackAction(params));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);

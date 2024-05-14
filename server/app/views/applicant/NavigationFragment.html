@@ -20,8 +20,8 @@
           <li>
             <button th:replace="~{this :: loginButton}"></button>
           </li>
-          </ul>
-          <ul>
+        </ul>
+        <ul>
           <li>
             <button th:replace="~{this :: languageSelector}"></button>
           </li>
@@ -40,14 +40,17 @@
   th:attr="data-redirect-to=${loginLink}"
 ></button>
 
-<div
-  th:fragment="languageSelector"
->
+<div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
 
-    <select name="locale" onchange="this.form.submit()" th:aria-label="#{label.languageSr}" class="usa-button">
+    <select
+      name="locale"
+      onchange="this.form.submit()"
+      th:aria-label="#{label.languageSr}"
+      class="usa-button"
+    >
       <option hidden selected="true">Languages</option>
       <option
         class="usa-language__submenu-item"
@@ -56,10 +59,5 @@
         th:text="${language.value}"
       ></option>
     </select>
-
-
-
-
-
   </form>
 </div>
