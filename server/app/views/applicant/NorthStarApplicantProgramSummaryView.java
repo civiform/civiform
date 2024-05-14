@@ -5,6 +5,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
 import java.util.Optional;
@@ -24,8 +25,15 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
   }
 
   public String render(Request request, Params params) {

@@ -1,35 +1,109 @@
 <th:block th:fragment="pageHeader">
-    <div class="usa-overlay"></div>
-    <header class="usa-header usa-header--basic">
+  <div class="usa-overlay"></div>
+  <header class="usa-header usa-header--basic">
     <div class="usa-nav-container">
-        <div class="usa-navbar">
+      <div class="usa-navbar">
         <a href="/" class="usa-logo display-flex flex-align-center">
-            <img th:src="${smallLogoUrl}" class="width-8 padding-right-2">
-            <em class="usa-logo__text"
-            >
-                <span th:text="${civicEntityShortName}"></span>
-                <span>CiviForm</span>
-            </em
-            >
+          <img th:src="${smallLogoUrl}" class="width-8 padding-right-2" />
+          <em class="usa-logo__text">
+            <span th:text="${civicEntityShortName}"></span>
+            <span>CiviForm</span>
+          </em>
         </a>
         <button type="button" class="usa-menu-btn">Menu</button>
-        </div>
-        <nav aria-label="Primary navigation" class="usa-nav">
+      </div>
+      <nav aria-label="Primary navigation" class="usa-nav">
         <button type="button" class="usa-nav__close">
-            <img th:src="${closeIcon}" role="img" alt="Close" />
+          <img th:src="${closeIcon}" role="img" alt="Close" />
         </button>
         <ul>
-            <li>
-            <button
-                type="button"
-                class="usa-button usa-button--outline"
-                th:text="#{button.login}"
-                id="login-button"
-                th:attr="data-redirect-to=${loginLink}"
-            ></button>
-            </li>
+          <li>
+            <button th:replace="~{this :: loginButton}"></button>
+          </li>
+          <li>
+            <button th:replace="~{this :: languageSelector}"></button>
+          </li>
         </ul>
-        </nav>
+      </nav>
     </div>
-    </header>
+  </header>
 </th:block>
+
+<button
+  th:fragment="loginButton"
+  type="button"
+  class="usa-button usa-button--outline"
+  th:text="#{button.login}"
+  id="login-button"
+  th:attr="data-redirect-to=${loginLink}"
+></button>
+
+<div
+  th:fragment="languageSelector"
+  class="usa-language-container usa-language--small"
+>
+  <select class="usa-language__primary usa-accordion">
+    <option class="usa-language__primary-item"></option>
+  </select>
+
+  <!-- <button
+              type="button"
+              class="usa-button usa-language__link"
+              role="button"
+              aria-expanded="false"
+              aria-controls="language-options"
+            >
+              Languages
+            </button>
+            <ul id="language-options" class="usa-language__submenu" hidden="true">
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="ar" xml:lang="ar"
+                    ><strong>العربية</strong> (Arabic)</span
+                  ></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="zh" xml:lang="zh"
+                    ><strong>简体字</strong> (Chinese - Simplified)</span
+                  ></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="en" xml:lang="en"><strong>English</strong></span></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="es" xml:lang="es"
+                    ><strong>Español</strong> (Spanish)</span
+                  ></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="fr" xml:lang="fr"
+                    ><strong>Français</strong> (French)</span
+                  ></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="it" xml:lang="it"
+                    ><strong>Italiano</strong> (Italian)</span
+                  ></a
+                >
+              </li>
+              <li class="usa-language__submenu-item">
+                <a href="javascript:void()"
+                  ><span lang="ru" xml:lang="ru"
+                    ><strong>Pусский</strong> (Russian)</span
+                  ></a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul> -->
+</div>

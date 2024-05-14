@@ -3,6 +3,7 @@ package views.applicant;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
@@ -31,8 +32,15 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 

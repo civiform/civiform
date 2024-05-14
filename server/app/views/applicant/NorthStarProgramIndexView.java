@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
@@ -36,8 +37,15 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes, settingsManifest);
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
     this.authProviderName = checkNotNull(authProviderName);
   }

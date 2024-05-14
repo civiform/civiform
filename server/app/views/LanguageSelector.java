@@ -17,8 +17,6 @@ import j2html.tags.specialized.SelectTag;
 import java.util.Locale;
 import javax.inject.Inject;
 import play.i18n.Lang;
-import play.i18n.MessagesApi;
-import play.mvc.Http;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -30,34 +28,13 @@ import views.style.StyleUtils;
 public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
-  private final LanguageUtils languageUtils;
-  private final MessagesApi messagesApi;
 
   @Inject
-  public LanguageSelector(LanguageUtils languageUtils, MessagesApi messagesApi) {
-    this.languageUtils = checkNotNull(languageUtils);
-    this.messagesApi = checkNotNull(messagesApi);
-
+  public LanguageSelector(LanguageUtils languageUtils) {
     this.supportedLanguages =
         languageUtils.getApplicantEnabledLanguages().stream()
             .map(Lang::toLocale)
             .collect(toImmutableList());
-  }
-
-  /**
-   * Returns the selected preferred language based on the applicant's browser settings. If the
-   * current browser settings are for a language that is not supported/enabled for applicants it
-   * returns the default system language.
-   */
-  public Lang getPreferredLangage(Http.RequestHeader request) {
-    var preferredLanguageCode = messagesApi.preferred(request).lang().code();
-
-    var preferredLanguage =
-        languageUtils.getApplicantEnabledLanguages().stream()
-            .filter(lang -> lang.code().equals(preferredLanguageCode))
-            .findFirst();
-
-    return preferredLanguage.orElse(Lang.defaultLang());
   }
 
   public SelectTag renderDropdown(String preferredLanguage) {

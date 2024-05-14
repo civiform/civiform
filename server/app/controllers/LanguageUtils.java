@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Langs;
+import play.i18n.MessagesApi;
+import play.mvc.Http;
 import repository.AccountRepository;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
@@ -22,14 +24,19 @@ public final class LanguageUtils {
   private final AccountRepository accountRepository;
   private final Langs langs;
   private final SettingsManifest settingsManifest;
+  private final MessagesApi messagesApi;
   private static final Logger LOGGER = LoggerFactory.getLogger(LanguageUtils.class);
 
   @Inject
   public LanguageUtils(
-      AccountRepository accountRepository, Langs langs, SettingsManifest settingsManifest) {
+      AccountRepository accountRepository,
+      Langs langs,
+      SettingsManifest settingsManifest,
+      MessagesApi messagesApi) {
     this.accountRepository = checkNotNull(accountRepository);
     this.langs = checkNotNull(langs);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   public ApplicantModel maybeSetDefaultLocale(ApplicantModel applicant) {
@@ -78,5 +85,21 @@ public final class LanguageUtils {
     return allLanguages.stream()
         .filter(lang -> applicantLanguages.contains(lang.code()))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Returns the selected preferred language based on the applicant's browser settings. If the
+   * current browser settings are for a language that is not supported/enabled for applicants it
+   * returns the default system language.
+   */
+  public Lang getPreferredLanguage(Http.RequestHeader request) {
+    var preferredLanguageCode = messagesApi.preferred(request).lang().code();
+
+    var preferredLanguage =
+        getApplicantEnabledLanguages().stream()
+            .filter(lang -> lang.code().equals(preferredLanguageCode))
+            .findFirst();
+
+    return preferredLanguage.orElse(Lang.defaultLang());
   }
 }
