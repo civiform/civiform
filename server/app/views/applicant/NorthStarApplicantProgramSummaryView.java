@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
@@ -40,7 +41,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
   public String render(Request request, Params params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
-            request, params.applicantId(), params.profile(), params.applicantPersonalInfo());
+            request,
+            params.applicantId(),
+            params.profile(),
+            params.applicantPersonalInfo(),
+            params.messages());
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
@@ -107,6 +112,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
     abstract int totalBlockCount();
 
+    abstract Messages messages();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -123,6 +130,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       public abstract Builder setProgramId(long programId);
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
+
+      public abstract Builder setMessages(Messages messages);
 
       public abstract Params build();
     }

@@ -185,6 +185,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setProgramId(programId)
                         .setCompletedBlockCount(completedBlockCount)
                         .setTotalBlockCount(totalBlockCount)
+                        .setMessages(messages)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);

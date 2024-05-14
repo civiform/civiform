@@ -13,6 +13,7 @@ import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
+import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
@@ -46,7 +47,8 @@ public abstract class NorthStarApplicantBaseView {
       Request request,
       Long applicantId,
       CiviFormProfile profile,
-      ApplicantPersonalInfo applicantPersonalInfo) {
+      ApplicantPersonalInfo applicantPersonalInfo,
+      Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
@@ -77,17 +79,21 @@ public abstract class NorthStarApplicantBaseView {
     context.setVariable("endSessionLink", org.pac4j.play.routes.LogoutController.logout().url());
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
-      context.setVariable("loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo));
+      context.setVariable(
+          "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
     }
     return context;
   }
 
   private String getAccountIdentifier(
-      boolean isTi, CiviFormProfile profile, ApplicantPersonalInfo applicantPersonalInfo) {
+      boolean isTi,
+      CiviFormProfile profile,
+      ApplicantPersonalInfo applicantPersonalInfo,
+      Messages messages) {
     // For TIs we use the account email rather than first and last name because
     // TIs usually do not have the latter data available, but will always have
     // an email address because they are authenticated.
-        if (isTi) {
+    if (isTi) {
       // CommonProfile.getEmail() can return null, so we guard that with a generic
       // display string.
       String email =
@@ -101,8 +107,7 @@ public abstract class NorthStarApplicantBaseView {
 
       return email;
     }
-    return applicantPersonalInfo.getDisplayString(null);
-
+    return applicantPersonalInfo.getDisplayString(messages);
   }
 
   private ImmutableMap<Lang, String> enabledLanguages() {

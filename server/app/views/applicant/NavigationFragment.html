@@ -39,7 +39,7 @@
       class="usa-button usa-button--outline"
       th:text="#{header.endSession}"
       id="logout-button"
-      th:attr="data-redirect-to=${endSessionLink}"
+      th:attr="data-redirect-to=${logoutLink}"
     ></button>
     <button
       type="button"
@@ -51,12 +51,16 @@
   </div>
 
   <div th:if="${!isGuest}">
+    <span
+      th:text="#{header.userName(${loggedInAs})}"
+      class="padding-right-1"
+    ></span>
     <button
       type="button"
       class="usa-button usa-button--outline"
       th:text="#{button.logout}"
-      id="login-button"
-      th:attr="data-redirect-to=${loginLink}"
+      id="logout-button"
+      th:attr="data-redirect-to=${logoutLink}"
     ></button>
   </div>
 </th:block>
