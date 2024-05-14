@@ -18,7 +18,7 @@
         </button>
         <ul>
           <li>
-            <button th:replace="~{this :: loginButton}"></button>
+            <button th:replace="~{this :: loginOrLogout}"></button>
           </li>
         </ul>
         <ul>
@@ -31,14 +31,35 @@
   </header>
 </th:block>
 
-<button
-  th:fragment="loginButton"
-  type="button"
-  class="usa-button usa-button--outline"
-  th:text="#{button.login}"
-  id="login-button"
-  th:attr="data-redirect-to=${loginLink}"
-></button>
+<th:block th:fragment="loginOrLogout">
+  <div th:if="${isGuest}">
+    <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{header.endSession}"
+      id="logout-button"
+      th:attr="data-redirect-to=${endSessionLink}"
+    ></button>
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{button.login}"
+      id="login-button"
+      th:attr="data-redirect-to=${loginLink}"
+    ></button>
+  </div>
+
+  <div th:if="${!isGuest}">
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{button.logout}"
+      id="login-button"
+      th:attr="data-redirect-to=${loginLink}"
+    ></button>
+  </div>
+</th:block>
 
 <div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">

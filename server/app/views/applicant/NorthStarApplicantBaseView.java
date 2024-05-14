@@ -1,7 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -12,6 +14,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.mvc.Http.Request;
+import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
@@ -40,7 +43,10 @@ public abstract class NorthStarApplicantBaseView {
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
-      Request request, Long applicantId) {
+      Request request,
+      Long applicantId,
+      CiviFormProfile profile,
+      ApplicantPersonalInfo applicantPersonalInfo) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
@@ -56,12 +62,47 @@ public abstract class NorthStarApplicantBaseView {
     context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable("closeIcon", Icons.CLOSE);
-    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
+
+    // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
     context.setVariable("requestUri", request.uri());
+
+    // Add auth parameters.
+    boolean isTi = profile.isTrustedIntermediary();
+    boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
+
+    context.setVariable("isGuest", isGuest);
+    context.setVariable("endSessionLink", org.pac4j.play.routes.LogoutController.logout().url());
+    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
+    if (!isGuest) {
+      context.setVariable("loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo));
+    }
     return context;
+  }
+
+  private String getAccountIdentifier(
+      boolean isTi, CiviFormProfile profile, ApplicantPersonalInfo applicantPersonalInfo) {
+    // For TIs we use the account email rather than first and last name because
+    // TIs usually do not have the latter data available, but will always have
+    // an email address because they are authenticated.
+        if (isTi) {
+      // CommonProfile.getEmail() can return null, so we guard that with a generic
+      // display string.
+      String email =
+          Optional.ofNullable(profile.getProfileData().getEmail()).orElse("Trusted Intermediary");
+
+      // To ensure a consistent string with browser snapshots, we override the
+      // display email.
+      if (email.startsWith("fake-trusted-intermediary") && email.endsWith("@example.com")) {
+        return "trusted-intermediary@example.com";
+      }
+
+      return email;
+    }
+    return applicantPersonalInfo.getDisplayString(null);
+
   }
 
   private ImmutableMap<Lang, String> enabledLanguages() {

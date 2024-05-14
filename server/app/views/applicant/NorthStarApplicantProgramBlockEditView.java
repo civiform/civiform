@@ -46,7 +46,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context =
-        createThymeleafContext(request, applicationParams.applicantId());
+        createThymeleafContext(
+            request,
+            applicationParams.applicantId(),
+            applicationParams.profile(),
+            applicationParams.applicantPersonalInfo());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
     context.setVariable(
