@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicantModel;
@@ -101,5 +102,19 @@ public final class LanguageUtils {
             .findFirst();
 
     return preferredLanguage.orElse(Lang.defaultLang());
+  }
+
+  /**
+   * The dropdown option label should be the language name localized to that language - for example,
+   * "español" for "es-US". We capitalize the first letter, since some locales do not capitalize
+   * languages.
+   */
+  public String getDisplayString(Locale locale) {
+    // The default for Java is 中文, but the City of Seattle prefers 繁體中文
+    if (locale.equals(Locale.TRADITIONAL_CHINESE)) {
+      return "繁體中文";
+    }
+    String language = locale.getDisplayLanguage(locale);
+    return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
 }

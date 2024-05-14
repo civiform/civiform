@@ -57,7 +57,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       CiviFormProfile profile) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request, applicantId);
 
     ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
 

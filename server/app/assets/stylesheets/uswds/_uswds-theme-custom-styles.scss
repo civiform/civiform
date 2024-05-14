@@ -76,3 +76,24 @@ See the radio-option below as an example.
     @include u-padding-bottom(2);
   }
 }
+
+@media (max-width: 63.9em) {
+  .usa-nav ul {
+    margin-bottom: 8px;
+  }
+}
+
+.usa-header--basic .usa-button {
+  @include u-line-height('sans', 2); 
+}
+
+/**
+ * Default form styles add a bottom margin to forms, but we don't want that for the language
+ * selector as it would mess with header styles.
+ */
+
+.usa-header--basic form {
+  @include u-margin-bottom(0);
+}
+
+

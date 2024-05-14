@@ -28,9 +28,11 @@ import views.style.StyleUtils;
 public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public LanguageSelector(LanguageUtils languageUtils) {
+    this.languageUtils = checkNotNull(languageUtils);
     this.supportedLanguages =
         languageUtils.getApplicantEnabledLanguages().stream()
             .map(Lang::toLocale)
@@ -69,7 +71,7 @@ public final class LanguageSelector {
         .forEach(
             locale -> {
               String value = locale.toLanguageTag();
-              String label = formatLabel(locale);
+              String label = languageUtils.getDisplayString(locale);
               OptionTag optionTag = option(label).withLang(value).withValue(value);
               if (value.equals(preferredLanguage)) {
                 optionTag.isSelected();
@@ -86,7 +88,7 @@ public final class LanguageSelector {
             locale ->
                 options.with(
                     renderRadioOption(
-                        formatLabel(locale),
+                        languageUtils.getDisplayString(locale),
                         locale,
                         locale.toLanguageTag().equals(preferredLanguage))));
     return options;
@@ -110,19 +112,5 @@ public final class LanguageSelector {
             .withText(text);
 
     return div().withClasses("my-2", "relative").with(labelTag);
-  }
-
-  /**
-   * The dropdown option label should be the language name localized to that language - for example,
-   * "español" for "es-US". We capitalize the first letter, since some locales do not capitalize
-   * languages.
-   */
-  private String formatLabel(Locale locale) {
-    // The default for Java is 中文, but the City of Seattle prefers 繁體中文
-    if (locale.equals(Locale.TRADITIONAL_CHINESE)) {
-      return "繁體中文";
-    }
-    String language = locale.getDisplayLanguage(locale);
-    return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
 }

@@ -20,6 +20,8 @@
           <li>
             <button th:replace="~{this :: loginButton}"></button>
           </li>
+          </ul>
+          <ul>
           <li>
             <button th:replace="~{this :: languageSelector}"></button>
           </li>
@@ -40,70 +42,24 @@
 
 <div
   th:fragment="languageSelector"
-  class="usa-language-container usa-language--small"
 >
-  <select class="usa-language__primary usa-accordion">
-    <option class="usa-language__primary-item"></option>
-  </select>
+  <form th:action="${updateLanguageAction}" method="POST">
+    <input hidden th:value="${csrfToken}" name="csrfToken" />
+    <input hidden th:value="${requestUri}" name="redirectLink" />
 
-  <!-- <button
-              type="button"
-              class="usa-button usa-language__link"
-              role="button"
-              aria-expanded="false"
-              aria-controls="language-options"
-            >
-              Languages
-            </button>
-            <ul id="language-options" class="usa-language__submenu" hidden="true">
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="ar" xml:lang="ar"
-                    ><strong>العربية</strong> (Arabic)</span
-                  ></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="zh" xml:lang="zh"
-                    ><strong>简体字</strong> (Chinese - Simplified)</span
-                  ></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="en" xml:lang="en"><strong>English</strong></span></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="es" xml:lang="es"
-                    ><strong>Español</strong> (Spanish)</span
-                  ></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="fr" xml:lang="fr"
-                    ><strong>Français</strong> (French)</span
-                  ></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="it" xml:lang="it"
-                    ><strong>Italiano</strong> (Italian)</span
-                  ></a
-                >
-              </li>
-              <li class="usa-language__submenu-item">
-                <a href="javascript:void()"
-                  ><span lang="ru" xml:lang="ru"
-                    ><strong>Pусский</strong> (Russian)</span
-                  ></a
-                >
-              </li>
-            </ul>
-          </li>
-        </ul> -->
+    <select name="locale" onchange="this.form.submit()" th:aria-label="#{label.languageSr}" class="usa-button">
+      <option hidden selected="true">Languages</option>
+      <option
+        class="usa-language__submenu-item"
+        th:each="language: ${enabledLanguages}"
+        th:value="${language.key.code()}"
+        th:text="${language.value}"
+      ></option>
+    </select>
+
+
+
+
+
+  </form>
 </div>
