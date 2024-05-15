@@ -177,7 +177,7 @@ lazy val root = (project in file("."))
     // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
     // since running in non-forked mode causes javaOptions to not be propagated, which
     // causes the configuration override above not to have an effect.
-    Test / fork := false,
+    // Test / fork := false,
     // Turn off scaladoc link warnings
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc
