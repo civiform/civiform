@@ -347,6 +347,27 @@ public class BlockTest {
   }
 
   @Test
+  public void answeredByUserQuestionsCount_includesStatic() {
+    ApplicantData applicantData = new ApplicantData();
+    // Fill in one questions.
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    BlockDefinition definition =
+        BlockDefinition.builder()
+            .setId(20L)
+            .setName("")
+            .setDescription("")
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.answeredByUserQuestionsCount()).isEqualTo(1);
+    assertThat(block.answerableQuestionsCount()).isEqualTo(2);
+  }
+
+  @Test
   public void wasAnsweredInProgram_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
