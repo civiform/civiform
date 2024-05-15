@@ -166,11 +166,14 @@ test.describe('Program list page.', {tag: ['@uses-fixtures']}, () => {
   async function expectProgramListElements(
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
+    isProgramdisabled: boolean = false,
   ) {
     if (expectedPrograms.length === 0) {
       throw new Error('expected at least one program')
     }
-    const programListNames = await adminPrograms.programNames()
+    const programListNames = isProgramdisabled
+      ? await adminPrograms.disabledProgramNames()
+      : await adminPrograms.programNames()
     expect(programListNames).toEqual(expectedPrograms)
   }
 
@@ -178,11 +181,7 @@ test.describe('Program list page.', {tag: ['@uses-fixtures']}, () => {
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
   ) {
-    if (expectedPrograms.length === 0) {
-      throw new Error('expected at least one program')
-    }
-    const programListNames = await adminPrograms.disabledProgramNames()
-    expect(programListNames).toEqual(expectedPrograms)
+    await expectProgramListElements(adminPrograms, expectedPrograms, true)
   }
 
   test('publishes a single program', async ({page, adminPrograms}) => {

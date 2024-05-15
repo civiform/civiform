@@ -724,13 +724,12 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questions: QuestionSpec[] = [],
-    disabled: boolean = true,
   ) {
     await this.addProgramBlockUsingSpec(
       programName,
       blockDescription,
       questions,
-      disabled,
+      true,
     )
   }
 
@@ -744,9 +743,9 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questions: QuestionSpec[] = [],
-    disabled: boolean = false,
+    isProgramdisabled: boolean = false,
   ) {
-    if (disabled) {
+    if (isProgramdisabled) {
       await this.gotoEditDisabledDraftProgramPage(programName)
     } else {
       await this.gotoEditDraftProgramPage(programName)
