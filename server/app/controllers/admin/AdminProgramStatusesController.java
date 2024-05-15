@@ -14,6 +14,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -35,6 +36,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   private final ProgramStatusesView statusesView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
+  private final ProgramRepository programRepository;
 
   @Inject
   public AdminProgramStatusesController(
@@ -43,12 +45,13 @@ public final class AdminProgramStatusesController extends CiviFormController {
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository, ProgramRepository programRepository) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
@@ -78,6 +81,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getFullProgramDefinition(programId);
+
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
     Optional<StatusDefinitions.Status> previousDefaultStatus =
         program.toProgram().getDefaultStatus();
