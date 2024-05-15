@@ -229,6 +229,14 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
+  async disabledProgramNames() {
+    await this.gotoAdminProgramsPage()
+    await this.page.click('a:has-text("Disabled")')
+    await waitForPageJsLoad(this.page)
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
   /**
    * Expects a specific program block to be selected inside the read only view
    * that is used to view the configuration of an active program.
