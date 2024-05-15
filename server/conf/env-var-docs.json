@@ -787,6 +787,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
         "type": "bool"
+      },
+      "MULTIPLE_FILE_UPLOAD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
+        "type": "bool"
       }
     }
   }
