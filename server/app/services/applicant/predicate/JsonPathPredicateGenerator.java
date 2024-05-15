@@ -1,5 +1,6 @@
 package services.applicant.predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
@@ -60,6 +61,9 @@ public final class JsonPathPredicateGenerator {
     if (AGE_OPERATORS.contains(node.operator())) {
       return formatAgePredicate(node);
     }
+    if (node.operator() == Operator.BETWEEN) {
+      return formatBetweenPredicate(node);
+    }
 
     return JsonPathPredicate.create(
         String.format(
@@ -117,15 +121,11 @@ public final class JsonPathPredicateGenerator {
       throws InvalidPredicateException {
     switch (node.operator()) {
       case AGE_BETWEEN:
-        // The value of the between questions are comma separated and have brackets, but since this
-        // is a string type, we need to remove the brackets then re-split the list.
+        // Value is stored as "[18, 30]"
+        String arrayString = node.comparedValue().value();
         ImmutableList<Long> ageRange =
-            Splitter.on(",")
-                .splitToStream(
-                    node.comparedValue()
-                        .value()
-                        .substring(1, node.comparedValue().value().length() - 1))
-                .map(String::trim)
+            Splitter.on(", ")
+                .splitToStream(arrayString.substring(1, arrayString.length() - 1))
                 .map(Long::parseLong)
                 .sorted()
                 .collect(ImmutableList.toImmutableList());
@@ -152,6 +152,27 @@ public final class JsonPathPredicateGenerator {
         throw new InvalidPredicateException(
             String.format("Expecting an age predicate but instead received %s", node.operator()));
     }
+  }
+
+  private JsonPathPredicate formatBetweenPredicate(LeafOperationExpressionNode node)
+      throws InvalidPredicateException {
+    // Value is stored as "[123, 456]"
+    String arrayString = node.comparedValue().value();
+    ImmutableList<Long> values =
+        Splitter.on(", ")
+            .splitToStream(arrayString.substring(1, arrayString.length() - 1))
+            .map(Long::parseLong)
+            .sorted()
+            .collect(ImmutableList.toImmutableList());
+    checkArgument(values.size() == 2);
+
+    return JsonPathPredicate.create(
+        String.format(
+            "%s[?(%2$s <= @.%4$s && @.%4$s <= %3$s)]",
+            getPath(node).predicateFormat(),
+            values.get(0),
+            values.get(1),
+            node.scalar().name().toLowerCase(Locale.ROOT)));
   }
 
   private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
