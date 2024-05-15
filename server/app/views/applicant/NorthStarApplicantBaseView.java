@@ -63,6 +63,8 @@ public abstract class NorthStarApplicantBaseView {
             .orElse(assetsFinder.path("Images/civiform-staging.png")));
     context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
+    context.setVariable(
+        "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("closeIcon", Icons.CLOSE);
 
     // Language selector params

@@ -1,10 +1,14 @@
 <th:block th:fragment="pageHeader">
   <div class="usa-overlay"></div>
-  <header class="usa-header usa-header--basic">
+  <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
       <div class="usa-navbar">
         <a href="/" class="usa-logo display-flex flex-align-center">
-          <img th:src="${smallLogoUrl}" class="width-8 padding-right-2" />
+          <img
+            th:src="${smallLogoUrl}"
+            class="width-8 padding-right-2"
+            th:attr="alt=${civicEntityFullName + ' Logo'}"
+          />
           <em class="usa-logo__text">
             <span th:text="${civicEntityShortName}"></span>
             <span>CiviForm</span>

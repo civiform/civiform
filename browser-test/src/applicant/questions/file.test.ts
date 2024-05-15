@@ -351,6 +351,15 @@ test.describe('file upload applicant flow', () => {
         )
         await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
       })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
     },
   )
 

@@ -114,6 +114,15 @@ test.describe('Checkbox question for applicant flow', () => {
       expect(await page.innerText(checkboxId)).toContain(
         'This question is required.',
       )
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
     })
 
     test('with greater than max allowed checked boxes does not submit', async ({

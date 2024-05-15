@@ -176,7 +176,7 @@ test.describe('Dropdown question for applicant flow', () => {
     })
   })
 
-  test.describe('single dropdown question with north star flag enabled', () => {
+  test.describe('single dropdown question with north star flag enabled', {tag: ['@northstar']}, () => {
     const programName = 'Test program for single dropdown'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -191,7 +191,6 @@ test.describe('Dropdown question for applicant flow', () => {
 
     test(
       'validate screenshot',
-      {tag: ['@northstar']},
       async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
@@ -213,8 +212,17 @@ test.describe('Dropdown question for applicant flow', () => {
             /* mobileScreenshot= */ true,
           )
         })
-      },
+      }
     )
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+
   })
 
   async function setUpSingleDropdownQuestion(
