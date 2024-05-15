@@ -246,6 +246,22 @@ public final class Block {
   }
 
   /**
+   * The number of questions answered by the applicant (excluding static content questions
+   * because they have no fields for a user to answer)
+   */
+  public int answeredByUserQuestionsCount() {
+    return (int) getQuestions().stream().filter(question -> !question.getType().equals(QuestionType.STATIC)).filter(ApplicantQuestion::isAnswered).count();
+  }
+
+  /**
+   * The number of questions that can be answered by the applicant (excludes static
+   * content questions).
+   */
+  public int answerableQuestionsCount() {
+    return (int) getQuestions().stream().filter(question -> !question.getType().equals(QuestionType.STATIC)).count();
+  }
+
+  /**
    * A block is complete with respect to a specific program if all of its questions are answered, or
    * are optional questions that were skipped in the program.
    */
