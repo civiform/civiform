@@ -60,11 +60,34 @@ public class TextQuestionRendererTest extends ResetPostgres {
     renderer = new TextQuestionRenderer(question);
   }
 
+  @Test 
+  public void render_doNotRenderEmptyBlockIfNoHelpText() {
+     TextQuestionDefinition textQuestion = new TextQuestionDefinition(
+         QuestionDefinitionConfig.builder()
+             .setName("question name")
+             .setDescription("description")
+             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+             .setLastModifiedTime(Optional.empty())
+             .setValidationPredicates(TextValidationPredicates.create(2, 3))
+             .setId(123L)
+             .build());
+     question = new ApplicantQuestion(
+         ProgramQuestionDefinition.create(textQuestion, Optional.empty())
+             .setOptional(true),
+         applicantData,
+         Optional.empty());
+    renderer = new TextQuestionRenderer(question);
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("cf-applicant-question-help-text");
+  }
+
   @Test
   public void render_withoutQuestionErrors() {
     DivTag result = renderer.render(params);
 
     assertThat(result.render()).doesNotContain("Must contain at");
+    assertThat(result.render()).contains("cf-applicant-question-help-text");
   }
 
   @Test

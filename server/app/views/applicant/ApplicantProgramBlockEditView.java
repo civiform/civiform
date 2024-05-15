@@ -147,6 +147,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private ContainerTag<?> renderBlockWithSubmitForm(ApplicationBaseViewParams params) {
     if (params.block().isFileUpload()) {
+      System.out.println("here");
       return applicantFileUploadRenderer.renderFileUploadBlock(
           params, applicantQuestionRendererFactory);
     }
