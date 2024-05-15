@@ -22,6 +22,7 @@ public enum Scalar {
   CURRENCY_CENTS("currency", ScalarType.CURRENCY_CENTS),
   DATE("date", ScalarType.DATE),
   EMAIL("email", ScalarType.STRING),
+  FILE_KEY_LIST("file keys", ScalarType.LIST_OF_STRINGS),
   FILE_KEY("file key", ScalarType.STRING),
   FIRST_NAME("first name", ScalarType.STRING),
   ID("id", ScalarType.STRING),
@@ -115,7 +116,7 @@ public enum Scalar {
       case EMAIL:
         return ImmutableSet.of(EMAIL);
       case FILEUPLOAD:
-        return ImmutableSet.of(FILE_KEY, ORIGINAL_FILE_NAME);
+        return ImmutableSet.of(FILE_KEY, FILE_KEY_LIST, ORIGINAL_FILE_NAME);
       case ID:
         return ImmutableSet.of(ID);
       case NAME:
