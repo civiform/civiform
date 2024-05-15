@@ -47,7 +47,11 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest, instanceOf(MessagesApi.class));
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
 
     HomeController controller =
         new HomeController(

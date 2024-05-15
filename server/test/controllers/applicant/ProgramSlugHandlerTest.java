@@ -18,10 +18,9 @@ import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import play.i18n.MessagesApi;
 import play.i18n.Lang;
 import play.i18n.Langs;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
@@ -155,7 +154,11 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest, instanceOf(MessagesApi.class));
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
     CiviFormController controller = instanceOf(CiviFormController.class);
     ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
@@ -191,7 +194,11 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest, instanceOf(MessagesApi.class));
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
     CiviFormController controller = instanceOf(CiviFormController.class);
     ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
