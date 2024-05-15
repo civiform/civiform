@@ -15,12 +15,12 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
     <!--/* Display error messages for the shared date path. We actually use 3 different paths for
     inputs, but all errors are reported on the date path. */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())}, ${questionRendererParams})}"
     ></div>
 
     <div class="usa-memorable-date">

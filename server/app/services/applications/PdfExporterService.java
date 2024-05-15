@@ -28,10 +28,10 @@ public final class PdfExporterService {
    * to review applications.
    */
   public PdfExporter.InMemoryPdf generateApplicationPdf(
-      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks) {
+      ApplicationModel application, boolean isAdmin) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.exportApplication(application, showEligibilityText, includeHiddenBlocks);
+      pdf = pdfExporter.exportApplication(application, isAdmin);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }

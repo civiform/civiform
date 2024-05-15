@@ -282,6 +282,42 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
+    DivTag helpTextRow = div().withClasses("flex", "predicate-help-text-row");
+    valueRowContainer.with(helpTextRow);
+    DivTag spacerText = div().withClasses("w-16");
+
+    int columnNumber = 0;
+    for (QuestionDefinition questionDefinition : questionDefinitions) {
+      helpTextRow
+          .with(
+              div()
+                  .withClasses("w-48")
+                  .with(
+                      div()
+                          .withClasses(
+                              ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
+                              "hidden",
+                              "text-xs",
+                              "pb-4",
+                              BaseStyles.FORM_LABEL_TEXT_COLOR)
+                          .withText(
+                              "Enter a list of comma-separated values. For example, \"v1,v2,v3\".")
+                          .withData("question-id", String.valueOf(questionDefinition.getId())))
+                  .with(
+                      div("Enter two comma-separated or dash-separated values. For example"
+                              + " \"18,30\" or \"18-30\". The condition will become true on the"
+                              + " applicant's birthday for the first age, and will become false on"
+                              + " the applicant's birthday for the second age.")
+                          .withClasses(
+                              ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
+                              "hidden",
+                              "text-xs",
+                              "pb-4",
+                              BaseStyles.FORM_LABEL_TEXT_COLOR)
+                          .withData("question-id", String.valueOf(questionDefinition.getId()))))
+          .condWith(columnNumber++ != 1, spacerText);
+    }
+
     if (maybeExistingPredicate.isPresent()) {
       PredicateDefinition existingPredicate = maybeExistingPredicate.get();
 
@@ -523,7 +559,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                           .withValue(scalar.name())
                           // Add the scalar type as data so we can determine which operators to
                           // allow.
-                          .withData("type", scalar.toScalarType().name().toLowerCase(Locale.ROOT));
+                          .withData("type", scalar.toScalarType().name());
 
                   if (maybeSelectedScalar.isPresent()
                       && maybeSelectedScalar.get().name().equals(scalar.name())) {
@@ -735,88 +771,52 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .setValue(
                     maybeLeafOperationNode.map(
                         leafNode ->
-                            formatPredicateValue(
-                                leafNode.scalar(), leafNode.operator(), leafNode.comparedValue())))
+                            formatPredicateValue(leafNode.scalar(), leafNode.comparedValue())))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                .getInputTag())
-        .with(
-            div()
-                .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR)
-                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."))
-        .with(
-            div("Enter two comma-separated or dash-separated values. For example \"18,30\" or"
-                    + " \"18-30\". The condition will become true on the applicant's birthday"
-                    + " for the first age, and will become false on the applicant's birthday"
-                    + " for the second age.")
-                .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR));
+                .getInputTag());
   }
 
-  private static String formatPredicateValue(
-      Scalar scalar, Operator operator, PredicateValue predicateValue) {
+  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
+    String value = predicateValue.value();
+    OperatorRightHandType predicateType = predicateValue.type();
     switch (scalar.toScalarType()) {
       case CURRENCY_CENTS:
-        {
-          long storedCents = Long.parseLong(predicateValue.value());
-          long dollars = storedCents / 100;
-          long cents = storedCents % 100;
-          return String.format("%d.%02d", dollars, cents);
-        }
-
+        long storedCents = Long.parseLong(value);
+        long dollars = storedCents / 100;
+        long cents = storedCents % 100;
+        return String.format("%d.%02d", dollars, cents);
       case DATE:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LONG)) {
-            return predicateValue.value();
-          }
-          return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
-              .atZone(ZoneId.systemDefault())
-              .toLocalDate()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
+          return formatListOfLongs(value);
         }
-
+        if (predicateType == OperatorRightHandType.LONG
+            || predicateType == OperatorRightHandType.DOUBLE) {
+          return value;
+        }
+        return Instant.ofEpochMilli(Long.parseLong(value))
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       case LONG:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-
-          return predicateValue.value();
+        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
+          return formatListOfLongs(value);
         }
-
+        return value;
       case LIST_OF_STRINGS:
       case STRING:
-        {
-          if (operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_STRINGS)) {
-            String value = predicateValue.value();
-
-            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-            return Splitter.on(", ")
-                // Remove opening and closing brackets
-                .splitToStream(value.substring(1, value.length() - 1))
-                // Remove quotes
-                .map(item -> item.substring(1, item.length() - 1))
-                // Join to CSV
-                .collect(Collectors.joining(","));
-          }
-
-          return predicateValue.valueWithoutSurroundingQuotes();
+        if (predicateType == OperatorRightHandType.LIST_OF_STRINGS) {
+          // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
+          return Splitter.on(", ")
+              // Remove opening and closing brackets
+              .splitToStream(value.substring(1, value.length() - 1))
+              // Remove quotes
+              .map(item -> item.substring(1, item.length() - 1))
+              // Join to CSV
+              .collect(Collectors.joining(","));
         }
-
+        return predicateValue.valueWithoutSurroundingQuotes();
       default:
-        {
-          throw new RuntimeException(
-              String.format("Unknown scalar type: %s", scalar.toScalarType()));
-        }
+        throw new RuntimeException(String.format("Unknown scalar type: %s", scalar.toScalarType()));
     }
   }
 

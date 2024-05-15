@@ -72,59 +72,46 @@ class AdminPredicateConfiguration {
     let hasValueMissing = false
 
     // Check if any scalars are missing a value.
-    Array.from(
-      document.querySelectorAll<HTMLSelectElement>('.cf-scalar-select select'),
-    ).forEach((el: HTMLSelectElement) => {
-      if (el.options[el.options.selectedIndex].value == '') {
-        hasSelectionMissing = true
-      }
-    })
-
-    // Check if any operators are missing a value.
-    Array.from(
-      document.querySelectorAll<HTMLSelectElement>(
-        '.cf-operator-select select',
-      ),
-    ).forEach((el: HTMLSelectElement) => {
-      if (el.options[el.options.selectedIndex].value == '') {
-        hasSelectionMissing = true
-      }
-    })
-
-    // Check if any inputs are missing a value.
     document
-      ?.querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll('[data-question-id]')
-      .forEach((questionAnswerGroup) => {
-        const inputs = questionAnswerGroup?.querySelectorAll('input')
-        // Single input field that needs a value, e.g. a textbox or date field.
-        if (inputs.length == 1) {
-          if (inputs[0].value == '') {
-            hasValueMissing = true
-            return // Return early if we've found an issue.
-          }
-        }
-        // Multi-input field that needs a checked option, e.g. checkboxes or dropdowns.
-        if (inputs.length > 1) {
-          let hasCheckedOption = false
-          inputs.forEach((input) => {
-            if (input.checked) {
-              hasCheckedOption = true
-            }
-          })
-          if (!hasCheckedOption) {
-            hasValueMissing = true
-            return // Return early if we've found an issue.
-          }
+      .querySelectorAll<HTMLSelectElement>('.cf-scalar-select select')
+      .forEach((el: HTMLSelectElement) => {
+        if (el.options[el.options.selectedIndex].value == '') {
+          hasSelectionMissing = true
         }
       })
 
-    if (!hasValueMissing && !hasSelectionMissing) {
-      return
-    }
+    // Check if any operators are missing a value.
+    document
+      .querySelectorAll<HTMLSelectElement>('.cf-operator-select select')
+      .forEach((el: HTMLSelectElement) => {
+        if (el.options[el.options.selectedIndex].value == '') {
+          hasSelectionMissing = true
+        }
+      })
+
+    // Check if any inputs are missing a value.
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll('[data-question-id]')
+      .forEach((questionAnswerGroup) => {
+        let needsCheckedOption = false
+        let hasCheckedOption = false
+        questionAnswerGroup.querySelectorAll('input').forEach((input) => {
+          if (input.type == 'checkbox') {
+            needsCheckedOption = true
+            if (input.checked) {
+              hasCheckedOption = true
+            }
+          } else if (input.value == '') {
+            hasValueMissing = true
+          }
+        })
+        if (needsCheckedOption && !hasCheckedOption) {
+          hasValueMissing = true
+        }
+      })
 
     // If there are issues with any of the fields, we show a toast and prevent submit.
-    event.preventDefault()
     let errorMessage
     if (hasSelectionMissing && hasValueMissing) {
       errorMessage =
@@ -132,12 +119,15 @@ class AdminPredicateConfiguration {
     } else if (hasSelectionMissing) {
       errorMessage =
         'One or more dropdowns is missing a selection. Please fill out all dropdowns before saving.'
-    } else {
+    } else if (hasValueMissing) {
       errorMessage =
         'One or more form fields is missing an entry. Please fill out all form fields before saving.'
     }
 
-    this.showErrorMessage(errorMessage)
+    if (errorMessage) {
+      event.preventDefault()
+      this.showErrorMessage(errorMessage)
+    }
   }
 
   configurePredicateFormOnScalarChange(event: Event) {
@@ -209,25 +199,21 @@ class AdminPredicateConfiguration {
 
     // Each value input has its own help text
     const csvHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-comma-help-text`,
     )
     csvHelpTexts.forEach((div: Element) =>
       div.classList.toggle(
         'hidden',
-        selectedOperatorValue.toUpperCase() !== 'IN' &&
-          selectedOperatorValue.toUpperCase() !== 'NOT_IN',
+        selectedOperatorValue !== 'IN' && selectedOperatorValue !== 'NOT_IN',
       ),
     )
 
     // Each value input has its own help text
     const betweenHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-between-help-text`,
     )
     betweenHelpTexts.forEach((div: Element) =>
-      div.classList.toggle(
-        'hidden',
-        selectedOperatorValue.toUpperCase() !== 'AGE_BETWEEN',
-      ),
+      div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
     )
 
     // Update the value field to reflect the new Operator selection.
@@ -264,9 +250,9 @@ class AdminPredicateConfiguration {
     // for the 'Value' field (there's a set of checkboxes instead), so return immediately.
     if (
       selectedScalarValue &&
-      (selectedScalarValue.toUpperCase() === 'SELECTION' ||
-        selectedScalarValue.toUpperCase() === 'SELECTIONS' ||
-        selectedScalarValue.toUpperCase() === 'SERVICE_AREA')
+      (selectedScalarValue === 'SELECTION' ||
+        selectedScalarValue === 'SELECTIONS' ||
+        selectedScalarValue === 'SERVICE_AREA')
     ) {
       return
     }
@@ -279,77 +265,82 @@ class AdminPredicateConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-    const valueInputs = assertNotNull(
-      document
-        ?.querySelector('#predicate-config-value-row-container')
-        ?.querySelectorAll(`[data-question-id="${questionId}"] input`),
-    )
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll(`[data-question-id="${questionId}"] input`)
+      .forEach((valueInput) =>
+        this.setInputAttributes(
+          valueInput,
+          selectedScalarType,
+          selectedScalarValue,
+          operatorValue,
+        ),
+      )
+  }
 
-    for (const valueInput of Array.from(valueInputs)) {
-      // Reset defaults
-      valueInput.setAttribute('type', 'text')
-      valueInput.removeAttribute('step')
-      valueInput.removeAttribute('placeholder')
+  setInputAttributes(
+    valueInput: Element,
+    selectedScalarType: string | null,
+    selectedScalarValue: string | null,
+    operatorValue: string,
+  ) {
+    // Reset defaults
+    valueInput.setAttribute('type', 'text')
+    valueInput.removeAttribute('step')
+    valueInput.removeAttribute('placeholder')
 
-      if (selectedScalarType == null || selectedScalarValue == null) {
-        continue
-      }
+    if (selectedScalarType == null || selectedScalarValue == null) {
+      return
+    }
 
-      switch (selectedScalarType.toUpperCase()) {
-        case 'STRING':
-          if (selectedScalarValue.toUpperCase() === 'EMAIL') {
-            // Need to look at the selected scalar *value* for email since the type is just a
-            // string, but emails have a special type in HTML inputs.
-            valueInput.setAttribute('type', 'email')
-            break
-          }
+    switch (selectedScalarType) {
+      case 'STRING':
+        if (selectedScalarValue === 'EMAIL') {
+          // Need to look at the selected scalar *value* for email since the type is just a
+          // string, but emails have a special type in HTML inputs.
+          valueInput.setAttribute('type', 'email')
+          break
+        }
+        valueInput.setAttribute('type', 'text')
+        break
+      case 'CURRENCY_CENTS':
+        if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
+          // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
           valueInput.setAttribute('type', 'text')
-          break
-        case 'CURRENCY_CENTS':
-          if (
-            operatorValue.toUpperCase() === 'IN' ||
-            operatorValue.toUpperCase() === 'NOT_IN'
-          ) {
-            // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('step', '.01')
-            valueInput.setAttribute('placeholder', '$0.00')
-            valueInput.setAttribute('type', 'number')
-          }
-          break
-        case 'LONG':
-          if (
-            operatorValue.toUpperCase() === 'IN' ||
-            operatorValue.toUpperCase() === 'NOT_IN'
-          ) {
-            // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('step', '1')
-            valueInput.setAttribute('placeholder', '0')
-            valueInput.setAttribute('type', 'number')
-          }
-          break
-        case 'DATE':
-          if (
-            operatorValue.toUpperCase() === 'AGE_OLDER_THAN' ||
-            operatorValue.toUpperCase() === 'AGE_YOUNGER_THAN'
-          ) {
-            // Age-related operators should have number input value
-            valueInput.setAttribute('type', 'number')
-            // We should allow for decimals to account for month intervals
-            valueInput.setAttribute('step', '.01')
-          } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
-            // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
-            valueInput.setAttribute('type', 'text')
-          } else {
-            valueInput.setAttribute('type', 'date')
-          }
-          break
-        default:
+        } else {
+          valueInput.setAttribute('step', '.01')
+          valueInput.setAttribute('placeholder', '$0.00')
+          valueInput.setAttribute('type', 'number')
+        }
+        break
+      case 'LONG':
+        if (operatorValue === 'IN' || operatorValue === 'NOT_IN') {
+          // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
           valueInput.setAttribute('type', 'text')
-      }
+        } else {
+          valueInput.setAttribute('step', '1')
+          valueInput.setAttribute('placeholder', '0')
+          valueInput.setAttribute('type', 'number')
+        }
+        break
+      case 'DATE':
+        if (
+          operatorValue === 'AGE_OLDER_THAN' ||
+          operatorValue === 'AGE_YOUNGER_THAN'
+        ) {
+          // Age-related operators should have number input value
+          valueInput.setAttribute('type', 'number')
+          // We should allow for decimals to account for month intervals
+          valueInput.setAttribute('step', '.01')
+        } else if (operatorValue === 'AGE_BETWEEN') {
+          // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
+          valueInput.setAttribute('type', 'text')
+        } else {
+          valueInput.setAttribute('type', 'date')
+        }
+        break
+      default:
+        valueInput.setAttribute('type', 'text')
     }
   }
 
@@ -484,8 +475,8 @@ class AdminPredicateConfiguration {
       // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
       // exclude these operators from single-select predicates to simplify the code on both
       // the form processing side and on the admin user side.
-      !(selectedScalarType in operatorOption.dataset) ||
-      (selectedScalarValue.toUpperCase() === 'SELECTION' &&
+      !(selectedScalarType.toLowerCase() in operatorOption.dataset) ||
+      (selectedScalarValue === 'SELECTION' &&
         (operatorOption.value === 'EQUAL_TO' ||
           operatorOption.value === 'NOT_EQUAL_TO'))
     )

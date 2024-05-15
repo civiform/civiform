@@ -7,7 +7,7 @@ import {
   validateScreenshot,
 } from './support'
 
-test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
+test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page}) => {
     await seedPrograms(page)
     await enableFeatureFlag(page, 'api_generated_docs_enabled')

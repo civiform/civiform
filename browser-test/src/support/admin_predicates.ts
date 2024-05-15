@@ -1,6 +1,5 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -18,13 +17,9 @@ export class AdminPredicates {
     this.page = page
   }
 
-  async addValueRows(predicateSpec: PredicateSpec) {
-    const values = predicateSpec.values
-
-    if (values && values.length > 1) {
-      for (let i = 1; i < values.length; i++) {
-        await this.page.click('#predicate-add-value-row')
-      }
+  async addValueRows(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.page.click('#predicate-add-value-row')
     }
   }
 
@@ -42,13 +37,14 @@ export class AdminPredicates {
     )
   }
 
-  async addPredicates(predicateSpecs: PredicateSpec[]) {
+  async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
     }
 
     await this.clickAddConditionButton()
-    await this.addValueRows(predicateSpecs[0])
+    const totalRowsNeeded = predicateSpecs[0]?.values?.length ?? 0
+    await this.addValueRows(Math.max(totalRowsNeeded - 1, 0))
 
     for (const predicateSpec of predicateSpecs) {
       await this.configurePredicate(predicateSpec)
@@ -146,32 +142,6 @@ export class AdminPredicates {
         }
       }
     }
-  }
-
-  // For multi-option questions where the value is a checkbox of options, provide a comma-separated
-  // list of the options you would like to check as the value. Ex: blue,red,green
-  //
-  // If action is null the action selector will not be set.
-  async addPredicate(
-    questionName: string,
-    action: string | null,
-    scalar: string,
-    operator: string,
-    value: string,
-  ) {
-    await this.selectQuestionForPredicate(questionName)
-    await this.clickAddConditionButton()
-
-    await this.configurePredicate({
-      questionName,
-      action,
-      scalar,
-      operator,
-      value,
-    })
-
-    await this.clickSaveConditionButton()
-    await waitForPageJsLoad(this.page)
   }
 
   async expectPredicateDisplayTextContains(condition: string) {

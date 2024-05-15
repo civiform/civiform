@@ -235,7 +235,7 @@
             "required": false
           },
           "Active Directory Federation Services": {
-            "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",
+            "group_description": "Configuration options for the [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc) provider.",
             "members": {
               "ADFS_CLIENT_ID": {
                 "mode": "HIDDEN",
@@ -270,7 +270,7 @@
             }
           },
           "OpenID Connect": {
-            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "group_description": "Configuration options for the [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc) provider.",
             "members": {
               "ADMIN_OIDC_PROVIDER_NAME": {
                 "mode": "HIDDEN",

@@ -561,7 +561,7 @@ export class ApplicantQuestions {
   }
 
   async selectAddressSuggestion(addressName: string) {
-    await this.page.check(`label:has-text("${addressName}")`)
+    await this.page.click(`label:has-text("${addressName}")`)
   }
 
   async expectQuestionAnsweredOnReviewPage(

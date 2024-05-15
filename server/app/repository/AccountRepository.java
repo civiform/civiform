@@ -178,8 +178,13 @@ public final class AccountRepository {
 
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
+      // When storing empty email addresses, DB stores them as nulls.
+      // But the default in forms for empty emails addresses are empty strings and not nulls
+      // hence this conversion is necessary to set null emails to empty string
+      String currentEmail =
+          Strings.isNullOrEmpty(account.getEmailAddress()) ? "" : account.getEmailAddress();
       // new email should different from the current email
-      if (!email.equals(account.getEmailAddress())) {
+      if (!email.equals(currentEmail)) {
         if (!Strings.isNullOrEmpty(email) && lookupAccountByEmail(email).isPresent()) {
           throw new EmailAddressExistsException();
         }

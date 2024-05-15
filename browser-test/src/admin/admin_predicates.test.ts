@@ -12,7 +12,7 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
+test.describe('create and edit predicates', () => {
   test('add a hide predicate', async ({
     page,
     adminQuestions,
@@ -48,13 +48,13 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
     await adminPredicates.clickAddConditionButton()
     await validateToastMessage(page, 'Please select a question')
 
-    await adminPredicates.addPredicate(
-      'hide-predicate-q',
-      'hidden if',
-      'text',
-      'is equal to',
-      'hide me',
-    )
+    await adminPredicates.addPredicates({
+      questionName: 'hide-predicate-q',
+      action: 'hidden if',
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'hide me',
+    })
     await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
@@ -138,13 +138,13 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       programName,
       'Screen 2',
     )
-    await adminPredicates.addPredicate(
-      'show-predicate-q',
-      'shown if',
-      'text',
-      'is equal to',
-      'show me',
-    )
+    await adminPredicates.addPredicates({
+      questionName: 'show-predicate-q',
+      action: 'shown if',
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'show me',
+    })
     await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
@@ -232,18 +232,16 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
     )
 
     // Add predicate with missing operator.
-    await adminPredicates.addPredicate(
-      'eligibility-predicate-q',
-      /* action= */ null,
-      'text',
-      '',
-      'eligible',
-    )
+    await adminPredicates.addPredicates({
+      questionName: 'eligibility-predicate-q',
+      scalar: 'text',
+      operator: '',
+      value: 'eligible',
+    })
     await adminPredicates.expectPredicateErrorToast('dropdowns')
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
-      action: null,
       scalar: 'text',
       operator: 'is equal to',
       value: 'eligible',
@@ -252,19 +250,17 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
     await adminPredicates.clickRemovePredicateButton('eligibility')
 
     // Add predicate with missing value.
-    await adminPredicates.addPredicate(
-      'eligibility-predicate-q',
-      /* action= */ null,
-      'text',
-      'is equal to',
-      '',
-    )
+    await adminPredicates.addPredicates({
+      questionName: 'eligibility-predicate-q',
+      scalar: 'text',
+      operator: 'is equal to',
+      value: '',
+    })
     await adminPredicates.expectPredicateErrorToast('form fields')
     await validateScreenshot(page, 'predicate-error')
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
-      action: null,
       scalar: 'text',
       operator: 'is equal to',
       value: 'eligible',
@@ -273,19 +269,17 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
     await adminPredicates.clickRemovePredicateButton('eligibility')
 
     // Add predicate with missing operator and value.
-    await adminPredicates.addPredicate(
-      'eligibility-predicate-q',
-      /* action= */ null,
-      'text',
-      '',
-      '',
-    )
+    await adminPredicates.addPredicates({
+      questionName: 'eligibility-predicate-q',
+      scalar: 'text',
+      operator: '',
+      value: '',
+    })
     await adminPredicates.clickSaveConditionButton()
     await adminPredicates.expectPredicateErrorToast('form fields or dropdowns')
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
-      action: null,
       scalar: 'text',
       operator: 'is equal to',
       value: 'eligible',
@@ -379,14 +373,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       )
 
       // Add two to ensure the JS correctly handles multiple value rows
-      await adminPredicates.addPredicates([
-        {
-          questionName: 'eligibility-predicate-q',
-          scalar: 'service_area',
-          operator: 'in service area',
-          values: ['Seattle', 'Seattle'],
-        },
-      ])
+      await adminPredicates.addPredicates({
+        questionName: 'eligibility-predicate-q',
+        scalar: 'service_area',
+        operator: 'in service area',
+        values: ['Seattle', 'Seattle'],
+      })
 
       await adminPredicates.expectPredicateDisplayTextContains(
         '"eligibility-predicate-q" is in service area "Seattle"',
@@ -399,6 +391,51 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       )
     })
   }
+
+  test('show operator help texts', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addNameQuestion({questionName: 'name-question'})
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+
+    const programName = 'Help text program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'name', [
+      'name-question',
+      'date-question',
+    ])
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+
+    await adminPredicates.selectQuestionForPredicate('name-question')
+    await adminPredicates.selectQuestionForPredicate('date-question')
+    await adminPredicates.clickAddConditionButton()
+
+    await adminPredicates.addValueRows(1)
+
+    await adminPredicates.configurePredicate({
+      questionName: 'name-question',
+      scalar: 'first name',
+      operator: 'is one of',
+    })
+    await adminPredicates.configurePredicate({
+      questionName: 'date-question',
+      scalar: 'date',
+      operator: 'age is between',
+    })
+
+    await validateScreenshot(
+      page.locator('#predicate-config-value-row-container'),
+      'operator-help-text',
+    )
+  })
 
   test.describe('test predicates', () => {
     test.beforeEach(async ({page, adminQuestions}) => {
@@ -467,7 +504,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         'Screen 1',
       )
 
-      await adminPredicates.addPredicates([
+      await adminPredicates.addPredicates(
         {
           questionName: 'predicate-date-is-earlier-than',
           scalar: 'date',
@@ -496,7 +533,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
           operator: 'is not one of',
           values: ['one,two', 'three,four'],
         },
-      ])
+      )
 
       let predicateDisplay = await page.innerText('.cf-display-predicate')
       await validateScreenshot(
@@ -566,7 +603,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         'Screen 2',
       )
 
-      await adminPredicates.addPredicates([
+      await adminPredicates.addPredicates(
         {
           questionName: 'predicate-date-is-earlier-than',
           scalar: 'date',
@@ -579,7 +616,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
           operator: 'is less than',
           values: ['10', '20'],
         },
-      ])
+      )
 
       let predicateDisplay = await page.innerText('.cf-display-predicate')
       await validateScreenshot(
@@ -672,104 +709,104 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 2',
       )
-      await adminPredicates.addPredicate(
-        'single-string',
-        'shown if',
-        'first name',
-        'is not equal to',
-        'hidden',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'single-string',
+        action: 'shown if',
+        scalar: 'first name',
+        operator: 'is not equal to',
+        value: 'hidden',
+      })
 
       // Single string one of a list of strings
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 3',
       )
-      await adminPredicates.addPredicate(
-        'list of strings',
-        'shown if',
-        'text',
-        'is one of',
-        'blue, green',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'list of strings',
+        action: 'shown if',
+        scalar: 'text',
+        operator: 'is one of',
+        value: 'blue, green',
+      })
 
       // Simple long predicate
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 4',
       )
-      await adminPredicates.addPredicate(
-        'single-long',
-        'shown if',
-        'number',
-        'is equal to',
-        '42',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'single-long',
+        action: 'shown if',
+        scalar: 'number',
+        operator: 'is equal to',
+        value: '42',
+      })
 
       // Single long one of a list of longs
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 5',
       )
-      await adminPredicates.addPredicate(
-        'list of longs',
-        'shown if',
-        'number',
-        'is one of',
-        '123, 456',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'list of longs',
+        action: 'shown if',
+        scalar: 'number',
+        operator: 'is one of',
+        value: '123, 456',
+      })
 
       // Currency predicate
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 6',
       )
-      await adminPredicates.addPredicate(
-        'predicate-currency',
-        'shown if',
-        'currency',
-        'is greater than',
-        '100.01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-currency',
+        action: 'shown if',
+        scalar: 'currency',
+        operator: 'is greater than',
+        value: '100.01',
+      })
 
       // Date predicate is before
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 7',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-is-earlier-than',
-        'shown if',
-        'date',
-        'is earlier than',
-        '2021-01-01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-is-earlier-than',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'is earlier than',
+        value: '2021-01-01',
+      })
 
       // Date predicate is on or after
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 8',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-on-or-after',
-        'shown if',
-        'date',
-        'is on or later than',
-        '2023-01-01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-on-or-after',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'is on or later than',
+        value: '2023-01-01',
+      })
 
       // Lists of strings on both sides (multi-option question checkbox)
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 9',
       )
-      await adminPredicates.addPredicate(
-        'both sides are lists',
-        'shown if',
-        'selections',
-        'contains any of',
-        'dog,cat',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'both sides are lists',
+        action: 'shown if',
+        scalar: 'selections',
+        operator: 'contains any of',
+        value: 'dog,cat',
+      })
 
       await adminPrograms.publishProgram(programName)
 
@@ -913,104 +950,96 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
-        'single-string',
-        /* action= */ null,
-        'first name',
-        'is not equal to',
-        'hidden',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'single-string',
+        scalar: 'first name',
+        operator: 'is not equal to',
+        value: 'hidden',
+      })
 
       // Single string one of a list of strings
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 2',
       )
-      await adminPredicates.addPredicate(
-        'list of strings',
-        /* action= */ null,
-        'text',
-        'is one of',
-        'blue, green',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'list of strings',
+        scalar: 'text',
+        operator: 'is one of',
+        value: 'blue, green',
+      })
 
       // Simple long predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 3',
       )
-      await adminPredicates.addPredicate(
-        'single-long',
-        /* action= */ null,
-        'number',
-        'is equal to',
-        '42',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'single-long',
+        scalar: 'number',
+        operator: 'is equal to',
+        value: '42',
+      })
 
       // Single long one of a list of longs
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 4',
       )
-      await adminPredicates.addPredicate(
-        'list of longs',
-        /* action= */ null,
-        'number',
-        'is one of',
-        '123, 456',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'list of longs',
+        scalar: 'number',
+        operator: 'is one of',
+        value: '123, 456',
+      })
 
       // Currency predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 5',
       )
-      await adminPredicates.addPredicate(
-        'predicate-currency',
-        /* action= */ null,
-        'currency',
-        'is greater than',
-        '100.01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-currency',
+        scalar: 'currency',
+        operator: 'is greater than',
+        value: '100.01',
+      })
 
       // Date predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 6',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-is-earlier-than',
-        /* action= */ null,
-        'date',
-        'is earlier than',
-        '2021-01-01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-is-earlier-than',
+        scalar: 'date',
+        operator: 'is earlier than',
+        value: '2021-01-01',
+      })
 
       // Date predicate is on or after
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 7',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-on-or-after',
-        /* action= */ null,
-        'date',
-        'is on or later than',
-        '2023-01-01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-on-or-after',
+        scalar: 'date',
+        operator: 'is on or later than',
+        value: '2023-01-01',
+      })
 
       // Date predicate age is greater than
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 8',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-age-older-than',
-        /* action= */ null,
-        'date',
-        'age is older than',
-        '90',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-age-older-than',
+        scalar: 'date',
+        operator: 'age is older than',
+        value: '90',
+      })
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
@@ -1025,13 +1054,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 9',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-age-younger-than',
-        /* action= */ null,
-        'date',
-        'age is younger than',
-        '50.5',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-age-younger-than',
+        scalar: 'date',
+        operator: 'age is younger than',
+        value: '50.5',
+      })
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
@@ -1045,13 +1073,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 10',
       )
-      await adminPredicates.addPredicate(
-        'predicate-date-age-between',
-        /* action= */ null,
-        'date',
-        'age is between',
-        '1,90',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-date-age-between',
+        scalar: 'date',
+        operator: 'age is between',
+        value: '1,90',
+      })
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
@@ -1066,13 +1093,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 11',
       )
-      await adminPredicates.addPredicate(
-        'both sides are lists',
-        /* action= */ null,
-        'selections',
-        'contains any of',
-        'dog,cat',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'both sides are lists',
+        scalar: 'selections',
+        operator: 'contains any of',
+        value: 'dog,cat',
+      })
 
       await adminPrograms.publishProgram(programName)
 
@@ -1212,7 +1238,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       )
       await applicantQuestions.expectIneligibleQuestionsCount(1)
 
-      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
 
@@ -1249,13 +1275,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
-        'single-string',
-        /* action= */ null,
-        'first name',
-        'is not equal to',
-        'hidden',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'single-string',
+        scalar: 'first name',
+        operator: 'is not equal to',
+        value: 'hidden',
+      })
 
       // Currency predicate
       await adminPrograms.addProgramBlock(programName, 'currency', [
@@ -1265,13 +1290,12 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
         programName,
         'Screen 2',
       )
-      await adminPredicates.addPredicate(
-        'predicate-currency',
-        /* action= */ null,
-        'currency',
-        'is greater than',
-        '100.01',
-      )
+      await adminPredicates.addPredicates({
+        questionName: 'predicate-currency',
+        scalar: 'currency',
+        operator: 'is greater than',
+        value: '100.01',
+      })
 
       await adminPrograms.publishProgram(programName)
       await logout(page)
@@ -1284,7 +1308,7 @@ test.describe('create and edit predicates', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestionsCount(1)
-      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
 
       // Less than or equal to 100.01 is ineligible
       await applicantQuestions.answerQuestionFromReviewPage(

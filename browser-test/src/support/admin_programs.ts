@@ -49,7 +49,13 @@ export enum Eligibility {
 
 export interface QuestionSpec {
   name: string
-  isOptional: boolean
+  isOptional?: boolean
+}
+
+export interface BlockSpec {
+  name?: string
+  description?: string
+  questions: QuestionSpec[]
 }
 
 function slugify(value: string): string {
@@ -584,38 +590,84 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Edit basic block details and required questions
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead.
+   */
   async editProgramBlock(
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    // Make sure input validation enables the button before clicking.
-    await this.page.click('#update-block-button:not([disabled])')
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
-    }
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => {
+        return {
+          name: questionName,
+        }
+      }),
+    })
   }
-  async editProgramBlockWithBlockName(
+
+  /**
+   * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that the new method will place
+   * the optional question in the order as defined in the question array. The older method could only handle one
+   * optional question and forced it to be the first question on the list. Tests may need to be updated to handle
+   * a different question order.
+   */
+  async editProgramBlockWithOptional(
     programName: string,
-    blockName: string,
     blockDescription = 'screen description',
-    questionNames: string[] = [],
+    questionNames: string[],
+    optionalQuestionName: string,
   ) {
+    const block: BlockSpec = {
+      description: blockDescription,
+      questions: [],
+    }
+
+    block.questions.push({
+      name: optionalQuestionName,
+      isOptional: true,
+    })
+
+    questionNames.forEach((questionName) => {
+      block.questions.push({
+        name: questionName,
+      })
+    })
+
+    await this.editProgramBlockUsingSpec(programName, block)
+  }
+
+  /**
+   * Edit basic block details and questions
+   * @param programName Name of the program to edit
+   * @param block Block information
+   */
+  async editProgramBlockUsingSpec(programName: string, block: BlockSpec) {
     await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('#block-name-input', blockName)
-    await this.page.fill('textarea', blockDescription)
-    // Make sure input validation enables the button before clicking.
+
+    if (block.name !== undefined) {
+      await this.page.fill('#block-name-input', block.name)
+    }
+
+    await this.page.fill('textarea', block.description || 'screen description')
+
     await this.page.click('#update-block-button:not([disabled])')
 
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    for (const question of block.questions) {
+      await this.addQuestionFromQuestionBank(question.name)
+
+      if (question.isOptional) {
+        await this.page
+          .getByTestId(`question-admin-name-${question.name}`)
+          .locator(':is(button:has-text("optional"))')
+          .click()
+      }
     }
   }
 
@@ -674,29 +726,6 @@ export class AdminPrograms {
         : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
-  }
-
-  async editProgramBlockWithOptional(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[],
-    optionalQuestionName: string,
-  ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.addQuestionFromQuestionBank(optionalQuestionName)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple option buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
-    }
   }
 
   /**

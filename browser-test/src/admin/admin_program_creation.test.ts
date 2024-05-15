@@ -10,7 +10,7 @@ import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
-test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
+test.describe('program creation', () => {
   test('create program page', async ({
     page,
     adminPrograms,

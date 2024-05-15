@@ -1,13 +1,17 @@
-<th:block th:fragment="validationErrors(validationErrors)">
+<th:block
+  th:fragment="validationErrors(validationErrors, questionRendererParams)"
+>
   <div
     th:each="error: ${validationErrors}"
-    th:text="#{${error.key.getKeyName()}(${error.args})}"
+    th:if="${questionRendererParams.shouldShowErrors()}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+    class="cf-question-error-message"
   ></div>
 </th:block>
 
 <th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
   <!--/* Question title */-->
-  <legend class="usa-legend">
+  <legend class="usa-legend cf-applicant-question-text">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
     ></div>

@@ -28,10 +28,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.44",
-      "software.amazon.awssdk" % "ses" % "2.25.44",
+      "software.amazon.awssdk" % "s3" % "2.25.51",
+      "software.amazon.awssdk" % "ses" % "2.25.51",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.12.1",
@@ -246,9 +246,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.0"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

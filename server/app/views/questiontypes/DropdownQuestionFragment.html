@@ -2,8 +2,12 @@
   th:fragment="dropdown(question, questionRendererParams)"
   th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
-              inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+              inputId=${'id-' + #strings.randomAlphanumeric(8)},
+              questionErrors=${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())},
+              hasErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()}"
   th:id="${questionId}"
+  th:class="cf-applicant-question"
+  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -12,11 +16,12 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
   ></div>
 
   <select
     class="usa-select"
+    th:classappend="${hasErrors ? 'usa-input--error' : ''}"
     name="options"
     th:id="${inputId}"
     th:name="${singleSelectQuestion.getSelectionPath()}"

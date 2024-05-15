@@ -33,7 +33,7 @@ export function addEventListenerToElements<K extends keyof HTMLElementEventMap>(
  *
  * See TypeScirpt best practices for recommendations for when to use
  * assertNotNull vs non-null operator `!`:
- * https://docs.civiform.us/contributor-guide/developer-guide/development-standards
+ * https://github.com/civiform/civiform/wiki/Development-standards#assertnotnull-vs-non-null-expression
  *
  * @param value
  * @param extraInfo Additional info to add to the error if provided value is

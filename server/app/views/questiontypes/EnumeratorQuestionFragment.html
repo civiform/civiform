@@ -17,7 +17,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
     <div

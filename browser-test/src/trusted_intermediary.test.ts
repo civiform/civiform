@@ -13,7 +13,7 @@ import {
   enableFeatureFlag,
 } from './support'
 
-test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,
@@ -48,6 +48,33 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
     await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+  test('expect client info to be updated with empty emails', async ({
+    page,
+    tiDashboard,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: '',
+      firstName: 'Tony',
+      middleName: '',
+      lastName: 'Stark',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientTiNoteAndPhone(
+      client,
+      'Technology',
+      '4259746122',
+    )
+    await tiDashboard.expectSuccessAlertOnUpdate()
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client)
   })
 
   test('verify success toast screenshot on adding new client', async ({
@@ -719,13 +746,12 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
           fullProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          eligibilityQuestionId,
-          /* action= */ null,
-          'number',
-          'is equal to',
-          '5',
-        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
 
         await adminPrograms.addProgramBlock(
           fullProgramName,

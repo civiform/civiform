@@ -1,6 +1,5 @@
-import {test} from '@playwright/test'
+import {test} from '../support/civiform_fixtures'
 import {
-  createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
@@ -12,8 +11,6 @@ import {
 
 /** Tests for the address correction view and navigation to and from that view. */
 test.describe('address correction', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
   const multiBlockMultiAddressProgram =
     'Address correction multi-block, multi-address program'
   const singleBlockMultiAddressProgram =
@@ -28,8 +25,7 @@ test.describe('address correction', () => {
 
   const addressWithCorrectionText = 'With Correction'
 
-  test.beforeAll(async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -144,8 +140,10 @@ test.describe('address correction', () => {
   })
 
   if (isLocalDevEnvironment()) {
-    test('can correct address multi-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
+    test('can correct address multi-block, multi-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
 
@@ -179,8 +177,10 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('can correct address single-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
+    test('can correct address single-block, multi-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
 
@@ -216,8 +216,10 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('can correct address single-block, single-address program', async () => {
-      const {page, applicantQuestions} = ctx
+    test('can correct address single-block, single-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -250,8 +252,10 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('skips address correction if optional address question is not answered', async () => {
-      const {page, applicantQuestions} = ctx
+    test('skips address correction if optional address question is not answered', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(optionalAddressProgram)
 
@@ -262,8 +266,10 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('prompts user to edit if no suggestions are returned', async () => {
-      const {page, applicantQuestions} = ctx
+    test('prompts user to edit if no suggestions are returned', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -292,10 +298,12 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('prompts user to edit if an error is returned from the Esri service', async () => {
+    test('prompts user to edit if an error is returned from the Esri service', async ({
+      page,
+      applicantQuestions,
+    }) => {
       // This is currently the same as when no suggestions are returned.
       // We may change this later.
-      const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -326,8 +334,10 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('skips address correction screen if address exactly matches suggestions', async () => {
-      const {page, applicantQuestions} = ctx
+    test('skips address correction screen if address exactly matches suggestions', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -355,8 +365,7 @@ test.describe('address correction', () => {
       const addressQuestionText = 'Test address question'
       const numberQuestionText = 'Test number question'
 
-      test.beforeAll(async () => {
-        const {page, adminQuestions, adminPrograms} = ctx
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -412,9 +421,9 @@ test.describe('address correction', () => {
       })
 
       test.describe('previous button', () => {
-        test('clicking previous on page with address question redirects to address correction (no suggestions)', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking previous on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -433,9 +442,9 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking previous on page with address question redirects to address correction (has suggestions)', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking previous on page with address question redirects to address correction (has suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -454,9 +463,9 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to previous', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves original address when selected and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -487,9 +496,9 @@ test.describe('address correction', () => {
           )
         })
 
-        test('address correction page saves suggested address when selected and redirects to previous', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves suggested address when selected and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -521,9 +530,9 @@ test.describe('address correction', () => {
           )
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to previous', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves original address when no suggestions offered and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -551,9 +560,10 @@ test.describe('address correction', () => {
           )
         })
 
-        test('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -585,9 +595,9 @@ test.describe('address correction', () => {
       })
 
       test.describe('review button', () => {
-        test('clicking review on page with address question redirects to address correction (no suggestions)', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking review on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -606,8 +616,10 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking review on page with address question redirects to address correction (has suggestions)', async () => {
-          const {page, applicantQuestions} = ctx
+        test('clicking review on page with address question redirects to address correction (has suggestions)', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
           await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -624,9 +636,10 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to review', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('address correction page saves original address when selected and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -657,9 +670,10 @@ test.describe('address correction', () => {
           await logout(page)
         })
 
-        test('address correction page saves suggested address when selected and redirects to review', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('address correction page saves suggested address when selected and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -691,9 +705,10 @@ test.describe('address correction', () => {
           await logout(page)
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to review', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('address correction page saves original address when no suggestions offered and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -721,9 +736,10 @@ test.describe('address correction', () => {
           await logout(page)
         })
 
-        test('clicking review saves address and goes to review page if the user enters an address that exactly matches suggestions', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('clicking review saves address and goes to review page if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -752,9 +768,9 @@ test.describe('address correction', () => {
       })
 
       test.describe('save & next button', () => {
-        test('clicking next on page with address question redirects to address correction (no suggestions)', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking next on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -773,9 +789,9 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking next on page with address question redirects to address correction (has suggestions)', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking next on page with address question redirects to address correction (has suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -794,9 +810,9 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to next', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves original address when selected and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -826,9 +842,9 @@ test.describe('address correction', () => {
           )
         })
 
-        test('address correction page saves suggested address when selected and redirects to next', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves suggested address when selected and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -860,9 +876,9 @@ test.describe('address correction', () => {
           )
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to next', async () => {
-          const {applicantQuestions} = ctx
-
+        test('address correction page saves original address when no suggestions offered and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -890,9 +906,10 @@ test.describe('address correction', () => {
           )
         })
 
-        test('clicking next saves address and goes to next block if the user enters an address that exactly matches suggestions', async () => {
-          const {page, applicantQuestions} = ctx
-
+        test('clicking next saves address and goes to next block if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -924,9 +941,9 @@ test.describe('address correction', () => {
       })
 
       test.describe('go back and edit button', () => {
-        test('clicking go back and edit on address correction goes back to page with address question', async () => {
-          const {applicantQuestions} = ctx
-
+        test('clicking go back and edit on address correction goes back to page with address question', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -947,9 +964,9 @@ test.describe('address correction', () => {
           await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
         })
 
-        test('go back and edit does not save address selection', async () => {
-          const {applicantQuestions} = ctx
-
+        test('go back and edit does not save address selection', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -988,8 +1005,10 @@ test.describe('address correction', () => {
     })
   }
 
-  test('address correction page does not show if feature is disabled', async () => {
-    const {page, applicantQuestions} = ctx
+  test('address correction page does not show if feature is disabled', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
     await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -1010,5 +1029,133 @@ test.describe('address correction', () => {
     )
     await applicantQuestions.clickSubmit()
     await logout(page)
+  })
+
+  test.describe('with North Star flag enabled', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+    })
+
+    test('can correct address single-block, single-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-with-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.checkAddressQuestionValue(
+          'Address In Area',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickSubmit()
+      })
+    })
+
+    test('prompts user to edit if no suggestions are returned', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateScreenshot(
+          page,
+          'north-star-verify-address-no-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.clickSubmit()
+      })
+    })
+
+    test('go back and edit does not save address selection', async ({
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+      })
+
+      await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
+        await applicantQuestions.selectAddressSuggestion(
+          'Address With No Service Area Features',
+        )
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        await applicantQuestions.validateQuestionIsOnPage(
+          addressWithCorrectionText,
+        )
+
+        // Verify the original address (not the suggested address) is filled in on the block page
+        await applicantQuestions.checkAddressQuestionValue(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+      })
+    })
   })
 })

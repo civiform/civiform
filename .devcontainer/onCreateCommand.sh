@@ -12,3 +12,7 @@ npm install -g @withgraphite/graphite-cli@stable
 
 # Install Playwright
 npm install --no-save @playwright/test
+
+# Install pre-commit
+pip install pre-commit
+pre-commit install

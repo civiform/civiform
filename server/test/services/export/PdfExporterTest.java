@@ -36,8 +36,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(
-            applicationOne, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
+        exporter.exportApplication(applicationOne, /* isAdmin= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -55,8 +54,8 @@ public class PdfExporterTest extends AbstractExporterTest {
       PdfString link = AnnotationAction.getAsString(PdfName.URI);
       assertThat(link.toString())
           .isEqualTo(
-              "http://localhost:9000/admin/programs/"
-                  + applicationOne.getProgram().id
+              "http://localhost:9000/applicants/"
+                  + applicationOne.getApplicantData().getApplicant().id
                   + "/files/my-file-key");
     }
 
@@ -75,7 +74,8 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_optionalFileUploadWithFile() throws IOException, DocumentException {
+  public void exportApplication_optionalFileUploadWithFile_asAdmin()
+      throws IOException, DocumentException {
     createFakeProgramWithOptionalQuestion();
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
@@ -86,8 +86,46 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(
-            applicationFive, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    // Assertions to check if the URL is embedded for the FileUpload
+    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    PdfObject current = annots.getPdfObject(0);
+    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
+    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
+    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+    PdfString link = AnnotationAction.getAsString(PdfName.URI);
+    assertThat(link.toString())
+        .isEqualTo("http://localhost:9000/admin/applicant-files/my-file-key");
+
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
+  }
+
+  @Test
+  public void
+      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
+          throws IOException, DocumentException {
+    createFakeProgramWithOptionalQuestion();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -103,17 +141,14 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfString link = AnnotationAction.getAsString(PdfName.URI);
     assertThat(link.toString())
         .isEqualTo(
-            "http://localhost:9000/admin/programs/"
-                + applicationFive.getProgram().id
+            "http://localhost:9000/applicants/"
+                + applicationFive.getApplicantData().getApplicant().id
                 + "/files/my-file-key");
 
     pdfReader.close();
+
     assertThat(textFromPDF).isNotNull();
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-    assertThat(textFromPDF).isNotNull();
-    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
-    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
 
     for (int i = 3; i < linesFromPDF.size(); i++) {
@@ -131,8 +166,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSix.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(
-            applicationSix, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
+        exporter.exportApplication(applicationSix, /* isAdmin= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -157,7 +191,8 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_hiddenQuestionIncluded() throws IOException, DocumentException {
+  public void exportApplication_hiddenQuestionIncludedForAdmins()
+      throws IOException, DocumentException {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
@@ -165,8 +200,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSeven.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(
-            applicationSeven, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ true);
+        exporter.exportApplication(applicationSeven, /* isAdmin= */ true);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
@@ -181,7 +215,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_eligibility() throws IOException, DocumentException {
+  public void exportApplication_eligibilityShowsForAdmins() throws IOException, DocumentException {
     createFakeProgramWithEligibilityPredicate();
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
@@ -190,8 +224,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(
-            applicationTwo, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -203,8 +236,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.exportApplication(
-            applicationTwo, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ false);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));

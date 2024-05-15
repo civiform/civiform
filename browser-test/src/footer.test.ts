@@ -6,7 +6,7 @@ import {
   validateScreenshot,
 } from './support'
 
-test.describe('the footer', {tag: ['@uses-fixtures']}, () => {
+test.describe('the footer', () => {
   test('does not have civiform version when feature flag is disabled', async ({
     page,
   }) => {

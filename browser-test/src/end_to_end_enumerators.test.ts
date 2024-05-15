@@ -11,7 +11,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
+test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
