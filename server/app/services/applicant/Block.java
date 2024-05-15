@@ -246,19 +246,26 @@ public final class Block {
   }
 
   /**
-   * The number of questions answered by the applicant (excluding static content questions
-   * because they have no fields for a user to answer)
+   * The number of questions answered by the applicant (excluding static content questions because
+   * they have no fields for a user to answer)
    */
   public int answeredByUserQuestionsCount() {
-    return (int) getQuestions().stream().filter(question -> !question.getType().equals(QuestionType.STATIC)).filter(ApplicantQuestion::isAnswered).count();
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .filter(ApplicantQuestion::isAnswered)
+            .count();
   }
 
   /**
-   * The number of questions that can be answered by the applicant (excludes static
-   * content questions).
+   * The number of questions that can be answered by the applicant (excludes static content
+   * questions).
    */
   public int answerableQuestionsCount() {
-    return (int) getQuestions().stream().filter(question -> !question.getType().equals(QuestionType.STATIC)).count();
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .count();
   }
 
   /**
