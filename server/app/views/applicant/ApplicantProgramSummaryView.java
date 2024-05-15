@@ -39,7 +39,6 @@ import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -197,11 +196,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
+        answerContent = a().withHref(fileLink);
       } else {
         answerContent = div();
-        answerContent.withClasses("font-light", "text-sm");
       }
+      answerContent.withClasses("font-light", "text-sm");
       // Add answer text, converting newlines to <br/> tags.
       String[] texts = data.answerText().split("\n");
       texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);

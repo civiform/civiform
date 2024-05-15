@@ -174,6 +174,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .setSignedFileUploadRequest(signedRequest)
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
+
     FormTag uploadForm =
         fileUploadViewStrategy
             .renderFileUploadFormElement(signedRequest)
