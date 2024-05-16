@@ -166,12 +166,12 @@ test.describe('Program list page.', () => {
   async function expectProgramListElements(
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
-    isProgramdisabled: boolean = false,
+    isProgramDisabled: boolean = false,
   ) {
     if (expectedPrograms.length === 0) {
       throw new Error('expected at least one program')
     }
-    const programListNames = isProgramdisabled
+    const programListNames = isProgramDisabled
       ? await adminPrograms.disabledProgramNames()
       : await adminPrograms.programNames()
     expect(programListNames).toEqual(expectedPrograms)

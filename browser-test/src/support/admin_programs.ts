@@ -236,8 +236,7 @@ export class AdminPrograms {
   }
 
   async disabledProgramNames() {
-    await this.gotoAdminProgramsPage()
-    await this.page.click('a:has-text("Disabled")')
+    await this.gotoDisabledProgramIndexPage()
     await waitForPageJsLoad(this.page)
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()

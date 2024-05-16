@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import models.ProgramTab;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
@@ -142,11 +143,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
       contentDiv.with(
           renderFilterLink(
-              "In use",
+              ProgramTab.IN_USE.getProgramTab(),
               selectedStatus,
               controllers.admin.routes.AdminProgramController.index().url()),
           renderFilterLink(
-              "Disabled",
+              ProgramTab.DISABLED.getProgramTab(),
               selectedStatus,
               controllers.admin.routes.AdminProgramController.indexDisabled().url()));
     }

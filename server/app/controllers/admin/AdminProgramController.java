@@ -12,6 +12,7 @@ import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ProgramModel;
+import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -81,7 +82,7 @@ public final class AdminProgramController extends CiviFormController {
             programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
-            "In use",
+            ProgramTab.IN_USE.getProgramTab(),
             profileMaybe));
   }
 
@@ -97,7 +98,7 @@ public final class AdminProgramController extends CiviFormController {
             programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
-            "Disabled",
+            ProgramTab.DISABLED.getProgramTab(),
             profileMaybe));
   }
 
