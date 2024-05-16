@@ -81,14 +81,12 @@ test.describe('Applicant navigation flow', () => {
             screen1,
           )
 
-          await adminPredicates.addPredicates([
-            {
-              questionName: questionAddress,
-              scalar: 'service_area',
-              operator: 'in service area',
-              values: ['Seattle'],
-            },
-          ])
+          await adminPredicates.addPredicates({
+            questionName: questionAddress,
+            scalar: 'service_area',
+            operator: 'in service area',
+            values: ['Seattle'],
+          })
 
           // Add the address visibility predicate
           await adminPrograms.goToBlockInProgram(programName, screen2)
@@ -98,15 +96,13 @@ test.describe('Applicant navigation flow', () => {
             screen2,
           )
 
-          await adminPredicates.addPredicates([
-            {
-              questionName: questionAddress,
-              action: 'shown if',
-              scalar: 'service_area',
-              operator: 'in service area',
-              values: ['Seattle'],
-            },
-          ])
+          await adminPredicates.addPredicates({
+            questionName: questionAddress,
+            action: 'shown if',
+            scalar: 'service_area',
+            operator: 'in service area',
+            values: ['Seattle'],
+          })
 
           // Publish Program
           await adminPrograms.gotoAdminProgramsPage()

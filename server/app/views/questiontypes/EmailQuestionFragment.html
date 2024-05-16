@@ -4,10 +4,10 @@
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
               inputId=${'id-' + #strings.randomAlphanumeric(8)},
               questionErrors=${emailQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${!emailQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !emailQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-applicant-question"
-  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -16,7 +16,7 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
   ></div>
 
   <input
@@ -31,7 +31,7 @@
     th:value="${emailQuestion.getEmailValue().orElse('')}"
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
-    th:aria-invalid="${!emailQuestion.getValidationErrors().isEmpty()}"
+    th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>

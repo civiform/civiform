@@ -2,9 +2,12 @@
 <div
   th:fragment="enumerator(question)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
-             questionId=${'id-' + #strings.randomAlphanumeric(8)}"
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${questionRendererParams.shouldShowErrors() && !enumeratorQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-question-enumerator"
+  class="cf-question-enumerator cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <fieldset
     class="usa-fieldset"
@@ -17,7 +20,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
     ></div>
 
     <div

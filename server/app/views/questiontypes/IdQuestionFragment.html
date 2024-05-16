@@ -5,10 +5,10 @@
               inputId=${'id-' + #strings.randomAlphanumeric(8)},
               fieldErrors=${idQuestion.getValidationErrors().get(idQuestion.getIdPath())},
               questionErrors=${idQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${!idQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !idQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-applicant-question cf-question-text"
-  th:classappend="${hasErrors ? 'cf-question-with-error' : ''}"
+  class="cf-applicant-question-field cf-question-text"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -16,11 +16,13 @@
   ></div>
 
   <!--/* Display errors */-->
+  <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors})}"
-  ></div>
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
   ></div>
 
   <input
@@ -33,7 +35,7 @@
     maxlength="10000"
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
-    th:aria-invalid="${!idQuestion.getValidationErrors().isEmpty()}"
+    th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>

@@ -680,13 +680,12 @@ test.describe('view program statuses', () => {
           eligibilityProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          eligibilityQuestionId,
-          /* action= */ null,
-          'number',
-          'is equal to',
-          '5',
-        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
         await logout(page)
