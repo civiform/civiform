@@ -14,13 +14,13 @@ public enum ProgramTab {
   IN_USE("In use"),
   DISABLED("Disabled");
 
-  private final String tab;
+  private final String tabName;
 
-  ProgramTab(String tab) {
-    this.tab = tab;
+  ProgramTab(String tabName) {
+    this.tabName = tabName;
   }
 
-  public String getValue() {
-    return this.tab;
+  public String getTabName() {
+    return this.tabName;
   }
 }

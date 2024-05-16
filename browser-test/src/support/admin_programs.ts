@@ -399,10 +399,10 @@ export class AdminPrograms {
 
   async gotoEditDraftProgramPage(
     programName: string,
-    isDisabled: boolean = false,
+    isProgramDisabled: boolean = false,
   ) {
     await this.gotoAdminProgramsPage()
-    if (isDisabled) {
+    if (isProgramDisabled) {
       await this.gotoDisabledProgramIndexPage()
     }
     await this.expectDraftProgram(programName)
