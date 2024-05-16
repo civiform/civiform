@@ -62,7 +62,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         ImmutableList.<String>builder().add(descriptionId);
     Messages messages = params.messages();
     DivTag questionSecondaryTextDiv =
-        div()
+        div().condWith(!applicantQuestion.getQuestionHelpText().isEmpty(), div()
             .with(
                 div()
                     // Question help text
@@ -78,7 +78,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                             messages
                                 .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                 .toLowerCase(Locale.ROOT))))
-            .withClasses("mb-4");
+            .withClasses("mb-4"));
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
