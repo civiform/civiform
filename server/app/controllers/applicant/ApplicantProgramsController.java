@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import actions.BlockDisabledProgramAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -20,6 +21,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -140,6 +142,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
+  @With(BlockDisabledProgramAction.class)
   public CompletionStage<Result> index(Request request) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
