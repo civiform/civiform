@@ -10,7 +10,7 @@ enable=quote-safe-variables
 
 # Turn on warnings for unassigned uppercase variables
 enable=check-unassigned-uppercase
-
+# testing
 # Allow [ ! -z foo ] instead of suggesting -n
 disable=SC2236
 
