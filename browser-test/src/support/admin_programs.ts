@@ -771,9 +771,9 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questions: QuestionSpec[] = [],
-    isProgramdisabled: boolean = false,
+    isProgramDisabled: boolean = false,
   ) {
-    if (isProgramdisabled) {
+    if (isProgramDisabled) {
       await this.gotoEditDisabledDraftProgramPage(programName)
     } else {
       await this.gotoEditDraftProgramPage(programName)

@@ -20,7 +20,7 @@ public enum ProgramTab {
     this.tab = tab;
   }
 
-  public String getProgramTab() {
+  public String getValue() {
     return this.tab;
   }
 }

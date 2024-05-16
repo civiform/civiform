@@ -82,7 +82,7 @@ public final class AdminProgramController extends CiviFormController {
             programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
-            ProgramTab.IN_USE.getProgramTab(),
+            ProgramTab.IN_USE,
             profileMaybe));
   }
 
@@ -98,7 +98,7 @@ public final class AdminProgramController extends CiviFormController {
             programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
-            ProgramTab.DISABLED.getProgramTab(),
+            ProgramTab.DISABLED,
             profileMaybe));
   }
 

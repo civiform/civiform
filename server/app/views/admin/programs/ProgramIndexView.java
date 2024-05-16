@@ -83,7 +83,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ActiveAndDraftPrograms programs,
       ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
-      String selectedStatus,
+      ProgramTab selectedStatus,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
       layout.setAdminType(profile.get());
@@ -143,11 +143,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
       contentDiv.with(
           renderFilterLink(
-              ProgramTab.IN_USE.getProgramTab(),
+              ProgramTab.IN_USE,
               selectedStatus,
               controllers.admin.routes.AdminProgramController.index().url()),
           renderFilterLink(
-              ProgramTab.DISABLED.getProgramTab(),
+              ProgramTab.DISABLED,
               selectedStatus,
               controllers.admin.routes.AdminProgramController.indexDisabled().url()));
     }
@@ -195,11 +195,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderFilterLink(String status, String selectedStatus, String redirectLocation) {
+  private ATag renderFilterLink(
+      ProgramTab status, ProgramTab selectedStatus, String redirectLocation) {
     String styles =
         selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
     return new LinkElement()
-        .setText(status)
+        .setText(status.getValue())
         .setHref(redirectLocation)
         .setStyles(styles)
         .asAnchorText();
