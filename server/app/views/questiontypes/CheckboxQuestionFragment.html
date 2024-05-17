@@ -1,12 +1,15 @@
 <div
   th:fragment="checkbox(question, questionRendererParams)"
-  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+           multiSelectQuestion=${question.createMultiSelectQuestion()},
+           hasErrors=${questionRendererParams.shouldShowErrors() && !multiSelectQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
 >
   <fieldset
     class="usa-fieldset"
     th:aria-describedby="${questionId} + '-description'"
-    th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}"
   >
     <!--/* Title and Help Text */-->
     <div
