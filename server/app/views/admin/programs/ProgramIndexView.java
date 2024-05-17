@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -27,11 +28,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import models.ProgramTab;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
@@ -49,6 +52,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -58,6 +62,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
+  private final ProgramService programService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -65,10 +70,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       SettingsManifest settingsManifest,
-      ProgramCardFactory programCardFactory) {
+      ProgramCardFactory programCardFactory,
+      ProgramService programService) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
+    this.programService = checkNotNull(programService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -76,6 +83,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ActiveAndDraftPrograms programs,
       ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
+      ProgramTab selectedTab,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
       layout.setAdminType(profile.get());
@@ -96,9 +104,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
+
+    // Include all programs in draft in publishAllDraft modal.
+    ActiveAndDraftPrograms allPrograms =
+        programService.getActiveAndDraftProgramsWithoutQuestionLoad();
     Optional<Modal> maybePublishModal =
         maybeRenderPublishAllModal(
-            programs,
+            allPrograms,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
             request,
             universalQuestionIds);
@@ -127,27 +139,36 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses("mt-10", "flex")
                     .with(
                         div().withClass("flex-grow"),
-                        p("Sorting by most recently updated").withClass("text-sm")),
-                div()
-                    .withClass("mt-6")
-                    .with(
-                        each(
-                            programs.getProgramNames().stream()
-                                .map(
-                                    name ->
-                                        this.buildProgramCardData(
-                                            programs.getActiveProgramDefinition(name),
-                                            programs.getDraftProgramDefinition(name),
-                                            request,
-                                            profile,
-                                            publishSingleProgramModals,
-                                            universalQuestionIds))
-                                .sorted(
-                                    ProgramCardFactory
-                                        .programTypeThenLastModifiedThenNameComparator())
-                                .map(
-                                    cardData ->
-                                        programCardFactory.renderCard(request, cardData)))));
+                        p("Sorting by most recently updated").withClass("text-sm")));
+    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+      contentDiv.with(
+          renderFilterLink(
+              ProgramTab.IN_USE,
+              selectedTab,
+              controllers.admin.routes.AdminProgramController.index().url()),
+          renderFilterLink(
+              ProgramTab.DISABLED,
+              selectedTab,
+              controllers.admin.routes.AdminProgramController.indexDisabled().url()));
+    }
+
+    contentDiv.with(
+        div()
+            .withClass("mt-6")
+            .with(
+                each(
+                    programs.getProgramNames().stream()
+                        .map(
+                            name ->
+                                this.buildProgramCardData(
+                                    programs.getActiveProgramDefinition(name),
+                                    programs.getDraftProgramDefinition(name),
+                                    request,
+                                    profile,
+                                    publishSingleProgramModals,
+                                    universalQuestionIds))
+                        .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
+                        .map(cardData -> programCardFactory.renderCard(request, cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -172,6 +193,17 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private ATag renderFilterLink(
+      ProgramTab status, ProgramTab selectedTab, String redirectLocation) {
+    String styles =
+        selectedTab.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
+    return new LinkElement()
+        .setText(status.getTabName())
+        .setHref(redirectLocation)
+        .setStyles(styles)
+        .asAnchorText();
   }
 
   private Modal renderDemographicsCsvModal() {
