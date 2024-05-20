@@ -79,6 +79,12 @@ public final class AdminApplicationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
 
+  public enum RelativeTimeOfDay {
+    UNKNOWN,
+    START, // The start of the day, like 12:00:00 am
+    END // The end of the day, like 11:59:59 pm
+  }
+
   @Inject
   public AdminApplicationController(
       ProgramService programService,
@@ -138,8 +144,10 @@ public final class AdminApplicationController extends CiviFormController {
               .setSearchNameFragment(search)
               .setSubmitTimeFilter(
                   TimeFilter.builder()
-                      .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                      .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                      .setFromTime(
+                          parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+                      .setUntilTime(
+                          parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                       .build())
               .setApplicationStatus(applicationStatus)
               .build();
@@ -174,8 +182,11 @@ public final class AdminApplicationController extends CiviFormController {
                 .setSearchNameFragment(search)
                 .setSubmitTimeFilter(
                     TimeFilter.builder()
-                        .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                        .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                        .setFromTime(
+                            parseDateTimeFromQuery(
+                                dateConverter, fromDate, RelativeTimeOfDay.START))
+                        .setUntilTime(
+                            parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                         .build())
                 .setApplicationStatus(applicationStatus)
                 .build();
@@ -215,17 +226,26 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   /**
-   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
-   * start of that date in the UTC time zone.
+   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing
+   * that date in the UTC time zone.
    */
-  private Optional<Instant> parseDateFromQuery(
-      DateConverter dateConverter, Optional<String> maybeQueryParam) {
+  private Optional<Instant> parseDateTimeFromQuery(
+      DateConverter dateConverter,
+      Optional<String> maybeQueryParam,
+      RelativeTimeOfDay relativeTimeOfDay) {
     return maybeQueryParam
         .filter(s -> !s.isBlank())
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                switch (relativeTimeOfDay) {
+                  case START:
+                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                  case END:
+                    return dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
+                  default:
+                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                }
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -242,8 +262,8 @@ public final class AdminApplicationController extends CiviFormController {
       Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .setFromTime(parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+            .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv(submitTimeFilter);
@@ -453,6 +473,7 @@ public final class AdminApplicationController extends CiviFormController {
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
+  // TODO(ssandbekkhaug): test this
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
@@ -482,8 +503,10 @@ public final class AdminApplicationController extends CiviFormController {
             .setSearchNameFragment(search)
             .setSubmitTimeFilter(
                 TimeFilter.builder()
-                    .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                    .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                    .setFromTime(
+                        parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+                    .setUntilTime(
+                        parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                     .build())
             .setApplicationStatus(applicationStatus)
             .build();
