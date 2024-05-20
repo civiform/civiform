@@ -22,13 +22,10 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /**
- * Superclass for all applicant question renderers with input field(s) for the
- * applicant to answer
- * the question. Question renderers should not subclass from
- * ApplicantQuestionRendererImpl directly;
+ * Superclass for all applicant question renderers with input field(s) for the applicant to answer
+ * the question. Question renderers should not subclass from ApplicantQuestionRendererImpl directly;
  * instead they should subclass from one of the child classes, either
- * ApplicantCompositeQuestionRenderer (for multiple input fields) or
- * ApplicantSingleQuestionRenderer
+ * ApplicantCompositeQuestionRenderer (for multiple input fields) or ApplicantSingleQuestionRenderer
  * (for single input field).
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
@@ -61,25 +58,30 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
-    ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.<String>builder().add(descriptionId);
+    ImmutableList.Builder<String> ariaDescribedByBuilder =
+        ImmutableList.<String>builder().add(descriptionId);
     Messages messages = params.messages();
-    DivTag questionSecondaryTextDiv = div().condWith(!applicantQuestion.getQuestionHelpText().isEmpty(),
-        div().with(
-            div()
-                // Question help text
-                .withId(descriptionId)
-                .withClasses(
-                    ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-                    ApplicantStyles.QUESTION_HELP_TEXT)
-                .with(
-                    TextFormatter.formatTextWithAriaLabel(
-                        applicantQuestion.getQuestionHelpText(),
-                        /* preserveEmptyLines= */ true,
-                        /* addRequiredIndicator= */ false,
-                        messages
-                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
-                            .toLowerCase(Locale.ROOT))))
-            .withClasses("mb-4"));
+    DivTag questionSecondaryTextDiv =
+        div()
+            .condWith(
+                !applicantQuestion.getQuestionHelpText().isEmpty(),
+                div()
+                    .with(
+                        div()
+                            // Question help text
+                            .withId(descriptionId)
+                            .withClasses(
+                                ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
+                                ApplicantStyles.QUESTION_HELP_TEXT)
+                            .with(
+                                TextFormatter.formatTextWithAriaLabel(
+                                    applicantQuestion.getQuestionHelpText(),
+                                    /* preserveEmptyLines= */ true,
+                                    /* addRequiredIndicator= */ false,
+                                    messages
+                                        .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                        .toLowerCase(Locale.ROOT))))
+                    .withClasses("mb-4"));
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
@@ -89,32 +91,34 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       validationErrors = ImmutableMap.of();
     }
 
-    ImmutableSet<ValidationErrorMessage> questionErrors = validationErrors
-        .getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
+    ImmutableSet<ValidationErrorMessage> questionErrors =
+        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
       questionSecondaryTextDiv.with(
           BaseHtmlView.fieldErrors(
-              messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS)
+                  messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS)
               .withId(errorId));
       ariaDescribedByBuilder.add(errorId);
     }
 
-    ImmutableList<DomContent> questionTextDoms = TextFormatter.formatTextWithAriaLabel(
-        applicantQuestion.getQuestionText(),
-        /* preserveEmptyLines= */ true,
-        /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
-        messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+    ImmutableList<DomContent> questionTextDoms =
+        TextFormatter.formatTextWithAriaLabel(
+            applicantQuestion.getQuestionText(),
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
-    ContainerTag questionTag = renderQuestionTag(
-        params,
-        validationErrors,
-        ariaDescribedByIds,
-        questionTextDoms,
-        questionSecondaryTextDiv,
-        applicantQuestion.isOptional());
+    ContainerTag questionTag =
+        renderQuestionTag(
+            params,
+            validationErrors,
+            ariaDescribedByIds,
+            questionTextDoms,
+            questionSecondaryTextDiv,
+            applicantQuestion.isOptional());
 
     return div()
         .withId(questionId)
