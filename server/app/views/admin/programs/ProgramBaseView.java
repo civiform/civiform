@@ -1,6 +1,8 @@
 package views.admin.programs;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -80,6 +82,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
             .withClasses("text-sm")
             .with(span("Admin note: ").withClasses("font-semibold"))
             .with(span(programDefinition.adminDescription()));
+
     DivTag headerButtonsDiv =
         div()
             .withClasses("flex")
@@ -88,11 +91,20 @@ abstract class ProgramBaseView extends BaseHtmlView {
                     .map(
                         headerButton ->
                             renderHeaderButton(headerButton, programDefinition, request)));
+
+    DivTag categoriesDiv =
+      div(
+        span("Categories:  "),
+        iffElse(programDefinition.categories().isEmpty(),
+          span("None"),
+          each(programDefinition.categories(), category -> span(category.getDefaultName() + " "))));
+
     return div(
             ViewUtils.makeLifecycleBadge(getProgramDisplayStatus()),
             title,
             description,
             adminNote,
+            categoriesDiv,
             headerButtonsDiv)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }

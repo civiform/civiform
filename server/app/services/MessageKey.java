@@ -264,6 +264,7 @@ public enum MessageKey {
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_GET_STARTED("title.getStarted"),
   TITLE_LOGIN("title.login"),
+  TITLE_MY_APPLICATIONS("title.myApplications"),
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),
   TITLE_ORG_MEMBERS("title.orgMembers"),
   TITLE_PROGRAM_SECTION_COMPLETED("title.programSectionCompleted"),

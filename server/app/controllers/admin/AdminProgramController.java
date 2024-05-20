@@ -278,7 +278,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         settingsManifest.getIntakeFormEnabled(request),
-        ImmutableList.copyOf(programData.getTiGroups()));
+        ImmutableList.copyOf(programData.getTiGroups()),
+        programData.getCategories());
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 

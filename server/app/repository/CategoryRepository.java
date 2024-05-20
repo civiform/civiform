@@ -1,5 +1,6 @@
 package repository;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import models.CategoryModel;
@@ -15,6 +16,7 @@ import javax.inject.Provider;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -34,16 +36,6 @@ public final class CategoryRepository {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(databaseExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);
-  }
-
-  public Optional<CategoryModel> lookupCategory(long id) {
-    return database
-      .find(CategoryModel.class)
-      .setLabel("CategoryModel.findById")
-      .setProfileLocation(queryProfileLocationBuilder.create("lookupCategory"))
-      .where()
-      .eq("id", id)
-      .findOneOrEmpty();
   }
 
   public List<CategoryModel> findCategoriesByIds(List<Long> ids) {
@@ -83,8 +75,4 @@ public final class CategoryRepository {
     return category;
   }
 
-//  public CategoryModel updateCategory(CategoryModel category) {
-//    database.update(category);
-//    return category;
-//  }
 }

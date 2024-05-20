@@ -2,6 +2,9 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -48,6 +51,10 @@ public final class ProgramCardFactory {
     String programTitleText = displayProgram.localizedName().getDefault();
     String programDescriptionText = displayProgram.localizedDescription().getDefault();
     String adminNoteText = displayProgram.adminDescription();
+    ImmutableList<String> programCategories =
+        displayProgram.categories().stream()
+            .map(category -> category.getDefaultName())
+            .collect(ImmutableList.toImmutableList());
 
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
@@ -109,6 +116,13 @@ public final class ProgramCardFactory {
             "border-gray-300",
             "rounded-lg")
         .with(titleAndStatus)
+        .with(
+          div(
+            span("Categories:  "),
+            iffElse(programCategories.isEmpty(),
+              span("None"),
+              each(programCategories, category -> span(category + " "))))
+          )
         .condWith(
             !adminNoteText.isBlank(),
             p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")

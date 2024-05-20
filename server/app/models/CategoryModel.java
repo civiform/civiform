@@ -37,6 +37,10 @@ public class CategoryModel extends BaseModel {
     this.localizedName = LocalizedStrings.withDefaultValue(defaultName);
   }
 
+  public Long getId() {
+    return id;
+  }
+
   public String getDefaultName() {
     return localizedName.getDefault();
   }

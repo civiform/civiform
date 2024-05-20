@@ -22,8 +22,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import jdk.jfr.Category;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.TrustedIntermediaryGroupModel;
@@ -104,7 +104,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()),
-        program.categories());
+        program.categories().stream().map(CategoryModel::getId).collect(Collectors.toList()));
   }
 
   private FormTag buildProgramForm(
@@ -120,7 +120,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
       List<Long> selectedTi,
-      List<CategoryModel> categories) {
+      List<Long> categories) {
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -149,30 +149,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 input()
                   .withId("check-category-" + category.getDefaultName())
                   .withType("checkbox")
-                  .withName("categories")
-                  .withValue(category.getDefaultName()),
-
+                  .withName("categories" + Path.ARRAY_SUFFIX)
+                  .withValue(String.valueOf(category.getId()))
+                  .withCondChecked(categories.contains(category.getId())),
                 label(category.getDefaultName())
                   .withFor("check-category-" + category.getDefaultName())
               )
-//          div(
-//            input()
-//              .withId("check-category-education")
-//              .withType("checkbox")
-//              .withName("categories")
-//              .withValue(),
-//            label("Education")
-//              .withFor("check-category-education")
-//          ),
-//          div(
-//            input()
-//              .withId("check-category-housing")
-//              .withType("checkbox")
-//              .withName("categories")
-//              .withValue("2"),
-//            label("Housing")
-//              .withFor("check-category-housing")
-//          )
         )),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()

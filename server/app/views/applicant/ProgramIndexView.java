@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -13,13 +14,20 @@ import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
+
+import models.CategoryModel;
 import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.CategoryRepository;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -192,6 +200,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
+    List<String> filteredCategories = relevantPrograms.allPrograms().stream()
+      .map(program -> program.program().categories())
+      .flatMap(List::stream)
+      .distinct()
+      .map(category -> category.getDefaultName())
+      .collect(ImmutableList.toImmutableList());
+
     if (settingsManifest.getIntakeFormEnabled(request)
         && relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
@@ -213,41 +228,49 @@ public final class ProgramIndexView extends BaseHtmlView {
                       + relevantPrograms.submitted().size()
                       + relevantPrograms.unapplied().size())));
     } else {
-      content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
+      content
+        .with(
+          div(each(
+              filteredCategories,
+              category ->
+                button(category))))
+        .with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
     }
 
-    if (!relevantPrograms.inProgress().isEmpty()) {
+    if (!relevantPrograms.inProgress().isEmpty() ||
+      !relevantPrograms.submitted().isEmpty()) {
       content.with(
-          programCardViewRenderer.programCardsSection(
+          programCardViewRenderer.myApplicationCardsSection(
               request,
               messages,
               personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
+              Optional.of(MessageKey.TITLE_MY_APPLICATIONS),
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE,
-              MessageKey.BUTTON_CONTINUE_SR,
-              bundle,
-              profile));
-    }
-    if (!relevantPrograms.submitted().isEmpty()) {
-      content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.submitted(),
+              Stream.concat(relevantPrograms.inProgress().stream(), relevantPrograms.submitted().stream())
+                .collect(ImmutableList.toImmutableList()),
               MessageKey.BUTTON_EDIT,
               MessageKey.BUTTON_EDIT_SR,
               bundle,
               profile));
     }
+//    if (!relevantPrograms.submitted().isEmpty()) {
+//      content.with(
+//          programCardViewRenderer.programCardsSection(
+//              request,
+//              messages,
+//              personalInfo,
+//              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
+//              cardContainerStyles,
+//              applicantId,
+//              preferredLocale,
+//              relevantPrograms.submitted(),
+//              MessageKey.BUTTON_EDIT,
+//              MessageKey.BUTTON_EDIT_SR,
+//              bundle,
+//              profile));
+//    }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
           programCardViewRenderer.programCardsSection(

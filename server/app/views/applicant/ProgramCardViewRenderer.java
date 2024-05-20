@@ -112,22 +112,17 @@ public final class ProgramCardViewRenderer {
       MessageKey buttonSrText,
       HtmlBundle bundle,
       CiviFormProfile profile) {
+
     String sectionHeaderId = Modal.randomModalId();
-    DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
-    if (sectionTitle.isPresent()) {
-      div.with(
-          h3().withId(sectionHeaderId)
-              .withText(messages.at(sectionTitle.get().getKeyName()))
-              .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
-    }
-    return div.with(
+    return createSectionHeader(sectionTitle, messages, sectionHeaderId)
+      .with(
         ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
             .withClasses(cardContainerStyles)
             .with(
                 each(
                     cards,
                     (card) ->
-                        createProgramCard(
+                        createProgramCardWithImageAndCategories(
                             request,
                             messages,
                             personalInfo.getType(),
@@ -140,6 +135,95 @@ public final class ProgramCardViewRenderer {
                             bundle,
                             profile,
                             zoneId))));
+  }
+
+  public DivTag myApplicationCardsSection(
+    Http.Request request,
+    Messages messages,
+    ApplicantPersonalInfo personalInfo,
+    Optional<MessageKey> sectionTitle,
+    String cardContainerStyles,
+    long applicantId,
+    Locale preferredLocale,
+    ImmutableList<ApplicantService.ApplicantProgramData> cards,
+    MessageKey buttonTitle,
+    MessageKey buttonSrText,
+    HtmlBundle bundle,
+    CiviFormProfile profile) {
+
+    String sectionHeaderId = Modal.randomModalId();
+    return createSectionHeader(sectionTitle, messages, sectionHeaderId)
+      .with(
+        ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
+          .withClasses(cardContainerStyles)
+          .with(
+            each(
+              cards,
+              (card) ->
+                createProgramCard(
+                  request,
+                  messages,
+                  personalInfo.getType(),
+                  card,
+                  applicantId,
+                  preferredLocale,
+                  buttonTitle,
+                  buttonSrText,
+                  sectionTitle.isPresent(),
+                  bundle,
+                  profile,
+                  zoneId))));
+  }
+  private DivTag createSectionHeader(Optional<MessageKey> sectionTitle,
+                                     Messages messages, String sectionHeaderId) {
+
+    DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
+    if (sectionTitle.isPresent()) {
+      div.with(
+        h3().withId(sectionHeaderId)
+          .withText(messages.at(sectionTitle.get().getKeyName()))
+          .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
+    }
+    return div;
+  }
+
+  public LiTag createProgramCardWithImageAndCategories(
+    Http.Request request,
+    Messages messages,
+    ApplicantPersonalInfo.ApplicantType applicantType,
+    ApplicantService.ApplicantProgramData cardData,
+    Long applicantId,
+    Locale preferredLocale,
+    MessageKey buttonTitle,
+    MessageKey buttonSrText,
+    boolean nestedUnderSubheading,
+    HtmlBundle bundle,
+    CiviFormProfile profile,
+    ZoneId zoneId) {
+
+    ProgramDefinition program = cardData.program();
+
+    String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
+
+    Optional<ImgTag> programImage =
+      programImageUtils.createProgramImage(
+        program, preferredLocale, /* isWithinProgramCard= */ true);
+
+    DivTag programData =
+      getProgramDataDiv(
+        request, messages, cardData, applicantId, preferredLocale,
+      nestedUnderSubheading, profile, zoneId, program, baseId);
+
+    DivTag actionDiv =
+      getActionDiv(
+        request, messages, applicantType, applicantId, preferredLocale,
+        buttonTitle, buttonSrText, bundle, profile, program, baseId);
+
+    LiTag cardListItem = getBasicCardListItem(baseId);
+
+    programImage.ifPresent(cardListItem::with);
+
+    return cardListItem.with(programData).with(actionDiv);
   }
 
   /**
@@ -170,24 +254,25 @@ public final class ProgramCardViewRenderer {
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    Optional<ImgTag> programImage =
-        programImageUtils.createProgramImage(
-            program, preferredLocale, /* isWithinProgramCard= */ true);
+    DivTag programData = getProgramDataDiv(request, messages, cardData, applicantId, preferredLocale, nestedUnderSubheading, profile, zoneId, program, baseId);
 
-    ContainerTag title =
-        nestedUnderSubheading
-            ? h4().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale))
-            : h3().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale));
+    DivTag actionDiv = getActionDiv(request, messages, applicantType, applicantId, preferredLocale, buttonTitle, buttonSrText, bundle, profile, program, baseId);
+
+    LiTag cardListItem = getBasicCardListItem(baseId);
+
+    return cardListItem.with(programData).with(actionDiv);
+  }
+
+  private DivTag getProgramDataDiv(Http.Request request, Messages messages, ApplicantService.ApplicantProgramData cardData, Long applicantId, Locale preferredLocale, boolean nestedUnderSubheading, CiviFormProfile profile, ZoneId zoneId, ProgramDefinition program, String baseId) {
+    ContainerTag title = renderCardTitle(nestedUnderSubheading, program, preferredLocale, baseId);
+
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatTextWithAriaLabel(
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
             messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+
     DivTag description =
         div()
             .withId(baseId + "-description")
@@ -203,7 +288,7 @@ public final class ProgramCardViewRenderer {
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
-              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+            messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
 
     if (shouldShowEligibilityTag(cardData)) {
@@ -237,14 +322,17 @@ public final class ProgramCardViewRenderer {
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
           programCardSubmittedDate(
-              messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
+            messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
     }
+    return programData;
+  }
 
+  private DivTag getActionDiv(Http.Request request, Messages messages, ApplicantPersonalInfo.ApplicantType applicantType, Long applicantId, Locale preferredLocale, MessageKey buttonTitle, MessageKey buttonSrText, HtmlBundle bundle, CiviFormProfile profile, ProgramDefinition program, String baseId) {
     String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(
-                messages,
+          messages,
                 actionUrl,
                 messages.at(
                     MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
@@ -273,17 +361,26 @@ public final class ProgramCardViewRenderer {
 
     DivTag actionDiv =
         div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
+    return actionDiv;
+  }
+
+  private static LiTag getBasicCardListItem(String baseId) {
     LiTag cardListItem =
         li().withId(baseId)
-            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-            .with(
-                // The visual bar at the top of each program card.
-                div()
-                    .withClasses(
-                        "block", "shrink-0", BaseStyles.BG_CIVIFORM_BLUE, "rounded-t-xl", "h-3"));
-    programImage.ifPresent(cardListItem::with);
+            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD);
+    return cardListItem;
+  }
 
-    return cardListItem.with(programData).with(actionDiv);
+  private ContainerTag renderCardTitle(
+    boolean nestedUnderSubheading, ProgramDefinition program, Locale preferredLocale, String baseId) {
+    return
+      nestedUnderSubheading
+        ? h4().withId(baseId + "-title")
+        .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+        .withText(program.localizedName().getOrDefault(preferredLocale))
+        : h3().withId(baseId + "-title")
+        .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+        .withText(program.localizedName().getOrDefault(preferredLocale));
   }
 
   /**

@@ -114,6 +114,7 @@ title.allProgramsSection=All programs ({0})
 title.status=Status
 title.inProgressProgramsUpdated=In progress
 title.activeProgramsUpdated=Not started
+title.myApplications=My applications
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
 title.submittedPrograms=Submitted
