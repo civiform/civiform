@@ -456,7 +456,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
     return li().with(
-            span(TextFormatter.formatText(question.getQuestionText().getDefault()).toString()),
+            span(question.getQuestionText().getDefault()).withClasses("font-medium"),
             span(" - "),
             new LinkElement()
                 .setText("Edit")

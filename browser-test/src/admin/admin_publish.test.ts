@@ -2,13 +2,17 @@ import {test, expect} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('publishing all draft questions and programs', () => {
-  const hiddenProgramNoQuestions = 'Public test program hidden no questions'
-  const visibleProgramWithQuestion = 'Public test program visible with question'
-  const questionName = 'publish-test-address-q'
-  const questionText = 'publish-test-address-q'
-  // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
-  const draftQuestionText = `${questionText} new version`
+test.describe(
+  'publishing all draft questions and programs',
+  {tag: ['@uses-fixtures']},
+  () => {
+    const hiddenProgramNoQuestions = 'Public test program hidden no questions'
+    const visibleProgramWithQuestion =
+      'Public test program visible with question'
+    const questionName = '*publish-test-address-q*'
+    const questionText = 'publish-test-address-q'
+    // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
+    const draftQuestionText = `${questionText} new version`
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
