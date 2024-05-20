@@ -35,11 +35,8 @@ public class BlockDisabledProgramAction extends Action.Simple {
             .join();
 
     if (activeProgramDefinition.displayMode() == DisplayMode.DISABLED) {
-      return CompletableFuture.completedFuture(
-          redirect(
-              routes.HomeController
-                  .index())); // TODO: Build an error page and direct the user to the error page
-                              // instead
+      // TODO: Build an error page and redirect the user to the error page instead
+      return CompletableFuture.completedFuture(redirect(routes.HomeController.index()));
     }
     return delegate.call(req);
   }
