@@ -51,6 +51,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -455,7 +456,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
     return li().with(
-            span(question.getQuestionText().getDefault()).withClasses("font-medium"),
+            span(TextFormatter.formatText(question.getQuestionText().getDefault()).toString()),
             span(" - "),
             new LinkElement()
                 .setText("Edit")
