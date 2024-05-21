@@ -139,6 +139,7 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
+  @Secure
   public CompletionStage<Result> index(Request request) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
