@@ -347,7 +347,7 @@ public class BlockTest {
   }
 
   @Test
-  public void answeredByUserQuestionsCount_includesStatic() {
+  public void answeredByUserQuestionsCount_excludesStatic() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in one questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
