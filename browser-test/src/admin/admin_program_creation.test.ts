@@ -662,86 +662,86 @@ test.describe('program creation', () => {
 
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question', 'first question'])
+    ).toEqual(['second question\n', 'first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question', 'universal first question'])
+    ).toEqual(['universal second question\n', 'universal first question\n'])
 
     // Filter questions based on text
     await page.locator('#question-bank-filter').fill('fi')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('se')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     await page.locator('#question-bank-filter').fill('')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question', 'first question'])
+    ).toEqual(['second question\n', 'first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question', 'universal first question'])
+    ).toEqual(['universal second question\n', 'universal first question\n'])
 
     // Filter questions based on name
     await page.locator('#question-bank-filter').fill('q-f')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('q-s')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // Filter questions based on help text
     await page.locator('#question-bank-filter').fill('qf-help')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('qs-help')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // Filter questions based on description
     await page.locator('#question-bank-filter').fill('qf-desc')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('qs-desc')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // All question UIs will have an "Add" button, so ensure filtering to "Add" doesn't just show
     // every question

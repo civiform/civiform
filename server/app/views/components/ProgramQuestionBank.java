@@ -237,20 +237,22 @@ public final class ProgramQuestionBank {
             ? p()
             : p(String.format("Admin note: %s", definition.getDescription()))
                 .withClasses("mt-1", "text-sm");
-    DivTag content =
-        div()
+
+    DivTag content = div()
             .withClasses("ml-4", "grow")
             .with(
-                div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
-                    .withClasses(
-                        ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5", "break-all"),
-                div()
-                    .with(TextFormatter.formatText(questionHelpText))
-                    .withClasses("mt-1", "text-sm", "line-clamp-2"),
-                p(String.format("Admin ID: %s", definition.getName()))
-                    .withClasses("mt-1", "text-sm"),
-                adminNote);
+                    div()
+                            .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                            .withClasses(
+                                    ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5", "break-all"),
+                    div()
+                            .with(TextFormatter.formatText(questionHelpText))
+                            .withClasses(
+                                    "mt-1", "text-sm",
+                                    "line-clamp-2"),
+                    p(String.format("Admin ID: %s", definition.getName()))
+                            .withClasses("mt-1", "text-sm"),
+                    adminNote);
 
     return questionDiv.with(row.with(icon, content, addButton));
   }
