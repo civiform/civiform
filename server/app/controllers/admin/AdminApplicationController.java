@@ -81,13 +81,9 @@ public final class AdminApplicationController extends CiviFormController {
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
-    /**
-     * The start of the day, like 12:00:00 am
-     */
+    /** The start of the day, like 12:00:00 am */
     START,
-    /**
-     * The end of the day, like 11:59:59 pm
-     */
+    /** The end of the day, like 11:59:59 pm */
     END
   }
 
@@ -479,7 +475,6 @@ public final class AdminApplicationController extends CiviFormController {
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
-  // TODO(ssandbekkhaug): test this
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
