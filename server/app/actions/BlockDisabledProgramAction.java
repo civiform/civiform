@@ -28,6 +28,10 @@ public class BlockDisabledProgramAction extends Action.Simple {
 
     String programSlug = programSlugOptional.orElse("None");
 
+    if (programSlug.equals("None")) {
+      return delegate.call(req);
+    }
+
     ProgramDefinition activeProgramDefinition =
         programService
             .getActiveFullProgramDefinitionAsync(programSlug)
