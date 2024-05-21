@@ -7,6 +7,7 @@ import static play.test.Helpers.fakeRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.DynamicForm;
@@ -49,18 +50,77 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void testParsePredicateValue_currency() {
-    PredicateValue got =
-        PredicateGenerator.parsePredicateValue(
-            Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
+  public void singleQuestion_singleValue_currency() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "CURRENCY_CENTS",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "GREATER_THAN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "12.34"));
 
-    assertThat(
-            got.toDisplayString(testQuestionBank.applicantMonthlyIncome().getQuestionDefinition()))
-        .isEqualTo("$100.01");
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.CURRENCY_CENTS)
+                    .setOperator(Operator.GREATER_THAN)
+                    .setComparedValue(PredicateValue.of(1234))
+                    .build()));
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_singleValue_ageRange() throws Exception {
+  public void singleQuestion_singleValue_dateIsAfter() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "IS_AFTER",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "2024-05-20"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.IS_AFTER)
+                    .setComparedValue(PredicateValue.of(LocalDate.of(2024, 5, 20)))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_ageBetween() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -90,15 +150,12 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .setQuestionId(testQuestionBank.applicantDate().id)
                     .setScalar(Scalar.DATE)
                     .setOperator(Operator.AGE_BETWEEN)
-                    .setComparedValue(
-                        PredicateGenerator.parsePredicateValue(
-                            Scalar.DATE, Operator.AGE_BETWEEN, "14,18", null))
+                    .setComparedValue(PredicateValue.listOfLongs(ImmutableList.of(14L, 18L)))
                     .build()));
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_singleValue_ageRange_invalidRange_throws()
-      throws Exception {
+  public void singleQuestion_singleValue_ageBetween_invalidRange_throws() throws Exception {
     DynamicForm form2 =
         buildForm(
             ImmutableMap.of(
@@ -166,8 +223,42 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_singleValue_ageLessThan()
-      throws Exception {
+  public void singleQuestion_singleValue_ageOlderThan() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "AGE_OLDER_THAN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "18"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.AGE_OLDER_THAN)
+                    .setComparedValue(PredicateValue.of(18))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_ageYoungerThanDouble() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -197,14 +288,12 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .setQuestionId(testQuestionBank.applicantDate().id)
                     .setScalar(Scalar.DATE)
                     .setOperator(Operator.AGE_YOUNGER_THAN)
-                    .setComparedValue(
-                        PredicateGenerator.parsePredicateValue(
-                            Scalar.DATE, Operator.AGE_YOUNGER_THAN, "10.5", null))
+                    .setComparedValue(PredicateValue.of(10.5))
                     .build()));
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_serviceArea() throws Exception {
+  public void singleQuestion_singleValue_serviceArea() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -237,8 +326,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_serviceArea_invalidId_throws()
-      throws Exception {
+  public void singleQuestion_singleValue_serviceArea_invalidId_throws() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -260,7 +348,112 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_multiQuestion_multiValue() throws Exception {
+  public void singleQuestion_singleValue_numberGreaterThan() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "NUMBER",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "GREATER_THAN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "1234"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.NUMBER)
+                    .setOperator(Operator.GREATER_THAN)
+                    .setComparedValue(PredicateValue.of(1234))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_lastNameEquals() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "LAST_NAME",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "EQUAL_TO",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "abcdef"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.LAST_NAME)
+                    .setOperator(Operator.EQUAL_TO)
+                    .setComparedValue(PredicateValue.of("abcdef"))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_firstNameIn() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "FIRST_NAME",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "IN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "a,b,c"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.FIRST_NAME)
+                    .setOperator(Operator.IN)
+                    .setComparedValue(PredicateValue.listOfStrings(ImmutableList.of("a", "b", "c")))
+                    .build()));
+  }
+
+  @Test
+  public void multiQuestion_multiValue() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -341,7 +534,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_multiselect() throws Exception {
+  public void multiselect() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -381,7 +574,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_invalidQuestionId() {
+  public void invalidQuestionId() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -403,7 +596,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_invalidAction() {
+  public void invalidAction() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -427,7 +620,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_missingScalar() {
+  public void missingScalar() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -449,7 +642,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_invalidScalar() {
+  public void invalidScalar() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -473,7 +666,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_missingOperator() {
+  public void missingOperator() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -494,7 +687,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_invalidOperator() {
+  public void invalidOperator() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
