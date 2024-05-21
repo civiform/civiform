@@ -53,7 +53,7 @@ import views.style.StyleUtils;
 public abstract class BaseHtmlView {
 
   public static H1Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses("mb-4 mt-3", StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
   }
 
   public static H2Tag renderSubHeader(String headerText, String... additionalClasses) {
