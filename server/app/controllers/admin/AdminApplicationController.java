@@ -81,8 +81,14 @@ public final class AdminApplicationController extends CiviFormController {
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
-    START, // The start of the day, like 12:00:00 am
-    END // The end of the day, like 11:59:59 pm
+    /**
+     * The start of the day, like 12:00:00 am
+     */
+    START,
+    /**
+     * The end of the day, like 11:59:59 pm
+     */
+    END
   }
 
   @Inject
