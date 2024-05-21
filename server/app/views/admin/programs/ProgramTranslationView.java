@@ -63,7 +63,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(title),
+                renderHeader(title, "mt-3"),
                 renderSubHeader(subtitle),
                 renderLanguageLinks(program.adminName(), locale),
                 form);
