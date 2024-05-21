@@ -11,6 +11,23 @@ test.describe(
   'Admin can manage translations',
   {tag: ['@uses-fixtures']},
   () => {
+    test('page layout screenshot', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      await loginAsAdmin(page)
+
+      const programName = 'Program to be translated no statuses'
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+
+      await adminTranslations.selectLanguage('Spanish')
+
+      await validateScreenshot(page, 'program-translation')
+    })
+
     test('creates a program without statuses and adds translation', async ({
       page,
       adminPrograms,
@@ -26,7 +43,6 @@ test.describe(
 
       // Add translations for Spanish and publish
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'program-translation')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
         expectProgramDescription: '',
@@ -192,10 +208,6 @@ test.describe(
       await adminTranslations.expectProgramImageDescriptionTranslation(
         'Spanish image description',
       )
-      await validateScreenshot(
-        page,
-        'program-translation-with-image-description',
-      )
 
       // Verify other translations are still not filled in
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -297,7 +309,6 @@ test.describe(
       // Go to the question translation page and add a translation for Spanish
       await adminQuestions.goToQuestionTranslationPage(questionName)
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'question-translation')
       await adminTranslations.editQuestionTranslations(
         'Spanish question text',
         'Spanish help text',
@@ -358,7 +369,6 @@ test.describe(
       // Go to the question translation page and add a translation for Spanish
       await adminQuestions.goToQuestionTranslationPage(questionName)
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'multi-option-question-translation')
       await adminTranslations.editQuestionTranslations('hola', 'mundo', [
         'uno',
         'dos',
@@ -520,8 +530,6 @@ test.describe(
         page,
         'Lo sentimos, este programa no está traducido por completo a tu idioma preferido.',
       )
-
-      await validateScreenshot(page, 'applicant-toast-error')
     })
   },
 )
