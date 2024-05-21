@@ -17,7 +17,10 @@
   <!--/* This uses utext because the parameter passed into the message is html,
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style */-->
-  <p th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}" class="font-sans-xs"></p>
+  <p
+    th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
+    class="font-sans-xs"
+  ></p>
 </div>
 
 <th:block th:fragment="requiredAsterisk">
