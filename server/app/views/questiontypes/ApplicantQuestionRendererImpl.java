@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iff;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -61,27 +62,23 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableList.Builder<String> ariaDescribedByBuilder =
         ImmutableList.<String>builder().add(descriptionId);
     Messages messages = params.messages();
-    DivTag questionSecondaryTextDiv =
-        div()
-            .condWith(
-                !applicantQuestion.getQuestionHelpText().isEmpty(),
-                div()
-                    .with(
-                        div()
-                            // Question help text
-                            .withId(descriptionId)
-                            .withClasses(
-                                ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-                                ApplicantStyles.QUESTION_HELP_TEXT)
-                            .with(
-                                TextFormatter.formatTextWithAriaLabel(
-                                    applicantQuestion.getQuestionHelpText(),
-                                    /* preserveEmptyLines= */ true,
-                                    /* addRequiredIndicator= */ false,
-                                    messages
-                                        .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
-                                        .toLowerCase(Locale.ROOT))))
-                    .withClasses("mb-4"));
+    DivTag questionSecondaryTextDiv = div()
+        .with(
+            div()
+                // Question help text
+                .withId(descriptionId)
+                .withClasses(
+                    ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
+                    ApplicantStyles.QUESTION_HELP_TEXT)
+                .with(
+                    TextFormatter.formatTextWithAriaLabel(
+                        applicantQuestion.getQuestionHelpText(),
+                        /* preserveEmptyLines= */ false,
+                        /* addRequiredIndicator= */ false,
+                        messages
+                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                            .toLowerCase(Locale.ROOT))))
+        .withClasses(iff(!applicantQuestion.getQuestionHelpText().isEmpty(), "mb-4"));
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
