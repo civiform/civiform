@@ -170,6 +170,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   public abstract int fileLimitMb();
 
+  public abstract String contentTypePrefix();
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -268,6 +270,10 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     /** Build the request. This is called by the custom public build method. */
     abstract SignedS3UploadRequest autoBuild();
 
+    abstract String contentTypePrefix();
+
+    abstract Builder setContentTypePrefix(String prefix);
+
     /**
      * Set expiration as duration from now. Date and dateStamp is set to current date along the way.
      */
@@ -301,6 +307,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
               .setSuccessActionRedirect(successActionRedirect(), useSuccessActionRedirectAsPrefix())
               .setCredential(credential())
               .setAlgorithm(algorithm())
+              .setContentType(contentTypePrefix())
               .setDate(date());
       if (securityToken().isPresent()) {
         builder.setSecurityToken(securityToken().get());
@@ -476,6 +483,13 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
       Builder setKeyPrefix(String prefix) {
         conditionsBuilder().add(StartsWith.create("key", prefix));
+        return this;
+      }
+
+      Builder setContentType(String prefix) {
+        if (prefix != null && !prefix.isBlank()){
+          conditionsBuilder().add(StartsWith.create("Content-Type", prefix));
+        }
         return this;
       }
 

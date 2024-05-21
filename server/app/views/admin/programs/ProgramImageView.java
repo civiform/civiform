@@ -297,7 +297,7 @@ public final class ProgramImageView extends BaseHtmlView {
     String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), editStatus).url();
-    return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
+    return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl, Optional.of("image/"));
   }
 
   private String getExistingDescription(ProgramDefinition programDefinition) {

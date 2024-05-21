@@ -117,7 +117,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
           client.actionLink(),
           fileKey,
           successActionRedirectPrefix,
-          /* useSuccessActionRedirectAsPrefix= */ true);
+          /* useSuccessActionRedirectAsPrefix= */ true,
+          Optional.empty());
     }
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
@@ -127,7 +128,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
         client.actionLink(),
         fileKey,
         successActionRedirectUrl,
-        /* useSuccessActionRedirectAsPrefix= */ false);
+        /* useSuccessActionRedirectAsPrefix= */ false,
+        Optional.empty());
   }
 
   @Override

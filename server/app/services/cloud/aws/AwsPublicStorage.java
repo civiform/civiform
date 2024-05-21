@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import java.util.Optional;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
@@ -74,7 +75,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink) {
+      String fileKey, String successRedirectActionLink, Optional<String> contentTypePrefix) {
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
@@ -83,7 +84,8 @@ public final class AwsPublicStorage extends PublicStorageClient {
         /* actionLink= */ client.actionLink(),
         fileKey,
         successRedirectActionLink,
-        /* useSuccessActionRedirectAsPrefix= */ false);
+        /* useSuccessActionRedirectAsPrefix= */ false,
+        contentTypePrefix);
   }
 
   /** Returns a direct cloud storage URL to the file with the given key. */

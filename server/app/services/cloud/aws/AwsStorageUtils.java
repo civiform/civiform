@@ -12,6 +12,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
+import java.util.Optional;
 
 /** Class providing helper methods for working with AWS Simple Storage Service (S3). */
 public final class AwsStorageUtils {
@@ -47,7 +48,8 @@ public final class AwsStorageUtils {
       String actionLink,
       String fileKey,
       String successActionRedirect,
-      boolean useSuccessActionRedirectAsPrefix) {
+      boolean useSuccessActionRedirectAsPrefix,
+      Optional<String> contentTypePrefix) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
@@ -59,6 +61,7 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
+            .setContentTypePrefix(contentTypePrefix.orElse(""))
             .setSuccessActionRedirect(successActionRedirect)
             .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
 
