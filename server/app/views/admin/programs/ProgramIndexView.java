@@ -48,7 +48,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
-import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
