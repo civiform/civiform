@@ -626,7 +626,7 @@ test.describe(
   },
 )
 
-// Returns today's date with the format of "yyyy-mm-dd". Ignores time zones.
+/** Returns today's date with the format of "yyyy-mm-dd". Ignores time zones. */
 function formattedToday() {
   const today = new Date()
   const year = today.getFullYear()
