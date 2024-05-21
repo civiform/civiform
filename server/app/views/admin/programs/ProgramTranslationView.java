@@ -57,12 +57,16 @@ public final class ProgramTranslationView extends TranslationFormView {
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
 
+    String subtitle = "Enter text in the language(s) you want to translate to";
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(title), renderLanguageLinks(program.adminName(), locale), form);
+                renderHeader(title),
+                renderSubHeader(subtitle),
+                renderLanguageLinks(program.adminName(), locale),
+                form);
 
     message.ifPresent(htmlBundle::addToastMessages);
 
