@@ -977,12 +977,18 @@ export class AdminPrograms {
     'Only applications without a status'
 
   async filterProgramApplications({
+    fromDate = '',
+    untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
   }: {
+    fromDate?: string
+    untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
   }) {
+    await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
+    await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
       await this.page.selectOption('label:has-text("Application status")', {
