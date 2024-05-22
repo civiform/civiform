@@ -65,6 +65,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
+import views.components.TextFormatter;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -413,20 +414,42 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       Optional<LeafExpressionNode> maybeLeafNode =
           Optional.ofNullable(questionIdLeafNodeMap.get(qd.getId()));
 
-      container.with(
-          div(
-                  div(qd.getQuestionText().getDefault())
-                      .withClasses(
-                          BaseStyles.INPUT,
-                          "text-gray-500",
-                          "mb-2",
-                          "truncate",
-                          ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                      .withData("testid", qd.getName())
-                      .withData("question-id", String.valueOf(qd.getId())),
-                  createScalarDropdown(qd, maybeLeafNode),
-                  createOperatorDropdown(qd, maybeLeafNode))
-              .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 0, "ml-16")));
+        container.with(
+            div(
+                div()
+                    .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                    .withClasses(
+                        BaseStyles.INPUT,
+                        "text-gray-500",
+                        "mb-2",
+                        "truncate",
+                        ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                    .withData("testid", qd.getName())
+                    .withData("question-id", String.valueOf(qd.getId())),
+                createScalarDropdown(qd, Optional.of(leafNode)),
+                createOperatorDropdown(qd, Optional.of(leafNode)))
+                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
+      }
+    } else {
+      int columnNumber = 1;
+
+      for (var qd : questionDefinitions) {
+        container.with(
+            div(
+                div()
+                    .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                    .withClasses(
+                        BaseStyles.INPUT,
+                        "text-gray-500",
+                        "mb-2",
+                        "truncate",
+                        ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                    .withData("testid", qd.getName())
+                    .withData("question-id", String.valueOf(qd.getId())),
+                createScalarDropdown(qd, /* maybeLeafNode= */ Optional.empty()),
+                createOperatorDropdown(qd, /* maybeLeafNode= */ Optional.empty()))
+                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
+      }
     }
 
     return container.with(div().withClasses("w-28"));
@@ -487,9 +510,14 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             div()
                 .withClasses("text-left")
                 .with(
-                    div(questionDefinition.getQuestionText().getDefault()).withClasses("font-bold"),
-                    div(questionHelpText).withClasses("mt-1", "text-sm"),
-                    div(String.format("Admin ID: %s", questionDefinition.getName()))
+                    div()
+                        .with(TextFormatter.formatText(questionDefinition.getQuestionText().getDefault()))
+                        .withClasses("font-bold"),
+                    div()
+                        .with(TextFormatter.formatText(questionHelpText))
+                        .withClasses("mt-1", "text-sm"),
+                    div(String.format(
+                        "Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
   }
 

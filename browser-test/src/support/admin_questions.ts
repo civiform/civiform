@@ -21,6 +21,7 @@ type QuestionParams = {
   exportOption?: string
   universal?: boolean
   primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
+  markdown?: boolean
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -1188,6 +1189,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1216,9 +1218,10 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    expectedQuestionText = expectedQuestionText ?? questionText
-
-    await this.expectDraftQuestionExist(questionName, expectedQuestionText)
+    if (!markdown) {
+      expectedQuestionText = expectedQuestionText ?? questionText
+      await this.expectDraftQuestionExist(questionName, expectedQuestionText)
+    }
   }
 
   async clickUniversalToggle() {

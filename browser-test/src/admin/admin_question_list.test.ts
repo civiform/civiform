@@ -84,6 +84,34 @@ test.describe('Admin question list', () => {
     ])
   })
 
+  test('rendering markdown works', async({
+    page, 
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'a',
+      questionText: '*italics*',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'b',
+      questionText: '**bold**',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'c',
+      questionText: '[link](example.com)',
+      markdown: true,
+    })
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await validateScreenshot(
+      page,
+      'questions-list-markdown-rendering',
+    )
+  })
+
   test('filters question list with search query', async ({
     page,
     adminQuestions,
