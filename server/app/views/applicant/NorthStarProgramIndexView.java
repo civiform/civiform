@@ -12,6 +12,9 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -73,7 +76,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
                   request,
                   applicationPrograms.commonIntakeForm().get(),
                   profile,
-                  applicantId));
+                  applicantId,
+                  personalInfo));
     }
 
     if (!applicationPrograms.inProgress().isEmpty()) {
@@ -86,7 +90,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.inProgress(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     if (!applicationPrograms.submitted().isEmpty()) {
@@ -99,7 +104,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.submitted(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     if (!applicationPrograms.unapplied().isEmpty()) {
@@ -112,7 +118,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.unapplied(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     context.setVariable("commonIntakeSection", intakeSection);
@@ -127,6 +134,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable("authProviderName", authProviderName);
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
+    context.setVariable("programIds", applicationPrograms.allPrograms().stream().map(program -> program.programId()).collect(ImmutableList.toImmutableList()));
 
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
@@ -136,7 +144,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       Request request,
       ApplicantProgramData commonIntakeForm,
       CiviFormProfile profile,
-      long applicantId) {
+      long applicantId,
+      ApplicantPersonalInfo personalInfo) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         commonIntakeForm.latestApplicationLifecycleStage();
 
@@ -162,6 +171,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
-        applicantId);
+        applicantId,
+        personalInfo);
   }
 }

@@ -1,34 +1,40 @@
 <div th:fragment="modalContainer"
     id="modal-container"
     class="display-none position-fixed height-viewport width-full z-100">
-
+    <div th:each="id: ${programIds}">
+      <dialog
+        th:replace="~{this :: loginPromptModal(${id}, ${actionUrl}, ${loginLink})}"
+      ></dialog>
+    </div>
 </div>
 
-<div th:fragment="loginPromptModal(uswdsModal)"
+<div th:fragment="loginPromptModal(id, actionUrl, loginLink)"
+    th:with="dialogId=${'login-dialog-' + id}"
     class="usa-modal"
-    th:id="${uswdsModal.id()}">
+    th:id="${dialogId}"
+    th:aria-labelledby="${dialogId + '-heading'}"
+    th:aria-describedby="${dialogId + '-description'}">
     <div class="usa-modal__content">
       <div class="usa-modal__main">
-        <h2 class="usa-modal__heading" id="modal-1-heading">
-          Are you sure you want to continue?
+        <h2 class="usa-modal__heading" th:id="${dialogId + '-heading'}" th:text="#{title.createAnAccount}">
         </h2>
         <div class="usa-prose">
-          <p id="modal-1-description">
-            You have unsaved changes that will be lost.
+          <p th:id="${dialogId + '-description'}" th:text="#{content.initialLoginModalPrompt(${authProviderName})}">
           </p>
         </div>
         <div class="usa-modal__footer">
           <ul class="usa-button-group">
             <li class="usa-button-group__item">
-              <button type="button" class="usa-button" data-close-modal>
-                Continue without saving
+              <button type="button" class="usa-button" th:text="#{button.continueToApplication}" th:href="${actionUrl}">
               </button>
             </li>
             <li class="usa-button-group__item">
               <button
                 type="button"
-                class="usa-button usa-button--unstyled padding-105 text-center"
+                class="usa-button usa-button--outline padding-105 text-center"
                 data-close-modal
+                th:text="#{button.login}"
+                th:href="${loginLink}"
               >
                 Go back
               </button>
@@ -42,9 +48,9 @@
         aria-label="Close this window"
         data-close-modal
       >
-        <svg class="usa-icon" aria-hidden="true" focusable="false" role="img">
+        <!-- <svg class="usa-icon" aria-hidden="true" focusable="false" role="img">
           <use xlink:href="/assets/img/sprite.svg#close"></use>
-        </svg>
+        </svg> -->
       </button>
     </div>
   </div>

@@ -53,9 +53,11 @@
     </div>
     <div class="usa-card__footer">
       <a
-        th:href="${card.actionUrl()}"
+        th:href="${card.isGuest() ? '#' + card.loginModalId().get() : card.actionUrl()}"
         class="usa-button cf-apply-button"
         th:text="${card.actionText()}"
+        th:data-open-modal="${card.isGuest()}"
+        th:aria-controls="${card.isGuest() ? card.loginModalId().get() : null}"
       ></a>
     </div>
   </div>
