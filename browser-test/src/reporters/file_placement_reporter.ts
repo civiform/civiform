@@ -8,9 +8,13 @@ import path = require('path')
 import sharp = require('sharp')
 import type {Reporter} from '@playwright/test/reporter'
 
+/**
+ * A custom playwright reporter that runs after all reporters have ended their processing. It
+ * handles moving files to the `diff_output` and `updated_snapshots` folders.
+ */
 class FilePlacementReporter implements Reporter {
   /**
-   * Called immediately before test runner exists. At this point all the reporters have received the reporter.onEnd() 
+   * Called immediately before test runner exists. At this point all the reporters have received the reporter.onEnd()
    * signal, so all the reports should be build. You can run the code that uploads the reports in this hook.
    * See https://playwright.dev/docs/api/class-reporter#reporter-on-exit
    *
