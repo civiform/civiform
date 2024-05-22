@@ -6,7 +6,7 @@ const UPLOAD_ATTR = 'data-upload-text'
 export function init() {
   // Don't add extra logic if we don't have a block form with a
   // file upload question.
-  const blockForm = document.getElementById('cf-block-form')
+  const blockForm = document.getElementById('cf-block-form') as HTMLFormElement
   if (!blockForm) {
     return
   }
@@ -36,17 +36,23 @@ export function init() {
   })
 
   const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
-  if (uploadedDivs.length) {
-    const uploadedDiv: HTMLDivElement = uploadedDivs[0] as HTMLDivElement
-    const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
 
-    blockForm.addEventListener('change', (event) => {
-      const files = (event.target! as HTMLInputElement).files
-      const file = assertNotNull(files)[0]
+  blockForm.addEventListener('change', (event) => {
+    const files = (event.target! as HTMLInputElement).files
+    const file = assertNotNull(files)[0]
+    if (uploadedDivs.length) {
+      const uploadedDiv: HTMLDivElement = uploadedDivs[0] as HTMLDivElement
+      const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
       uploadedDiv.innerText = uploadText.replace('{0}', file.name)
-      validateFileUploadQuestion(blockForm)
-    })
-  }
+    }
+
+    // If we don't have the div showing the latest file upload, the multiple file upload
+    // feature is enabled, in that case, submit the form as soon as the applicant selects
+    // a file.
+    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+      blockForm.submit()
+    }
+  })
 }
 
 function onActionButtonClicked(e: Event, blockForm: Element) {

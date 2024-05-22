@@ -86,6 +86,25 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.applicantStorageClient = checkNotNull(applicantStorageClient);
+    this.settingsManifest = checkNotNull(settingsManifest);
+  }
+
+  /**
+   * Method to generate div which contains a list of all uploaded files.
+   *
+   * @param fileUploadQuestion The question which files were uploade for
+   * @return div containing list of all uploaded files
+   */
+  public DivTag uploadedFiles(FileUploadQuestion fileUploadQuestion) {
+    DivTag result = div().withId(ReferenceClasses.FILEUPLOAD_UPLOADED_FILES_ID);
+
+    if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
+      for (String fileKey : fileUploadQuestion.getFileKeyListValue().get()) {
+        result.with(div().withText(FileUploadQuestion.getFileName(fileKey)));
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -103,11 +122,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors) {
-    Optional<String> uploaded =
-        fileUploadQuestion
-            .getFilename()
-            .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
-
     DivTag result = div();
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
@@ -123,15 +137,25 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
     result.with(
         createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
-    result.with(
-        div()
-            .withText(uploaded.orElse(""))
-            // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
-            // can render the translated text if it gets added
-            .attr(
-                "data-upload-text",
-                params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
-            .attr("aria-live", "polite"));
+
+    if (!params.multipleFileUploadEnabled()) {
+      Optional<String> uploaded =
+          fileUploadQuestion
+              .getFilename()
+              .map(
+                  f ->
+                      params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
+      result.with(
+          div()
+              .withText(uploaded.orElse(""))
+              // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
+              // can render the translated text if it gets added
+              .attr(
+                  "data-upload-text",
+                  params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
+              .attr("aria-live", "polite"));
+    }
+
     return result;
   }
 
@@ -145,17 +169,34 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   public DivTag renderFileUploadBlock(
       ApplicationBaseViewParams params,
       ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
-    String onSuccessRedirectUrl =
-        params.baseUrl()
-            + applicantRoutes
-                .updateFile(
-                    params.profile(),
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview(),
-                    NEXT_BLOCK)
-                .url();
+
+    String onSuccessRedirectUrl;
+    boolean multipleFileUploadEnabled =
+        settingsManifest.getMultipleFileUploadEnabled(params.request());
+    if (multipleFileUploadEnabled) {
+      onSuccessRedirectUrl =
+          params.baseUrl()
+              + applicantRoutes
+                  .addFile(
+                      params.profile(),
+                      params.applicantId(),
+                      params.programId(),
+                      params.block().getId(),
+                      params.inReview())
+                  .url();
+    } else {
+      onSuccessRedirectUrl =
+          params.baseUrl()
+              + applicantRoutes
+                  .updateFile(
+                      params.profile(),
+                      params.applicantId(),
+                      params.programId(),
+                      params.block().getId(),
+                      params.inReview(),
+                      NEXT_BLOCK)
+                  .url();
+    }
 
     String key =
         ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
@@ -168,6 +209,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .setMessages(params.messages())
             .setSignedFileUploadRequest(signedRequest)
             .setErrorDisplayMode(params.errorDisplayMode())
+            .setMultipleFileUploadEnabled(multipleFileUploadEnabled)
             .build();
 
     FormTag uploadForm =
@@ -310,6 +352,27 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
+  // Renders the save and next button for uploading multiple files. Since the upload and save
+  // happens as soon as the applicant chooses the file, this instead just "submits" a no-op
+  // form and moves to the next page.
+  private ButtonTag renderMultipleFileSaveAndNextButton(ApplicationBaseViewParams params) {
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
+        .withClasses(ButtonStyles.SOLID_BLUE)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+  }
+
+  private ButtonTag renderOldNextButton(ApplicationBaseViewParams params) {
+    String styles = ButtonStyles.SOLID_BLUE;
+    if (hasUploadedFile(params)) {
+      styles = ButtonStyles.OUTLINED_TRANSPARENT;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .withForm(BLOCK_FORM_ID)
+        .withClasses(styles)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+  }
+
   private DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
@@ -321,6 +384,12 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   private boolean hasUploadedFile(ApplicationBaseViewParams params) {
+    if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
+      return params.block().getQuestions().stream()
+          .map(ApplicantQuestion::createFileUploadQuestion)
+          .map(FileUploadQuestion::getFileKeyListValue)
+          .anyMatch(Optional::isPresent);
+    }
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
@@ -332,20 +401,29 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   private DivTag renderFileUploadBottomNavButtons(ApplicationBaseViewParams params) {
-    Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    DivTag ret =
-        div()
-            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            .with(renderButton(params, REVIEW_PAGE))
-            .with(renderButton(params, PREVIOUS_BLOCK));
-    if (maybeSkipOrDeleteButton.isPresent()) {
-      ret.with(maybeSkipOrDeleteButton.get());
+    DivTag ret = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
+    if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
+
+      // Render "old" style buttons for multi-upload, since they don't attempt to upload files. We
+      // do the upload as soon as the applicant chooses a file for multi-file uploads. Once we
+      // remove
+      // the feature flag, we can rename these methods since they're not "old" anymore.
+      ret.with(renderOldReviewButton(params))
+          .with(renderOldPreviousButton(params))
+          .with(renderMultipleFileSaveAndNextButton(params));
+    } else {
+      Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
+      Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+      ret.with(renderButton(params, REVIEW_PAGE)).with(renderButton(params, PREVIOUS_BLOCK));
+      if (maybeSkipOrDeleteButton.isPresent()) {
+        ret.with(maybeSkipOrDeleteButton.get());
+      }
+      ret.with(renderButton(params, NEXT_BLOCK));
+      if (maybeContinueButton.isPresent()) {
+        ret.with(maybeContinueButton.get());
+      }
     }
-    ret.with(renderButton(params, NEXT_BLOCK));
-    if (maybeContinueButton.isPresent()) {
-      ret.with(maybeContinueButton.get());
-    }
+
     return ret;
   }
 

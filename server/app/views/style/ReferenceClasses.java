@@ -129,6 +129,8 @@ public final class ReferenceClasses {
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
 
+  public static final String FILEUPLOAD_UPLOADED_FILES_ID = "cf-fileupload-uploaded-files";
+
   // Keep these values in sync with app/assets/javascript/file_upload.ts.
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
   public static final String FILEUPLOAD_REQUIRED_ERROR_ID = "cf-fileupload-required-error";

@@ -8,6 +8,7 @@ export class ApplicantFileQuestion {
   private continueButtonLocator = '#fileupload-continue-button'
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
+  private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
 
   private page!: Page
 
@@ -37,6 +38,14 @@ export class ApplicantFileQuestion {
 
   async expectFileNameDisplayed(fileName: string) {
     expect(await this.page.innerHTML('body')).toContain(fileName)
+  }
+
+  async expectFileNameCount(fileName: string, count: number) {
+    expect(
+      (await this.page.locator(this.uploadedFilesLocator).innerHTML()).split(
+        fileName,
+      ).length - 1,
+    ).toEqual(count)
   }
 
   async expectHasSkipButton() {
