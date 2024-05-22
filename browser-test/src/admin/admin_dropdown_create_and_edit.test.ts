@@ -22,6 +22,7 @@ test.describe(
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'Sample question text',
       )
+      expect(await page.innerText('.cf-applicant-question-help-text')).toContain('')
       // Fill in basic info
       const questionName = 'favorite ice cream'
       await page.fill('text=Question Text', 'questionText')

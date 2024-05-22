@@ -186,6 +186,7 @@ test.describe(
         await applicantQuestions.applyProgram(programName)
 
         await validateScreenshot(page, 'text-without-help-text')
+        expect(await page.innerText('.cf-applicant-question-help-text')).toContain('')
       })
     })
 
