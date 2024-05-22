@@ -60,12 +60,11 @@ public class AdminExportController extends CiviFormController {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
+
+    // Show the most recent version of the program (eg. draft version if there is one)
     return ok(
         adminExportView.render(
-            request,
-            // TODO(#7087): Should we allow admins to export only active programs, only
-            // draft programs, or both?
-            programService.getActiveAndDraftPrograms().getActivePrograms()));
+            request, programService.getActiveAndDraftPrograms().getMostRecentProgramDefinitions()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -84,8 +83,6 @@ public class AdminExportController extends CiviFormController {
       return redirect(routes.AdminExportController.index().url());
     }
 
-    // TODO(#7087): The export UI only shows active programs. Should we not download the program
-    // JSON here if the programId is actually for a draft program?
     ProgramDefinition program;
     try {
       program = programService.getFullProgramDefinition(programId);

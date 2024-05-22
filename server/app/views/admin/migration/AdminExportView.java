@@ -62,14 +62,23 @@ public final class AdminExportView extends BaseHtmlView {
   private DomContent createProgramSelectionForm(
       Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
     FieldsetTag fields = fieldset();
+
     for (ProgramDefinition program : activePrograms) {
-      fields.with(
-          FieldWithLabel.radio()
-              .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
-              // TODO(#7087): Should we display the admin name, display name, or both?
-              .setLabelText(program.adminName())
-              .setValue(String.valueOf(program.id()))
-              .getRadioTag());
+      String labelText =
+          "Name: "
+              + program.localizedName().getDefault()
+              + "\n"
+              + "Admin Name: "
+              + program.adminName();
+
+      fields
+          .with(
+              FieldWithLabel.radio()
+                  .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
+                  .setLabelText(labelText)
+                  .setValue(String.valueOf(program.id()))
+                  .getRadioTag())
+          .withClass("whitespace-pre-wrap");
     }
 
     return div()
