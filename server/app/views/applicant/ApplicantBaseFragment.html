@@ -67,6 +67,10 @@
   </div>
 </div>
 
-<svg th:fragment="icon(icon)" class="usa-icon" th:attr="viewBox=${icon.getViewBox()}">
+<svg
+  th:fragment="icon(icon)"
+  class="usa-icon"
+  th:attr="viewBox=${icon.getViewBox()}"
+>
   <path th:attr="d=${icon.path}"></path>
 </svg>
