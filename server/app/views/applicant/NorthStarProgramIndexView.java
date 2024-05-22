@@ -135,10 +135,11 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable(
         "programIdsToActionUrls",
         applicationPrograms.allPrograms().stream()
-            .collect(ImmutableMap.toImmutableMap(
-              program -> program.programId(),
-              program -> applicantRoutes.review(profile, applicantId, program.programId()).url()
-            )));
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    program -> program.programId(),
+                    program ->
+                        applicantRoutes.review(profile, applicantId, program.programId()).url())));
 
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
