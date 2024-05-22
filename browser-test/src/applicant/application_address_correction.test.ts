@@ -774,7 +774,6 @@ if (isLocalDevEnvironment()) {
       })
 
       test('clicking review on page with address question redirects to address correction (has suggestions)', async ({
-        page,
         applicantQuestions,
       }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
