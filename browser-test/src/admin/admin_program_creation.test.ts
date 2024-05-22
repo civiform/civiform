@@ -510,6 +510,39 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput).toHaveValue('false')
   })
 
+  test('create program with markdown questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'a',
+      questionText: '*italics*',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'b',
+      questionText: '**bold**',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'c',
+      questionText: '[link](example.com)',
+      markdown: true,
+    })
+
+    const programName = 'Acd program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'acd program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('a')
+    await adminPrograms.addQuestionFromQuestionBank('b')
+    await adminPrograms.addQuestionFromQuestionBank('c')
+
+    await validateScreenshot(page, 'program-detail-markdown')
+  })
+
   test('change questions order within block', async ({
     page,
     adminQuestions,
