@@ -416,18 +416,18 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
       container.with(
           div(
-                  div()
-                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault())))
-                      .withClasses(
-                          BaseStyles.INPUT,
-                          "text-gray-500",
-                          "mb-2",
-                          "truncate",
-                          ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                      .withData("testid", qd.getName())
-                      .withData("question-id", String.valueOf(qd.getId())),
-                  createScalarDropdown(qd, maybeLeafNode),
-                  createOperatorDropdown(qd, maybeLeafNode))
+              div()
+                  .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                  .withClasses(
+                      BaseStyles.INPUT,
+                      "text-gray-500",
+                      "mb-2",
+                      "truncate",
+                      ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                  .withData("testid", qd.getName())
+                  .withData("question-id", String.valueOf(qd.getId())),
+              createScalarDropdown(qd, maybeLeafNode),
+              createOperatorDropdown(qd, maybeLeafNode))
               .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 0, "ml-16")));
     }
 
