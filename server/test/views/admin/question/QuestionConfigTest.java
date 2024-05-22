@@ -27,6 +27,14 @@ public class QuestionConfigTest {
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
   @Test
+  public void fileUpload_withAllowMultipleFlag() throws Exception {
+    QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.FILEUPLOAD);
+    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(questionForm, messages, true);
+    assertThat(maybeConfig).isPresent();
+    assertThat(maybeConfig.get().renderFormatted()).contains("Maximum number of file uploads");
+  }
+
+  @Test
   @Parameters(source = QuestionType.class)
   public void resultForAllQuestions(QuestionType questionType) throws Exception {
     // A null question type is not allowed to be created and won't show in the list
@@ -35,7 +43,8 @@ public class QuestionConfigTest {
     }
 
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
-    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(questionForm, messages, false);
     switch (questionType) {
       case ADDRESS:
         assertThat(maybeConfig).isPresent();
@@ -115,7 +124,7 @@ public class QuestionConfigTest {
     form.setNewOptions(ImmutableList.of("new-option-c", "new-option-d"));
     form.setNewOptionAdminNames(ImmutableList.of("new-option-admin-c", "new-option-admin-d"));
 
-    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages);
+    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
