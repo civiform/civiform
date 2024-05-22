@@ -84,10 +84,7 @@ test.describe('Admin question list', () => {
     ])
   })
 
-  test('rendering markdown works', async({
-    page, 
-    adminQuestions,
-  }) => {
+  test('rendering markdown works', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
       questionName: 'a',
@@ -106,10 +103,7 @@ test.describe('Admin question list', () => {
     })
 
     await adminQuestions.gotoAdminQuestionsPage()
-    await validateScreenshot(
-      page,
-      'questions-list-markdown-rendering',
-    )
+    await validateScreenshot(page, 'questions-list-markdown-rendering')
   })
 
   test('filters question list with search query', async ({
