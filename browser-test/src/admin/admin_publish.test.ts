@@ -104,7 +104,7 @@ test.describe(
       })
 
       await test.step('Make an edit to the disabled program and to the shared question', async () => {
-        await adminPrograms.createNewVersion(disabledProgram)
+        await adminPrograms.createNewVersionForDisabledProgram(disabledProgram)
         await adminQuestions.createNewVersion(questionName)
       })
 
