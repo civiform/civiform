@@ -11,7 +11,7 @@ test.describe(
   'Admin can manage translations',
   {tag: ['@uses-fixtures']},
   () => {
-    test('creates a question and adds translations', async ({
+    test('Expect single-answer question is translated for applicant', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -64,7 +64,7 @@ test.describe(
       ).toContain('Spanish help text')
     })
 
-    test('create a multi-option question and add translations for options', async ({
+    test('Expect multi-option question is translated for applicant', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -109,7 +109,7 @@ test.describe(
       expect(await page.innerText('main form')).toContain('tres')
     })
 
-    test('create an enumerator question and add translations for entity type', async ({
+    test('Expect enumerator question is translated for applicant', async ({
       page,
       adminPrograms,
       adminQuestions,
