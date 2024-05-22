@@ -26,6 +26,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminExportView;
+import views.admin.migration.AdminExportViewPartial;
 
 public class AdminExportControllerTest extends ResetPostgres {
   private AdminExportController controller;
@@ -36,6 +37,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     controller =
         new AdminExportController(
             instanceOf(AdminExportView.class),
+            instanceOf(AdminExportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
@@ -74,7 +76,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   public void exportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");
@@ -84,7 +86,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   public void exportProgram_noProgramSelected_redirectsToIndex() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
-    Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminExportController.index().url());
@@ -95,7 +97,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.exportProgram(
+        controller.hxExportProgram(
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
@@ -112,7 +114,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
     Result result =
-        controller.exportProgram(
+        controller.hxExportProgram(
             addCSRFToken(
                     fakeRequest()
                         .method("POST")

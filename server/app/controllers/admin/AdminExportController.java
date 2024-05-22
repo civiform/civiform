@@ -20,6 +20,8 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
+import views.admin.migration.AdminExportViewPartial;
+import views.admin.migration.AdminImportViewPartial;
 
 /**
  * A controller for the export part of program migration (allowing admins to easily migrate programs
@@ -33,6 +35,7 @@ import views.admin.migration.AdminProgramExportForm;
  */
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
+  private final AdminExportViewPartial adminExportViewPartial;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
@@ -41,6 +44,7 @@ public class AdminExportController extends CiviFormController {
   @Inject
   public AdminExportController(
       AdminExportView adminExportView,
+      AdminExportViewPartial adminExportViewPartial,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
@@ -49,6 +53,7 @@ public class AdminExportController extends CiviFormController {
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
+    this.adminExportViewPartial = checkNotNull(adminExportViewPartial);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
@@ -68,7 +73,7 @@ public class AdminExportController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result exportProgram(Http.Request request) {
+  public Result hxExportProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
@@ -95,9 +100,21 @@ public class AdminExportController extends CiviFormController {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    String filename = program.adminName() + "-exported.json";
-    return ok(serializeResult.getResult())
-        .as(Http.MimeTypes.JSON)
-        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+    return ok(adminExportViewPartial.renderProgramData(request, serializeResult.getResult()).render());
+
+    // what if we did an htmx partial to display it
+    // then from there a redirect to download it?
+
+    // or step 1 is just display it
+    // and there's a button to download it
+
+    // so "submit" displays the json
+    // and then clicking "download" downloads the file
+
+    // String filename = program.adminName() + "-exported.json";
+    // return ok(serializeResult.getResult())
+    //     .as(Http.MimeTypes.JSON)
+    //     .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
+  
 }

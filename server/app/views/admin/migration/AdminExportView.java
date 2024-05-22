@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -54,6 +55,7 @@ public final class AdminExportView extends BaseHtmlView {
                     .withClass("my-2"));
 
     contentDiv.with(createProgramSelectionForm(request, activePrograms));
+    contentDiv.with(renderProgramDataRegion());
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
@@ -84,10 +86,16 @@ public final class AdminExportView extends BaseHtmlView {
     return div()
         .with(
             form()
-                .withMethod("GET")
-                .withAction(routes.AdminExportController.exportProgram().url())
+                .attr("hx-encoding", "multipart/form-data")
+                .attr("hx-post", routes.AdminExportController.hxExportProgram().url())
+                .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_DATA_ID)
+                .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request))
                 .with(fields)
-                .with(submitButton("Download program").withClass(ButtonStyles.SOLID_BLUE)));
+                .with(submitButton("Generate Json").withClass(ButtonStyles.SOLID_BLUE)));
+  }
+
+  private DomContent renderProgramDataRegion() {
+    return div().withId(AdminExportViewPartial.PROGRAM_DATA_ID);
   }
 }
