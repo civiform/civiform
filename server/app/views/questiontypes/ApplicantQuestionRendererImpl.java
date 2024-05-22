@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iff;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -73,12 +74,12 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
-                            /* preserveEmptyLines= */ true,
+                            /* preserveEmptyLines= */ false,
                             /* addRequiredIndicator= */ false,
                             messages
                                 .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                 .toLowerCase(Locale.ROOT))))
-            .withClasses("mb-4");
+            .withClasses(iff(!applicantQuestion.getQuestionHelpText().isEmpty(), "mb-4"));
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
