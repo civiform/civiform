@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <header
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"
+  ></header>
+  <!-- TODO: ssandbekkhaug set page title <title th:text="#{title.applicationConfirmation}"></title> ?-->
+  <body>
+    <h1 th:text="#{title.applicationConfirmation}"></h1>
+    <p th:text="#{content.confirmed(${programName}, ${applicationId})}"></p>
+    <div>
+      <h2 th:text="#{title.createAnAccount}">Create an account or sign in</h2>
+      <p th:text="#{content.pleaseCreateAccount(${authProviderName})}"></p>
+    </div>
+    <div>
+      <!-- TODO: ssandbekkhaug Is there a reusable login fragment?-->
+      <button
+        type="submit"
+        class="usa-button usa-button--outline"
+        th:text="#{button.login}"
+      ></button>
+      <button
+        type="submit"
+        class="usa-button"
+        th:text="#{button.createAnAccount}"
+      ></button>
+    </div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
