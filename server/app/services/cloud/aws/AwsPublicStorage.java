@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.MediaType;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
-import java.util.Optional;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
@@ -75,7 +75,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink, Optional<String> contentTypePrefix) {
+      String fileKey, String successRedirectActionLink, ImmutableSet<MediaType> contentTypes) {
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
@@ -85,7 +85,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
         fileKey,
         successRedirectActionLink,
         /* useSuccessActionRedirectAsPrefix= */ false,
-        contentTypePrefix);
+        contentTypes);
   }
 
   /** Returns a direct cloud storage URL to the file with the given key. */

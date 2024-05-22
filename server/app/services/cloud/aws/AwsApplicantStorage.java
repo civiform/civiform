@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
 import java.net.URL;
@@ -118,7 +119,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
           fileKey,
           successActionRedirectPrefix,
           /* useSuccessActionRedirectAsPrefix= */ true,
-          Optional.empty());
+          ImmutableSet.of());
     }
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
@@ -129,7 +130,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
         fileKey,
         successActionRedirectUrl,
         /* useSuccessActionRedirectAsPrefix= */ false,
-        Optional.empty());
+        ImmutableSet.of());
   }
 
   @Override

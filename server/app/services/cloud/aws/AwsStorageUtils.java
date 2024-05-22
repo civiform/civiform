@@ -2,6 +2,8 @@ package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.net.MediaType;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Duration;
@@ -12,7 +14,6 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
-import java.util.Optional;
 
 /** Class providing helper methods for working with AWS Simple Storage Service (S3). */
 public final class AwsStorageUtils {
@@ -49,7 +50,7 @@ public final class AwsStorageUtils {
       String fileKey,
       String successActionRedirect,
       boolean useSuccessActionRedirectAsPrefix,
-      Optional<String> contentTypePrefix) {
+      ImmutableSet<MediaType> contentTypes) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
@@ -61,9 +62,16 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
-            .setContentTypePrefix(contentTypePrefix.orElse(""))
             .setSuccessActionRedirect(successActionRedirect)
             .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
+    builder.setContentTypePrefixes(
+        contentTypes.stream()
+            .filter(MediaType::hasWildcard)
+            .collect(ImmutableSet.toImmutableSet()));
+    builder.setContentTypes(
+        contentTypes.stream()
+            .filter(contentType -> !contentType.hasWildcard())
+            .collect(ImmutableSet.toImmutableSet()));
 
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;

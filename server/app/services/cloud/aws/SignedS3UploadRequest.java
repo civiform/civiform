@@ -10,6 +10,8 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.net.MediaType;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -170,7 +172,9 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   public abstract int fileLimitMb();
 
-  public abstract String contentTypePrefix();
+  public abstract ImmutableSet<MediaType> contentTypePrefixes();
+
+  public abstract ImmutableSet<MediaType> contentTypes();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -270,9 +274,13 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     /** Build the request. This is called by the custom public build method. */
     abstract SignedS3UploadRequest autoBuild();
 
-    abstract String contentTypePrefix();
+    abstract ImmutableSet<MediaType> contentTypePrefixes();
 
-    abstract Builder setContentTypePrefix(String prefix);
+    abstract ImmutableSet<MediaType> contentTypes();
+
+    abstract Builder setContentTypePrefixes(ImmutableSet<MediaType> prefix);
+
+    abstract Builder setContentTypes(ImmutableSet<MediaType> contentType);
 
     /**
      * Set expiration as duration from now. Date and dateStamp is set to current date along the way.
@@ -307,8 +315,9 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
               .setSuccessActionRedirect(successActionRedirect(), useSuccessActionRedirectAsPrefix())
               .setCredential(credential())
               .setAlgorithm(algorithm())
-              .setContentType(contentTypePrefix())
               .setDate(date());
+      contentTypePrefixes().forEach(builder::addContentTypePrefix);
+      contentTypes().forEach(builder::addContentType);
       if (securityToken().isPresent()) {
         builder.setSecurityToken(securityToken().get());
       } else {
@@ -419,6 +428,17 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     }
 
     @AutoValue
+    abstract static class SingleContentType extends Condition {
+
+      static SingleContentType create(String contentType) {
+        return new AutoValue_SignedS3UploadRequest_UploadPolicy_SingleContentType(contentType);
+      }
+
+      @JsonProperty("Content-Type")
+      abstract String singleContentType();
+    }
+
+    @AutoValue
     abstract static class SuccessActionRedirect extends Condition {
 
       static SuccessActionRedirect create(String successActionRedirect) {
@@ -486,10 +506,14 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
         return this;
       }
 
-      Builder setContentType(String prefix) {
-        if (prefix != null && !prefix.isBlank()){
-          conditionsBuilder().add(StartsWith.create("Content-Type", prefix));
-        }
+      Builder addContentTypePrefix(MediaType prefix) {
+        conditionsBuilder()
+            .add(StartsWith.create("Content-Type", prefix.toString().replace("*", "")));
+        return this;
+      }
+
+      Builder addContentType(MediaType contentType) {
+        conditionsBuilder().add(SingleContentType.create(contentType.toString()));
         return this;
       }
 
