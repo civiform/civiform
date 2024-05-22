@@ -10,6 +10,7 @@ import com.typesafe.config.Config;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -75,7 +76,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink, ImmutableSet<MediaType> contentTypes) {
+      String fileKey, String successRedirectActionLink, Optional<MediaType> contentType) {
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
@@ -85,7 +86,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
         fileKey,
         successRedirectActionLink,
         /* useSuccessActionRedirectAsPrefix= */ false,
-        contentTypes);
+        contentType);
   }
 
   /** Returns a direct cloud storage URL to the file with the given key. */

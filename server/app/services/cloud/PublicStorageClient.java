@@ -2,6 +2,7 @@ package services.cloud;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.MediaType;
+import java.util.Optional;
 
 /**
  * Interface for working with cloud storage file backends for **publicly accessible** files.
@@ -23,7 +24,7 @@ public abstract class PublicStorageClient {
    * @param successRedirectActionLink Where a user should be redirected upon successful file upload.
    */
   public abstract StorageUploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink, ImmutableSet<MediaType> contentTypes);
+      String fileKey, String successRedirectActionLink, Optional<MediaType> contentType);
 
   /**
    * Returns a publicly accessible URL to the file with the given key.

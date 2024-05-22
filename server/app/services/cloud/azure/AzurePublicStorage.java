@@ -2,6 +2,7 @@ package services.cloud.azure;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.MediaType;
+import java.util.Optional;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 
@@ -19,7 +20,7 @@ public class AzurePublicStorage extends PublicStorageClient {
 
   @Override
   public StorageUploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink, ImmutableSet<MediaType> contentTypes) {
+      String fileKey, String successRedirectActionLink, Optional<MediaType> contentType) {
     throw new UnsupportedOperationException("not implemented");
   }
 

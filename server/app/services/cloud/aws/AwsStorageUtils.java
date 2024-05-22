@@ -2,11 +2,11 @@ package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.net.MediaType;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public final class AwsStorageUtils {
       String fileKey,
       String successActionRedirect,
       boolean useSuccessActionRedirectAsPrefix,
-      ImmutableSet<MediaType> contentTypes) {
+      Optional<MediaType> contentType) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
@@ -62,16 +62,9 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
+            .setContentType(contentType)
             .setSuccessActionRedirect(successActionRedirect)
             .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
-    builder.setContentTypePrefixes(
-        contentTypes.stream()
-            .filter(MediaType::hasWildcard)
-            .collect(ImmutableSet.toImmutableSet()));
-    builder.setContentTypes(
-        contentTypes.stream()
-            .filter(contentType -> !contentType.hasWildcard())
-            .collect(ImmutableSet.toImmutableSet()));
 
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;

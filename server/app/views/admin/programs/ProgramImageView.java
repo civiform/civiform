@@ -9,7 +9,6 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -300,7 +299,7 @@ public final class ProgramImageView extends BaseHtmlView {
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), editStatus).url();
     return publicStorageClient.getSignedUploadRequest(
-        key, onSuccessRedirectUrl, ImmutableSet.of(MediaType.ANY_IMAGE_TYPE, MediaType.ANY_VIDEO_TYPE, MediaType.CSV_UTF_8, MediaType.PNG));
+        key, onSuccessRedirectUrl, Optional.of(MediaType.ANY_IMAGE_TYPE));
   }
 
   private String getExistingDescription(ProgramDefinition programDefinition) {
