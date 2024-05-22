@@ -22,12 +22,40 @@ public class DateConverterTest {
   private DateConverter dateConverterPT = new DateConverter(clockPT);
 
   @Test
-  public void parseIso8601DateToLocalDateInstant_isSuccessful() {
+  public void parseIso8601DateToStartOfLocalDateInstant_isSuccessful() {
     String original = "2021-01-01Z";
     Instant parsed = dateConverterUTC.parseIso8601DateToStartOfLocalDateInstant(original);
     String formatted = dateConverterUTC.formatIso8601Date(parsed);
 
     assertThat(formatted).isEqualTo(original);
+  }
+
+  @Test
+  public void parseIso8601DateToStartOfLocalDateInstant_DateTimeParseExceptionIsGenerated() {
+    String inputDate = "abcd";
+    assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToStartOfLocalDateInstant(inputDate))
+        .isInstanceOf(DateTimeParseException.class);
+  }
+
+  @Test
+  public void parseIso8601DateToEndOfLocalDateInstant_isSuccessful() {
+    // Construct the expected Instant
+    LocalDate targetDate = LocalDate.of(2024, 5, 20);
+    ZonedDateTime zonedDateTime = targetDate.atStartOfDay(ZoneId.of("UTC"));
+    zonedDateTime = zonedDateTime.plusDays(1).minusNanos(1);
+    Instant expected = zonedDateTime.toInstant();
+
+    String inputDate = "2024-05-20";
+    Instant actual = dateConverterUTC.parseIso8601DateToEndOfLocalDateInstant(inputDate);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void parseIso8601DateToEndOfLocalDateInstant_DateTimeParseExceptionIsGenerated() {
+    String inputDate = "abcd";
+    assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToEndOfLocalDateInstant(inputDate))
+        .isInstanceOf(DateTimeParseException.class);
   }
 
   @Test

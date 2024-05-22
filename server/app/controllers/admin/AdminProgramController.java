@@ -12,6 +12,7 @@ import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ProgramModel;
+import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -78,9 +79,26 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
-            programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
+            ProgramTab.IN_USE,
+            profileMaybe));
+  }
+
+  /**
+   * Returns an HTML page displaying all disabled programs of the current live version and all
+   * disabled programs of the current draft version if any.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexDisabled(Request request) {
+    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    return ok(
+        listView.render(
+            programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
+            questionService.getReadOnlyQuestionServiceSync(),
+            request,
+            ProgramTab.DISABLED,
             profileMaybe));
   }
 

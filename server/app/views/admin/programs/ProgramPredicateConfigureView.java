@@ -285,14 +285,15 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     DivTag helpTextRow = div().withClasses("flex", "predicate-help-text-row");
     valueRowContainer.with(helpTextRow);
-    DivTag spacerText = div().withClasses("w-16");
+    DivTag spacerText = div().withClasses("w-16", "shrink-0");
 
     int columnNumber = 0;
     for (QuestionDefinition questionDefinition : questionDefinitions) {
       helpTextRow
+          .condWith(columnNumber++ != 0, spacerText)
           .with(
               div()
-                  .withClasses("w-48")
+                  .withClasses("w-48", "shrink-0")
                   .with(
                       div()
                           .withClasses(
@@ -315,8 +316,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                               "text-xs",
                               "pb-4",
                               BaseStyles.FORM_LABEL_TEXT_COLOR)
-                          .withData("question-id", String.valueOf(questionDefinition.getId()))))
-          .condWith(columnNumber++ != 1, spacerText);
+                          .withData("question-id", String.valueOf(questionDefinition.getId()))));
     }
 
     if (maybeExistingPredicate.isPresent()) {
@@ -409,64 +409,44 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     }
   }
 
+  private static ImmutableMap<Long, LeafExpressionNode> getOneRowOfLeafNodes(
+      PredicateDefinition existingPredicate) {
+    return getExistingAndNodes(existingPredicate).get(0).getAndNode().children().stream()
+        .map(PredicateExpressionNode::getLeafNode)
+        .collect(ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
+  }
+
   private DivTag renderQuestionHeaders(
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate) {
     DivTag container = div().withClasses("flex", "py-4");
 
-    if (maybeExistingPredicate.isPresent()) {
-      int columnNumber = 1;
 
-      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
-          getExistingAndNodes(maybeExistingPredicate.get()).stream()
-              .findFirst()
-              .get()
-              .getAndNode()
-              .children()
-              .stream()
-              .map(PredicateExpressionNode::getLeafNode)
-              .collect(
-                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
+    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
+        maybeExistingPredicate
+            .map(ProgramPredicateConfigureView::getOneRowOfLeafNodes)
+            .orElse(ImmutableMap.of());
 
-      for (var qd : questionDefinitions) {
-        var leafNode = questionIdLeafNodeMap.get(qd.getId());
+    int columnNumber = 0;
+    for (var qd : questionDefinitions) {
+      Optional<LeafExpressionNode> maybeLeafNode =
+          Optional.ofNullable(questionIdLeafNodeMap.get(qd.getId()));
 
-        container.with(
-            div(
-                    div()
-                        .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
-                        .withClasses(
-                            BaseStyles.INPUT,
-                            "text-gray-500",
-                            "mb-2",
-                            "truncate",
-                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                        .withData("testid", qd.getName())
-                        .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, Optional.of(leafNode)),
-                    createOperatorDropdown(qd, Optional.of(leafNode)))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
-      }
-    } else {
-      int columnNumber = 1;
-
-      for (var qd : questionDefinitions) {
-        container.with(
-            div(
-                    div()
-                        .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
-                        .withClasses(
-                            BaseStyles.INPUT,
-                            "text-gray-500",
-                            "mb-2",
-                            "truncate",
-                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                        .withData("testid", qd.getName())
-                        .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, /* maybeLeafNode= */ Optional.empty()),
-                    createOperatorDropdown(qd, /* maybeLeafNode= */ Optional.empty()))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
-      }
+      container.with(
+          div(
+                  div()
+                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault())))
+                      .withClasses(
+                          BaseStyles.INPUT,
+                          "text-gray-500",
+                          "mb-2",
+                          "truncate",
+                          ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                      .withData("testid", qd.getName())
+                      .withData("question-id", String.valueOf(qd.getId())),
+                  createScalarDropdown(qd, maybeLeafNode),
+                  createOperatorDropdown(qd, maybeLeafNode))
+              .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 0, "ml-16")));
     }
 
     return container.with(div().withClasses("w-28"));
