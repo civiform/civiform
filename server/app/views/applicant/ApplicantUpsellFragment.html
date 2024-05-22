@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <header
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"
+  ></header>
+  <body>
+    <h1 th:text="#{title.applicationConfirmation}"></h1>
+    <p th:text="#{content.confirmed(${programName}, ${applicationId})}"></p>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
