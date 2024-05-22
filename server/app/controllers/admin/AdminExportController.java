@@ -19,9 +19,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
-import views.admin.migration.AdminProgramExportForm;
 import views.admin.migration.AdminExportViewPartial;
-import views.admin.migration.AdminImportViewPartial;
+import views.admin.migration.AdminProgramExportForm;
 
 /**
  * A controller for the export part of program migration (allowing admins to easily migrate programs
@@ -100,21 +99,25 @@ public class AdminExportController extends CiviFormController {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    return ok(adminExportViewPartial.renderProgramData(request, serializeResult.getResult()).render());
-
-    // what if we did an htmx partial to display it
-    // then from there a redirect to download it?
-
-    // or step 1 is just display it
-    // and there's a button to download it
-
-    // so "submit" displays the json
-    // and then clicking "download" downloads the file
-
-    // String filename = program.adminName() + "-exported.json";
-    // return ok(serializeResult.getResult())
-    //     .as(Http.MimeTypes.JSON)
-    //     .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+    return ok(
+        adminExportViewPartial
+            .renderProgramData(request, serializeResult.getResult(), program.adminName())
+            .render());
   }
-  
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result downloadJson(Http.Request request, String adminName) {
+
+    Form<AdminProgramExportForm> form =
+        formFactory
+            .form(AdminProgramExportForm.class)
+            .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
+
+    String json = form.get().getProgramJson();
+    String filename = adminName + "-exported.json";
+
+    return ok(json)
+        .as(Http.MimeTypes.JSON)
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+  }
 }

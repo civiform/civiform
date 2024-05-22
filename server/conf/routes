@@ -135,6 +135,7 @@ POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKe
 # Admin program migration
 GET /admin/export            controllers.admin.AdminExportController.index(request: Request)
 POST /admin/export/hx/program    controllers.admin.AdminExportController.hxExportProgram(request: Request)
+POST /admin/export/download/:adminName  controllers.admin.AdminExportController.downloadJson(request: Request, adminName: String)
 GET /admin/import            controllers.admin.AdminImportController.index(request: Request)
 POST /admin/import/hx/program   controllers.admin.AdminImportController.hxImportProgram(request: Request)
 
