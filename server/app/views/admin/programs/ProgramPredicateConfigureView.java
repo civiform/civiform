@@ -414,28 +414,30 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       Optional<PredicateDefinition> maybeExistingPredicate) {
     DivTag container = div().withClasses("flex", "py-4");
 
-    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap = maybeExistingPredicate
-        .map(ProgramPredicateConfigureView::getOneRowOfLeafNodes)
-        .orElse(ImmutableMap.of());
+    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
+        maybeExistingPredicate
+            .map(ProgramPredicateConfigureView::getOneRowOfLeafNodes)
+            .orElse(ImmutableMap.of());
 
     int columnNumber = 0;
     for (var qd : questionDefinitions) {
-      Optional<LeafExpressionNode> maybeLeafNode = Optional.ofNullable(questionIdLeafNodeMap.get(qd.getId()));
+      Optional<LeafExpressionNode> maybeLeafNode =
+          Optional.ofNullable(questionIdLeafNodeMap.get(qd.getId()));
 
       container.with(
           div(
-              div()
-                  .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
-                  .withClasses(
-                      BaseStyles.INPUT,
-                      "text-gray-500",
-                      "mb-2",
-                      "truncate",
-                      ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                  .withData("testid", qd.getName())
-                  .withData("question-id", String.valueOf(qd.getId())),
-              createScalarDropdown(qd, maybeLeafNode),
-              createOperatorDropdown(qd, maybeLeafNode))
+                  div()
+                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                      .withClasses(
+                          BaseStyles.INPUT,
+                          "text-gray-500",
+                          "mb-2",
+                          "truncate",
+                          ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                      .withData("testid", qd.getName())
+                      .withData("question-id", String.valueOf(qd.getId())),
+                  createScalarDropdown(qd, maybeLeafNode),
+                  createOperatorDropdown(qd, maybeLeafNode))
               .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 0, "ml-16")));
     }
 
