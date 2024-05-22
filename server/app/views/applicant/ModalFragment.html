@@ -1,56 +1,66 @@
-<div th:fragment="modalContainer"
-    id="modal-container"
-    class="display-none position-fixed height-viewport width-full z-100">
-    <div th:each="id: ${programIds}">
-      <dialog
-        th:replace="~{this :: loginPromptModal(${id}, ${actionUrl}, ${loginLink})}"
-      ></dialog>
-    </div>
+<div
+  th:fragment="modalContainer"
+  id="modal-container"
+  class="display-none position-fixed height-viewport width-full z-100"
+>
+  <div th:each="programIdAndActionUrl: ${programIdsToActionUrls}">
+    <dialog
+      th:replace="~{this :: loginPromptModal(${programIdAndActionUrl.key}, ${programIdAndActionUrl.value}, ${loginLink})}"
+    ></dialog>
+  </div>
 </div>
 
-<div th:fragment="loginPromptModal(id, actionUrl, loginLink)"
-    th:with="dialogId=${'login-dialog-' + id}"
-    class="usa-modal"
-    th:id="${dialogId}"
-    th:aria-labelledby="${dialogId + '-heading'}"
-    th:aria-describedby="${dialogId + '-description'}">
-    <div class="usa-modal__content">
-      <div class="usa-modal__main">
-        <h2 class="usa-modal__heading" th:id="${dialogId + '-heading'}" th:text="#{title.createAnAccount}">
-        </h2>
-        <div class="usa-prose">
-          <p th:id="${dialogId + '-description'}" th:text="#{content.initialLoginModalPrompt(${authProviderName})}">
-          </p>
-        </div>
-        <div class="usa-modal__footer">
-          <ul class="usa-button-group">
-            <li class="usa-button-group__item">
-              <button type="button" class="usa-button" th:text="#{button.continueToApplication}" th:href="${actionUrl}">
-              </button>
-            </li>
-            <li class="usa-button-group__item">
-              <button
-                type="button"
-                class="usa-button usa-button--outline padding-105 text-center"
-                data-close-modal
-                th:text="#{button.login}"
-                th:href="${loginLink}"
-              >
-                Go back
-              </button>
-            </li>
-          </ul>
-        </div>
+<div
+  th:fragment="loginPromptModal(id, actionUrl, loginLink)"
+  th:with="dialogId=${'login-dialog-' + id}"
+  class="usa-modal"
+  th:id="${dialogId}"
+  th:aria-labelledby="${dialogId + '-heading'}"
+  th:aria-describedby="${dialogId + '-description'}"
+>
+  <div class="usa-modal__content">
+    <div class="usa-modal__main">
+      <h2
+        class="usa-modal__heading"
+        th:id="${dialogId + '-heading'}"
+        th:text="#{title.createAnAccount}"
+      ></h2>
+      <div class="usa-prose">
+        <p
+          th:id="${dialogId + '-description'}"
+          th:text="#{content.initialLoginModalPrompt(${authProviderName})}"
+          class="margin-y-2"
+        ></p>
       </div>
-      <button
-        type="button"
-        class="usa-button usa-modal__close"
-        aria-label="Close this window"
-        data-close-modal
-      >
-        <!-- <svg class="usa-icon" aria-hidden="true" focusable="false" role="img">
-          <use xlink:href="/assets/img/sprite.svg#close"></use>
-        </svg> -->
-      </button>
+      <div class="usa-modal__footer">
+        <ul class="usa-button-group">
+          <li class="usa-button-group__item">
+            <a
+              class="usa-button"
+              th:text="#{button.continueToApplication}"
+              th:href="${actionUrl}"
+            ></a>
+          </li>
+          <li class="usa-button-group__item">
+            <a
+              class="usa-button usa-button--outline padding-105 text-center"
+              data-close-modal
+              th:text="#{button.login}"
+              th:href="${loginLink}"
+            ></a>
+          </li>
+        </ul>
+      </div>
     </div>
+    <button
+      type="button"
+      class="usa-button usa-modal__close"
+      aria-label="Close this window"
+      data-close-modal
+    >
+      <svg
+        th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+      ></svg>
+    </button>
   </div>
+</div>

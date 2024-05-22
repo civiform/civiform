@@ -88,7 +88,7 @@ public final class ProgramCardsSectionParamsFactory {
       ProgramDefinition program = programDatum.program();
 
       boolean isGuest = personalInfo.getType() == GUEST;
-      String actionUrl =  applicantRoutes.review(profile, applicantId, program.id()).url();
+      String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
 
       // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
       // whatever else our current cards do.

@@ -6,15 +6,13 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -134,7 +132,13 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable("authProviderName", authProviderName);
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
-    context.setVariable("programIds", applicationPrograms.allPrograms().stream().map(program -> program.programId()).collect(ImmutableList.toImmutableList()));
+    context.setVariable(
+        "programIdsToActionUrls",
+        applicationPrograms.allPrograms().stream()
+            .collect(ImmutableMap.toImmutableMap(
+              program -> program.programId(),
+              program -> applicantRoutes.review(profile, applicantId, program.programId()).url()
+            )));
 
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
