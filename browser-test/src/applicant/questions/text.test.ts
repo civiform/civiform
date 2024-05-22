@@ -169,7 +169,7 @@ test.describe(
         await loginAsAdmin(page)
         await adminQuestions.addTextQuestion({
           questionName: 'text-q',
-          helpText: "",
+          helpText: '',
           minNum: 5,
           maxNum: 20,
         })
