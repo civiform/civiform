@@ -417,7 +417,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       container.with(
           div(
                   div()
-                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault())))
                       .withClasses(
                           BaseStyles.INPUT,
                           "text-gray-500",
