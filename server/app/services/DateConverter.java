@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -74,6 +75,16 @@ public final class DateConverter {
    */
   public Instant parseIso8601DateToStartOfLocalDateInstant(String dateString) {
     return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
+  }
+
+  /**
+   * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
+   * Instant} at the end of the day in Local time zone.
+   *
+   * @throws DateTimeParseException if dateString is not well-formed.
+   */
+  public Instant parseIso8601DateToEndOfLocalDateInstant(String dateString) {
+    return parseIso8601DateToLocalDate(dateString).atTime(LocalTime.MAX).atZone(zoneId).toInstant();
   }
 
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */

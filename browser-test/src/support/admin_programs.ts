@@ -78,6 +78,11 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async gotoDisabledProgramIndexPage() {
+    await this.page.click('a:has-text("Disabled")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectAdminProgramsPage() {
     expect(await this.page.innerText('h1')).toEqual('Program dashboard')
     expect(await this.page.innerText('h2')).toEqual(
@@ -226,6 +231,13 @@ export class AdminPrograms {
 
   async programNames() {
     await this.gotoAdminProgramsPage()
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
+  async disabledProgramNames() {
+    await this.gotoDisabledProgramIndexPage()
+    await waitForPageJsLoad(this.page)
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
   }
@@ -381,8 +393,18 @@ export class AdminPrograms {
     return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
-  async gotoEditDraftProgramPage(programName: string) {
+  async gotoEditDisabledDraftProgramPage(programName: string) {
+    await this.gotoEditDraftProgramPage(programName, true)
+  }
+
+  async gotoEditDraftProgramPage(
+    programName: string,
+    isProgramDisabled: boolean = false,
+  ) {
     await this.gotoAdminProgramsPage()
+    if (isProgramDisabled) {
+      await this.gotoDisabledProgramIndexPage()
+    }
     await this.expectDraftProgram(programName)
     await this.page.click(
       this.withinProgramCardSelector(
@@ -726,6 +748,19 @@ export class AdminPrograms {
     )
   }
 
+  async addDisabledProgramBlockUsingSpec(
+    programName: string,
+    blockDescription = 'screen description',
+    questions: QuestionSpec[] = [],
+  ) {
+    await this.addProgramBlockUsingSpec(
+      programName,
+      blockDescription,
+      questions,
+      true,
+    )
+  }
+
   /**
    * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
    *
@@ -736,8 +771,13 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questions: QuestionSpec[] = [],
+    isProgramDisabled: boolean = false,
   ) {
-    await this.gotoEditDraftProgramPage(programName)
+    if (isProgramDisabled) {
+      await this.gotoEditDisabledDraftProgramPage(programName)
+    } else {
+      await this.gotoEditDraftProgramPage(programName)
+    }
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -850,11 +890,22 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersion(
+  async createNewVersionForDisabledProgram(
     programName: string,
     programReadOnlyViewEnabled = true,
   ) {
+    await this.createNewVersion(programName, programReadOnlyViewEnabled, true)
+  }
+
+  async createNewVersion(
+    programName: string,
+    programReadOnlyViewEnabled = true,
+    isProgramDisabled = false,
+  ) {
     await this.gotoAdminProgramsPage()
+    if (isProgramDisabled) {
+      await this.gotoDisabledProgramIndexPage()
+    }
     await this.expectActiveProgram(programName)
 
     if (programReadOnlyViewEnabled) {
@@ -876,6 +927,9 @@ export class AdminPrograms {
 
     await this.submitProgramDetailsEdits()
     await this.gotoAdminProgramsPage()
+    if (isProgramDisabled) {
+      await this.gotoDisabledProgramIndexPage()
+    }
     await this.expectDraftProgram(programName)
   }
 
@@ -923,12 +977,18 @@ export class AdminPrograms {
     'Only applications without a status'
 
   async filterProgramApplications({
+    fromDate = '',
+    untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
   }: {
+    fromDate?: string
+    untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
   }) {
+    await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
+    await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
       await this.page.selectOption('label:has-text("Application status")', {
