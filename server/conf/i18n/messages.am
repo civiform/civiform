@@ -266,7 +266,7 @@ button.start=ይጀምሩ
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=ማመልከቻዎን ለመጀመር ከታች አንድ እርምጃ ይምረጡ። ማስቀመጥ እና በማንኛውም ጊዜ ተመልሰው መምጣት ይችላሉ።# አመልካቾች ጥያቄዎችን መመለስ መጀመር የሚችሉበት ከግምገማ ገጹ በላይ የሚገኝ የርዕስ ይዘት።
+content.reviewPageIntro=ማመልከቻዎን ለመጀመር ከታች አንድ እርምጃ ይምረጡ። ማስቀመጥ እና በማንኛውም ጊዜ ተመልሰው መምጣት ይችላሉ።
 content.doesNotQualify=ብቁ አይደለም
 link.edit=አርትዕ
 link.answer=መልስ
