@@ -63,9 +63,9 @@ button.previousScreen=上一個畫面
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull=已上傳 {0} 個檔案 (共 {1} 個)
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
@@ -115,7 +115,7 @@ title.status=狀態
 title.inProgressProgramsUpdated=進行中
 title.activeProgramsUpdated=未開始
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=此部分已填寫完畢
 title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 toast.programCompleted=已完成申請。
@@ -208,11 +208,11 @@ label.dobExample=例如：1986 年 1 月 28 日
 # Label above the "Email" column of the community-based organization members table.
 label.email=電子郵件地址
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=錯誤：必須提供出生日期
+label.errorDOB=必須輸入出生日期
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=錯誤：必須提供名字
+label.errorFirstName=必須輸入名字
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=錯誤：必須提供姓氏
+label.errorLastName=必須輸入姓氏
 # The label above the dropdown select field for the month of the client birth date.
 label.month=月
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=目前顯示所有客戶
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=機構成員
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=信任的中介服務 - 管理客戶 - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=提交
 button.continue=繼續
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=開始
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=選取下方步驟可開始申請計畫。您可以儲存申請書，以便日後隨時回來繼續填寫。
 content.doesNotQualify=不符合資格
 link.edit=編輯
 link.answer=回答問題
@@ -276,7 +276,7 @@ ariaLabel.answer=回答以下問題：{0}
 ariaLabel.edit=編輯「{0}」
 title.commonIntakeSummary=福利預先篩選表單摘要
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=開始填寫
 title.programSummary=計畫申請摘要
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - 2 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - 3 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - 4 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - 5 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - 6 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - 7 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - 8 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - 9 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - 10 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - 11 月
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - 12 月
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=選取
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=錯誤：請輸入年月日。
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=出生日期必須是過去的日期
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=出生日期必須是過去 150 年內的日期
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
