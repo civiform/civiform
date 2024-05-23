@@ -266,7 +266,7 @@ button.start=Comenzar
 toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Selecciona un paso a continuación para comenzar tu solicitud. Puedes guardar tu progreso y regresar en cualquier momento.# Contenido del encabezado en la parte superior de la página de revisión, donde los solicitantes pueden comenzar a responder preguntas.
+content.reviewPageIntro=Selecciona un paso a continuación para comenzar tu solicitud. Puedes guardar tu progreso y regresar en cualquier momento.
 content.doesNotQualify=No califica
 link.edit=Editar
 link.answer=Responder
