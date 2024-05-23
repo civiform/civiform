@@ -266,7 +266,7 @@ button.start=Magsimula
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Pumili ng hakbang sa ibaba para simulan ang iyong aplikasyon. Puwede kang mag-save at bumalik anumang oras.# Content ng heading sa itaas ng page ng pagsusuri, kung saan makakapagsimula ang mga aplikante na sumagot ng mga tanong.
+content.reviewPageIntro=Pumili ng hakbang sa ibaba para simulan ang iyong aplikasyon. Puwede kang mag-save at bumalik anumang oras.
 content.doesNotQualify=Hindi kwalipikado
 link.edit=I-edit
 link.answer=Sagot
