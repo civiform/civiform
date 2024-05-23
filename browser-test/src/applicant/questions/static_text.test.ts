@@ -77,9 +77,9 @@ test.describe(
       test('parses markdown', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
         await validateScreenshot(
-          page,
+          page.getByTestId('staticQuestionRoot'),
           'markdown-text-north-star',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
 

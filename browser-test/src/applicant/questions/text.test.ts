@@ -65,9 +65,9 @@ test.describe(
           await applicantQuestions.applyProgram(programName)
 
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'text-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         },
@@ -82,9 +82,9 @@ test.describe(
           await applicantQuestions.clickContinue()
 
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'text-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         },

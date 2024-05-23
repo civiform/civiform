@@ -205,9 +205,9 @@ test.describe(
 
           await test.step('Screenshot without errors', async () => {
             await validateScreenshot(
-              page,
+              page.getByTestId('questionRoot'),
               'number-north-star',
-              /* fullPage= */ true,
+              /* fullPage= */ false,
               /* mobileScreenshot= */ true,
             )
           })
@@ -215,9 +215,9 @@ test.describe(
           await test.step('Screenshot with errors', async () => {
             await applicantQuestions.clickContinue()
             await validateScreenshot(
-              page,
+              page.getByTestId('questionRoot'),
               'number-errors-north-star',
-              /* fullPage= */ true,
+              /* fullPage= */ false,
               /* mobileScreenshot= */ true,
             )
           })

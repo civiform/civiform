@@ -257,9 +257,9 @@ test.describe('name applicant flow', () => {
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'name-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -267,9 +267,9 @@ test.describe('name applicant flow', () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'name-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
