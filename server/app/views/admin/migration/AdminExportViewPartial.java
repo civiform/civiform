@@ -54,6 +54,7 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                             // so we need to include a hidden field that the user won't see
                             // but that will be included in the form body.
                             .setDisabled(true)
+                            .setId("program-json")
                             .setValue(json)
                             .getTextareaTag())
                     .with(
@@ -65,7 +66,9 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                     .with(
                         div()
                             .with(
-                                button("Copy Json").withClasses(ButtonStyles.SOLID_BLUE, "mr-2"),
+                                button("Copy Json")
+                                    .withId("copy-json-button")
+                                    .withClasses(ButtonStyles.SOLID_BLUE, "mr-2"),
                                 submitButton("Download Json").withClass(ButtonStyles.SOLID_BLUE))
                             .withClasses("flex"))
                     .withAction(routes.AdminExportController.downloadJson(adminName).url()))
