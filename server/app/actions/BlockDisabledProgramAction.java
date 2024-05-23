@@ -14,6 +14,13 @@ import play.mvc.Result;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
+/**
+ * Action that ensures that program the user is trying to access is not disabled.
+ *
+ * <p>The action will redirect the request to the home page if the the program is disabled.
+ *
+ * <p>
+ */
 public class BlockDisabledProgramAction extends Action.Simple {
   private final ProgramService programService;
 
@@ -22,26 +29,29 @@ public class BlockDisabledProgramAction extends Action.Simple {
     this.programService = checkNotNull(programService);
   }
 
-  @Override
-  public CompletionStage<Result> call(Request req) {
-    Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
+  private boolean programSlugIsAvailable(String programSlug) {
+    return !programSlug.equals("None");
+  }
 
-    String programSlug = programSlugOptional.orElse("None");
-
-    if (programSlug.equals("None")) {
-      return delegate.call(req);
-    }
-
-    ProgramDefinition activeProgramDefinition =
+  private boolean programIsDisabled(String programSlug) {
+    ProgramDefinition programDefiniton =
         programService
             .getActiveFullProgramDefinitionAsync(programSlug)
             .toCompletableFuture()
             .join();
+    return programDefiniton.displayMode() == DisplayMode.DISABLED;
+  }
 
-    if (activeProgramDefinition.displayMode() == DisplayMode.DISABLED) {
+  @Override
+  public CompletionStage<Result> call(Request req) {
+    Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
+    String programSlug = programSlugOptional.orElse("None");
+
+    if (programSlugIsAvailable(programSlug) && programIsDisabled(programSlug)) {
       // TODO: Build an error page and redirect the user to the error page instead
       return CompletableFuture.completedFuture(redirect(routes.HomeController.index()));
     }
+
     return delegate.call(req);
   }
 }
