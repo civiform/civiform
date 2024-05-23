@@ -266,7 +266,7 @@ button.start=ເລີ່ມ
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.# ເນື້ອຫາສ່ວນຫົວຢູ່ເທິງສຸດຂອງໜ້າກວດສອບ, ເຊິ່ງຜູ້ສະໝັກສາມາດເລີ່ມຕອບຄຳຖາມໄດ້.
+content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
 link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
