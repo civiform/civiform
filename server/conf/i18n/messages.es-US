@@ -63,9 +63,9 @@ button.previousScreen=Anterior
 button.skipFileUpload=Omitir
 content.blockProgress={0} de {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={0} de {1} completadas
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={0} de {1} cargados
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
@@ -115,7 +115,7 @@ title.status=Estado
 title.inProgressProgramsUpdated=En curso
 title.activeProgramsUpdated=Sin comenzar
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=Sección completada
 title.submittedPrograms=Enviados
 toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 toast.programCompleted=Ya se completó la solicitud.
@@ -208,11 +208,11 @@ label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Debes ingresar la fecha de nacimiento
+label.errorDOB=Se requiere la fecha de nacimiento
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: Debes ingresar el nombre
+label.errorFirstName=Se requiere el nombre
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Debes ingresar el apellido
+label.errorLastName=Se requiere el apellido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=Se muestran todos los clientes
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Miembros de la organización
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=Intermediario de confianza - Administrar clientes - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=Intermediario de confianza - Ver la configuración de la cuenta - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=Enviar
 button.continue=Continuar
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=Comenzar
 toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=Selecciona un paso a continuación para comenzar tu solicitud. Puedes guardar tu progreso y regresar en cualquier momento.# Contenido del encabezado en la parte superior de la página de revisión, donde los solicitantes pueden comenzar a responder preguntas.
 content.doesNotQualify=No califica
 link.edit=Editar
 link.answer=Responder
@@ -276,7 +276,7 @@ ariaLabel.answer=Responder {0}
 ariaLabel.edit=Editar {0}
 title.commonIntakeSummary=Resumen del proceso de evaluación para acceder a los beneficios
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=Comencemos.
 title.programSummary=Resumen de la inscripción al programa
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 
 validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - Febrero
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - Marzo
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - Abril
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - Mayo
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - Junio
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - Julio
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - Agosto
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - Septiembre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - Octubre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - Noviembre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - Diciembre
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=Seleccionar
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=Error: Ingresa día, mes y año.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=La fecha de nacimiento debe ser un día en el pasado
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=La fecha de nacimiento debe ser hace menos de 150 años
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
