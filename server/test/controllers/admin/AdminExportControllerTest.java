@@ -57,7 +57,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_migrationEnabled_ok_listsActiveProgramsOnly() {
+  public void index_migrationEnabled_ok_listsActiveAndDraftPrograms() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramBuilder.newActiveProgram("active-program-1").build();
     ProgramBuilder.newActiveProgram("active-program-2").build();
@@ -69,11 +69,11 @@ public class AdminExportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Export a program");
     assertThat(contentAsString(result)).contains("active-program-1");
     assertThat(contentAsString(result)).contains("active-program-2");
-    assertThat(contentAsString(result)).doesNotContain("draft-program");
+    assertThat(contentAsString(result)).contains("draft-program");
   }
 
   @Test
-  public void exportProgram_migrationNotEnabled_notFound() {
+  public void hxExportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
     Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
@@ -83,7 +83,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void exportProgram_noProgramSelected_redirectsToIndex() {
+  public void hxExportProgram_noProgramSelected_redirectsToIndex() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
@@ -93,7 +93,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void exportProgram_invalidProgramId_badRequest() {
+  public void hxExportProgram_invalidProgramId_badRequest() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -109,7 +109,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void exportProgram_validProgram_downloadsJson() {
+  public void hxExportProgram_validProgram_rendersHtmxPartial() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
@@ -122,9 +122,28 @@ public class AdminExportControllerTest extends ResetPostgres {
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Copy Json");
+    assertThat(contentAsString(result)).contains("Download Json");
+  }
+
+  @Test
+  public void downloadJson_downloadsJson() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    String adminName = "fake-admin-name";
+
+    Result result =
+        controller.downloadJson(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJson", String.valueOf(""))))
+                .build(),
+            adminName);
+
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType().get()).isEqualTo("application/json");
     assertThat(result.header("Content-Disposition")).isPresent();
     assertThat(result.header("Content-Disposition").get())
-        .startsWith("attachment; filename=\"active-program-1-exported");
+        .startsWith(String.format("attachment; filename=\"%s-exported", adminName));
   }
 }
