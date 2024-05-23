@@ -266,7 +266,7 @@ button.start=Bắt đầu
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.# Nội dung tiêu đề ở đầu trang đánh giá, nơi người đăng ký có thể bắt đầu trả lời các câu hỏi.
+content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.
 content.doesNotQualify=Không đủ tiêu chuẩn
 link.edit=Chỉnh sửa
 link.answer=Câu trả lời
