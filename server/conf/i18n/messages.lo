@@ -115,7 +115,7 @@ title.status=ສະຖານະ
 title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=ພາກສ່ວນທີ່ສຳເລັດແລ້ວ
 title.submittedPrograms=ສົ່ງແລ້ວ
 toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດແລ້ວ: ລະຫັດໃບສະໝັກ {0}
 toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
@@ -208,11 +208,11 @@ label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸວັນເດືອນປີເກີດ
+label.errorDOB=ຕ້ອງລະບຸວັນເດືອນປີເກີດ
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸຊື່
+label.errorFirstName=ຕ້ອງລະບຸຊື່
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸນາມສະກຸນ
+label.errorLastName=ຕ້ອງລະບຸນາມສະກຸນ
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=ກຳລັງສະແດງລູກຂ່າຍ�
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=ສະມາຊິກຂອງອົງກອນ
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ຈັດການລູກຂ່າຍ - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ເບິ່ງການຕັ້ງຄ່າບັນຊີ - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=ສົ່ງ
 button.continue=ສືບຕໍ່
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=ເລີ່ມ
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.# ເນື້ອຫາສ່ວນຫົວຢູ່ເທິງສຸດຂອງໜ້າກວດສອບ, ເຊິ່ງຜູ້ສະໝັກສາມາດເລີ່ມຕອບຄຳຖາມໄດ້.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
 link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
@@ -276,7 +276,7 @@ ariaLabel.answer=ຕອບ {0}
 ariaLabel.edit=ແກ້ໄຂ {0}
 title.commonIntakeSummary=ສະຫຼຸບສິດທິປະໂຫຍດກວດສອບລ່ວງໜ້າ
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=ມາເລີ່ມກັນເລີຍ.
 title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ�
 
 validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບທີ່ຖືກຕ້ອງ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - ມັງກອນ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - ກຸມພາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - ມີນາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - ເມສາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - ພຶດສະພາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - ມິຖຸນາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - ກໍລະກົດ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - ສິງຫາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - ກັນຍາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - ຕຸລາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - ພະຈິກ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - ທັນວາ
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=ເລືອກ
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=ຂໍ້ຜິດພາດ: ກະລຸນາລະບຸເດືອນ, ວັນທີ ແລະ ປີ.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=ວັນເດືອນປີເກີດຕ້ອງແມ່ນວັນທີໃນອະດີດ
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=ວັນເດືອນປີເກີດຕ້ອງໜ້ອຍກວ່າ 150 ປີທີ່ຜ່ານມາ
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
