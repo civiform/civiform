@@ -38,7 +38,10 @@ public final class TextFormatter {
     return builder.build();
   }
 
-  /** Passes provided text through Markdown formatter. */
+  /**
+   * Passes provided text through Markdown formatter with preserveEmptyLines and
+   * addRequiredIndicator set to false
+   */
   public static ImmutableList<DomContent> formatText(String text) {
     return formatText(text, false, false);
   }
@@ -104,8 +107,7 @@ public final class TextFormatter {
 
   private static String addRequiredIndicator(String markdownText) {
     // If the question ends with a list (UL or OL tag), we need to handle the
-    // required indicator
-    // differently
+    // required indicator differently
     if (endsWithListTag(markdownText, "</ul>\n")) {
       return handleRequiredQuestionsThatEndInAList(markdownText, "<ul");
     } else if (endsWithListTag(markdownText, "</ol>\n")) {
@@ -128,9 +130,8 @@ public final class TextFormatter {
       String markdownText, String openingListTag) {
     int indexOfOpeningListTag = markdownText.indexOf(openingListTag);
     // If the question has no text before the list, add the required indicator to
-    // the end
-    // of the list before the closing LI tag
-    // Otherwise, add the required indicator to the paragraph that precedes the list
+    // the end of the list before the closing LI tag. Otherwise, add the required
+    // indicator to the paragraph that precedes the list
     return indexOfOpeningListTag == 0
         ? addRequiredIndicatorAfterList(markdownText)
         : addRequiredIndicatorBeforeList(markdownText, indexOfOpeningListTag);
@@ -166,8 +167,7 @@ public final class TextFormatter {
             // ensure the page does not have more than one h1 header
             // https://www.a11yproject.com/posts/how-to-accessible-heading-structure/
             // This logic changes h1 headers to h2 headers which are still larger than the
-            // default
-            // text
+            // default text
             .allowElements(
                 (String elementName, List<String> attrs) -> {
                   return "h2";
