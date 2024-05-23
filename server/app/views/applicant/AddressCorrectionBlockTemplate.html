@@ -6,10 +6,14 @@
   <body data-load-modal="true">
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
 
-    <form role="main">
-      id="cf-block-form" th:action="${confirmAddressAction}" method="POST"
+    <form
+      role="main"
+      id="cf-block-form"
+      th:action="${confirmAddressAction}"
+      method="POST"
       th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
-      anySuggestions=${suggestions.size() > 0}" >
+               anySuggestions=${suggestions.size() > 0}"
+    >
       <input hidden th:value="${csrfToken}" name="csrfToken" />
       <div th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"></div>
 
