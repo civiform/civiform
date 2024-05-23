@@ -10,6 +10,23 @@ test.describe(
   'Admin can manage program translations',
   {tag: ['@uses-fixtures']},
   () => {
+    test('page layout screenshot', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      await loginAsAdmin(page)
+
+      const programName = 'Program to be translated no statuses'
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+
+      await adminTranslations.selectLanguage('Spanish')
+
+      await validateScreenshot(page, 'program-translation')
+    })
+
     test('creates a program without statuses and adds translation', async ({
       page,
       adminPrograms,
@@ -25,7 +42,6 @@ test.describe(
 
       // Add translations for Spanish and publish
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'program-translation')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
         expectProgramDescription: '',
@@ -190,10 +206,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramImageDescriptionTranslation(
         'Spanish image description',
-      )
-      await validateScreenshot(
-        page,
-        'program-translation-with-image-description',
       )
 
       // Verify other translations are still not filled in
