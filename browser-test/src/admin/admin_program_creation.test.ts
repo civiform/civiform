@@ -549,7 +549,11 @@ test.describe('program creation', () => {
 
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-markdown', /* fullPage= */ false)
+    await validateScreenshot(
+      page,
+      'question-bank-markdown',
+      /* fullPage= */ false,
+    )
   })
 
   test('change questions order within block', async ({

@@ -122,7 +122,7 @@ test.describe('create and edit predicates', () => {
       description: 'desc',
       questionText: 'text [markdown](example.com) *question*',
       helpText: '**bolded**',
-      markdown: true
+      markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'show-other-q',
