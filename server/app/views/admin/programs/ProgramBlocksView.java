@@ -436,8 +436,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for
-    // removing the
-    // enumerator question from the block.
+    // removing the enumerator question from the block.
     final boolean canDelete =
         !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockDefinition.id());
 
@@ -569,8 +568,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not
-    // have
-    // to hard-code what the color will be when button is in hover state?
+    // have to hard-code what the color will be when button is in hover state?
 
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
@@ -1007,8 +1005,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withType("submit")
             .attr("hx-post", toggleAddressCorrectionAction)
             // Replace entire Questions section so that the tooltips for all address
-            // questions get
-            // updated.
+            // questions get updated.
             .attr("hx-select-oob", String.format("#%s", QUESTIONS_SECTION_ID))
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
@@ -1135,8 +1132,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     // If there are no questions, eligibilty conditions, or visibility conditions on
-    // this screen,
-    // just print "Are you sure you want to delete this screen?"
+    // this screen, just print "Are you sure you want to delete this screen?"
     if (itemsInBlock.size() == 0) {
       deleteBlockForm
           .withId("block-delete-form")

@@ -89,16 +89,19 @@ test.describe('Admin question list', () => {
     await adminQuestions.addTextQuestion({
       questionName: 'a',
       questionText: '*italics*',
+      helpText: '*italics help text*',
       markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'b',
       questionText: '**bold**',
+      helpText: '**bold help text**',
       markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'c',
       questionText: '[link](example.com)',
+      helpText: '[help text link](example.com)',
       markdown: true,
     })
 

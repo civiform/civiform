@@ -125,10 +125,11 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
-    // The total question count should be equivalent to the number of rows in the
-    // displayed table,
-    // where we have a single entry for a question that is active and has a draft.
-    return div(String.format(
+      // The total question count should be equivalent to the number of rows in the
+      // displayed table, where we have a single entry for a question that is active
+      // and has a draft.
+      return div(String
+              .format(
             "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
         .withClasses("float-right", "text-base", "px-4", "my-2");
   }
@@ -637,10 +638,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private DivTag referencingProgramList(
       String title, ImmutableList<ProgramDefinition> referencingPrograms) {
-    // TODO(#3162): Add ability to view a published program. Then add
-    // links to the specific block that references the question.
-    return div()
-        .with(p(title).withClass("font-semibold"))
+      // TODO(#3162): Add ability to view a published program. Then add links to the
+      // specific block that references the question.
+      return div()
+              .with(p(title).withClass("font-semibold"))
         .with(
             div()
                 .with(
@@ -707,8 +708,7 @@ public final class QuestionsListView extends BaseHtmlView {
       }
     }
     // Add Archive option only if current question is draft or it's active, but
-    // there is no
-    // draft version of the question.
+    // there is no draft version of the question.
     if (isEditable) {
       Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
           renderArchiveOptions(cardData, question, activeAndDraftQuestions, request);
