@@ -63,9 +63,9 @@ button.previousScreen=Nakaraang
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={0} sa {1} ang natapos
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
@@ -115,7 +115,7 @@ title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=Natapos na ang seksyon
 title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 toast.programCompleted=Nakumpleto na ang aplikasyon.
@@ -208,11 +208,11 @@ label.dobExample=Halimbawa: Enero 28, 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Kinakailangan ang petsa ng kapanganakan
+label.errorDOB=Kinakailangan ang petsa ng kapanganakan
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: Kinakailangan ang pangalan
+label.errorFirstName=Kinakailangan ang pangalan
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Kinakailangan ang apelyido
+label.errorLastName=Kinakailangan ang apelyido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=Ipinapakita ang lahat ng kliyente
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Mga miyembro ng organisasyon
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=Pinagkakatiwalaang Intermediary - Pamahalaan ang Mga Kliyente - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Setting ng Account - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=Isumite
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=Magsimula
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=Pumili ng hakbang sa ibaba para simulan ang iyong aplikasyon. Puwede kang mag-save at bumalik anumang oras.# Content ng heading sa itaas ng page ng pagsusuri, kung saan makakapagsimula ang mga aplikante na sumagot ng mga tanong.
 content.doesNotQualify=Hindi kwalipikado
 link.edit=I-edit
 link.answer=Sagot
@@ -276,7 +276,7 @@ ariaLabel.answer=Sagot {0}
 ariaLabel.edit=I-edit {0}
 title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=Magsimula na tayo
 title.programSummary=Buod ng application para sa programa
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - Pebrero
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - Marso
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - Abril
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - Mayo
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - Hunyo
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - Hulyo
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - Agosto
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - Setyembre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - Oktubre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - Nobyembre
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - Disyembre
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=Piliin
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=Error: Ilagay ang buwan, petsa, at taon.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=Kailangang nasa nakaraan ang Petsa ng Kapanganakan.
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=Kailangang hindi hihigit sa 150 taon ang nakalipas ng Petsa ng Kapanganakan.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
