@@ -531,6 +531,11 @@ test.describe('program creation', () => {
       questionText: '[link](example.com)',
       markdown: true,
     })
+    await adminQuestions.addTextQuestion({
+      questionName: 'd',
+      questionText: '[questionBank](example.com)',
+      markdown: true,
+    })
 
     const programName = 'Acd program'
     await adminPrograms.addProgram(programName)
@@ -541,6 +546,10 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('c')
 
     await validateScreenshot(page, 'program-detail-markdown')
+
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.openQuestionBank()
+    await validateScreenshot(page, 'question-bank-markdown', /* fullPage= */ false)
   })
 
   test('change questions order within block', async ({
