@@ -63,9 +63,9 @@ button.previousScreen=이전
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={1}개 중 {0}개 완료됨
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
@@ -115,7 +115,7 @@ title.status=상태
 title.inProgressProgramsUpdated=진행 중
 title.activeProgramsUpdated=시작 안 함
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=섹션 완료됨
 title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
@@ -208,11 +208,11 @@ label.dobExample=예: 1986년 1월 28일
 # Label above the "Email" column of the community-based organization members table.
 label.email=이메일
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=오류: 생년월일은 필수 항목입니다.
+label.errorDOB=생년월일은 필수 항목입니다.
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=오류: 이름은 필수 항목입니다.
+label.errorFirstName=이름은 필수 항목입니다.
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=오류: 성은 필수 항목입니다.
+label.errorLastName=성은 필수 항목입니다.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=월
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=모든 클라이언트 표시
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=조직 구성원
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=신뢰할 수 있는 중개자 - 클라이언트 관리 - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=신뢰할 수 있는 중개자 - 계정 설정 보기 - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=제출
 button.continue=계속
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=시작
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=신청을 시작하려면 아래 단계를 선택하세요. 언제든지 저장하고 다시 돌아올 수 있습니다.# 리뷰 페이지 상단의 제목 콘텐츠로 여기에서 신청자가 질문에 대한 답변을 시작할 수 있습니다.
 content.doesNotQualify=자격요건을 충족하지 않음
 link.edit=편집
 link.answer=답변
@@ -276,7 +276,7 @@ ariaLabel.answer={0}에 답변
 ariaLabel.edit={0} 편집
 title.commonIntakeSummary=혜택 사전 선별 요약
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=시작하기
 title.programSummary=프로그램 신청 요약
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 
 validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - 2월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - 3월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - 4월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - 5월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - 6월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - 7월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - 8월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - 9월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - 10월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - 11월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - 12월
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=선택
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=Error: 월, 일, 연도를 입력하세요.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=생년월일은 과거여야 합니다.
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=생년월일은 150년 전 미만이어야 합니다.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
