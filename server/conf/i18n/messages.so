@@ -266,7 +266,7 @@ button.start=Bilow
 toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Dooro tallaabo hoose si aad u bilowdo codsigaaga. Waad kaydsan kartaa oo ku soo noqon kartaa wakhti kasta.# Nuxurka ciwaanka sare ee bogga dib u eegista, halkaas oo codsadeyaashu ay ka bilaabi karaan ka jawaabista su'aalaha.
+content.reviewPageIntro=Dooro tallaabo hoose si aad u bilowdo codsigaaga. Waad kaydsan kartaa oo ku soo noqon kartaa wakhti kasta.
 content.doesNotQualify=Uma qalmo
 link.edit=Wax ka beddel
 link.answer=Jawaab
