@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
+import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
@@ -195,6 +196,12 @@ public final class ProgramTranslationView extends TranslationFormView {
                   .setValue(updateData.localizedSummaryImageDescription())
                   .getInputTag(),
               program.localizedSummaryImageDescription().get()));
+    }
+
+    for (BlockDefinition block : program.blockDefinitions()) {
+      // Add for block title
+
+      // Add for block description
     }
     return applicantVisibleDetails.build();
   }

@@ -30,6 +30,8 @@ public final class ProgramTranslationForm {
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
   public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
+  public static final String BLOCK_TITLE_FORM_NAME = "blockTitle";
+  public static final String BLOCK_DESCRIPTION_FORM_NAME = "blockDescription";
 
   private final DynamicForm form;
   private final int maxStatusTranslations;
