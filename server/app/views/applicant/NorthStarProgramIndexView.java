@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
@@ -26,7 +27,6 @@ import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
-  private final SettingsManifest settingsManifest;
   private final String authProviderName;
 
   @Inject
@@ -37,10 +37,16 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -51,7 +57,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       CiviFormProfile profile) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
     ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
 
@@ -118,7 +125,6 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable("sections", sectionParamsBuilder.build());
     context.setVariable("authProviderName", authProviderName);
-    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
 

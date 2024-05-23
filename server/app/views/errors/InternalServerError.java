@@ -7,6 +7,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
+import controllers.LanguageUtils;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -17,7 +18,6 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.LanguageSelector;
 import views.applicant.ApplicantLayout;
 import views.components.LinkElement;
 import views.style.ApplicantStyles;
@@ -30,16 +30,14 @@ import views.style.ErrorStyles;
 public final class InternalServerError extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  private final LanguageSelector languageSelector;
+  private final LanguageUtils languageUtils;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public InternalServerError(
-      ApplicantLayout layout,
-      LanguageSelector languageSelector,
-      SettingsManifest settingsManifest) {
+      ApplicantLayout layout, LanguageUtils languageUtils, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
-    this.languageSelector = checkNotNull(languageSelector);
+    this.languageUtils = checkNotNull(languageUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -84,7 +82,7 @@ public final class InternalServerError extends BaseHtmlView {
   private HtmlBundle addBodyFooter(
       Http.RequestHeader request, Messages messages, String exceptionId) {
     HtmlBundle bundle = layout.getBundle(request);
-    String language = languageSelector.getPreferredLangage(request).code();
+    String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(request, messages, exceptionId));
 
