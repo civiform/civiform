@@ -720,27 +720,20 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
-      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
-      return questionSpec
+    return await this.addProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => ({name: questionName})),
     })
-    return await this.addProgramBlockUsingSpec(
-      programName,
-      blockDescription,
-      questionSpecs,
-    )
   }
 
   /**
-   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
+   * Creates a new program block as defined by {@link BlockSpec}.
    *
-   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
-   * but also makes it easy to use optional questions.
+   * Prefer this method over {@link #addProgramBlock}.
    */
   async addProgramBlockUsingSpec(
     programName: string,
-    blockDescription = 'screen description',
-    questions: QuestionSpec[] = [],
+    block: BlockSpec,
     isProgramDisabled: boolean = false,
   ) {
     await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
@@ -749,13 +742,13 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
+    await this.page.fill('textarea', block.description || 'screen description')
     await this.page.click('#update-block-button:not([disabled])')
     // Wait for submit and redirect back to this page.
     await this.page.waitForURL(this.page.url())
     await waitForPageJsLoad(this.page)
 
-    for (const question of questions) {
+    for (const question of block.questions) {
       await this.addQuestionFromQuestionBank(question.name)
       if (question.isOptional) {
         const optionalToggle = this.page
