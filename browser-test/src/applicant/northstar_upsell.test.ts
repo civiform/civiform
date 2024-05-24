@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
