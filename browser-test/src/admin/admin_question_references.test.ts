@@ -144,7 +144,7 @@ test.describe(
         ])
 
         await adminPrograms.addDisabledProgram(disabledProgramName)
-        await adminPrograms.addDisabledProgramBlockUsingSpec(
+        await adminPrograms.addProgramBlockUsingSpec(
           disabledProgramName,
           'first block',
           [
@@ -153,6 +153,7 @@ test.describe(
               isOptional: false,
             },
           ],
+          /* isProgramDisabled = */ true,
         )
       })
 
