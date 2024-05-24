@@ -11,7 +11,6 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   snapshotPathTemplate: './image_snapshots/{arg}{ext}',
   globalSetup: './src/setup/global-setup.ts',
-  globalTeardown: './src/setup/global-teardown.ts',
   fullyParallel: false,
   workers: 1,
   retries: 1,
@@ -34,5 +33,7 @@ export default defineConfig({
   reporter: [
     ['list', {printSteps: true}],
     ['html', {open: 'never', outputFolder: 'tmp/html-output'}],
+    ['json', {outputFile: 'tmp/json-output/results.json'}],
+    ['./src/reporters/file_placement_reporter.ts'],
   ],
 })
