@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-async function globalSetup() {
+function globalSetup() {
   console.log('CUSTOM GLOBAL SETUP')
 
   // Clean up directories

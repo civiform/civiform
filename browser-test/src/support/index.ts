@@ -1,10 +1,4 @@
-import {
-  test,
-  expect,
-  Frame,
-  Page,
-  Locator
-} from '@playwright/test'
+import {test, expect, Frame, Page, Locator} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
