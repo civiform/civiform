@@ -152,10 +152,17 @@ public final class UpsellController extends CiviFormController {
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 NorthStarApplicantUpsellView.Params params =
                     NorthStarApplicantUpsellView.Params.builder()
+                        .setRequest(request)
+                        .setProfile(
+                            profile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
                         .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
                         .setApplicationId(applicationId)
+                        .setMessages(messagesApi.preferred(request))
+                        .setApplicantId(applicantId)
                         .build();
-                return ok(northStarUpsellView.render(request, params)).as(Http.MimeTypes.HTML);
+                return ok(northStarUpsellView.render(params)).as(Http.MimeTypes.HTML);
               } else if (isCommonIntake.join()) {
                 return ok(
                     cifUpsellView.render(

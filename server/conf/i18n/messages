@@ -535,7 +535,3 @@ banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
 banner.httpsSectionHeader=Secure .gov websites use HTTPS
 banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
-
-#-------------------------------------------------------------#
-# APPLICATION SUBMITTED PAGE - contains text shown after the applicant has submitted an application #
-#-------------------------------------------------------------#
