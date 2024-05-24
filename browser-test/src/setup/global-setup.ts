@@ -1,14 +1,7 @@
-import {startSession, dropTables, endSession, seedQuestions} from '../support'
 import * as fs from 'fs'
 
 async function globalSetup() {
   console.log('CUSTOM GLOBAL SETUP')
-
-  const {browser, page} = await startSession()
-  await dropTables(page)
-  await seedQuestions(page)
-
-  await endSession(browser)
 
   // Clean up directories
   if (fs.existsSync('tmp/videos')) {
