@@ -3,10 +3,12 @@ package views.applicant;
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import services.settings.SettingsManifest;
 
 public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
 
@@ -15,12 +17,20 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
-      ApplicantRoutes applicantRoutes) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
   }
 
   public String render(Request request, Params applicationParams) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("programName", applicationParams.programTitle());
     context.setVariable("applicationId", applicationParams.applicationId());
     return templateEngine.process("applicant/ApplicantUpsellFragment", context);
