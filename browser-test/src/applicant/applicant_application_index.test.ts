@@ -356,7 +356,6 @@ test.describe('applicant program index page', () => {
 
 test.describe(
   'applicant program index page with images',
-  {tag: ['@uses-fixtures']},
   () => {
     test('shows program with wide image', async ({
       page,

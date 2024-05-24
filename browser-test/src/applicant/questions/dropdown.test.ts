@@ -12,7 +12,6 @@ import {
 
 test.describe(
   'Dropdown question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     test.describe('single dropdown question', () => {
       const programName = 'Test program for single dropdown'

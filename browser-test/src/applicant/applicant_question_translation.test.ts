@@ -9,7 +9,6 @@ import {
 
 test.describe(
   'Admin can manage translations',
-  {tag: ['@uses-fixtures']},
   () => {
     test('Expect single-answer question is translated for applicant', async ({
       page,

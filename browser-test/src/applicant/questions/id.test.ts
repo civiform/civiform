@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'Id question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     test.describe('single id question', () => {
       const programName = 'Test program for single id'

@@ -3,7 +3,7 @@ import {loginAsAdmin} from './support'
 
 test.describe(
   'applicant security',
-  {tag: ['@uses-fixtures', '@parallel-candidate']},
+  {tag: ['@parallel-candidate']},
   () => {
     test('applicant cannot access admin pages', async ({request}) => {
       const response = await request.get('/admin/programs')

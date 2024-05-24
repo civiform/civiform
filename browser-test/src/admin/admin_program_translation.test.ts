@@ -8,7 +8,6 @@ import {
 
 test.describe(
   'Admin can manage program translations',
-  {tag: ['@uses-fixtures']},
   () => {
     test('page layout screenshot', async ({
       page,

@@ -10,7 +10,6 @@ import {
 
 test.describe(
   'view an application in an older version',
-  {tag: ['@uses-fixtures']},
   () => {
     test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({
       page,

@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'csv export for multioption question',
-  {tag: ['@uses-fixtures']},
   () => {
     test.beforeEach(async ({page}) => {
       await seedQuestions(page)

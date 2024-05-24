@@ -3,7 +3,6 @@ import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe(
   'Admin can manage question translations',
-  {tag: ['@uses-fixtures']},
   () => {
     test('creates a question and adds translations', async ({
       page,

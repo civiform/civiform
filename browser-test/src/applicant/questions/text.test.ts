@@ -10,7 +10,6 @@ import {
 
 test.describe(
   'Text question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     test.describe('single text question', () => {
       const programName = 'Test program for single text q'

@@ -4,7 +4,7 @@ import {BASE_URL, FROZEN_PLAY_SESSION_COOKIE_VALUE} from './support/config'
 
 test.describe(
   'User HTTP sessions',
-  {tag: ['@uses-fixtures', '@parallel-candidate']},
+  {tag: ['@parallel-candidate']},
   () => {
     interface Profile {
       id: string

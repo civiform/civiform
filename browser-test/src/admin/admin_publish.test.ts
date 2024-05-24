@@ -4,7 +4,6 @@ import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'publishing all draft questions and programs',
-  {tag: ['@uses-fixtures']},
   () => {
     const hiddenProgramNoQuestions = 'Public test program hidden no questions'
     const visibleProgramWithQuestion =
@@ -72,7 +71,7 @@ test.describe(
 
 test.describe(
   'publishing all programs with disabled programs feature flag on',
-  {tag: ['@uses-fixtures', '@in-development']},
+  {tag: ['@in-development']},
   () => {
     test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
       page,
@@ -132,7 +131,6 @@ test.describe(
 
 test.describe(
   'publishing all programs with universal questions feature flag on',
-  {tag: ['@uses-fixtures']},
   () => {
     test('shows a modal with information about universal questions', async ({
       page,

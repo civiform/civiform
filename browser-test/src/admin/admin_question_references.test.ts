@@ -2,7 +2,6 @@ import {test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 test.describe(
   'view program references from question view',
-  {tag: ['@uses-fixtures']},
   () => {
     test('shows no results for an unreferenced question', async ({
       page,

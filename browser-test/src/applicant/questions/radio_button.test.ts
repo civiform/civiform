@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'Radio button question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     test.describe('single radio button question with north star flag disabled', () => {
       const programName = 'Test program for single radio button'

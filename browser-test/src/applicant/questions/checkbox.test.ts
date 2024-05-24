@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'Checkbox question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     test.describe('single checkbox question', () => {
       const programName = 'Test program for single checkbox'

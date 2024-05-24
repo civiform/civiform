@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'Number question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     const numberInputError = 'div.cf-question-number-error'
 

@@ -8,7 +8,6 @@ import {
 
 test.describe(
   'Admin can manage program image',
-  {tag: ['@uses-fixtures']},
   () => {
     test('views a program without an image', async ({page, adminPrograms}) => {
       await loginAsAdmin(page)

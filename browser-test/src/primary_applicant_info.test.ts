@@ -15,7 +15,6 @@ import {
 
 test.describe(
   'primary applicant info questions',
-  {tag: ['@uses-fixtures']},
   () => {
     test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
       page,

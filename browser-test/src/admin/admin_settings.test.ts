@@ -3,7 +3,6 @@ import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe(
   'Managing system-wide settings',
-  {tag: ['@uses-fixtures']},
   () => {
     test('Displays the settings page', async ({page, adminSettings}) => {
       await loginAsAdmin(page)

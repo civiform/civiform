@@ -3,7 +3,7 @@ import {selectApplicantLanguage} from './support'
 
 test.describe(
   'Error pages',
-  {tag: ['@uses-fixtures', '@parallel-candidate']},
+  {tag: ['@parallel-candidate']},
   () => {
     test('404 page', async ({page}) => {
       await test.step('Has heading in English', async () => {

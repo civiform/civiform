@@ -13,7 +13,6 @@ import {
 
 test.describe(
   'Static text question for applicant flow',
-  {tag: ['@uses-fixtures']},
   () => {
     const staticText = 'Hello, I am some static text!'
     const markdownText =

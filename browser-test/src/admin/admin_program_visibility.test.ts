@@ -15,7 +15,6 @@ import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'Validate program visibility is correct for applicants and TIs',
-  {tag: ['@uses-fixtures']},
   () => {
     test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
       page,

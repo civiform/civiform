@@ -14,7 +14,6 @@ import {
 
 test.describe(
   'Program admin review of submitted applications',
-  {tag: ['@uses-fixtures']},
   () => {
     test('all major steps', async ({
       page,

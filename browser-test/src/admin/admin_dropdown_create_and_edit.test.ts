@@ -3,7 +3,6 @@ import {loginAsAdmin, waitForPageJsLoad} from '../support'
 
 test.describe(
   'create dropdown question with options',
-  {tag: ['@uses-fixtures']},
   () => {
     test('add remove buttons work correctly', async ({
       page,
