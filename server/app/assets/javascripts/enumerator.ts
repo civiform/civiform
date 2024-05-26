@@ -258,11 +258,11 @@ function addIndexToLabelAndButton(field: Element, index: number) {
     document.querySelector('div[data-label-text]'),
   ).getAttribute('data-label-text')
   const labelElement = assertNotNull(field.querySelector('label'))
-  labelElement.innerText = labelBaseText ? labelBaseText + indexString : ''
+  labelElement.textContent = labelBaseText ? labelBaseText + indexString : ''
 
   const buttonBaseText = assertNotNull(
     document.querySelector('div[data-button-text]'),
   ).getAttribute('data-button-text')
   const buttonElement = assertNotNull(field.querySelector('button'))
-  buttonElement.innerText = buttonBaseText ? buttonBaseText + indexString : ''
+  buttonElement.textContent = buttonBaseText ? buttonBaseText + indexString : ''
 }
