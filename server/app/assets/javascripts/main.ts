@@ -328,13 +328,13 @@ export function init() {
   const formattedOutput: HTMLElement | null =
     document.getElementById('formatted-name')
   if (questionNameInput && formattedOutput) {
-    formattedOutput.innerText = formatQuestionName(
+    formattedOutput.textContent = formatQuestionName(
       (questionNameInput as HTMLInputElement).value,
     )
     questionNameInput.addEventListener('input', (event: Event) => {
       const target = event.target as HTMLInputElement
       if (formattedOutput && target) {
-        formattedOutput.innerText = formatQuestionName(target.value)
+        formattedOutput.textContent = formatQuestionName(target.value)
       }
     })
   }
