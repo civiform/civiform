@@ -143,7 +143,7 @@ class QuestionBankController {
       const questionFilterText =
         questionElement.getAttribute(
           QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
-        ) ?? questionElement.innerText
+        ) ?? questionElement.textContent
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
