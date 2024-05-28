@@ -24,7 +24,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramService;
 import services.program.ProgramType;
 
-public class BlockDisabledProgramActionTest extends WithApplication {
+public class ProgramDisabledActionTest extends WithApplication {
   private ProgramService ps;
   private static Injector injector;
   private static final BlockDefinition EMPTY_FIRST_BLOCK =
@@ -37,7 +37,7 @@ public class BlockDisabledProgramActionTest extends WithApplication {
   @Test
   public void testProgramSlugIsNotAvailable() {
     ProgramService programService = instanceOf(ProgramService.class);
-    BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
+    ProgramDisabledAction action = new ProgramDisabledAction(programService);
     Request request = Helpers.fakeRequest().build();
 
     // Set up a mock for the delegate action
@@ -54,7 +54,7 @@ public class BlockDisabledProgramActionTest extends WithApplication {
   public void testDisabledProgram() {
     ProgramService programService = instanceOf(ProgramService.class);
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
+    ProgramDisabledAction action = new ProgramDisabledAction(programService);
 
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledprogram1");
@@ -83,7 +83,7 @@ public class BlockDisabledProgramActionTest extends WithApplication {
   public void testNonDisabledProgram() {
     ProgramService programService = instanceOf(ProgramService.class);
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
+    ProgramDisabledAction action = new ProgramDisabledAction(programService);
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "publicprogram1");
     Request request = Helpers.fakeRequest().flash(flashData).build();

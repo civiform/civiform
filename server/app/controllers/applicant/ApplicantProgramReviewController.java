@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
-import actions.BlockDisabledProgramAction;
+import actions.ProgramDisabledAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -54,7 +54,7 @@ import views.components.ToastMessage;
  * <p>CAUTION: You must explicitly check the current profile so that an unauthorized user cannot
  * access another applicant's data!
  */
-@With(BlockDisabledProgramAction.class)
+@With(ProgramDisabledAction.class)
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;

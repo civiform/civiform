@@ -15,17 +15,17 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
 /**
- * Action that ensures that program the user is trying to access is not disabled.
+ * Action that ensures the program the user is trying to access is not disabled.
  *
  * <p>The action will redirect the request to the home page if the the program is disabled.
  *
  * <p>
  */
-public class BlockDisabledProgramAction extends Action.Simple {
+public class ProgramDisabledAction extends Action.Simple {
   private final ProgramService programService;
 
   @Inject
-  public BlockDisabledProgramAction(ProgramService programService) {
+  public ProgramDisabledAction(ProgramService programService) {
     this.programService = checkNotNull(programService);
   }
 
