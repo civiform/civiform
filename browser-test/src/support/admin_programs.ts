@@ -896,8 +896,7 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    const cardElements = await this.page.$$('.cf-admin-application-card')
-    expect(cardElements.length).toBe(expectedCount)
+    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(expectedCount)
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
