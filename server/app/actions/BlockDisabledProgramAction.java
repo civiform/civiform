@@ -29,10 +29,6 @@ public class BlockDisabledProgramAction extends Action.Simple {
     this.programService = checkNotNull(programService);
   }
 
-  private boolean programSlugIsAvailable(String programSlug) {
-    return !programSlug.equals("None");
-  }
-
   private boolean programIsDisabled(String programSlug) {
     ProgramDefinition programDefiniton =
         programService
@@ -45,13 +41,12 @@ public class BlockDisabledProgramAction extends Action.Simple {
   @Override
   public CompletionStage<Result> call(Request req) {
     Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
-    String programSlug = programSlugOptional.orElse("None");
 
-    if (programSlugIsAvailable(programSlug) && programIsDisabled(programSlug)) {
+    if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
       // TODO: Build an error page and redirect the user to the error page instead
       return CompletableFuture.completedFuture(redirect(routes.HomeController.index()));
     }
 
-    return delegate.call(req);
+    return delegate.call(req); // continute processing next step
   }
 }
