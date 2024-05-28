@@ -420,7 +420,7 @@ option.memorableDate.December=12 — Tháng 12
 # A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=Chọn
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Vui lòng nhập tháng, ngày và năm.
+error.incompleteDate=Lỗi: Vui lòng nhập tháng, ngày và năm.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
 validation.dobNotInPast=Ngày sinh phải là ngày trong quá khứ
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
