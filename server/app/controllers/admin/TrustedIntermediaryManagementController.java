@@ -121,6 +121,9 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (form.hasErrors()) {
       return flashAddTIFieldValuesWithError(form.errors().get(0).toString(), form, id);
     }
+    if (Strings.isNullOrEmpty(form.get().getEmailAddress())) {
+      return flashAddTIFieldValuesWithError("Must provide email address.", form, id);
+    }
     try {
       accountRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
