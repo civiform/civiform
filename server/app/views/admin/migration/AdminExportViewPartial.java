@@ -22,14 +22,14 @@ public final class AdminExportViewPartial extends BaseHtmlView {
    * The ID for the div containing the program json preview. Must be applied to the top-level DOM
    * element of each partial so that replacement works correctly.
    */
-  public static final String PROGRAM_DATA_ID = "json-preview";
+  public static final String PROGRAM_JSON_ID = "json-preview";
 
   /** Renders the json preview section. */
   public DomContent renderProgramData(Http.Request request, String json, String adminName) {
 
     DivTag programDiv =
         div()
-            .withId(PROGRAM_DATA_ID)
+            .withId(PROGRAM_JSON_ID)
             .with(
                 form()
                     .withMethod("POST")

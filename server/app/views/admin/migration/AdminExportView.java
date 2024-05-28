@@ -86,7 +86,7 @@ public final class AdminExportView extends BaseHtmlView {
             form()
                 .attr("hx-encoding", "multipart/form-data")
                 .attr("hx-post", routes.AdminExportController.hxExportProgram().url())
-                .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_DATA_ID)
+                .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_JSON_ID)
                 .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request))
                 .with(fields)
@@ -94,6 +94,6 @@ public final class AdminExportView extends BaseHtmlView {
   }
 
   private DomContent renderProgramDataRegion() {
-    return div().withId(AdminExportViewPartial.PROGRAM_DATA_ID);
+    return div().withId(AdminExportViewPartial.PROGRAM_JSON_ID);
   }
 }
