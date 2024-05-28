@@ -4,9 +4,9 @@
   class="display-none position-fixed height-viewport width-full z-100"
 >
   <div th:each="programIdAndActionUrl: ${programIdsToActionUrls}">
-    <dialog
+    <div
       th:replace="~{this :: loginPromptModal(${programIdAndActionUrl.key}, ${programIdAndActionUrl.value}, ${loginLink})}"
-    ></dialog>
+    ></div>
   </div>
 </div>
 
