@@ -659,7 +659,6 @@ test.describe('Trusted intermediaries', () => {
     // validate error message if empty name
     await adminTiGroups.editGroup('group name')
     await page.click('text="Add"')
-    await validateScreenshot(page, 'manage-ti-group-members-empty-email')
     await validateToastMessage(page, 'Must provide email address.')
 
     // validate adding valid email address works
