@@ -38,18 +38,12 @@ public class BlockDisabledProgramActionTest extends WithApplication {
   public void testProgramSlugIsNotAvailable() {
     ProgramService programService = instanceOf(ProgramService.class);
     BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
-
     Request request = Helpers.fakeRequest().build();
 
     // Set up a mock for the delegate action
     Action.Simple delegateMock = mock(Action.Simple.class);
-    when(delegateMock.call(request))
-        .thenReturn(
-            CompletableFuture.completedFuture(
-                null)); // Replace null with a suitable Result if needed
+    when(delegateMock.call(request)).thenReturn(CompletableFuture.completedFuture(null));
     action.delegate = delegateMock;
-
-    // Call the action under test
     Result result = action.call(request).toCompletableFuture().join();
 
     // Verify that the delegate action was called
@@ -65,7 +59,6 @@ public class BlockDisabledProgramActionTest extends WithApplication {
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledprogram1");
     Request request = Helpers.fakeRequest().flash(flashData).build();
-
     ProgramModel program =
         new ProgramModel(
             /* adminName */ "disabledprogram1",
@@ -91,7 +84,6 @@ public class BlockDisabledProgramActionTest extends WithApplication {
     ProgramService programService = instanceOf(ProgramService.class);
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
-
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "publicprogram1");
     Request request = Helpers.fakeRequest().flash(flashData).build();
@@ -111,12 +103,8 @@ public class BlockDisabledProgramActionTest extends WithApplication {
             /* ProgramAcls */ new ProgramAcls());
     program.save();
 
-    // Set up a mock for the delegate action
     Action.Simple delegateMock = mock(Action.Simple.class);
-    when(delegateMock.call(request))
-        .thenReturn(
-            CompletableFuture.completedFuture(
-                null)); // Replace null with a suitable Result if needed
+    when(delegateMock.call(request)).thenReturn(CompletableFuture.completedFuture(null));
     action.delegate = delegateMock;
 
     Result result = action.call(request).toCompletableFuture().join();
