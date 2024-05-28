@@ -72,7 +72,7 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                                 submitButton("Download Json").withClass(ButtonStyles.SOLID_BLUE))
                             .withClasses("flex"))
                     .withAction(routes.AdminExportController.downloadJson(adminName).url()))
-            .withClasses("mt-10", "mb-10");
+            .withClasses("mb-10");
 
     return programDiv;
   }

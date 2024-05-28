@@ -91,7 +91,7 @@ public final class AdminExportView extends BaseHtmlView {
                 .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request))
                 .with(fields)
-                .with(submitButton("Generate Json").withClass(ButtonStyles.SOLID_BLUE)));
+                .with(submitButton("Generate Json").withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
   }
 
   private DomContent renderProgramDataRegion() {

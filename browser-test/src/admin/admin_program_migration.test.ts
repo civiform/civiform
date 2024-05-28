@@ -61,15 +61,28 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'export-page')
     })
 
-    await test.step('export program 2', async () => {
+    await test.step('generate json for program 2', async () => {
       await adminProgramMigration.selectProgramToExport('program-2')
-      const downloadedProgram = await adminProgramMigration.downloadProgram()
+      await adminProgramMigration.generateJson()
+      await validateScreenshot(page, 'export-page-with-json-preview')
+
+      const jsonPreview = await adminProgramMigration.expectJsonPreview()
+
+      expect(jsonPreview).toContain(programName)
+      expect(jsonPreview).toContain(block1Description)
+      expect(jsonPreview).toContain(block2Description)
+
+      // TODO(#7087): Once we export the questions, assert that all the questions
+      // are in the generated json.
+    })
+    await test.step('download json for program 2', async () => {
+      const downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain(programName)
       expect(downloadedProgram).toContain(block1Description)
       expect(downloadedProgram).toContain(block2Description)
-      // TODO(#7087): Once we export the questions, assert that all the questions
-      // are in the downloaded program.
     })
+
+    // TODO(#7582): Add a test to test that clicking the "Copy Json" button works
   })
 
   test('import a program', async ({page, adminProgramMigration}) => {
@@ -167,7 +180,8 @@ test.describe('program migration', () => {
       await adminProgramMigration.selectProgramToExport(
         'comprehensive-sample-program',
       )
-      downloadedProgram = await adminProgramMigration.downloadProgram()
+      await adminProgramMigration.generateJson()
+      downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain('comprehensive-sample-program')
     })
 

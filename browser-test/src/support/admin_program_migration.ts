@@ -26,10 +26,28 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
-  async downloadProgram() {
+  async generateJson() {
+    await this.page.getByRole('button', {name: 'Generate Json'}).click()
+  }
+
+  async expectJsonPreview() {
+    const jsonPreview = this.page.locator('#program-json')
+
+    await expect(jsonPreview).toBeDisabled()
+    await expect(
+      this.page.getByRole('button', {name: 'Download Json'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('button', {name: 'Copy Json'}),
+    ).toBeVisible()
+
+    return jsonPreview.innerHTML()
+  }
+
+  async downloadJson() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.getByRole('button', {name: 'Download program'}).click(),
+      this.page.getByRole('button', {name: 'Download Json'}).click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
