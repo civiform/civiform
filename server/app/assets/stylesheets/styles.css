@@ -43,6 +43,11 @@
     color: #005ea2;
   }
 
+  .usa-button.usa-modal__close {
+    background-color: transparent;
+    color: #71767a;
+  }
+
   button:hover {
     @apply bg-blue-700;
   }

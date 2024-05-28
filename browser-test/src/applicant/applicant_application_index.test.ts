@@ -288,6 +288,24 @@ test.describe('applicant program index page', () => {
         )
       })
 
+      test('shows login prompt for guest users when they click apply', async ({
+        page,
+      }) => {
+        // Click Apply on the primary program. This should show the login prompt modal.
+        await page.click(
+          `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+        )
+        expect(await page.textContent('html')).toContain(
+          'Create an account or sign in',
+        )
+        await validateScreenshot(
+          page,
+          'apply-program-login-prompt-northstar',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
       test('categorizes programs for draft and applied applications as guest user', async ({
         applicantQuestions,
         page,

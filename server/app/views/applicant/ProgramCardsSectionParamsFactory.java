@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.program.ProgramDefinition;
 import views.components.Modal;
@@ -45,7 +47,8 @@ public final class ProgramCardsSectionParamsFactory {
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       CiviFormProfile profile,
-      Long applicantId) {
+      Long applicantId,
+      ApplicantPersonalInfo personalInfo) {
 
     ProgramSectionParams.Builder sectionBuilder =
         ProgramSectionParams.builder()
@@ -57,7 +60,8 @@ public final class ProgramCardsSectionParamsFactory {
                     programData,
                     preferredLocale,
                     profile,
-                    applicantId));
+                    applicantId,
+                    personalInfo));
 
     if (title.isPresent()) {
       sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
@@ -75,13 +79,15 @@ public final class ProgramCardsSectionParamsFactory {
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       CiviFormProfile profile,
-      Long applicantId) {
+      Long applicantId,
+      ApplicantPersonalInfo personalInfo) {
     ImmutableList.Builder<ProgramCardParams> cardsListBuilder = ImmutableList.builder();
 
     for (ApplicantProgramData programDatum : programData) {
       ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
       ProgramDefinition program = programDatum.program();
 
+      boolean isGuest = personalInfo.getType() == GUEST;
       String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
 
       // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
@@ -90,7 +96,12 @@ public final class ProgramCardsSectionParamsFactory {
           .setTitle(program.localizedName().getOrDefault(preferredLocale))
           .setBody(program.localizedDescription().getOrDefault(preferredLocale))
           .setActionUrl(actionUrl)
+          .setIsGuest(isGuest)
           .setActionText(messages.at(buttonText.getKeyName()));
+
+      if (isGuest) {
+        cardBuilder.setLoginModalId("login-dialog-" + program.id());
+      }
 
       if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
         cardBuilder.setApplicationStatus(
@@ -174,6 +185,10 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String actionUrl();
 
+    public abstract Boolean isGuest();
+
+    public abstract Optional<String> loginModalId();
+
     public abstract Optional<Boolean> eligible();
 
     public abstract Optional<String> eligibilityMessage();
@@ -195,6 +210,10 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setBody(String body);
 
       public abstract Builder setActionUrl(String actionUrl);
+
+      public abstract Builder setIsGuest(Boolean isGuest);
+
+      public abstract Builder setLoginModalId(String loginModalId);
 
       public abstract Builder setEligible(Boolean eligible);
 
