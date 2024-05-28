@@ -7,6 +7,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import controllers.LanguageUtils;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import repository.AccountRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
-import views.applicant.ApplicantLayout;
 
 /**
  * Provides methods for editing and updating an applicant's information, such as their preferred
@@ -40,8 +40,8 @@ public final class ApplicantInformationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final AccountRepository repository;
   private final FormFactory formFactory;
-  private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public ApplicantInformationController(
@@ -50,16 +50,16 @@ public final class ApplicantInformationController extends CiviFormController {
       AccountRepository repository,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      ApplicantLayout layout,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      LanguageUtils languageUtils) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.repository = checkNotNull(repository);
     this.formFactory = checkNotNull(formFactory);
-    this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.languageUtils = languageUtils;
   }
 
   /**
@@ -77,8 +77,7 @@ public final class ApplicantInformationController extends CiviFormController {
                 updateApplicantPreferredLanguage(
                     maybeApplicant,
                     applicantId,
-                    Locale.forLanguageTag(
-                        layout.languageSelector.getPreferredLangage(request).code())),
+                    Locale.forLanguageTag(languageUtils.getPreferredLanguage(request).code())),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {

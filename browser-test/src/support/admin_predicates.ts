@@ -88,8 +88,6 @@ export class AdminPredicates {
     value,
     values,
   }: PredicateSpec) {
-    values = values ? values : value ? [value] : []
-
     const questionId = await this.getQuestionId(questionName)
 
     if (action != null) {
@@ -110,36 +108,46 @@ export class AdminPredicates {
       },
     )
 
+    const valuesToSet = values ? values : value ? [value] : []
     let groupNum = 1
-    for (const valueToSet of values) {
-      // Service areas are the only value input that use a select
-      if (scalar === 'service_area') {
-        const valueSelect = await this.page.$(
-          `select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
-        )
+    for (const valueToSet of valuesToSet) {
+      await this.fillValue(scalar, valueToSet, groupNum++, questionId)
+    }
+  }
 
-        if (valueSelect == null) {
-          throw new Error(
-            `Unable to find select for service area: select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
-          )
-        }
-
-        await valueSelect.selectOption({label: valueToSet})
-        continue
-      }
-
-      const valueInput = await this.page.$(
-        `input[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
+  async fillValue(
+    scalar: string,
+    valueToSet: string,
+    groupNum: number,
+    questionId: string,
+  ) {
+    // Service areas are the only value input that use a select
+    if (scalar === 'service_area') {
+      const valueSelect = await this.page.$(
+        `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
       )
 
-      if (valueInput) {
-        await valueInput.fill(valueToSet || '')
-      } else {
-        // We have a checkbox for the value.
-        const valueArray = valueToSet.split(',')
-        for (const value of valueArray) {
-          await this.page.check(`label:has-text("${value}")`)
-        }
+      if (valueSelect == null) {
+        throw new Error(
+          `Unable to find select for service area: select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
+        )
+      }
+
+      await valueSelect.selectOption({label: valueToSet})
+      return
+    }
+
+    const valueInput = await this.page.$(
+      `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
+    )
+
+    if (valueInput) {
+      await valueInput.fill(valueToSet || '')
+    } else {
+      // We have a checkbox for the value.
+      const valueArray = valueToSet.split(',')
+      for (const value of valueArray) {
+        await this.page.check(`label:has-text("${value}")`)
       }
     }
   }

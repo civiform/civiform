@@ -42,12 +42,12 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.51",
-      "software.amazon.awssdk" % "ses" % "2.25.51",
+      "software.amazon.awssdk" % "s3" % "2.25.60",
+      "software.amazon.awssdk" % "ses" % "2.25.60",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.12.1",
-      "com.azure" % "azure-storage-blob" % "12.25.4",
+      "com.azure" % "azure-storage-blob" % "12.26.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.3",
@@ -60,9 +60,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.2.0-jre" % Test,
@@ -75,13 +75,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.4",
+      "org.pac4j" % "pac4j-core" % "5.7.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.4",
+      "org.pac4j" % "pac4j-http" % "5.7.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.4",
+      "org.pac4j" % "pac4j-oidc" % "5.7.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.4",
+      "org.pac4j" % "pac4j-saml" % "5.7.5",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -100,7 +100,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.36",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.37",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

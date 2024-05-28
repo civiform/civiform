@@ -402,12 +402,32 @@ test.describe('create and edit predicates', () => {
 
     await adminQuestions.addNameQuestion({questionName: 'name-question'})
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
+    await adminQuestions.addDropdownQuestion({
+      questionName: 'dropdown-question',
+      options: [
+        {adminName: 'a', text: 'a'},
+        {adminName: 'b', text: 'b'},
+        {adminName: 'c', text: 'c'},
+      ],
+    })
+    await adminQuestions.addEmailQuestion({questionName: 'email-question'})
+    await adminQuestions.addCheckboxQuestion({
+      questionName: 'checkbox-question',
+      options: [
+        {adminName: 'a', text: 'a'},
+        {adminName: 'b', text: 'b'},
+        {adminName: 'c', text: 'c'},
+      ],
+    })
 
     const programName = 'Help text program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'name', [
       'name-question',
       'date-question',
+      'dropdown-question',
+      'email-question',
+      'checkbox-question',
     ])
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
@@ -416,6 +436,9 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.selectQuestionForPredicate('name-question')
     await adminPredicates.selectQuestionForPredicate('date-question')
+    await adminPredicates.selectQuestionForPredicate('dropdown-question')
+    await adminPredicates.selectQuestionForPredicate('email-question')
+    await adminPredicates.selectQuestionForPredicate('checkbox-question')
     await adminPredicates.clickAddConditionButton()
 
     await adminPredicates.addValueRows(1)
@@ -430,10 +453,21 @@ test.describe('create and edit predicates', () => {
       scalar: 'date',
       operator: 'age is between',
     })
+    await adminPredicates.configurePredicate({
+      questionName: 'dropdown-question',
+      scalar: 'selection',
+      operator: 'is one of',
+    })
+    await adminPredicates.configurePredicate({
+      questionName: 'email-question',
+      scalar: 'email',
+      operator: 'is one of',
+    })
 
     await validateScreenshot(
-      page.locator('#predicate-config-value-row-container'),
+      page.locator('.predicate-config-form'),
       'operator-help-text',
+      /* fullPage= */ false,
     )
   })
 

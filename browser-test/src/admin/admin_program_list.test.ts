@@ -58,7 +58,11 @@ test.describe('Program list page.', () => {
 
     await expectProgramListElements(adminPrograms, [publicProgram])
     await validateScreenshot(page, 'program-list-in-use-tab')
-    await expectDisabledProgramListElements(adminPrograms, [disabledProgram])
+    await expectProgramListElements(
+      adminPrograms,
+      [disabledProgram],
+      /* isProgramDisabled = */ true,
+    )
     await validateScreenshot(page, 'program-list-disabled-tab')
   })
 
@@ -171,17 +175,8 @@ test.describe('Program list page.', () => {
     if (expectedPrograms.length === 0) {
       throw new Error('expected at least one program')
     }
-    const programListNames = isProgramDisabled
-      ? await adminPrograms.disabledProgramNames()
-      : await adminPrograms.programNames()
+    const programListNames = await adminPrograms.programNames(isProgramDisabled)
     expect(programListNames).toEqual(expectedPrograms)
-  }
-
-  async function expectDisabledProgramListElements(
-    adminPrograms: AdminPrograms,
-    expectedPrograms: string[],
-  ) {
-    await expectProgramListElements(adminPrograms, expectedPrograms, true)
   }
 
   test('publishes a single program', async ({page, adminPrograms}) => {

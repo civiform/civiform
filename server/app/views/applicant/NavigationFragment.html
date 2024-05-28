@@ -1,0 +1,90 @@
+<th:block th:fragment="pageHeader">
+  <div class="usa-overlay"></div>
+  <header class="usa-header usa-header--basic">
+    <div class="usa-nav-container">
+      <div class="usa-navbar">
+        <a href="/" class="usa-logo display-flex flex-align-center">
+          <img th:src="${smallLogoUrl}" class="width-8 padding-right-2" />
+          <em class="usa-logo__text">
+            <span th:text="${civicEntityShortName}"></span>
+            <span>CiviForm</span>
+          </em>
+        </a>
+        <button type="button" class="usa-menu-btn">Menu</button>
+      </div>
+      <nav aria-label="Primary navigation" class="usa-nav">
+        <button type="button" class="usa-nav__close">
+          <svg
+            th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+          ></svg>
+        </button>
+        <ul>
+          <li>
+            <button th:replace="~{this :: loginOrLogout}"></button>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <button th:replace="~{this :: languageSelector}"></button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+</th:block>
+
+<th:block th:fragment="loginOrLogout">
+  <div th:if="${isGuest}">
+    <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{header.endSession}"
+      id="logout-button"
+      th:attr="data-redirect-to=${logoutLink}"
+    ></button>
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{button.login}"
+      id="login-button"
+      th:attr="data-redirect-to=${loginLink}"
+    ></button>
+  </div>
+
+  <div th:if="${!isGuest}">
+    <span
+      th:text="#{header.userName(${loggedInAs})}"
+      class="padding-right-1"
+    ></span>
+    <button
+      type="button"
+      class="usa-button usa-button--outline"
+      th:text="#{button.logout}"
+      id="logout-button"
+      th:attr="data-redirect-to=${logoutLink}"
+    ></button>
+  </div>
+</th:block>
+
+<div th:fragment="languageSelector">
+  <form th:action="${updateLanguageAction}" method="POST">
+    <input hidden th:value="${csrfToken}" name="csrfToken" />
+    <input hidden th:value="${requestUri}" name="redirectLink" />
+
+    <select
+      name="locale"
+      onchange="this.form.submit()"
+      th:aria-label="#{label.languageSr}"
+      class="usa-button"
+    >
+      <option hidden selected="true">Languages</option>
+      <option
+        class="usa-language__submenu-item"
+        th:each="language: ${enabledLanguages}"
+        th:value="${language.key.code()}"
+        th:text="${language.value}"
+      ></option>
+    </select>
+  </form>
+</div>
