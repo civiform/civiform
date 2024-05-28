@@ -606,27 +606,22 @@ test.describe('Program admin review of submitted applications', () => {
       expect(csvContentPhoneSearch).not.toContain('threeFirst')
     })
 
-    // TODO: https://github.com/civiform/civiform/issues/7554
-    // await test.step('Search by date and validate expected applications are returned', async () => {
-    //   await adminPrograms.filterProgramApplications({
-    //     fromDate: formattedToday(),
-    //     untilDate: formattedToday(),
-    //   })
-    //   const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
-    //   expect(csvContentPhoneSearch).toContain('oneFirst')
-    //   expect(csvContentPhoneSearch).toContain('twoFirst')
-    //   expect(csvContentPhoneSearch).toContain('threeFirst')
-    // })
+    await test.step('Search by date and validate expected applications are returned', async () => {
+      await adminPrograms.filterProgramApplications({
+        fromDate: formattedToday(),
+        untilDate: formattedToday(),
+      })
+      const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
+      expect(csvContentPhoneSearch).toContain('oneFirst')
+      expect(csvContentPhoneSearch).toContain('twoFirst')
+      expect(csvContentPhoneSearch).toContain('threeFirst')
+    })
   })
 })
 
-// TODO: https://github.com/civiform/civiform/issues/7554
-// /** Returns today's date with the format of "yyyy-mm-dd". Ignores time zones. */
-// function formattedToday() {
-//   const today = new Date()
-//   const year = today.getFullYear()
-//   const month = String(today.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
-//   const day = String(today.getDate()).padStart(2, '0')
-
-//   return `${year}-${month}-${day}`
-// }
+/** Returns a date for now in UTC with the format of "yyyy-mm-dd". */
+function formattedToday() {
+  const now = new Date()
+  const isoString = now.toISOString() // UTC time zone. Example: "2024-05-28T16:34:25.863Z"
+  return isoString.substring(0, 10)
+}
