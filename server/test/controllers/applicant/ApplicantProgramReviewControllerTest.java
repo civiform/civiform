@@ -1,6 +1,9 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -8,12 +11,15 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
+import auth.ProgramAcls;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
@@ -23,9 +29,11 @@ import play.mvc.Result;
 import repository.ApplicationRepository;
 import repository.VersionRepository;
 import services.Path;
-import services.settings.SettingsManifest;
 import services.applicant.question.Scalar;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
@@ -36,6 +44,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private SettingsManifest settingsManifest;
   public ApplicantModel applicant;
   public ApplicantModel applicantWithoutProfile;
+  private static final BlockDefinition EMPTY_FIRST_BLOCK =
+      BlockDefinition.builder()
+          .setId(1)
+          .setName("Screen 1")
+          .setDescription("Screen 1 description")
+          .build();
 
   @Before
   public void setUpWithFreshApplicants() {
@@ -71,21 +85,23 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_applicantAccessToDisabledProgram_redirectsToHome() {
     when(settingsManifest.getDisabledVisibilityConditionEnabled(any())).thenReturn(true);
+
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
     ProgramModel disabledProgram =
-    new ProgramModel(
-        /* adminName */ "disabledprogram1",
-        /* adminDescription */ "description for a disabled program ",
-        /* defaultDisplayName */ "disabled program",
-        /* defaultDisplayDescription */ "description",
-        /* defaultConfirmationMessage */ "",
-        /* externalLink */ "",
-        /* displayMode */ DisplayMode.DISABLED.getValue(),
-        /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
-        /* associatedVersion */ versionRepository.getActiveVersion(),
-        /* programType */ ProgramType.DEFAULT,
-        /* eligibilityIsGating= */ true,
-        /* ProgramAcls */ new ProgramAcls());
-    program.save();
+        new ProgramModel(
+            /* adminName */ "disabledprogram1",
+            /* adminDescription */ "description for a disabled program ",
+            /* defaultDisplayName */ "disabled program",
+            /* defaultDisplayDescription */ "description",
+            /* defaultConfirmationMessage */ "",
+            /* externalLink */ "",
+            /* displayMode */ DisplayMode.DISABLED.getValue(),
+            /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
+            /* associatedVersion */ versionRepository.getActiveVersion(),
+            /* programType */ ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
+            /* ProgramAcls */ new ProgramAcls());
+    disabledProgram.save();
   }
 
   @Test
