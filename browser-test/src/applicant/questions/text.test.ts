@@ -205,6 +205,36 @@ test.describe('Text question for applicant flow', () => {
     })
   })
 
+  test.describe('single text question without help text', () => {
+    const programName = 'Test program for single text without help text'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({
+        questionName: 'text-q',
+        helpText: '',
+        minNum: 5,
+        maxNum: 20,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['text-q'],
+        programName,
+      )
+
+      await logout(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('validate screenshot', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'text-without-help-text')
+      expect(
+        await page.innerText('.cf-applicant-question-help-text'),
+      ).toContain('')
+    })
+  })
+
   test.describe('multiple text questions', () => {
     const programName = 'Test program for multiple text qs'
 
