@@ -8,16 +8,21 @@ class AdminExportView {
     document.addEventListener('htmx:afterSwap', function () {
       // htmx:afterSwap fires after htmx swaps in new content
       // the json and copy button are only availabe once htmx has swapped them in
-      const copyButton = assertNotNull(
-        document.getElementById(AdminExportView.COPY_BUTTON_SELECTOR),
+      // const copyButton = assertNotNull(
+      //   document.getElementById(AdminExportView.COPY_BUTTON_SELECTOR),
+      // )
+      const copyButton = document.getElementById(
+        AdminExportView.COPY_BUTTON_SELECTOR,
       )
-      copyButton.addEventListener('click', () => {
-        const json = assertNotNull(
-          document.getElementById(AdminExportView.JSON_SELECTOR),
-        )
-        void writeClipboardText(json.innerHTML)
-        alert('Copied the Json to the clipboard')
-      })
+      if (copyButton) {
+        copyButton.addEventListener('click', () => {
+          const json = assertNotNull(
+            document.getElementById(AdminExportView.JSON_SELECTOR),
+          )
+          void writeClipboardText(json.innerHTML)
+          alert('Copied the Json to the clipboard')
+        })
+      }
     })
 
     async function writeClipboardText(text: string) {
