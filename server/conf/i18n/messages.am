@@ -63,9 +63,9 @@ button.previousScreen=ቀዳሚ
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
@@ -115,7 +115,7 @@ title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=ክፍል ተጠናቅቋል
 title.submittedPrograms=የገቡ
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
@@ -208,11 +208,11 @@ label.dobExample=ለምሳሌ፦ ጃንዋሪ 28፣ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ኢሜይል
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=ስህተት፦ የትውልድ ቀን ያስፈልጋል
+label.errorDOB=የልደት ቀን ያስፈልጋል
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=ስህተት፦ የመጀመሪያ ስም ያስፈልጋል
+label.errorFirstName=መጠሪያ ስም ያስፈልጋል
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=ስህተት፦ የመጨረሻ ስም ያስፈልጋል
+label.errorLastName=የመጨረሻ ስም ያስፈልጋል
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ወር
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=ሁሉንም ደንበኞች በማሳየት ላይ
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=የድርጅት አባላት
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=የታመነ አገናኝ - ደንበኞችን ያስተዳድሩ - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮችን ይመልከቱ - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=አስገባ
 button.continue=ቀጥል
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=ይጀምሩ
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=ማመልከቻዎን ለመጀመር ከታች አንድ እርምጃ ይምረጡ። ማስቀመጥ እና በማንኛውም ጊዜ ተመልሰው መምጣት ይችላሉ።
 content.doesNotQualify=ብቁ አይደለም
 link.edit=አርትዕ
 link.answer=መልስ
@@ -276,7 +276,7 @@ ariaLabel.answer=መልስ {0}
 ariaLabel.edit={0}ን አርትዕ
 title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=እንጀምር።
 title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አ�
 
 validation.invalidDateFormat=እባክዎ ቀንን በትክክለኛው ቅርጸት ያስገቡ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - ጃኑዋሪ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - ፌብሩዋሪ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - ማርች
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - ኤፕሪል
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - ሜይ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - ጁን
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - ጁላይ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - ኦገስት
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - ሴፕቴምበር
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - ኦክቶበር
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - ኖቬምበር
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - ዲሴምበር
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=ይምረጡ
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=Error: እባክዎ ወር፣ ቀን እና ዓመት ያስገቡ።
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=የልደት ቀን ያለፈ ቀን መሆን አለበት
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=የልደት ቀን ከ150 ዓመታት በፊት ያነሰ መሆን አለበት
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -63,9 +63,9 @@ button.previousScreen=Trước
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
@@ -115,7 +115,7 @@ title.status=Trạng thái
 title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=Mục đã hoàn thành
 title.submittedPrograms=Đã gửi
 toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
 toast.programCompleted=Đăng ký thành công.
@@ -208,11 +208,11 @@ label.dobExample=Ví dụ: Ngày 28 tháng 1 năm 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Lỗi: Cần phải nhập ngày sinh
+label.errorDOB=Cần nhập ngày sinh
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Lỗi: Cần phải nhập tên
+label.errorFirstName=Cần nhập tên
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Lỗi: Cần phải nhập họ
+label.errorLastName=Cần nhập họ
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +251,9 @@ title.displayingAllClients=Hiện tất cả khách hàng
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Thành viên của tổ chức
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=Trung gian đáng tin cậy — Quản lý khách hàng — CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=Trung gian đáng tin cậy — Xem Cài đặt tài khoản — CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +262,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=Gửi
 button.continue=Tiếp tục
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=Bắt đầu
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.
 content.doesNotQualify=Không đủ tiêu chuẩn
 link.edit=Chỉnh sửa
 link.answer=Câu trả lời
@@ -276,7 +276,7 @@ ariaLabel.answer=Câu trả lời {0}
 ariaLabel.edit=Chỉnh sửa {0}
 title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=Hãy bắt đầu.
 title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 #------------------------------------------------------------------------#
@@ -394,37 +394,37 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 — Tháng 1
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 — Tháng 2
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 — Tháng 3
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 — Tháng 4
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 — Tháng 5
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 — Tháng 6
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 — Tháng 7
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 — Tháng 8
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 — Tháng 9
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 — Tháng 10
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 — Tháng 11
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 — Tháng 12
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=Chọn
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=Error: Vui lòng nhập tháng, ngày và năm.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=Ngày sinh phải là ngày trong quá khứ
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=Ngày sinh phải cách đây không quá 150 năm
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
