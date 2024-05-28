@@ -420,7 +420,7 @@ option.memorableDate.December=12 - 12월
 # A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=선택
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: 월, 일, 연도를 입력하세요.
+error.incompleteDate=오류: 월, 일, 연도를 입력하세요.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
 validation.dobNotInPast=생년월일은 과거여야 합니다.
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
