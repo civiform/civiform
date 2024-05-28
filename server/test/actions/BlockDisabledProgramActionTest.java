@@ -21,21 +21,18 @@ import play.test.Helpers;
 import play.test.WithApplication;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
-import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.program.ProgramType;
 
 public class BlockDisabledProgramActionTest extends WithApplication {
   private ProgramService ps;
-
+  private static Injector injector;
   private static final BlockDefinition EMPTY_FIRST_BLOCK =
       BlockDefinition.builder()
           .setId(1)
           .setName("Screen 1")
           .setDescription("Screen 1 description")
           .build();
-
-  private static Injector injector;
 
   @Test
   public void testProgramSlugIsNotAvailable() {
@@ -66,14 +63,14 @@ public class BlockDisabledProgramActionTest extends WithApplication {
     BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
 
     Map<String, String> flashData = new HashMap<>();
-    flashData.put("redirected-from-program-slug", "program2");
+    flashData.put("redirected-from-program-slug", "disabledprogram1");
     Request request = Helpers.fakeRequest().flash(flashData).build();
 
     ProgramModel program =
         new ProgramModel(
-            /* adminName */ "program2",
-            /* adminDescription */ "description",
-            /* defaultDisplayName */ "displayName",
+            /* adminName */ "disabledprogram1",
+            /* adminDescription */ "description for a disabled program ",
+            /* defaultDisplayName */ "disabled program",
             /* defaultDisplayDescription */ "description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
@@ -96,25 +93,33 @@ public class BlockDisabledProgramActionTest extends WithApplication {
     BlockDisabledProgramAction action = new BlockDisabledProgramAction(programService);
 
     Map<String, String> flashData = new HashMap<>();
-    flashData.put("redirected-from-program-slug", "program1");
+    flashData.put("redirected-from-program-slug", "publicprogram1");
     Request request = Helpers.fakeRequest().flash(flashData).build();
-
     ProgramModel program =
         new ProgramModel(
-            /* adminName */ "program1",
-            /* adminDescription */ "description",
-            /* defaultDisplayName */ "displayName",
+            /* adminName */ "publicprogram1",
+            /* adminDescription */ "description for a public visibile program",
+            /* defaultDisplayName */ "public program",
             /* defaultDisplayDescription */ "description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ DisplayMode.PUBLIC.getValue(),
-            /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
+            /* blockDefinitions */ ImmutableList.of(EMPTY_SECOND_BLOCK),
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* ProgramAcls */ new ProgramAcls());
     program.save();
 
-    assertEquals(null, action.call(request).toCompletableFuture().join());
+    // Set up a mock for the delegate action
+    Action.Simple delegateMock = mock(Action.Simple.class);
+    when(delegateMock.call(request))
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                null)); // Replace null with a suitable Result if needed
+    action.delegate = delegateMock;
+
+    Result result = action.call(request).toCompletableFuture().join();
+    assertEquals(null, result);
   }
 }
