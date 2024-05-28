@@ -39,6 +39,7 @@
               class="usa-button"
               th:text="#{button.continueToApplication}"
               th:href="${actionUrl}"
+              th:id="${'bypass-login-prompt-button-' + dialogId}"
             ></a>
           </li>
           <li class="usa-button-group__item">
@@ -55,7 +56,7 @@
     <button
       type="button"
       class="usa-button usa-modal__close"
-      aria-label="Close this window"
+      th:aria-label="#{button.close}"
       data-close-modal
     >
       <svg
