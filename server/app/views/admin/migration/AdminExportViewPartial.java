@@ -38,8 +38,8 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                         FieldWithLabel.textArea()
                             // We set this to disabled to prevent admin from editing the json.
                             // Since disabled fields aren't included in the form body, we need to
-                            // include a hidden field
-                            // with the same data that will be included in the form body.
+                            // include a hidden field with the same data that will be included in
+                            // the form body.
                             .setDisabled(true)
                             .setId("program-json")
                             .setValue(json)
