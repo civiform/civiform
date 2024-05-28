@@ -63,7 +63,6 @@ public final class AdminExportView extends BaseHtmlView {
   private DomContent createProgramSelectionForm(
       Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
     FieldsetTag fields = fieldset();
-
     for (ProgramDefinition program : activePrograms) {
       String labelText =
           "Name: "

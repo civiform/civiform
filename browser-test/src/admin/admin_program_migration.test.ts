@@ -80,6 +80,8 @@ test.describe('program migration', () => {
       expect(downloadedProgram).toContain(programName)
       expect(downloadedProgram).toContain(block1Description)
       expect(downloadedProgram).toContain(block2Description)
+      // TODO(#7087): Once we export the questions, assert that all the questions
+      // are in the downloaded program.
     })
 
     // TODO(#7582): Add a test to test that clicking the "Copy Json" button works
