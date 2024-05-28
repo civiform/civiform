@@ -1,5 +1,5 @@
 <!doctype html>
-<head th:fragment="pageHeader">
+<head th:fragment="pageHeaderScriptsAndLinks">
   <meta charset="UTF-8" />
   <title>Title</title>
 
@@ -66,3 +66,11 @@
     </h4>
   </div>
 </div>
+
+<svg
+  th:fragment="icon(icon)"
+  class="usa-icon"
+  th:attr="viewBox=${icon.getViewBox()}"
+>
+  <path th:attr="d=${icon.path}"></path>
+</svg>

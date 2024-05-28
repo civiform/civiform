@@ -2,12 +2,14 @@ package views.applicant;
 
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.geo.AddressSuggestionGroup;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 
 public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseView {
@@ -17,8 +19,16 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
-      ApplicantRoutes applicantRoutes) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils);
   }
 
   public String render(
@@ -27,7 +37,13 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(
+            request,
+            params.applicantId(),
+            params.profile(),
+            params.applicantPersonalInfo(),
+            params.messages());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
     context.setVariable("goBackAction", goBackAction(params));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);

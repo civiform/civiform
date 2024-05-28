@@ -268,7 +268,7 @@ public final class PredicateGenerator {
    *
    * <p>If value is the empty string, then parses the list of values instead.
    */
-  static PredicateValue parsePredicateValue(
+  private static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
     // TODO: if scalar is not SELECTION or SELECTIONS and there values then throw an exception.

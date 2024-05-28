@@ -528,15 +528,16 @@ public enum Icons {
     return svg(icon);
   }
 
+  public String getViewBox() {
+    return viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", size, size));
+  }
+
   /**
    * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
    * classes like any other element.
    */
   public static SvgTag svg(Icons icon) {
-    var iconViewBox =
-        icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
-
-    return svg().with(path(icon.path)).attr("viewBox", iconViewBox);
+    return svg().with(path(icon.path)).attr("viewBox", icon.getViewBox());
   }
 
   /** Helper method to override the default "currentColor" setting for svgs with a custom color */

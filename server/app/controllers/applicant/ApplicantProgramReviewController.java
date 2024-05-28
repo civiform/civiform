@@ -178,12 +178,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     NorthStarApplicantProgramSummaryView.Params.builder()
                         .setBlocks(roApplicantProgramService.getAllActiveBlocks())
                         .setApplicantId(applicantId)
+                        .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
                         .setProfile(
                             submittingProfile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class)))
                         .setProgramId(programId)
                         .setCompletedBlockCount(completedBlockCount)
                         .setTotalBlockCount(totalBlockCount)
+                        .setMessages(messages)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);

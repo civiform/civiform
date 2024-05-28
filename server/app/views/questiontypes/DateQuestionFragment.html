@@ -6,6 +6,7 @@
            hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()}"
   class="cf-question-date cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
 >
   <fieldset
     class="usa-fieldset"

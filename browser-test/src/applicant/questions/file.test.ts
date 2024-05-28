@@ -269,9 +269,9 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await validateScreenshot(
-          page,
+          page.getByTestId('questionRoot'),
           'file-required-north-star',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
       })

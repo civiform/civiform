@@ -72,14 +72,15 @@ export class AdminPrograms {
     this.page = page
   }
 
-  async gotoAdminProgramsPage() {
+  /**
+   * @param isProgramDisabled If true, go to the disabled programs page rather than the main programs page.
+   */
+  async gotoAdminProgramsPage(isProgramDisabled = false) {
     await this.page.click('nav :text("Programs")')
+    if (isProgramDisabled) {
+      await this.page.click('a:has-text("Disabled")')
+    }
     await this.expectAdminProgramsPage()
-    await waitForPageJsLoad(this.page)
-  }
-
-  async gotoDisabledProgramIndexPage() {
-    await this.page.click('a:has-text("Disabled")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -229,15 +230,8 @@ export class AdminPrograms {
     await this.submitProgramDetailsEdits()
   }
 
-  async programNames() {
-    await this.gotoAdminProgramsPage()
-    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
-    return titles.allTextContents()
-  }
-
-  async disabledProgramNames() {
-    await this.gotoDisabledProgramIndexPage()
-    await waitForPageJsLoad(this.page)
+  async programNames(disabled = false) {
+    await this.gotoAdminProgramsPage(disabled)
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
   }
@@ -393,18 +387,11 @@ export class AdminPrograms {
     return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
-  async gotoEditDisabledDraftProgramPage(programName: string) {
-    await this.gotoEditDraftProgramPage(programName, true)
-  }
-
   async gotoEditDraftProgramPage(
     programName: string,
     isProgramDisabled: boolean = false,
   ) {
-    await this.gotoAdminProgramsPage()
-    if (isProgramDisabled) {
-      await this.gotoDisabledProgramIndexPage()
-    }
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
     await this.page.click(
       this.withinProgramCardSelector(
@@ -670,17 +657,13 @@ export class AdminPrograms {
     }
   }
 
-  async launchDeleteScreenModal() {
-    const programName = 'Test program 7'
-    await this.addProgram(programName)
-    await this.addProgramBlock(programName)
-    await this.goToBlockInProgram(programName, 'Screen 1')
+  async launchRemoveProgramBlockModal(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
     await clickAndWaitForModal(this.page, 'block-delete-modal')
   }
 
   async removeProgramBlock(programName: string, blockName: string) {
-    await this.goToBlockInProgram(programName, blockName)
-    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.launchRemoveProgramBlockModal(programName, blockName)
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
@@ -748,19 +731,6 @@ export class AdminPrograms {
     )
   }
 
-  async addDisabledProgramBlockUsingSpec(
-    programName: string,
-    blockDescription = 'screen description',
-    questions: QuestionSpec[] = [],
-  ) {
-    await this.addProgramBlockUsingSpec(
-      programName,
-      blockDescription,
-      questions,
-      true,
-    )
-  }
-
   /**
    * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
    *
@@ -773,11 +743,7 @@ export class AdminPrograms {
     questions: QuestionSpec[] = [],
     isProgramDisabled: boolean = false,
   ) {
-    if (isProgramDisabled) {
-      await this.gotoEditDisabledDraftProgramPage(programName)
-    } else {
-      await this.gotoEditDraftProgramPage(programName)
-    }
+    await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -890,33 +856,17 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersionForDisabledProgram(
-    programName: string,
-    programReadOnlyViewEnabled = true,
-  ) {
-    await this.createNewVersion(programName, programReadOnlyViewEnabled, true)
-  }
-
-  async createNewVersion(
-    programName: string,
-    programReadOnlyViewEnabled = true,
-    isProgramDisabled = false,
-  ) {
-    await this.gotoAdminProgramsPage()
-    if (isProgramDisabled) {
-      await this.gotoDisabledProgramIndexPage()
-    }
+  async createNewVersion(programName: string, isProgramDisabled = false) {
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectActiveProgram(programName)
 
-    if (programReadOnlyViewEnabled) {
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Active',
-          '.cf-with-dropdown',
-        ),
-      )
-    }
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Active',
+        '.cf-with-dropdown',
+      ),
+    )
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
@@ -926,10 +876,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await this.submitProgramDetailsEdits()
-    await this.gotoAdminProgramsPage()
-    if (isProgramDisabled) {
-      await this.gotoDisabledProgramIndexPage()
-    }
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
   }
 
@@ -949,8 +896,9 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    const cardElements = await this.page.$$('.cf-admin-application-card')
-    expect(cardElements.length).toBe(expectedCount)
+    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
+      expectedCount,
+    )
   }
 
   selectApplicationCardForApplicant(applicantName: string) {

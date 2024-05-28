@@ -8,6 +8,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
+import controllers.LanguageUtils;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -17,7 +18,6 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.LanguageSelector;
 import views.applicant.ApplicantLayout;
 import views.components.LinkElement;
 import views.style.ErrorStyles;
@@ -29,12 +29,12 @@ import views.style.ErrorStyles;
 public final class NotFound extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  private final LanguageSelector languageSelector;
+  private final LanguageUtils languageUtils;
 
   @Inject
-  public NotFound(ApplicantLayout layout, LanguageSelector languageSelector) {
+  public NotFound(ApplicantLayout layout, LanguageUtils languageUtils) {
     this.layout = checkNotNull(layout);
-    this.languageSelector = checkNotNull(languageSelector);
+    this.languageUtils = checkNotNull(languageUtils);
   }
 
   public Content render(Http.RequestHeader request, Messages messages) {
@@ -75,7 +75,7 @@ public final class NotFound extends BaseHtmlView {
 
   private HtmlBundle addBodyFooter(Http.RequestHeader request, Messages messages) {
     HtmlBundle bundle = layout.getBundle(request);
-    String language = languageSelector.getPreferredLangage(request).code();
+    String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
 
