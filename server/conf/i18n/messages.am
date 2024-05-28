@@ -420,7 +420,7 @@ option.memorableDate.December=12 - ዲሴምበር
 # A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=ይምረጡ
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: እባክዎ ወር፣ ቀን እና ዓመት ያስገቡ።
+error.incompleteDate=ስህተት: እባክዎ ወር፣ ቀን እና ዓመት ያስገቡ።
 # An error message that appears when the user tries to enter a date of birth that is in the future.
 validation.dobNotInPast=የልደት ቀን ያለፈ ቀን መሆን አለበት
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
