@@ -104,7 +104,7 @@ public class BlockDisabledProgramActionTest extends WithApplication {
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ DisplayMode.PUBLIC.getValue(),
-            /* blockDefinitions */ ImmutableList.of(EMPTY_SECOND_BLOCK),
+            /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,

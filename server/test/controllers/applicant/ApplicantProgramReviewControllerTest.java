@@ -23,6 +23,7 @@ import play.mvc.Result;
 import repository.ApplicationRepository;
 import repository.VersionRepository;
 import services.Path;
+import services.settings.SettingsManifest;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
@@ -32,6 +33,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
   private ProgramModel activeProgram;
+  private SettingsManifest settingsManifest;
   public ApplicantModel applicant;
   public ApplicantModel applicantWithoutProfile;
 
@@ -39,6 +41,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public void setUpWithFreshApplicants() {
     resetDatabase();
 
+    settingsManifest = mock(SettingsManifest.class);
     subject = instanceOf(ApplicantProgramReviewController.class);
     blockController = instanceOf(ApplicantProgramBlocksController.class);
     activeProgram =
@@ -63,6 +66,26 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result result = this.review(applicantWithoutProfile.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void review_applicantAccessToDisabledProgram_redirectsToHome() {
+    when(settingsManifest.getDisabledVisibilityConditionEnabled(any())).thenReturn(true);
+    ProgramModel disabledProgram =
+    new ProgramModel(
+        /* adminName */ "disabledprogram1",
+        /* adminDescription */ "description for a disabled program ",
+        /* defaultDisplayName */ "disabled program",
+        /* defaultDisplayDescription */ "description",
+        /* defaultConfirmationMessage */ "",
+        /* externalLink */ "",
+        /* displayMode */ DisplayMode.DISABLED.getValue(),
+        /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
+        /* associatedVersion */ versionRepository.getActiveVersion(),
+        /* programType */ ProgramType.DEFAULT,
+        /* eligibilityIsGating= */ true,
+        /* ProgramAcls */ new ProgramAcls());
+    program.save();
   }
 
   @Test
