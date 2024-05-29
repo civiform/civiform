@@ -1,6 +1,6 @@
 /** The question bank controller is responsible for manipulating the question bank. */
 import {assertNotNull} from './util'
-import {sortSelectorElements} from './sort_selector'
+import {sortElementsByDataAttributes} from './sort_selector'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -157,7 +157,7 @@ class QuestionBankController {
    * Sort questions in the question bank based on the criteria selected from the dropdown.
    */
   private static sortQuestions() {
-    sortSelectorElements(
+    sortElementsByDataAttributes(
       QuestionBankController.SORT_SELECT_ID,
       '.cf-sortable-questions',
       '.' + QuestionBankController.QUESTION_CLASS,
