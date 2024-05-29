@@ -25,6 +25,7 @@ import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.applicant.question.Question;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -146,13 +147,15 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             "border-b",
             "border-gray-300",
             StyleUtils.even("bg-gray-100"))
-        .with(renderInfoCell(ti))
-        .with(renderMemberCountCell(ti))
-        .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
-        .with(renderActionsCell(ti, request));
-  }
+            .with(renderInfoCell(ti))
+            .with(renderMemberCountCell(ti))
+            .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
+            .withData(QuestionSortOption.NUM_MEMBERS.getDataAttribute(),
+                    Integer.toString(ti.getTrustedIntermediaries().size()))
+            .with(renderActionsCell(ti, request));
+}
 
-  private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
+private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
         .with(div(tiGroup.getDescription()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");

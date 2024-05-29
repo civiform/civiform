@@ -21,8 +21,8 @@ public enum QuestionSortOption {
       /* displayStringDescending= */ Optional.of("Most programs")),
   TI_NAME(
       /* dataAttribute= */ "tiname",
-      /* displayStringAscending= */ Optional.of("Fewest programs"),
-      /* displayStringDescending= */ Optional.of("Most programs")),
+      /* displayStringAscending= */ Optional.of("Name A-Z"),
+      /* displayStringDescending= */ Optional.of("Name Z-A")),
   NUM_MEMBERS(
       /* dataAttribute= */ "nummember",
       /* displayStringAscending= */ Optional.of("Fewest members"),
