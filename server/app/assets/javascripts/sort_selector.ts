@@ -10,7 +10,7 @@
  * @param elementSelector individual elements to be sorted
  */
 export function sortSelectorElements(
-    listSelector: string,
+  listSelector: string,
   sublistSelector: string,
   elementSelector: string,
 ): void {
