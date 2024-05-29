@@ -1,4 +1,4 @@
-import {test, expect} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -43,14 +43,13 @@ test.describe('program migration', () => {
       await adminPrograms.editProgramBlock(programName, block1Description, [
         'date-q',
       ])
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        block2Description,
-        [
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: block2Description,
+        questions: [
           {name: 'email-q', isOptional: false},
           {name: 'phone-q', isOptional: true},
         ],
-      )
+      })
 
       await adminPrograms.publishAllDrafts()
     })
