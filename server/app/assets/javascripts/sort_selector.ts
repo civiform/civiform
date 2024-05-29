@@ -5,7 +5,7 @@
  *
  * E.g. Sort by Name A-Z will look up the value for data attribute tiname-asc and sort the list by that value.
  *
- * @param listId selector for finding the portion of the document that contains the sublistSelector and elementSelector
+ * @param listId id for finding the portion of the document that contains the sublistSelector and elementSelector
  * @param sublistSelector selector for the parent element of all of the elements to be sorted
  * @param elementSelector individual elements to be sorted
  */
