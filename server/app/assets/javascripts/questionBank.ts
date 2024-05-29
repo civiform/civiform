@@ -159,8 +159,8 @@ class QuestionBankController {
   private static sortQuestions() {
     sortSelectorElements(
       QuestionBankController.SORT_SELECT_ID,
-      '.' + QuestionBankController.QUESTION_CLASS,
       '.cf-sortable-questions',
+      '.' + QuestionBankController.QUESTION_CLASS
     )
   }
 }

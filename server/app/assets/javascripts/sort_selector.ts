@@ -1,20 +1,29 @@
-/** Responsible for controlling the sorting mechanism */
+/** 
+ * Responsible for controlling the sorting mechanism used by QuestionBankController. Elements (tagged with elementSelector class) 
+ * have data attributes with the value to be compared and sorted according to the selector input. 
+ * 
+ * E.g. Sort by Name A-Z will look up the value for data attribute tiname-asc and sort the list by that value.
+ * 
+ * @param elementListSelector selector for finding the portion of the document that contains the sublistSelector and elementSelector 
+ * @param sublistSelector selector for the parent element of all of the elements to be sorted
+ * @param elementSelector individual elements to be sorted
+ */
 export function sortSelectorElements(
-  sortSelectId: string,
-  sortElementId: string,
-  sortSublistId: string,
+  elementListSelector: string,
+  sublistSelector: string,
+  elementSelector: string,
 ): void {
   const listToBeSorted = document.getElementById(
-    sortSelectId,
+    elementListSelector,
   ) as HTMLSelectElement
-  const sublists = document.querySelectorAll(sortSublistId)
+  const sublists = document.querySelectorAll(sublistSelector)
   if (!listToBeSorted || !sublists) {
     return
   }
 
   sublists.forEach((sublist) => {
     const el: HTMLElement[] = Array.from(
-      sublist.querySelectorAll(sortElementId),
+      sublist.querySelectorAll(elementSelector),
     )
 
     const sortedElements = el.sort((elementA, elementB) => {
