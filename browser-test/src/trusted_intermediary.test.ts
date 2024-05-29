@@ -670,21 +670,22 @@ test.describe('Trusted intermediaries', () => {
 
   test('sort trusted intermediaries based on selection', async ({page, adminTiGroups}) => {
     await loginAsAdmin(page)
-    await adminTiGroups.gotoAdminTIPage()
     // add "aaa" with 2 members
-    await adminTiGroups.fillInGroupBasics('aaa', 'group description')
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
     await adminTiGroups.editGroup('aaa')
     await adminTiGroups.addGroupMember('foo@bar.com')
     await adminTiGroups.addGroupMember('foo2@bar.com')
     await adminTiGroups.addGroupMember('foo3@bar.com')
     // add "bbb" with 0 members
     await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('bbb', 'group description')
+    await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
+    await adminTiGroups.expectGroupExist('bbb', 'bbb')
     // add "ccc" with 1 member
     await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('ccc', 'group description')
+    await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
     await adminTiGroups.editGroup('ccc')
-    await adminTiGroups.addGroupMember('foo@bar.com')
+    await adminTiGroups.addGroupMember('foo4@bar.com')
 
     await adminTiGroups.gotoAdminTIPage()
     page.locator('#ti-list-sort').selectOption('tiname-asc')
