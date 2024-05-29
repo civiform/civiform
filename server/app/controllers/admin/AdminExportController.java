@@ -106,14 +106,14 @@ public class AdminExportController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadJson(Http.Request request, String adminName) {
+  public Result downloadJSON(Http.Request request, String adminName) {
 
     Form<AdminProgramExportForm> form =
         formFactory
             .form(AdminProgramExportForm.class)
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
 
-    String json = form.get().getProgramJson();
+    String json = form.get().getProgramJSON();
     String filename = adminName + "-exported.json";
 
     return ok(json)
