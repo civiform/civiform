@@ -36,7 +36,7 @@ public final class AdminExportView extends BaseHtmlView {
    * Renders the export page, showing a list of all active programs. Admins can select a single
    * program then download it.
    */
-  public Content render(Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
+  public Content render(Http.Request request, ImmutableList<ProgramDefinition> programs) {
     String title = "Export a program";
     DivTag contentDiv =
         div()
@@ -44,26 +44,27 @@ public final class AdminExportView extends BaseHtmlView {
             .with(h1(title))
             .with(
                 p("Select the program you'd like to export to a different environment and then"
-                        + " click \"Download program\". This will download a JSON file representing"
-                        + " the selected program.")
+                      + " click \"Generate JSON\". This will generate a JSON file representing the"
+                      + " selected program.")
                     .withClass("my-2"))
             .with(
-                p("Once the JSON file is downloaded, open the environment where this program should"
-                        + " be added. Log in as a CiviForm Admin and use the \"Import\" tab to add"
-                        + " the program.")
+                p("Once the JSON file is generated, you can copy it to the clipboard or download a"
+                      + " file containing the JSON. To import the JSON, open the environment where"
+                      + " this program should be added, log in as a CiviForm Admin and use the"
+                      + " \"Import\" tab to add the program.")
                     .withClass("my-2"));
 
-    contentDiv.with(createProgramSelectionForm(request, activePrograms));
-    contentDiv.with(renderProgramDataRegion());
+    contentDiv.with(createProgramSelectionForm(request, programs));
+    contentDiv.with(renderJSONPreviewRegion());
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
   }
 
   private DomContent createProgramSelectionForm(
-      Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
+      Http.Request request, ImmutableList<ProgramDefinition> programs) {
     FieldsetTag fields = fieldset();
-    for (ProgramDefinition program : activePrograms) {
+    for (ProgramDefinition program : programs) {
       String labelText =
           "Name: "
               + program.localizedName().getDefault()
@@ -93,7 +94,7 @@ public final class AdminExportView extends BaseHtmlView {
                 .with(submitButton("Generate Json").withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
   }
 
-  private DomContent renderProgramDataRegion() {
+  private DomContent renderJSONPreviewRegion() {
     return div().withId(AdminExportViewPartial.PROGRAM_JSON_ID);
   }
 }

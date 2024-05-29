@@ -17,7 +17,7 @@ class AdminExportView {
             document.getElementById(AdminExportView.JSON_SELECTOR),
           )
           void writeClipboardText(json.innerHTML)
-          alert('Copied the Json to the clipboard')
+          alert('Copied the JSON to the clipboard')
         })
       }
     })

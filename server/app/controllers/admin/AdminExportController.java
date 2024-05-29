@@ -101,7 +101,7 @@ public class AdminExportController extends CiviFormController {
 
     return ok(
         adminExportViewPartial
-            .renderProgramData(request, serializeResult.getResult(), program.adminName())
+            .renderJSONPreview(request, serializeResult.getResult(), program.adminName())
             .render());
   }
 

@@ -4,7 +4,6 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 
-import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -15,9 +14,6 @@ import views.components.FieldWithLabel;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminExportView}. */
 public final class AdminExportViewPartial extends BaseHtmlView {
-  @Inject
-  AdminExportViewPartial() {}
-
   /**
    * The ID for the div containing the program json preview. Must be applied to the top-level DOM
    * element of each partial so that replacement works correctly.
@@ -25,7 +21,7 @@ public final class AdminExportViewPartial extends BaseHtmlView {
   public static final String PROGRAM_JSON_ID = "json-preview";
 
   /** Renders the json preview section. */
-  public DomContent renderProgramData(Http.Request request, String json, String adminName) {
+  public DomContent renderJSONPreview(Http.Request request, String json, String adminName) {
 
     DivTag programDiv =
         div()
@@ -43,6 +39,7 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                             .setDisabled(true)
                             .setId("program-json")
                             .setValue(json)
+                            .setAttribute("rows", "12")
                             .getTextareaTag())
                     .with(
                         FieldWithLabel.textArea()
@@ -53,10 +50,10 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                     .with(
                         div()
                             .with(
-                                button("Copy Json")
+                                button("Copy JSON")
                                     .withId("copy-json-button")
                                     .withClasses(ButtonStyles.SOLID_BLUE, "mr-2"),
-                                submitButton("Download Json").withClass(ButtonStyles.SOLID_BLUE))
+                                submitButton("Download JSON").withClass(ButtonStyles.SOLID_BLUE))
                             .withClasses("flex"))
                     .withAction(routes.AdminExportController.downloadJson(adminName).url()))
             .withClasses("mb-10");

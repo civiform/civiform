@@ -26,28 +26,28 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
-  async generateJson() {
-    await this.page.getByRole('button', {name: 'Generate Json'}).click()
+  async generateJSON() {
+    await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }
 
-  async expectJsonPreview() {
+  async expectJSONPreview() {
     const jsonPreview = this.page.locator('#program-json')
 
     await expect(jsonPreview).toBeDisabled()
     await expect(
-      this.page.getByRole('button', {name: 'Download Json'}),
+      this.page.getByRole('button', {name: 'Download JSON'}),
     ).toBeVisible()
     await expect(
-      this.page.getByRole('button', {name: 'Copy Json'}),
+      this.page.getByRole('button', {name: 'Copy JSON'}),
     ).toBeVisible()
 
     return jsonPreview.innerHTML()
   }
 
-  async downloadJson() {
+  async downloadJSON() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.getByRole('button', {name: 'Download Json'}).click(),
+      this.page.getByRole('button', {name: 'Download JSON'}).click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
@@ -68,7 +68,7 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async submitProgramJson(content: string) {
+  async submitProgramJSON(content: string) {
     await this.page.getByRole('textbox').fill(content)
     await this.page
       .getByRole('button', {name: 'Display program information'})
