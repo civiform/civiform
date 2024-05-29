@@ -160,7 +160,7 @@ class QuestionBankController {
     sortSelectorElements(
       QuestionBankController.SORT_SELECT_ID,
       '.cf-sortable-questions',
-      '.' + QuestionBankController.QUESTION_CLASS
+      '.' + QuestionBankController.QUESTION_CLASS,
     )
   }
 }

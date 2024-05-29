@@ -1,10 +1,10 @@
-/** 
- * Responsible for controlling the sorting mechanism used by QuestionBankController. Elements (tagged with elementSelector class) 
- * have data attributes with the value to be compared and sorted according to the selector input. 
- * 
+/**
+ * Responsible for controlling the sorting mechanism used by QuestionBankController. Elements (tagged with elementSelector class)
+ * have data attributes with the value to be compared and sorted according to the selector input.
+ *
  * E.g. Sort by Name A-Z will look up the value for data attribute tiname-asc and sort the list by that value.
- * 
- * @param elementListSelector selector for finding the portion of the document that contains the sublistSelector and elementSelector 
+ *
+ * @param elementListSelector selector for finding the portion of the document that contains the sublistSelector and elementSelector
  * @param sublistSelector selector for the parent element of all of the elements to be sorted
  * @param elementSelector individual elements to be sorted
  */
