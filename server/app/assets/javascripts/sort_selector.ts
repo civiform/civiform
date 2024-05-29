@@ -5,17 +5,17 @@
  *
  * E.g. Sort by Name A-Z will look up the value for data attribute tiname-asc and sort the list by that value.
  *
- * @param elementListSelector selector for finding the portion of the document that contains the sublistSelector and elementSelector
+ * @param listSelector selector for finding the portion of the document that contains the sublistSelector and elementSelector
  * @param sublistSelector selector for the parent element of all of the elements to be sorted
  * @param elementSelector individual elements to be sorted
  */
 export function sortSelectorElements(
-  elementListSelector: string,
+    listSelector: string,
   sublistSelector: string,
   elementSelector: string,
 ): void {
   const listToBeSorted = document.getElementById(
-    elementListSelector,
+    listSelector,
   ) as HTMLSelectElement
   const sublists = document.querySelectorAll(sublistSelector)
   if (!listToBeSorted || !sublists) {
