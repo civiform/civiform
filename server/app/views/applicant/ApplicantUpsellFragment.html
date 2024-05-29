@@ -7,6 +7,16 @@
       <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
       <h1 th:text="#{title.applicationConfirmation}"></h1>
       <p th:text="#{content.confirmed(${programName}, ${applicationId})}"></p>
+      <a href="/" class="display-flex flex-align-center">
+        <em class="usa-logo__text">
+          <button
+            type="button"
+            id="another-program"
+            class="usa-button"
+            th:text="#{link.applyToAnotherProgram}"
+          ></button>
+        </em>
+      </a>
     </main>
 
     <footer
