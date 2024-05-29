@@ -606,9 +606,6 @@ test.describe('Program admin review of submitted applications', () => {
       expect(csvContentPhoneSearch).not.toContain('threeFirst')
     })
 
-     await test.step('Search by date and validate expected applications are returned', async () => {
-       await adminPrograms.filterProgramApplications({
-  
     // Creating a range of a couple days to test the filter. The localtime used in the UI vs the
     // UTC time used on the server is difficult to mock correctly without getting too hacky.
     // This will good enough to make sure the filters work, even if they don't check exact
