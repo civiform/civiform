@@ -10,13 +10,11 @@
  * @param elementSelector individual elements to be sorted
  */
 export function sortElementsByDataAttributes(
-    listId: string,
+  listId: string,
   sublistSelector: string,
   elementSelector: string,
 ): void {
-  const listToBeSorted = document.getElementById(
-    listId,
-  ) as HTMLSelectElement
+  const listToBeSorted = document.getElementById(listId) as HTMLSelectElement
   const sublists = document.querySelectorAll(sublistSelector)
   if (!listToBeSorted || !sublists) {
     return
