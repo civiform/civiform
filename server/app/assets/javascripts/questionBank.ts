@@ -1,6 +1,6 @@
 /** The question bank controller is responsible for manipulating the question bank. */
-import { assertNotNull } from './util'
-import { sortSelectorElements } from './sort_selector'
+import {assertNotNull} from './util'
+import {sortSelectorElements} from './sort_selector'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -107,7 +107,7 @@ class QuestionBankController {
         container.classList.add('hidden')
         QuestionBankController.makeBodyScrollable()
       },
-      { once: true },
+      {once: true},
     )
     container.classList.add(QuestionBankController.QUESTION_BANK_HIDDEN)
     const url = new URL(location.href)
@@ -148,7 +148,7 @@ class QuestionBankController {
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
-        !questionFilterText.toUpperCase().includes(filterString),
+          !questionFilterText.toUpperCase().includes(filterString),
       )
     })
   }
@@ -157,7 +157,11 @@ class QuestionBankController {
    * Sort questions in the question bank based on the criteria selected from the dropdown.
    */
   private static sortQuestions() {
-    sortSelectorElements(QuestionBankController.SORT_SELECT_ID, "." + QuestionBankController.QUESTION_CLASS, '.cf-sortable-questions');
+    sortSelectorElements(
+      QuestionBankController.SORT_SELECT_ID,
+      '.' + QuestionBankController.QUESTION_CLASS,
+      '.cf-sortable-questions',
+    )
   }
 }
 

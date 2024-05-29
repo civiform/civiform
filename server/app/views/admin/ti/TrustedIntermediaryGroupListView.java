@@ -14,7 +14,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import static j2html.TagCreator.input;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -35,15 +34,13 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.QuestionSortOption;
+import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.components.QuestionSortOption;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.components.QuestionBank;
-import views.components.QuestionSortOption;
-import views.components.SelectWithLabel;
-import views.components.SvgTag;
-import views.components.TrustedIntermediarySortOption;
 
 /** Renders a page for viewing trusted intermediary groups. */
 public class TrustedIntermediaryGroupListView extends BaseHtmlView {
@@ -56,20 +53,23 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   public Content render(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     String title = "Manage trusted intermediaries";
-    HtmlBundle htmlBundle = layout
-        .getBundle(request)
-        .setTitle(title)
-        .addMainContent(
-            renderHeader("Create new trusted intermediary").withClass("mt-8"),
-            renderAddNewButton(request),
-            div().withClasses("flex", "mb-2", "items-end").with(
-                renderSubHeader("Existing trusted intermediaries").withClasses("mt-8", "flex-grow", "relative"),
-                renderTiSortSelect(
-                    ImmutableList.of(
-                        TrustedIntermediarySortOption.LAST_MODIFIED,
-                        TrustedIntermediarySortOption.NAME,
-                        TrustedIntermediarySortOption.NUM_MEMBERS))),
-            renderTiGroupCards(tis, request));
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle(request)
+            .setTitle(title)
+            .addMainContent(
+                renderHeader("Create new trusted intermediary").withClass("mt-8"),
+                renderAddNewButton(request),
+                div()
+                    .withClasses("flex", "mb-2", "items-end")
+                    .with(
+                        renderSubHeader("Existing trusted intermediaries")
+                            .withClasses("mt-8", "flex-grow", "relative"),
+                        renderTiSortSelect(
+                            ImmutableList.of(
+                              QuestionSortOption.TI_NAME,
+                              QuestionSortOption.NUM_MEMBERS))),
+                renderTiGroupCards(tis, request));
 
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
@@ -83,33 +83,34 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     }
     return layout.renderCentered(htmlBundle);
   }
-  private DivTag renderTiSortSelect(List<TrustedIntermediarySortOption> sortOptions) {
-    ImmutableList<SelectWithLabel.OptionValue> questionSortOptions = sortOptions.stream()
-        .flatMap(sortOption -> sortOption.getSelectOptions().stream())
-        .collect(ImmutableList.toImmutableList());
 
-    SelectWithLabel questionSortSelect = new SelectWithLabel()
-        .setId("question-bank-sort")
-        .setValue(questionSortOptions.get(0).value()) // Default sort order.
-        .setLabelText("Sort by:")
-        .setOptionGroups(
-            ImmutableList.of(
-                SelectWithLabel.OptionGroup.builder()
-                    .setLabel("Sort by:")
-                    .setOptions(questionSortOptions)
-                    .build()));
+  private DivTag renderTiSortSelect(List<QuestionSortOption> sortOptions) {
+    ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
+        sortOptions.stream()
+            .flatMap(sortOption -> sortOption.getSelectOptions().stream())
+            .collect(ImmutableList.toImmutableList());
+
+    SelectWithLabel questionSortSelect =
+        new SelectWithLabel()
+            .setId("ti-list-sort")
+            .setValue(questionSortOptions.get(0).value()) // Default sort order.
+            .setLabelText("Sort by:")
+            .setOptionGroups(
+                ImmutableList.of(
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("Sort by:")
+                        .setOptions(questionSortOptions)
+                        .build()));
     return questionSortSelect.getSelectTag().withClass("mb-0");
   }
-
 
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-full", "cf-sortable-questions")
+            .withClasses("border", "border-gray-300", "shadow-md", "w-full", "cf-sortable-elements")
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
-
 
   private DivTag renderAddNewButton(Http.Request request) {
     FormTag formTag =
@@ -140,16 +141,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   private TrTag renderGroupRow(TrustedIntermediaryGroupModel ti, Http.Request request) {
     return tr().withClasses(
-        ReferenceClasses.ADMIN_TI_GROUP_ROW,
-        "cf-question-bank-element",
-        "border-b",
-        "border-gray-300",
-        StyleUtils.even("bg-gray-100"))
+            ReferenceClasses.ADMIN_TI_GROUP_ROW,
+            "cf-ti-list-element",
+            "border-b",
+            "border-gray-300",
+            StyleUtils.even("bg-gray-100"))
         .with(renderInfoCell(ti))
         .with(renderMemberCountCell(ti))
-        .withData(TrustedIntermediarySortOption.NAME.getDataAttribute(), ti.getName())
-        .withData(TrustedIntermediarySortOption.NUM_MEMBERS.getDataAttribute(),
-            Integer.toString(ti.getTrustedIntermediaries().size()))
+        .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
         .with(renderActionsCell(ti, request));
   }
 

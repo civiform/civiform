@@ -23,6 +23,8 @@ import * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
+import * as trustedIntermediaryController from './trusted_intermediary'
+
 import htmx from 'htmx.org'
 
 declare global {
@@ -55,4 +57,5 @@ window.addEventListener('load', () => {
   enumerator.init()
   phoneNumber.init()
   adminQuestionEdit.init()
+  trustedIntermediaryController.init()
 })
