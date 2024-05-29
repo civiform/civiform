@@ -70,7 +70,8 @@ public enum QuestionSortOption {
   }
 
   public ImmutableList<SelectWithLabel.OptionValue> getSelectOptions() {
-    ImmutableList.Builder<SelectWithLabel.OptionValue> questionSortOptionsBuilder = ImmutableList.builder();
+    ImmutableList.Builder<SelectWithLabel.OptionValue> questionSortOptionsBuilder =
+        ImmutableList.builder();
     if (displayStringAscending.isPresent()) {
       questionSortOptionsBuilder.add(
           SelectWithLabel.OptionValue.builder()

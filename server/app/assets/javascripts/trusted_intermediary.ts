@@ -1,5 +1,4 @@
 /** The question bank controller is responsible for manipulating the question bank. */
-import {assertNotNull} from './util'
 import {sortSelectorElements} from './sort_selector'
 
 class TrustedIntermediaryController {
