@@ -73,7 +73,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
-                            /* preserveEmptyLines= */ false,
+                            /* preserveEmptyLines= */ true,
                             /* addRequiredIndicator= */ false,
                             messages
                                 .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
