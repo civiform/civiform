@@ -64,16 +64,15 @@ test.describe('program migration', () => {
     await test.step('generate json for program 2', async () => {
       await adminProgramMigration.selectProgramToExport('program-2')
       await adminProgramMigration.generateJSON()
+
+      const jsonPreview = await adminProgramMigration.expectJSONPreview()
+      expect(jsonPreview).toContain(programName)
+      expect(jsonPreview).toContain(block1Description)
+      expect(jsonPreview).toContain(block2Description)
       await validateScreenshot(
         page.locator('main'),
         'export-page-with-json-preview',
       )
-
-      const jsonPreview = await adminProgramMigration.expectJSONPreview()
-
-      expect(jsonPreview).toContain(programName)
-      expect(jsonPreview).toContain(block1Description)
-      expect(jsonPreview).toContain(block2Description)
 
       // TODO(#7087): Once we export the questions, assert that all the questions
       // are in the generated json.
