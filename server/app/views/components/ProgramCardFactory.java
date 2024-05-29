@@ -51,7 +51,7 @@ public final class ProgramCardFactory {
     String programTitleText = displayProgram.localizedName().getDefault();
     String programDescriptionText = displayProgram.localizedDescription().getDefault();
     String adminNoteText = displayProgram.adminDescription();
-    ImmutableList<String> programCategories =
+    ImmutableList<String> programCategoryNames =
         displayProgram.categories().stream()
             .map(category -> category.getDefaultName())
             .collect(ImmutableList.toImmutableList());
@@ -119,9 +119,9 @@ public final class ProgramCardFactory {
         .with(
           div(
             span("Categories:  "),
-            iffElse(programCategories.isEmpty(),
+            iffElse(programCategoryNames.isEmpty(),
               span("None"),
-              each(programCategories, category -> span(category + " "))))
+              each(programCategoryNames, category -> span(category + " "))))
           )
         .condWith(
             !adminNoteText.isBlank(),

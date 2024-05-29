@@ -104,6 +104,7 @@ public final class ProgramCardViewRenderer {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       Optional<MessageKey> sectionTitle,
+      int titleCount,
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
@@ -114,7 +115,7 @@ public final class ProgramCardViewRenderer {
       CiviFormProfile profile) {
 
     String sectionHeaderId = Modal.randomModalId();
-    return createSectionHeader(sectionTitle, messages, sectionHeaderId)
+    return createSectionHeader(sectionTitle, messages, sectionHeaderId, titleCount)
       .with(
         ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
             .withClasses(cardContainerStyles)
@@ -142,6 +143,7 @@ public final class ProgramCardViewRenderer {
     Messages messages,
     ApplicantPersonalInfo personalInfo,
     Optional<MessageKey> sectionTitle,
+    int titleCount,
     String cardContainerStyles,
     long applicantId,
     Locale preferredLocale,
@@ -152,7 +154,7 @@ public final class ProgramCardViewRenderer {
     CiviFormProfile profile) {
 
     String sectionHeaderId = Modal.randomModalId();
-    return createSectionHeader(sectionTitle, messages, sectionHeaderId)
+    return createSectionHeader(sectionTitle, messages, sectionHeaderId, titleCount)
       .with(
         ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
           .withClasses(cardContainerStyles)
@@ -175,13 +177,13 @@ public final class ProgramCardViewRenderer {
                   zoneId))));
   }
   private DivTag createSectionHeader(Optional<MessageKey> sectionTitle,
-                                     Messages messages, String sectionHeaderId) {
+                                     Messages messages, String sectionHeaderId, int titleCount) {
 
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
     if (sectionTitle.isPresent()) {
       div.with(
         h3().withId(sectionHeaderId)
-          .withText(messages.at(sectionTitle.get().getKeyName()))
+          .withText(messages.at(sectionTitle.get().getKeyName(), titleCount))
           .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
     }
     return div;
@@ -223,7 +225,18 @@ public final class ProgramCardViewRenderer {
 
     programImage.ifPresent(cardListItem::with);
 
-    return cardListItem.with(programData).with(actionDiv);
+    DivTag categoriesDiv =
+      div()
+      .withClasses("flex", "flex-wrap", "gap-2")
+      .with(
+        each(
+          program.categories(),
+          (category) ->
+            div()
+            .withClasses("text-xs", "bg-gray-200", "rounded-full", "px-2", "py-1")
+            .withText(category.getLocalizedName().getOrDefault(preferredLocale))));
+
+    return cardListItem.with(categoriesDiv).with(programData).with(actionDiv);
   }
 
   /**

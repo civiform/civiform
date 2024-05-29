@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
@@ -13,6 +14,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 @Table(name = "categories")
@@ -35,6 +37,10 @@ public class CategoryModel extends BaseModel {
 
   public CategoryModel(String defaultName) {
     this.localizedName = LocalizedStrings.withDefaultValue(defaultName);
+  }
+
+  public CategoryModel(ImmutableMap<Locale, String> translations) {
+    this.localizedName = LocalizedStrings.create(translations);
   }
 
   public Long getId() {

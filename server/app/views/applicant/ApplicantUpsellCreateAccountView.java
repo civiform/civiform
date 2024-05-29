@@ -156,6 +156,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                               messages,
                               personalInfo,
                               /* sectionTitle= */ Optional.empty(),
+                              /* titleCount */ 0,
                               ProgramCardViewRenderer.programCardsContainerStyles(
                                   relevantPrograms.size()),
                               applicantId,

@@ -358,6 +358,13 @@ export function init() {
     moveMultiOptionQuestionDown,
   )
 
+  // Bind click handler to submit category filter form when any category is clicked
+  addEventListenerToElements(
+    '[id*="check-category"]',
+    'click',
+    () => (document.getElementById('category-filter-form') as HTMLFormElement).submit(),
+  )
+
   attachFormDebouncers()
 
   attachRedirectToPageListeners()

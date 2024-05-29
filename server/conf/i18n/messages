@@ -111,10 +111,13 @@ link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Programs & services
 title.getStartedSection=Get Started
 title.allProgramsSection=All programs ({0})
+title.programsSection=Programs ({0})
 title.status=Status
 title.inProgressProgramsUpdated=In progress
 title.activeProgramsUpdated=Not started
-title.myApplications=My applications
+title.otherPrograms=Other programs ({0})
+title.myApplications=My applications ({0})
+title.recommended=Recommended ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
 title.submittedPrograms=Submitted

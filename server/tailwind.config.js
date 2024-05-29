@@ -65,5 +65,21 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/line-clamp')],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+
+    function ({ matchVariant }) {
+      matchVariant(
+        "has",
+        (value) => {
+          return `&:has(${value})`;
+        },
+        {
+          values: {
+            checked: "input:checked",
+          },
+        }
+      );
+    },
+  ]
 }

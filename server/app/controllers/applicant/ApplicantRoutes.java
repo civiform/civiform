@@ -3,6 +3,8 @@ package controllers.applicant;
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import io.prometheus.client.Counter;
+
+import java.util.List;
 import java.util.Optional;
 import play.api.mvc.Call;
 
@@ -45,7 +47,7 @@ public final class ApplicantRoutes {
   public Call index(CiviFormProfile profile, long applicantId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-          applicantId);
+          applicantId, List.of());
     } else {
       return controllers.applicant.routes.ApplicantProgramsController.index();
     }

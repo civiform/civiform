@@ -42,6 +42,7 @@ import models.CategoryModel;
 import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Lang;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -160,9 +161,27 @@ public final class DevDatabaseSeedTask {
 
   public List<CategoryModel> seedProgramCategories() {
     List<CategoryModel> categories = new ArrayList<>();
-    categories.add(new CategoryModel("Education"));
-    categories.add(new CategoryModel("Housing"));
-    categories.add(new CategoryModel("General"));
+    categories.add(
+      new CategoryModel(ImmutableMap.of(
+        Lang.forCode("en-US").toLocale(),
+        "Education",
+        Lang.forCode("es-US").toLocale(),
+        "Educación"))
+    );
+    categories.add(
+      new CategoryModel(ImmutableMap.of(
+        Lang.forCode("en-US").toLocale(),
+        "Health",
+        Lang.forCode("es-US").toLocale(),
+        "Salud"))
+    );
+    categories.add(
+      new CategoryModel(ImmutableMap.of(
+        Lang.forCode("en-US").toLocale(),
+        "Housing",
+        Lang.forCode("es-US").toLocale(),
+        "Alojamiento"))
+    );
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(

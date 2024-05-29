@@ -1,20 +1,28 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
+import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -29,11 +37,13 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.CategoryRepository;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -76,9 +86,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
+      List<String> selectedCategoriesFromParams,
       Optional<ToastMessage> bannerMessage,
       CiviFormProfile profile) {
-    HtmlBundle bundle = layout.getBundle(request);
+      HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
 
@@ -95,6 +106,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             messages,
             personalInfo,
             applicationPrograms,
+            selectedCategoriesFromParams,
             applicantId,
             messages.lang().toLocale(),
             bundle,
@@ -185,6 +197,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
+      List<String> selectedCategories,
       long applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
@@ -200,15 +213,47 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    List<String> filteredCategories = relevantPrograms.allPrograms().stream()
+    List<String> relevantCategories = relevantPrograms.allPrograms().stream()
       .map(program -> program.program().categories())
       .flatMap(List::stream)
       .distinct()
-      .map(category -> category.getDefaultName())
+      .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
       .collect(ImmutableList.toImmutableList());
 
+
+    // The "My Applications" section
+    if (!relevantPrograms.inProgress().isEmpty() ||
+      !relevantPrograms.submitted().isEmpty()) {
+
+      int applicationsCount =
+        relevantPrograms.inProgress().size() + relevantPrograms.submitted().size();
+
+      content.with(
+        programCardViewRenderer.myApplicationCardsSection(
+          request,
+          messages,
+          personalInfo,
+          Optional.of(MessageKey.TITLE_MY_APPLICATIONS),
+          applicationsCount,
+          cardContainerStyles,
+          applicantId,
+          preferredLocale,
+          Stream.concat(relevantPrograms.inProgress().stream(), relevantPrograms.submitted().stream())
+            .collect(ImmutableList.toImmutableList()),
+          MessageKey.BUTTON_EDIT,
+          MessageKey.BUTTON_EDIT_SR,
+          bundle,
+          profile));
+    }
+
+     // The category buttons
+    content.with(
+      renderCategoryFilterForm(applicantId, request, relevantCategories, selectedCategories));
+
+    // With intake form and no categories selected
     if (settingsManifest.getIntakeFormEnabled(request)
-        && relevantPrograms.commonIntakeForm().isPresent()) {
+        && relevantPrograms.commonIntakeForm().isPresent()
+        && selectedCategories.isEmpty()) {
       content.with(
           findServicesSection(
               request,
@@ -220,75 +265,119 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               bundle,
               profile),
-          div().withClass("mb-12"),
-          programSectionTitle(
-              messages.at(
-                  MessageKey.TITLE_ALL_PROGRAMS_SECTION.getKeyName(),
-                  relevantPrograms.inProgress().size()
-                      + relevantPrograms.submitted().size()
-                      + relevantPrograms.unapplied().size())));
-    } else {
-      content
-        .with(
-          div(each(
-              filteredCategories,
-              category ->
-                button(category))))
-        .with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
-    }
+          div().withClass("mb-12"));
 
-    if (!relevantPrograms.inProgress().isEmpty() ||
-      !relevantPrograms.submitted().isEmpty()) {
-      content.with(
-          programCardViewRenderer.myApplicationCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_MY_APPLICATIONS),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              Stream.concat(relevantPrograms.inProgress().stream(), relevantPrograms.submitted().stream())
-                .collect(ImmutableList.toImmutableList()),
-              MessageKey.BUTTON_EDIT,
-              MessageKey.BUTTON_EDIT_SR,
-              bundle,
-              profile));
-    }
-//    if (!relevantPrograms.submitted().isEmpty()) {
-//      content.with(
-//          programCardViewRenderer.programCardsSection(
-//              request,
-//              messages,
-//              personalInfo,
-//              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
-//              cardContainerStyles,
-//              applicantId,
-//              preferredLocale,
-//              relevantPrograms.submitted(),
-//              MessageKey.BUTTON_EDIT,
-//              MessageKey.BUTTON_EDIT_SR,
-//              bundle,
-//              profile));
-//    }
-    if (!relevantPrograms.unapplied().isEmpty()) {
-      content.with(
+      if (!relevantPrograms.unapplied().isEmpty()) {
+        content.with(
           programCardViewRenderer.programCardsSection(
+            request,
+            messages,
+            personalInfo,
+            Optional.of(MessageKey.TITLE_PROGRAMS_SECTION),
+            relevantPrograms.unapplied().size(),
+            cardContainerStyles,
+            applicantId,
+            preferredLocale,
+            relevantPrograms.unapplied(),
+            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_APPLY_SR,
+            bundle,
+            profile));
+      }
+
+    } else {
+
+      if (!relevantPrograms.unapplied().isEmpty()) {
+
+        ImmutableList<ApplicantService.ApplicantProgramData> filteredPrograms =
+          relevantPrograms.unapplied().stream()
+            .filter(program -> program.program().categories().stream().anyMatch(
+              category -> selectedCategories.contains(category.getDefaultName())))
+            .collect(ImmutableList.toImmutableList());
+
+        // Recommended section
+        if (!selectedCategories.isEmpty()) {
+          content
+            .with(
+              programCardViewRenderer.programCardsSection(
+                request,
+                messages,
+                personalInfo,
+                Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS),
+                filteredPrograms.size(),
+                cardContainerStyles,
+                applicantId,
+                preferredLocale,
+                filteredPrograms,
+                MessageKey.BUTTON_APPLY,
+                MessageKey.BUTTON_APPLY_SR,
+                bundle,
+                profile));
+        }
+
+        ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
+          relevantPrograms.unapplied().stream()
+          .filter(programData -> !filteredPrograms.contains(programData))
+          .collect(ImmutableList.toImmutableList());
+
+        if (!otherPrograms.isEmpty()) {
+          content.with(
+            programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
+              Optional.of(MessageKey.TITLE_OTHER_PROGRAMS),
+              otherPrograms.size(),
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              relevantPrograms.unapplied(),
+              otherPrograms,
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
               bundle,
               profile));
+        }
+      }
+
     }
 
     return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
+  }
+
+  private DivTag renderCategoryFilterForm(
+    long applicantId, Http.Request request, List<String> relevantCategories,
+    List<String> selectedCategories) {
+    return div()
+      .with(
+        form()
+          .withId("category-filter-form")
+          .withClasses("mb-6")
+          .withMethod("GET")
+          .withAction(
+            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(applicantId, List.of())
+              .url())
+          .with(
+            fieldset(
+              each(
+                relevantCategories,
+                category ->
+                    TagCreator.button()
+                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "has-checked:bg-blue-300", "mr-6")
+                      .with(
+                        label(category).withFor("check-category-" + category),
+                        input()
+                          .withId("check-category-" + category)
+                          .withType("checkbox")
+                          .withName("categories")
+                          .withValue(category)
+                          .withCondChecked(selectedCategories.contains(category))
+                          .withClasses("hidden") // Hide the checkbox itself.  We are using the label to control the checkbox.
+                      )
+              )
+            ).withClasses("flex", "flex-row"),
+            makeCsrfTokenInputTag(request)
+          )
+      );
   }
 
   private DivTag findServicesSection(
@@ -328,6 +417,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 messages,
                 personalInfo,
                 Optional.empty(),
+                0,
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
