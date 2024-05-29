@@ -1,7 +1,7 @@
 /**
  * Responsible for controlling the sorting mechanism used by QuestionBankController. Elements (tagged with elementSelector class)
- * have data attributes with the value to be compared and will sort list using the value. The data attribute is associated with
- * a data-attribute option in QuestionSortOption.
+ * have data attributes with the value to be compared and will sort list using the value. The data attribute is defined
+ * in QuestionSortOption.
  *
  * E.g. Sort by Name A-Z will look up the value for data attribute tiname-asc and sort the list by that value.
  *
