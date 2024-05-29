@@ -122,8 +122,8 @@ public class AdminExportControllerTest extends ResetPostgres {
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Copy Json");
-    assertThat(contentAsString(result)).contains("Download Json");
+    assertThat(contentAsString(result)).contains("Copy JSON");
+    assertThat(contentAsString(result)).contains("Download JSON");
   }
 
   @Test
