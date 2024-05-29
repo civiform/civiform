@@ -668,6 +668,42 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'manage-ti-group-members-page')
   })
 
+  test('sort trusted intermediaries based on selection', async ({page, adminTiGroups}) => {
+    await loginAsAdmin(page)
+    await adminTiGroups.gotoAdminTIPage()
+    // add "aaa" with 2 members
+    await adminTiGroups.fillInGroupBasics('aaa', 'group description')
+    await adminTiGroups.editGroup('aaa')
+    await adminTiGroups.addGroupMember('foo@bar.com')
+    await adminTiGroups.addGroupMember('foo2@bar.com')
+    await adminTiGroups.addGroupMember('foo3@bar.com')
+    // add "bbb" with 0 members
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('bbb', 'group description')
+    // add "ccc" with 1 member
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('ccc', 'group description')
+    await adminTiGroups.editGroup('ccc')
+    await adminTiGroups.addGroupMember('foo@bar.com')
+
+    await adminTiGroups.gotoAdminTIPage()
+    page.locator('#ti-list-sort').selectOption('tiname-asc')
+    await validateScreenshot(
+      page,
+      'ti-list-sort-dropdown-tiname-asc',
+    )
+    page.locator('#ti-list-sort').selectOption('tiname-desc')
+    await validateScreenshot(
+      page,
+      'ti-list-sort-dropdown-tiname-desc',
+    )
+    page.locator('#ti-list-sort').selectOption('nummember-desc')
+    await validateScreenshot(
+      page,
+      'ti-list-sort-dropdown-nummember-desc',
+    )
+  })
+
   test('logging in as a trusted intermediary', async ({page}) => {
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
