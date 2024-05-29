@@ -938,7 +938,7 @@ test.describe('create and edit predicates', () => {
       adminPredicates,
     }) => {
       test.slow()
-      
+
       await loginAsAdmin(page)
 
       const programName = 'Test all eligibility predicate types'
@@ -1304,7 +1304,7 @@ test.describe('create and edit predicates', () => {
       applicantQuestions,
     }) => {
       test.slow()
-      
+
       await loginAsAdmin(page)
       const programName = 'Multiple ineligible program'
       await adminPrograms.addProgram(programName)

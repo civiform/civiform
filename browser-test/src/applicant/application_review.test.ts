@@ -20,7 +20,7 @@ test.describe('Program admin review of submitted applications', () => {
     applicantQuestions,
   }) => {
     test.slow()
-    
+
     const programName = 'A shiny new program'
 
     await loginAsAdmin(page)

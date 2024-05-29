@@ -131,7 +131,7 @@ test.describe('Applicant navigation flow', () => {
 
     test('verify program list page', async ({page, adminPrograms}) => {
       test.slow()
-      
+
       await loginAsAdmin(page)
       // create second program that has an external link and markdown in the program description.
       const programWithExternalLink = 'Program with external link'
@@ -190,7 +190,7 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       test.slow()
-      
+
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -243,7 +243,7 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       test.slow()
-      
+
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
 
@@ -286,7 +286,7 @@ test.describe('Applicant navigation flow', () => {
       adminPrograms,
     }) => {
       test.slow()
-      
+
       // Login as an admin and add a bunch of programs
       await loginAsAdmin(page)
       await adminPrograms.addProgram('program 1')
@@ -332,7 +332,7 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       test.slow()
-      
+
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // The UI correctly won't let us submit because the application isn't complete.
@@ -366,7 +366,7 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       test.slow()
-      
+
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.

@@ -120,7 +120,7 @@ test.describe('normal application flow', () => {
     applicantQuestions,
   }) => {
     test.slow()
-    
+
     const noApplyFilters = false
     const applyFilters = true
 

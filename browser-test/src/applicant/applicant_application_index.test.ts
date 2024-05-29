@@ -457,7 +457,7 @@ test.describe('applicant program index page with images', () => {
     applicantQuestions,
   }) => {
     test.slow()
-    
+
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     // Common Intake: Basic (no image or status)
