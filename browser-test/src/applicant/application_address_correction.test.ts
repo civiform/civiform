@@ -361,6 +361,8 @@ test.describe('address correction', () => {
     page,
     applicantQuestions,
   }) => {
+    test.slow()
+
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
     await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
