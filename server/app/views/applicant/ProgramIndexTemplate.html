@@ -90,34 +90,7 @@
         ></div>
       </th:block>
     </div>
-    <<<<<<< HEAD
-    <div
-      th:if="${commonIntakeSection.isPresent()}"
-      class="cf-application-program-section"
-    >
-      <h2 th:text="#{title.getStartedSection}"></h2>
-      <div
-        th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
-      ></div>
-    </div>
-    <h2
-      th:if="${commonIntakeSection.isPresent()}"
-      th:text="#{title.allProgramsSection(${numPrograms})}"
-    ></h2>
-    <h2
-      th:unless="${commonIntakeSection.isPresent()}"
-      th:text="#{title.programs}"
-    ></h2>
-    <th:block th:each="section : ${sections}">
-      <div
-        th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
-      ></div>
-    </th:block>
     <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
-    =======
-    <div id="modal-container"></div>
-    >>>>>>> 39320a88d (Add validateAccessibility tests across the North Star UI,
-    including a few minor fixes)
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>
