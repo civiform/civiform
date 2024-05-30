@@ -20,6 +20,8 @@ public final class AdminExportViewPartial extends BaseHtmlView {
    */
   public static final String PROGRAM_JSON_ID = "json-preview";
 
+  private static final String COPY_BUTTON_ID = "copy-json-button";
+
   /** Renders the json preview section. */
   public DomContent renderJSONPreview(Http.Request request, String json, String adminName) {
 
@@ -51,7 +53,7 @@ public final class AdminExportViewPartial extends BaseHtmlView {
                         div()
                             .with(
                                 button("Copy JSON")
-                                    .withId("copy-json-button")
+                                    .withId(COPY_BUTTON_ID)
                                     .withClasses(ButtonStyles.SOLID_BLUE, "mr-2"),
                                 submitButton("Download JSON").withClass(ButtonStyles.SOLID_BLUE))
                             .withClasses("flex"))

@@ -25,6 +25,10 @@ import views.components.FieldWithLabel;
 
 /** A view allowing admins to export a program into JSON format. */
 public final class AdminExportView extends BaseHtmlView {
+
+  public static final String PROGRAM_EXPORT_FORM_ID = "program-export-form";
+  public static final String GENERATE_JSON_BUTTON_ID = "generate-json-button";
+
   private final AdminLayout layout;
 
   @Inject
@@ -85,13 +89,18 @@ public final class AdminExportView extends BaseHtmlView {
     return div()
         .with(
             form()
+                .withId(PROGRAM_EXPORT_FORM_ID)
                 .attr("hx-encoding", "multipart/form-data")
                 .attr("hx-post", routes.AdminExportController.hxExportProgram().url())
                 .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_JSON_ID)
                 .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request))
                 .with(fields)
-                .with(submitButton("Generate JSON").withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
+                .with(
+                    submitButton("Generate JSON")
+                        .withId(GENERATE_JSON_BUTTON_ID)
+                        .withCondDisabled(true)
+                        .withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
   }
 
   private DomContent renderJSONPreviewRegion() {

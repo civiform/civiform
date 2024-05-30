@@ -26,6 +26,10 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
+  async buttonEnabled(buttonName: string) {
+    return await this.page.getByRole('button', {name: buttonName}).isEnabled()
+  }
+
   async generateJSON() {
     await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }
@@ -33,7 +37,13 @@ export class AdminProgramMigration {
   async expectJSONPreview() {
     const jsonPreview = this.page.locator('#program-json')
 
+    // The json preview should be a text area and should be disabled to prevent editing
+    const tagName = await jsonPreview.evaluate((element) =>
+      element.tagName.toLowerCase(),
+    )
+    expect(tagName).toBe('textarea')
     await expect(jsonPreview).toBeDisabled()
+
     await expect(
       this.page.getByRole('button', {name: 'Download JSON'}),
     ).toBeVisible()

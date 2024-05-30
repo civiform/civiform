@@ -20,6 +20,7 @@ test.describe('program migration', () => {
     const phoneQuestionText = 'What is your phone number?'
     const block1Description = 'Birthday block'
     const block2Description = 'Key information block'
+    const generateJSONButton = 'Generate JSON'
 
     await test.step('add two active programs', async () => {
       await loginAsAdmin(page)
@@ -58,13 +59,22 @@ test.describe('program migration', () => {
     await test.step('load export page', async () => {
       await enableFeatureFlag(page, 'program_migration_enabled')
       await adminProgramMigration.goToExportPage()
+
+      // The "Generate JSON" button is disabled by default
+      expect(
+        await adminProgramMigration.buttonEnabled(generateJSONButton),
+      ).toBe(false)
       await validateScreenshot(page.locator('main'), 'export-page')
     })
 
     await test.step('generate json for program 2', async () => {
       await adminProgramMigration.selectProgramToExport('program-2')
-      await adminProgramMigration.generateJSON()
+      // Selecting a program enables the "Generate JSON" button
+      expect(
+        await adminProgramMigration.buttonEnabled(generateJSONButton),
+      ).toBe(true)
 
+      await adminProgramMigration.generateJSON()
       const jsonPreview = await adminProgramMigration.expectJSONPreview()
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
