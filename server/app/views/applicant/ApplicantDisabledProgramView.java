@@ -10,6 +10,7 @@ import static j2html.TagCreator.ul;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.PTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -18,42 +19,29 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 
-/** lala temp doc placeholder */
+/** renders a info page for applicants trying to access a disabled program via its deep link */
 public final class ApplicantDisabledProgramView extends BaseHtmlView {
 
-  private final BaseHtmlLayout unauthenticatedlayout;
+  private final BaseHtmlLayout layout;
 
   @Inject
-  public ApplicantDisabledProgramView(BaseHtmlLayout unauthenticatedlayout) {
-    this.unauthenticatedlayout = unauthenticatedlayout;
+  public ApplicantDisabledProgramView(BaseHtmlLayout layout) {
+    this.layout = layout;
   }
 
-  /**
-   * For each program in the list, render the program information along with an "Apply" button that
-   * redirects the user to that program's application.
-   *
-   * @param messages the localized {@link Messages} for the current applicant
-   * @return HTML content for rendering the list of available programs
-   */
   public Content render(Messages messages, Http.Request request) {
-
-    BaseHtmlLayout layout = unauthenticatedlayout;
-
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle("Disabled Program");
-
     bundle.addMainContent(mainContent());
-
     return layout.render(bundle);
   }
 
   private DivTag mainContent() {
-
-    String h1Text;
-
-    // "Page not found"
-    h1Text = "Program disabled";
+    // TODO: replace the text with translated messages
+    String h1Text = "Program disabled";
     H1Tag headerText = h1().withText(h1Text);
+    String pText = "We're sorry, the program you are trying to access has been disabled.";
+    PTag contentText = p().withClass("usa-intro").withText(pText);
     String homeLink = routes.HomeController.index().url();
 
     DivTag button =
@@ -83,12 +71,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
                                         .withId("main-content")
                                         .withClasses("usa-prose")
                                         .with(headerText)
-                                        .with(
-                                            p().withClass("usa-intro")
-                                                .withText(
-                                                    "We're sorry, the program you are"
-                                                        + " trying to access has been"
-                                                        + " disabled. "))
+                                        .with(contentText)
                                         .with(div().withClass("margin-y-5").with(button))))));
   }
 }
