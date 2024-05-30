@@ -54,38 +54,43 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test(
-      'validate screenshot with north star flag enabled',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
+    test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
+      test.beforeEach(async ({page}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'text-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
-      },
-    )
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'text-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
 
-    test(
-      'validate screenshot with errors with north star flag enabled',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'text-errors-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.clickContinue()
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'text-errors-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
-      },
-    )
+        await validateAccessibility(page)
+      })
+    })
 
     test('with empty text does not submit', async ({
       page,
