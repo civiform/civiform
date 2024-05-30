@@ -42,7 +42,6 @@ public class ProgramDisabledAction extends Action.Simple {
     Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
 
     if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
-      // TODO: Build an error page and redirect the user to the error page instead
       return CompletableFuture.completedFuture(
           redirect(
               controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram()));
