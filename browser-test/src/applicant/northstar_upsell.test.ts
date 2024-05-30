@@ -26,7 +26,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
   })
 
