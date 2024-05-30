@@ -668,7 +668,10 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'manage-ti-group-members-page')
   })
 
-  test('sort trusted intermediaries based on selection', async ({page, adminTiGroups}) => {
+  test('sort trusted intermediaries based on selection', async ({
+    page,
+    adminTiGroups,
+  }) => {
     await loginAsAdmin(page)
     // add "aaa" with 2 members
     await adminTiGroups.gotoAdminTIPage()
@@ -688,21 +691,41 @@ test.describe('Trusted intermediaries', () => {
     await adminTiGroups.addGroupMember('foo4@bar.com')
 
     await adminTiGroups.gotoAdminTIPage()
-    page.locator('#ti-list-sort').selectOption('tiname-asc')
-    await validateScreenshot(
-      page,
-      'ti-list-sort-dropdown-tiname-asc',
-    )
-    page.locator('#ti-list-sort').selectOption('tiname-desc')
-    await validateScreenshot(
-      page,
-      'ti-list-sort-dropdown-tiname-desc',
-    )
-    page.locator('#ti-list-sort').selectOption('nummember-desc')
-    await validateScreenshot(
-      page,
-      'ti-list-sort-dropdown-nummember-desc',
-    )
+    await page.locator('#ti-list').selectOption('tiname-asc')
+    const tiNamesAsc = await page
+      .locator('.cf-ti-element:visible .cf-ti-info')
+      .allInnerTexts()
+    expect(tiNamesAsc).toEqual(['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
+
+    await page.locator('#ti-list').selectOption('tiname-desc')
+    const tiNamesDesc = await page
+      .locator('.cf-ti-element:visible .cf-ti-info')
+      .allInnerTexts()
+    expect(tiNamesDesc).toEqual(['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
+
+    await page.locator('#ti-list').selectOption('nummember-desc')
+    const tiMemberDesc = await page
+      .locator('.cf-ti-element:visible .cf-ti-member')
+      .allInnerTexts()
+    expect(tiMemberDesc).toEqual([
+      'Members: 3\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 0\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
+
+    await page.locator('#ti-list').selectOption('nummember-asc')
+    const tiMemberAsc = await page
+      .locator('.cf-ti-element:visible .cf-ti-member')
+      .allInnerTexts()
+    expect(tiMemberAsc).toEqual([
+      'Members: 0\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 3\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-asc')
   })
 
   test('logging in as a trusted intermediary', async ({page}) => {

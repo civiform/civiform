@@ -1,8 +1,8 @@
 /** The question bank controller is responsible for manipulating the question bank. */
-import {sortSelectorElements} from './sort_selector'
+import {sortElementsByDataAttributes} from './sort_selector'
 
 class TrustedIntermediaryController {
-  static readonly SORT_SELECT_ID = 'ti-list-sort'
+  static readonly SORT_SELECT_ID = 'ti-list'
 
   constructor() {
     const tiListSort = document.getElementById(
@@ -17,10 +17,10 @@ class TrustedIntermediaryController {
     }
   }
   private static sortList() {
-    sortSelectorElements(
+    sortElementsByDataAttributes(
       TrustedIntermediaryController.SORT_SELECT_ID,
-      '.cf-ti-list-element',
-      '.cf-sortable-elements',
+      '.cf-ti-sublist',
+      '.cf-ti-element',
     )
   }
 }

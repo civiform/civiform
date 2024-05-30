@@ -90,7 +90,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
     SelectWithLabel questionSortSelect =
         new SelectWithLabel()
-            .setId("ti-list-sort")
+            .setId("ti-list")
             .setValue(questionSortOptions.get(0).value()) // Default sort order.
             .setLabelText("Sort by:")
             .setOptionGroups(
@@ -105,7 +105,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-full", "cf-sortable-elements")
+            .withClasses("border", "border-gray-300", "shadow-md", "w-full", "cf-ti-sublist")
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
@@ -140,7 +140,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private TrTag renderGroupRow(TrustedIntermediaryGroupModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
-            "cf-ti-list-element",
+            "cf-ti-element",
             "border-b",
             "border-gray-300",
             StyleUtils.even("bg-gray-100"))
@@ -156,7 +156,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
         .with(div(tiGroup.getDescription()).withClasses("text-xs"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12", "cf-ti-info");
   }
 
   private TdTag renderMemberCountCell(TrustedIntermediaryGroupModel tiGroup) {
@@ -164,7 +164,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
         .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12", "cf-ti-member");
   }
 
   private TdTag renderActionsCell(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
