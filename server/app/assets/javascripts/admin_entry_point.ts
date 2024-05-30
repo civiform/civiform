@@ -23,6 +23,7 @@ import * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
+import * as adminExportView from './admin_export_view'
 import htmx from 'htmx.org'
 
 declare global {
@@ -55,4 +56,5 @@ window.addEventListener('load', () => {
   enumerator.init()
   phoneNumber.init()
   adminQuestionEdit.init()
+  adminExportView.init()
 })
