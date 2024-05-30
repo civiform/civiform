@@ -64,29 +64,25 @@ test.describe('Applicant navigation flow', () => {
         'nav-date-q',
         'nav-email-q',
       ])
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'second description',
-        [{name: 'nav-static-q', isOptional: false}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'third description',
-        [{name: 'nav-address-q', isOptional: false}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'fourth description',
-        [{name: 'nav-radio-q', isOptional: true}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'fifth description',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'second description',
+        questions: [{name: 'nav-static-q', isOptional: false}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'third description',
+        questions: [{name: 'nav-address-q', isOptional: false}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'fourth description',
+        questions: [{name: 'nav-radio-q', isOptional: true}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'fifth description',
+        questions: [
           {name: 'nav-phone-q', isOptional: false},
           {name: 'nav-currency-q', isOptional: true},
         ],
-      )
+      })
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)

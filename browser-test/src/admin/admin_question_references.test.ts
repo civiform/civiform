@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+
 test.describe('view program references from question view', () => {
   test('shows no results for an unreferenced question', async ({
     page,
@@ -31,33 +32,30 @@ test.describe('view program references from question view', () => {
       // Add a reference to the question in the second block. We'll later assert
       // that the links in the modal takes us to the correct block.
       await adminPrograms.addProgram(firstProgramName)
-      await adminPrograms.addProgramBlockUsingSpec(
-        firstProgramName,
-        'first block',
-        [],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        firstProgramName,
-        'second block',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(firstProgramName, {
+        description: 'first block',
+        questions: [],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(firstProgramName, {
+        description: 'second block',
+        questions: [
           {
             name: questionName,
             isOptional: false,
           },
         ],
-      )
+      })
 
       await adminPrograms.addProgram(secondProgramName)
-      await adminPrograms.addProgramBlockUsingSpec(
-        secondProgramName,
-        'first block',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(secondProgramName, {
+        description: 'first block',
+        questions: [
           {
             name: questionName,
             isOptional: false,
           },
         ],
-      )
+      })
     })
 
     await test.step('Verify draft question and publish', async () => {
@@ -74,16 +72,15 @@ test.describe('view program references from question view', () => {
     await test.step('Add a reference from a new program in the draft version', async () => {
       const thirdProgramName = 'Third program'
       await adminPrograms.addProgram(thirdProgramName)
-      await adminPrograms.addProgramBlockUsingSpec(
-        thirdProgramName,
-        'first block',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(thirdProgramName, {
+        description: 'first block',
+        questions: [
           {
             name: questionName,
             isOptional: false,
           },
         ],
-      )
+      })
     })
 
     await test.step('Remove question from an existing published program', async () => {
@@ -133,23 +130,28 @@ test.describe('view program references from question view', () => {
 
     await test.step(`Create two programs and add ${questionName}`, async () => {
       await adminPrograms.addProgram(programName)
-      await adminPrograms.addProgramBlockUsingSpec(programName, 'block', [
-        {
-          name: questionName,
-          isOptional: false,
-        },
-      ])
-
-      await adminPrograms.addDisabledProgram(disabledProgramName)
-      await adminPrograms.addProgramBlockUsingSpec(
-        disabledProgramName,
-        'first block',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'block',
+        questions: [
           {
             name: questionName,
             isOptional: false,
           },
         ],
+      })
+
+      await adminPrograms.addDisabledProgram(disabledProgramName)
+      await adminPrograms.addProgramBlockUsingSpec(
+        disabledProgramName,
+        {
+          description: 'first block',
+          questions: [
+            {
+              name: questionName,
+              isOptional: false,
+            },
+          ],
+        },
         /* isProgramDisabled = */ true,
       )
     })
