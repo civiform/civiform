@@ -20,6 +20,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.Results;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -28,6 +29,7 @@ import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantDisabledProgramView;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
@@ -44,6 +46,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ApplicantDisabledProgramView disabledProgramInfoView;
   private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
@@ -56,6 +59,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
+      ApplicantDisabledProgramView disabledProgramInfoView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
@@ -67,6 +71,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
+    this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
@@ -296,5 +301,11 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return editWithApplicantId(request, applicantId.orElseThrow(), programId);
+  }
+
+  @Secure
+  public CompletionStage<Result> showInfoDisabledProgram(Request request) {
+    return CompletableFuture.completedFuture(
+        Results.notFound(disabledProgramInfoView.render(messagesApi.preferred(request), request)));
   }
 }

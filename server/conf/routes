@@ -178,6 +178,8 @@ POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedAction
 # controller.
 GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.show(request: Request, programParam: String)
 
+GET     /disabled          controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request)
+
 # Program methods for TI actions on behalf of applicants.
 #
 # Also: Program methods for applicants (legacy). Maintained for now
