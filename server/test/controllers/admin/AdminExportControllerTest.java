@@ -57,19 +57,29 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_migrationEnabled_ok_listsActiveAndDraftPrograms() {
+  public void index_migrationEnabled_ok_listsActiveAndDraftProgramsAlphabeticallyByDisplayName() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-    ProgramBuilder.newActiveProgram("active-program-1").build();
-    ProgramBuilder.newActiveProgram("active-program-2").build();
-    ProgramBuilder.newDraftProgram("draft-program").build();
+
+    String draftProgramA = "a-program-draft";
+    String activeProgramB = "b-program-active";
+    String activeProgramC = "c-program-active";
+
+    ProgramBuilder.newActiveProgram(activeProgramC).build();
+    ProgramBuilder.newActiveProgram(activeProgramB).build();
+    ProgramBuilder.newDraftProgram(draftProgramA).build();
 
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    String stringResult = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Export a program");
-    assertThat(contentAsString(result)).contains("active-program-1");
-    assertThat(contentAsString(result)).contains("active-program-2");
-    assertThat(contentAsString(result)).contains("draft-program");
+    assertThat(stringResult).contains("Export a program");
+    assertThat(stringResult).contains(draftProgramA);
+    assertThat(stringResult).contains(activeProgramB);
+    assertThat(stringResult).contains(activeProgramC);
+    assertThat(stringResult.indexOf(draftProgramA))
+        .isLessThan(stringResult.indexOf(activeProgramB));
+    assertThat(stringResult.indexOf(activeProgramB))
+        .isLessThan(stringResult.indexOf(activeProgramC));
   }
 
   @Test

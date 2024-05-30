@@ -4,8 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Locale;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -65,10 +67,18 @@ public class AdminExportController extends CiviFormController {
       return notFound("Program export is not enabled");
     }
 
-    // Show the most recent version of the program (eg. draft version if there is one)
-    return ok(
-        adminExportView.render(
-            request, programService.getActiveAndDraftPrograms().getMostRecentProgramDefinitions()));
+    // Show the most recent version of programs (eg. draft version if there is one) sorted
+    // alphabetically by display name
+    ImmutableList<ProgramDefinition> sortedPrograms =
+        programService.getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+            .sorted(
+                (p1, p2) ->
+                    p1.localizedName()
+                        .getOrDefault(Locale.getDefault())
+                        .compareTo(p2.localizedName().getOrDefault(Locale.getDefault())))
+            .collect(ImmutableList.toImmutableList());
+
+    return ok(adminExportView.render(request, sortedPrograms));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

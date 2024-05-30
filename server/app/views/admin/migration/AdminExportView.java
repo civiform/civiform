@@ -99,7 +99,7 @@ public final class AdminExportView extends BaseHtmlView {
                 .with(
                     submitButton("Generate JSON")
                         .withId(GENERATE_JSON_BUTTON_ID)
-                        .withCondDisabled(true)
+                        .isDisabled()
                         .withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
   }
 

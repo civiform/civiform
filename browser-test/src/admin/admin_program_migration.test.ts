@@ -116,7 +116,11 @@ test.describe('program migration', () => {
       // a runtime-downloaded JSON file, as the IDs could change at runtime.
       // Eventually, we likely won't show the question IDs and could take a
       // screenshot based on runtime-downloaded JSON.
-      await validateScreenshot(page.locator('main'), 'import-page-with-data')
+      await validateScreenshot(
+        page.locator('main'),
+        'import-page-with-data',
+        /* fullPage= */ false,
+      )
     })
   })
 
