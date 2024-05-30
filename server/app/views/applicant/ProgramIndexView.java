@@ -374,8 +374,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           .withClasses("hidden") // Hide the checkbox itself.  We are using the label to control the checkbox.
                       )
               )
-            ).withClasses("flex", "flex-row"),
-            makeCsrfTokenInputTag(request)
+            ).withClasses("flex", "flex-row")
           )
       );
   }

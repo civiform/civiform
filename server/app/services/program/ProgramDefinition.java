@@ -136,15 +136,16 @@ public abstract class ProgramDefinition {
   @JsonProperty("localizedSummaryImageDescription")
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
+  /** The categories this program belongs to. */
+  @JsonProperty("categories")
+  public abstract List<CategoryModel> categories();
+
   /** A key used to fetch the program's summary image from cloud storage. */
   // JsonIgnored because the file key points to a file in cloud storage, and different instances
   // will have different cloud storages so the file key will be inaccurate when migrating a program
   // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
-
-  @JsonIgnore
-  public abstract List<CategoryModel> categories();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -834,8 +835,10 @@ public abstract class ProgramDefinition {
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
 
-    public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
+    @JsonProperty("categories")
     public abstract Builder setCategories(List<CategoryModel> categories);
+
+    public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 
     public abstract ProgramDefinition build();
 

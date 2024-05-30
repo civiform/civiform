@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
@@ -51,6 +52,7 @@ public class CategoryModel extends BaseModel {
     return localizedName.getDefault();
   }
 
+  @JsonIgnore
   public LocalizedStrings getLocalizedName() {
     return localizedName;
   }
