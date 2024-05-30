@@ -22,21 +22,11 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <ul th:if="${showDebugTools}">
-          <li>
-            <button th:replace="~{this :: showDebugTools}"></button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <button th:replace="~{this :: loginOrLogout}"></button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <button th:replace="~{this :: languageSelector}"></button>
-          </li>
-        </ul>
+        <th:block th:if="${showDebugTools}">
+          <button th:replace="~{this :: showDebugTools}"></button>
+        </th:block>
+        <button th:replace="~{this :: loginOrLogout}"></button>
+        <button th:replace="~{this :: languageSelector}"></button>
       </nav>
     </div>
   </header>
@@ -54,7 +44,7 @@
 >
 
 <th:block th:fragment="loginOrLogout">
-  <div th:if="${isGuest}">
+  <th:block th:if="${isGuest}">
     <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
     <button
       type="button"
@@ -70,9 +60,9 @@
       id="login-button"
       th:attr="data-redirect-to=${loginLink}"
     ></button>
-  </div>
+  </th:block>
 
-  <div th:if="${!isGuest}">
+  <th:block th:if="${!isGuest}">
     <span
       th:text="#{header.userName(${loggedInAs})}"
       class="padding-right-1"
@@ -84,7 +74,7 @@
       id="logout-button"
       th:attr="data-redirect-to=${logoutLink}"
     ></button>
-  </div>
+  </th:block>
 </th:block>
 
 <div th:fragment="languageSelector">
