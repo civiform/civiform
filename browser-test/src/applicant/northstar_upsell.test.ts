@@ -4,6 +4,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
+  validateScreenshot,
   validateAccessibility,
 } from '../support'
 
@@ -35,6 +36,13 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   test('view application submitted page', async ({page}) => {
     expect(await page.textContent('html')).toContain('Application confirmation')
     expect(await page.textContent('html')).toContain(programName)
+
+    await validateScreenshot(
+      page,
+      'upsell-north-star',
+      /* fullPage= */ true,
+      /* mobileScreenshot= */ true,
+    )
   })
 
   test('passes accessibility checks', async ({page}) => {
