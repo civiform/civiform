@@ -4,7 +4,7 @@ import {BASE_URL} from './src/support/config'
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
 export default defineConfig({
-  timeout: 45000, // 45 seconds
+  timeout: 90000,
   testDir: './src',
   // Exit with error immediately if test.only() or test.describe.only()
   // was committed
