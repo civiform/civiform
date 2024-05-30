@@ -656,6 +656,12 @@ test.describe('Trusted intermediaries', () => {
     await adminTiGroups.expectGroupExist('group name', 'group description')
     await validateScreenshot(page, 'ti-groups-page')
 
+    // validate error message if empty name
+    await adminTiGroups.editGroup('group name')
+    await page.click('text="Add"')
+    await validateToastMessage(page, 'Must provide email address.')
+
+    // validate adding valid email address works
     await adminTiGroups.editGroup('group name')
     await adminTiGroups.addGroupMember('foo@bar.com')
     await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')

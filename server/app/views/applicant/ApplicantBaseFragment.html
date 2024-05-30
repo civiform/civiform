@@ -50,7 +50,7 @@
 
   <!--/* Text with "X of Y BlockName" */-->
   <div class="usa-step-indicator__header">
-    <h4 class="usa-step-indicator__heading">
+    <h1 class="usa-step-indicator__heading">
       <span class="usa-step-indicator__heading-counter">
         <span
           th:utext="#{content.blockProgress(${applicationParams.blockIndex() + 1},
@@ -63,7 +63,7 @@
           th:text="${applicationParams.block().getName()}"
         ></span>
       </span>
-    </h4>
+    </h1>
   </div>
 </div>
 

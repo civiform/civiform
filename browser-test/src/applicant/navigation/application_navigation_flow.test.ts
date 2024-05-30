@@ -1,4 +1,4 @@
-import {test, expect} from '../../support/civiform_fixtures'
+import {expect, test} from '../../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -66,29 +66,25 @@ test.describe('Applicant navigation flow', () => {
         'nav-date-q',
         'nav-email-q',
       ])
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'second description',
-        [{name: 'nav-static-q', isOptional: false}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'third description',
-        [{name: 'nav-address-q', isOptional: false}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'fourth description',
-        [{name: 'nav-radio-q', isOptional: true}],
-      )
-      await adminPrograms.addProgramBlockUsingSpec(
-        programName,
-        'fifth description',
-        [
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'second description',
+        questions: [{name: 'nav-static-q', isOptional: false}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'third description',
+        questions: [{name: 'nav-address-q', isOptional: false}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'fourth description',
+        questions: [{name: 'nav-radio-q', isOptional: true}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'fifth description',
+        questions: [
           {name: 'nav-phone-q', isOptional: false},
           {name: 'nav-currency-q', isOptional: true},
         ],
-      )
+      })
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
@@ -114,6 +110,8 @@ test.describe('Applicant navigation flow', () => {
     )
 
     test('verify program details page', async ({page}) => {
+      test.slow()
+
       // Begin waiting for the popup before clicking the link, otherwise
       // the popup may fire before the wait is registered, causing the test to flake.
       const popupPromise = page.waitForEvent('popup')
@@ -128,6 +126,8 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test('verify program list page', async ({page, adminPrograms}) => {
+      test.slow()
+
       await loginAsAdmin(page)
       // create second program that has an external link and markdown in the program description.
       const programWithExternalLink = 'Program with external link'
@@ -185,6 +185,8 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -236,6 +238,8 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
 
@@ -277,6 +281,8 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
       adminPrograms,
     }) => {
+      test.slow()
+
       // Login as an admin and add a bunch of programs
       await loginAsAdmin(page)
       await adminPrograms.addProgram('program 1')
@@ -321,6 +327,8 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // The UI correctly won't let us submit because the application isn't complete.
@@ -353,6 +361,8 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.

@@ -812,7 +812,10 @@ test.describe('program creation', () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.launchDeleteScreenModal()
+    const programName = 'Test program 7'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.launchRemoveProgramBlockModal(programName, 'Screen 1')
     await validateScreenshot(
       page,
       'delete-screen-confirmation-modal',

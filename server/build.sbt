@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.59",
-      "software.amazon.awssdk" % "ses" % "2.25.59",
+      "software.amazon.awssdk" % "s3" % "2.25.62",
+      "software.amazon.awssdk" % "ses" % "2.25.62",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.12.1",
@@ -60,9 +60,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.2.0-jre" % Test,
@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
-      "commons-validator" % "commons-validator" % "1.8.0",
+      "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",

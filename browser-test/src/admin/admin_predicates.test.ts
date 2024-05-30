@@ -1,4 +1,4 @@
-import {test, expect} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   isHermeticTestEnvironment,
@@ -32,12 +32,14 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create hide predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'hide-predicate-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'screen with predicate', [
-      'hide-other-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      description: 'first screen',
+      questions: [{name: 'hide-predicate-q'}],
+    })
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      description: 'screen with predicate',
+      questions: [{name: 'hide-other-q'}],
+    })
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -126,12 +128,14 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create show predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'show-predicate-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'screen with predicate', [
-      'show-other-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      description: 'first screen',
+      questions: [{name: 'show-predicate-q'}],
+    })
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      description: 'screen with predicate',
+      questions: [{name: 'show-other-q'}],
+    })
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -221,9 +225,10 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create eligibility predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'eligibility-predicate-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      description: 'first screen',
+      questions: [{name: 'eligibility-predicate-q'}],
+    })
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -360,9 +365,10 @@ test.describe('create and edit predicates', () => {
 
       const programName = 'Create eligibility predicate'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'first screen', [
-        'eligibility-predicate-q',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'first screen',
+        questions: [{name: 'eligibility-predicate-q'}],
+      })
 
       await adminPrograms.clickAddressCorrectionToggle()
 
@@ -422,13 +428,16 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Help text program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'name', [
-      'name-question',
-      'date-question',
-      'dropdown-question',
-      'email-question',
-      'checkbox-question',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      description: 'name',
+      questions: [
+        {name: 'name-question'},
+        {name: 'date-question'},
+        {name: 'dropdown-question'},
+        {name: 'email-question'},
+        {name: 'checkbox-question'},
+      ],
+    })
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
       'Screen 1',
@@ -518,20 +527,23 @@ test.describe('create and edit predicates', () => {
       adminPrograms,
       adminPredicates,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
 
       const programName = 'Test multiple question and value predicate config'
       await adminPrograms.addProgram(programName)
 
-      const questions = [
-        'predicate-date-is-earlier-than',
-        'predicate-currency',
-        'list of longs',
-        'list of strings',
-        'predicate-date-age-older-than',
-      ]
-
-      await adminPrograms.editProgramBlock(programName, 'test-block', questions)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'test-block',
+        questions: [
+          {name: 'predicate-date-is-earlier-than'},
+          {name: 'predicate-currency'},
+          {name: 'list of longs'},
+          {name: 'list of strings'},
+          {name: 'predicate-date-age-older-than'},
+        ],
+      })
 
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
@@ -625,12 +637,17 @@ test.describe('create and edit predicates', () => {
       const programName = 'Test multiple question and value predicate config'
       await adminPrograms.addProgram(programName)
 
-      await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date-is-earlier-than',
-        'predicate-currency',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'test-block',
+        questions: [
+          {name: 'predicate-date-is-earlier-than'},
+          {name: 'predicate-currency'},
+        ],
+      })
 
-      await adminPrograms.addProgramBlock(programName, 'show-hide', [])
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'show-hide',
+      })
 
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
@@ -704,39 +721,48 @@ test.describe('create and edit predicates', () => {
       applicantQuestions,
       adminPredicates,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'string', [
-        'single-string',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'list of strings', [
-        'list of strings',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
-      await adminPrograms.addProgramBlock(programName, 'list of longs', [
-        'list of longs',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
-      await adminPrograms.addProgramBlock(
-        programName,
-        'is earlier than date question',
-        ['predicate-date-is-earlier-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'on or after date question',
-        ['predicate-date-on-or-after'],
-      )
-      await adminPrograms.addProgramBlock(programName, 'two lists', [
-        'both sides are lists',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'last', [
-        'depends on previous',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'string',
+        questions: [{name: 'single-string'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'list of strings',
+        questions: [{name: 'list of strings'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'long',
+        questions: [{name: 'single-long'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'list of longs',
+        questions: [{name: 'list of longs'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'currency',
+        questions: [{name: 'predicate-currency'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'is earlier than date question',
+        questions: [{name: 'predicate-date-is-earlier-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'on or after date question',
+        questions: [{name: 'predicate-date-on-or-after'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'two lists',
+        questions: [{name: 'both sides are lists'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'last',
+        questions: [{name: 'depends on previous'}],
+      })
 
       // Simple string predicate
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -933,51 +959,56 @@ test.describe('create and edit predicates', () => {
       applicantQuestions,
       adminPredicates,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'string', [
-        'single-string',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'list of strings', [
-        'list of strings',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
-      await adminPrograms.addProgramBlock(programName, 'list of longs', [
-        'list of longs',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
-      await adminPrograms.addProgramBlock(
-        programName,
-        'is earlier than date question',
-        ['predicate-date-is-earlier-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'on or after date question',
-        ['predicate-date-on-or-after'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is older than',
-        ['predicate-date-age-older-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is younger than',
-        ['predicate-date-age-younger-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is between',
-        ['predicate-date-age-between'],
-      )
-      await adminPrograms.addProgramBlock(programName, 'two lists', [
-        'both sides are lists',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'string',
+        questions: [{name: 'single-string'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'list of strings',
+        questions: [{name: 'list of strings'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'long',
+        questions: [{name: 'single-long'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'list of longs',
+        questions: [{name: 'list of longs'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'currency',
+        questions: [{name: 'predicate-currency'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'is earlier than date question',
+        questions: [{name: 'predicate-date-is-earlier-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'on or after date question',
+        questions: [{name: 'predicate-date-on-or-after'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'date question age is older than',
+        questions: [{name: 'predicate-date-age-older-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'date question age is younger than',
+        questions: [{name: 'predicate-date-age-younger-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'date question age is between',
+        questions: [{name: 'predicate-date-age-between'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'two lists',
+        questions: [{name: 'both sides are lists'}],
+      })
 
       // Simple string predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -1297,14 +1328,17 @@ test.describe('create and edit predicates', () => {
       adminPredicates,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
       const programName = 'Multiple ineligible program'
       await adminPrograms.addProgram(programName)
 
       // Name predicate
-      await adminPrograms.editProgramBlock(programName, 'name', [
-        'single-string',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'name',
+        questions: [{name: 'single-string'}],
+      })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
@@ -1317,9 +1351,10 @@ test.describe('create and edit predicates', () => {
       })
 
       // Currency predicate
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        description: 'currency',
+        questions: [{name: 'predicate-currency'}],
+      })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 2',

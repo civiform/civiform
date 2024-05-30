@@ -96,4 +96,10 @@ See the radio-option below as an example.
   @include u-margin-bottom(0);
 }
 
-
+/**
+ * We use h1 instead of h4 as a progress bar heading for a11y reasons, but we want to keep the
+ * USWDS styles, so we ignore the default line height of h1 elements.
+ */
+h1.usa-step-indicator__heading {
+  line-height: inherit;
+}
