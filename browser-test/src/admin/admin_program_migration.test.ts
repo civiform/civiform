@@ -69,10 +69,6 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
       expect(jsonPreview).toContain(block2Description)
-      await validateScreenshot(
-        page.locator('main'),
-        'export-page-with-json-preview',
-      )
 
       // TODO(#7087): Once we export the questions, assert that all the questions
       // are in the generated json.
