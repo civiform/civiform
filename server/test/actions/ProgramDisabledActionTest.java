@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
-import controllers.routes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +75,9 @@ public class ProgramDisabledActionTest extends WithApplication {
     program.save();
 
     Result result = action.call(request).toCompletableFuture().join();
-    assertEquals(result.redirectLocation().get(), routes.HomeController.index().url());
+    assertEquals(
+        result.redirectLocation().get(),
+        controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram().url());
   }
 
   @Test

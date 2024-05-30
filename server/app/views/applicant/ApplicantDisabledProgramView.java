@@ -37,7 +37,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
   }
 
   private DivTag mainContent() {
-    // TODO: replace the text with translated messages
+    // TODO: replace the text with translated messages once the text is confirmed by product side
     String h1Text = "Program disabled";
     H1Tag headerText = h1().withText(h1Text);
     String pText = "We're sorry, the program you are trying to access has been disabled.";

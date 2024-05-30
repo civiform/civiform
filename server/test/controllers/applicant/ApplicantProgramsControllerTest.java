@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -12,7 +13,9 @@ import static play.test.Helpers.stubMessagesApi;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import controllers.WithMockedProfiles;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -252,6 +255,18 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+  }
+
+  @Test
+  public void showInfoDisabledProgram() {
+    ProgramModel disabledProgram = resourceCreator.insertActiveDisabledProgram("disabledProgram");
+
+    Map<String, String> flashData = new HashMap<>();
+    flashData.put("redirected-from-program-slug", "disabledProgram");
+    Request request = Helpers.fakeRequest().flash(flashData).build();
+
+    Result result = controller.showInfoDisabledProgram(request).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
