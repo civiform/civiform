@@ -1,4 +1,4 @@
-<html th:lang="${#locale.language}">
+<html th:attr="lang=${preferredLanguage.code()}">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
