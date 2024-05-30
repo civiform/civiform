@@ -26,10 +26,6 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
-  async buttonEnabled(buttonName: string) {
-    return await this.page.getByRole('button', {name: buttonName}).isEnabled()
-  }
-
   async generateJSON() {
     await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }

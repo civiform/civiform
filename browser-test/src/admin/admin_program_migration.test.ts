@@ -61,18 +61,18 @@ test.describe('program migration', () => {
       await adminProgramMigration.goToExportPage()
 
       // The "Generate JSON" button is disabled by default
-      expect(
-        await adminProgramMigration.buttonEnabled(generateJSONButton),
-      ).toBe(false)
+      await expect(
+        page.getByRole('button', {name: generateJSONButton}),
+      ).toBeDisabled()
       await validateScreenshot(page.locator('main'), 'export-page')
     })
 
     await test.step('generate json for program 2', async () => {
       await adminProgramMigration.selectProgramToExport('program-2')
       // Selecting a program enables the "Generate JSON" button
-      expect(
-        await adminProgramMigration.buttonEnabled(generateJSONButton),
-      ).toBe(true)
+      await expect(
+        page.getByRole('button', {name: generateJSONButton}),
+      ).toBeEnabled()
 
       await adminProgramMigration.generateJSON()
       const jsonPreview = await adminProgramMigration.expectJSONPreview()

@@ -35,10 +35,11 @@ class AdminExportView {
     }
   }
 
+  /**
+   * htmx:afterSwap fires after htmx swaps in new content. The json and copy button are only availabe once htmx has swapped them in.
+   */
   addClickListenerToCopyButton() {
     document.addEventListener('htmx:afterSwap', () => {
-      // htmx:afterSwap fires after htmx swaps in new content
-      // the json and copy button are only availabe once htmx has swapped them in
       const copyButton = document.getElementById(AdminExportView.COPY_BUTTON_ID)
       if (copyButton) {
         copyButton.addEventListener('click', () => {
