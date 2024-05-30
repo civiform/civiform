@@ -8,6 +8,7 @@ import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
@@ -21,14 +22,16 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseV
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
   }
 
   public String render(

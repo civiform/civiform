@@ -22,6 +22,11 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
+        <ul th:if="${showDebugTools}">
+          <li>
+            <button th:replace="~{this :: showDebugTools}"></button>
+          </li>
+        </ul>
         <ul>
           <li>
             <button th:replace="~{this :: loginOrLogout}"></button>
@@ -36,6 +41,17 @@
     </div>
   </header>
 </th:block>
+
+<a
+  th:fragment="showDebugTools"
+  type="button"
+  class="usa-button usa-button--outline"
+  id="debug-content-modal-button"
+  href="#debug-content-modal"
+  data-open-modal
+  aria-controls="debug-content-modal"
+  >DevTools</a
+>
 
 <th:block th:fragment="loginOrLogout">
   <div th:if="${isGuest}">
