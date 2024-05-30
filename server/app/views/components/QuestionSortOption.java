@@ -36,8 +36,8 @@ public enum QuestionSortOption {
 
   // Name of the HTML data attribute for this sorting option. This is used as part
   // of the value for the select tag option along with the ascending or descending suffix. It
-  // should also be used as the data attribute name in the HTML that renders the question. The value of
-  // the data attribute should contain the actual data to sort on.
+  // should also be used as the data attribute name in the HTML that renders the question. The value
+  // of the data attribute should contain the actual data to sort on.
   private final String dataAttribute;
   // Display string for the select tag option for the option that sorts by this
   // attribute in descending order. Not present if this attribute should not have a descending
