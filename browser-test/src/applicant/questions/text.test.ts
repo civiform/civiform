@@ -219,7 +219,7 @@ test.describe('Text question for applicant flow', () => {
         })
         await adminQuestions.addTextQuestion({
           questionName: 'text-y',
-          helpText: 'long help text with some spaces\n here and \n here.',
+          helpText: 'long help text with &nbsp; some spaces\n here and \n here.',
           minNum: 5,
           maxNum: 20,
         })
@@ -227,7 +227,6 @@ test.describe('Text question for applicant flow', () => {
           ['text-q', 'text-y'],
           programName,
         )
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
         await logout(page)
       })
 
