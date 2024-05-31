@@ -250,7 +250,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
     System.out.println(contentAsString(result));
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Date of Birth required");
+    assertThat(contentAsString(result)).contains("Date of birth required");
   }
 
   @Test

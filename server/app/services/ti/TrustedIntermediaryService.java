@@ -58,8 +58,8 @@ public final class TrustedIntermediaryService {
       TrustedIntermediaryGroupModel trustedIntermediaryGroup,
       Messages preferredLanguage) {
     Long clientApplicantId;
-    form = validateFirstNameForEditClient(form);
-    form = validateLastNameForEditClient(form);
+    form = validateFirstNameForEditClient(form, preferredLanguage);
+    form = validateLastNameForEditClient(form, preferredLanguage);
     form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
@@ -73,8 +73,7 @@ public final class TrustedIntermediaryService {
       return new AddNewApplicantReturnObject(
           form.withError(
               FORM_FIELD_NAME_EMAIL_ADDRESS,
-              "Email address already in use. Cannot create applicant if an account already"
-                  + " exists."));
+              preferredLanguage.at(MessageKey.ERROR_EMAIL_IN_USE_CLIENT_CREATE.getKeyName())));
     }
     return new AddNewApplicantReturnObject(form, clientApplicantId);
   }
@@ -83,7 +82,8 @@ public final class TrustedIntermediaryService {
       Form<TiClientInfoForm> form, Messages messages) {
     String dob = form.value().get().getDob();
     if (Strings.isNullOrEmpty(dob)) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth required");
+      return form.withError(
+          FORM_FIELD_NAME_DOB, messages.at(MessageKey.DOB_ERROR_LABEL.getKeyName()));
     }
     final LocalDate currentDob;
     try {
@@ -94,24 +94,31 @@ public final class TrustedIntermediaryService {
           messages.at(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT.getKeyName()));
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");
+      return form.withError(
+          FORM_FIELD_NAME_DOB,
+          messages.at(MessageKey.DATE_VALIDATION_DOB_NOT_IN_PAST.getKeyName()));
     }
     if (currentDob.isBefore(dateConverter.getCurrentDateForZoneId().minusYears(150))) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be less than 150 years ago");
+      return form.withError(
+          FORM_FIELD_NAME_DOB, messages.at(MessageKey.DATE_VALIDATION_IMPOSSIBLE_DOB.getKeyName()));
     }
     return form;
   }
 
-  private Form<TiClientInfoForm> validateFirstNameForEditClient(Form<TiClientInfoForm> form) {
+  private Form<TiClientInfoForm> validateFirstNameForEditClient(
+      Form<TiClientInfoForm> form, Messages messages) {
     if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
-      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
+      return form.withError(
+          FORM_FIELD_NAME_FIRST_NAME, messages.at(MessageKey.ERROR_FIRST_NAME.getKeyName()));
     }
     return form;
   }
 
-  private Form<TiClientInfoForm> validateLastNameForEditClient(Form<TiClientInfoForm> form) {
+  private Form<TiClientInfoForm> validateLastNameForEditClient(
+      Form<TiClientInfoForm> form, Messages messages) {
     if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
-      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
+      return form.withError(
+          FORM_FIELD_NAME_LAST_NAME, messages.at(MessageKey.ERROR_LAST_NAME.getKeyName()));
     }
     return form;
   }
@@ -140,7 +147,7 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<TiClientInfoForm> validateEmailAddress(
-      Form<TiClientInfoForm> form, AccountModel currentAccount) {
+      Form<TiClientInfoForm> form, AccountModel currentAccount, Messages messages) {
     String newEmail = form.get().getEmailAddress();
     // email addresses not a requirement for TI Client
     if (Strings.isNullOrEmpty(newEmail)) {
@@ -150,8 +157,7 @@ public final class TrustedIntermediaryService {
         && accountRepository.lookupAccountByEmail(newEmail).isPresent()) {
       return form.withError(
           FORM_FIELD_NAME_EMAIL_ADDRESS,
-          "Email address already in use. Cannot update applicant if an account already"
-              + " exists.");
+          messages.at(MessageKey.ERROR_EMAIL_IN_USE_CLIENT_EDIT.getKeyName()));
     }
     return form;
   }
@@ -175,8 +181,8 @@ public final class TrustedIntermediaryService {
       Messages preferredLanguage)
       throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
-    form = validateFirstNameForEditClient(form);
-    form = validateLastNameForEditClient(form);
+    form = validateFirstNameForEditClient(form, preferredLanguage);
+    form = validateLastNameForEditClient(form, preferredLanguage);
     form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
@@ -189,7 +195,7 @@ public final class TrustedIntermediaryService {
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    form = validateEmailAddress(form, accountMaybe.get());
+    form = validateEmailAddress(form, accountMaybe.get(), preferredLanguage);
     if (form.hasErrors()) {
       return form;
     }

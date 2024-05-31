@@ -127,6 +127,8 @@ public enum MessageKey {
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
+  ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
+  ERROR_EMAIL_IN_USE_CLIENT_EDIT("label.errorEmailInUseForClientEdit"),
   ERROR_FIRST_NAME("label.errorFirstName"),
   ERROR_LAST_NAME("label.errorLastName"),
   ERROR_INTERNAL_SERVER_TITLE("error.internalServerTitle"),
