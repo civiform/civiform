@@ -83,23 +83,23 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   }
 
   private DivTag renderTiSortSelect(List<QuestionSortOption> sortOptions) {
-    ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
+    ImmutableList<SelectWithLabel.OptionValue> tISortOptions =
         sortOptions.stream()
             .flatMap(sortOption -> sortOption.getSelectOptions().stream())
             .collect(ImmutableList.toImmutableList());
 
-    SelectWithLabel questionSortSelect =
+    SelectWithLabel tISortSelect =
         new SelectWithLabel()
             .setId("ti-list")
-            .setValue(questionSortOptions.get(0).value()) // Default sort order.
+            .setValue(tISortOptions.get(0).value()) // Default sort order.
             .setLabelText("Sort by:")
             .setOptionGroups(
                 ImmutableList.of(
                     SelectWithLabel.OptionGroup.builder()
                         .setLabel("Sort by:")
-                        .setOptions(questionSortOptions)
+                        .setOptions(tISortOptions)
                         .build()));
-    return questionSortSelect.getSelectTag().withClass("mb-0");
+    return tISortSelect.getSelectTag().withClass("mb-0");
   }
 
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
