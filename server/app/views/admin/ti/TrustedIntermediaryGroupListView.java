@@ -148,7 +148,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .with(renderMemberCountCell(ti))
         .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
         .withData(
-            QuestionSortOption.NUM_MEMBERS.getDataAttribute(),
+            QuestionSortOption.TI_NUM_MEMBERS.getDataAttribute(),
             Integer.toString(ti.getTrustedIntermediaries().size()))
         .with(renderActionsCell(ti, request));
   }
