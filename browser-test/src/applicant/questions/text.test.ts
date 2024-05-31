@@ -219,7 +219,7 @@ test.describe('Text question for applicant flow', () => {
         })
         await adminQuestions.addTextQuestion({
           questionName: 'text-y',
-          helpText: 'long help text with &nbsp; some spaces\n here and \n here.',
+          helpText: 'long help text with two line breaks\n\nhere and one break\nhere.',
           minNum: 5,
           maxNum: 20,
         })
@@ -238,7 +238,9 @@ test.describe('Text question for applicant flow', () => {
       await validateScreenshot(page, 'text-with-interesting-help-text')
       expect(
         await page.locator('.cf-applicant-question-help-text').allInnerTexts()
-      ).toContain(['', 'long help text with two line breaks\n\nhere and one break \n here.'])
+      ).toContain(["", "long help text with two line breaks·" +
+      "\nhere and one break" +
+      "\nhere."])
     })
   })
 
