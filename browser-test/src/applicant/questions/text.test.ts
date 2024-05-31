@@ -219,7 +219,7 @@ test.describe('Text question for applicant flow', () => {
         })
         await adminQuestions.addTextQuestion({
           questionName: 'text-y',
-          helpText: 'long help text with two line breaks\n\nhere and one break\nhere.',
+          helpText: 'long help text with two line breaks \n\nhere and one break\nhere.',
           minNum: 5,
           maxNum: 20,
         })
@@ -236,11 +236,11 @@ test.describe('Text question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await validateScreenshot(page, 'text-with-interesting-help-text')
-      expect(
-        await page.locator('.cf-applicant-question-help-text').allInnerTexts()
-      ).toContain(["", "long help text with two line breaks·" +
-      "\nhere and one break" +
-      "\nhere."])
+      const innerText =  await page.locator('.cf-applicant-question-help-text').allInnerTexts();
+      // not entirely accurate representation of what is rendered (screenshot test is better) 
+      // because util.ts strips out line breaks and inserts a blank space and new line 
+      // whereever a line break is found. 
+      expect(innerText).toEqual(['', 'long help text with two line breaks\n\nhere and one break\nhere.'])
     })
   })
 
