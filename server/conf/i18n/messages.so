@@ -225,6 +225,10 @@ label.errorDOB=Taariikhda dhalashada ayaa loo baahan yahay
 label.errorFirstName=Magaca koowaad ayaa loo baahan yahay
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=Magaca dambe ayaa loo baahan yahay
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Bisha
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
