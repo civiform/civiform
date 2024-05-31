@@ -101,6 +101,8 @@ button.continueToApplication=Continuar a la solicitud
 button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
 button.editCommonIntakeSr=Editar la información enviada para {0}
 button.continueCommonIntakeSr=Continuar completando la solicitud {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
 content.submittedDate=Enviada el {0}
 content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
@@ -114,6 +116,16 @@ title.allProgramsSection=Todos los programas ({0})
 title.status=Estado
 title.inProgressProgramsUpdated=En curso
 title.activeProgramsUpdated=Sin comenzar
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Sección completada
 title.submittedPrograms=Enviados
