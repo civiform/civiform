@@ -205,33 +205,41 @@ test.describe('Text question for applicant flow', () => {
     })
   })
 
-  test.describe('single text question without help text', () => {
-    const programName = 'Test program for single text without help text'
-
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({
-        questionName: 'text-q',
-        helpText: '',
-        minNum: 5,
-        maxNum: 20,
+  test.describe('multiple text question with interesting help text', () => {
+    const programName =
+      'Test program for multiple text with interesting help text'
+    
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'text-q',
+          helpText: '',
+          minNum: 5,
+          maxNum: 20,
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'text-y',
+          helpText: 'long help text with some spaces\n here and \n here.',
+          minNum: 5,
+          maxNum: 20,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['text-q', 'text-y'],
+          programName,
+        )
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+        await logout(page)
       })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['text-q'],
-        programName,
-      )
 
-      await logout(page)
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test('validate screenshot', async ({page, applicantQuestions}) => {
+    test('validate empty spaces are not rendered', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'text-without-help-text')
+      await validateScreenshot(page, 'text-with-interesting-help-text')
       expect(
-        await page.innerText('.cf-applicant-question-help-text'),
-      ).toContain('')
+        await page.locator('.cf-applicant-question-help-text').allInnerTexts()
+      ).toContain(['', 'long help text with some spaces\n\nhere and \n here.'])
     })
   })
 

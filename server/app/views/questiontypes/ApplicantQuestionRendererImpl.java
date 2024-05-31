@@ -102,7 +102,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.formatTextWithAriaLabel(
             applicantQuestion.getQuestionText(),
-            /* preserveEmptyLines= */ true,
+            /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
             messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     // Reverse the list to have errors appear first.
