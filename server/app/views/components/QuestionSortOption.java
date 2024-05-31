@@ -23,7 +23,7 @@ public enum QuestionSortOption {
       /* dataAttribute= */ "tiname",
       /* displayStringAscending= */ Optional.of("Name A-Z"),
       /* displayStringDescending= */ Optional.of("Name Z-A")),
-  NUM_MEMBERS(
+  TI_NUM_MEMBERS(
       /* dataAttribute= */ "nummember",
       /* displayStringAscending= */ Optional.of("Fewest members"),
       /* displayStringDescending= */ Optional.of("Most members"));

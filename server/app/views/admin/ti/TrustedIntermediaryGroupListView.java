@@ -66,7 +66,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                             .withClasses("mt-8", "flex-grow", "relative"),
                         renderTiSortSelect(
                             ImmutableList.of(
-                                QuestionSortOption.TI_NAME, QuestionSortOption.NUM_MEMBERS))),
+                                QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS))),
                 renderTiGroupCards(tis, request));
 
     if (request.flash().get("error").isPresent()) {
