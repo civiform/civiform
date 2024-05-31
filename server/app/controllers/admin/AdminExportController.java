@@ -54,8 +54,8 @@ public class AdminExportController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       ProgramService programService,
-      SettingsManifest settingsManifest,
       QuestionService questionService,
+      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
@@ -98,10 +98,6 @@ public class AdminExportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
 
     Long programId = form.get().getProgramId();
-    if (programId == null) {
-      // If they didn't select anything, just re-render the main export page.
-      return redirect(routes.AdminExportController.index().url());
-    }
 
     ProgramDefinition program;
     try {
