@@ -55,7 +55,7 @@ export interface QuestionSpec {
 export interface BlockSpec {
   name?: string
   description?: string
-  questions: QuestionSpec[]
+  questions?: QuestionSpec[]
 }
 
 function slugify(value: string): string {
@@ -597,10 +597,9 @@ export class AdminPrograms {
 
   /**
    * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
-   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that the new method will place
-   * the optional question in the order as defined in the question array. The older method could only handle one
-   * optional question and forced it to be the first question on the list. Tests may need to be updated to handle
-   * a different question order.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that
+   * editProgramBlockWithOptional always puts the optional question first, whereas
+   * editProgramBlockUsingSpec orders questions according to the question array.
    */
   async editProgramBlockWithOptional(
     programName: string,
@@ -608,23 +607,18 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    const block: BlockSpec = {
-      description: blockDescription,
-      questions: [],
-    }
-
-    block.questions.push({
+    const optionalQuestion: QuestionSpec = {
       name: optionalQuestionName,
       isOptional: true,
-    })
+    }
+    const nonOptionalQuestions: QuestionSpec[] = questionNames.map(
+      (questionName) => ({name: questionName}),
+    )
 
-    questionNames.forEach((questionName) => {
-      block.questions.push({
-        name: questionName,
-      })
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: [optionalQuestion].concat(nonOptionalQuestions),
     })
-
-    await this.editProgramBlockUsingSpec(programName, block)
   }
 
   /**
@@ -645,7 +639,7 @@ export class AdminPrograms {
 
     await this.page.click('#update-block-button:not([disabled])')
 
-    for (const question of block.questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
 
       if (question.isOptional) {
@@ -748,7 +742,7 @@ export class AdminPrograms {
     await this.page.waitForURL(this.page.url())
     await waitForPageJsLoad(this.page)
 
-    for (const question of block.questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
       if (question.isOptional) {
         const optionalToggle = this.page

@@ -26,10 +26,34 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
-  async downloadProgram() {
+  async generateJSON() {
+    await this.page.getByRole('button', {name: 'Generate JSON'}).click()
+  }
+
+  async expectJSONPreview() {
+    const jsonPreview = this.page.locator('#program-json')
+
+    // The json preview should be a text area and should be disabled to prevent editing
+    const tagName = await jsonPreview.evaluate((element) =>
+      element.tagName.toLowerCase(),
+    )
+    expect(tagName).toBe('textarea')
+    await expect(jsonPreview).toBeDisabled()
+
+    await expect(
+      this.page.getByRole('button', {name: 'Download JSON'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('button', {name: 'Copy JSON'}),
+    ).toBeVisible()
+
+    return jsonPreview.innerHTML()
+  }
+
+  async downloadJSON() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.getByRole('button', {name: 'Download program'}).click(),
+      this.page.getByRole('button', {name: 'Download JSON'}).click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
@@ -50,7 +74,7 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async submitProgramJson(content: string) {
+  async submitProgramJSON(content: string) {
     await this.page.getByRole('textbox').fill(content)
     await this.page
       .getByRole('button', {name: 'Display program information'})

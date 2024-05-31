@@ -25,6 +25,10 @@ import views.components.FieldWithLabel;
 
 /** A view allowing admins to export a program into JSON format. */
 public final class AdminExportView extends BaseHtmlView {
+
+  public static final String PROGRAM_EXPORT_FORM_ID = "program-export-form";
+  public static final String GENERATE_JSON_BUTTON_ID = "generate-json-button";
+
   private final AdminLayout layout;
 
   @Inject
@@ -36,7 +40,7 @@ public final class AdminExportView extends BaseHtmlView {
    * Renders the export page, showing a list of all active programs. Admins can select a single
    * program then download it.
    */
-  public Content render(Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
+  public Content render(Http.Request request, ImmutableList<ProgramDefinition> programs) {
     String title = "Export a program";
     DivTag contentDiv =
         div()
@@ -44,41 +48,62 @@ public final class AdminExportView extends BaseHtmlView {
             .with(h1(title))
             .with(
                 p("Select the program you'd like to export to a different environment and then"
-                        + " click \"Download program\". This will download a JSON file representing"
-                        + " the selected program.")
+                      + " click \"Generate JSON\". This will generate a JSON file representing the"
+                      + " selected program.")
                     .withClass("my-2"))
             .with(
-                p("Once the JSON file is downloaded, open the environment where this program should"
-                        + " be added. Log in as a CiviForm Admin and use the \"Import\" tab to add"
-                        + " the program.")
+                p("Once the JSON file is generated, you can copy it to the clipboard or download a"
+                      + " file containing the JSON. To import the JSON, open the environment where"
+                      + " this program should be added, log in as a CiviForm Admin and use the"
+                      + " \"Import\" tab to add the program.")
                     .withClass("my-2"));
 
-    contentDiv.with(createProgramSelectionForm(request, activePrograms));
+    contentDiv.with(createProgramSelectionForm(request, programs));
+    contentDiv.with(renderJSONPreviewRegion());
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
   }
 
   private DomContent createProgramSelectionForm(
-      Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
+      Http.Request request, ImmutableList<ProgramDefinition> programs) {
     FieldsetTag fields = fieldset();
-    for (ProgramDefinition program : activePrograms) {
-      fields.with(
-          FieldWithLabel.radio()
-              .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
-              // TODO(#7087): Should we display the admin name, display name, or both?
-              .setLabelText(program.adminName())
-              .setValue(String.valueOf(program.id()))
-              .getRadioTag());
+    for (ProgramDefinition program : programs) {
+      String labelText =
+          "Name: "
+              + program.localizedName().getDefault()
+              + "\n"
+              + "Admin Name: "
+              + program.adminName();
+
+      fields
+          .with(
+              FieldWithLabel.radio()
+                  .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
+                  .setLabelText(labelText)
+                  .setValue(String.valueOf(program.id()))
+                  .getRadioTag())
+          .withClass("whitespace-pre-wrap");
     }
 
     return div()
         .with(
             form()
-                .withMethod("GET")
-                .withAction(routes.AdminExportController.exportProgram().url())
+                .withId(PROGRAM_EXPORT_FORM_ID)
+                .attr("hx-encoding", "multipart/form-data")
+                .attr("hx-post", routes.AdminExportController.hxExportProgram().url())
+                .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_JSON_ID)
+                .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request))
                 .with(fields)
-                .with(submitButton("Download program").withClass(ButtonStyles.SOLID_BLUE)));
+                .with(
+                    submitButton("Generate JSON")
+                        .withId(GENERATE_JSON_BUTTON_ID)
+                        .isDisabled()
+                        .withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
+  }
+
+  private DomContent renderJSONPreviewRegion() {
+    return div().withId(AdminExportViewPartial.PROGRAM_JSON_ID);
   }
 }

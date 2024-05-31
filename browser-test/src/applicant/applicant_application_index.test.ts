@@ -279,6 +279,10 @@ test.describe('applicant program index page', () => {
         )
       })
 
+      test('validate accessibility', async ({page}) => {
+        await validateAccessibility(page)
+      })
+
       test('shows log in button for guest users', async ({page}) => {
         // We cannot check that the login/create account buttons redirect the user to a particular
         // URL because it varies between environments, so just check for their existence.
