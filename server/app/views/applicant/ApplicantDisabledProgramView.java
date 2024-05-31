@@ -2,7 +2,6 @@ package views.applicant;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
@@ -38,10 +37,10 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
 
   private DivTag mainContent() {
     // TODO: replace the text with translated messages once the text is confirmed by product side
-    String h1Text = "Program disabled";
-    H1Tag headerText = h1().withText(h1Text);
-    String pText = "We're sorry, the program you are trying to access has been disabled.";
-    PTag contentText = p().withClass("usa-intro").withText(pText);
+    H1Tag headerText = renderHeader("Program disabled");
+    PTag contentText =
+        p().withClass("usa-intro")
+            .withText("We're sorry, the program you are trying to access has been disabled.");
     String homeLink = routes.HomeController.index().url();
 
     DivTag button =
@@ -53,7 +52,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
                         li().withClass("usa-button-group__item")
                             .with(
                                 a().withClass("usa-button")
-                                    .withText("Visit" + " HomePage")
+                                    .withText("Visit HomePage")
                                     .withHref(homeLink))));
 
     return div()
