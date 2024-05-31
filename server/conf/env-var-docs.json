@@ -782,6 +782,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
         "type": "bool"
+      },
+      "PROGRAM_FILTERING": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
+        "type": "bool"
       }
     }
   }
