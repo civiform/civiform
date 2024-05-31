@@ -75,6 +75,10 @@ public class AdminImportController extends CiviFormController {
             .form(AdminProgramImportForm.class)
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
     String jsonString = form.get().getProgramJson();
+
+    // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
+    jsonString = trimQuestionsOffJson(jsonString);
+
     if (jsonString == null) {
       // If they didn't upload anything, just re-render the main import page.
       return redirect(routes.AdminImportController.index().url());
@@ -98,5 +102,19 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
     return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
+  }
+
+  // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
+  private String trimQuestionsOffJson(String jsonString) {
+    int indexOfQuestions = jsonString.indexOf("\"questions\"");
+    // questions are not included in the json if the array of questions is empty, so we need to
+    // check that this field exists before building a substring off of it
+    if (indexOfQuestions != -1) {
+      StringBuilder jsonStringBuilder =
+          new StringBuilder(jsonString.substring(0, indexOfQuestions));
+      jsonString =
+          jsonStringBuilder.deleteCharAt(jsonStringBuilder.lastIndexOf(",")).append("}").toString();
+    }
+    return jsonString;
   }
 }

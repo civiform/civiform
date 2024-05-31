@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import services.program.ProgramDefinition;
@@ -40,6 +41,7 @@ public final class ProgramMigrationWrapper {
    * questions in {@code program}, and then fetches the full {@link QuestionDefinition}s to store in
    * this object for serialization.
    */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private ImmutableList<QuestionDefinition> questions;
 
   @JsonCreator
