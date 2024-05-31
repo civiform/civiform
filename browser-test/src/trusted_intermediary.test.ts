@@ -673,7 +673,7 @@ test.describe('Trusted intermediaries', () => {
     adminTiGroups,
   }) => {
     await loginAsAdmin(page)
-    // add "aaa" with 2 members
+    // add "aaa" with 3 members
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
     await adminTiGroups.editGroup('aaa')
