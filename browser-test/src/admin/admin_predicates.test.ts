@@ -486,6 +486,209 @@ test.describe('create and edit predicates', () => {
     )
   })
 
+  test('eligibility multiple values and multiple questions', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    test.slow()
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'currency-question',
+    })
+    await adminQuestions.addNumberQuestion({questionName: 'number-question'})
+    await adminQuestions.addTextQuestion({questionName: 'text-question'})
+
+    const programName = 'Test multiple question and value predicate config'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [
+        {name: 'date-question'},
+        {name: 'currency-question'},
+        {name: 'number-question'},
+        {name: 'text-question'},
+      ],
+    })
+
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+
+    await adminPredicates.addPredicates(
+      {
+        questionName: 'date-question',
+        scalar: 'date',
+        operator: 'is earlier than',
+        values: ['2021-01-01', '2022-02-02'],
+      },
+      {
+        questionName: 'currency-question',
+        scalar: 'currency',
+        operator: 'is less than',
+        values: ['10', '20'],
+      },
+      // Question itself is a number question (single scalar answer)
+      // but we specify multiple values for comparison.
+      {
+        questionName: 'number-question',
+        scalar: 'number',
+        operator: 'is one of',
+        values: ['1,2', '3,4'],
+      },
+      // Question itself is a text question (single scalar answer)
+      // but we specify multiple values for comparison.
+      {
+        questionName: 'text-question',
+        scalar: 'text',
+        operator: 'is not one of',
+        values: ['one,two', 'three,four'],
+      },
+    )
+
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-saved',
+    )
+    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $10.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2021-01-01',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $20.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2022-02-02',
+    )
+
+    await adminPredicates.clickEditPredicateButton('eligibility')
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-edit',
+    )
+
+    await adminPredicates.configurePredicate({
+      questionName: 'currency-question',
+      scalar: 'currency',
+      operator: 'is greater than',
+      values: ['100', '200'],
+    })
+
+    await adminPredicates.clickSaveConditionButton()
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-updated',
+    )
+    predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $100.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $200.00',
+    )
+  })
+
+  test('visibility multiple values and multiple questions', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'currency-question',
+    })
+
+    const programName = 'Test multiple question and value predicate config'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [{name: 'date-question'}, {name: 'currency-question'}],
+    })
+
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      name: 'Screen 2',
+    })
+
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
+
+    await adminPredicates.addPredicates(
+      {
+        questionName: 'date-question',
+        scalar: 'date',
+        operator: 'is earlier than',
+        values: ['2021-01-01', '2022-02-02'],
+      },
+      {
+        questionName: 'currency-question',
+        scalar: 'currency',
+        operator: 'is less than',
+        values: ['10', '20'],
+      },
+    )
+
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-saved',
+    )
+    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $10.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2021-01-01',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $20.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2022-02-02',
+    )
+
+    await adminPredicates.clickEditPredicateButton('visibility')
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-edit',
+    )
+
+    await adminPredicates.configurePredicate({
+      questionName: 'currency-question',
+      scalar: 'currency',
+      operator: 'is greater than',
+      values: ['100', '200'],
+    })
+
+    await adminPredicates.clickSaveConditionButton()
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-updated',
+    )
+    predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $100.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $200.00',
+    )
+  })
+
   test.describe('test predicates', () => {
     test.beforeEach(async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
@@ -526,199 +729,6 @@ test.describe('create and edit predicates', () => {
       })
 
       await logout(page)
-    })
-
-    test('eligibility multiple values and multiple questions', async ({
-      page,
-      adminPrograms,
-      adminPredicates,
-    }) => {
-      test.slow()
-
-      await loginAsAdmin(page)
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        questions: [
-          {name: 'predicate-date-is-earlier-than'},
-          {name: 'predicate-currency'},
-          {name: 'list of longs'},
-          {name: 'list of strings'},
-          {name: 'predicate-date-age-older-than'},
-        ],
-      })
-
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 1',
-      )
-
-      await adminPredicates.addPredicates(
-        {
-          questionName: 'predicate-date-is-earlier-than',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-        // Question itself is a number question (single scalar answer)
-        // but we specify multiple values for comparison.
-        {
-          questionName: 'list of longs',
-          scalar: 'number',
-          operator: 'is one of',
-          values: ['1,2', '3,4'],
-        },
-        // Question itself is a text question (single scalar answer)
-        // but we specify multiple values for comparison.
-        {
-          questionName: 'list of strings',
-          scalar: 'text',
-          operator: 'is not one of',
-          values: ['one,two', 'three,four'],
-        },
-      )
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('eligibility')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
-    })
-
-    test('visibility multiple values and multiple questions', async ({
-      page,
-      adminPrograms,
-      adminPredicates,
-    }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        questions: [
-          {name: 'predicate-date-is-earlier-than'},
-          {name: 'predicate-currency'},
-        ],
-      })
-
-      await adminPrograms.addProgramBlockUsingSpec(programName, {
-        name: 'Screen 2',
-      })
-
-      await adminPrograms.goToEditBlockVisibilityPredicatePage(
-        programName,
-        'Screen 2',
-      )
-
-      await adminPredicates.addPredicates(
-        {
-          questionName: 'predicate-date-is-earlier-than',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-      )
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('visibility')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
     })
 
     test('every visibility right hand type evaluates correctly', async ({
