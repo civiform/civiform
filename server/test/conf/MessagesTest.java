@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,9 +47,15 @@ public class MessagesTest {
 
   private static final String EN_US_LANGUAGE_FILE_PATH = PREFIX_PATH + EN_US_LANGUAGE_FILE_NAME;
 
-  // Slanted quotes like “ and ’ show up as â in tests; this is a common error when
-  // copy-pasting text. Check for this error in all messages files.
-  private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
+  // Check for prohibited characters, such as smart quotes, that may have been added by mistake by
+  // Excel or Sheets
+  private static final Set<String> PROHIBITED_CHARACTERS =
+      Set.of(
+          // "Smart quotes"
+          "\u2019", // RIGHT SINGLE QUOTATION MARK
+          "\u201C", // LEFT DOUBLE QUOTATION MARK
+          "\u201D" // RIGHT DOUBLE QUOTATION MARK
+          );
 
   // Words that should not be in the internationalization files, such as civic entity-specific
   // names.
@@ -145,19 +154,21 @@ public class MessagesTest {
    * sorted order, even though the {@link Properties} class reads them into a HashMap with no
    * ordering guarantees (regardless of the ordering of the language files themselves).
    */
-  private static Map<String, String> entriesInFile(String filePath) throws Exception {
-    InputStream input = new FileInputStream(filePath);
+  private static Map<String, String> entriesInFile(String filePath) throws IOException {
+    try (InputStream input = new FileInputStream(filePath);
+        InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
 
-    Properties prop = new Properties();
-    prop.load(input);
+      Properties prop = new Properties();
+      prop.load(reader);
 
-    return prop.entrySet().stream()
-        .collect(
-            Collectors.toMap(
-                entry -> (String) entry.getKey(),
-                entry -> (String) entry.getValue(),
-                (v1, v2) -> v1,
-                TreeMap::new));
+      return prop.entrySet().stream()
+          .collect(
+              Collectors.toMap(
+                  entry -> (String) entry.getKey(),
+                  entry -> (String) entry.getValue(),
+                  (v1, v2) -> v1,
+                  TreeMap::new));
+    }
   }
 
   // The file paths of all foreign language files.

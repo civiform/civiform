@@ -1,15 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect, Frame, Page, Locator} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
-import {
-  Browser,
-  BrowserContext,
-  chromium,
-  Frame,
-  Page,
-  Locator,
-  devices,
-  BrowserContextOptions,
-} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 import {
@@ -55,84 +45,6 @@ export enum AuthStrategy {
 /** True when the test environment is hermetic i.e. not a durable staging deployment. */
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
-
-function makeBrowserContext(
-  browser: Browser,
-  useMobile = false,
-): Promise<BrowserContext> {
-  const contextOptions: BrowserContextOptions = {
-    ...(useMobile ? devices['Pixel 5'] : {}),
-    acceptDownloads: true,
-  }
-
-  if (process.env.RECORD_VIDEO) {
-    // https://playwright.dev/docs/videos
-    // Docs state that videos are only saved upon
-    // closing the returned context. In practice,
-    // this doesn't appear to be true. Restructuring
-    // to ensure that we always close the returned
-    // context is possible, but likely not necessary
-    // until it causes a problem. In practice, this
-    // will only be used when debugging failures.
-    const dirs = ['tmp/videos']
-    if ('expect' in global && expect.getState() != null) {
-      const testPath = test.info().file
-
-      if (testPath == null) {
-        throw new Error('testPath cannot be null')
-      }
-
-      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
-      dirs.push(testFile)
-
-      // Some test initialize context in beforeAll at which point test name is
-      // not set.
-
-      const testName = test.info().title
-
-      if (testName) {
-        // remove special characters
-        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
-      }
-    }
-
-    contextOptions.recordVideo = {
-      dir: path.join(...dirs),
-    }
-  }
-
-  return browser.newContext(contextOptions)
-}
-
-export const startSession = async (
-  browser: Browser | null = null,
-): Promise<{
-  browser: Browser
-  context: BrowserContext
-  page: Page
-}> => {
-  if (browser == null) {
-    browser = await chromium.launch()
-  }
-  const context = await makeBrowserContext(browser)
-  const page = await context.newPage()
-
-  await page.goto(BASE_URL)
-  await closeWarningMessage(page)
-
-  return {browser, context, page}
-}
-
-export const endSession = async (browser: Browser) => {
-  await browser.close()
-}
-
-/**
- * @deprecated Just use `page.goto()`
- */
-export const gotoEndpoint = async (page: Page, endpoint = '') => {
-  return await page.goto(BASE_URL + endpoint)
-}
 
 export const dismissToast = async (page: Page) => {
   await page.locator('#toast-container div:text("x")').click()
@@ -464,12 +376,12 @@ const takeScreenshot = async (
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  expect(
-    await element.screenshot({
+  await expect(element).toHaveScreenshot(
+    [testFileName, fullScreenshotFileName + '.png'],
+    {
       fullPage: fullPage,
-      animations: 'disabled',
-    }),
-  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
+    },
+  )
 }
 
 /*

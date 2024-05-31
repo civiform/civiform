@@ -18,6 +18,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -75,7 +76,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
-  public final LanguageSelector languageSelector;
+  private final LanguageUtils languageUtils;
+  private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
@@ -87,6 +89,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
+      LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent,
@@ -95,6 +98,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
+    this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
@@ -145,7 +149,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean includeAdminLogin,
       Long applicantId) {
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
-    String language = languageSelector.getPreferredLangage(request).code();
+    String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages, applicantId));
 
@@ -248,7 +252,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
     InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
-    String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+    String preferredLanguage = languageUtils.getPreferredLanguage(request).code();
     SelectTag languageDropdown =
         languageSelector
             .renderDropdown(preferredLanguage)

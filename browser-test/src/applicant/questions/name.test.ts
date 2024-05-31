@@ -50,10 +50,8 @@ test.describe('name applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
-      let error = await page.$(`${NAME_FIRST}-error`)
-      expect(await error?.isHidden()).toEqual(true)
-      error = await page.$(`${NAME_LAST}-error`)
-      expect(await error?.isHidden()).toEqual(true)
+      await expect(page.locator(`${NAME_FIRST}-error`)).toBeHidden()
+      await expect(page.locator(`${NAME_LAST}-error`)).toBeHidden()
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
@@ -72,10 +70,8 @@ test.describe('name applicant flow', () => {
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickNext()
 
-      let error = await page.$(`${NAME_FIRST}-error`)
-      expect(await error?.isHidden()).toEqual(false)
-      error = await page.$(`${NAME_LAST}-error`)
-      expect(await error?.isHidden()).toEqual(false)
+      await expect(page.locator(`${NAME_FIRST}-error`)).toBeVisible()
+      await expect(page.locator(`${NAME_LAST}-error`)).toBeVisible()
     })
   })
 
@@ -118,16 +114,12 @@ test.describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = await page.$(`${NAME_FIRST}-error >> nth=0`)
-      expect(await error?.isHidden()).toEqual(false)
-      error = await page.$(`${NAME_LAST}-error >> nth=0`)
-      expect(await error?.isHidden()).toEqual(false)
+      await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeVisible()
+      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeVisible()
 
       // Second question has no errors.
-      error = await page.$(`${NAME_FIRST}-error >> nth=1`)
-      expect(await error?.isHidden()).toEqual(true)
-      error = await page.$(`${NAME_LAST}-error >> nth=1`)
-      expect(await error?.isHidden()).toEqual(true)
+      await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeHidden()
+      await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeHidden()
     })
 
     test('with second invalid does not submit', async ({
@@ -140,16 +132,12 @@ test.describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has no errors.
-      let error = await page.$(`${NAME_FIRST}-error >> nth=0`)
-      expect(await error?.isHidden()).toEqual(true)
-      error = await page.$(`${NAME_LAST}-error >> nth=0`)
-      expect(await error?.isHidden()).toEqual(true)
+      await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeHidden()
+      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeHidden()
 
       // Second question has errors.
-      error = await page.$(`${NAME_FIRST}-error >> nth=1`)
-      expect(await error?.isHidden()).toEqual(false)
-      error = await page.$(`${NAME_LAST}-error >> nth=1`)
-      expect(await error?.isHidden()).toEqual(false)
+      await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeVisible()
+      await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeVisible()
     })
 
     test('has no accessiblity violations', async ({
@@ -207,8 +195,7 @@ test.describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Optional question has an error.
-      const error = await page.$(`${NAME_LAST}-error >> nth=0`)
-      expect(await error?.isHidden()).toEqual(false)
+      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeVisible()
     })
 
     test.describe('with invalid required name', () => {
@@ -220,46 +207,45 @@ test.describe('name applicant flow', () => {
 
       test('does not submit', async ({page}) => {
         // Second question has errors.
-        let error = await page.$(`${NAME_FIRST}-error >> nth=1`)
-        expect(await error?.isHidden()).toEqual(false)
-        error = await page.$(`${NAME_LAST}-error >> nth=1`)
-        expect(await error?.isHidden()).toEqual(false)
+        await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeVisible()
+        await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeVisible()
       })
 
       test('optional has no errors', async ({page}) => {
         // First question has no errors.
-        let error = await page.$(`${NAME_FIRST}-error >> nth=0`)
-        expect(await error?.isHidden()).toEqual(true)
-        error = await page.$(`${NAME_LAST}-error >> nth=0`)
-        expect(await error?.isHidden()).toEqual(true)
+        await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeHidden()
+        await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeHidden()
       })
     })
   })
 
-  test.describe('single required name question with north star flag enabled', () => {
-    const programName = 'Test program for single name'
+  test.describe(
+    'single required name question with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single name'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleRequiredQuestion(
-        programName,
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleRequiredQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot with north star flag enabled', async ({
         page,
-        adminQuestions,
-        adminPrograms,
-      )
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test(
-      'validate screenshot with north star flag enabled',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
+        applicantQuestions,
+      }) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'name-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -267,15 +253,24 @@ test.describe('name applicant flow', () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'name-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
-      },
-    )
-  })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
+    },
+  )
 
   async function setUpSingleRequiredQuestion(
     programName: string,

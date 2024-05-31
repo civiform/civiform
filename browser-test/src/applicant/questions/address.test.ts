@@ -367,9 +367,9 @@ test.describe('address applicant flow', () => {
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'address-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -377,12 +377,21 @@ test.describe('address applicant flow', () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'address-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
       })
     },
   )

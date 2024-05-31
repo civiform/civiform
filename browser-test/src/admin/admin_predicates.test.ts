@@ -1,4 +1,4 @@
-import {test, expect} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   isHermeticTestEnvironment,
@@ -32,12 +32,16 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create hide predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'hide-predicate-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'screen with predicate', [
-      'hide-other-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      description: 'first screen',
+      questions: [{name: 'hide-predicate-q'}],
+    })
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      name: 'Screen 2',
+      description: 'screen with predicate',
+      questions: [{name: 'hide-other-q'}],
+    })
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -132,12 +136,16 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create show predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'show-predicate-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'screen with predicate', [
-      'show-other-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      description: 'first screen',
+      questions: [{name: 'show-predicate-q'}],
+    })
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      name: 'Screen 2',
+      description: 'screen with predicate',
+      questions: [{name: 'show-other-q'}],
+    })
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -228,9 +236,11 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Create eligibility predicate'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'first screen', [
-      'eligibility-predicate-q',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      description: 'first screen',
+      questions: [{name: 'eligibility-predicate-q'}],
+    })
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -367,9 +377,11 @@ test.describe('create and edit predicates', () => {
 
       const programName = 'Create eligibility predicate'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'first screen', [
-        'eligibility-predicate-q',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: 'eligibility-predicate-q'}],
+      })
 
       await adminPrograms.clickAddressCorrectionToggle()
 
@@ -429,13 +441,16 @@ test.describe('create and edit predicates', () => {
 
     const programName = 'Help text program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'name', [
-      'name-question',
-      'date-question',
-      'dropdown-question',
-      'email-question',
-      'checkbox-question',
-    ])
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [
+        {name: 'name-question'},
+        {name: 'date-question'},
+        {name: 'dropdown-question'},
+        {name: 'email-question'},
+        {name: 'checkbox-question'},
+      ],
+    })
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
       'Screen 1',
@@ -475,6 +490,209 @@ test.describe('create and edit predicates', () => {
       page.locator('.predicate-config-form'),
       'operator-help-text',
       /* fullPage= */ false,
+    )
+  })
+
+  test('eligibility multiple values and multiple questions', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    test.slow()
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'currency-question',
+    })
+    await adminQuestions.addNumberQuestion({questionName: 'number-question'})
+    await adminQuestions.addTextQuestion({questionName: 'text-question'})
+
+    const programName = 'Test multiple question and value predicate config'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [
+        {name: 'date-question'},
+        {name: 'currency-question'},
+        {name: 'number-question'},
+        {name: 'text-question'},
+      ],
+    })
+
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+
+    await adminPredicates.addPredicates(
+      {
+        questionName: 'date-question',
+        scalar: 'date',
+        operator: 'is earlier than',
+        values: ['2021-01-01', '2022-02-02'],
+      },
+      {
+        questionName: 'currency-question',
+        scalar: 'currency',
+        operator: 'is less than',
+        values: ['10', '20'],
+      },
+      // Question itself is a number question (single scalar answer)
+      // but we specify multiple values for comparison.
+      {
+        questionName: 'number-question',
+        scalar: 'number',
+        operator: 'is one of',
+        values: ['1,2', '3,4'],
+      },
+      // Question itself is a text question (single scalar answer)
+      // but we specify multiple values for comparison.
+      {
+        questionName: 'text-question',
+        scalar: 'text',
+        operator: 'is not one of',
+        values: ['one,two', 'three,four'],
+      },
+    )
+
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-saved',
+    )
+    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $10.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2021-01-01',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $20.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2022-02-02',
+    )
+
+    await adminPredicates.clickEditPredicateButton('eligibility')
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-edit',
+    )
+
+    await adminPredicates.configurePredicate({
+      questionName: 'currency-question',
+      scalar: 'currency',
+      operator: 'is greater than',
+      values: ['100', '200'],
+    })
+
+    await adminPredicates.clickSaveConditionButton()
+    await validateScreenshot(
+      page,
+      'eligibility-predicates-multi-values-multi-questions-predicate-updated',
+    )
+    predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $100.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $200.00',
+    )
+  })
+
+  test('visibility multiple values and multiple questions', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDateQuestion({questionName: 'date-question'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'currency-question',
+    })
+
+    const programName = 'Test multiple question and value predicate config'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [{name: 'date-question'}, {name: 'currency-question'}],
+    })
+
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      name: 'Screen 2',
+    })
+
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
+
+    await adminPredicates.addPredicates(
+      {
+        questionName: 'date-question',
+        scalar: 'date',
+        operator: 'is earlier than',
+        values: ['2021-01-01', '2022-02-02'],
+      },
+      {
+        questionName: 'currency-question',
+        scalar: 'currency',
+        operator: 'is less than',
+        values: ['10', '20'],
+      },
+    )
+
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-saved',
+    )
+    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $10.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2021-01-01',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is less than $20.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"date-question" date is earlier than 2022-02-02',
+    )
+
+    await adminPredicates.clickEditPredicateButton('visibility')
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-edit',
+    )
+
+    await adminPredicates.configurePredicate({
+      questionName: 'currency-question',
+      scalar: 'currency',
+      operator: 'is greater than',
+      values: ['100', '200'],
+    })
+
+    await adminPredicates.clickSaveConditionButton()
+    await validateScreenshot(
+      page,
+      'visibility-predicates-multi-values-multi-questions-predicate-updated',
+    )
+    predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $100.00',
+    )
+    expect(predicateDisplay).toContain(
+      '"currency-question" currency is greater than $200.00',
     )
   })
 
@@ -520,230 +738,54 @@ test.describe('create and edit predicates', () => {
       await logout(page)
     })
 
-    test('eligibility multiple values and multiple questions', async ({
-      page,
-      adminPrograms,
-      adminPredicates,
-    }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      const questions = [
-        'predicate-date-is-earlier-than',
-        'predicate-currency',
-        'list of longs',
-        'list of strings',
-        'predicate-date-age-older-than',
-      ]
-
-      await adminPrograms.editProgramBlock(programName, 'test-block', questions)
-
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 1',
-      )
-
-      await adminPredicates.addPredicates(
-        {
-          questionName: 'predicate-date-is-earlier-than',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-        // Question itself is a number question (single scalar answer)
-        // but we specify multiple values for comparison.
-        {
-          questionName: 'list of longs',
-          scalar: 'number',
-          operator: 'is one of',
-          values: ['1,2', '3,4'],
-        },
-        // Question itself is a text question (single scalar answer)
-        // but we specify multiple values for comparison.
-        {
-          questionName: 'list of strings',
-          scalar: 'text',
-          operator: 'is not one of',
-          values: ['one,two', 'three,four'],
-        },
-      )
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('eligibility')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
-    })
-
-    test('visibility multiple values and multiple questions', async ({
-      page,
-      adminPrograms,
-      adminPredicates,
-    }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date-is-earlier-than',
-        'predicate-currency',
-      ])
-
-      await adminPrograms.addProgramBlock(programName, 'show-hide', [])
-
-      await adminPrograms.goToEditBlockVisibilityPredicatePage(
-        programName,
-        'Screen 2',
-      )
-
-      await adminPredicates.addPredicates(
-        {
-          questionName: 'predicate-date-is-earlier-than',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-      )
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('visibility')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
-    })
-
     test('every visibility right hand type evaluates correctly', async ({
       page,
       adminPrograms,
       applicantQuestions,
       adminPredicates,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'string', [
-        'single-string',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'list of strings', [
-        'list of strings',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
-      await adminPrograms.addProgramBlock(programName, 'list of longs', [
-        'list of longs',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
-      await adminPrograms.addProgramBlock(
-        programName,
-        'is earlier than date question',
-        ['predicate-date-is-earlier-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'on or after date question',
-        ['predicate-date-on-or-after'],
-      )
-      await adminPrograms.addProgramBlock(programName, 'two lists', [
-        'both sides are lists',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'last', [
-        'depends on previous',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        questions: [{name: 'single-string'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 2',
+        questions: [{name: 'list of strings'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 3',
+        questions: [{name: 'single-long'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 4',
+        questions: [{name: 'list of longs'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 5',
+        questions: [{name: 'predicate-currency'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 6',
+        questions: [{name: 'predicate-date-is-earlier-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 7',
+        questions: [{name: 'predicate-date-on-or-after'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 8',
+        questions: [{name: 'both sides are lists'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 9',
+        questions: [{name: 'depends on previous'}],
+      })
 
       // Simple string predicate
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -940,51 +982,56 @@ test.describe('create and edit predicates', () => {
       applicantQuestions,
       adminPredicates,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(programName, 'string', [
-        'single-string',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'list of strings', [
-        'list of strings',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
-      await adminPrograms.addProgramBlock(programName, 'list of longs', [
-        'list of longs',
-      ])
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
-      await adminPrograms.addProgramBlock(
-        programName,
-        'is earlier than date question',
-        ['predicate-date-is-earlier-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'on or after date question',
-        ['predicate-date-on-or-after'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is older than',
-        ['predicate-date-age-older-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is younger than',
-        ['predicate-date-age-younger-than'],
-      )
-      await adminPrograms.addProgramBlock(
-        programName,
-        'date question age is between',
-        ['predicate-date-age-between'],
-      )
-      await adminPrograms.addProgramBlock(programName, 'two lists', [
-        'both sides are lists',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        questions: [{name: 'single-string'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 2',
+        questions: [{name: 'list of strings'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 3',
+        questions: [{name: 'single-long'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 4',
+        questions: [{name: 'list of longs'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 5',
+        questions: [{name: 'predicate-currency'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 6',
+        questions: [{name: 'predicate-date-is-earlier-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 7',
+        questions: [{name: 'predicate-date-on-or-after'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 8',
+        questions: [{name: 'predicate-date-age-older-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 9',
+        questions: [{name: 'predicate-date-age-younger-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 10',
+        questions: [{name: 'predicate-date-age-between'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 11',
+        questions: [{name: 'both sides are lists'}],
+      })
 
       // Simple string predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -1304,14 +1351,17 @@ test.describe('create and edit predicates', () => {
       adminPredicates,
       applicantQuestions,
     }) => {
+      test.slow()
+
       await loginAsAdmin(page)
       const programName = 'Multiple ineligible program'
       await adminPrograms.addProgram(programName)
 
       // Name predicate
-      await adminPrograms.editProgramBlock(programName, 'name', [
-        'single-string',
-      ])
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        questions: [{name: 'single-string'}],
+      })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
@@ -1324,9 +1374,10 @@ test.describe('create and edit predicates', () => {
       })
 
       // Currency predicate
-      await adminPrograms.addProgramBlock(programName, 'currency', [
-        'predicate-currency',
-      ])
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 2',
+        questions: [{name: 'predicate-currency'}],
+      })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 2',

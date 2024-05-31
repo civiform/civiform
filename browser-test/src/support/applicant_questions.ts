@@ -251,7 +251,7 @@ export class ApplicantQuestions {
   }
 
   async clickApplyToAnotherProgramButton() {
-    await this.page.click('button:has-text("Apply to another program")')
+    await this.page.click('text="Apply to another program"')
   }
 
   async expectProgramPublic(programName: string, description: string) {
