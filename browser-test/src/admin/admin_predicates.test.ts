@@ -693,39 +693,39 @@ test.describe('create and edit predicates', () => {
     test.beforeEach(async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
-      // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
-      await adminQuestions.addNameQuestion({questionName: 'single-string'})
-      await adminQuestions.addTextQuestion({questionName: 'list of strings'})
-      await adminQuestions.addNumberQuestion({questionName: 'single-long'})
-      await adminQuestions.addNumberQuestion({questionName: 'list of longs'})
+      await adminQuestions.addNameQuestion({questionName: 'name-question'})
+      await adminQuestions.addTextQuestion({questionName: 'text-question'})
+      await adminQuestions.addNumberQuestion({
+        questionName: 'number-question-equal-to',
+      })
+      await adminQuestions.addNumberQuestion({
+        questionName: 'number-question-one-of',
+      })
       await adminQuestions.addCurrencyQuestion({
-        questionName: 'predicate-currency',
+        questionName: 'currency-question',
       })
       await adminQuestions.addDateQuestion({
-        questionName: 'predicate-date-is-earlier-than',
+        questionName: 'date-question-is-earlier-than',
       })
       await adminQuestions.addDateQuestion({
-        questionName: 'predicate-date-on-or-after',
+        questionName: 'date-question-on-or-after',
       })
       await adminQuestions.addDateQuestion({
-        questionName: 'predicate-date-age-older-than',
+        questionName: 'date-question-age-older-than',
       })
       await adminQuestions.addDateQuestion({
-        questionName: 'predicate-date-age-younger-than',
+        questionName: 'date-question-age-younger-than',
       })
       await adminQuestions.addDateQuestion({
-        questionName: 'predicate-date-age-between',
+        questionName: 'date-question-age-between',
       })
       await adminQuestions.addCheckboxQuestion({
-        questionName: 'both sides are lists',
+        questionName: 'checkbox-question',
         options: [
           {adminName: 'dog_admin', text: 'dog'},
           {adminName: 'rabbit_admin', text: 'rabbit'},
           {adminName: 'cat_admin', text: 'cat'},
         ],
-      })
-      await adminQuestions.addTextQuestion({
-        questionName: 'depends on previous',
       })
 
       await logout(page)
@@ -736,48 +736,53 @@ test.describe('create and edit predicates', () => {
       adminPrograms,
       applicantQuestions,
       adminPredicates,
+      adminQuestions,
     }) => {
       test.slow()
 
       await loginAsAdmin(page)
 
+      await adminQuestions.addTextQuestion({
+        questionName: 'text-question-last-page',
+      })
+
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
-        questions: [{name: 'single-string'}],
+        questions: [{name: 'name-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 2',
-        questions: [{name: 'list of strings'}],
+        questions: [{name: 'text-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 3',
-        questions: [{name: 'single-long'}],
+        questions: [{name: 'number-question-equal-to'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 4',
-        questions: [{name: 'list of longs'}],
+        questions: [{name: 'number-question-one-of'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 5',
-        questions: [{name: 'predicate-currency'}],
+        questions: [{name: 'currency-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 6',
-        questions: [{name: 'predicate-date-is-earlier-than'}],
+        questions: [{name: 'date-question-is-earlier-than'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 7',
-        questions: [{name: 'predicate-date-on-or-after'}],
+        questions: [{name: 'date-question-on-or-after'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 8',
-        questions: [{name: 'both sides are lists'}],
+        questions: [{name: 'checkbox-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 9',
-        questions: [{name: 'depends on previous'}],
+        questions: [{name: 'text-question-last-page'}],
       })
 
       // Simple string predicate
@@ -786,7 +791,7 @@ test.describe('create and edit predicates', () => {
         'Screen 2',
       )
       await adminPredicates.addPredicates({
-        questionName: 'single-string',
+        questionName: 'name-question',
         action: 'shown if',
         scalar: 'first name',
         operator: 'is not equal to',
@@ -799,7 +804,7 @@ test.describe('create and edit predicates', () => {
         'Screen 3',
       )
       await adminPredicates.addPredicates({
-        questionName: 'list of strings',
+        questionName: 'text-question',
         action: 'shown if',
         scalar: 'text',
         operator: 'is one of',
@@ -812,7 +817,7 @@ test.describe('create and edit predicates', () => {
         'Screen 4',
       )
       await adminPredicates.addPredicates({
-        questionName: 'single-long',
+        questionName: 'number-question-equal-to',
         action: 'shown if',
         scalar: 'number',
         operator: 'is equal to',
@@ -825,7 +830,7 @@ test.describe('create and edit predicates', () => {
         'Screen 5',
       )
       await adminPredicates.addPredicates({
-        questionName: 'list of longs',
+        questionName: 'number-question-one-of',
         action: 'shown if',
         scalar: 'number',
         operator: 'is one of',
@@ -838,7 +843,7 @@ test.describe('create and edit predicates', () => {
         'Screen 6',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-currency',
+        questionName: 'currency-question',
         action: 'shown if',
         scalar: 'currency',
         operator: 'is greater than',
@@ -851,7 +856,7 @@ test.describe('create and edit predicates', () => {
         'Screen 7',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-is-earlier-than',
+        questionName: 'date-question-is-earlier-than',
         action: 'shown if',
         scalar: 'date',
         operator: 'is earlier than',
@@ -864,7 +869,7 @@ test.describe('create and edit predicates', () => {
         'Screen 8',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-on-or-after',
+        questionName: 'date-question-on-or-after',
         action: 'shown if',
         scalar: 'date',
         operator: 'is on or later than',
@@ -877,7 +882,7 @@ test.describe('create and edit predicates', () => {
         'Screen 9',
       )
       await adminPredicates.addPredicates({
-        questionName: 'both sides are lists',
+        questionName: 'checkbox-question',
         action: 'shown if',
         scalar: 'selections',
         operator: 'contains any of',
@@ -983,47 +988,47 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
-        questions: [{name: 'single-string'}],
+        questions: [{name: 'name-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 2',
-        questions: [{name: 'list of strings'}],
+        questions: [{name: 'text-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 3',
-        questions: [{name: 'single-long'}],
+        questions: [{name: 'number-question-equal-to'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 4',
-        questions: [{name: 'list of longs'}],
+        questions: [{name: 'number-question-one-of'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 5',
-        questions: [{name: 'predicate-currency'}],
+        questions: [{name: 'currency-question'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 6',
-        questions: [{name: 'predicate-date-is-earlier-than'}],
+        questions: [{name: 'date-question-is-earlier-than'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 7',
-        questions: [{name: 'predicate-date-on-or-after'}],
+        questions: [{name: 'date-question-on-or-after'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 8',
-        questions: [{name: 'predicate-date-age-older-than'}],
+        questions: [{name: 'date-question-age-older-than'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 9',
-        questions: [{name: 'predicate-date-age-younger-than'}],
+        questions: [{name: 'date-question-age-younger-than'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 10',
-        questions: [{name: 'predicate-date-age-between'}],
+        questions: [{name: 'date-question-age-between'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 11',
-        questions: [{name: 'both sides are lists'}],
+        questions: [{name: 'checkbox-question'}],
       })
 
       // Simple string predicate
@@ -1032,7 +1037,7 @@ test.describe('create and edit predicates', () => {
         'Screen 1',
       )
       await adminPredicates.addPredicates({
-        questionName: 'single-string',
+        questionName: 'name-question',
         scalar: 'first name',
         operator: 'is not equal to',
         value: 'hidden',
@@ -1044,7 +1049,7 @@ test.describe('create and edit predicates', () => {
         'Screen 2',
       )
       await adminPredicates.addPredicates({
-        questionName: 'list of strings',
+        questionName: 'text-question',
         scalar: 'text',
         operator: 'is one of',
         value: 'blue, green',
@@ -1056,7 +1061,7 @@ test.describe('create and edit predicates', () => {
         'Screen 3',
       )
       await adminPredicates.addPredicates({
-        questionName: 'single-long',
+        questionName: 'number-question-equal-to',
         scalar: 'number',
         operator: 'is equal to',
         value: '42',
@@ -1068,7 +1073,7 @@ test.describe('create and edit predicates', () => {
         'Screen 4',
       )
       await adminPredicates.addPredicates({
-        questionName: 'list of longs',
+        questionName: 'number-question-one-of',
         scalar: 'number',
         operator: 'is one of',
         value: '123, 456',
@@ -1080,7 +1085,7 @@ test.describe('create and edit predicates', () => {
         'Screen 5',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-currency',
+        questionName: 'currency-question',
         scalar: 'currency',
         operator: 'is greater than',
         value: '100.01',
@@ -1092,7 +1097,7 @@ test.describe('create and edit predicates', () => {
         'Screen 6',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-is-earlier-than',
+        questionName: 'date-question-is-earlier-than',
         scalar: 'date',
         operator: 'is earlier than',
         value: '2021-01-01',
@@ -1104,7 +1109,7 @@ test.describe('create and edit predicates', () => {
         'Screen 7',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-on-or-after',
+        questionName: 'date-question-on-or-after',
         scalar: 'date',
         operator: 'is on or later than',
         value: '2023-01-01',
@@ -1116,7 +1121,7 @@ test.describe('create and edit predicates', () => {
         'Screen 8',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-age-older-than',
+        questionName: 'date-question-age-older-than',
         scalar: 'date',
         operator: 'age is older than',
         value: '90',
@@ -1136,7 +1141,7 @@ test.describe('create and edit predicates', () => {
         'Screen 9',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-age-younger-than',
+        questionName: 'date-question-age-younger-than',
         scalar: 'date',
         operator: 'age is younger than',
         value: '50.5',
@@ -1155,7 +1160,7 @@ test.describe('create and edit predicates', () => {
         'Screen 10',
       )
       await adminPredicates.addPredicates({
-        questionName: 'predicate-date-age-between',
+        questionName: 'date-question-age-between',
         scalar: 'date',
         operator: 'age is between',
         value: '1,90',
@@ -1175,7 +1180,7 @@ test.describe('create and edit predicates', () => {
         'Screen 11',
       )
       await adminPredicates.addPredicates({
-        questionName: 'both sides are lists',
+        questionName: 'checkbox-question',
         scalar: 'selections',
         operator: 'contains any of',
         value: 'dog,cat',
