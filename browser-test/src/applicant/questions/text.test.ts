@@ -238,7 +238,7 @@ test.describe('Text question for applicant flow', () => {
       await validateScreenshot(page, 'text-with-interesting-help-text')
       expect(
         await page.locator('.cf-applicant-question-help-text').allInnerTexts()
-      ).toContain(['', 'long help text with some spaces\n\nhere and \n here.'])
+      ).toContain(['', 'long help text with two line breaks\n\nhere and one break \n here.'])
     })
   })
 
