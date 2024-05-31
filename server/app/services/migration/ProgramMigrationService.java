@@ -6,11 +6,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /**
  * A service responsible for helping admins migrate program definitions between different
@@ -29,18 +31,19 @@ public final class ProgramMigrationService {
   }
 
   /**
-   * Attempts to convert the provided {@code program} into a serialized instance of {@link
-   * ProgramMigrationWrapper}, returning either the successfully serialized string or an error
-   * message.
+   * Attempts to convert the provided {@code program} and {@code questions} into a serialized
+   * instance of {@link ProgramMigrationWrapper}, returning either the successfully serialized
+   * string or an error message.
    *
    * <p>If an error is returned, there will always be exactly one error message.
    */
-  public ErrorAnd<String, String> serialize(ProgramDefinition program) {
+  public ErrorAnd<String, String> serialize(
+      ProgramDefinition program, ImmutableList<QuestionDefinition> questions) {
     try {
       String programJson =
           objectMapper
               .writerWithDefaultPrettyPrinter()
-              .writeValueAsString(new ProgramMigrationWrapper(program));
+              .writeValueAsString(new ProgramMigrationWrapper(program, questions));
       return ErrorAnd.of(programJson);
     } catch (JsonProcessingException e) {
       return ErrorAnd.error(
