@@ -226,7 +226,7 @@ test.describe('program migration', () => {
       ).toBeVisible()
       // Assert all the questions are shown
       await expect(page.getByText('Question ID:')).toHaveCount(17)
-      // TODO(#7087): Once we export the questions, assert that more question information is shown.
+      // TODO(#7087): Once we can import the questions, assert that more question information is shown.
     })
   })
 })
