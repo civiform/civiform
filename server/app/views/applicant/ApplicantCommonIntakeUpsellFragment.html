@@ -1,0 +1,46 @@
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body data-load-modal="true">
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <main role="main">
+      <h1 th:text="#{title.commonIntakeConfirmation}"></h1>
+      <p>
+        Common intake ssandbekkhaug. Remove this line before sending for review.
+      </p>
+      <p
+        th:text="#{content.confirmed(${programName}, ${applicationId})}"
+        class="cf-application-id"
+      ></p>
+
+      <!-- <table>
+        <tr th:each="ep: ${eligiblePrograms}"">
+          <td th:text="${ep.program().localizedName()}">Program Name</td>
+          <td th:text="${ep.program().localizedDescription()}">Program Description</td>
+        </tr>
+      </table> -->
+
+      <div th:each="ep : ${eligiblePrograms}">
+        <p>program</p>
+        <!-- <p th:text="${ep.title}">Program Name</p> -->
+        <!-- <p th:text="${ep.title()}">Program Name</p> -->
+        <p th:text="${ep.getTitle()}">Program Name</p>
+
+        <!-- <p th:text="${ep.getDescription()}">Program Description</p> -->
+      </div>
+
+      <a
+        href="/"
+        class="usa-button"
+        id="another-program"
+        th:text="#{link.applyToAnotherProgram}"
+      >
+      </a>
+    </main>
+
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>

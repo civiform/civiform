@@ -126,7 +126,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
 
   private SectionTag eligibleProgramsSection(
       Http.Request request,
-      ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
+      ImmutableList<ApplicantService.ApplicantProgramData>
+          eligiblePrograms, // TODO: ssandbekkhaug grab this
       Messages messages,
       boolean isTrustedIntermediary) {
     var eligibleProgramsSection = section();
