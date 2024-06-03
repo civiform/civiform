@@ -76,13 +76,13 @@ public class AdminImportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
     String jsonString = form.get().getProgramJson();
 
-    // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
-    jsonString = trimQuestionsOffJson(jsonString);
-
     if (jsonString == null) {
       // If they didn't upload anything, just re-render the main import page.
       return redirect(routes.AdminImportController.index().url());
     }
+
+    // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
+    jsonString = trimQuestionsOffJson(jsonString);
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         programMigrationService.deserialize(jsonString);
