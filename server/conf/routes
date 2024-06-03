@@ -179,7 +179,7 @@ POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedAction
 # controller.
 GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.show(request: Request, programParam: String)
 # Display error page if the program that the user is trying to access is disabled.
-GET     /programs/:programParam/disabled          controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programParam: String)
+GET     /programs/:programSlug/disabled          controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programSlug: String)
 
 # Program methods for TI actions on behalf of applicants.
 #
