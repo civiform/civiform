@@ -10,6 +10,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 
@@ -22,14 +23,16 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
   }
 
   public String render(Params params) {
