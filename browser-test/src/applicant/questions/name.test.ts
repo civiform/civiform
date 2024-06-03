@@ -219,23 +219,26 @@ test.describe('name applicant flow', () => {
     })
   })
 
-  test.describe('single required name question with north star flag enabled', () => {
-    const programName = 'Test program for single name'
+  test.describe(
+    'single required name question with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single name'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleRequiredQuestion(
-        programName,
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleRequiredQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot with north star flag enabled', async ({
         page,
-        adminQuestions,
-        adminPrograms,
-      )
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test(
-      'validate screenshot with north star flag enabled',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
+        applicantQuestions,
+      }) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
@@ -256,9 +259,18 @@ test.describe('name applicant flow', () => {
             /* mobileScreenshot= */ true,
           )
         })
-      },
-    )
-  })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
+    },
+  )
 
   async function setUpSingleRequiredQuestion(
     programName: string,

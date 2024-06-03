@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.2.0-jre",
+      "com.google.guava" % "guava" % "33.2.1-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.60",
-      "software.amazon.awssdk" % "ses" % "2.25.60",
+      "software.amazon.awssdk" % "s3" % "2.25.64",
+      "software.amazon.awssdk" % "ses" % "2.25.64",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.12.1",
@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.26.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.2.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.2.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -87,26 +87,26 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.4",
-      "com.google.auto.value" % "auto-value" % "1.10.4",
+      "com.google.auto.value" % "auto-value-annotations" % "1.11.0",
+      "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.27.1",
+      "com.google.errorprone" % "error_prone_core" % "2.28.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
-      "commons-validator" % "commons-validator" % "1.8.0",
+      "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.37",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.38",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.10.0",
+      "commons-net" % "commons-net" % "3.11.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",

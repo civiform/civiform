@@ -55,7 +55,7 @@ export interface QuestionSpec {
 export interface BlockSpec {
   name?: string
   description?: string
-  questions: QuestionSpec[]
+  questions?: QuestionSpec[]
 }
 
 function slugify(value: string): string {
@@ -597,10 +597,9 @@ export class AdminPrograms {
 
   /**
    * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
-   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that the new method will place
-   * the optional question in the order as defined in the question array. The older method could only handle one
-   * optional question and forced it to be the first question on the list. Tests may need to be updated to handle
-   * a different question order.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that
+   * editProgramBlockWithOptional always puts the optional question first, whereas
+   * editProgramBlockUsingSpec orders questions according to the question array.
    */
   async editProgramBlockWithOptional(
     programName: string,
@@ -608,23 +607,18 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    const block: BlockSpec = {
-      description: blockDescription,
-      questions: [],
-    }
-
-    block.questions.push({
+    const optionalQuestion: QuestionSpec = {
       name: optionalQuestionName,
       isOptional: true,
-    })
+    }
+    const nonOptionalQuestions: QuestionSpec[] = questionNames.map(
+      (questionName) => ({name: questionName}),
+    )
 
-    questionNames.forEach((questionName) => {
-      block.questions.push({
-        name: questionName,
-      })
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: [optionalQuestion].concat(nonOptionalQuestions),
     })
-
-    await this.editProgramBlockUsingSpec(programName, block)
   }
 
   /**
@@ -645,7 +639,7 @@ export class AdminPrograms {
 
     await this.page.click('#update-block-button:not([disabled])')
 
-    for (const question of block.questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
 
       if (question.isOptional) {
@@ -689,7 +683,7 @@ export class AdminPrograms {
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
+      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
@@ -720,27 +714,20 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
-      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
-      return questionSpec
+    return await this.addProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => ({name: questionName})),
     })
-    return await this.addProgramBlockUsingSpec(
-      programName,
-      blockDescription,
-      questionSpecs,
-    )
   }
 
   /**
-   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
+   * Creates a new program block as defined by {@link BlockSpec}.
    *
-   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
-   * but also makes it easy to use optional questions.
+   * Prefer this method over {@link #addProgramBlock}.
    */
   async addProgramBlockUsingSpec(
     programName: string,
-    blockDescription = 'screen description',
-    questions: QuestionSpec[] = [],
+    block: BlockSpec,
     isProgramDisabled: boolean = false,
   ) {
     await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
@@ -749,13 +736,13 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
+    await this.page.fill('textarea', block.description || 'screen description')
     await this.page.click('#update-block-button:not([disabled])')
     // Wait for submit and redirect back to this page.
     await this.page.waitForURL(this.page.url())
     await waitForPageJsLoad(this.page)
 
-    for (const question of questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
       if (question.isOptional) {
         const optionalToggle = this.page

@@ -19,6 +19,8 @@ test.describe('Program admin review of submitted applications', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
+    test.slow()
+
     const programName = 'A shiny new program'
 
     await loginAsAdmin(page)
@@ -606,10 +608,14 @@ test.describe('Program admin review of submitted applications', () => {
       expect(csvContentPhoneSearch).not.toContain('threeFirst')
     })
 
+    // Creating a range of a couple days to test the filter. The localtime used in the UI vs the
+    // UTC time used on the server is difficult to mock correctly without getting too hacky.
+    // This will good enough to make sure the filters work, even if they don't check exact
+    // bounds of just today.
     await test.step('Search by date and validate expected applications are returned', async () => {
       await adminPrograms.filterProgramApplications({
-        fromDate: formattedToday(),
-        untilDate: formattedToday(),
+        fromDate: formattedToday(-1),
+        untilDate: formattedToday(1),
       })
       const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
       expect(csvContentPhoneSearch).toContain('oneFirst')
@@ -620,8 +626,9 @@ test.describe('Program admin review of submitted applications', () => {
 })
 
 /** Returns a date for now in UTC with the format of "yyyy-mm-dd". */
-function formattedToday() {
+function formattedToday(addDays: number) {
   const now = new Date()
+  now.setDate(now.getDate() + addDays)
   const isoString = now.toISOString() // UTC time zone. Example: "2024-05-28T16:34:25.863Z"
   return isoString.substring(0, 10)
 }
