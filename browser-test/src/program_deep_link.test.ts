@@ -154,5 +154,11 @@ test.describe('navigating to a deep link', () => {
       expect(page.url()).toContain('/disabled')
       await validateScreenshot(page, 'disabled-program-error-info-page')
     })
+
+    await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
+      await page.click('#visit-home-page-button')
+      expect(page.url()).toContain('/programs')
+      await validateScreenshot(page, 'home-page')
+    })
   })
 })

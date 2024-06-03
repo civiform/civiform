@@ -77,7 +77,9 @@ public class ProgramDisabledActionTest extends WithApplication {
     Result result = action.call(request).toCompletableFuture().join();
     assertEquals(
         result.redirectLocation().get(),
-        controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram().url());
+        controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram(
+                "disabledprogram1")
+            .url());
   }
 
   @Test

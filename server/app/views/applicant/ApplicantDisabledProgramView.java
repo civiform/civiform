@@ -52,6 +52,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
                         li().withClass("usa-button-group__item")
                             .with(
                                 a().withClass("usa-button")
+                                    .withId("visit-home-page-button")
                                     .withText("Visit HomePage")
                                     .withHref(homeLink))));
 

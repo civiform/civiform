@@ -265,7 +265,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     flashData.put("redirected-from-program-slug", "disabledProgram");
     Request request = Helpers.fakeRequest().flash(flashData).build();
 
-    Result result = controller.showInfoDisabledProgram(request).toCompletableFuture().join();
+    Result result =
+        controller.showInfoDisabledProgram(request, "disabledProgram").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
