@@ -167,6 +167,7 @@ public final class UpsellController extends CiviFormController {
                           .setApplicationId(applicationId)
                           .setMessages(messagesApi.preferred(request))
                           .setApplicantId(applicantId)
+                          // .setTrustedIntermediary(true)
                           .build();
                   return ok(northStarCommonIntakeUpsellView.render(params)).as(Http.MimeTypes.HTML);
                 } else {

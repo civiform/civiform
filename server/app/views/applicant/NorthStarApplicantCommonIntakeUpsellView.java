@@ -48,21 +48,16 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("messages", params.messages());
 
-    ArrayList<ProgramDetails> programs = new ArrayList<ProgramDetails>();
-
-    System.out.println("=====ssandbekkhaug");
+    ArrayList<BasicProgram> basicPrograms = new ArrayList<BasicProgram>();
     Locale userLocale = params.messages().lang().toLocale();
     for (ApplicantProgramData apd : params.eligiblePrograms()) {
       String title = apd.program().localizedName().getOrDefault(userLocale);
       String description = apd.program().localizedDescription().getOrDefault(userLocale);
-      ProgramDetails program =
-          ProgramDetails.builder().setTitle(title).setDescription(description).build();
-      programs.add(program);
-
-      System.out.println(program.title());
-      System.out.println(program.description());
+      BasicProgram bp = new BasicProgram(title, description);
+      basicPrograms.add(bp);
     }
-    context.setVariable("eligiblePrograms", programs);
+    context.setVariable("eligiblePrograms", basicPrograms);
+    context.setVariable("isTrustedIntermediary", params.profile().isTrustedIntermediary());
 
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellFragment", context);
   }
@@ -111,25 +106,43 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
   }
 
   /** Localized strings */
-  @AutoValue
-  public abstract static class ProgramDetails {
+  // @AutoValue
+  // public abstract static class ProgramDetails {
 
-    public static Builder builder() {
-      return new AutoValue_NorthStarApplicantCommonIntakeUpsellView_ProgramDetails.Builder();
+  //   public static Builder builder() {
+  //     return new AutoValue_NorthStarApplicantCommonIntakeUpsellView_ProgramDetails.Builder();
+  //   }
+
+  //   abstract String title();
+
+  //   abstract String description();
+
+  //   @AutoValue.Builder
+  //   public abstract static class Builder {
+
+  //     public abstract Builder setTitle(String title);
+
+  //     public abstract Builder setDescription(String description);
+
+  //     public abstract ProgramDetails build();
+  //   }
+  // }
+
+  public static class BasicProgram {
+    private final String title;
+    private final String description;
+
+    public BasicProgram(String title, String description) {
+      this.title = title;
+      this.description = description;
     }
 
-    abstract String title();
+    public String getTitle() {
+      return title;
+    }
 
-    abstract String description();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-      public abstract Builder setTitle(String title);
-
-      public abstract Builder setDescription(String description);
-
-      public abstract ProgramDetails build();
+    public String getDescription() {
+      return description;
     }
   }
 }
