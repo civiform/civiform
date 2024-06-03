@@ -1,0 +1,26 @@
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body data-load-modal="true">
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <main role="main">
+      <h1 th:text="#{title.applicationConfirmation}"></h1>
+      <p
+        th:text="#{content.confirmed(${programName}, ${applicationId})}"
+        class="cf-application-id"
+      ></p>
+      <a
+        href="/"
+        class="usa-button"
+        id="another-program"
+        th:text="#{link.applyToAnotherProgram}"
+      >
+      </a>
+    </main>
+
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
