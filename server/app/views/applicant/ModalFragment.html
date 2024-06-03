@@ -67,7 +67,7 @@
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
   only-show-once-group="login-prompt"
-  th:attr="bypass-url=${actionUrl}"
+  th:attr="bypass-url=${actionUrl},dialog-id=${dialogId}"
 >
   <div class="usa-modal__content">
     <div class="usa-modal__main">
