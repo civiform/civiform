@@ -1,8 +1,11 @@
-/** The question bank controller is responsible for manipulating the question bank. */
+/** The question bank controller is responsible for manipulating the trusted intermediary group list. */
 import {sortElementsByDataAttributes} from './sort_selector'
 
 class TrustedIntermediaryController {
-  static readonly SORT_SELECT_ID = 'ti-list'
+  // Keep in sync with TrustedIntermediaryGrouplistView.java
+  static readonly SORT_SELECT_ID = 'cf-ti-list'
+  static readonly SORT_SELECT_SUBLIST_CLASS = '.cf-ti-sublist'
+  static readonly SORT_SELECT_ELEMENT_CLASS = '.cf-ti-element'
 
   constructor() {
     const tiListSort = document.getElementById(
@@ -19,8 +22,8 @@ class TrustedIntermediaryController {
   private static sortList() {
     sortElementsByDataAttributes(
       TrustedIntermediaryController.SORT_SELECT_ID,
-      '.cf-ti-sublist',
-      '.cf-ti-element',
+      TrustedIntermediaryController.SORT_SELECT_SUBLIST_CLASS,
+      TrustedIntermediaryController.SORT_SELECT_ELEMENT_CLASS,
     )
   }
 }

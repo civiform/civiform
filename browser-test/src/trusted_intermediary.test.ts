@@ -673,42 +673,41 @@ test.describe('Trusted intermediaries', () => {
     adminTiGroups,
   }) => {
     await loginAsAdmin(page)
-    // add "aaa" with 3 members
-    await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
-    await adminTiGroups.editGroup('aaa')
-    await adminTiGroups.addGroupMember('foo@bar.com')
-    await adminTiGroups.addGroupMember('foo2@bar.com')
-    await adminTiGroups.addGroupMember('foo3@bar.com')
-    // add "bbb" with 0 members
-    await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
-    await adminTiGroups.expectGroupExist('bbb', 'bbb')
-    // add "ccc" with 1 member
-    await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
-    await adminTiGroups.editGroup('ccc')
-    await adminTiGroups.addGroupMember('foo4@bar.com')
+    await test.step('set up group aaa with 3 memebers', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
+      await adminTiGroups.editGroup('aaa')
+      await adminTiGroups.addGroupMember('foo@bar.com')
+      await adminTiGroups.addGroupMember('foo2@bar.com')
+      await adminTiGroups.addGroupMember('foo3@bar.com')
+    })
+
+    await test.step('set up group bbb with 0 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
+    })
+
+    await test.step('set up group ccc with 1 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
+      await adminTiGroups.editGroup('ccc')
+      await adminTiGroups.addGroupMember('foo4@bar.com')
+    })
 
     await adminTiGroups.gotoAdminTIPage()
-    await page.locator('#ti-list').selectOption('tiname-asc')
-    const tiNamesAsc = await page
-      .locator('.cf-ti-element:visible .cf-ti-info')
-      .allInnerTexts()
+    await page.locator('#cf-ti-list').selectOption('tiname-asc')
+    const tiNamesAsc = await page.getByTestId('ti-info').allInnerTexts()
+    console.log(page.getByTestId('ti-info'))
     expect(tiNamesAsc).toEqual(['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'])
     await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
 
-    await page.locator('#ti-list').selectOption('tiname-desc')
-    const tiNamesDesc = await page
-      .locator('.cf-ti-element:visible .cf-ti-info')
-      .allInnerTexts()
+    await page.locator('#cf-ti-list').selectOption('tiname-desc')
+    const tiNamesDesc = await page.getByTestId('ti-info').allInnerTexts()
     expect(tiNamesDesc).toEqual(['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'])
     await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
 
-    await page.locator('#ti-list').selectOption('nummember-desc')
-    const tiMemberDesc = await page
-      .locator('.cf-ti-element:visible .cf-ti-member')
-      .allInnerTexts()
+    await page.locator('#cf-ti-list').selectOption('nummember-desc')
+    const tiMemberDesc = await page.getByTestId('ti-member').allInnerTexts()
     expect(tiMemberDesc).toEqual([
       'Members: 3\nClients: 0',
       'Members: 1\nClients: 0',
@@ -716,10 +715,8 @@ test.describe('Trusted intermediaries', () => {
     ])
     await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
 
-    await page.locator('#ti-list').selectOption('nummember-asc')
-    const tiMemberAsc = await page
-      .locator('.cf-ti-element:visible .cf-ti-member')
-      .allInnerTexts()
+    await page.locator('#cf-ti-list').selectOption('nummember-asc')
+    const tiMemberAsc = await page.getByTestId('ti-member').allInnerTexts()
     expect(tiMemberAsc).toEqual([
       'Members: 0\nClients: 0',
       'Members: 1\nClients: 0',

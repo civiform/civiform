@@ -44,6 +44,10 @@ import views.style.StyleUtils;
 /** Renders a page for viewing trusted intermediary groups. */
 public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
+  // Keep in sync with admin_trusted_intermediary_list.ts
+  private static final String SORT_SELECT_ID = "cf-ti-list";
+  private static final String SORT_SELECT_SUBLIST = "cf-ti-sublist";
+  private static final String SORT_SELECT_ELEMENT = "cf-ti-element";
 
   @Inject
   public TrustedIntermediaryGroupListView(AdminLayoutFactory layoutFactory) {
@@ -90,7 +94,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
     SelectWithLabel tISortSelect =
         new SelectWithLabel()
-            .setId("ti-list")
+            .setId(SORT_SELECT_ID)
             .setValue(tISortOptions.get(0).value()) // Default sort order is alphabetical.
             .setLabelText("Sort by:")
             .setOptionGroups(
@@ -105,7 +109,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-full", "cf-ti-sublist")
+            .withClasses("border", "border-gray-300", "shadow-md", "w-full", SORT_SELECT_SUBLIST)
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
@@ -140,7 +144,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private TrTag renderGroupRow(TrustedIntermediaryGroupModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
-            "cf-ti-element",
+            SORT_SELECT_ELEMENT,
             "border-b",
             "border-gray-300",
             StyleUtils.even("bg-gray-100"))
@@ -156,7 +160,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
         .with(div(tiGroup.getDescription()).withClasses("text-xs"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12", "cf-ti-info");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
+        .attr("data-testid", "ti-info");
   }
 
   private TdTag renderMemberCountCell(TrustedIntermediaryGroupModel tiGroup) {
@@ -164,7 +169,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
         .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12", "cf-ti-member");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
+        .attr("data-testid", "ti-member");
   }
 
   private TdTag renderActionsCell(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
