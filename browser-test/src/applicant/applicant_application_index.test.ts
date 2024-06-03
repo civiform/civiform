@@ -292,7 +292,7 @@ test.describe('applicant program index page', () => {
         )
       })
 
-      test.only('shows login prompt for guest users when they click apply', async ({
+      test('shows login prompt for guest users when they click apply', async ({
         page,
       }) => {
         await test.step('Verify that login dialog appears', async () => {
