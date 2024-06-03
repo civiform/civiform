@@ -91,7 +91,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.27.1",
+      "com.google.errorprone" % "error_prone_core" % "2.28.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
