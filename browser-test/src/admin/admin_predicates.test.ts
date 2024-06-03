@@ -1337,78 +1337,82 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })
+  })
 
-    test('multiple questions ineligible', async ({
-      page,
-      adminPrograms,
-      adminPredicates,
-      applicantQuestions,
-    }) => {
-      test.slow()
+  test('multiple questions ineligible', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    adminQuestions,
+    applicantQuestions,
+  }) => {
+    test.slow()
 
-      await loginAsAdmin(page)
-      const programName = 'Multiple ineligible program'
-      await adminPrograms.addProgram(programName)
+    await loginAsAdmin(page)
 
-      // Name predicate
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        questions: [{name: 'single-string'}],
-      })
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 1',
-      )
-      await adminPredicates.addPredicates({
-        questionName: 'single-string',
-        scalar: 'first name',
-        operator: 'is not equal to',
-        value: 'hidden',
-      })
-
-      // Currency predicate
-      await adminPrograms.addProgramBlockUsingSpec(programName, {
-        name: 'Screen 2',
-        questions: [{name: 'predicate-currency'}],
-      })
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 2',
-      )
-      await adminPredicates.addPredicates({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        value: '100.01',
-      })
-
-      await adminPrograms.publishProgram(programName)
-      await logout(page)
-
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName)
-
-      // 'Hidden' name is ineligible
-      await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectIneligiblePage()
-      await applicantQuestions.expectIneligibleQuestionsCount(1)
-      await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
-
-      // Less than or equal to 100.01 is ineligible
-      await applicantQuestions.answerQuestionFromReviewPage(
-        'currency question text',
-      )
-      await applicantQuestions.answerCurrencyQuestion('100.01')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.expectIneligiblePage()
-      await applicantQuestions.expectIneligibleQuestionsCount(2)
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'ineligible-multiple-eligibility-questions',
-      )
+    await adminQuestions.addNameQuestion({questionName: 'name-question'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'currency-question',
     })
+
+    const programName = 'Multiple ineligible program'
+    await adminPrograms.addProgram(programName)
+
+    // Name predicate
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [{name: 'name-question'}],
+    })
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+    await adminPredicates.addPredicates({
+      questionName: 'name-question',
+      scalar: 'first name',
+      operator: 'is not equal to',
+      value: 'hidden',
+    })
+
+    // Currency predicate
+    await adminPrograms.addProgramBlockUsingSpec(programName, {
+      name: 'Screen 2',
+      questions: [{name: 'currency-question'}],
+    })
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
+    await adminPredicates.addPredicates({
+      questionName: 'currency-question',
+      scalar: 'currency',
+      operator: 'is greater than',
+      value: '100.01',
+    })
+
+    await adminPrograms.publishProgram(programName)
+    await logout(page)
+
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+
+    // 'Hidden' name is ineligible
+    await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectIneligiblePage()
+    await applicantQuestions.expectIneligibleQuestionsCount(1)
+    await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
+
+    // Less than or equal to 100.01 is ineligible
+    await applicantQuestions.answerQuestionFromReviewPage(
+      'currency question text',
+    )
+    await applicantQuestions.answerCurrencyQuestion('100.01')
+    await applicantQuestions.clickNext()
+
+    await applicantQuestions.expectIneligiblePage()
+    await applicantQuestions.expectIneligibleQuestionsCount(2)
+    await validateAccessibility(page)
+    await validateScreenshot(page, 'ineligible-multiple-eligibility-questions')
   })
 })
