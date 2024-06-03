@@ -91,7 +91,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     SelectWithLabel tISortSelect =
         new SelectWithLabel()
             .setId("ti-list")
-            .setValue(tISortOptions.get(0).value()) // Default sort order.
+            .setValue(tISortOptions.get(0).value()) // Default sort order is alphabetical.
             .setLabelText("Sort by:")
             .setOptionGroups(
                 ImmutableList.of(
