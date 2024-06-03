@@ -203,7 +203,6 @@ test.describe('program migration', () => {
     })
 
     await test.step('import comprehensive program', async () => {
-      console.log(downloadedProgram)
       await adminProgramMigration.goToImportPage()
       await adminProgramMigration.submitProgramJSON(downloadedProgram)
 

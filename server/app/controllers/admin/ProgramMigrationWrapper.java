@@ -37,7 +37,7 @@ public final class ProgramMigrationWrapper {
    * enough information for us to re-create a full question definition.
    *
    * <p>In order to do that re-creation, we fetch the question definitions separately from the
-   * program definition. {@link services.migration.ProgramMigrationService} collects IDs of all the
+   * program definition. {@link controllers.admin.AdminExportController} collects IDs of all the
    * questions in {@code program}, and then fetches the full {@link QuestionDefinition}s to store in
    * this object for serialization.
    */
