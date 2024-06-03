@@ -304,7 +304,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> showInfoDisabledProgram(Request request) {
+  public CompletionStage<Result> showInfoDisabledProgram(Request request, String programParam) {
     return CompletableFuture.completedFuture(
         Results.notFound(disabledProgramInfoView.render(messagesApi.preferred(request), request)));
   }

@@ -149,7 +149,7 @@ test.describe('navigating to a deep link', () => {
       await logout(page)
     })
 
-    await test.step(`opens the deep link of the disabled program and gets redirected to an error info page `, async () => {
+    await test.step(`opens the deep link of the disabled program and gets redirected to an error info page`, async () => {
       await page.goto('/programs/dis1')
       expect(page.url()).toContain('/disabled')
       await validateScreenshot(page, 'disabled-program-error-info-page')

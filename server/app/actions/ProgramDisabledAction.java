@@ -44,7 +44,8 @@ public class ProgramDisabledAction extends Action.Simple {
     if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
       return CompletableFuture.completedFuture(
           redirect(
-              controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram()));
+              controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram(
+                  programSlugOptional.get())));
     }
 
     return delegate.call(req); // continute processing next step
