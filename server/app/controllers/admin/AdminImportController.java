@@ -100,7 +100,10 @@ public class AdminImportController extends CiviFormController {
               .renderError("JSON did not have a top-level \"program\" field")
               .render());
     }
-    return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
+    return ok(
+        adminImportViewPartial
+            .renderProgramData(request, programMigrationWrapper, jsonString)
+            .render());
   }
 
   // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
