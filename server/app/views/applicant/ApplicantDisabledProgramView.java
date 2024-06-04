@@ -36,16 +36,17 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle("Disabled Program");
-    bundle.addMainContent(mainContent());
+    bundle.addMainContent(mainContent(messages));
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
   }
 
-  private DivTag mainContent() {
+  private DivTag mainContent(
+    Messages messages) {
     // TODO: replace the text with translated messages once the text is confirmed by product side
-    H1Tag headerText = renderHeader("Program disabled");
+    H1Tag headerText = renderHeader(messages.at(MessageKey.TITLE_PROGRAM_NOT_AVAILABLE.getKeyName()));
     PTag contentText =
         p().withClass("usa-intro")
-            .withText("We're sorry, the program you are trying to access has been disabled.");
+            .withText(messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName()));
     String homeLink = routes.HomeController.index().url();
 
     DivTag button =
@@ -58,7 +59,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
                             .with(
                                 a().withClass("usa-button")
                                     .withId("visit-home-page-button")
-                                    .withText("Visit HomePage")
+                                    .withText(MessageKey.BUTTON_HOME_PAGE.getKeyName())
                                     .withHref(homeLink))));
 
     return div()
