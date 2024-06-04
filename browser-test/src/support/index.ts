@@ -479,7 +479,7 @@ export const expectDisabled = async (page: Page, locator: string) => {
 }
 
 /**
- * This can be used to simulate slow networks to aid in debugging flaky tests. It's use *should NOT* be
+ * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
  * committed into the codebase as a permanent fix to anything.
  *
  * This works by modifying the network requests of routes and adding a timeout to help extend the load
