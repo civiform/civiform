@@ -778,10 +778,22 @@ test.describe('create and edit predicates', () => {
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 8',
-        questions: [{name: 'checkbox-question'}],
+        questions: [{name: 'date-question-age-older-than'}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 9',
+        questions: [{name: 'date-question-age-younger-than'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 10',
+        questions: [{name: 'date-question-age-between'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 11',
+        questions: [{name: 'checkbox-question'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 12',
         questions: [{name: 'text-question-last-page'}],
       })
 
@@ -876,10 +888,49 @@ test.describe('create and edit predicates', () => {
         value: '2023-01-01',
       })
 
-      // Lists of strings on both sides (multi-option question checkbox)
+      // Date predicate age is greater than
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 9',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'date-question-age-older-than',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'age is older than',
+        value: '90',
+      })
+
+      // Date predicate age is less than
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 10',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'date-question-age-younger-than',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'age is younger than',
+        value: '50.5',
+      })
+
+      // Date predicate age is between
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 11',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'date-question-age-between',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'age is between',
+        value: '1,90',
+      })
+
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 12',
       )
       await adminPredicates.addPredicates({
         questionName: 'checkbox-question',
@@ -957,6 +1008,30 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2023-01-01')
+      await applicantQuestions.clickNext()
+
+      // Age greater than 90 is allowed
+      await applicantQuestions.answerDateQuestion('2022-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('1930-01-01')
+      await applicantQuestions.clickNext()
+
+      // Age less than 50.5 is allowed
+      await applicantQuestions.answerDateQuestion('1930-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2022-01-01')
+      await applicantQuestions.clickNext()
+
+      // Age between 1 and 90 is allowed
+      await applicantQuestions.answerDateQuestion('1920-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2000-01-01')
       await applicantQuestions.clickNext()
 
       // "dog" or "cat" are allowed.
