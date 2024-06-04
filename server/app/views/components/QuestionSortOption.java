@@ -9,7 +9,7 @@ import java.util.Optional;
 public enum QuestionSortOption {
   LAST_MODIFIED(
       /* dataAttribute= */ "lastmodified",
-      /* displayStringAscending=*/ Optional.empty(),
+      /* displayStringAscending= */ Optional.empty(),
       /* displayStringDescending= */ Optional.of("Last modified")),
   ADMIN_NAME(
       /* dataAttribute= */ "adminname",

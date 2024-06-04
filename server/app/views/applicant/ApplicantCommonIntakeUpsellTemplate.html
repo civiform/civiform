@@ -14,18 +14,18 @@
         th:if="${!isTrustedIntermediary}"
       ></h1>
 
-      <div th:if="${eligiblePrograms.size()==0}"  style="margin-bottom: 20px;">
+      <div th:if="${eligiblePrograms.size()==0}" style="margin-bottom: 20px">
         <p
           th:utext="#{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})}"
-          th:if="${isTrustedIntermediary}">
-        </p>
+          th:if="${isTrustedIntermediary}"
+        ></p>
         <p
           th:utext="#{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
-          th:if="${!isTrustedIntermediary}">
-        </p>
+          th:if="${!isTrustedIntermediary}"
+        ></p>
       </div>
 
-      <div th:if="${eligiblePrograms.size()>0}" style="margin-bottom: 20px;">
+      <div th:if="${eligiblePrograms.size()>0}" style="margin-bottom: 20px">
         <p
           th:text="#{content.commonIntakeConfirmationTi}"
           th:if="${isTrustedIntermediary}"

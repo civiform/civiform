@@ -155,7 +155,6 @@ public final class UpsellController extends CiviFormController {
 
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 if (isCommonIntake.join()) {
-                  // TODO: extract this into another method
                   NorthStarApplicantCommonIntakeUpsellView.Params params =
                       NorthStarApplicantCommonIntakeUpsellView.Params.builder()
                           .setRequest(request)
@@ -167,7 +166,6 @@ public final class UpsellController extends CiviFormController {
                           .setApplicationId(applicationId)
                           .setMessages(messagesApi.preferred(request))
                           .setApplicantId(applicantId)
-                          // .setTrustedIntermediary(true)
                           .build();
                   return ok(northStarCommonIntakeUpsellView.render(params)).as(Http.MimeTypes.HTML);
                 } else {

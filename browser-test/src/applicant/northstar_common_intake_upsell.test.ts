@@ -1,5 +1,4 @@
 import {expect, test} from '../support/civiform_fixtures'
-// import {Page} from '@playwright/test'
 import {
   ClientInformation,
   enableFeatureFlag,
@@ -80,8 +79,7 @@ test.describe(
       page,
       applicantQuestions,
     }) => {
-      await logout(page)
-
+      await logout(page) // Log out as admin
       await loginAsTestUser(page)
 
       await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -144,12 +142,9 @@ test.describe(
     test('As TI, view application submitted page with 0 eligible programs', async ({
       page,
       tiDashboard,
-      adminPrograms,
       applicantQuestions,
     }) => {
-      await test.step('Setup: publish one program', async () => {
-        await logout(page)
-      })
+      await logout(page) // Log out as admin
 
       await test.step('Create client', async () => {
         await loginAsTrustedIntermediary(page)

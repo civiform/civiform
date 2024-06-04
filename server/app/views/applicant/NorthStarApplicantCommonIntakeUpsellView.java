@@ -13,6 +13,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
@@ -26,14 +27,16 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
   }
 
   public String render(Params params) {
@@ -50,20 +53,24 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
 
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
-    String linkHtml = "<a href=\"" + linkHref + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">" + linkText + "</a>";
+    String linkHtml =
+        "<a href=\""
+            + linkHref
+            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
+            + linkText
+            + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
-    System.out.println("linkHtml: " + linkHtml);
-
-    ArrayList<BasicProgram> basicPrograms = new ArrayList<BasicProgram>();
+    ArrayList<DisplayProgram> displayPrograms = new ArrayList<DisplayProgram>();
     Locale userLocale = params.messages().lang().toLocale();
-    for (ApplicantProgramData apd : params.eligiblePrograms()) {
-      String title = apd.program().localizedName().getOrDefault(userLocale);
-      String description = apd.program().localizedDescription().getOrDefault(userLocale);
-      BasicProgram bp = new BasicProgram(title, description);
-      basicPrograms.add(bp);
+    for (ApplicantProgramData applicantProgramData : params.eligiblePrograms()) {
+      String title = applicantProgramData.program().localizedName().getOrDefault(userLocale);
+      String description =
+          applicantProgramData.program().localizedDescription().getOrDefault(userLocale);
+      DisplayProgram bp = new DisplayProgram(title, description);
+      displayPrograms.add(bp);
     }
-    context.setVariable("eligiblePrograms", basicPrograms);
+    context.setVariable("eligiblePrograms", displayPrograms);
     context.setVariable("isTrustedIntermediary", params.profile().isTrustedIntermediary());
 
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
@@ -112,34 +119,12 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
     }
   }
 
-  /** Localized strings */
-  // @AutoValue
-  // public abstract static class ProgramDetails {
-
-  //   public static Builder builder() {
-  //     return new AutoValue_NorthStarApplicantCommonIntakeUpsellView_ProgramDetails.Builder();
-  //   }
-
-  //   abstract String title();
-
-  //   abstract String description();
-
-  //   @AutoValue.Builder
-  //   public abstract static class Builder {
-
-  //     public abstract Builder setTitle(String title);
-
-  //     public abstract Builder setDescription(String description);
-
-  //     public abstract ProgramDetails build();
-  //   }
-  // }
-
-  public static class BasicProgram {
+  /* Provides syntactic sugar for displaying user-facing program information in HTML. */
+  public static class DisplayProgram {
     private final String title;
     private final String description;
 
-    public BasicProgram(String title, String description) {
+    public DisplayProgram(String title, String description) {
       this.title = title;
       this.description = description;
     }

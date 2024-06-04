@@ -28,7 +28,7 @@ export class TIDashboard {
     await this.page.click('text="CiviForm"')
   }
 
-  async createClient(client: ClientInformation, navigateToDashboard = true) {
+  async createClient(client: ClientInformation) {
     await this.page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(this.page)
     await this.page.fill('#email-input', client.emailAddress)
@@ -45,10 +45,8 @@ export class TIDashboard {
 
     await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
-    if (navigateToDashboard) {
-      await this.gotoTIDashboardPage(this.page)
-      await waitForPageJsLoad(this.page)
-    }
+    await this.gotoTIDashboardPage(this.page)
+    await waitForPageJsLoad(this.page)
   }
 
   async createMultipleClients(nameBase: string, copies: number) {
