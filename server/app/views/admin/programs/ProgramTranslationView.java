@@ -81,7 +81,7 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program, ProgramTranslationForm translationForm) {
-    LocalizationUpdate updateData = translationForm.getUpdateData();
+    LocalizationUpdate updateData = translationForm.getUpdateData(program);
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(
                 program.id(), ProgramEditStatus.EDIT.name())

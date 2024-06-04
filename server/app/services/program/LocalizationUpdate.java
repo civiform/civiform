@@ -21,6 +21,8 @@ public abstract class LocalizationUpdate {
 
   public abstract ImmutableList<StatusUpdate> statuses();
 
+  public abstract ImmutableList<ScreenUpdate> screens();
+
   public static Builder builder() {
     return new AutoValue_LocalizationUpdate.Builder();
   }
@@ -36,6 +38,8 @@ public abstract class LocalizationUpdate {
     public abstract Builder setLocalizedSummaryImageDescription(String v);
 
     public abstract Builder setStatuses(ImmutableList<StatusUpdate> v);
+
+    public abstract Builder setScreens(ImmutableList<ScreenUpdate> v);
 
     public abstract LocalizationUpdate build();
   }
@@ -71,6 +75,34 @@ public abstract class LocalizationUpdate {
       public abstract Builder setLocalizedEmailBody(Optional<String> v);
 
       public abstract StatusUpdate build();
+    }
+  }
+
+  /** Captures updates to the translations for a given block/screen name and description. */
+  @AutoValue
+  public abstract static class ScreenUpdate {
+    /** The block that is being updated */
+    public abstract Long blockIdToUpdate();
+
+    /** The new block name to update for a locale. */
+    public abstract Optional<String> localizedName();
+
+    /** The new block description to update for a locale. */
+    public abstract Optional<String> localizedDescription();
+
+    public static Builder builder() {
+      return new AutoValue_LocalizationUpdate_ScreenUpdate.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setBlockIdToUpdate(Long v);
+
+      public abstract Builder setLocalizedName(Optional<String> v);
+
+      public abstract Builder setLocalizedDescription(Optional<String> v);
+
+      public abstract ScreenUpdate build();
     }
   }
 }

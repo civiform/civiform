@@ -132,12 +132,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             formFactory,
             program.statusDefinitions().getStatuses().size(),
-            program.localizedSummaryImageDescription().isPresent());
+            program.localizedSummaryImageDescription().isPresent(),
+            program.blockDefinitions());
 
     final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {
       result =
-          service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
+          service.updateLocalization(
+              program.id(), localeToUpdate, translationForm.getUpdateData(program));
     } catch (OutOfDateStatusesException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing("error", e.userFacingMessage());
@@ -150,6 +152,6 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     return ok(
         translationView.render(
-            request, localeToUpdate, program, translationForm, /*message=*/ Optional.empty()));
+            request, localeToUpdate, program, translationForm, /* message= */ Optional.empty()));
   }
 }

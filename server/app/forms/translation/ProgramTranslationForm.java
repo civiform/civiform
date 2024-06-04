@@ -13,6 +13,7 @@ import play.i18n.Lang;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
@@ -81,6 +82,30 @@ public final class ProgramTranslationForm {
                 .orElse("")
           });
     }
+
+    for (int i = 0; i < program.blockDefinitions().size(); i++) {
+      BlockDefinition blockDefinition = program.blockDefinitions().get(i);
+      formValuesBuilder.put(
+          localizedScreenName(blockDefinition.id()),
+          new String[] {
+            blockDefinition
+                .localizedName()
+                .orElse(LocalizedStrings.empty())
+                .maybeGet(locale)
+                .orElse("")
+          });
+
+      formValuesBuilder.put(
+          localizedScreenDescription(blockDefinition.id()),
+          new String[] {
+            blockDefinition
+                .localizedDescription()
+                .orElse(LocalizedStrings.empty())
+                .maybeGet(locale)
+                .orElse("")
+          });
+    }
+
     DynamicForm form =
         formFactory
             .form()
@@ -89,7 +114,9 @@ public final class ProgramTranslationForm {
                 TypedMap.empty(),
                 formValuesBuilder.build(),
                 ImmutableMap.of(),
-                allFieldNames(statuses.size(), hasSummaryImageDescription).toArray(new String[0]));
+                allFieldNames(
+                        statuses.size(), hasSummaryImageDescription, program.blockDefinitions())
+                    .toArray(new String[0]));
     return new ProgramTranslationForm(
         form, program.statusDefinitions().getStatuses().size(), hasSummaryImageDescription);
   }
@@ -98,7 +125,8 @@ public final class ProgramTranslationForm {
       Http.Request request,
       FormFactory formFactory,
       int maxStatusTranslations,
-      boolean hasSummaryImageDescription) {
+      boolean hasSummaryImageDescription,
+      ImmutableList<BlockDefinition> blockDefinitions) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
     DynamicForm form =
@@ -106,13 +134,15 @@ public final class ProgramTranslationForm {
             .form()
             .bindFromRequest(
                 request,
-                allFieldNames(maxStatusTranslations, hasSummaryImageDescription)
+                allFieldNames(maxStatusTranslations, hasSummaryImageDescription, blockDefinitions)
                     .toArray(new String[0]));
     return new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
   }
 
   private static ImmutableList<String> allFieldNames(
-      int maxStatusTranslations, boolean hasSummaryImageDescription) {
+      int maxStatusTranslations,
+      boolean hasSummaryImageDescription,
+      ImmutableList<BlockDefinition> blockDefinitions) {
     ImmutableList.Builder<String> builder =
         ImmutableList.<String>builder()
             .add(
@@ -126,6 +156,10 @@ public final class ProgramTranslationForm {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
     }
+    for (int i = 0; i < blockDefinitions.size(); i++) {
+      long blockId = blockDefinitions.get(i).id();
+      builder.add(localizedScreenName(blockId), localizedScreenDescription(blockId));
+    }
     return builder.build();
   }
 
@@ -133,7 +167,7 @@ public final class ProgramTranslationForm {
     return Optional.ofNullable(form.rawData().get(fieldName));
   }
 
-  public LocalizationUpdate getUpdateData() {
+  public LocalizationUpdate getUpdateData(ProgramDefinition programDefinition) {
     LocalizationUpdate.Builder dataBuilder =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
@@ -146,6 +180,7 @@ public final class ProgramTranslationForm {
           getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""));
     }
     dataBuilder.setStatuses(parseStatusUpdatesFromRequest());
+    dataBuilder.setScreens(parseScreenUpdatesFromRequest(programDefinition));
     return dataBuilder.build();
   }
 
@@ -184,6 +219,35 @@ public final class ProgramTranslationForm {
         .collect(ImmutableList.toImmutableList());
   }
 
+  private ImmutableList<LocalizationUpdate.ScreenUpdate> parseScreenUpdatesFromRequest(
+      ProgramDefinition programDefinition) {
+    return programDefinition.blockDefinitions().stream()
+        .map(
+            blockDefinition -> {
+              Optional<String> maybeBlockName =
+                  getStringFormField(localizedScreenName(blockDefinition.id()));
+              Optional<String> maybeBlockDescription =
+                  getStringFormField(localizedScreenDescription(blockDefinition.id()));
+              if (maybeBlockName.isEmpty() || maybeBlockDescription.isEmpty()) {
+                return Optional.<LocalizationUpdate.ScreenUpdate>empty();
+              }
+
+              LocalizationUpdate.ScreenUpdate.Builder resultBuilder =
+                  LocalizationUpdate.ScreenUpdate.builder()
+                      .setBlockIdToUpdate(blockDefinition.id());
+              if (!maybeBlockName.get().isEmpty()) {
+                resultBuilder.setLocalizedName(maybeBlockName);
+              }
+              if (!maybeBlockDescription.get().isEmpty()) {
+                resultBuilder.setLocalizedDescription(maybeBlockDescription);
+              }
+              return Optional.of(resultBuilder.build());
+            })
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public static String statusKeyToUpdateFieldName(int index) {
     return String.format("status-key-to-update-%d", index);
   }
@@ -194,5 +258,13 @@ public final class ProgramTranslationForm {
 
   public static String localizedEmailFieldName(int index) {
     return String.format("localized-email-%d", index);
+  }
+
+  public static String localizedScreenName(long blockId) {
+    return String.format("screen-name-%d", blockId);
+  }
+
+  public static String localizedScreenDescription(long blockId) {
+    return String.format("screen-description-%d", blockId);
   }
 }

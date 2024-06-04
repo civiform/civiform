@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import forms.translation.ProgramTranslationForm;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -661,6 +662,7 @@ public final class ProgramService {
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
     validateLocalizationStatuses(localizationUpdate, programDefinition);
+    validateBlockLocalizations(errorsBuilder, localizationUpdate);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
     // to be consistently ordered above.
@@ -757,6 +759,22 @@ public final class ProgramService {
     if (!localizationStatusNames.equals(configuredStatusNames)) {
       throw new OutOfDateStatusesException();
     }
+  }
+
+  private void validateBlockLocalizations(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder, LocalizationUpdate localizationUpdate) {
+    localizationUpdate.screens().stream()
+        .forEach(
+            screenUpdate -> {
+              validateProgramText(
+                  errorsBuilder,
+                  ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
+                  screenUpdate.localizedName().orElse(""));
+              validateProgramText(
+                  errorsBuilder,
+                  ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
+                  screenUpdate.localizedDescription().orElse(""));
+            });
   }
 
   /**
@@ -1150,6 +1168,11 @@ public final class ProgramService {
                     .localizedDescription()
                     .updateDefaultTranslation(blockForm.getDescription()))
             .build();
+    // blockDefinition = blockDefinition.toBuilder()
+    //         .setLocalizedName(blockDefinition.localizedName().updateTranslation(locale,
+    // displayName))
+    //         .setLocalizedDescription(null)
+    //         .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
