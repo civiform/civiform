@@ -40,10 +40,10 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
   }
 
-  private DivTag mainContent(
-    Messages messages) {
+  private DivTag mainContent(Messages messages) {
     // TODO: replace the text with translated messages once the text is confirmed by product side
-    H1Tag headerText = renderHeader(messages.at(MessageKey.TITLE_PROGRAM_NOT_AVAILABLE.getKeyName()));
+    H1Tag headerText =
+        renderHeader(messages.at(MessageKey.TITLE_PROGRAM_NOT_AVAILABLE.getKeyName()));
     PTag contentText =
         p().withClass("usa-intro")
             .withText(messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName()));
