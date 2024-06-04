@@ -264,8 +264,6 @@ test.describe('phone question for applicant flow', () => {
     () => {
       const programName = 'Test program for single phone q'
 
-      test.beforeAll(async () => {})
-
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await setUpForSingleQuestion(
           programName,

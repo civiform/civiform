@@ -11,7 +11,6 @@ test.describe('publishing all draft questions and programs', () => {
   const draftQuestionText = `${questionText} new version`
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    // beforeAll
     await loginAsAdmin(page)
 
     // Create a hidden program with no questions
@@ -41,7 +40,6 @@ test.describe('publishing all draft questions and programs', () => {
     await adminQuestions.createNewVersion(questionName)
 
     await adminPrograms.gotoAdminProgramsPage()
-    // beforeEach
   })
 
   test('shows programs and questions that will be published in the modal', async ({
