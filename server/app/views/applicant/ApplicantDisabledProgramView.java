@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.li;
@@ -14,25 +15,29 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.BaseHtmlLayout;
+import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 
 /** renders a info page for applicants trying to access a disabled program via its deep link */
 public final class ApplicantDisabledProgramView extends BaseHtmlView {
 
-  private final BaseHtmlLayout layout;
+  private final ApplicantLayout layout;
 
   @Inject
-  public ApplicantDisabledProgramView(BaseHtmlLayout layout) {
-    this.layout = layout;
+  public ApplicantDisabledProgramView(ApplicantLayout layout) {
+    this.layout = checkNotNull(layout);
   }
 
-  public Content render(Messages messages, Http.Request request) {
+  public Content render(
+      Messages messages,
+      Http.Request request,
+      long applicantId,
+      ApplicantPersonalInfo personalInfo) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle("Disabled Program");
     bundle.addMainContent(mainContent());
-    return layout.render(bundle);
+    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
   }
 
   private DivTag mainContent() {
