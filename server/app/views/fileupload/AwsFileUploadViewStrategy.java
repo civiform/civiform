@@ -34,6 +34,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
         input().withType("hidden").withName("X-Amz-Algorithm").withValue(signedRequest.algorithm()),
         input().withType("hidden").withName("X-Amz-Date").withValue(signedRequest.date()),
         input().withType("hidden").withName("Policy").withValue(signedRequest.policy()),
+        input().withType("hidden").withName("Content-Type").withValue(""),
         input()
             .withType("hidden")
             .withName("X-Amz-Signature")

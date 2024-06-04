@@ -454,6 +454,17 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     }
 
     @AutoValue
+    abstract static class ContentType extends Condition {
+        
+        static ContentType create(String contentType) {
+          return new AutoValue_SignedS3UploadRequest_UploadPolicy_ContentType(contentType);
+        }
+  
+        @JsonProperty("Content-Type")
+        abstract String contentType();
+    }
+
+    @AutoValue
     abstract static class Algorithm extends Condition {
 
       static Algorithm create(String algorithm) {
