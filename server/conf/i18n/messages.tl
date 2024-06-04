@@ -348,6 +348,19 @@ content.noChanges=Wala ka pang ginagawang anumang pagbabago sa aplikasyon. Gusto
 button.continueEditing=Magpatuloy sa pag-edit
 button.exitApplication=Lumabas sa aplikasyon
 
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
