@@ -1,4 +1,4 @@
-/** The question bank controller is responsible for manipulating the trusted intermediary group list. */
+/** The Trusted Intermediary controller is responsible for manipulating the trusted intermediary group list. */
 import {sortElementsByDataAttributes} from './sort_selector'
 
 class TrustedIntermediaryController {
