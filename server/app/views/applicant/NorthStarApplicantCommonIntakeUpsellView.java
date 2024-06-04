@@ -48,6 +48,13 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("messages", params.messages());
 
+    String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
+    String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
+    String linkHtml = "<a href=\"" + linkHref + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">" + linkText + "</a>";
+    context.setVariable("moreResourcesLinkHtml", linkHtml);
+
+    System.out.println("linkHtml: " + linkHtml);
+
     ArrayList<BasicProgram> basicPrograms = new ArrayList<BasicProgram>();
     Locale userLocale = params.messages().lang().toLocale();
     for (ApplicantProgramData apd : params.eligiblePrograms()) {
@@ -59,7 +66,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
     context.setVariable("eligiblePrograms", basicPrograms);
     context.setVariable("isTrustedIntermediary", params.profile().isTrustedIntermediary());
 
-    return templateEngine.process("applicant/ApplicantCommonIntakeUpsellFragment", context);
+    return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
   }
 
   @AutoValue

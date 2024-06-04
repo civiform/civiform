@@ -244,7 +244,6 @@ test.describe('Applicant navigation flow', () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
 
-      // ssandbekkhaug good example
       // Fill out common intake form, with non-eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion('4')
