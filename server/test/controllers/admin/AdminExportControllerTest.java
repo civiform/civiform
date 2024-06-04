@@ -8,7 +8,6 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
@@ -23,6 +22,7 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramService;
+import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminExportView;
@@ -42,6 +42,7 @@ public class AdminExportControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
@@ -90,16 +91,6 @@ public class AdminExportControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");
-  }
-
-  @Test
-  public void hxExportProgram_noProgramSelected_redirectsToIndex() {
-    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-
-    Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminExportController.index().url());
   }
 
   @Test

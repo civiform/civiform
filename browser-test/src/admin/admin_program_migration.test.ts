@@ -78,17 +78,18 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
       expect(jsonPreview).toContain(block2Description)
-
-      // TODO(#7087): Once we export the questions, assert that all the questions
-      // are in the generated json.
+      expect(jsonPreview).toContain(dateQuestionText)
+      expect(jsonPreview).toContain(emailQuestionText)
+      expect(jsonPreview).toContain(phoneQuestionText)
     })
     await test.step('download json for program 2', async () => {
       const downloadedProgram = await adminProgramMigration.downloadJSON()
       expect(downloadedProgram).toContain(programName)
       expect(downloadedProgram).toContain(block1Description)
       expect(downloadedProgram).toContain(block2Description)
-      // TODO(#7087): Once we export the questions, assert that all the questions
-      // are in the downloaded program.
+      expect(downloadedProgram).toContain(dateQuestionText)
+      expect(downloadedProgram).toContain(emailQuestionText)
+      expect(downloadedProgram).toContain(phoneQuestionText)
     })
 
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
@@ -224,7 +225,7 @@ test.describe('program migration', () => {
       ).toBeVisible()
       // Assert all the questions are shown
       await expect(page.getByText('Question ID:')).toHaveCount(17)
-      // TODO(#7087): Once we export the questions, assert that more question information is shown.
+      // TODO(#7087): Once we can import the questions, assert that more question information is shown.
     })
   })
 })
