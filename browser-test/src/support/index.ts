@@ -477,3 +477,21 @@ export const expectEnabled = async (page: Page, locator: string) => {
 export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }
+
+/**
+ * This can be used to simulate slow networks to aid in debugging flaky tests. It's use *should NOT* be
+ * committed into the codebase as a permanent fix to anything.
+ *
+ * This works by modifying the network requests of routes and adding a timeout to help extend the load
+ * time of pages. Place this at the beginning of a specific test or a beforeEach call. Playwright currently
+ * does not have any builtin throttling capabilities and this is the least invasive option.
+ *
+ * @param page Playwright page
+ * @param {number} timeout in milliseconds
+ */
+export const throttle = async (page: Page, timeout: number = 100) => {
+  await page.route('**/*', async (route) => {
+    await new Promise((f) => setTimeout(f, timeout))
+    await route.continue()
+  })
+}
