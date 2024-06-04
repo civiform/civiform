@@ -86,7 +86,7 @@ public enum MessageKey {
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_DETAILS("button.viewDetails"),
-  BUTTON_HOME_PAGE("button.homepage"),
+  BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
