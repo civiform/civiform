@@ -697,6 +697,38 @@ public final class ProgramService {
       toUpdateStatusesBuilder.add(updateBuilder.build());
     }
 
+    ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
+    for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
+      BlockDefinition block = programDefinition.blockDefinitions().get(i);
+      Optional<LocalizationUpdate.ScreenUpdate> screenUpdate =
+          localizationUpdate.screens().stream()
+              .filter(update -> update.blockIdToUpdate().equals(block.id()))
+              .findFirst();
+      if (screenUpdate.isEmpty()) {
+        // If there is no update, keep the block as is.
+        toUpdateBlockBuilder.add(block);
+        continue;
+      }
+      BlockDefinition.Builder blockBuilder = block.toBuilder();
+      if (screenUpdate.get().localizedName().isPresent()) {
+        blockBuilder.setLocalizedName(
+            Optional.of(
+                block
+                    .localizedName()
+                    .get()
+                    .updateTranslation(locale, screenUpdate.get().localizedName())));
+      }
+      if (screenUpdate.get().localizedDescription().isPresent()) {
+        blockBuilder.setLocalizedDescription(
+            Optional.of(
+                block
+                    .localizedDescription()
+                    .get()
+                    .updateTranslation(locale, screenUpdate.get().localizedDescription())));
+      }
+      toUpdateBlockBuilder.add(blockBuilder.build());
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -717,7 +749,8 @@ public final class ProgramService {
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
-                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
+            .setBlockDefinitions(toUpdateBlockBuilder.build());
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,
