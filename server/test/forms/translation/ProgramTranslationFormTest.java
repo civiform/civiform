@@ -331,7 +331,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     ProgramTranslationForm form =
         ProgramTranslationForm.fromProgram(
             program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
-    assertThat(form.getUpdateData())
+    assertThat(form.getUpdateData(program.getProgramDefinition()))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("french-name")
@@ -360,6 +360,6 @@ public class ProgramTranslationFormTest extends ResetPostgres {
         ProgramTranslationForm.fromProgram(
             program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
 
-    assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isFalse();
+    assertThat(form.getUpdateData(program.getProgramDefinition()).localizedSummaryImageDescription().isPresent()).isFalse();
   }
 }
