@@ -120,7 +120,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
   }
 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */
-  public static class DisplayProgram {
+  public static final class DisplayProgram {
     private final String title;
     private final String description;
 
