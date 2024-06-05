@@ -35,7 +35,8 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils, deploymentType);
+        languageUtils,
+        deploymentType);
   }
 
   public String render(Params params) {
@@ -66,8 +67,8 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
       String title = applicantProgramData.program().localizedName().getOrDefault(userLocale);
       String description =
           applicantProgramData.program().localizedDescription().getOrDefault(userLocale);
-      DisplayProgram bp = new DisplayProgram(title, description);
-      displayPrograms.add(bp);
+      DisplayProgram displayProgram = new DisplayProgram(title, description);
+      displayPrograms.add(displayProgram);
     }
     context.setVariable("eligiblePrograms", displayPrograms);
     context.setVariable("isTrustedIntermediary", params.profile().isTrustedIntermediary());
