@@ -45,6 +45,7 @@
           class="usa-button usa-button--outline"
           th:text="#{button.review}"
         ></button>
+        <button th:text="${randomButtonText}" class="usa-button"></button>
       </form>
     </div>
     <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>

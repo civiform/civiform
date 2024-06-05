@@ -76,6 +76,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+      context.setVariable("randomButtonText", "Hello world this is not a real PR");
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
   }

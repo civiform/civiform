@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -251,12 +252,17 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         .with(renderReviewButton(settingsManifest, params))
         .with(renderPreviousButton(settingsManifest, params))
-        .with(renderNextButton(params));
+        .with(renderNextButton(params))
+        .with(renderRandomButton());
   }
 
   private ButtonTag renderNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");
+  }
+
+  private ButtonTag renderRandomButton() {
+    return button("Hello world this is not a real PR").withClasses("usa-button");
   }
 }
