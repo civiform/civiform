@@ -18,6 +18,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -39,14 +40,16 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
     this.authProviderName = checkNotNull(authProviderName);
   }

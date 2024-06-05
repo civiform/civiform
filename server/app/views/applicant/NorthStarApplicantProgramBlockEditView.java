@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.applicant.question.AddressQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -33,14 +34,16 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 

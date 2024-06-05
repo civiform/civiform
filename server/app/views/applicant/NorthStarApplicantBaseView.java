@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
+import auth.FakeAdminClient;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -15,6 +16,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
@@ -27,6 +29,7 @@ public abstract class NorthStarApplicantBaseView {
   protected final ApplicantRoutes applicantRoutes;
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
+  protected final boolean isDevOrStaging;
 
   NorthStarApplicantBaseView(
       TemplateEngine templateEngine,
@@ -34,13 +37,15 @@ public abstract class NorthStarApplicantBaseView {
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.assetsFinder = checkNotNull(assetsFinder);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
+    this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
@@ -83,6 +88,35 @@ public abstract class NorthStarApplicantBaseView {
     if (!isGuest) {
       context.setVariable(
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
+    }
+    boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
+    context.setVariable("showDebugTools", showDebugTools);
+    if (showDebugTools) {
+      context.setVariable(
+          "fakeCiviformAdminUrl",
+          routes.CallbackController.fakeAdmin(
+                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeProgramAdminUrl",
+          routes.CallbackController.fakeAdmin(
+                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeDualAdminUrl",
+          routes.CallbackController.fakeAdmin(
+                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeTrustedIntermediaryUrl",
+          routes.CallbackController.fakeAdmin(
+                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
+              .url());
+      context.setVariable(
+          "additionalToolsUrl",
+          controllers.dev.seeding.routes.DevDatabaseSeedController.index().url());
+      context.setVariable(
+          "pac4jProfileUrl", controllers.dev.routes.ProfileController.index().url());
     }
     return context;
   }

@@ -3,12 +3,61 @@
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
+  <th:block th:if="${showDebugTools}">
+    <div th:replace="~{this :: devToolsModal}"></div>
+  </th:block>
   <div th:each="programIdAndActionUrl: ${programIdsToActionUrls}">
     <div
       th:replace="~{this :: loginPromptModal(${programIdAndActionUrl.key}, ${programIdAndActionUrl.value}, ${loginLink})}"
     ></div>
   </div>
 </div>
+
+<dialog
+  th:fragment="devToolsModal"
+  class="usa-modal"
+  id="debug-content-modal"
+  aria-labelledby="debug-content-modal-heading"
+  aria-describedby="debug-content-modal-heading"
+>
+  <div class="usa-modal__content">
+    <div class="usa-modal__main">
+      <h2 class="usa-modal__heading" id="debug-content-modal-heading">
+        Debug Tools
+      </h2>
+      <div class="display-flex flex-column">
+        <a th:href="${fakeCiviformAdminUrl}" class="usa-button margin-y-2"
+          >Civiform Admin</a
+        >
+        <a th:href="${fakeProgramAdminUrl}" class="usa-button margin-y-2"
+          >Program Admin</a
+        >
+        <a th:href="${fakeDualAdminUrl}" class="usa-button margin-y-2"
+          >Program and Civiform Admin</a
+        >
+        <a th:href="${fakeTrustedIntermediaryUrl}" class="usa-button margin-y-2"
+          >Trusted Intermediary</a
+        >
+        <a th:href="${additionalToolsUrl}" class="usa-button margin-y-2"
+          >Additional tools</a
+        >
+        <a th:href="${pac4jProfileUrl}" class="usa-button margin-y-2"
+          >Show pac4j profile</a
+        >
+      </div>
+    </div>
+    <button
+      type="button"
+      class="usa-button usa-modal__close"
+      th:aria-label="#{button.close}"
+      data-close-modal
+    >
+      <svg
+        th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+      ></svg>
+    </button>
+  </div>
+</dialog>
 
 <dialog
   th:fragment="loginPromptModal(id, actionUrl, loginLink)"

@@ -103,7 +103,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service
             .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
             .getForm();
-    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of Birth required");
+    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of birth required");
   }
 
   @Test
