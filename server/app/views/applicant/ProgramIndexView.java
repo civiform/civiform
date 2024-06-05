@@ -247,8 +247,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
      // The category buttons
-    content.with(
-      renderCategoryFilterForm(applicantId, request, relevantCategories, selectedCategories));
+    if (!relevantCategories.isEmpty()) {
+      content.with(
+        renderCategoryFilterForm(applicantId, request, relevantCategories, selectedCategories));
+    }
 
     // With intake form and no categories selected
     if (settingsManifest.getIntakeFormEnabled(request)
@@ -312,7 +314,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                 MessageKey.BUTTON_APPLY,
                 MessageKey.BUTTON_APPLY_SR,
                 bundle,
-                profile));
+                profile)
+                .withId("recommended-programs")
+            );
         }
 
         ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
@@ -355,23 +359,24 @@ public final class ProgramIndexView extends BaseHtmlView {
           .withMethod("GET")
           .withAction(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(applicantId, List.of())
-              .url())
+              .url() + "#category-filter-form")
           .with(
             fieldset(
               each(
                 relevantCategories,
                 category ->
-                    TagCreator.button()
-                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "has-checked:bg-blue-300", "mr-6")
+                    TagCreator.div().withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "has-checked:bg-blue-300", "mr-6")
                       .with(
-                        label(category).withFor("check-category-" + category),
                         input()
                           .withId("check-category-" + category)
                           .withType("checkbox")
+//                          .isAutofocus()
+//                          .withTabindex(0)
                           .withName("categories")
                           .withValue(category)
-                          .withCondChecked(selectedCategories.contains(category))
-                          .withClasses("hidden") // Hide the checkbox itself.  We are using the label to control the checkbox.
+                          .withCondChecked(selectedCategories.contains(category)),
+//                          .withClasses("appearance-none"),
+                        label(category).withFor("check-category-" + category)
                       )
               )
             ).withClasses("flex", "flex-row")
