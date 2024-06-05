@@ -1,4 +1,4 @@
-import {expect} from '@playwright/test'
+import {expect} from './civiform_fixtures'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -651,6 +651,28 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Add questions to specified block. You must already be on the admin program edit block page,
+   * but if you are this is a significantly faster way to add multiple questions since it does
+   * not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Block information
+   */
+  async addQuestionsToProgramBlock(block: BlockSpec) {
+    await this.page.click(`a:has-text("${block.name}")`)
+    await waitForPageJsLoad(this.page)
+
+    for (const question of block.questions || []) {
+      await this.addQuestionFromQuestionBank(question.name)
+
+      if (question.isOptional) {
+        await this.page
+          .getByTestId(`question-admin-name-${question.name}`)
+          .locator(':is(button:has-text("optional"))')
+          .click()
+      }
+    }
+  }
+
   async launchRemoveProgramBlockModal(programName: string, blockName: string) {
     await this.goToBlockInProgram(programName, blockName)
     await clickAndWaitForModal(this.page, 'block-delete-modal')
@@ -724,23 +746,50 @@ export class AdminPrograms {
    * Creates a new program block as defined by {@link BlockSpec}.
    *
    * Prefer this method over {@link #addProgramBlock}.
+   *
+   * @param {string} programName Name of the program
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} isProgramDisabled Defaults to false. Flag to determine if the program status is disabled or not
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
    */
   async addProgramBlockUsingSpec(
     programName: string,
     block: BlockSpec,
     isProgramDisabled: boolean = false,
+    editBlockScreenDetails: boolean = true,
   ) {
     await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
+    return await this.addProgramBlockUsingSpecAlreadyOnEditDraftPage(
+      block,
+      editBlockScreenDetails,
+    )
+  }
 
+  /**
+   * Creates a new program block as defined by {@link BlockSpec}.
+   * You must already be on the admin program edit block page, but if you are this is a significantly
+   * faster way to add multiple questions since it does not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
+   */
+  async addProgramBlockUsingSpecAlreadyOnEditDraftPage(
+    block: BlockSpec,
+    editBlockScreenDetails: boolean = true,
+  ) {
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
 
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', block.description || 'screen description')
-    await this.page.click('#update-block-button:not([disabled])')
-    // Wait for submit and redirect back to this page.
-    await this.page.waitForURL(this.page.url())
-    await waitForPageJsLoad(this.page)
+    if (editBlockScreenDetails) {
+      await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page.fill(
+        'textarea',
+        block.description || 'screen description',
+      )
+      await this.page.click('#update-block-button:not([disabled])')
+      // Wait for submit and redirect back to this page.
+      await this.page.waitForURL(this.page.url())
+      await waitForPageJsLoad(this.page)
+    }
 
     for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
