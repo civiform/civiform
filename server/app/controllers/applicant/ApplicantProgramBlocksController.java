@@ -65,6 +65,7 @@ import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarAddressCorrectionBlockView;
+import views.applicant.NorthStarApplicantNotEligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -94,6 +95,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
+  private final NorthStarApplicantNotEligibleView northStarApplicantNotEligibleView;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -117,7 +119,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      NorthStarApplicantNotEligibleView northStarApplicantNotEligibleView) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -137,6 +140,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         checkNotNull(northStarApplicantProgramBlockEditView);
     this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
     this.programService = checkNotNull(programService);
+    this.northStarApplicantNotEligibleView = checkNotNull(northStarApplicantNotEligibleView);
   }
 
   /**
@@ -708,6 +712,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
 
+              // TODO(ssandbekkhaug): insert ineligible block here?
               if (canNavigateAwayFromBlockImmediately(
                   formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
                 return redirectToRequestedPage(
@@ -896,6 +901,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
+        System.out.println("ssandbekkhaug rendering from ApplicantProgramBlocksController");
+        // TODO(ssandbekkhaug): fix this
+
+        if (settingsManifest.getNorthStarApplicantUi(request)) {
+          System.out.println("ssandbekkhaug try North Star");
+          NorthStarApplicantNotEligibleView.Params params = NorthStarApplicantNotEligibleView.Params.builder()
+          .setRequest(request)
+          .setApplicantId(applicantId)
+          .setApplicationId(applicationId)
+          .setProfile(submittingProfile)
+          .setApplicantPersonalInfo(personalInfo)
+          .setMessages(messagesApi.preferred(request))
+          .build();
+          northStarApplicantNotEligibleView.render(params);
+          System.out.println("ssandbekkhaug executed render");
+        }
+
         return supplyAsync(
             () ->
                 ok(

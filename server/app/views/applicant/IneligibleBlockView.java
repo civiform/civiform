@@ -31,6 +31,7 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
+// TODO(ssandbekkhaug) copy this
 /** Renders a page indicating the applicant is not eligible for a program. */
 public final class IneligibleBlockView extends ApplicationBaseView {
 
@@ -53,6 +54,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Messages messages,
       long applicantId,
       ProgramDefinition programDefinition) {
+    System.out.println("ssandbekkhaug rendering J2HTML IneligibleBlockView");
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     // Use external link if it is present else use the default Program details page

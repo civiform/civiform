@@ -95,6 +95,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
+      // TODO(ssandbekkhaug) insert here?
       applicationSummary.with(
           renderQuestionSummary(answerData, messages, params.applicantId(), params.profile()));
       previousRepeatedEntity = currentRepeatedEntity;
@@ -230,6 +231,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       actionAndTimestampDiv.with(timestampContent);
     }
 
+    // TODO(ssandbekkhaug): migrate this to Thymeleaf
     // Show that the question makes the application ineligible if it is answered and is a reason the
     // application is ineligible.
     if (data.eligibilityIsGating() && !data.isEligible() && data.isAnswered()) {

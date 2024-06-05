@@ -93,11 +93,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    System.out.println("ssandbekkhaug created Applicant Program Review Controller");
   }
 
   @Secure
   public CompletionStage<Result> reviewWithApplicantId(
       Request request, long applicantId, long programId) {
+    System.out.println("ssandbekkhaug reviewWithApplicantId");
+
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -173,6 +176,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 params.setLoginPromptModal(loginPromptModal);
               }
               if (settingsManifest.getNorthStarApplicantUi(request)) {
+                System.out.println("ssandbekkhaug this is a northstar request");
                 int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
                 int completedBlockCount =
                     roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
@@ -193,6 +197,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
               } else {
+                System.out.println("ssandbekkhaug this is NOT a northstar request");
                 return ok(summaryView.render(params.build()));
               }
             },
