@@ -59,7 +59,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
                             .with(
                                 a().withClass("usa-button")
                                     .withId("visit-home-page-button")
-                                    .withText(MessageKey.BUTTON_HOME_PAGE.getKeyName())
+                                    .withText(messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName()))
                                     .withHref(homeLink))));
 
     return div()
