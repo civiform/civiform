@@ -13,7 +13,6 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
-import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
@@ -27,16 +26,14 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      LanguageUtils languageUtils) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils,
-        deploymentType);
+        languageUtils);
   }
 
   public String render(Params params) {
