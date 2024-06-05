@@ -69,7 +69,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
-                    .setFieldName(AdminProgramExportForm.PROGRAM_JSON_FIELD)
+                    .setFieldName(AdminProgramImportForm.PROGRAM_JSON_FIELD)
                     .setValue(json)
                     .getTextareaTag()
                     .withClass("hidden"))
@@ -78,7 +78,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .with(submitButton("Save Program").withClass(ButtonStyles.SOLID_BLUE))
                     .withClasses("flex"))
             // create a real route here
-            .withAction(routes.AdminImportController.index().url());
+            .withAction(routes.AdminImportController.saveProgram().url());
 
     return programDiv.with(hiddenForm);
   }
