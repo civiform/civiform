@@ -759,7 +759,7 @@ export class AdminPrograms {
     editBlockScreenDetails: boolean = true,
   ) {
     await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
-    return await this.addProgramBlockUsingSpecAlreadyOnEditDraftPage(
+    return await this.addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
       block,
       editBlockScreenDetails,
     )
@@ -772,7 +772,7 @@ export class AdminPrograms {
    * @param {BlockSpec} block Desired block settings
    * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
    */
-  async addProgramBlockUsingSpecAlreadyOnEditDraftPage(
+  async addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
     block: BlockSpec,
     editBlockScreenDetails: boolean = true,
   ) {
