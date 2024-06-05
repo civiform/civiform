@@ -41,6 +41,7 @@ public abstract class NorthStarApplicantBaseView {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
+    // ssandbekkhaug line to create a diff
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
