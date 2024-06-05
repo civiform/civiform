@@ -32,9 +32,8 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           file: server/code-coverage/report/jacoco.xml
           verbose: true
           # We're getting intermittent issues with codecov trying to upload lately
