@@ -259,8 +259,16 @@ public abstract class BlockDefinition {
     @JsonProperty("localizedName")
     public abstract Builder setLocalizedName(LocalizedStrings localizedName);
 
+    public Builder setLocalizedName(LocalizedStrings value) {
+      return this.setLocalizedName(Optional.of(value));
+    }
+
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
+
+    public Builder setLocalizedDescription(LocalizedStrings value) {
+      return this.setLocalizedDescription(Optional.of(value));
+    }
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
