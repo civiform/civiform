@@ -945,6 +945,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_FILTERING_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions. */
+  public boolean getMultipleFileUploadEnabled(RequestHeader request) {
+    return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1956,6 +1961,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_FILTERING_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the"
                           + " homepage",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "MULTIPLE_FILE_UPLOAD_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload"
+                          + " questions.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
