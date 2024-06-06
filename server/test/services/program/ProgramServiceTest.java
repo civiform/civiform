@@ -2239,6 +2239,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.GERMAN, updateData);
@@ -2313,6 +2314,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2363,6 +2365,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2382,6 +2385,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("a description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -2412,6 +2416,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     LocalizationUpdate.StatusUpdate.builder()
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2475,6 +2480,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2501,6 +2507,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2538,6 +2545,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2557,6 +2565,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
