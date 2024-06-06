@@ -17,7 +17,9 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
@@ -151,6 +153,50 @@ public final class ProgramTranslationView extends TranslationFormView {
               legend()
                   .with(
                       span(String.format("Application status: %s", configuredStatus.statusText())),
+                      new LinkElement()
+                          .setText("(edit default)")
+                          .setHref(programStatusesLink)
+                          .setStyles("ml-2")
+                          .asAnchorText()),
+              fieldsBuilder.build()));
+    }
+
+    // Add fields for Screen names and descriptions
+    for (int i = 0; i < updateData.screens().size(); i++) {
+      LocalizationUpdate.ScreenUpdate screenUpdateData = updateData.screens().get(i);
+
+      BlockDefinition block =
+          program.blockDefinitions().stream()
+              .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
+              .findFirst()
+              .get();
+      LocalizedStrings localizedNameStrings  = block.localizedName().orElse(LocalizedStrings.withDefaultValue(block.name()));
+      LocalizedStrings localizedDescriptionStrings  = block.localizedName().orElse(LocalizedStrings.withDefaultValue(block.description()));
+      ImmutableList.Builder<DomContent> fieldsBuilder =
+          ImmutableList.<DomContent>builder()
+              .add(
+                  fieldWithDefaultLocaleTextHint(
+                      FieldWithLabel.input()
+                          .setFieldName(ProgramTranslationForm.localizedScreenName(i))
+                          .setLabelText("Screen name")
+                          .setScreenReaderText("Screen name")
+                          .setValue(screenUpdateData.localizedName())
+                          .getInputTag(),
+                          localizedNameStrings))
+                          .add(
+                            fieldWithDefaultLocaleTextHint(
+                                FieldWithLabel.input()
+                                    .setFieldName(ProgramTranslationForm.localizedScreenDescription(i))
+                                    .setLabelText("Screen description")
+                                    .setScreenReaderText("Screen description")
+                                    .setValue(screenUpdateData.localizedDescription())
+                                    .getInputTag(),
+                                    localizedDescriptionStrings));
+      result.add(
+          fieldSetForFields(
+              legend()
+                  .with(
+                      span(String.format("Screen %d", i + 1)),
                       new LinkElement()
                           .setText("(edit default)")
                           .setHref(programStatusesLink)
