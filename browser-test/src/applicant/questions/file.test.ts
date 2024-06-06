@@ -269,9 +269,9 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await validateScreenshot(
-          page,
+          page.getByTestId('questionRoot'),
           'file-required-north-star',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
       })
@@ -350,6 +350,15 @@ test.describe('file upload applicant flow', () => {
           'file2.txt',
         )
         await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
       })
     },
   )

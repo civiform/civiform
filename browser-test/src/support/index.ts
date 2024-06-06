@@ -1,15 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect, Frame, Page, Locator} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
-import {
-  Browser,
-  BrowserContext,
-  chromium,
-  Frame,
-  Page,
-  Locator,
-  devices,
-  BrowserContextOptions,
-} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 import {
@@ -55,84 +45,6 @@ export enum AuthStrategy {
 /** True when the test environment is hermetic i.e. not a durable staging deployment. */
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
-
-function makeBrowserContext(
-  browser: Browser,
-  useMobile = false,
-): Promise<BrowserContext> {
-  const contextOptions: BrowserContextOptions = {
-    ...(useMobile ? devices['Pixel 5'] : {}),
-    acceptDownloads: true,
-  }
-
-  if (process.env.RECORD_VIDEO) {
-    // https://playwright.dev/docs/videos
-    // Docs state that videos are only saved upon
-    // closing the returned context. In practice,
-    // this doesn't appear to be true. Restructuring
-    // to ensure that we always close the returned
-    // context is possible, but likely not necessary
-    // until it causes a problem. In practice, this
-    // will only be used when debugging failures.
-    const dirs = ['tmp/videos']
-    if ('expect' in global && expect.getState() != null) {
-      const testPath = test.info().file
-
-      if (testPath == null) {
-        throw new Error('testPath cannot be null')
-      }
-
-      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
-      dirs.push(testFile)
-
-      // Some test initialize context in beforeAll at which point test name is
-      // not set.
-
-      const testName = test.info().title
-
-      if (testName) {
-        // remove special characters
-        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
-      }
-    }
-
-    contextOptions.recordVideo = {
-      dir: path.join(...dirs),
-    }
-  }
-
-  return browser.newContext(contextOptions)
-}
-
-export const startSession = async (
-  browser: Browser | null = null,
-): Promise<{
-  browser: Browser
-  context: BrowserContext
-  page: Page
-}> => {
-  if (browser == null) {
-    browser = await chromium.launch()
-  }
-  const context = await makeBrowserContext(browser)
-  const page = await context.newPage()
-
-  await page.goto(BASE_URL)
-  await closeWarningMessage(page)
-
-  return {browser, context, page}
-}
-
-export const endSession = async (browser: Browser) => {
-  await browser.close()
-}
-
-/**
- * @deprecated Just use `page.goto()`
- */
-export const gotoEndpoint = async (page: Page, endpoint = '') => {
-  return await page.goto(BASE_URL + endpoint)
-}
 
 export const dismissToast = async (page: Page) => {
   await page.locator('#toast-container div:text("x")').click()
@@ -362,18 +274,16 @@ export const enableFeatureFlag = async (page: Page, flag: string) => {
   })
 }
 
+/**
+ * Close the warning toast message if it is showing, otherwise the element may be in
+ * the way when trying to click on various top nav elements.
+ * @param {Page} page Playwright page to operate against
+ */
 export const closeWarningMessage = async (page: Page) => {
-  // The warning message may be in the way of this link
-  const element = await page.$('#warning-message-dismiss')
+  const warningMessageLocator = page.locator('#warning-message-dismiss')
 
-  if (element !== null) {
-    await element
-      .click()
-      .catch(() =>
-        console.log(
-          "Didn't find a warning toast message to dismiss, which is fine.",
-        ),
-      )
+  if (await warningMessageLocator.isVisible()) {
+    await warningMessageLocator.click()
   }
 }
 
@@ -464,12 +374,12 @@ const takeScreenshot = async (
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  expect(
-    await element.screenshot({
+  await expect(element).toHaveScreenshot(
+    [testFileName, fullScreenshotFileName + '.png'],
+    {
       fullPage: fullPage,
-      animations: 'disabled',
-    }),
-  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
+    },
+  )
 }
 
 /*
@@ -564,4 +474,22 @@ export const expectEnabled = async (page: Page, locator: string) => {
 
 export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
+}
+
+/**
+ * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
+ * committed into the codebase as a permanent fix to anything.
+ *
+ * This works by modifying the network requests of routes and adding a timeout to help extend the load
+ * time of pages. Place this at the beginning of a specific test or a beforeEach call. Playwright currently
+ * does not have any builtin throttling capabilities and this is the least invasive option.
+ *
+ * @param page Playwright page
+ * @param {number} timeout in milliseconds
+ */
+export const throttle = async (page: Page, timeout: number = 100) => {
+  await page.route('**/*', async (route) => {
+    await new Promise((f) => setTimeout(f, timeout))
+    await route.continue()
+  })
 }

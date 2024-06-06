@@ -6,8 +6,10 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -26,7 +29,6 @@ import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
-  private final SettingsManifest settingsManifest;
   private final String authProviderName;
 
   @Inject
@@ -37,10 +39,18 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils,
+        deploymentType);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -51,7 +61,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       CiviFormProfile profile) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
     ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
 
@@ -66,7 +77,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
                   request,
                   applicationPrograms.commonIntakeForm().get(),
                   profile,
-                  applicantId));
+                  applicantId,
+                  personalInfo));
     }
 
     if (!applicationPrograms.inProgress().isEmpty()) {
@@ -79,7 +91,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.inProgress(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     if (!applicationPrograms.submitted().isEmpty()) {
@@ -92,7 +105,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.submitted(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     if (!applicationPrograms.unapplied().isEmpty()) {
@@ -105,7 +119,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
               applicationPrograms.unapplied(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
-              applicantId));
+              applicantId,
+              personalInfo));
     }
 
     context.setVariable("commonIntakeSection", intakeSection);
@@ -118,9 +133,16 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable("sections", sectionParamsBuilder.build());
     context.setVariable("authProviderName", authProviderName);
-    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
+    context.setVariable(
+        "programIdsToActionUrls",
+        applicationPrograms.allPrograms().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    program -> program.programId(),
+                    program ->
+                        applicantRoutes.review(profile, applicantId, program.programId()).url())));
 
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
@@ -130,7 +152,8 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       Request request,
       ApplicantProgramData commonIntakeForm,
       CiviFormProfile profile,
-      long applicantId) {
+      long applicantId,
+      ApplicantPersonalInfo personalInfo) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         commonIntakeForm.latestApplicationLifecycleStage();
 
@@ -156,6 +179,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
-        applicantId);
+        applicantId,
+        personalInfo);
   }
 }

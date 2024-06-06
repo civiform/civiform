@@ -8,7 +8,6 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
@@ -23,9 +22,11 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramService;
+import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminExportView;
+import views.admin.migration.AdminExportViewPartial;
 
 public class AdminExportControllerTest extends ResetPostgres {
   private AdminExportController controller;
@@ -36,10 +37,12 @@ public class AdminExportControllerTest extends ResetPostgres {
     controller =
         new AdminExportController(
             instanceOf(AdminExportView.class),
+            instanceOf(AdminExportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
@@ -55,47 +58,47 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_migrationEnabled_ok_listsActiveProgramsOnly() {
+  public void index_migrationEnabled_ok_listsActiveAndDraftProgramsAlphabeticallyByDisplayName() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-    ProgramBuilder.newActiveProgram("active-program-1").build();
-    ProgramBuilder.newActiveProgram("active-program-2").build();
-    ProgramBuilder.newDraftProgram("draft-program").build();
+
+    String draftProgramA = "a-program-draft";
+    String activeProgramB = "b-program-active";
+    String activeProgramC = "c-program-active";
+
+    ProgramBuilder.newActiveProgram(activeProgramC).build();
+    ProgramBuilder.newActiveProgram(activeProgramB).build();
+    ProgramBuilder.newDraftProgram(draftProgramA).build();
 
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    String stringResult = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Export a program");
-    assertThat(contentAsString(result)).contains("active-program-1");
-    assertThat(contentAsString(result)).contains("active-program-2");
-    assertThat(contentAsString(result)).doesNotContain("draft-program");
+    assertThat(stringResult).contains("Export a program");
+    assertThat(stringResult).contains(draftProgramA);
+    assertThat(stringResult).contains(activeProgramB);
+    assertThat(stringResult).contains(activeProgramC);
+    assertThat(stringResult.indexOf(draftProgramA))
+        .isLessThan(stringResult.indexOf(activeProgramB));
+    assertThat(stringResult.indexOf(activeProgramB))
+        .isLessThan(stringResult.indexOf(activeProgramC));
   }
 
   @Test
-  public void exportProgram_migrationNotEnabled_notFound() {
+  public void hxExportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");
   }
 
   @Test
-  public void exportProgram_noProgramSelected_redirectsToIndex() {
-    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-
-    Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminExportController.index().url());
-  }
-
-  @Test
-  public void exportProgram_invalidProgramId_badRequest() {
+  public void hxExportProgram_invalidProgramId_badRequest() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.exportProgram(
+        controller.hxExportProgram(
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
@@ -107,12 +110,12 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void exportProgram_validProgram_downloadsJson() {
+  public void hxExportProgram_validProgram_rendersHtmxPartial() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
     Result result =
-        controller.exportProgram(
+        controller.hxExportProgram(
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
@@ -120,9 +123,28 @@ public class AdminExportControllerTest extends ResetPostgres {
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Copy JSON");
+    assertThat(contentAsString(result)).contains("Download JSON");
+  }
+
+  @Test
+  public void downloadJSON_downloadsJSON() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    String adminName = "fake-admin-name";
+
+    Result result =
+        controller.downloadJSON(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJSON", String.valueOf(""))))
+                .build(),
+            adminName);
+
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType().get()).isEqualTo("application/json");
     assertThat(result.header("Content-Disposition")).isPresent();
     assertThat(result.header("Content-Disposition").get())
-        .startsWith("attachment; filename=\"active-program-1-exported");
+        .startsWith(String.format("attachment; filename=\"%s-exported", adminName));
   }
 }

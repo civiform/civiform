@@ -3,6 +3,7 @@ package views.applicant;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
@@ -11,9 +12,11 @@ import java.util.stream.Collectors;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import services.DeploymentType;
 import services.applicant.question.AddressQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
@@ -29,13 +32,29 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
-      FileUploadViewStrategy fileUploadViewStrategy) {
-    super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
+      FileUploadViewStrategy fileUploadViewStrategy,
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        assetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils,
+        deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
-    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(
+            request,
+            applicationParams.applicantId(),
+            applicationParams.profile(),
+            applicationParams.applicantPersonalInfo(),
+            applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
     context.setVariable(

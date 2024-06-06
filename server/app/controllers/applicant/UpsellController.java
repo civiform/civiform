@@ -34,6 +34,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import views.applicant.NorthStarApplicantUpsellView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
@@ -45,6 +46,7 @@ public final class UpsellController extends CiviFormController {
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
+  private final NorthStarApplicantUpsellView northStarUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -59,6 +61,7 @@ public final class UpsellController extends CiviFormController {
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
+      NorthStarApplicantUpsellView northStarApplicantUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
@@ -71,6 +74,7 @@ public final class UpsellController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
+    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -145,7 +149,21 @@ public final class UpsellController extends CiviFormController {
               Optional<ToastMessage> toastMessage =
                   request.flash().get("banner").map(m -> ToastMessage.alert(m));
 
-              if (isCommonIntake.join()) {
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                NorthStarApplicantUpsellView.Params params =
+                    NorthStarApplicantUpsellView.Params.builder()
+                        .setRequest(request)
+                        .setProfile(
+                            profile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                        .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                        .setApplicationId(applicationId)
+                        .setMessages(messagesApi.preferred(request))
+                        .setApplicantId(applicantId)
+                        .build();
+                return ok(northStarUpsellView.render(params)).as(Http.MimeTypes.HTML);
+              } else if (isCommonIntake.join()) {
                 return ok(
                     cifUpsellView.render(
                         request,

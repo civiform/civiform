@@ -1,4 +1,4 @@
-import {expect} from '@playwright/test'
+import {expect} from './civiform_fixtures'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -55,7 +55,7 @@ export interface QuestionSpec {
 export interface BlockSpec {
   name?: string
   description?: string
-  questions: QuestionSpec[]
+  questions?: QuestionSpec[]
 }
 
 function slugify(value: string): string {
@@ -72,8 +72,14 @@ export class AdminPrograms {
     this.page = page
   }
 
-  async gotoAdminProgramsPage() {
+  /**
+   * @param isProgramDisabled If true, go to the disabled programs page rather than the main programs page.
+   */
+  async gotoAdminProgramsPage(isProgramDisabled = false) {
     await this.page.click('nav :text("Programs")')
+    if (isProgramDisabled) {
+      await this.page.click('a:has-text("Disabled")')
+    }
     await this.expectAdminProgramsPage()
     await waitForPageJsLoad(this.page)
   }
@@ -224,8 +230,8 @@ export class AdminPrograms {
     await this.submitProgramDetailsEdits()
   }
 
-  async programNames() {
-    await this.gotoAdminProgramsPage()
+  async programNames(disabled = false) {
+    await this.gotoAdminProgramsPage(disabled)
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
   }
@@ -381,8 +387,11 @@ export class AdminPrograms {
     return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
-  async gotoEditDraftProgramPage(programName: string) {
-    await this.gotoAdminProgramsPage()
+  async gotoEditDraftProgramPage(
+    programName: string,
+    isProgramDisabled: boolean = false,
+  ) {
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
     await this.page.click(
       this.withinProgramCardSelector(
@@ -588,10 +597,9 @@ export class AdminPrograms {
 
   /**
    * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
-   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that the new method will place
-   * the optional question in the order as defined in the question array. The older method could only handle one
-   * optional question and forced it to be the first question on the list. Tests may need to be updated to handle
-   * a different question order.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that
+   * editProgramBlockWithOptional always puts the optional question first, whereas
+   * editProgramBlockUsingSpec orders questions according to the question array.
    */
   async editProgramBlockWithOptional(
     programName: string,
@@ -599,23 +607,18 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    const block: BlockSpec = {
-      description: blockDescription,
-      questions: [],
-    }
-
-    block.questions.push({
+    const optionalQuestion: QuestionSpec = {
       name: optionalQuestionName,
       isOptional: true,
-    })
+    }
+    const nonOptionalQuestions: QuestionSpec[] = questionNames.map(
+      (questionName) => ({name: questionName}),
+    )
 
-    questionNames.forEach((questionName) => {
-      block.questions.push({
-        name: questionName,
-      })
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: [optionalQuestion].concat(nonOptionalQuestions),
     })
-
-    await this.editProgramBlockUsingSpec(programName, block)
   }
 
   /**
@@ -636,7 +639,7 @@ export class AdminPrograms {
 
     await this.page.click('#update-block-button:not([disabled])')
 
-    for (const question of block.questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
 
       if (question.isOptional) {
@@ -648,17 +651,35 @@ export class AdminPrograms {
     }
   }
 
-  async launchDeleteScreenModal() {
-    const programName = 'Test program 7'
-    await this.addProgram(programName)
-    await this.addProgramBlock(programName)
-    await this.goToBlockInProgram(programName, 'Screen 1')
+  /**
+   * Add questions to specified block. You must already be on the admin program edit block page,
+   * but if you are this is a significantly faster way to add multiple questions since it does
+   * not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Block information
+   */
+  async addQuestionsToProgramBlock(block: BlockSpec) {
+    await this.page.click(`a:has-text("${block.name}")`)
+    await waitForPageJsLoad(this.page)
+
+    for (const question of block.questions || []) {
+      await this.addQuestionFromQuestionBank(question.name)
+
+      if (question.isOptional) {
+        await this.page
+          .getByTestId(`question-admin-name-${question.name}`)
+          .locator(':is(button:has-text("optional"))')
+          .click()
+      }
+    }
+  }
+
+  async launchRemoveProgramBlockModal(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
     await clickAndWaitForModal(this.page, 'block-delete-modal')
   }
 
   async removeProgramBlock(programName: string, blockName: string) {
-    await this.goToBlockInProgram(programName, blockName)
-    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.launchRemoveProgramBlockModal(programName, blockName)
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
@@ -684,7 +705,7 @@ export class AdminPrograms {
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
+      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
@@ -715,41 +736,62 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
-      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
-      return questionSpec
+    return await this.addProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => ({name: questionName})),
     })
-    return await this.addProgramBlockUsingSpec(
-      programName,
-      blockDescription,
-      questionSpecs,
+  }
+
+  /**
+   * Creates a new program block as defined by {@link BlockSpec}.
+   *
+   * Prefer this method over {@link #addProgramBlock}.
+   *
+   * @param {string} programName Name of the program
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} isProgramDisabled Defaults to false. Flag to determine if the program status is disabled or not
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
+   */
+  async addProgramBlockUsingSpec(
+    programName: string,
+    block: BlockSpec,
+    isProgramDisabled: boolean = false,
+    editBlockScreenDetails: boolean = true,
+  ) {
+    await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
+    return await this.addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
+      block,
+      editBlockScreenDetails,
     )
   }
 
   /**
-   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
-   *
-   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
-   * but also makes it easy to use optional questions.
+   * Creates a new program block as defined by {@link BlockSpec}.
+   * You must already be on the admin program edit block page, but if you are this is a significantly
+   * faster way to add multiple questions since it does not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
    */
-  async addProgramBlockUsingSpec(
-    programName: string,
-    blockDescription = 'screen description',
-    questions: QuestionSpec[] = [],
+  async addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
+    block: BlockSpec,
+    editBlockScreenDetails: boolean = true,
   ) {
-    await this.gotoEditDraftProgramPage(programName)
-
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
 
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-    // Wait for submit and redirect back to this page.
-    await this.page.waitForURL(this.page.url())
-    await waitForPageJsLoad(this.page)
+    if (editBlockScreenDetails) {
+      await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page.fill(
+        'textarea',
+        block.description || 'screen description',
+      )
+      await this.page.click('#update-block-button:not([disabled])')
+      // Wait for submit and redirect back to this page.
+      await this.page.waitForURL(this.page.url())
+      await waitForPageJsLoad(this.page)
+    }
 
-    for (const question of questions) {
+    for (const question of block.questions ?? []) {
       await this.addQuestionFromQuestionBank(question.name)
       if (question.isOptional) {
         const optionalToggle = this.page
@@ -850,22 +892,17 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersion(
-    programName: string,
-    programReadOnlyViewEnabled = true,
-  ) {
-    await this.gotoAdminProgramsPage()
+  async createNewVersion(programName: string, isProgramDisabled = false) {
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectActiveProgram(programName)
 
-    if (programReadOnlyViewEnabled) {
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Active',
-          '.cf-with-dropdown',
-        ),
-      )
-    }
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Active',
+        '.cf-with-dropdown',
+      ),
+    )
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
@@ -875,7 +912,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await this.submitProgramDetailsEdits()
-    await this.gotoAdminProgramsPage()
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
   }
 
@@ -895,8 +932,9 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    const cardElements = await this.page.$$('.cf-admin-application-card')
-    expect(cardElements.length).toBe(expectedCount)
+    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
+      expectedCount,
+    )
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -923,12 +961,18 @@ export class AdminPrograms {
     'Only applications without a status'
 
   async filterProgramApplications({
+    fromDate = '',
+    untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
   }: {
+    fromDate?: string
+    untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
   }) {
+    await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
+    await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
       await this.page.selectOption('label:has-text("Application status")', {

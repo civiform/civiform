@@ -1,6 +1,7 @@
 package services.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.collect.ImmutableList;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
 import org.junit.Test;
@@ -15,6 +17,7 @@ import repository.ResetPostgres;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
 public final class ProgramMigrationServiceTest extends ResetPostgres {
@@ -33,7 +36,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
-            ProgramBuilder.newActiveProgram().build().getProgramDefinition());
+            ProgramBuilder.newActiveProgram().build().getProgramDefinition(), ImmutableList.of());
 
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors()).hasSize(1);
@@ -43,7 +46,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void serialize_normalMapper_returnsStringWithProgramDef() {
+  public void serialize_normalMapper_returnsStringWithProgramDefAndQuestionDefs() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("Active Program")
             .withProgramType(ProgramType.DEFAULT)
@@ -51,7 +54,18 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .withBlock("Block B")
             .buildDefinition();
 
-    ErrorAnd<String, String> result = service.serialize(programDefinition);
+    QuestionDefinition addressQuestionDefinition =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition nameQuestionDefinition =
+        testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition emailQuestionDefinition =
+        testQuestionBank.applicantEmail().getQuestionDefinition();
+
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(
+            addressQuestionDefinition, nameQuestionDefinition, emailQuestionDefinition);
+
+    ErrorAnd<String, String> result = service.serialize(programDefinition, questions);
 
     assertThat(result.isError()).isFalse();
     String resultString = result.getResult();
@@ -62,6 +76,9 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(resultString).contains("\"blockDefinitions\" : [");
     assertThat(resultString).contains("\"Block A\"");
     assertThat(resultString).contains("\"Block B\"");
+    assertThat(resultString).contains("What is your address?");
+    assertThat(resultString).contains("what is your name?");
+    assertThat(resultString).contains("What is your Email?");
   }
 
   @Test

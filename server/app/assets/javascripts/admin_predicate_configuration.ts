@@ -197,6 +197,17 @@ class AdminPredicateConfiguration {
       operatorDropdownContainer.dataset.questionId,
     )
 
+    const scalarDropdown = this.getElementWithQuestionId(
+      '.cf-scalar-select',
+      questionId,
+      'select',
+    ) as HTMLSelectElement
+    const selectedScalarType = assertNotNull(
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+    )
+    const selectedScalarValue =
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
+
     // Each value input has its own help text
     const csvHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-comma-help-text`,
@@ -204,7 +215,9 @@ class AdminPredicateConfiguration {
     csvHelpTexts.forEach((div: Element) =>
       div.classList.toggle(
         'hidden',
-        selectedOperatorValue !== 'IN' && selectedOperatorValue !== 'NOT_IN',
+        (selectedOperatorValue !== 'IN' &&
+          selectedOperatorValue !== 'NOT_IN') ||
+          this.isMultiSelect(selectedScalarValue),
       ),
     )
 
@@ -216,21 +229,18 @@ class AdminPredicateConfiguration {
       div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
     )
 
-    // Update the value field to reflect the new Operator selection.
-    const scalarDropdown = this.getElementWithQuestionId(
-      '.cf-scalar-select',
-      questionId,
-      'select',
-    ) as HTMLSelectElement
-    const selectedScalarType = assertNotNull(
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
-    )
-    const selectedScalarValue =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
     this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
       questionId,
+    )
+  }
+
+  isMultiSelect(scalarValue: string | null) {
+    return (
+      scalarValue === 'SELECTION' ||
+      scalarValue === 'SELECTIONS' ||
+      scalarValue === 'SERVICE_AREA'
     )
   }
 
@@ -248,12 +258,7 @@ class AdminPredicateConfiguration {
   ) {
     // If the scalar is from a multi-option or address question, there is not an input box
     // for the 'Value' field (there's a set of checkboxes instead), so return immediately.
-    if (
-      selectedScalarValue &&
-      (selectedScalarValue === 'SELECTION' ||
-        selectedScalarValue === 'SELECTIONS' ||
-        selectedScalarValue === 'SERVICE_AREA')
-    ) {
+    if (this.isMultiSelect(selectedScalarValue)) {
       return
     }
 

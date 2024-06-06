@@ -39,10 +39,68 @@ See the radio-option below as an example.
   @include u-padding-top('05');
 }
 
-.cf-question-with-error {
+.cf-question-field-with-error {
   @include u-border-left('05', 'secondary-dark');
 }
 
-.cf-applicant-question {
+.cf-applicant-question-field,
+.cf-question-header {
   @include u-padding-left(2)
+}
+
+/*
+ * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ */
+ .cf-applicant-question-field.cf-question-field-with-error {
+  @include u-padding-left('105')
+}
+
+.cf-north-star-enumerator-field {
+  @include u-padding-y('105')
+}
+
+.cf-north-star-enumerator-field:last-child {
+  @include u-padding-bottom(0)
+}
+
+/**
+ * The USWDS header doesn't give enough space for the logo and title, so we add some.
+ */
+@media (min-width: 64em) {
+  .usa-header--basic .usa-navbar {
+    width: 50%;
+  }
+
+  .usa-header--basic .usa-nav {
+    @include u-padding-top(4);
+    @include u-padding-bottom(2);
+  }
+}
+
+@media (max-width: 63.9em) {
+  .usa-nav .usa-button,
+  .usa-nav span {
+    margin-top: 8px;
+  }
+}
+
+.usa-header--basic .usa-button {
+  @include u-line-height('sans', 2); 
+}
+
+/**
+ * Default form styles add a bottom margin to forms, but we don't want that for the language
+ * selector as it would mess with header styles.
+ */
+
+.usa-header--basic form {
+  @include u-margin-bottom(0);
+}
+
+/**
+ * We use h1 instead of h4 as a progress bar heading for a11y reasons, but we want to keep the
+ * USWDS styles, so we ignore the default line height of h1 elements.
+ */
+h1.usa-step-indicator__heading {
+  line-height: inherit;
 }

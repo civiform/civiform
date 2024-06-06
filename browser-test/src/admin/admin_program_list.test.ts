@@ -44,6 +44,28 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
+  test('view programs under two tabs - in use and disabled', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    const publicProgram = 'List test public program'
+    const disabledProgram = 'List test disabled program'
+    await adminPrograms.addProgram(publicProgram)
+    await adminPrograms.addDisabledProgram(disabledProgram)
+
+    await expectProgramListElements(adminPrograms, [publicProgram])
+    await validateScreenshot(page, 'program-list-in-use-tab')
+    await expectProgramListElements(
+      adminPrograms,
+      [disabledProgram],
+      /* isProgramDisabled = */ true,
+    )
+    await validateScreenshot(page, 'program-list-disabled-tab')
+  })
+
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,
@@ -148,11 +170,12 @@ test.describe('Program list page.', () => {
   async function expectProgramListElements(
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
+    isProgramDisabled: boolean = false,
   ) {
     if (expectedPrograms.length === 0) {
       throw new Error('expected at least one program')
     }
-    const programListNames = await adminPrograms.programNames()
+    const programListNames = await adminPrograms.programNames(isProgramDisabled)
     expect(programListNames).toEqual(expectedPrograms)
   }
 

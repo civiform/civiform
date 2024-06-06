@@ -18,6 +18,7 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
+GET     /admin/programs/disabled                                controllers.admin.AdminProgramController.indexDisabled(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit/:editStatus                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
@@ -133,7 +134,8 @@ POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKe
 
 # Admin program migration
 GET /admin/export            controllers.admin.AdminExportController.index(request: Request)
-GET /admin/export/program    controllers.admin.AdminExportController.exportProgram(request: Request)
+POST /admin/export/hx/program    controllers.admin.AdminExportController.hxExportProgram(request: Request)
+POST /admin/export/download/:adminName  controllers.admin.AdminExportController.downloadJSON(request: Request, adminName: String)
 GET /admin/import            controllers.admin.AdminImportController.index(request: Request)
 POST /admin/import/hx/program   controllers.admin.AdminImportController.hxImportProgram(request: Request)
 
@@ -176,6 +178,8 @@ POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedAction
 # the path parameter as a string and decide how to handle it in the
 # controller.
 GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.show(request: Request, programParam: String)
+# Display error page if the program that the user is trying to access is disabled.
+GET     /programs/:programSlug/disabled          controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programSlug: String)
 
 # Program methods for TI actions on behalf of applicants.
 #

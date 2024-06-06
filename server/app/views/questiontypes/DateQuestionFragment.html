@@ -1,11 +1,16 @@
 <div
   th:fragment="date (question, questionRendererParams)"
-  class="cf-question-date"
+  th:with="dateQuestion=${question.createDateQuestion()},
+           fieldErrors=${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())},
+           questionErrors=${dateQuestion.getValidationErrors().get(question.getContextualizedPath())},
+           hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()}"
+  class="cf-question-date cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
 >
   <fieldset
     class="usa-fieldset"
     th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             dateQuestion=${question.createDateQuestion()},
              firstPathWithError=${dateQuestion.getFirstPathWithError()}"
   >
     <!--/* Title and Help Text */-->
@@ -14,13 +19,15 @@
     ></div>
 
     <!--/* Display errors */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
-    ></div>
+    <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+      ></div>
+    </th:block>
     <!--/* Display error messages for the shared date path. We actually use 3 different paths for
     inputs, but all errors are reported on the date path. */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
     ></div>
 
     <div class="usa-memorable-date">
@@ -36,6 +43,7 @@
         ></label>
         <select
           class="usa-select"
+          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
           th:id="${monthId}"
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
@@ -117,6 +125,7 @@
         ></label>
         <input
           class="usa-input"
+          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
           th:aria-describedby="${questionId} + '-description'"
           th:id="${dayId}"
           th:name="${dateQuestion.getDayPath()}"
@@ -138,6 +147,7 @@
         ></label>
         <input
           class="usa-input"
+          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
           th:aria-describedby="${questionId} + '-description'"
           th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"

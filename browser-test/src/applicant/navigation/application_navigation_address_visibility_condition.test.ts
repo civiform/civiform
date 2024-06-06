@@ -85,7 +85,7 @@ test.describe('Applicant navigation flow', () => {
             questionName: questionAddress,
             scalar: 'service_area',
             operator: 'in service area',
-            values: ['Seattle'],
+            value: 'Seattle',
           })
 
           // Add the address visibility predicate
@@ -101,7 +101,7 @@ test.describe('Applicant navigation flow', () => {
             action: 'shown if',
             scalar: 'service_area',
             operator: 'in service area',
-            values: ['Seattle'],
+            value: 'Seattle',
           })
 
           // Publish Program

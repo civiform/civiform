@@ -13,94 +13,309 @@ import {
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe(
-  'Validate program visibility is correct for applicants and TIs',
-  {tag: ['@uses-fixtures']},
-  () => {
-    test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
+test.describe('Validate program visibility is correct for applicants and TIs', () => {
+  test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+
+    // Create a hidden program
+    const programName = 'Hidden program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.HIDDEN,
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant
+    await logout(page)
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.validateHeader('en-US')
+
+    // Verify the program cannot be seen
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(page, 'program-visibility-hidden')
+
+    await logout(page)
+  })
+
+  test('create a public program, verify applicants can see it on the home page', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+
+    const programName = 'Public program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant
+    await logout(page)
+
+    // Verify applicants can now see the program
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramPublic(
+      programName,
+      programDescription,
+    )
+    await validateScreenshot(page, 'program-visibility-public')
+  })
+
+  test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async ({
+    page,
+    tiDashboard,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+
+    const programName = 'TI-only program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.TI_ONLY,
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant, verify program is hidden
+    await logout(page)
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(
       page,
-      adminPrograms,
-    }) => {
+      'program-visibility-ti-only-hidden-from-applicant',
+    )
+
+    // Login as TI, verify program is visible
+    await logout(page)
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramPublic(
+      programName,
+      programDescription,
+    )
+    await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
+  })
+
+  test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async ({
+    page,
+    tiDashboard,
+    adminPrograms,
+    adminTiGroups,
+  }) => {
+    await loginAsAdmin(page)
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
+    await adminTiGroups.fillInGroupBasics('groupTwo', 'groupTwo description')
+    await adminTiGroups.editGroup('groupOne')
+    await adminTiGroups.addGroupMember('groupOne@bar.com')
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.editGroup('groupTwo')
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
+    await logout(page)
+
+    await loginAsAdmin(page)
+    const programName = 'Select TI program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.SELECT_TI,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'groupTwo',
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant, verify program is hidden
+    await logout(page)
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(
+      page,
+      'program-visibility-select-ti-hidden-from-applicant',
+    )
+
+    // Login as any TI, verify program is invisible
+    await logout(page)
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+
+    const client: ClientInformation = {
+      emailAddress: 'fakeOne@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(client)
+
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
+    await logout(page)
+
+    await loginAsTestUser(page, 'a:has-text("Log in")', true)
+    const clientTwo: ClientInformation = {
+      emailAddress: 'fakeTwo@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(clientTwo)
+    await tiDashboard.expectDashboardContainClient(clientTwo)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramPublic(
+      programName,
+      programDescription,
+    )
+    await validateScreenshot(page, 'program-visibility-for-selected-tis')
+  })
+
+  test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async ({
+    page,
+    tiDashboard,
+    adminPrograms,
+    adminTiGroups,
+  }) => {
+    await loginAsAdmin(page)
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
+    await adminTiGroups.fillInGroupBasics('groupTwo', 'groupTwo description')
+    await adminTiGroups.editGroup('groupOne')
+    await adminTiGroups.addGroupMember('groupOne@bar.com')
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.editGroup('groupTwo')
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
+    await logout(page)
+
+    await loginAsAdmin(page)
+    const programName = 'Select TI to TI Only'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.SELECT_TI,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'groupTwo',
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant, verify program is hidden
+    await logout(page)
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(
+      page,
+      'program-visibility-select-ti-hidden-from-applicant',
+    )
+
+    // Login as any TI, verify program is invisible
+    await logout(page)
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fakeThree@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(
+      page,
+      'program-visibility-hidden-from-other-tis-in-selectti-mode',
+    )
+    await logout(page)
+
+    // login again as Admin and change the visibility to TI_Only, check if they can see the program
+    await loginAsAdmin(page)
+    await adminPrograms.editProgram(programName, ProgramVisibility.TI_ONLY)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramPublic(
+      programName,
+      programDescription,
+    )
+    await validateScreenshot(
+      page,
+      'program-visibility-changes-all-ti-can-see-program',
+    )
+  })
+
+  test('create a program with disabled visibility, verify it is hidden from applicants and TIs', async ({
+    page,
+    tiDashboard,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    const programName = 'Disabled program'
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+
+    await test.step('login as a CiviForm admin and publish a disabled program', async () => {
       await loginAsAdmin(page)
 
-      // Create a hidden program
-      const programName = 'Hidden program'
       const programDescription = 'Description'
       await adminPrograms.addProgram(
         programName,
         programDescription,
         'https://usa.gov',
-        ProgramVisibility.HIDDEN,
+        ProgramVisibility.DISABLED,
       )
       await adminPrograms.publishAllDrafts()
-
-      // Login as applicant
-      await logout(page)
-      const applicantQuestions = new ApplicantQuestions(page)
-      await applicantQuestions.validateHeader('en-US')
-
-      // Verify the program cannot be seen
-      await applicantQuestions.expectProgramHidden(programName)
-      await validateScreenshot(page, 'program-visibility-hidden')
-
-      await logout(page)
     })
 
-    test('create a public program, verify applicants can see it on the home page', async ({
-      page,
-      adminPrograms,
-    }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Public program'
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-      )
-      await adminPrograms.publishAllDrafts()
-
-      // Login as applicant
+    await test.step('log in as an applicant and verify the program is hidden from me', async () => {
       await logout(page)
-
-      // Verify applicants can now see the program
-      const applicantQuestions = new ApplicantQuestions(page)
-      await applicantQuestions.expectProgramPublic(
-        programName,
-        programDescription,
-      )
-      await validateScreenshot(page, 'program-visibility-public')
-    })
-
-    test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async ({
-      page,
-      tiDashboard,
-      adminPrograms,
-    }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'TI-only program'
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'https://usa.gov',
-        ProgramVisibility.TI_ONLY,
-      )
-      await adminPrograms.publishAllDrafts()
-
-      // Login as applicant, verify program is hidden
-      await logout(page)
-      const applicantQuestions = new ApplicantQuestions(page)
       await applicantQuestions.expectProgramHidden(programName)
       await validateScreenshot(
         page,
-        'program-visibility-ti-only-hidden-from-applicant',
+        'program-visibility-disabled-hidden-from-applicant',
       )
+    })
 
-      // Login as TI, verify program is visible
+    await test.step('log in as a TI and verify the program is hidden from me', async () => {
       await logout(page)
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
@@ -115,230 +330,11 @@ test.describe(
       await tiDashboard.createClient(client)
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.expectProgramPublic(
-        programName,
-        programDescription,
-      )
-      await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
-    })
-
-    test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async ({
-      page,
-      tiDashboard,
-      adminPrograms,
-      adminTiGroups,
-    }) => {
-      await loginAsAdmin(page)
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
-      await adminTiGroups.fillInGroupBasics('groupTwo', 'groupTwo description')
-      await adminTiGroups.editGroup('groupOne')
-      await adminTiGroups.addGroupMember('groupOne@bar.com')
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.editGroup('groupTwo')
-      // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
-      await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
-      await logout(page)
-
-      await loginAsAdmin(page)
-      const programName = 'Select TI program'
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'https://usa.gov',
-        ProgramVisibility.SELECT_TI,
-        'admin description',
-        /* isCommonIntake= */ false,
-        'groupTwo',
-      )
-      await adminPrograms.publishAllDrafts()
-
-      // Login as applicant, verify program is hidden
-      await logout(page)
-      const applicantQuestions = new ApplicantQuestions(page)
       await applicantQuestions.expectProgramHidden(programName)
       await validateScreenshot(
         page,
-        'program-visibility-select-ti-hidden-from-applicant',
-      )
-
-      // Login as any TI, verify program is invisible
-      await logout(page)
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-
-      const client: ClientInformation = {
-        emailAddress: 'fakeOne@sample.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2021-05-10',
-      }
-      await tiDashboard.createClient(client)
-
-      await tiDashboard.expectDashboardContainClient(client)
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.expectProgramHidden(programName)
-      await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
-      await logout(page)
-
-      await loginAsTestUser(page, 'a:has-text("Log in")', true)
-      const clientTwo: ClientInformation = {
-        emailAddress: 'fakeTwo@sample.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2021-05-10',
-      }
-      await tiDashboard.createClient(clientTwo)
-      await tiDashboard.expectDashboardContainClient(clientTwo)
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.expectProgramPublic(
-        programName,
-        programDescription,
-      )
-      await validateScreenshot(page, 'program-visibility-for-selected-tis')
-    })
-
-    test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async ({
-      page,
-      tiDashboard,
-      adminPrograms,
-      adminTiGroups,
-    }) => {
-      await loginAsAdmin(page)
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
-      await adminTiGroups.fillInGroupBasics('groupTwo', 'groupTwo description')
-      await adminTiGroups.editGroup('groupOne')
-      await adminTiGroups.addGroupMember('groupOne@bar.com')
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.editGroup('groupTwo')
-      // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
-      await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
-      await logout(page)
-
-      await loginAsAdmin(page)
-      const programName = 'Select TI to TI Only'
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'https://usa.gov',
-        ProgramVisibility.SELECT_TI,
-        'admin description',
-        /* isCommonIntake= */ false,
-        'groupTwo',
-      )
-      await adminPrograms.publishAllDrafts()
-
-      // Login as applicant, verify program is hidden
-      await logout(page)
-      const applicantQuestions = new ApplicantQuestions(page)
-      await applicantQuestions.expectProgramHidden(programName)
-      await validateScreenshot(
-        page,
-        'program-visibility-select-ti-hidden-from-applicant',
-      )
-
-      // Login as any TI, verify program is invisible
-      await logout(page)
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-      const client: ClientInformation = {
-        emailAddress: 'fakeThree@sample.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2021-05-10',
-      }
-      await tiDashboard.createClient(client)
-      await tiDashboard.expectDashboardContainClient(client)
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.expectProgramHidden(programName)
-      await validateScreenshot(
-        page,
-        'program-visibility-hidden-from-other-tis-in-selectti-mode',
-      )
-      await logout(page)
-
-      // login again as Admin and change the visibility to TI_Only, check if they can see the program
-      await loginAsAdmin(page)
-      await adminPrograms.editProgram(programName, ProgramVisibility.TI_ONLY)
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-
-      await tiDashboard.expectDashboardContainClient(client)
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.expectProgramPublic(
-        programName,
-        programDescription,
-      )
-      await validateScreenshot(
-        page,
-        'program-visibility-changes-all-ti-can-see-program',
+        'program-visibility-disabled-hidden-from-ti',
       )
     })
-
-    test('create a program with disabled visibility, verify it is hidden from applicants and TIs', async ({
-      page,
-      tiDashboard,
-      adminPrograms,
-      applicantQuestions,
-    }) => {
-      const programName = 'Disabled program'
-      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-
-      await test.step('login as a CiviForm admin and publish a disabled program', async () => {
-        await loginAsAdmin(page)
-
-        const programDescription = 'Description'
-        await adminPrograms.addProgram(
-          programName,
-          programDescription,
-          'https://usa.gov',
-          ProgramVisibility.DISABLED,
-        )
-        await adminPrograms.publishAllDrafts()
-      })
-
-      await test.step('log in as an applicant and verify the program is hidden from me', async () => {
-        await logout(page)
-        await applicantQuestions.expectProgramHidden(programName)
-        await validateScreenshot(
-          page,
-          'program-visibility-disabled-hidden-from-applicant',
-        )
-      })
-
-      await test.step('log in as a TI and verify the program is hidden from me', async () => {
-        await logout(page)
-        await loginAsTrustedIntermediary(page)
-        await tiDashboard.gotoTIDashboardPage(page)
-        await waitForPageJsLoad(page)
-        const client: ClientInformation = {
-          emailAddress: 'fake@sample.com',
-          firstName: 'first',
-          middleName: 'middle',
-          lastName: 'last',
-          dobDate: '2021-05-10',
-        }
-        await tiDashboard.createClient(client)
-        await tiDashboard.expectDashboardContainClient(client)
-        await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.expectProgramHidden(programName)
-        await validateScreenshot(
-          page,
-          'program-visibility-disabled-hidden-from-ti',
-        )
-      })
-    })
-  },
-)
+  })
+})

@@ -11,6 +11,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
@@ -33,6 +34,8 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.QuestionSortOption;
+import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -41,6 +44,10 @@ import views.style.StyleUtils;
 /** Renders a page for viewing trusted intermediary groups. */
 public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
+  // Keep in sync with admin_trusted_intermediary_list.ts
+  private static final String SORT_SELECT_ID = "cf-ti-list";
+  private static final String SORT_SELECT_SUBLIST = "cf-ti-sublist";
+  private static final String SORT_SELECT_ELEMENT = "cf-ti-element";
 
   @Inject
   public TrustedIntermediaryGroupListView(AdminLayoutFactory layoutFactory) {
@@ -56,7 +63,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .addMainContent(
                 renderHeader("Create new trusted intermediary").withClass("mt-8"),
                 renderAddNewButton(request),
-                renderSubHeader("Existing trusted intermediaries").withClass("mt-8"),
+                div()
+                    .withClasses("flex", "mb-2", "items-end")
+                    .with(
+                        renderSubHeader("Existing trusted intermediaries")
+                            .withClasses("mt-8", "flex-grow", "relative"),
+                        renderTiSortSelect(
+                            ImmutableList.of(
+                                QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS))),
                 renderTiGroupCards(tis, request));
 
     if (request.flash().get("error").isPresent()) {
@@ -72,10 +86,30 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  private DivTag renderTiSortSelect(List<QuestionSortOption> sortOptions) {
+    ImmutableList<SelectWithLabel.OptionValue> tISortOptions =
+        sortOptions.stream()
+            .flatMap(sortOption -> sortOption.getSelectOptions().stream())
+            .collect(ImmutableList.toImmutableList());
+
+    SelectWithLabel tISortSelect =
+        new SelectWithLabel()
+            .setId(SORT_SELECT_ID)
+            .setValue(tISortOptions.get(0).value()) // Default sort order is alphabetical.
+            .setLabelText("Sort by:")
+            .setOptionGroups(
+                ImmutableList.of(
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("Sort by:")
+                        .setOptions(tISortOptions)
+                        .build()));
+    return tISortSelect.getSelectTag().withClass("mb-0");
+  }
+
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+            .withClasses("border", "border-gray-300", "shadow-md", "w-full", SORT_SELECT_SUBLIST)
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
@@ -110,18 +144,24 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private TrTag renderGroupRow(TrustedIntermediaryGroupModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
+            SORT_SELECT_ELEMENT,
             "border-b",
             "border-gray-300",
             StyleUtils.even("bg-gray-100"))
         .with(renderInfoCell(ti))
         .with(renderMemberCountCell(ti))
+        .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
+        .withData(
+            QuestionSortOption.TI_NUM_MEMBERS.getDataAttribute(),
+            Integer.toString(ti.getTrustedIntermediaries().size()))
         .with(renderActionsCell(ti, request));
   }
 
   private TdTag renderInfoCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
         .with(div(tiGroup.getDescription()).withClasses("text-xs"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
+        .attr("data-testid", "ti-info");
   }
 
   private TdTag renderMemberCountCell(TrustedIntermediaryGroupModel tiGroup) {
@@ -129,7 +169,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
         .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
+        .attr("data-testid", "ti-member");
   }
 
   private TdTag renderActionsCell(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {

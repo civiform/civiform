@@ -1,13 +1,17 @@
-<html>
-  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
-  <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
-  <body data-load-modal="true">
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+
     <form
+      role="main"
       id="cf-block-form"
       th:action="${confirmAddressAction}"
       method="POST"
       th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
-                   anySuggestions=${suggestions.size() > 0}"
+               anySuggestions=${suggestions.size() > 0}"
     >
       <input hidden th:value="${csrfToken}" name="csrfToken" />
       <div th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"></div>
@@ -67,7 +71,7 @@
         ></button>
       </div>
     </form>
-    <div id="modal-container"></div>
+    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

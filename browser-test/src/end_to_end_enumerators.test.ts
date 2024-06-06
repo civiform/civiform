@@ -468,9 +468,9 @@ test.describe('End to end enumerator test', () => {
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'enumerator-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -478,12 +478,21 @@ test.describe('End to end enumerator test', () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'enumerator-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
       })
     },
   )
