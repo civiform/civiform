@@ -4,16 +4,6 @@ package forms;
 public final class BlockForm {
   private String name;
   private String description;
-  private String localizedName;
-  private String localizedDescription;
-
-  public BlockForm(
-      String name, String description, String localizedName, String localizedDescription) {
-    this.name = name;
-    this.description = description;
-    this.localizedName = localizedName;
-    this.localizedDescription = localizedDescription;
-  }
 
   public BlockForm(String name, String description) {
     this.name = name;
@@ -23,8 +13,6 @@ public final class BlockForm {
   public BlockForm() {
     name = "";
     description = "";
-    localizedName = "";
-    localizedDescription = "";
   }
 
   public String getName() {
@@ -41,21 +29,5 @@ public final class BlockForm {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public String getLocalizedName() {
-    return localizedName;
-  }
-
-  public void setLocalizedName(String localizedName) {
-    this.localizedName = localizedName;
-  }
-
-  public String getLocalizedDescription() {
-    return localizedDescription;
-  }
-
-  public void setLocalizedDescription(String localizedDescription) {
-    this.localizedDescription = localizedDescription;
   }
 }
