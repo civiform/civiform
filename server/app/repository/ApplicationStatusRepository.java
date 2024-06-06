@@ -8,7 +8,7 @@ import models.ApplicationStatusesModel;
 import models.StatusLifecycleStage;
 
 /** A repository class used to interact with the application_statuses table. */
-public class ApplicationStatusRepository {
+public final class ApplicationStatusRepository {
   private final Database database;
 
   @Inject
