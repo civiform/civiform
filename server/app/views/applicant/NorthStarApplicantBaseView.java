@@ -83,6 +83,7 @@ public abstract class NorthStarApplicantBaseView {
     boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
 
     context.setVariable("isGuest", isGuest);
+    context.setVariable("isTrustedIntermediary", profile.isTrustedIntermediary());
     context.setVariable("endSessionLink", org.pac4j.play.routes.LogoutController.logout().url());
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {

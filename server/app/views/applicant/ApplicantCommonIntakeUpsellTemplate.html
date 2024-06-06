@@ -2,42 +2,30 @@
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
-  <body data-load-modal="true">
+  <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main role="main">
-      <h1
-        th:text="#{title.commonIntakeConfirmationTi}"
-        th:if="${isTrustedIntermediary}"
-      ></h1>
-      <h1
-        th:text="#{title.commonIntakeConfirmation}"
-        th:if="${!isTrustedIntermediary}"
-      ></h1>
+    <main role="main" class="margin-2">
+      <h1>
+        <th:block
+          th:text="${isTrustedIntermediary} ? #{title.commonIntakeConfirmationTi} : #{title.commonIntakeConfirmation}"
+        ></th:block>
+      </h1>
 
-      <div th:if="${eligiblePrograms.size()==0}" style="margin-bottom: 20px">
+      <div th:if="${eligiblePrograms.size() eq 0}" class="margin-y-2">
+        <!-- utext is necessary to insert a hyperlink into a localized string. -->
         <p
-          th:utext="#{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})}"
-          th:if="${isTrustedIntermediary}"
-        ></p>
-        <p
-          th:utext="#{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
-          th:if="${!isTrustedIntermediary}"
+          th:utext="${isTrustedIntermediary} ? #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} : #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
         ></p>
       </div>
 
-      <div th:if="${eligiblePrograms.size()>0}" style="margin-bottom: 20px">
+      <div th:if="${eligiblePrograms.size() neq 0}" class="margin-y-2">
         <p
-          th:text="#{content.commonIntakeConfirmationTi}"
-          th:if="${isTrustedIntermediary}"
-        ></p>
-        <p
-          th:text="#{content.commonIntakeConfirmation}"
-          th:if="${!isTrustedIntermediary}"
+          th:text="${isTrustedIntermediary} ? #{content.commonIntakeConfirmationTi} : #{content.commonIntakeConfirmation}"
         ></p>
 
-        <div th:each="ep : ${eligiblePrograms}">
-          <h2 th:text="${ep.getTitle()}">Program Name</h2>
-          <p th:text="${ep.getDescription()}">Program Description</p>
+        <div th:each="ep : ${eligiblePrograms}" class="margin-y-2">
+          <h2 th:text="${ep.getTitle()}"></h2>
+          <p th:text="${ep.getDescription()}"></p>
         </div>
       </div>
 
@@ -49,7 +37,7 @@
       >
       </a>
     </main>
-
+    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

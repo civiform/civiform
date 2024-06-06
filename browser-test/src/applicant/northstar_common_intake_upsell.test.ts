@@ -60,19 +60,21 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
-        'Programs you may qualify for',
-      )
-      expect(await page.textContent('html')).toContain(eligibleProgram1)
+      await test.step('Verify output', async () => {
+        expect(await page.textContent('html')).toContain(
+          'Programs you may qualify for',
+        )
+        expect(await page.textContent('html')).toContain(eligibleProgram1)
 
-      await validateScreenshot(
-        page,
-        'upsell-north-star-common-intake',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+        await validateScreenshot(
+          page,
+          'upsell-north-star-common-intake',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
 
-      await validateAccessibility(page)
+        await validateAccessibility(page)
+      })
     })
 
     test('view application submitted page with zero eligible programs', async ({
@@ -133,10 +135,12 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
-        'Programs your client may qualify for',
-      )
-      expect(await page.textContent('html')).toContain(eligibleProgram1)
+      await test.step('Verify output', async () => {
+        expect(await page.textContent('html')).toContain(
+          'Programs your client may qualify for',
+        )
+        expect(await page.textContent('html')).toContain(eligibleProgram1)
+      })
     })
 
     test('As TI, view application submitted page with 0 eligible programs', async ({

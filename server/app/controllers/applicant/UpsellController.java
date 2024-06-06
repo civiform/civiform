@@ -36,6 +36,7 @@ import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
 import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.UpsellParams;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
@@ -127,6 +128,16 @@ public final class UpsellController extends CiviFormController {
             .relevantProgramsForApplicant(applicantId, profile.get())
             .toCompletableFuture();
 
+    // UpsellParams.Builder paramsBuilder =
+    //     UpsellParams.builder()
+    //         .setRequest(request)
+    //         .setProfile(
+    //             profile.orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class)))
+    //         .setApplicantPersonalInfo(applicantPersonalInfo.join())
+    //         .setApplicationId(applicationId)
+    //         .setMessages(messagesApi.preferred(request))
+    //         .setApplicantId(applicantId);
+
     return CompletableFuture.allOf(
             isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
@@ -154,34 +165,30 @@ public final class UpsellController extends CiviFormController {
                   request.flash().get("banner").map(m -> ToastMessage.alert(m));
 
               if (settingsManifest.getNorthStarApplicantUi(request)) {
+                UpsellParams.Builder paramsBuilder =
+                    UpsellParams.builder()
+                        .setRequest(request)
+                        .setProfile(
+                            profile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                        .setApplicationId(applicationId)
+                        .setMessages(messagesApi.preferred(request))
+                        .setApplicantId(applicantId);
+
                 if (isCommonIntake.join()) {
-                  NorthStarApplicantCommonIntakeUpsellView.Params params =
-                      NorthStarApplicantCommonIntakeUpsellView.Params.builder()
-                          .setRequest(request)
-                          .setProfile(
-                              profile.orElseThrow(
-                                  () -> new MissingOptionalException(CiviFormProfile.class)))
-                          .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                  UpsellParams upsellParams =
+                      paramsBuilder
                           .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
-                          .setApplicationId(applicationId)
-                          .setMessages(messagesApi.preferred(request))
-                          .setApplicantId(applicantId)
                           .build();
-                  return ok(northStarCommonIntakeUpsellView.render(params)).as(Http.MimeTypes.HTML);
+                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                      .as(Http.MimeTypes.HTML);
                 } else {
-                  NorthStarApplicantUpsellView.Params params =
-                      NorthStarApplicantUpsellView.Params.builder()
-                          .setRequest(request)
-                          .setProfile(
-                              profile.orElseThrow(
-                                  () -> new MissingOptionalException(CiviFormProfile.class)))
-                          .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                  UpsellParams upsellParams =
+                      paramsBuilder
                           .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
-                          .setApplicationId(applicationId)
-                          .setMessages(messagesApi.preferred(request))
-                          .setApplicantId(applicantId)
                           .build();
-                  return ok(northStarUpsellView.render(params)).as(Http.MimeTypes.HTML);
+                  return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
                 }
               } else if (isCommonIntake.join()) {
                 return ok(

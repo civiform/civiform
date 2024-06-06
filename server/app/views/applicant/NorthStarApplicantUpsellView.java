@@ -35,7 +35,22 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
         deploymentType);
   }
 
-  public String render(Params params) {
+  // public String render(Params params) {
+  //   ThymeleafModule.PlayThymeleafContext context =
+  //       createThymeleafContext(
+  //           params.request(),
+  //           params.applicantId(),
+  //           params.profile(),
+  //           params.applicantPersonalInfo(),
+  //           params.messages());
+
+  //   context.setVariable("programName", params.programTitle());
+  //   context.setVariable("applicationId", params.applicationId());
+
+  //   return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
+  // }
+
+  public String render(UpsellParams params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
@@ -44,7 +59,7 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    context.setVariable("programName", params.programTitle());
+    context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);

@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import java.util.ArrayList;
 import java.util.Locale;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -39,7 +38,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
         deploymentType);
   }
 
-  public String render(Params params) {
+  public String render(UpsellParams params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
@@ -49,7 +48,6 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
             params.messages());
 
     context.setVariable("applicationId", params.applicationId());
-    context.setVariable("messages", params.messages());
 
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
@@ -61,18 +59,23 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
             + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
-    ArrayList<DisplayProgram> displayPrograms = new ArrayList<DisplayProgram>();
-    Locale userLocale = params.messages().lang().toLocale();
-    for (ApplicantProgramData applicantProgramData : params.eligiblePrograms()) {
-      String title = applicantProgramData.program().localizedName().getOrDefault(userLocale);
-      String description =
-          applicantProgramData.program().localizedDescription().getOrDefault(userLocale);
-      DisplayProgram displayProgram = new DisplayProgram(title, description);
-      displayPrograms.add(displayProgram);
-    }
-    context.setVariable("eligiblePrograms", displayPrograms);
-    context.setVariable("isTrustedIntermediary", params.profile().isTrustedIntermediary());
+    if (params.eligiblePrograms().isPresent()) {
+      Locale userLocale = params.messages().lang().toLocale();
 
+      ImmutableList<DisplayProgram> displayPrograms =
+          params.eligiblePrograms().orElse(ImmutableList.of()).stream()
+              .map(
+                  applicantProgramData ->
+                      new DisplayProgram(
+                          applicantProgramData.program().localizedName().getOrDefault(userLocale),
+                          applicantProgramData
+                              .program()
+                              .localizedDescription()
+                              .getOrDefault(userLocale)))
+              .collect(ImmutableList.toImmutableList());
+
+      context.setVariable("eligiblePrograms", displayPrograms);
+    }
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
   }
 
