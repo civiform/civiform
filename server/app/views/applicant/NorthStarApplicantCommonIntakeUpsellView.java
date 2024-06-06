@@ -41,6 +41,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
             params.applicantPersonalInfo(),
             params.messages());
 
+    // In Thymeleaf, there's no easy way to construct a hyperlink inside a localized string
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
