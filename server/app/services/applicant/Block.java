@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.LocalizedStrings;
 
 /**
  * Represents a block in the context of a specific user's application.
@@ -74,6 +77,28 @@ public final class Block {
 
   public String getDescription() {
     return blockDefinition.description();
+  }
+
+  public String getLocalizedName(Locale preferredLocale) {
+    Optional<LocalizedStrings> localizedName = blockDefinition.localizedName();
+    if (localizedName.isPresent()
+        && localizedName.get().hasTranslationFor(preferredLocale)) {
+      return localizedName.get().getOrDefault(preferredLocale);
+    } else {
+      // Fall back to the untranslated name.
+      return getName();
+    }
+  }
+
+  public String getLocalizedDescription(Locale preferredLocale) {
+    Optional<LocalizedStrings> localizedDescription = blockDefinition.localizedDescription();
+    if (localizedDescription.isPresent()
+        && localizedDescription.get().hasTranslationFor(preferredLocale)) {
+      return localizedDescription.get().getOrDefault(preferredLocale);
+    } else {
+      // Fall back to the untranslated description.
+      return getDescription();
+    }
   }
 
   public Optional<EligibilityDefinition> getEligibilityDefinition() {
