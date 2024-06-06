@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
 import forms.translation.ProgramTranslationForm;
@@ -127,19 +128,24 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
+    ImmutableList<Long> blockIds =
+        program.blockDefinitions().stream()
+            .map(blockDefinition -> blockDefinition.id())
+            .collect(ImmutableList.toImmutableList());
+
     ProgramTranslationForm translationForm =
         ProgramTranslationForm.bindFromRequest(
             request,
             formFactory,
             program.statusDefinitions().getStatuses().size(),
             program.localizedSummaryImageDescription().isPresent(),
-            program.blockDefinitions());
+            blockIds);
 
     final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {
       result =
           service.updateLocalization(
-              program.id(), localeToUpdate, translationForm.getUpdateData(program));
+              program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
     } catch (OutOfDateStatusesException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing("error", e.userFacingMessage());
