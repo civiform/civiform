@@ -106,10 +106,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
     }
 
     boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
-    Optional<ToastMessage> flashBanner =
-        request.flash().get("banner").map(m -> ToastMessage.alert(m));
-    Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
+    Optional<String> flashBannerMessage = request.flash().get("banner");
+    Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
+    Optional<String> flashSuccessBannerMessage = request.flash().get("success-banner");
+    Optional<ToastMessage> flashSuccessBanner = flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);
 
@@ -123,8 +123,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
+              boolean shouldShowNotEligibleBanner = false;
               try {
-                if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
+                shouldShowNotEligibleBanner = shouldShowNotEligibleBanner(roApplicantProgramService, programId);
+                if (shouldShowNotEligibleBanner) {
                   notEligibleBanner =
                       Optional.of(
                           ToastMessage.alert(
@@ -189,6 +191,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setCompletedBlockCount(completedBlockCount)
                         .setTotalBlockCount(totalBlockCount)
                         .setMessages(messages)
+                        .setAlertBannerMessage(flashBannerMessage)
+                        .setSuccessBannerMessage(flashSuccessBannerMessage)
+                        .setShouldShowNotEligibleBanner(shouldShowNotEligibleBanner)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);

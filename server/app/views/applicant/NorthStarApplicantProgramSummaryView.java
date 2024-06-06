@@ -55,6 +55,12 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable(
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
+
+    // Toasts
+    context.setVariable("alertBannerMessage", params.alertBannerMessage());
+    context.setVariable("successBannerMessage", params.successBannerMessage());
+    context.setVariable("shouldShowNotEligibleBanner", params.shouldShowNotEligibleBanner());
+
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }
 
@@ -117,6 +123,12 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
     abstract Messages messages();
 
+    abstract Optional<String> alertBannerMessage();
+
+    abstract Optional<String> successBannerMessage();
+
+    abstract boolean shouldShowNotEligibleBanner();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -135,6 +147,12 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setAlertBannerMessage(Optional<String> alertBannerMessage);
+
+      public abstract Builder setSuccessBannerMessage(Optional<String> successBannerMessage);
+
+      public abstract Builder setShouldShowNotEligibleBanner(boolean shouldShowNotEligibleBanner);
 
       public abstract Params build();
     }
