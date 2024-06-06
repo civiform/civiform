@@ -13,16 +13,6 @@
   <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
 </footer>
 
-<div th:fragment="hyperlink(linkHref, linkText)">
-  <!-- This uses utext to insert a hyperlink into a localized string. -->
-  <a
-    href="${linkHref}"
-    target="_blank"
-    style="color: blue; text-decoration: underline"
-    th:text="${linkText}"
-  ></a>
-</div>
-
 <div th:fragment="requiredFieldsExplanation">
   <!--/* This uses utext because the parameter passed into the message is html,
     it is a placeholder span with the red asterisk. We need it to be html and not
