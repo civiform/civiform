@@ -128,16 +128,6 @@ public final class UpsellController extends CiviFormController {
             .relevantProgramsForApplicant(applicantId, profile.get())
             .toCompletableFuture();
 
-    // UpsellParams.Builder paramsBuilder =
-    //     UpsellParams.builder()
-    //         .setRequest(request)
-    //         .setProfile(
-    //             profile.orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class)))
-    //         .setApplicantPersonalInfo(applicantPersonalInfo.join())
-    //         .setApplicationId(applicationId)
-    //         .setMessages(messagesApi.preferred(request))
-    //         .setApplicantId(applicantId);
-
     return CompletableFuture.allOf(
             isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(

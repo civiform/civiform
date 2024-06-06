@@ -1,7 +1,5 @@
 package views.applicant;
 
-import auth.CiviFormProfile;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
@@ -10,11 +8,7 @@ import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
-import play.i18n.Messages;
-import play.mvc.Http.Request;
 import services.DeploymentType;
-import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
 
 public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicantBaseView {
@@ -47,8 +41,6 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
             params.applicantPersonalInfo(),
             params.messages());
 
-    context.setVariable("applicationId", params.applicationId());
-
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
@@ -77,49 +69,6 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
       context.setVariable("eligiblePrograms", displayPrograms);
     }
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
-  }
-
-  @AutoValue
-  public abstract static class Params {
-
-    public static Builder builder() {
-      return new AutoValue_NorthStarApplicantCommonIntakeUpsellView_Params.Builder();
-    }
-
-    abstract Request request();
-
-    abstract CiviFormProfile profile();
-
-    abstract long applicantId();
-
-    abstract long applicationId();
-
-    abstract ApplicantPersonalInfo applicantPersonalInfo();
-
-    abstract ImmutableList<ApplicantProgramData> eligiblePrograms();
-
-    abstract Messages messages();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-      public abstract Builder setRequest(Request request);
-
-      public abstract Builder setProfile(CiviFormProfile profile);
-
-      public abstract Builder setApplicantId(long applicantId);
-
-      public abstract Builder setApplicationId(long applicationId);
-
-      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
-
-      public abstract Builder setEligiblePrograms(
-          ImmutableList<ApplicantProgramData> eligiblePrograms);
-
-      public abstract Builder setMessages(Messages messages);
-
-      public abstract Params build();
-    }
   }
 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */
