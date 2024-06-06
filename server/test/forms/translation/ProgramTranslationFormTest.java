@@ -36,13 +36,16 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   public void bindFromRequest() throws Exception {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
+    ImmutableList<Long> blockIds = ImmutableList.of();
+
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
             request,
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 2,
-            /* hasSummaryImageDescription= */ false);
-    assertThat(form.getUpdateData())
+            /* hasSummaryImageDescription= */ false,
+            blockIds);
+    assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
