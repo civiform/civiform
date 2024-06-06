@@ -14,3 +14,18 @@ jobs:
   run_all_tests:
     uses: ./.github/workflows/tests.yaml
     secrets: inherit
+
+  on_failure:
+    needs: [ run_all_tests ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send alert
+        if: needs.run_parent.result == 'failure'
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id:  ${{ env.SLACK_CI_CHANNEL }}
+          slack-message: "${{ env.STATUS_ICON }} AWS Staging Deploy for ${{ env.LATEST_SNAPSHOT_TAG }}: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ job.status }}>"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          STATUS_ICON: ${{fromJSON('[":no_entry:", ":white_check_mark:"]')[job.status == 'success']}}
