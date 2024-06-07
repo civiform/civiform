@@ -99,10 +99,7 @@
 
   /* Rather than having a focus outline around the checkbox or radio button,
   it is around the label */
-  input[type='radio']:focus,
-  input[type='checkbox']:focus {
-    @apply outline-none;
-  }
+
   /* Mimics the focus outline styles from the checkbox or radio input on the label */
   .cf-radio-option:focus-within {
     @apply border-4;

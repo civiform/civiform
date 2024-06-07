@@ -243,7 +243,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           MessageKey.BUTTON_EDIT,
           MessageKey.BUTTON_EDIT_SR,
           bundle,
-          profile));
+          profile).withClasses("mb-12"));
     }
 
      // The category buttons
@@ -356,10 +356,13 @@ public final class ProgramIndexView extends BaseHtmlView {
         form()
           .withId("category-filter-form")
           .withClasses("mb-6")
+          .attr("hx-boost", "true")
+//          .attr("hx-target", "#recommended-programs")
           .withMethod("GET")
           .withAction(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(applicantId, List.of())
-              .url() + "#category-filter-form")
+//              .url() + "#check-category-Housing")
+              .url())
           .with(
             fieldset(
               each(
