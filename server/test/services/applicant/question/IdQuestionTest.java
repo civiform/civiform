@@ -70,7 +70,7 @@ public class IdQuestionTest extends ResetPostgres {
 
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -83,7 +83,7 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo("12345");
-    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
-    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors()).isEmpty();
   }
 
   @SuppressWarnings("unused") // Used by @Parameters annotation of test below
