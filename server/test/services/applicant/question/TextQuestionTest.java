@@ -69,7 +69,7 @@ public class TextQuestionTest extends ResetPostgres {
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
-    assertThat(textQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -82,7 +82,7 @@ public class TextQuestionTest extends ResetPostgres {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
-    assertThat(textQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class TextQuestionTest extends ResetPostgres {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
-    assertThat(textQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test

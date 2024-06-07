@@ -60,7 +60,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test

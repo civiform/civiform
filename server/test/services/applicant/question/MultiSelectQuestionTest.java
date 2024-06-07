@@ -68,7 +68,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -101,7 +101,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -161,7 +161,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test

@@ -72,7 +72,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
-    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors()).isEmpty();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -118,7 +118,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors()).isEmpty();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -203,7 +203,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
