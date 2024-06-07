@@ -922,17 +922,17 @@ test.describe('create and edit predicates', () => {
         action: 'shown if',
         scalar: 'date',
         operator: 'age is between',
-        value: '1,90',
+        complexValues: [{value: '1', secondValue: '90'}],
       })
     })
 
     await test.step('Configure screen 12', async () => {
-      await adminQuestions.addTextQuestion({
-        questionName: 'text-question-last-page',
+      await adminQuestions.addNumberQuestion({
+        questionName: 'number-question-between',
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         name: 'Screen 12',
-        questions: [{name: 'text-question-last-page'}],
+        questions: [{name: 'number-question-between'}],
       })
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
@@ -947,6 +947,69 @@ test.describe('create and edit predicates', () => {
       })
     })
 
+    await test.step('Configure screen 13', async () => {
+      await adminQuestions.addDateQuestion({
+        questionName: 'date-question-between',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 13',
+        questions: [{name: 'date-question-between'}],
+      })
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 13',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'number-question-between',
+        action: 'shown if',
+        scalar: 'number',
+        operator: 'is between',
+        complexValues: [{value: '10', secondValue: '20'}],
+      })
+    })
+
+    await test.step('Configure screen 14', async () => {
+      await adminQuestions.addCurrencyQuestion({
+        questionName: 'currency-question-between',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 14',
+        questions: [{name: 'currency-question-between'}],
+      })
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 14',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'date-question-between',
+        action: 'shown if',
+        scalar: 'date',
+        operator: 'is between',
+        complexValues: [{value: '2020-05-20', secondValue: '2024-05-20'}],
+      })
+    })
+
+    await test.step('Configure screen 15', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: 'text-question-last-page',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 15',
+        questions: [{name: 'text-question-last-page'}],
+      })
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 15',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'currency-question-between',
+        action: 'shown if',
+        scalar: 'currency',
+        operator: 'is between',
+        complexValues: [{value: '4.25', secondValue: '9.99'}],
+      })
+    })
+
     await adminPrograms.publishProgram(programName)
 
     // Switch to applicantQuestions.view - if they answer each question according to the predicate,
@@ -955,11 +1018,11 @@ test.describe('create and edit predicates', () => {
     await loginAsTestUser(page)
     await applicantQuestions.applyProgram(programName)
 
-    // For each condition:
-    // - submit an invalid option
-    // - verify the other screens aren't show and the review page is shown
+    // For each screen:
+    // - enter and submit a disallowed answer
+    // - verify the other screens aren't shown and the review page is shown
     // - go back
-    // - enter an allowed value
+    // - enter and submit an allowed answer to go to the next screen
 
     await test.step('Apply screen 1', async () => {
       // "hidden" first name is not allowed.
@@ -1072,6 +1135,36 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('Apply screen 12', async () => {
+      // number between 10 and 20 is allowed
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerNumberQuestion('15')
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Apply screen 13', async () => {
+      // date between 2020-05-20 and 2024-05-20 is allowed
+      await applicantQuestions.answerDateQuestion('2019-01-01')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2022-05-20')
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Apply screen 14', async () => {
+      // currency between 4.25 and 9.99 is allowed
+      await applicantQuestions.answerCurrencyQuestion('2.00')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerCurrencyQuestion('5.50')
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Apply screen 15', async () => {
       await applicantQuestions.answerTextQuestion('last one!')
       await applicantQuestions.clickNext()
     })
@@ -1309,7 +1402,7 @@ test.describe('create and edit predicates', () => {
         questionName: 'date-question-age-between',
         scalar: 'date',
         operator: 'age is between',
-        value: '1,90',
+        complexValues: [{value: '1', secondValue: '90'}],
       })
 
       // ensure the edit page renders without errors
@@ -1344,6 +1437,69 @@ test.describe('create and edit predicates', () => {
         scalar: 'selections',
         operator: 'contains any of',
         value: 'dog,cat',
+      })
+    })
+
+    await test.step('Configure screen 12', async () => {
+      await adminQuestions.addNumberQuestion({
+        questionName: 'number-question-between',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 12',
+        questions: [{name: 'number-question-between'}],
+      })
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 12',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'number-question-between',
+        scalar: 'number',
+        operator: 'is between',
+        complexValues: [{value: '10', secondValue: '20'}],
+      })
+    })
+
+    await test.step('Configure screen 13', async () => {
+      await adminQuestions.addDateQuestion({
+        questionName: 'date-question-between',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 13',
+        questions: [{name: 'date-question-between'}],
+      })
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 13',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'date-question-between',
+        scalar: 'date',
+        operator: 'is between',
+        complexValues: [{value: '2020-05-20', secondValue: '2024-05-20'}],
+      })
+    })
+
+    await test.step('Configure screen 14', async () => {
+      await adminQuestions.addCurrencyQuestion({
+        questionName: 'currency-question-between',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: 'Screen 14',
+        questions: [{name: 'currency-question-between'}],
+      })
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 14',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'currency-question-between',
+        scalar: 'currency',
+        operator: 'is between',
+        complexValues: [{value: '4.25', secondValue: '9.99'}],
       })
     })
 
@@ -1515,14 +1671,49 @@ test.describe('create and edit predicates', () => {
       )
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
-
-      // We should now be on the review page with a completed form and no banner should show.
-      await validateScreenshot(
-        page,
-        'review-page-no-ineligible-banner-completed',
-      )
-      await validateToastMessage(page, '')
     })
+
+    await test.step('Apply screen 12', async () => {
+      // Age between 1 and 90 is allowed
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('number question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerNumberQuestion('15')
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Apply screen 13', async () => {
+      // date between 2020-05-20 and 2024-05-20 is allowed
+      await applicantQuestions.answerDateQuestion('2019-01-01')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2022-05-20')
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Apply screen 14', async () => {
+      // currency between 4.25 and 9.99 is allowed
+      await applicantQuestions.answerCurrencyQuestion('2.00')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion(
+        'currency question text',
+      )
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerCurrencyQuestion('5.50')
+      await applicantQuestions.clickNext()
+    })
+
+    // We should now be on the review page with a completed form and no banner should show.
+    await validateScreenshot(page, 'review-page-no-ineligible-banner-completed')
+    await validateToastMessage(page, '')
 
     await applicantQuestions.submitFromReviewPage()
   })

@@ -85,6 +85,86 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
+  public void singleQuestion_singleValue_currencyBetween() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "CURRENCY_CENTS",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "12.34",
+                String.format(
+                    "group-1-question-%d-predicateSecondValue",
+                    testQuestionBank.applicantDate().id),
+                "56.78"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.CURRENCY_CENTS)
+                    .setOperator(Operator.BETWEEN)
+                    .setComparedValue(PredicateValue.pairOfLongs(1234, 5678))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_dateBetween() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "2020-05-20",
+                String.format(
+                    "group-1-question-%d-predicateSecondValue",
+                    testQuestionBank.applicantDate().id),
+                "2024-05-20"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.BETWEEN)
+                    .setComparedValue(
+                        PredicateValue.pairOfDates(
+                            LocalDate.of(2020, 5, 20), LocalDate.of(2024, 5, 20)))
+                    .build()));
+  }
+
+  @Test
   public void singleQuestion_singleValue_dateIsAfter() throws Exception {
     DynamicForm form =
         buildForm(
@@ -132,7 +212,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "AGE_BETWEEN",
                 String.format(
                     "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
-                "14,18"));
+                "14",
+                String.format(
+                    "group-1-question-%d-predicateSecondValue",
+                    testQuestionBank.applicantDate().id),
+                "18"));
 
     PredicateDefinition predicateDefinition =
         predicateGenerator.generatePredicateDefinition(
@@ -150,76 +234,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .setQuestionId(testQuestionBank.applicantDate().id)
                     .setScalar(Scalar.DATE)
                     .setOperator(Operator.AGE_BETWEEN)
-                    .setComparedValue(PredicateValue.listOfLongs(ImmutableList.of(14L, 18L)))
+                    .setComparedValue(PredicateValue.pairOfLongs(14, 18))
                     .build()));
-  }
-
-  @Test
-  public void singleQuestion_singleValue_ageBetween_invalidRange_throws() throws Exception {
-    DynamicForm form2 =
-        buildForm(
-            ImmutableMap.of(
-                "predicateAction",
-                "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
-                "DATE",
-                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
-                "AGE_BETWEEN",
-                String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
-                "14 18"));
-
-    assertThatThrownBy(
-            () ->
-                predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form2, readOnlyQuestionService))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage(
-            "Invalid age range: 14 18. Age range value must be two integers separated by - or ,");
-
-    DynamicForm form3 =
-        buildForm(
-            ImmutableMap.of(
-                "predicateAction",
-                "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
-                "DATE",
-                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
-                "AGE_BETWEEN",
-                String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
-                "14-eighteen"));
-
-    assertThatThrownBy(
-            () ->
-                predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form3, readOnlyQuestionService))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage(
-            "Invalid age range: 14-eighteen. Age range value must be two integers separated by -"
-                + " or ,");
-
-    DynamicForm form4 =
-        buildForm(
-            ImmutableMap.of(
-                "predicateAction",
-                "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
-                "DATE",
-                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
-                "AGE_BETWEEN",
-                String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
-                "14,18,24"));
-
-    assertThatThrownBy(
-            () ->
-                predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form4, readOnlyQuestionService))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage(
-            "Invalid age range: 14,18,24. Age range value must be two integers separated by - or"
-                + " ,");
   }
 
   @Test
@@ -345,6 +361,80 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 predicateGenerator.generatePredicateDefinition(
                     programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
+  public void singleQuestion_singleValue_numberIn() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "NUMBER",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "IN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "1,2,3"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.NUMBER)
+                    .setOperator(Operator.IN)
+                    .setComparedValue(PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L)))
+                    .build()));
+  }
+
+  @Test
+  public void singleQuestion_singleValue_numberBetween() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "NUMBER",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "1234",
+                String.format(
+                    "group-1-question-%d-predicateSecondValue",
+                    testQuestionBank.applicantDate().id),
+                "5678"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.NUMBER)
+                    .setOperator(Operator.BETWEEN)
+                    .setComparedValue(PredicateValue.pairOfLongs(1234, 5678))
+                    .build()));
   }
 
   @Test
