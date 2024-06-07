@@ -101,6 +101,8 @@ button.continueToApplication=繼續申請
 button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
 button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
 button.continueCommonIntakeSr=繼續填寫「{0}」
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
 content.submittedDate=提交於 {0}
 content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
@@ -114,6 +116,16 @@ title.allProgramsSection=所有計畫 ({0})
 title.status=狀態
 title.inProgressProgramsUpdated=進行中
 title.activeProgramsUpdated=未開始
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=此部分已填寫完畢
 title.submittedPrograms=已提交
@@ -213,6 +225,10 @@ label.errorDOB=必須輸入出生日期
 label.errorFirstName=必須輸入名字
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=必須輸入姓氏
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=月
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".

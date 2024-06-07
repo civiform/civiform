@@ -34,7 +34,9 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
 import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.UpsellParams;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
@@ -47,6 +49,7 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final NorthStarApplicantUpsellView northStarUpsellView;
+  private final NorthStarApplicantCommonIntakeUpsellView northStarCommonIntakeUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -62,6 +65,7 @@ public final class UpsellController extends CiviFormController {
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       NorthStarApplicantUpsellView northStarApplicantUpsellView,
+      NorthStarApplicantCommonIntakeUpsellView northStarApplicantCommonIntakeUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
@@ -75,6 +79,7 @@ public final class UpsellController extends CiviFormController {
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
+    this.northStarCommonIntakeUpsellView = checkNotNull(northStarApplicantCommonIntakeUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -150,19 +155,31 @@ public final class UpsellController extends CiviFormController {
                   request.flash().get("banner").map(m -> ToastMessage.alert(m));
 
               if (settingsManifest.getNorthStarApplicantUi(request)) {
-                NorthStarApplicantUpsellView.Params params =
-                    NorthStarApplicantUpsellView.Params.builder()
+                UpsellParams.Builder paramsBuilder =
+                    UpsellParams.builder()
                         .setRequest(request)
                         .setProfile(
                             profile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class)))
                         .setApplicantPersonalInfo(applicantPersonalInfo.join())
-                        .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
                         .setApplicationId(applicationId)
                         .setMessages(messagesApi.preferred(request))
-                        .setApplicantId(applicantId)
-                        .build();
-                return ok(northStarUpsellView.render(params)).as(Http.MimeTypes.HTML);
+                        .setApplicantId(applicantId);
+
+                if (isCommonIntake.join()) {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                          .build();
+                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                      .as(Http.MimeTypes.HTML);
+                } else {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                          .build();
+                  return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+                }
               } else if (isCommonIntake.join()) {
                 return ok(
                     cifUpsellView.render(

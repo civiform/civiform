@@ -155,23 +155,23 @@ test.describe('currency applicant flow', () => {
     })
   })
 
-  test.describe('single currency question with north star flag enabled', () => {
-    const programName = 'Test program for single currency'
+  test.describe(
+    'single currency question with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single currency'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleCurrencyQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleCurrencyQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
 
-    test(
-      'validate screenshot',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
+      test('validate screenshot', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
@@ -192,18 +192,18 @@ test.describe('currency applicant flow', () => {
             /* mobileScreenshot= */ true,
           )
         })
-      },
-    )
+      })
 
-    test('has no accessiblity violations', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(page)
-    })
-  })
+        await validateAccessibility(page)
+      })
+    },
+  )
 
   async function setUpSingleCurrencyQuestion(
     programName: string,

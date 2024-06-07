@@ -60,9 +60,17 @@ class FilePlacementReporter implements Reporter {
 
       for (const test of spec.tests) {
         for (const result of test.results) {
-          const expected = result.attachments[0]
-          const actual = result.attachments[1]
-          const diff = result.attachments[2]
+          const attachments = <Array<Attachment>>result.attachments
+          const expected = this.findAttachment(
+            attachments,
+            AttachmentType.EXPECTED,
+          )
+          const actual = this.findAttachment(attachments, AttachmentType.ACTUAL)
+          const diff = this.findAttachment(attachments, AttachmentType.DIFF)
+
+          if (expected === null || actual === null || diff === null) {
+            continue
+          }
 
           this.copyActualImageToUpdatedSnapshotsFolder(actual)
           await this.createCompositeDiffAndCopyToDiffOutputFolder(
@@ -145,6 +153,25 @@ class FilePlacementReporter implements Reporter {
         }
       })
   }
+
+  /**
+   * Find attachment by attachment type
+   * @param attachments list of attachments to search through
+   * @param attachmentType attachment type to search for
+   * @returns {Attachment} or null if no match found
+   */
+  findAttachment(
+    attachments: Attachment[],
+    attachmentType: AttachmentType,
+  ): Attachment | null {
+    for (const attachment of attachments) {
+      if (attachment.name.endsWith(attachmentType + '.png')) {
+        return attachment
+      }
+    }
+
+    return null
+  }
 }
 
 /** The shape of the attachment element in the playwright json output */
@@ -154,6 +181,14 @@ interface Attachment {
 
   /** Name with the test file name and the snapshot name given in the test */
   name: string
+}
+
+/** Known attachment types */
+enum AttachmentType {
+  EXPECTED = 'expected',
+  ACTUAL = 'actual',
+  DIFF = 'diff',
+  TRACE = 'trace',
 }
 
 export default FilePlacementReporter

@@ -2,7 +2,6 @@ package actions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -43,8 +42,10 @@ public class ProgramDisabledAction extends Action.Simple {
     Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
 
     if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
-      // TODO: Build an error page and redirect the user to the error page instead
-      return CompletableFuture.completedFuture(redirect(routes.HomeController.index()));
+      return CompletableFuture.completedFuture(
+          redirect(
+              controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram(
+                  programSlugOptional.get())));
     }
 
     return delegate.call(req); // continute processing next step

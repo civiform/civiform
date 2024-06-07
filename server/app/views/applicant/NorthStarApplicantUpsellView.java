@@ -1,16 +1,12 @@
 package views.applicant;
 
-import auth.CiviFormProfile;
-import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
-import play.i18n.Messages;
-import play.mvc.Http.Request;
-import services.applicant.ApplicantPersonalInfo;
+import services.DeploymentType;
 import services.settings.SettingsManifest;
 
 public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
@@ -22,17 +18,19 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
         applicantRoutes,
         settingsManifest,
-        languageUtils);
+        languageUtils,
+        deploymentType);
   }
 
-  public String render(Params params) {
+  public String render(UpsellParams params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
@@ -41,51 +39,9 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    context.setVariable("programName", params.programTitle());
+    context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
 
-    return templateEngine.process("applicant/ApplicantUpsellFragment", context);
-  }
-
-  @AutoValue
-  public abstract static class Params {
-
-    public static Builder builder() {
-      return new AutoValue_NorthStarApplicantUpsellView_Params.Builder();
-    }
-
-    abstract Request request();
-
-    abstract CiviFormProfile profile();
-
-    abstract long applicantId();
-
-    abstract long applicationId();
-
-    abstract ApplicantPersonalInfo applicantPersonalInfo();
-
-    abstract String programTitle();
-
-    abstract Messages messages();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-      public abstract Builder setRequest(Request request);
-
-      public abstract Builder setProfile(CiviFormProfile profile);
-
-      public abstract Builder setApplicantId(long applicantId);
-
-      public abstract Builder setApplicationId(long applicationId);
-
-      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
-
-      public abstract Builder setProgramTitle(String programTitle);
-
-      public abstract Builder setMessages(Messages messages);
-
-      public abstract Params build();
-    }
+    return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }
 }
