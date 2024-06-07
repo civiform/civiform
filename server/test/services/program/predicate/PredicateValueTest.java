@@ -6,10 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
+@RunWith(JUnitParamsRunner.class)
 public class PredicateValueTest {
 
   private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
@@ -24,13 +28,19 @@ public class PredicateValueTest {
   }
 
   @Test
-  public void stringValue_escapedProperly() {
+  public void value_string() {
     PredicateValue value = PredicateValue.of("hello");
     assertThat(value.value()).isEqualTo("\"hello\"");
   }
 
   @Test
-  public void listOfStringsValue_escapedProperly() {
+  public void value_stringWithQuotes_stripsQuotesBeforeEncoding() {
+    PredicateValue value = PredicateValue.of("\"\"h\"el\"\"lo\"\"\"\"\"");
+    assertThat(value.value()).isEqualTo("\"hello\"");
+  }
+
+  @Test
+  public void value_listOfStrings() {
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
     assertThat(value.value()).isEqualTo("[\"hello\", \"world\"]");
   }
@@ -102,27 +112,28 @@ public class PredicateValueTest {
   }
 
   @Test
-  public void valueWithoutSurroundingQuotes_parsesCorrectly() {
+  public void valueWithoutSurroundingQuotes_string() {
     PredicateValue value = PredicateValue.of("hello");
     assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("hello");
+  }
 
-    // Should only strip plain strings. Everything else should remain the same.
-    value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[\"hello\", \"world\"]");
-
-    value = PredicateValue.of(10001);
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("10001");
-
-    value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("1609459200000");
-
-    value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[1, 2, 3]");
+  @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
+  private PredicateValue[] valueWithoutSurroundingQuotes_doesNotAffectNonStrings_parameters() {
+    return new PredicateValue[] {
+      // All possible PredicateValue types besides string
+      PredicateValue.of(10001),
+      PredicateValue.of(1.04),
+      PredicateValue.of(LocalDate.ofYearDay(2021, 1)),
+      PredicateValue.listOfStrings(ImmutableList.of("hello", "world")),
+      PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L)),
+      PredicateValue.serviceArea("seattle"),
+    };
   }
 
   @Test
-  public void surroundWithQuotes_stripsQuotesThenAppendsCorrectly() {
-    PredicateValue value = PredicateValue.of("\"\"h\"el\"\"lo\"\"\"\"\"");
-    assertThat(value.value()).isEqualTo("\"hello\"");
+  @Parameters(method = "valueWithoutSurroundingQuotes_doesNotAffectNonStrings_parameters")
+  public void valueWithoutSurroundingQuotes_doesNotAffectNonStrings(PredicateValue value) {
+    // valueWithoutSurrroundingQuotes should only affect plain strings
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo(value.value());
   }
 }
