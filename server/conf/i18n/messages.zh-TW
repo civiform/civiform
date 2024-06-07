@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
 banner.httpsSectionHeader=安全的 .gov 網站會使用 HTTPS
 banner.httpsSectionContent=如果看到鎖頭圖示 ( {0} ) 或 https://，表示您已安全地連線至 .gov 網站。請務必只在安全的官方網站上分享私密資訊。
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
