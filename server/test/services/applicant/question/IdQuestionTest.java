@@ -110,6 +110,16 @@ public class IdQuestionTest extends ResetPostgres {
     };
   }
 
+  @SuppressWarnings("unused") // Used by @Parameters annotation of test below
+  private Object[][] withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters() {
+    return new Object[][] {
+      {"", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, 3)},
+      {"1", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, 3)},
+      {"12334", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_LONG, 4)},
+      {"abc", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED)},
+    };
+  }
+
   @Test
   @Parameters(method = "withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters")
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(

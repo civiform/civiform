@@ -109,6 +109,15 @@ public class TextQuestionTest extends ResetPostgres {
     };
   }
 
+  @SuppressWarnings("unused") // Used by @Parameters annotation of test below
+  private Object[][] withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters() {
+    return new Object[][] {
+      {"", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, 3)},
+      {"a", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, 3)},
+      {"abcde", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_LONG, 4)},
+    };
+  }
+
   @Test
   @Parameters(method = "withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters")
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
