@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
 banner.httpsSectionHeader=Gumagamit ng HTTPS ang mga secure na .gov na website
 banner.httpsSectionContent=Ang lock na ( {0} ) o https:// ay nangangahulugang ligtas kang nakakonekta sa .gov na website. Magbahagi lang ng sensitibong impormasyon sa mga opisyal at secure na website.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
