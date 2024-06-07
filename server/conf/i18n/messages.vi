@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên mi�
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
 banner.httpsSectionHeader=Các trang web .gov an toàn sử dụng HTTPS
 banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có nghĩa là bạn đã kết nối an toàn với trang web .gov. Bạn chỉ nên chia sẻ thông tin nhạy cảm trên các trang web chính thức, an toàn.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
