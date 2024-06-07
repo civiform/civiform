@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=ኦፊሴላዊ ድረ-ገጾች .govን ይጠ�
 banner.govWebsiteSectionContent=በ .gov የሚያልቁ የድርጣቢያ አድራሻዎች በአሜሪካ ውስጥ ያሉ ኦፊሴላዊ የመንግስት ድርጅቶች ናቸው።
 banner.httpsSectionHeader=ደህንነታቸው የተጠበቀ .gov ድረ-ገጾች ኤችቲቲፒኤስ ይጠቀማሉ
 banner.httpsSectionContent=ቁልፍ ( {0} ) ወይም ኤችቲቲፒኤስ:// ማለት ከ.gov ድህረ ገጽ ጋር በሰላም ተገናኝተዋል ማለት ነው። ሚስጥራዊነት ያለው መረጃ በይፋዊ እና ደህንነታቸው የተጠበቁ ድር ጣቢያዎች ላይ ብቻ ያጋሩ።
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
