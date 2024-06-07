@@ -19,7 +19,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.Path;
+import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.QuestionAnswerer;
@@ -100,15 +100,20 @@ public class IdQuestionTest extends ResetPostgres {
     assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
+  @SuppressWarnings("unused") // Used by @Parameters annotation of test below
+  private Object[][] withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters() {
+    return new Object[][] {
+      {"", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, 3)},
+      {"1", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, 3)},
+      {"12334", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_LONG, 4)},
+      {"abc", ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED)},
+    };
+  }
+
   @Test
-  @Parameters({
-    ",Error: Must contain at least 3 characters.",
-    "1,Error: Must contain at least 3 characters.",
-    "12334,Error: Must contain at most 4 characters.",
-    "abc,Error: Must contain only numbers."
-  })
+  @Parameters(method = "withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters")
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
-      String value, String expectedErrorMessage) {
+      String value, ValidationErrorMessage expectedError) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
@@ -119,13 +124,7 @@ public class IdQuestionTest extends ResetPostgres {
     if (idQuestion.getIdValue().isPresent()) {
       assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     }
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        idQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> idErrors =
-        validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of());
-    assertThat(idErrors.size()).isEqualTo(1);
-    String errorMessage = idErrors.iterator().next().getMessage(messages);
-    assertThat(errorMessage).isEqualTo(expectedErrorMessage);
+    assertThat(idQuestion.getValidationErrors())
+        .isEqualTo(ImmutableMap.of(idQuestion.getIdPath(), ImmutableSet.of(expectedError)));
   }
 }

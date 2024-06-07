@@ -115,16 +115,21 @@ public class NumberQuestionTest extends ResetPostgres {
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 
+  @SuppressWarnings("unused") // Used by @Parameters annotation of test below
+  private Object[][] withMinAndMaxValue_withInvalidValue_failsValidation_parameters() {
+    return new Object[][] {
+      {-1, ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)},
+      {0, ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_SMALL, 50L)},
+      {49, ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_SMALL, 50L)},
+      {101, ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, 100L)},
+      {999, ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, 100L)},
+    };
+  }
+
   @Test
-  @Parameters({
-    "-1,Error: Number must be a positive whole number and can only contain numeric characters 0-9.",
-    "0,Error: Must be at least 50.",
-    "49,Error: Must be at least 50.",
-    "101,Error: Must be at most 100.",
-    "999,Error: Must be at most 100."
-  })
+  @Parameters(method = "withMinAndMaxValue_withInvalidValue_failsValidation_parameters")
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
-      long value, String expectedErrorMessage) {
+      long value, ValidationErrorMessage expectedError) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
@@ -132,15 +137,8 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        numberQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> numberErrors =
-        validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of());
-    assertThat(numberErrors).hasSize(1);
-    String errorMessage = numberErrors.iterator().next().getMessage(messages);
-    assertThat(errorMessage).isEqualTo(expectedErrorMessage);
-    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
+    assertThat(numberQuestion.getValidationErrors())
+        .isEqualTo(ImmutableMap.of(numberQuestion.getNumberPath(), ImmutableSet.of(expectedError)));
   }
 
   @Test
