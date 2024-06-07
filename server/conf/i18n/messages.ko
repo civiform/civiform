@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
 banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
 banner.httpsSectionHeader=안전한 .gov 웹사이트는 HTTPS를 사용합니다
 banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이트에 안전하게 연결되었음을 의미합니다. 민감한 정보는 안전한 공식 웹사이트에서만 공유하세요.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
