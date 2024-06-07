@@ -22,7 +22,7 @@
       },
       "CIVIC_ENTITY_PRODUCTION_URL": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "The URL to the civic entity's production CiviForm site. Providing this on a staging site will add a banner indicating applicants shouldn't submit real applications, but instead submit them at the link provided",
+        "description": "The URL to the civic entity's production CiviForm site.",
         "type": "string",
         "required": false
       },
@@ -797,6 +797,11 @@
       "MULTIPLE_FILE_UPLOAD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
+        "type": "bool"
+      },
+      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site. This banner will not show on Production sites even if this setting is enabled.",
         "type": "bool"
       }
     }

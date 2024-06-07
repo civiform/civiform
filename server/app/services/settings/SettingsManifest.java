@@ -56,11 +56,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
-  /**
-   * The URL to the civic entity's production CiviForm site. Providing this on a staging site will
-   * add a banner indicating applicants shouldn't submit real applications, but instead submit them
-   * at the link provided
-   */
+  /** The URL to the civic entity's production CiviForm site. */
   public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
     return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
   }
@@ -959,6 +955,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
   }
 
+  /**
+   * Enabling this will add a banner to the site to tell applicants this is not Production and that
+   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
+   * also include a link to your production site. This banner will not show on Production sites even
+   * if this setting is enabled.
+   */
+  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
+    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -988,9 +994,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "CIVIC_ENTITY_PRODUCTION_URL",
-                      "The URL to the civic entity's production CiviForm site. Providing this on a"
-                          + " staging site will add a banner indicating applicants shouldn't submit"
-                          + " real applications, but instead submit them at the link provided",
+                      "The URL to the civic entity's production CiviForm site.",
                       /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
@@ -1985,6 +1989,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "MULTIPLE_FILE_UPLOAD_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload"
                           + " questions.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
+                      "Enabling this will add a banner to the site to tell applicants this is not"
+                          + " Production and that they shouldn't submit real applications."
+                          + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
+                          + " link to your production site. This banner will not show on Production"
+                          + " sites even if this setting is enabled.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

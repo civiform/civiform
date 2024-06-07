@@ -20,8 +20,11 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 
 /**
- * This will build a sticky banner that follow the user as they scroll. It will not show on a
- * production site or if the CIVIC_ENTITY_PRODUCTION_URL setting is not configured.
+ * This will build a sticky banner that follows the user as they scroll. Enable the
+ * SHOW_NOT_PRODUCTION_BANNER_ENABLED setting to add this banner to the page. It will not show on a
+ * production site even if the SHOW_NOT_PRODUCTION_BANNER_ENABLED setting is enabled.
+ *
+ * <p>Set the CIVIC_ENTITY_PRODUCTION_URL to include an optional link to the production site.
  *
  * <p>The purpose is to make it extremely clear to people loading a page if the site is Production
  * or not.
@@ -39,22 +42,20 @@ public final class PageNotProductionBanner {
   }
 
   public Optional<DivTag> render(Http.Request request, Messages messages) {
+    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+      return Optional.empty();
+    }
+
     if (!deploymentType.isDevOrStaging()) {
       logger.debug("Don't show this banner on production");
       return Optional.empty();
     }
 
-    // Don't show without a production url
-    Optional<String> productionUrl = settingsManifest.getCivicEntityProductionUrl(request);
-
-    if (productionUrl.isEmpty() || productionUrl.get().isEmpty()) {
-      logger.debug("CIVIC_ENTITY_PRODUCTION_URL setting is not set");
-      return Optional.empty();
-    }
+    String productionUrl = settingsManifest.getCivicEntityProductionUrl(request).orElse("");
 
     ATag link =
         a(settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("") + " CiviForm")
-            .withHref(productionUrl.get())
+            .withHref(productionUrl)
             .withClasses("font-bold", "underline", "hover:no-underline");
 
     String notForProductionBannerLine1 =
@@ -64,9 +65,10 @@ public final class PageNotProductionBanner {
 
     return Optional.of(
         div()
-            .with(
-                h4(notForProductionBannerLine1).withClasses("text-xl", "mb-4", "font-bold"),
-                p(rawHtml(notForProductionBannerLine2)))
+            .with(h4(notForProductionBannerLine1).withClasses("text-xl", "font-bold"))
+            .condWith(
+                !productionUrl.isBlank(),
+                p(rawHtml(notForProductionBannerLine2)).withClasses("mt-4"))
             .withClasses(
                 "sticky",
                 "width-full",
