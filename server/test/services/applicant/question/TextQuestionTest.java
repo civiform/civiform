@@ -18,7 +18,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.Path;
+import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.QuestionAnswerer;
@@ -100,14 +100,19 @@ public class TextQuestionTest extends ResetPostgres {
     assertThat(textQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
+  @SuppressWarnings("unused") // Used by @Parameters annotation of test below
+  private Object[][] withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters() {
+    return new Object[][] {
+      {"", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, 3)},
+      {"a", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, 3)},
+      {"abcde", ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_LONG, 4)},
+    };
+  }
+
   @Test
-  @Parameters({
-    ",Error: Must contain at least 3 characters.",
-    "a,Error: Must contain at least 3 characters.",
-    "abcde,Error: Must contain at most 4 characters."
-  })
+  @Parameters(method = "withMinAndMaxLength_withInvalidApplicantData_failsValidation_parameters")
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
-      String value, String expectedErrorMessage) {
+      String value, ValidationErrorMessage expectedError) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
@@ -119,13 +124,8 @@ public class TextQuestionTest extends ResetPostgres {
     if (textQuestion.getTextValue().isPresent()) {
       assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     }
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        textQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> textErrors =
-        validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of());
-    assertThat(textErrors).hasSize(1);
-    String errorMessage = textErrors.iterator().next().getMessage(messages);
-    assertThat(errorMessage).isEqualTo(expectedErrorMessage);
+
+    assertThat(textQuestion.getValidationErrors())
+        .isEqualTo(ImmutableMap.of(textQuestion.getTextPath(), ImmutableSet.of(expectedError)));
   }
 }
