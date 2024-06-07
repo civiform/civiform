@@ -152,7 +152,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       HtmlBundle bundle,
       boolean includeAdminLogin,
       Long applicantId) {
-    bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request));
+    bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
 
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageUtils.getPreferredLanguage(request).code();

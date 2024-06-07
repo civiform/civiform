@@ -564,3 +564,10 @@ banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
 banner.httpsSectionHeader=Secure .gov websites use HTTPS
 banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.

@@ -239,6 +239,8 @@ public enum MessageKey {
   MONTH_LABEL("label.month"),
   NAME_LABEL("label.name"),
   NOTES_LABEL("label.notes"),
+  NOT_FOR_PRODUCTION_BANNER_LINE_1("banner.notForProductionBannerLine1"),
+  NOT_FOR_PRODUCTION_BANNER_LINE_2("banner.notForProductionBannerLine2"),
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),

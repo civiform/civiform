@@ -22,7 +22,7 @@
       },
       "CIVIC_ENTITY_PRODUCTION_URL": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "The URL to the civic entity's production CiviForm site.",
+        "description": "The URL to the civic entity's production CiviForm site. Providing this on a staging site will add a banner indicating applicants shouldn't submit real applications, but instead submit them at the link provided",
         "type": "string",
         "required": false
       },

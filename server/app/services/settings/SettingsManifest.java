@@ -56,7 +56,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
-  /** The URL to the civic entity's production CiviForm site. */
+  /**
+   * The URL to the civic entity's production CiviForm site. Providing this on a staging site will
+   * add a banner indicating applicants shouldn't submit real applications, but instead submit them
+   * at the link provided
+   */
   public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
     return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
   }
@@ -984,7 +988,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "CIVIC_ENTITY_PRODUCTION_URL",
-                      "The URL to the civic entity's production CiviForm site.",
+                      "The URL to the civic entity's production CiviForm site. Providing this on a"
+                          + " staging site will add a banner indicating applicants shouldn't submit"
+                          + " real applications, but instead submit them at the link provided",
                       /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
