@@ -564,3 +564,12 @@ banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
 banner.httpsSectionHeader=Websyadyada amniga ah ee .gov waxay isticmaalaan HTTPS
 banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxaad si amni ah ugu xidhan tahay websaydka .gov. Keliya ku wadaag macluumaadka xasaasiga ah websaydyada rasmiga ah, ee amniga ah.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
