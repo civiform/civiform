@@ -46,6 +46,7 @@ public final class HtmlBundle {
   private Optional<String> faviconURL = Optional.empty();
   private JsBundle jsBundle = null;
 
+  private Optional<DivTag> pageNotProductionBannerTag = Optional.empty();
   private final ArrayList<String> bodyStyles = new ArrayList<>();
   private final ArrayList<Tag> footerContent = new ArrayList<>();
   private final ArrayList<ScriptTag> footerScripts = new ArrayList<>();
@@ -65,6 +66,15 @@ public final class HtmlBundle {
   public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
     this.request = checkNotNull(request);
     this.viewUtils = checkNotNull(viewUtils);
+  }
+
+  /**
+   * Set the optional not production banner. This can only be set to one element. It will be placed
+   * as the FIRST child of the body if there is content to render.
+   */
+  public HtmlBundle addPageNotProductionBanner(Optional<DivTag> pageNotProductionBannerTag) {
+    this.pageNotProductionBannerTag = pageNotProductionBannerTag;
+    return this;
   }
 
   public HtmlBundle addBodyStyles(String... styles) {
@@ -174,9 +184,11 @@ public final class HtmlBundle {
 
   /** The page body contains: - header - main - footer */
   private BodyTag renderBody() {
-    BodyTag bodyTag = j2html.TagCreator.body().with(renderHeader()).with(renderMain());
-    bodyTag.with(renderModals());
-    bodyTag.with(renderFooter());
+    BodyTag bodyTag = j2html.TagCreator.body();
+
+    pageNotProductionBannerTag.ifPresent(bodyTag::with);
+
+    bodyTag.with(renderHeader(), renderMain(), renderModals(), renderFooter());
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));

@@ -56,6 +56,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
+  /** The URL to the civic entity's production CiviForm site. */
+  public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
+    return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
+  }
+
   /**
    * The URL of a 32x32 or 16x16 pixel
    * [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO
@@ -975,6 +980,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
                       /* isRequired= */ true,
+                      SettingType.STRING,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "CIVIC_ENTITY_PRODUCTION_URL",
+                      "The URL to the civic entity's production CiviForm site.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(

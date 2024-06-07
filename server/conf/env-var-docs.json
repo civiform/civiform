@@ -20,6 +20,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_PRODUCTION_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The URL to the civic entity's production CiviForm site.",
+        "type": "string",
+        "required": false
+      },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
