@@ -56,13 +56,12 @@ test.describe('Admin question list', () => {
     // it should be on top.
     await adminQuestions.createNewVersion(questionOnePublishedText)
     // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
-    const questionOneDraftText = `${questionOnePublishedText} new version`
     await expectQuestionListElements(adminQuestions, [
-      questionOneDraftText + '\n',
+      'question list test question one new version\n',
       'question list test question two\n',
     ])
     await expectQuestionBankElements(programName, adminPrograms, [
-      questionOneDraftText + '\n',
+      'question list test question one new version\n',
       'question list test question two\n',
     ])
 
@@ -73,14 +72,14 @@ test.describe('Admin question list', () => {
       questionText: questionThreePublishedText,
     })
     await expectQuestionListElements(adminQuestions, [
-      questionThreePublishedText + '\n',
-      questionOneDraftText + '\n',
-      questionTwoPublishedText + '\n',
+      'question list test question three\n',
+      'question list test question one new version\n',
+      'question list test question two\n',
     ])
     await expectQuestionBankElements(programName, adminPrograms, [
-      questionThreePublishedText + '\n',
-      questionOneDraftText + '\n',
-      questionTwoPublishedText + '\n',
+      'question list test question three\n',
+      'question list test question one new version\n',
+      'question list test question two\n',
     ])
   })
 
@@ -282,15 +281,15 @@ test.describe('Admin question list', () => {
     // Check that archived question is still at the bottom after sorting.
     await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual([
-      questionOne + '\n',
-      questionTwo + '\n',
-      questionThreeToBeArchived + '\n',
+      'question list test question one\n',
+      'question list test question two\n',
+      'question list test question three\n',
     ])
     await adminQuestions.sortQuestions('lastmodified-desc')
     expect(await adminQuestions.questionBankNames()).toEqual([
-      questionTwo + '\n',
-      questionOne + '\n',
-      questionThreeToBeArchived + '\n',
+      'question list test question two\n',
+      'question list test question one\n',
+      'question list test question three\n',
     ])
   })
 
@@ -347,12 +346,12 @@ test.describe('Admin question list', () => {
     // Ensure ordering is correct
     await adminQuestions.gotoAdminQuestionsPage()
     expect(await adminQuestions.universalQuestionNames()).toEqual([
-      question2Name + '\n',
-      question1Name + '\n',
+      'universalTestQuestionTwo\n',
+      'universalTestQuestionOne\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
-      question4Name + '\n',
-      question3Name + '\n',
+      'universalTestQuestionFour\n',
+      'universalTestQuestionThree\n',
     ])
     await validateScreenshot(page, 'universal-questions')
 
@@ -364,12 +363,12 @@ test.describe('Admin question list', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     expect(await adminQuestions.universalQuestionNames()).toEqual([
-      question1Name + '\n',
-      question2Name + '\n',
+      'universalTestQuestionOne\n',
+      'universalTestQuestionTwo\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
-      question3Name + '\n',
-      question4Name + '\n',
+      'universalTestQuestionThree\n',
+      'universalTestQuestionFour\n',
     ])
 
     // Make question1 non-universal and question3 universal and confirm that the new values are saved.
@@ -389,33 +388,33 @@ test.describe('Admin question list', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     expect(await adminQuestions.universalQuestionNames()).toEqual([
-      question3Name + '\n',
-      question2Name + '\n',
+      'universalTestQuestionThree\n',
+      'universalTestQuestionTwo\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
-      question1Name + '\n',
-      question4Name + '\n',
+      'universalTestQuestionOne\n',
+      'universalTestQuestionFour\n',
     ])
 
     // Ensure sorting by Admin ID works correctly
     await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.universalQuestionNames()).toEqual([
-      question3Name + '\n',
-      question2Name + '\n',
+      'universalTestQuestionThree\n',
+      'universalTestQuestionTwo\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
       question4Name + '\n',
-      question1Name + '\n',
+      'universalTestQuestionOne\n',
     ])
 
     await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.universalQuestionNames()).toEqual([
-      question2Name + '\n',
-      question3Name + '\n',
+      'universalTestQuestionTwo\n',
+      'universalTestQuestionThree\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
-      question1Name + '\n',
-      question4Name + '\n',
+      'universalTestQuestionOne\n',
+      'universalTestQuestionFour\n',
     ])
   })
 
