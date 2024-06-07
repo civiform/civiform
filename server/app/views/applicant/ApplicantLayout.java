@@ -54,6 +54,7 @@ import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.PageNotProductionBanner;
 import views.dev.DebugContent;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
@@ -81,6 +82,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
+  private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
 
   @Inject
@@ -93,7 +95,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent,
-      AssetsFinder assetsFinder) {
+      AssetsFinder assetsFinder,
+      PageNotProductionBanner pageNotProductionBanner) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -103,6 +106,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.disableDemoModeLogins =
         this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
+    this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
   }
 
   @Override
@@ -148,6 +152,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       HtmlBundle bundle,
       boolean includeAdminLogin,
       Long applicantId) {
+    bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
+
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
