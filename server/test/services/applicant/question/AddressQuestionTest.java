@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.MessageKey;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.geo.ServiceAreaState;
@@ -233,13 +232,12 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        addressQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
+    assertThat(addressQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX))));
   }
 
   @Test
