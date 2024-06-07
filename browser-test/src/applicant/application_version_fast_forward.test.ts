@@ -13,7 +13,7 @@ import {
 import {QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
-test.describe('Application Version Fast Forward', () => {
+test.describe('Application Version Pre Fast-Forward Flow', () => {
   test.beforeEach(async ({request}) => {
     await test.step('Clear database', async () => {
       await request.post('/dev/seed/clear')
@@ -80,6 +80,10 @@ test.describe('Application Version Fast Forward', () => {
 
     /*
       High level overview
+
+      This test captures a multi-state, multi-actor workflow in order to both verify
+      the current behavior and in preparation for the future state when the draft
+      application is automatically fast-forwarded to the latest active version of a program.
 
       - Civiform Admin creates program v1
       - Applicant fills out application to program v1; does not submit
@@ -157,13 +161,19 @@ test.describe('Application Version Fast Forward', () => {
         await applicantActor.gotoApplicantHomePage()
 
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.NotStarted),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
         ).toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.InProgress),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardHeadingLocator(ApplicationStatus.NotStarted),
+          applicantActor.getCardHeadingLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
         ).toBeAttached()
       })
 
@@ -186,14 +196,18 @@ test.describe('Application Version Fast Forward', () => {
         await applicantActor.gotoApplicantHomePage()
 
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.NotStarted),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.InProgress),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatus.InProgress,
+          ApplicationStatusCardGroupName.InProgress,
         )
         await expect(headingLocator).toBeAttached()
 
@@ -205,12 +219,12 @@ test.describe('Application Version Fast Forward', () => {
       await test.step('check program list shows eligible tag', async () => {
         await expect(
           applicantActor.getCardEligibleTagLocator(
-            ApplicationStatus.InProgress,
+            ApplicationStatusCardGroupName.InProgress,
           ),
         ).toBeVisible()
         await expect(
           applicantActor.getCardNotEligibleTagLocator(
-            ApplicationStatus.InProgress,
+            ApplicationStatusCardGroupName.InProgress,
           ),
         ).not.toBeAttached()
       })
@@ -291,14 +305,18 @@ test.describe('Application Version Fast Forward', () => {
         await applicantActor.gotoApplicantHomePage()
 
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.NotStarted),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.InProgress),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatus.InProgress,
+          ApplicationStatusCardGroupName.InProgress,
         )
         await expect(headingLocator).toBeAttached()
         expect(
@@ -316,14 +334,18 @@ test.describe('Application Version Fast Forward', () => {
       await test.step('As applicant - check program list has one in-progress application for program v1', async () => {
         await applicantActor.gotoApplicantHomePage()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.NotStarted),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.InProgress),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatus.InProgress,
+          ApplicationStatusCardGroupName.InProgress,
         )
         await expect(headingLocator).toBeAttached()
         expect(
@@ -331,7 +353,7 @@ test.describe('Application Version Fast Forward', () => {
         ).toBe(programIdV1)
       })
 
-      await test.step('As applicant - fill out application', async () => {
+      await test.step('As applicant - navigate to a question edit page and wait there', async () => {
         await applicantActor.clickApplyProgramButton()
         await applicantActor.gotoEditQuestionPage(Question.A)
         expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
@@ -387,14 +409,18 @@ test.describe('Application Version Fast Forward', () => {
       await test.step('As applicant - check program list has one submitted application for program v1', async () => {
         await applicantActor.gotoApplicantHomePage()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.InProgress),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(ApplicationStatus.Submitted),
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.Submitted,
+          ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatus.Submitted,
+          ApplicationStatusCardGroupName.Submitted,
         )
         await expect(headingLocator).toBeAttached()
 
@@ -406,11 +432,13 @@ test.describe('Application Version Fast Forward', () => {
 
       await test.step('check program list shows eligible tag', async () => {
         await expect(
-          applicantActor.getCardEligibleTagLocator(ApplicationStatus.Submitted),
+          applicantActor.getCardEligibleTagLocator(
+            ApplicationStatusCardGroupName.Submitted,
+          ),
         ).toBeVisible()
         await expect(
           applicantActor.getCardNotEligibleTagLocator(
-            ApplicationStatus.Submitted,
+            ApplicationStatusCardGroupName.Submitted,
           ),
         ).not.toBeAttached()
       })
@@ -435,7 +463,7 @@ test.describe('Application Version Fast Forward', () => {
         ).toBe(programIdV1)
       })
 
-      await test.step('does not see submitted application with questions from program version v2', async () => {
+      await test.step('does not see submitted application with questions from program version v2 or v3', async () => {
         const cardLocator = programAdminActor.getCardLocator()
         await expect(cardLocator).toHaveCount(1)
 
@@ -443,6 +471,10 @@ test.describe('Application Version Fast Forward', () => {
         expect(
           await programAdminActor.parseProgramIdFromLocator(cardButton),
         ).not.toBe(programIdV2)
+
+        expect(
+          await programAdminActor.parseProgramIdFromLocator(cardButton),
+        ).not.toBe(programIdV3)
       })
     })
   })
@@ -713,43 +745,54 @@ class FastForwardApplicantActor {
   }
 
   /**
-   * Get the card list locator for the desired application status
-   * @param {ApplicationStatus} applicationStatus to find
+   * Get the card list locator for the desired application status card group name
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
    * @returns {Locator} Locator to the card list
    */
-  getCardListLocator(applicationStatus: ApplicationStatus): Locator {
-    return this.page.getByRole('list', {name: applicationStatus})
+  getCardListLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+  ): Locator {
+    return this.page.getByRole('list', {name: applicationStatusCardGroupName})
   }
 
   /**
    * Get the locator for program card heading in the desired list
-   * @param {ApplicationStatus} applicationStatus to find
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
    * @returns {Locator} Locator for program card in the desired list
    */
-  getCardHeadingLocator(applicationStatus: ApplicationStatus): Locator {
-    return this.getCardListLocator(applicationStatus).getByRole('heading', {
-      name: this.programName,
-    })
+  getCardHeadingLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+  ): Locator {
+    return this.getCardListLocator(applicationStatusCardGroupName).getByRole(
+      'heading',
+      {
+        name: this.programName,
+      },
+    )
   }
 
   /**
-   * Get the eligibile tag for the desired application status
-   * @param {ApplicationStatus} applicationStatus to find
+   * Get the eligibile tag for the desired application status card group name
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
    * @returns {Locator} Locator to the eligible tag
    */
-  getCardEligibleTagLocator(applicationStatus: ApplicationStatus): Locator {
-    return this.getCardListLocator(applicationStatus).locator(
+  getCardEligibleTagLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+  ): Locator {
+    return this.getCardListLocator(applicationStatusCardGroupName).locator(
       '.cf-eligible-tag',
     )
   }
 
   /**
-   * Get the not eligibile tag for the desired application status
-   * @param {ApplicationStatus} applicationStatus to find
+   * Get the not eligibile tag for the desired application status card group name
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
    * @returns {Locator} Locator to the not eligible tag
    */
-  getCardNotEligibleTagLocator(applicationStatus: ApplicationStatus): Locator {
-    return this.getCardListLocator(applicationStatus).locator(
+  getCardNotEligibleTagLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+  ): Locator {
+    return this.getCardListLocator(applicationStatusCardGroupName).locator(
       '.cf-not-eligible-tag',
     )
   }
@@ -957,7 +1000,7 @@ class FastForwardProgramAdminActor {
 }
 
 /**
- * Test suite infernal definition of a block and its questions configuration
+ * Test suite internal definition of a block and its questions configuration
  */
 interface BlockDefinition {
   block: Block
@@ -991,9 +1034,11 @@ enum Block {
 }
 
 /**
- * List of application statuses used in this test suite
+ * List of heading names used for different groups of application cards used in
+ * this test suite. This is not a really a concrete system-wide term and is mostly
+ * used in relation to what the user sees on the `/programs` page
  */
-enum ApplicationStatus {
+enum ApplicationStatusCardGroupName {
   InProgress = 'In progress',
   NotStarted = 'Not started',
   Submitted = 'Submitted',
