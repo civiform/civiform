@@ -18,6 +18,8 @@ public enum OperatorRightHandType {
   LIST_OF_LONGS,
   LIST_OF_STRINGS,
   LONG,
+  PAIR_OF_DATES,
+  PAIR_OF_LONGS,
   STRING,
-  SERVICE_AREA
+  SERVICE_AREA,
 }

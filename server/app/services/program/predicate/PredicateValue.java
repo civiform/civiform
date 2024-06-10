@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -38,9 +40,7 @@ public abstract class PredicateValue {
   }
 
   public static PredicateValue of(LocalDate value) {
-    return create(
-        String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()),
-        OperatorRightHandType.DATE);
+    return create(toEpochMilliString(value), OperatorRightHandType.DATE);
   }
 
   public static PredicateValue listOfStrings(ImmutableList<String> value) {
@@ -54,6 +54,18 @@ public abstract class PredicateValue {
 
   public static PredicateValue listOfLongs(ImmutableList<Long> value) {
     return create(value.toString(), OperatorRightHandType.LIST_OF_LONGS);
+  }
+
+  public static PredicateValue pairOfDates(LocalDate value1, LocalDate value2) {
+    return create(
+        ImmutableList.of(toEpochMilliString(value1), toEpochMilliString(value2)).toString(),
+        OperatorRightHandType.PAIR_OF_DATES);
+  }
+
+  public static PredicateValue pairOfLongs(long value1, long value2) {
+    return create(
+        ImmutableList.of(String.valueOf(value1), String.valueOf(value2)).toString(),
+        OperatorRightHandType.PAIR_OF_LONGS);
   }
 
   public static PredicateValue serviceArea(String value) {
@@ -91,23 +103,30 @@ public abstract class PredicateValue {
    * @param question the question the predicate is applied to.
    */
   public String toDisplayString(QuestionDefinition question) {
-
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
     // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
-      long storedCents = Long.parseLong(value());
-      long dollars = storedCents / 100;
-      long cents = storedCents % 100;
-      return String.format("$%d.%02d", dollars, cents);
+      if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
+        return splitListString(value())
+            .map(PredicateValue::formatCurrencyString)
+            .collect(Collectors.joining(" and "));
+      }
+      return formatCurrencyString(value());
     }
 
-    // Convert to a human-readable date.
     if (type() == OperatorRightHandType.DATE) {
-      return Instant.ofEpochMilli(Long.parseLong(value()))
-          .atZone(ZoneId.systemDefault())
-          .toLocalDate()
-          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      return formatDateString(value());
+    }
+
+    if (type() == OperatorRightHandType.PAIR_OF_DATES) {
+      return splitListString(value())
+          .map(PredicateValue::formatDateString)
+          .collect(Collectors.joining(" and "));
+    }
+
+    if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
+      return splitListString(value()).collect(Collectors.joining(" and "));
     }
 
     // For all other "simple" questions use the stored value directly.
@@ -122,9 +141,7 @@ public abstract class PredicateValue {
     // evaluation.
     MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
     if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-      return Splitter.on(", ")
-          // Un quote-escape each value.
-          .splitToStream(value().substring(1, value().length() - 1))
+      return splitListString(value())
           .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
           .collect(toImmutableList())
           .toString();
@@ -132,11 +149,38 @@ public abstract class PredicateValue {
     return parseMultiOptionIdToText(multiOptionQuestion, value());
   }
 
+  /**
+   * Splits a List in its toString format (e.g. "[123, 456]" or "[abc, def]" to a stream of strings
+   * (e.g. "123", "456" or "abc", "def"). The strings can be further parsed to an expected type
+   * (e.g. long).
+   */
+  private static Stream<String> splitListString(String listString) {
+    return Splitter.on(", ").splitToStream(listString.substring(1, listString.length() - 1));
+  }
+
   private static String parseMultiOptionIdToText(
       MultiOptionQuestionDefinition question, String id) {
     return question
         .getOptionAdminNameForId(Long.parseLong(id.substring(1, id.length() - 1)))
         .orElse("<obsolete>");
+  }
+
+  private static String toEpochMilliString(LocalDate value) {
+    return String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
+  }
+
+  private static String formatCurrencyString(String value) {
+    long storedCents = Long.parseLong(value);
+    long dollars = storedCents / 100;
+    long cents = storedCents % 100;
+    return String.format("$%d.%02d", dollars, cents);
+  }
+
+  private static String formatDateString(String value) {
+    return Instant.ofEpochMilli(Long.parseLong(value))
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
   }
 
   /**

@@ -26,16 +26,12 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -50,7 +46,6 @@ import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
-import services.program.predicate.OperatorRightHandType;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -304,18 +299,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                               BaseStyles.FORM_LABEL_TEXT_COLOR)
                           .withText(
                               "Enter a list of comma-separated values. For example, \"v1,v2,v3\".")
-                          .withData("question-id", String.valueOf(questionDefinition.getId())))
-                  .with(
-                      div("Enter two comma-separated or dash-separated values. For example"
-                              + " \"18,30\" or \"18-30\". The condition will become true on the"
-                              + " applicant's birthday for the first age, and will become false on"
-                              + " the applicant's birthday for the second age.")
-                          .withClasses(
-                              ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
-                              "hidden",
-                              "text-xs",
-                              "pb-4",
-                              BaseStyles.FORM_LABEL_TEXT_COLOR)
                           .withData("question-id", String.valueOf(questionDefinition.getId()))));
     }
 
@@ -707,7 +690,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
           .with(select.getSelectTag())
           .withData("question-id", String.valueOf(questionDefinition.getId()));
     } else if (questionDefinition.getQuestionType().isMultiOptionType()) {
-
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
@@ -749,6 +731,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
         assertLeafOperationNode(maybeLeafNode);
 
+    FormattedPredicateValue formattedValue =
+        FormattedPredicateValue.fromLeafNode(maybeLeafOperationNode);
+    boolean hasOneValue = formattedValue.isSingleValue();
+
     return valueField
         .withData("question-id", String.valueOf(questionDefinition.getId()))
         .with(
@@ -756,65 +742,25 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .setFieldName(
                     String.format(
                         "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
-                .setValue(
-                    maybeLeafOperationNode.map(
-                        leafNode ->
-                            formatPredicateValue(leafNode.scalar(), leafNode.comparedValue())))
+                .setValue(formattedValue.mainValue())
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                .getInputTag());
-  }
-
-  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
-    String value = predicateValue.value();
-    OperatorRightHandType predicateType = predicateValue.type();
-    switch (scalar.toScalarType()) {
-      case CURRENCY_CENTS:
-        long storedCents = Long.parseLong(value);
-        long dollars = storedCents / 100;
-        long cents = storedCents % 100;
-        return String.format("%d.%02d", dollars, cents);
-      case DATE:
-        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
-          return formatListOfLongs(value);
-        }
-        if (predicateType == OperatorRightHandType.LONG
-            || predicateType == OperatorRightHandType.DOUBLE) {
-          return value;
-        }
-        return Instant.ofEpochMilli(Long.parseLong(value))
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      case LONG:
-        if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
-          return formatListOfLongs(value);
-        }
-        return value;
-      case LIST_OF_STRINGS:
-      case STRING:
-        if (predicateType == OperatorRightHandType.LIST_OF_STRINGS) {
-          // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-          return Splitter.on(", ")
-              // Remove opening and closing brackets
-              .splitToStream(value.substring(1, value.length() - 1))
-              // Remove quotes
-              .map(item -> item.substring(1, item.length() - 1))
-              // Join to CSV
-              .collect(Collectors.joining(","));
-        }
-        return predicateValue.valueWithoutSurroundingQuotes();
-      default:
-        throw new RuntimeException(String.format("Unknown scalar type: %s", scalar.toScalarType()));
-    }
-  }
-
-  private static String formatListOfLongs(String value) {
-    // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
-    return Splitter.on(", ")
-        // Remove opening and closing brackets
-        .splitToStream(value.substring(1, value.length() - 1))
-        // Join to CSV
-        .collect(Collectors.joining(","));
+                .getInputTag())
+        .with(
+            div()
+                .withClasses(
+                    ReferenceClasses.PREDICATE_VALUE_SECOND_INPUT_CONTAINER,
+                    iff(hasOneValue, "hidden"))
+                .with(div("and").withClasses("text-center"))
+                .with(
+                    FieldWithLabel.input()
+                        .setFieldName(
+                            String.format(
+                                "group-%d-question-%d-predicateSecondValue",
+                                groupId, questionDefinition.getId()))
+                        .setValue(formattedValue.secondValue())
+                        .setDisabled(hasOneValue)
+                        .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
+                        .getInputTag()));
   }
 
   @Override

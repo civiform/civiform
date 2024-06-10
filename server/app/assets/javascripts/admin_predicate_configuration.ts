@@ -102,7 +102,7 @@ class AdminPredicateConfiguration {
             if (input.checked) {
               hasCheckedOption = true
             }
-          } else if (input.value == '') {
+          } else if (!input.disabled && input.value == '') {
             hasValueMissing = true
           }
         })
@@ -221,14 +221,6 @@ class AdminPredicateConfiguration {
       ),
     )
 
-    // Each value input has its own help text
-    const betweenHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-between-help-text`,
-    )
-    betweenHelpTexts.forEach((div: Element) =>
-      div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
-    )
-
     this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
@@ -270,6 +262,21 @@ class AdminPredicateConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
+    // Show/hide the second value boxes based on the selected operator
+    const oneValueOnly = !(
+      operatorValue === 'BETWEEN' || operatorValue === 'AGE_BETWEEN'
+    )
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll(
+        `[data-question-id="${questionId}"] .cf-predicate-value-second-input-container`,
+      )
+      .forEach((div) => {
+        div.classList.toggle('hidden', oneValueOnly)
+        assertNotNull(div.querySelector('input')).disabled = oneValueOnly
+      })
+
+    // Configure all input boxes
     document
       .querySelector('#predicate-config-value-row-container')!
       .querySelectorAll(`[data-question-id="${questionId}"] input`)
@@ -333,13 +340,12 @@ class AdminPredicateConfiguration {
           operatorValue === 'AGE_OLDER_THAN' ||
           operatorValue === 'AGE_YOUNGER_THAN'
         ) {
-          // Age-related operators should have number input value
+          // We allow decimals for these operators
           valueInput.setAttribute('type', 'number')
-          // We should allow for decimals to account for month intervals
           valueInput.setAttribute('step', '.01')
         } else if (operatorValue === 'AGE_BETWEEN') {
-          // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
-          valueInput.setAttribute('type', 'text')
+          valueInput.setAttribute('step', '1')
+          valueInput.setAttribute('type', 'number')
         } else {
           valueInput.setAttribute('type', 'date')
         }
