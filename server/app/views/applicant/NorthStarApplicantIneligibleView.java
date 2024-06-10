@@ -81,7 +81,6 @@ public class NorthStarApplicantIneligibleView extends NorthStarApplicantBaseView
     String goBackHref =
         applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
     context.setVariable("goBackHref", goBackHref);
-    System.out.println("Go back URL:" + goBackHref);
 
     return templateEngine.process("applicant/IneligibleTemplate", context);
   }
