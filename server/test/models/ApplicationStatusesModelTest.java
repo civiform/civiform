@@ -3,12 +3,8 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.Optional;
 import java.util.Random;
-import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicationStatusDefinitionsRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.StatusDefinitions;
@@ -20,12 +16,6 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .build();
-  ApplicationStatusDefinitionsRepository repo;
-
-  @Before
-  public void setupStatusRepository() {
-    repo = instanceOf(ApplicationStatusDefinitionsRepository.class);
-  }
 
   @Test
   public void canAddActiveApplicationStatuses() {
@@ -40,12 +30,11 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
         new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
-    Optional<ApplicationStatusesModel> mayBeStatus = repo.lookupActiveStatuDefinitions(programName);
+    applicationStatusesModel.refresh();
     // assert
-    assertThat(mayBeStatus).isNotEmpty();
-    ApplicationStatusesModel applicationStatusesModel1 = mayBeStatus.get();
+    assertThat(applicationStatusesModel).isNotNull();
     checkApplicationStatusRow(
-        applicationStatusesModel1, programName, "Approved", StatusLifecycleStage.ACTIVE);
+        applicationStatusesModel, programName, "Approved", StatusLifecycleStage.ACTIVE);
   }
 
   @Test
@@ -60,14 +49,11 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
         new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
-    List<ApplicationStatusesModel> mayBeStatuses =
-        repo.lookupListOfObsoleteStatusDefinitions(programName);
+    applicationStatusesModel.refresh();
 
-    assertThat(mayBeStatuses).isNotEmpty();
-    assertThat(mayBeStatuses.size()).isEqualTo(1);
-    ApplicationStatusesModel applicationStatusesModel1 = mayBeStatuses.get(0);
+    assertThat(applicationStatusesModel).isNotNull();
     checkApplicationStatusRow(
-        applicationStatusesModel1, programName, "Approved", StatusLifecycleStage.OBSOLETE);
+        applicationStatusesModel, programName, "Approved", StatusLifecycleStage.OBSOLETE);
   }
 
   public void checkApplicationStatusRow(
