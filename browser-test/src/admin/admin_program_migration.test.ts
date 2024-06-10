@@ -95,7 +95,13 @@ test.describe('program migration', () => {
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
   })
 
-  test('import a program', async ({page, adminProgramMigration}) => {
+  test('import a program', async ({
+    page,
+    adminProgramMigration,
+    adminPrograms,
+  }) => {
+    const programName = 'Import Sample Program'
+
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_migration_enabled')
@@ -110,7 +116,10 @@ test.describe('program migration', () => {
       )
       await adminProgramMigration.submitProgramJSON(sampleJSON)
 
-      await adminProgramMigration.expectProgramImported('Import Sample Program')
+      await adminProgramMigration.expectProgramImported(programName)
+      await expect(
+        page.getByRole('button', {name: 'Save Program'}),
+      ).toBeEnabled()
       // The import page currently shows question IDs, so this screenshot needs
       // to be based on data that comes from a pre-created JSON file instead of
       // a runtime-downloaded JSON file, as the IDs could change at runtime.
@@ -121,6 +130,9 @@ test.describe('program migration', () => {
         'import-page-with-data',
         /* fullPage= */ false,
       )
+
+      await adminProgramMigration.saveProgram()
+      await adminPrograms.expectProgramExist(programName, 'desc')
     })
   })
 
@@ -204,7 +216,30 @@ test.describe('program migration', () => {
 
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
+
+      // replace the admin name to avoid collision and title so can confirm new program was imported
+      downloadedProgram = downloadedProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-2',
+      )
+      downloadedProgram = downloadedProgram.replace(
+        'Comprehensive Sample Program',
+        'Comprehensive Sample Program 2',
+      )
+
       await adminProgramMigration.submitProgramJSON(downloadedProgram)
+
+      // Assert the new title and admin name are shown
+      await expect(
+        page.getByRole('heading', {
+          name: 'Program name: Comprehensive Sample Program 2',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Admin name: comprehensive-sample-program-2',
+        }),
+      ).toBeVisible()
 
       // Assert all the blocks are shown
       await expect(page.getByRole('heading', {name: 'Screen 1'})).toBeVisible()
@@ -226,6 +261,14 @@ test.describe('program migration', () => {
       // Assert all the questions are shown
       await expect(page.getByText('Question ID:')).toHaveCount(17)
       // TODO(#7087): Once we can import the questions, assert that more question information is shown.
+    })
+
+    await test.step('save the imported program', async () => {
+      await adminProgramMigration.saveProgram()
+      await adminPrograms.expectProgramExist(
+        'Comprehensive Sample Program 2',
+        'desc',
+      )
     })
   })
 })

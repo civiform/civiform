@@ -95,4 +95,9 @@ export class AdminProgramMigration {
       this.page.getByRole('heading', {name: 'Program name: ' + programName}),
     ).toBeVisible()
   }
+
+  async saveProgram() {
+    await this.page.getByRole('button', {name: 'Save Program'}).click()
+    await waitForPageJsLoad(this.page)
+  }
 }

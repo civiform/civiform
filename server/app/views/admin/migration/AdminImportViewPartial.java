@@ -55,7 +55,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .withId(PROGRAM_DATA_ID)
             .with(
                 h3("Program name: " + program.localizedName().getDefault()),
-                p("Admin name: " + program.adminName()));
+                h4("Admin name: " + program.adminName()));
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
