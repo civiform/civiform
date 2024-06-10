@@ -217,11 +217,12 @@ test.describe('program migration', () => {
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
 
-      // replace the admin name to avoid collision and title so can confirm new program was imported
+      // replace the admin name to avoid collision
       downloadedProgram = downloadedProgram.replace(
         'comprehensive-sample-program',
         'comprehensive-sample-program-2',
       )
+      // replace the program title so can confirm new program was imported
       downloadedProgram = downloadedProgram.replace(
         'Comprehensive Sample Program',
         'Comprehensive Sample Program 2',

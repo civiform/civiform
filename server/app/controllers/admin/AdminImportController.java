@@ -139,7 +139,6 @@ public class AdminImportController extends CiviFormController {
             programMigrationWrapper.getProgram(), versionRepository.getDraftVersionOrCreate());
     programRepository.insertProgramSync(programModel);
 
-    // render with success toast
     return ok(adminImportView.render(request));
   }
 

@@ -77,7 +77,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 div()
                     .with(submitButton("Save Program").withClass(ButtonStyles.SOLID_BLUE))
                     .withClasses("flex"))
-            // create a real route here
             .withAction(routes.AdminImportController.saveProgram().url());
 
     return programDiv.with(hiddenForm);

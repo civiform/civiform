@@ -92,7 +92,6 @@ public class AdminExportController extends CiviFormController {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
-
     Form<AdminProgramExportForm> form =
         formFactory
             .form(AdminProgramExportForm.class)
