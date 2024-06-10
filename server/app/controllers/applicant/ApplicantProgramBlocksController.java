@@ -65,6 +65,7 @@ import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarAddressCorrectionBlockView;
+import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -89,6 +90,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
+  private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
@@ -112,6 +114,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       SettingsManifest settingsManifest,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       IneligibleBlockView ineligibleBlockView,
+      NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
@@ -128,6 +131,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
+    this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
@@ -720,6 +724,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of());
               }
+
+              System.out.println("ssandbekkhaug updateWithApplicantID");
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                ProgramDefinition programDefinition;
+                try {
+                  programDefinition = programService.getFullProgramDefinition(programId);
+                } catch (ProgramNotFoundException e) {
+                  this.handleUpdateExceptions(e);
+                  return renderErrorOrRedirectToRequestedPage(
+                      request,
+                      profile,
+                      applicantId,
+                      programId,
+                      blockId,
+                      applicantStage.toCompletableFuture().join(),
+                      inReview,
+                      applicantRequestedAction,
+                      readOnlyApplicantProgramService);
+                }
+
+                NorthStarApplicantIneligibleView.Params params =
+                    NorthStarApplicantIneligibleView.Params.builder()
+                        .setRequest(request)
+                        .setApplicantId(applicantId)
+                        .setProfile(profile)
+                        .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
+                        .setProgramDefinition(programDefinition)
+                        .setRoApplicantProgramService(readOnlyApplicantProgramService)
+                        .setMessages(messagesApi.preferred(request))
+                        .build();
+                return CompletableFuture.completedFuture(
+                    ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+              }
+
               return applicantService
                   .stageAndUpdateIfValid(
                       applicantId,
@@ -819,6 +857,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
+    System.out.println("ssandbekkhaug render error");
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -896,6 +935,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
+        System.out.println("ssandbekkhaug APBC is ineligible"); // hit
         return supplyAsync(
             () ->
                 ok(
@@ -1166,6 +1206,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Throwable cause = throwable.getCause();
       if (cause instanceof SecurityException) {
         return unauthorized();
+      } else if (cause instanceof ProgramNotFoundException) {
+        logger.error("Program not found", cause);
+        return badRequest("Program not found");
       } else if (cause instanceof ApplicantNotFoundException
           || cause instanceof IllegalArgumentException
           || cause instanceof PathNotInBlockException

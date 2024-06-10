@@ -42,6 +42,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
@@ -62,6 +63,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final NorthStarApplicantProgramSummaryView northStarSummaryView;
+  private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
@@ -75,6 +77,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       NorthStarApplicantProgramSummaryView northStarSummaryView,
+      NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
@@ -88,6 +91,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.northStarSummaryView = checkNotNull(northStarSummaryView);
+    this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -317,6 +321,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
+    System.out.println("ssandbekkhaug submit internal");
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletableFuture<ApplicationModel> submitAppFuture =
@@ -327,6 +332,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
     return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
             (v) -> {
@@ -371,14 +378,32 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
 
-                    return ok(
-                        ineligibleBlockView.render(
-                            request,
-                            submittingProfile,
-                            roApplicantProgramService,
-                            messagesApi.preferred(request),
-                            applicantId,
-                            programDefinition));
+                    System.out.println("ssandbekkhaug about to render from Review Controller");
+
+                    if (settingsManifest.getNorthStarApplicantUi(request)) {
+                      System.out.println("ssandbekkhaug try North Star");
+                      NorthStarApplicantIneligibleView.Params params =
+                          NorthStarApplicantIneligibleView.Params.builder()
+                              .setRequest(request)
+                              .setApplicantId(applicantId)
+                              .setProfile(submittingProfile)
+                              .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                              .setProgramDefinition(programDefinition)
+                              .setRoApplicantProgramService(roApplicantProgramService)
+                              .setMessages(messagesApi.preferred(request))
+                              .build();
+                      return ok(northStarApplicantIneligibleView.render(params))
+                          .as(Http.MimeTypes.HTML);
+                    } else {
+                      return ok(
+                          ineligibleBlockView.render(
+                              request,
+                              submittingProfile,
+                              roApplicantProgramService,
+                              messagesApi.preferred(request),
+                              applicantId,
+                              programDefinition));
+                    }
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
