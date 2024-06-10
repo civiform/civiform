@@ -373,7 +373,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     System.out.println("ssandbekkhaug about to render from Review Controller");
 
                     if (settingsManifest.getNorthStarApplicantUi(request)) {
-                      System.out.println("ssandbekkhaug try North Star");
                       NorthStarApplicantIneligibleView.Params params =
                           NorthStarApplicantIneligibleView.Params.builder()
                               .setRequest(request)
