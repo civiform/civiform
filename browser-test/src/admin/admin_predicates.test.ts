@@ -506,6 +506,8 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
+      questionText: '[currency](example.com) *question*',
+      markdown: true,
     })
     await adminQuestions.addNumberQuestion({questionName: 'number-question'})
     await adminQuestions.addTextQuestion({questionName: 'text-question'})
@@ -572,7 +574,7 @@ test.describe('create and edit predicates', () => {
       '"date-question" date is earlier than 2021-01-01',
     )
     expect(predicateDisplay).toContain(
-      '"currency-question" currency is less than $20.00',
+      '"currency question" currency is less than $20.00',
     )
     expect(predicateDisplay).toContain(
       '"date-question" date is earlier than 2022-02-02',
