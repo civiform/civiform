@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.11.0",
+      "commons-net" % "commons-net" % "3.11.1",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
