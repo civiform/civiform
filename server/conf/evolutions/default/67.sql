@@ -1,10 +1,11 @@
 # --- !Ups
-CREATE TABLE IF NOT EXISTS application_statuses( id BIGSERIAL PRIMARY KEY NOT NULL,
-                                                 program_name varchar not null,
-                                                 status_definitions jsonb not null,
-                                                 status_lifecycle_stage varchar not null,
-                                                 create_time timestamp
+CREATE TABLE IF NOT EXISTS application_statuses (
+                                                  id BIGSERIAL PRIMARY KEY NOT NULL,
+                                                  program_name VARCHAR NOT NULL,
+                                                  status_definitions JSONB NOT NULL,
+                                                  status_lifecycle_stage VARCHAR NOT NULL,
+                                                  create_time TIMESTAMP
 );
 
 # --- !Downs
-drop table if exists application_statuses cascade;
+DROP TABLE IF EXISTS application_statuses CASCADE;

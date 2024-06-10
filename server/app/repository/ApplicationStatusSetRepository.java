@@ -9,15 +9,15 @@ import models.ApplicationStatusesModel;
 import models.StatusLifecycleStage;
 
 /** A repository class used to interact with the application_statuses table. */
-public final class ApplicationStatusRepository {
+public final class ApplicationStatusSetRepository {
   private final Database database;
 
   @Inject
-  public ApplicationStatusRepository() {
+  public ApplicationStatusSetRepository() {
     this.database = DB.getDefault();
   }
 
-  public Optional<ApplicationStatusesModel> lookupActiveStatus(String programName) {
+  public Optional<ApplicationStatusesModel> lookupActiveStatuDefinitions(String programName) {
     return database
         .find(ApplicationStatusesModel.class)
         .setLabel("ApplicationStatusesModel.findByProgramName")
@@ -28,7 +28,7 @@ public final class ApplicationStatusRepository {
         .findOneOrEmpty();
   }
 
-  public List<ApplicationStatusesModel> lookupAllObsoleteStatuses(String programName) {
+  public List<ApplicationStatusesModel> lookupListOfObsoleteStatusDefinitions(String programName) {
     return database
         .find(ApplicationStatusesModel.class)
         .setLabel("ApplicationStatusesModel.findByProgramName")
