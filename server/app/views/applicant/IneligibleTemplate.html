@@ -1,0 +1,51 @@
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div role="main" class="margin-2">
+      <h1>
+        <th:block
+          th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
+        ></th:block>
+      </h1>
+
+      <div th:each="question : ${questions}" class="margin-y-2">
+        <li th:text="${question.getQuestionText()}"></li>
+      </div>
+
+      <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
+      <p
+        th:utext="#{content.eligibilityCriteria(${programLinkHtml})}"
+        class="margin-y-2"
+      ></p>
+
+      <p
+        th:text="#{content.changeAnswersForEligibility}"
+        class="margin-y-2"
+      ></p>
+
+      <div>
+        <a
+          class="usa-button"
+          id="another-program"
+          th:text="#{link.applyToAnotherProgram}"
+          th:href="${applyHref}"
+        >
+        </a>
+        <a
+          class="usa-button"
+          id="go-back"
+          th:text="#{button.goBackAndEdit}"
+          th:href="${goBackHref}"
+        >
+        </a>
+      </div>
+    </div>
+    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
