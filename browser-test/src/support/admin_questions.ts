@@ -215,7 +215,11 @@ export class AdminQuestions {
     return this.selectQuestionTableRow(questionName) + ' ' + selector
   }
 
-  async expectDraftQuestionExist(questionName: string, questionText = '', markdown = false) {
+  async expectDraftQuestionExist(
+    questionName: string,
+    questionText = '',
+    markdown = false,
+  ) {
     await this.gotoAdminQuestionsPage()
     const questionRowText = await this.page.innerText(
       this.selectQuestionTableRow(questionName),

@@ -619,7 +619,7 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
       questionText: '*currency-question*',
-      markdown: true
+      markdown: true,
     })
 
     const programName = 'Test multiple question and value predicate config'
