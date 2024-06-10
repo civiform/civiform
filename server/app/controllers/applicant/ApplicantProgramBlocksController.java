@@ -724,6 +724,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of());
               }
+
+              System.out.println("ssandbekkhaug updateWithApplicantID");
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                ProgramDefinition programDefinition;
+                try {
+                  programDefinition = programService.getFullProgramDefinition(programId);
+                } catch (ProgramNotFoundException e) {
+                  this.handleUpdateExceptions(e);
+                  return renderErrorOrRedirectToRequestedPage(
+                      request,
+                      profile,
+                      applicantId,
+                      programId,
+                      blockId,
+                      applicantStage.toCompletableFuture().join(),
+                      inReview,
+                      applicantRequestedAction,
+                      readOnlyApplicantProgramService);
+                }
+
+                NorthStarApplicantIneligibleView.Params params =
+                    NorthStarApplicantIneligibleView.Params.builder()
+                        .setRequest(request)
+                        .setApplicantId(applicantId)
+                        .setProfile(profile)
+                        .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
+                        .setProgramDefinition(programDefinition)
+                        .setRoApplicantProgramService(readOnlyApplicantProgramService)
+                        .setMessages(messagesApi.preferred(request))
+                        .build();
+                return CompletableFuture.completedFuture(
+                    ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+              }
+
               return applicantService
                   .stageAndUpdateIfValid(
                       applicantId,
@@ -823,6 +857,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
+    System.out.println("ssandbekkhaug render error");
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));

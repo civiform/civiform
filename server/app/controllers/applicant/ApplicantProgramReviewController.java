@@ -321,6 +321,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
+    System.out.println("ssandbekkhaug submit internal");
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletableFuture<ApplicationModel> submitAppFuture =
