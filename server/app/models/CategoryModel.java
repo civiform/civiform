@@ -29,6 +29,8 @@ public class CategoryModel extends BaseModel {
   @Constraints.Required
   private LocalizedStrings localizedName;
 
+  @Constraints.Required private LifecycleStage lifecycleStage;
+
   @ManyToMany(mappedBy = "categories")
   @JoinTable(
     name = "programs_categories",
@@ -38,10 +40,12 @@ public class CategoryModel extends BaseModel {
 
   public CategoryModel(String defaultName) {
     this.localizedName = LocalizedStrings.withDefaultValue(defaultName);
+    this.lifecycleStage = LifecycleStage.ACTIVE;
   }
 
   public CategoryModel(ImmutableMap<Locale, String> translations) {
     this.localizedName = LocalizedStrings.create(translations);
+    this.lifecycleStage = LifecycleStage.ACTIVE;
   }
 
   public Long getId() {

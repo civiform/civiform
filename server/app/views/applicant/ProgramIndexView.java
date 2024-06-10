@@ -252,22 +252,23 @@ public final class ProgramIndexView extends BaseHtmlView {
         renderCategoryFilterForm(applicantId, request, relevantCategories, selectedCategories));
     }
 
-    // With intake form and no categories selected
-    if (settingsManifest.getIntakeFormEnabled(request)
-        && relevantPrograms.commonIntakeForm().isPresent()
-        && selectedCategories.isEmpty()) {
-      content.with(
+    if (selectedCategories.isEmpty()) {
+      // With intake form
+      if (settingsManifest.getIntakeFormEnabled(request)
+        && relevantPrograms.commonIntakeForm().isPresent()) {
+        content.with(
           findServicesSection(
-              request,
-              messages,
-              personalInfo,
-              relevantPrograms,
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              bundle,
-              profile),
+            request,
+            messages,
+            personalInfo,
+            relevantPrograms,
+            cardContainerStyles,
+            applicantId,
+            preferredLocale,
+            bundle,
+            profile),
           div().withClass("mb-12"));
+      }
 
       if (!relevantPrograms.unapplied().isEmpty()) {
         content.with(
@@ -287,8 +288,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             profile));
       }
 
+    // No program categories selected
     } else {
-
       if (!relevantPrograms.unapplied().isEmpty()) {
 
         ImmutableList<ApplicantService.ApplicantProgramData> filteredPrograms =
@@ -317,29 +318,29 @@ public final class ProgramIndexView extends BaseHtmlView {
                 profile)
                 .withId("recommended-programs")
             );
-        }
 
-        ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
-          relevantPrograms.unapplied().stream()
-          .filter(programData -> !filteredPrograms.contains(programData))
-          .collect(ImmutableList.toImmutableList());
+          ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
+            relevantPrograms.unapplied().stream()
+              .filter(programData -> !filteredPrograms.contains(programData))
+              .collect(ImmutableList.toImmutableList());
 
-        if (!otherPrograms.isEmpty()) {
-          content.with(
-            programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_OTHER_PROGRAMS),
-              otherPrograms.size(),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              otherPrograms,
-              MessageKey.BUTTON_APPLY,
-              MessageKey.BUTTON_APPLY_SR,
-              bundle,
-              profile));
+          if (!otherPrograms.isEmpty()) {
+            content.with(
+              programCardViewRenderer.programCardsSection(
+                request,
+                messages,
+                personalInfo,
+                Optional.of(MessageKey.TITLE_OTHER_PROGRAMS),
+                otherPrograms.size(),
+                cardContainerStyles,
+                applicantId,
+                preferredLocale,
+                otherPrograms,
+                MessageKey.BUTTON_APPLY,
+                MessageKey.BUTTON_APPLY_SR,
+                bundle,
+                profile));
+          }
         }
       }
 
