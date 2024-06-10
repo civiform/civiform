@@ -9,11 +9,11 @@ import models.ApplicationStatusesModel;
 import models.StatusLifecycleStage;
 
 /** A repository class used to interact with the application_statuses table. */
-public final class ApplicationStatusSetRepository {
+public final class ApplicationStatusDefinitionsRepository {
   private final Database database;
 
   @Inject
-  public ApplicationStatusSetRepository() {
+  public ApplicationStatusDefinitionsRepository() {
     this.database = DB.getDefault();
   }
 
