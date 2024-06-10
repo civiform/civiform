@@ -7,26 +7,25 @@ import com.google.common.collect.ImmutableList;
  * AdminImportView}.
  */
 public final class AdminProgramImportForm {
-  public static final String PROGRAM_JSON_FIELD =
-      "programJson"; // why did changing this to "programJSON" break it?
+  public static final String PROGRAM_JSON_FIELD = "programJSON";
   public static final ImmutableList<String> FIELD_NAMES = ImmutableList.of(PROGRAM_JSON_FIELD);
 
-  private String programJson;
+  private String programJSON;
 
   @SuppressWarnings("unused") // Used by FormFactory
   public AdminProgramImportForm() {}
 
   @SuppressWarnings("unused") // Used by FormFactory
-  public AdminProgramImportForm(String programJson) {
-    this.programJson = programJson;
+  public AdminProgramImportForm(String programJSON) {
+    this.programJSON = programJSON;
   }
 
-  public String getProgramJson() {
-    return this.programJson;
+  public String getProgramJSON() {
+    return this.programJSON;
   }
 
   @SuppressWarnings("unused") // Used by FormFactory
-  public void setProgramJson(String programJson) {
-    this.programJson = programJson;
+  public void setProgramJSON(String programJSON) {
+    this.programJSON = programJSON;
   }
 }
