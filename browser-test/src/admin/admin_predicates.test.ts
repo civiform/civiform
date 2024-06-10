@@ -574,7 +574,7 @@ test.describe('create and edit predicates', () => {
       '"date-question" date is earlier than 2021-01-01',
     )
     expect(predicateDisplay).toContain(
-      '"currency question" currency is less than $20.00',
+      '"currency-question" currency is less than $20.00',
     )
     expect(predicateDisplay).toContain(
       '"date-question" date is earlier than 2022-02-02',
@@ -618,6 +618,8 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
+      questionText: '*currency-question*',
+      markdown: true
     })
 
     const programName = 'Test multiple question and value predicate config'
