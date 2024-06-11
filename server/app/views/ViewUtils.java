@@ -424,8 +424,8 @@ public final class ViewUtils {
    *     buttons. If the main content has a form, the buttons will already be included with the
    *     form, so no need for the footer.
    * @param triggeringButton The button that triggers the modal.
-   * @param firstButtonText Text for the first footer button.
-   * @param secondButtonText Text for the second footer button.
+   * @param firstButton First footer button.
+   * @param secondButton Second footer button.
    * @return DivTag containing the button that opens the modal and the modal itself.
    */
   public static DivTag makeUSWDSModal(
@@ -434,8 +434,8 @@ public final class ViewUtils {
       String headerText,
       boolean hasFooter,
       ButtonTag triggeringButton,
-      String firstButtonText,
-      String secondButtonText) {
+      ButtonTag firstButton,
+      ButtonTag secondButton) {
     // These are the html element ids
     String modalId = elementIdPrefix + "-modal";
     String headingId = elementIdPrefix + "-heading";
@@ -468,14 +468,13 @@ public final class ViewUtils {
                                             .with(
                                                 li().withClass("usa-button-group__item")
                                                     .with(
-                                                        button(firstButtonText)
-                                                            .withType("button")
+                                                        firstButton
                                                             .withClass("usa-button")
                                                             .attr("data-close-modal")))
                                             .with(
                                                 li().withClass("usa-button-group__item")
                                                     .with(
-                                                        button(secondButtonText)
+                                                        secondButton
                                                             .withType("button")
                                                             .withClass(
                                                                 "usa-button usa-button--unstyled"

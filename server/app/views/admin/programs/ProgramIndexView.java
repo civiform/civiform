@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -108,8 +109,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     // Include all programs in draft in publishAllDraft modal.
     ActiveAndDraftPrograms allPrograms =
         programService.getActiveAndDraftProgramsWithoutQuestionLoad();
-    Optional<Modal> maybePublishModal =
+    ButtonTag publishAllButton =
+        makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
+            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
+    Optional<DivTag> maybePublishModal =
         maybeRenderPublishAllModal(
+            publishAllButton,
             allPrograms,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
             request,
@@ -117,7 +122,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
-
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -131,7 +135,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .getButton()
                             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
                         renderNewProgramButton(),
-                        maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
+                        maybePublishModal.isPresent() ? maybePublishModal.get() : null),
                 div()
                     .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(h2(pageExplanation)),
@@ -182,9 +186,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             (modal) -> {
               htmlBundle.addModals(modal);
             });
-
-    maybePublishModal.ifPresent(htmlBundle::addModals);
-
+    // maybePublishModal.ifPresent(htmlBundle::addMainContent);
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
@@ -325,7 +327,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         .size();
   }
 
-  private Optional<Modal> maybeRenderPublishAllModal(
+  private Optional<DivTag> maybeRenderPublishAllModal(
+      ButtonTag publishAllButton,
       ActiveAndDraftPrograms programs,
       ActiveAndDraftQuestions questions,
       Http.Request request,
@@ -334,8 +337,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
       return Optional.empty();
     }
-
-    String link = routes.AdminProgramController.publish().url();
 
     ImmutableList<QuestionDefinition> sortedDraftQuestions =
         questions.getDraftQuestions().stream()
@@ -349,9 +350,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     String programString = sortedDraftPrograms.size() == 1 ? "program" : "programs";
     String questionString = sortedDraftQuestions.size() == 1 ? "question" : "questions";
 
-    DivTag publishAllModalContent =
+    ContainerTag body =
         div()
-            .withClasses("flex-row", "space-y-6")
             .with(
                 ViewUtils.makeAlert(
                     "Due to the nature of shared questions and versioning, all questions and"
@@ -388,22 +388,33 @@ public final class ProgramIndexView extends BaseHtmlView {
                         !sortedDraftQuestions.isEmpty(),
                         ul().withClasses("list-disc", "list-inside")
                             .with(
-                                each(sortedDraftQuestions, this::renderPublishModalQuestionItem))),
-                div()
-                    .withClasses("flex", "flex-row", "pt-5")
-                    .with(
-                        toLinkButtonForPost(
-                            submitButton("Publish all draft programs and questions")
-                                .withClasses(ButtonStyles.SOLID_BLUE),
-                            link,
-                            request),
-                        button("Cancel")
-                            .withClasses(
-                                ReferenceClasses.MODAL_CLOSE,
-                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY)));
-    ButtonTag publishAllButton =
-        makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
+                                each(sortedDraftQuestions, this::renderPublishModalQuestionItem))));
+    String link = routes.AdminProgramController.publish().url();
+    ButtonTag firstButton =
+        toLinkButtonForPost(
+            submitButton("Publish all draft programs and questions")
+                .withClasses(ButtonStyles.SOLID_BLUE),
+            link,
+            request);
+
+    ButtonTag secondButton =
+        button("Cancel")
+            .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY);
+
+    DivTag publishAllModalContent =
+        div()
+            .withClasses("flex-row", "space-y-6")
+            .with(
+                ViewUtils.makeUSWDSModal(
+                    body,
+                    "publish-all-modal",
+                    "hehe",
+                    true,
+                    publishAllButton,
+                    firstButton,
+                    secondButton));
+
+    /*
     Modal publishAllModal =
         Modal.builder()
             .setModalId("publish-all-programs-modal")
@@ -412,7 +423,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setModalTitle("Do you want to publish all draft programs?")
             .setTriggerButtonContent(publishAllButton)
             .build();
-    return Optional.of(publishAllModal);
+     */
+    return Optional.of(publishAllModalContent);
   }
 
   private LiTag renderPublishModalProgramItem(
