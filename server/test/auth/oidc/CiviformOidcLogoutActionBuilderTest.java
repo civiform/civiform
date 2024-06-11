@@ -21,8 +21,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import models.AccountModel;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -34,6 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
@@ -68,20 +67,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().build();
     JWT jwt = new PlainJWT(claimsSet);
     idToken = jwt.serialize();
-  }
-
-  private Optional<String> getRedirectLocation(RedirectionAction action) {
-    // Unfortunately, the RedirectionAction has almost no useful accessor methods, so we have to use
-    // the `toString()` representation, which looks like:
-    //
-    // #FoundAction# | code: 302 | location: http://dev-oidc:3390/session/end?... |
-    Pattern pattern = Pattern.compile("location: (https?://[^ ]+)");
-    Matcher matcher = pattern.matcher(action.toString());
-    if (matcher.find()) {
-      return Optional.of(matcher.group(1));
-    } else {
-      return Optional.empty();
-    }
   }
 
   Optional<String> queryParamValue(URI uri, String paramName) {
@@ -123,9 +108,9 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");
@@ -166,9 +151,9 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");
@@ -210,9 +195,9 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");
