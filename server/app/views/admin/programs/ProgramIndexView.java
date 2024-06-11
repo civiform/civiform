@@ -186,7 +186,6 @@ public final class ProgramIndexView extends BaseHtmlView {
             (modal) -> {
               htmlBundle.addModals(modal);
             });
-    // maybePublishModal.ifPresent(htmlBundle::addMainContent);
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
@@ -408,22 +407,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                 ViewUtils.makeUSWDSModal(
                     body,
                     "publish-all-modal",
-                    "hehe",
+                    "Do you want to publish all draft programs?",
                     true,
                     publishAllButton,
                     firstButton,
                     secondButton));
-
-    /*
-    Modal publishAllModal =
-        Modal.builder()
-            .setModalId("publish-all-programs-modal")
-            .setLocation(Modal.Location.ADMIN_FACING)
-            .setContent(publishAllModalContent)
-            .setModalTitle("Do you want to publish all draft programs?")
-            .setTriggerButtonContent(publishAllButton)
-            .build();
-     */
     return Optional.of(publishAllModalContent);
   }
 
