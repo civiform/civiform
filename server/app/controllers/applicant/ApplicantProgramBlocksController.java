@@ -725,53 +725,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     /* flashingMap= */ ImmutableMap.of());
               }
 
-              System.out.println("ssandbekkhaug updateWithApplicantID");
-
-              // if (settingsManifest.getNorthStarApplicantUi(request)) {
-              // // if (settingsManifest.getNorthStarApplicantUi(request) && blockId.equals("foo"))
-              // {
-              //   ProgramDefinition programDefinition;
-              //   try {
-              //     programDefinition = programService.getFullProgramDefinition(programId);
-              //   } catch (ProgramNotFoundException e) {
-              //     this.handleUpdateExceptions(e);
-              //     return renderErrorOrRedirectToRequestedPage(
-              //         request,
-              //         profile,
-              //         applicantId,
-              //         programId,
-              //         blockId,
-              //         applicantStage.toCompletableFuture().join(),
-              //         inReview,
-              //         applicantRequestedAction,
-              //         readOnlyApplicantProgramService);
-              //   }
-
-              //   NorthStarApplicantIneligibleView.Params params =
-              //       NorthStarApplicantIneligibleView.Params.builder()
-              //           .setRequest(request)
-              //           .setApplicantId(applicantId)
-              //           .setProfile(profile)
-              //           .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
-              //           .setProgramDefinition(programDefinition)
-              //           .setRoApplicantProgramService(readOnlyApplicantProgramService)
-              //           .setMessages(messagesApi.preferred(request))
-              //           .build();
-              //   return applicantService
-              //     .stageAndUpdateIfValid(
-              //         applicantId,
-              //         programId,
-              //         blockId,
-              //         formData,
-              //         settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
-              //     .thenComposeAsync(
-              //         newReadOnlyApplicantProgramService ->
-              //         CompletableFuture.completedFuture(
-              //
-              // ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML)),
-              //         classLoaderExecutionContext.current());
-              // }
-
               return applicantService
                   .stageAndUpdateIfValid(
                       applicantId,
@@ -968,18 +921,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .build();
           return supplyAsync(
               () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+        } else {
+          return supplyAsync(
+              () ->
+                  ok(
+                      ineligibleBlockView.render(
+                          request,
+                          submittingProfile,
+                          roApplicantProgramService,
+                          messagesApi.preferred(request),
+                          applicantId,
+                          programDefinition)));
         }
-
-        return supplyAsync(
-            () ->
-                ok(
-                    ineligibleBlockView.render(
-                        request,
-                        submittingProfile,
-                        roApplicantProgramService,
-                        messagesApi.preferred(request),
-                        applicantId,
-                        programDefinition)));
       }
     } catch (ProgramNotFoundException e) {
       notFound(e.toString());

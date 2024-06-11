@@ -11,9 +11,17 @@
         ></th:block>
       </h1>
 
-      <div th:each="question : ${questions}" class="margin-y-2">
+      <!-- <div th:each="question : ${questions}" class="margin-y-2">
         <li th:text="${question.getQuestionText()}"></li>
-      </div>
+      </div> -->
+
+      <ul>
+        <li
+          th:each="question : ${questions}"
+          th:text="${question.getQuestionText()}"
+          class="margin-y-2"
+        ></li>
+      </ul>
 
       <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
       <p
@@ -29,6 +37,7 @@
       <div>
         <a
           class="usa-button"
+          role="button"
           id="another-program"
           th:text="#{link.applyToAnotherProgram}"
           th:href="${applyHref}"
@@ -36,6 +45,7 @@
         </a>
         <a
           class="usa-button"
+          role="button"
           id="go-back"
           th:text="#{button.goBackAndEdit}"
           th:href="${goBackHref}"
