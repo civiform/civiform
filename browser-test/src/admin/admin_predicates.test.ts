@@ -618,7 +618,7 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
-      questionText: '*currency-question*',
+      questionText: '*currency question*',
       markdown: true,
     })
 
