@@ -13,8 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
@@ -46,10 +45,9 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(
-      Credentials cred, WebContext context, SessionStore sessionStore) {
-    possiblyModifyConfigBasedOnCred(cred);
-    return super.create(cred, context, sessionStore);
+  public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
+    possiblyModifyConfigBasedOnCred(credentials);
+    return super.create(callContext, credentials);
   }
 
   private void possiblyModifyConfigBasedOnCred(Credentials cred) {

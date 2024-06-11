@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
@@ -116,7 +117,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -158,7 +160,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -201,7 +204,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
