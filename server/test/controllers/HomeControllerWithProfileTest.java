@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
 import services.settings.SettingsManifest;
@@ -47,14 +47,18 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
 
     HomeController controller =
         new HomeController(
             instanceOf(Config.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             languageUtils,
             new ApplicantRoutes());
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();

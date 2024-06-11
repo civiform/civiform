@@ -47,7 +47,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
-    assertThat(fileUploadQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(fileUploadQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -60,7 +60,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFileKeyValue().get()).isEqualTo("file-key");
-    assertThat(fileUploadQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(fileUploadQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test

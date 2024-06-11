@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
+import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
@@ -89,9 +89,17 @@ export class ApplicantQuestions {
   async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
-      mimeType: 'text/plain',
+      mimeType: 'image/png',
       buffer: Buffer.from(text),
     })
+  }
+
+  /** Creates a file with the given size in MB and uploads it to the file upload question. */
+  async answerFileUploadQuestionWithMbSize(mbSize: int) {
+    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    await this.page.setInputFiles('input[type=file]', filePath)
+    unlinkSync(filePath)
   }
 
   async answerIdQuestion(id: string, index = 0) {
@@ -133,6 +141,19 @@ export class ApplicantQuestions {
     await this.validateInputValue(date)
   }
 
+  async answerMemorableDateQuestion(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+    await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
+      label: month,
+    })
+    await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
+  }
+
   async answerTextQuestion(text: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, text)
   }
@@ -155,6 +176,16 @@ export class ApplicantQuestions {
     )
   }
 
+  async editEnumeratorAnswer(
+    existingEntityName: string,
+    newEntityName: string,
+  ) {
+    await this.page.fill(
+      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      newEntityName,
+    )
+  }
+
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
     await this.page.waitForSelector(
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
@@ -170,6 +201,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
@@ -177,6 +209,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   async validateInputTypePresent(type: string) {
@@ -218,7 +251,7 @@ export class ApplicantQuestions {
   }
 
   async clickApplyToAnotherProgramButton() {
-    await this.page.click('button:has-text("Apply to another program")')
+    await this.page.click('text="Apply to another program"')
   }
 
   async expectProgramPublic(programName: string, description: string) {
@@ -412,10 +445,14 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async expectReviewPage() {
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+  async expectReviewPage(northStarEnabled = false) {
+    if (northStarEnabled) {
+      await expect(this.page.locator('h1')).toContainText("Let's get started")
+    } else {
+      await expect(this.page.locator('h2')).toContainText(
+        'Program application summary',
+      )
+    }
   }
 
   async expectConfirmationPage() {
@@ -470,6 +507,11 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
+  async clickGoBackAndEditOnIneligiblePage() {
+    await this.page.click('text="Go back and edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDuplicatesPage() {
     expect(await this.page.innerText('h2')).toContain(
       'There are no changes to save',
@@ -504,9 +546,14 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress ? 'Verify address' : 'No valid address found'
-    expect(await this.page.innerText('h2')).toContain(header)
+  async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
+    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    // Note: If there's only one suggestion, the heading will be "Suggested address"
+    // not "Suggested addresses". But, our browser setup always returns multiple
+    // suggestions so we can safely assert the heading is always "Suggested addresses".
+    await expect(
+      this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
   }
 
   async expectAddressPage() {
@@ -514,7 +561,7 @@ export class ApplicantQuestions {
   }
 
   async selectAddressSuggestion(addressName: string) {
-    await this.page.check(`label:has-text("${addressName}")`)
+    await this.page.click(`label:has-text("${addressName}")`)
   }
 
   async expectQuestionAnsweredOnReviewPage(
@@ -529,9 +576,9 @@ export class ApplicantQuestions {
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
 
-  async submitFromReviewPage() {
+  async submitFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    await this.expectReviewPage()
+    await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
     await this.clickSubmit()
@@ -554,8 +601,10 @@ export class ApplicantQuestions {
 
   async validateQuestionIsOnPage(questionText: string) {
     await expect(
-      this.page.locator('.cf-applicant-question-text'),
-    ).toContainText(questionText)
+      this.page
+        .locator('.cf-applicant-question-text')
+        .filter({hasText: questionText}),
+    ).toBeVisible()
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
@@ -578,6 +627,12 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectRequiredQuestionError(questionLocator: string) {
+    expect(await this.page.innerText(questionLocator)).toContain(
+      'This question is required',
+    )
   }
 
   async expectErrorOnReviewModal() {
@@ -615,5 +670,22 @@ export class ApplicantQuestions {
 
   async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
+  }
+
+  async completeApplicationWithPaiQuestions(
+    programName: string,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+  ) {
+    await this.applyProgram(programName)
+    await this.answerNameQuestion(firstName, lastName, middleName)
+    await this.answerEmailQuestion(email)
+    await this.answerPhoneQuestion(phone)
+    await this.clickNext()
+    await this.submitFromReviewPage()
+    await this.page.click('text=End session')
   }
 }

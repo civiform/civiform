@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም �
 toast.errorMessageOutline=ስህተት: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=ዝጋ
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
 
@@ -58,9 +60,14 @@ button.deleteFile=ሰርዝ
 button.keepFile=ቀጥል
 button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
-button.review=ገምግም
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} ከ{1} ተጠናቅቋል
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
@@ -70,15 +77,15 @@ modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች �
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ወደ ቀድሞው ገጽ መሄድ ይፈልጋሉ?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=ባስገቡት መረጃ ላይ አንዳንድ ስህተቶች አሉ። መቆየት እና መልሶችዎን ማስተካከል ወይስ መልሶችዎን ሳያስቀምጡ ወደ ግምገማ ገጹ መሄድን ይፈልጋሉ?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=ባስገቡት መረጃ ላይ አንዳንድ ስህተቶች አሉ። መቆየት እና መልሶችዎን ማስተካከል ወይስ መልሶችዎን ሳያስቀምጡ ወደ ቀድሞው የጥያቄ ገጽ መሄድን ይፈልጋሉ?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=ሳያስቀምጡ ገጹን መገምገምዎን ይቀጥሉ
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=ሳያስቀምጡ ወደ ቀደሙት ጥያቄዎች ይቀጥሉ
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=ይቆዩ እና መልሶችዎን ያስተካክሉ
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -94,6 +101,8 @@ button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
 button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
 content.submittedDate={0} ገብቷል
 content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
@@ -107,6 +116,18 @@ title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
 title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=ክፍል ተጠናቅቋል
 title.submittedPrograms=የገቡ
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
@@ -125,6 +146,9 @@ banner.clientInfoUpdated=የደንበኛ መረጃ በተሳካ ሁኔታ ተዘ
 banner.clientAcctDeleted=የ«{0}» ደንበኛ መለያ በተሳካ ሁኔታ ተሰርዟል።
 # Message when a user successfully creates a client account.
 banner.newClientCreated=አዲስ ደንበኛ በተሳካ ሁኔታ ተፈጥሯል።
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=ለ{0} እያመለከቱ ነው። ለሌላ ደንበኛ ለማመልከት እየሞከሩ ነው?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=አዲስ ደንበኛ አክሉ
@@ -152,13 +176,27 @@ button.select=ይምረጡ
 button.startApp=ማመልከቻ ይጀምሩ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=መተግበሪያዎችን ይመልከቱ
+# Button to view and add clients
+button.viewAndAddClients=ደንበኛዎችን ይመልከቱ እና ያክሉ
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=አዲሱ ደንበኛዎ {0} ወደ ደንበኛዎ ዝርዝር ውስጥ ተጨምሯል። አሁን ለዚህ ደንበኛ ማመልከቻዎችን ማስገባት መጀመር ይችላሉ።
+# The tooltip of the email input field.
+content.emailTooltip=ደንበኛዎችዎ ስለማመልከቻቸው የሁኔታ ዝማኔዎችን በራስ-ሰር እንዲቀበሉ የኢሜይል አድራሻ ያክሉላቸው። ያለኢሜይል እርስዎ ወይም ማህበረሰብ-ተኮር ድርጅትዎ ለደንበኛዎ ስለዝማኔዎች የማሳወቅ ኃላፊነት ይኖርብዎታል።
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ማመልከቻዎች ገብተዋል
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 ማመልከቻ ገብቷል
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=ለዚህ ደንበኛ የቀረቡ ማመልከቻዎች የሉም፣ ስለዚህ ምንም ማመልከቻዎች አይጠፉም።
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(የኢሜይል አድራሻ የለም)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=እስካሁን አልገቡም
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=ገብተዋል፣ ግን ምንም ማመልከቻ አልገባም
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=ለመጨረሻ ጊዜ ማመልከቻ የገባው በ{0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=የዚህን ደንበኛ መለያ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት?
 
@@ -166,8 +204,10 @@ dialog.deleteConfirmation=የዚህን ደንበኛ መለያ መሰረዝ እ�
 header.acctSettings=የመለያ ቅንብሮች
 # Tab label for getting to the client list page
 header.clientList=የደንበኛ ዝርዝር
+# Label for search
+header.search=ፍለጋ
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=የመለያ ሁኔታ
 # Label above the phone number for each client on the client list.
 label.contactInfo=የእውቂያ መረጃ
@@ -179,6 +219,16 @@ label.dob=የልደት ቀን
 label.dobExample=ለምሳሌ፦ ጃንዋሪ 28፣ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ኢሜይል
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=የልደት ቀን ያስፈልጋል
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=መጠሪያ ስም ያስፈልጋል
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=የመጨረሻ ስም ያስፈልጋል
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ወር
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,19 +245,31 @@ label.searchByDob=በልደት ቀን ይፈልጉ
 label.searchByName=በስም(ዎች) ይፈልጉ
 # The label above the input field for the year of the client birth date.
 label.year=ዓመት
+# Label showing the user when there is no name
+label.unnamedUser=ያልተሰየመ ተጠቃሚ
 
 link.edit=አርትዕ
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=አዲስ ደንበኛ ይምረጡ
 
 # This is the header above the list of clients and the client search.
 title.allClients=ሁሉም ደንበኞች
 # This is the heading above a new client creation form.
 title.createClient=አዲስ ደንበኛን ይፍጠሩ
+# This is the heading above the client editing form.
+title.editClient=የደንበኛ መረጃን ያርትዑ።
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients={0} ደንበኞችን በማሳየት ላይ
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=1 ደንበኛን በማሳየት ላይ
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=ሁሉንም ደንበኞች በማሳየት ላይ
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=የድርጅት አባላት
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=የታመነ አገናኝ - ደንበኞችን ያስተዳድሩ - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮችን ይመልከቱ - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -215,8 +277,12 @@ title.orgMembers=የድርጅት አባላት
 
 button.submit=አስገባ
 button.continue=ቀጥል
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=ይጀምሩ
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=ማመልከቻዎን ለመጀመር ከታች አንድ እርምጃ ይምረጡ። ማስቀመጥ እና በማንኛውም ጊዜ ተመልሰው መምጣት ይችላሉ።
 content.doesNotQualify=ብቁ አይደለም
 link.edit=አርትዕ
 link.answer=መልስ
@@ -224,8 +290,10 @@ content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥ�
 ariaLabel.answer=መልስ {0}
 
 ariaLabel.edit={0}ን አርትዕ
-title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=እንጀምር።
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -267,7 +335,7 @@ content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ �
 content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
 
@@ -279,6 +347,19 @@ title.noChangesToSave=ለ{0} ምንም የሚቀመጡ ለውጦች የሉም
 content.noChanges=በመተግበሪያው ላይ እስካሁን ምንም ለውጦች አላደረጉም። አርትዖቱን መቀጠል ይፈልጋሉ?
 button.continueEditing=አርትዖቱን ይቀጥሉ
 button.exitApplication=ከመተግበሪያ ይውጡ
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -298,37 +379,25 @@ validation.stateRequired=እባክዎ ክልል ያስገቡ።
 validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
 validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
 
-title.verifyAddress=አድራሻን ያረጋግጡ
-
-content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
-# Heading for showing the user the address they provided earlier
-content.addressEntered=የገባ አድራሻ፦
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=የተጠቆመው አድራሻ፦
-content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=የእርስዎን አድራሻ ያረጋግጡ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=አድራሻዎን ማግኘት አልቻልንም።
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=እባክዎ የአድራሻዎን ፊደል አጻጻፍ ያረጋግጡ ወይም ከተሰጠው ዝርዝር ውስጥ አንድ አማራጭ ይምረጡ።
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=እባክዎ አድራሻዎን ፊደል አጻጻፍ ያረጋግጡ እና ለመቀጠል አርትዕ ያድርጉ።
+# Heading for showing the user the address they provided earlier
+content.addressEntered=እርስዎ ያስገቡት አድራሻ፦
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=የተጠቆመው አድራሻ፦
+content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=አድራሻ ያረጋግጡ
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -352,8 +421,39 @@ validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አ�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
 validation.invalidDateFormat=እባክዎ ቀንን በትክክለኛው ቅርጸት ያስገቡ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=01 - ጃኑዋሪ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=02 - ፌብሩዋሪ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=03 - ማርች
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=04 - ኤፕሪል
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=05 - ሜይ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=06 - ጁን
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=07 - ጁላይ
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=08 - ኦገስት
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=09 - ሴፕቴምበር
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=10 - ኦክቶበር
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=11 - ኖቬምበር
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=12 - ዲሴምበር
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=ይምረጡ
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=ስህተት: እባክዎ ወር፣ ቀን እና ዓመት ያስገቡ።
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=የልደት ቀን ያለፈ ቀን መሆን አለበት
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=የልደት ቀን ከ150 ዓመታት በፊት ያነሰ መሆን አለበት
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -363,7 +463,7 @@ button.addEntity={0}ን አክል
 button.removeEntity={0}ን አስወግድ
 dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=ይህን {0} ለመሰረዝ በእርግጥ ይፈልጋሉ? «ግምገማ»፣ «ቀዳሚ» ወይም «ቀጣይ» ላይ ጠቅ ሲያደርጉ ይህ ለውጥ ይቀመጣል እና ከዚህ {0} ጋር የተያያዙ ሁሉም መረጃዎች ይጠፋሉ።
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
 validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
 placeholder.entityName={0} ስም
@@ -373,9 +473,9 @@ placeholder.entityName={0} ስም
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=እባክዎ ፋይል ይምረጡ።
-button.chooseFile=ፋይል ይምረጡ
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
+button.chooseFile=ፋይል ይምረጡ
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +528,7 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ የሚችሉት ፊደሎችን፣ ቁጥሮችን፣ የሥር መስመሮችን እና ዳሾችንን ብቻ ነው።
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -464,3 +564,12 @@ banner.govWebsiteSectionHeader=ኦፊሴላዊ ድረ-ገጾች .govን ይጠ�
 banner.govWebsiteSectionContent=በ .gov የሚያልቁ የድርጣቢያ አድራሻዎች በአሜሪካ ውስጥ ያሉ ኦፊሴላዊ የመንግስት ድርጅቶች ናቸው።
 banner.httpsSectionHeader=ደህንነታቸው የተጠበቀ .gov ድረ-ገጾች ኤችቲቲፒኤስ ይጠቀማሉ
 banner.httpsSectionContent=ቁልፍ ( {0} ) ወይም ኤችቲቲፒኤስ:// ማለት ከ.gov ድህረ ገጽ ጋር በሰላም ተገናኝተዋል ማለት ነው። ሚስጥራዊነት ያለው መረጃ በይፋዊ እና ደህንነታቸው የተጠበቁ ድር ጣቢያዎች ላይ ብቻ ያጋሩ።
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.

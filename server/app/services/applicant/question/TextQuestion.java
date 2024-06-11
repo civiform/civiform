@@ -72,6 +72,6 @@ public final class TextQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getTextValue().orElse("-");
+    return getTextValue().orElse(getDefaultAnswerString());
   }
 }

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
@@ -35,7 +35,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
     tiController = instanceOf(TrustedIntermediaryController.class);
-    ApplicantModel managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicantWithMockedProfile();
     createTIWithMockedProfile(managedApplicant);
     repo = instanceOf(AccountRepository.class);
     profileFactory.createFakeTrustedIntermediary();
@@ -51,22 +51,26 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "last",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-18",
                         "emailAddress",
                         "sample3@fake.com",
-                        "dob",
-                        "2022-07-18")));
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
@@ -97,13 +101,13 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "phoneNumber",
                         "4259879090")));
     Http.Request request2 = requestBuilder2.build();
-    assertThatThrownBy(() -> tiController.updateClientInfo(account.id, request2))
+    assertThatThrownBy(() -> tiController.editClient(account.id, request2))
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID " + account.id);
   }
 
   @Test
-  public void testEditClient_ReturnsNotFound() {
+  public void testShowEditClientForm_ReturnsNotFound() throws ApplicantNotFoundException {
     resetDatabase();
     AccountModel account = createApplicantWithMockedProfile().getAccount();
     account.setEmailAddress("test@ReturnsNotfound");
@@ -124,34 +128,38 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "dob",
                         "")));
     Http.Request request = requestBuilder.build();
-    Result result = tiController.editClient(account.id, request);
+    Result result = tiController.showAddClientForm(account.id, request);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void testUpdateClientInfo_AllFieldsUpdated() throws ApplicantNotFoundException {
+  public void testEditClient_AllFieldsUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
-                        "middle",
+                        "clientMiddle",
                         "lastName",
-                        "last",
+                        "clientLast",
+                        "dob",
+                        "2022-07-18",
                         "emailAddress",
                         "testUpdate@fake.com",
-                        "dob",
-                        "2022-07-18")));
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("testUpdate@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
@@ -179,9 +187,9 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "phoneNumber",
                         "4259879090")));
     Http.Request request2 = requestBuilder2.build();
-    Result result2 = tiController.updateClientInfo(account.id, request2);
+    Result result2 = tiController.editClient(account.id, request2);
 
-    assertThat(result2.status()).isEqualTo(SEE_OTHER);
+    assertThat(result2.status()).isEqualTo(OK);
 
     assertThat(repo.lookupAccountByEmail("testUpdate@fake.com")).isEmpty();
     // assert email address
@@ -204,91 +212,108 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testEditClientCall() {
-    AccountModel account = setupForEditUpdateClient("test33@test.com");
+  public void testShowEditClientFormCall() {
+    AccountModel account = setupForEditClient("test33@test.com");
     Http.Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = tiController.editClient(account.id, request);
+    Result result = tiController.showEditClientForm(account.id, request);
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
-  public void addApplicant_WithMissingDob() {
+  public void addClient_WithMissingDob() {
+    ApplicantModel managedApplicant = createApplicantWithMockedProfile();
+    createTIWithMockedProfile(managedApplicant);
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
-                        "middle",
+                        "clientMiddle",
                         "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com",
+                        "clientLast",
                         "dob",
-                        "")));
-    Http.Request request = requestBuilder.build();
-    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, request);
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error").get().trim()).isEqualTo("Date of Birth required");
-  }
-
-  @Test
-  public void addApplicant_WithAllInformation() {
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "first",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "last",
+                        "",
                         "emailAddress",
-                        "sample2@fake.com",
-                        "dob",
-                        "2022-07-18")));
+                        "sam2@fake.com",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    System.out.println(contentAsString(result));
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Date of birth required");
+  }
+
+  @Test
+  public void addClient_WithAllInformation() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "clientMiddle",
+                        "lastName",
+                        "clientLast",
+                        "dob",
+                        "2022-07-18",
+                        "emailAddress",
+                        "sample2@fake.com",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
+        repo.getTrustedIntermediaryGroup(
+                profileUtils.currentUserProfile(requestBuilder.build()).get())
+            .get();
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
   }
 
-  private AccountModel setupForEditUpdateClient(String email) {
+  private AccountModel setupForEditClient(String email) {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
-                        "middle",
+                        "clientMiddle",
                         "lastName",
-                        "last",
+                        "clientLast",
+                        "dob",
+                        "2022-07-18",
                         "emailAddress",
                         email,
-                        "dob",
-                        "2022-07-18")));
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail(email).toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())

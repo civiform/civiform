@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
-  createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -15,10 +14,10 @@ import {
 } from './support/admin_questions'
 
 test.describe('primary applicant info questions', () => {
-  const ctx = createTestContext()
-
-  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
-    const {page, adminQuestions} = ctx
+  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -84,8 +83,10 @@ test.describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, true)
   })
 
-  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
-    const {page, adminQuestions} = ctx
+  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -192,8 +193,10 @@ test.describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, false)
   })
 
-  test('shows the alert when a different question has the primary applicant info tag', async () => {
-    const {page, adminQuestions} = ctx
+  test('shows the alert when a different question has the primary applicant info tag', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -231,9 +234,12 @@ test.describe('primary applicant info questions', () => {
     )
   })
 
-  test('logging in does not overwrite name with OIDC-provided name', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('logging in does not overwrite name with OIDC-provided name', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // For now, we use the preseeded question since we still fall back

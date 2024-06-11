@@ -18,6 +18,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -51,7 +52,7 @@ public class DateQuestionTest extends ResetPostgres {
 
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
-    assertThat(dateQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(dateQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -64,7 +65,10 @@ public class DateQuestionTest extends ResetPostgres {
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo("2021-05-10");
-    assertThat(dateQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(dateQuestion.getValidationErrors()).isEmpty();
+    assertThat(dateQuestion.getYearValue().get()).isEqualTo(2021);
+    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(5);
+    assertThat(dateQuestion.getDayValue().get()).isEqualTo(10);
   }
 
   @Test
@@ -84,7 +88,33 @@ public class DateQuestionTest extends ResetPostgres {
             ImmutableMap.of(
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED))));
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getDateValue_returnsPAIValueWhenTagged() {
+    DateQuestionDefinition dateQuestionDefinitionWithPAI =
+        new DateQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
+                .build());
+
+    // Save applicant's dob to the PAI column
+    applicant.setDateOfBirth("2001-01-01");
+
+    DateQuestion dateQuestion =
+        new ApplicantQuestion(dateQuestionDefinitionWithPAI, applicantData, Optional.empty())
+            .createDateQuestion();
+
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
   }
 }

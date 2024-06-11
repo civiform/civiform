@@ -1,6 +1,8 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../support/civiform_fixtures'
 import {
-  createTestContext,
+  ApplicantQuestions,
+  AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -14,16 +16,13 @@ import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('applicant program index page', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
   const firstQuestionText = 'This is the first question'
   const secondQuestionText = 'This is the second question'
 
-  test.beforeAll(async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -53,8 +52,10 @@ test.describe('applicant program index page', () => {
     await logout(page)
   })
 
-  test('shows log in button for guest users', async () => {
-    const {page, applicantQuestions} = ctx
+  test('shows log in button for guest users', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await validateAccessibility(page)
 
     // We cannot check that the login/create account buttons redirect the user to a particular
@@ -67,8 +68,9 @@ test.describe('applicant program index page', () => {
     await logout(page)
   })
 
-  test('shows login prompt for guest users when they click apply', async () => {
-    const {page} = ctx
+  test('shows login prompt for guest users when they click apply', async ({
+    page,
+  }) => {
     await validateAccessibility(page)
 
     // Click Apply on the primary program. This should show the login prompt modal.
@@ -103,8 +105,10 @@ test.describe('applicant program index page', () => {
     )
   })
 
-  test('categorizes programs for draft and applied applications', async () => {
-    const {page, applicantQuestions} = ctx
+  test('categorizes programs for draft and applied applications', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await loginAsTestUser(page)
     // Navigate to the applicant's program index and validate that both programs appear in the
     // "Not started" section.
@@ -147,63 +151,71 @@ test.describe('applicant program index page', () => {
     })
   })
 
-  test('common intake form enabled but not present', async () => {
-    const {page} = ctx
+  test('common intake form enabled but not present', async ({page}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
   })
 
-  test('shows common intake form when enabled and present', async () => {
-    const {page, adminPrograms, applicantQuestions} = ctx
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
-    await loginAsAdmin(page)
+  test.describe('common intake form enabled and present', () => {
     const commonIntakeFormProgramName = 'Benefits finder'
-    await adminPrograms.addProgram(
-      commonIntakeFormProgramName,
-      'program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      /* isCommonIntake= */ true,
-    )
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
 
-    await applicantQuestions.applyProgram(primaryProgramName)
-    await applicantQuestions.answerTextQuestion('first answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.gotoApplicantHomePage()
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await enableFeatureFlag(page, 'intake_form_enabled')
 
-    await validateScreenshot(page, 'common-intake-form-sections')
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName],
-      wantInProgressPrograms: [primaryProgramName],
-      wantSubmittedPrograms: [],
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        commonIntakeFormProgramName,
+        'program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
-    await applicantQuestions.expectCommonIntakeForm(commonIntakeFormProgramName)
-    await validateAccessibility(page)
+
+    test('shows common intake form', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(primaryProgramName)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.gotoApplicantHomePage()
+
+      await validateScreenshot(page, 'common-intake-form-sections')
+      await applicantQuestions.expectPrograms({
+        wantNotStartedPrograms: [otherProgramName],
+        wantInProgressPrograms: [primaryProgramName],
+        wantSubmittedPrograms: [],
+      })
+      await applicantQuestions.expectCommonIntakeForm(
+        commonIntakeFormProgramName,
+      )
+      await validateAccessibility(page)
+    })
+
+    test('shows a different title for the common intake form', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+      expect(await page.innerText('h2')).toContain(
+        'Program application summary',
+      )
+
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.clickApplyProgramButton('Benefits finder')
+      expect(await page.innerText('h2')).toContain(
+        'Benefits pre-screener summary',
+      )
+    })
   })
 
-  test('shows a different title for the common intake form', async () => {
-    const {page, applicantQuestions} = ctx
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
-    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-    expect(await page.innerText('h2')).toContain('Program application summary')
-
-    await applicantQuestions.gotoApplicantHomePage()
-    await applicantQuestions.clickApplyProgramButton('Benefits finder')
-    expect(await page.innerText('h2')).toContain(
-      'Benefits pre-screener summary',
-    )
-  })
-
-  test('shows previously answered on text for questions that had been answered', async () => {
-    const {page, applicantQuestions} = ctx
-
+  test('shows previously answered on text for questions that had been answered', async ({
+    page,
+    applicantQuestions,
+  }) => {
     // Fill out application with one question and confirm it shows previously answered at the end.
     await applicantQuestions.applyProgram(otherProgramName)
     await applicantQuestions.answerTextQuestion('first answer')
@@ -251,13 +263,138 @@ test.describe('applicant program index page', () => {
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
+
+  test.describe(
+    'applicant program index page with northstar UI',
+    {tag: ['@northstar']},
+    () => {
+      test.beforeEach(async ({page}) => {
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate initial page load as guest user', async ({page}) => {
+        await validateScreenshot(
+          page,
+          'program-index-page-initial-load-northstar',
+        )
+      })
+
+      test('validate accessibility', async ({page}) => {
+        await validateAccessibility(page)
+      })
+
+      test('shows log in button for guest users', async ({page}) => {
+        // We cannot check that the login/create account buttons redirect the user to a particular
+        // URL because it varies between environments, so just check for their existence.
+        expect(await page.textContent('#login-button')).toContain('Log in')
+        expect(await page.textContent('#create-account')).toContain(
+          'Create account',
+        )
+      })
+
+      test('shows login prompt for guest users when they click apply', async ({
+        page,
+      }) => {
+        await test.step('Verify that login dialog appears', async () => {
+          // Click Apply on the primary program. This should show the login prompt modal.
+          await page.click(
+            `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+          )
+          expect(await page.textContent('html')).toContain(
+            'Create an account or sign in',
+          )
+          await validateScreenshot(
+            page,
+            'apply-program-login-prompt-northstar',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Verify that login dialog does not appear a second time', async () => {
+          // Close the modal and click Apply again. This time, we should not see the login prompt modal.
+          await page.click(`.cf-ns-modal .usa-modal__close`)
+          await page.click(
+            `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+          )
+          expect(await page.textContent('html')).not.toContain(
+            'Create an account or sign in',
+          )
+        })
+      })
+
+      test('categorizes programs for draft and applied applications as guest user', async ({
+        applicantQuestions,
+        page,
+      }) => {
+        // TODO (#7377): Remove once we have a header with login/logout.
+        await disableFeatureFlag(page, 'north_star_applicant_ui')
+        await loginAsTestUser(page)
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+        await test.step('Programs start in not started', async () => {
+          await applicantQuestions.expectPrograms({
+            wantNotStartedPrograms: [primaryProgramName, otherProgramName],
+            wantInProgressPrograms: [],
+            wantSubmittedPrograms: [],
+          })
+        })
+
+        await test.step('First application is in "in progress" section once filled out', async () => {
+          await applicantQuestions.applyProgram(primaryProgramName)
+          await applicantQuestions.answerTextQuestion('first answer')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.expectPrograms({
+            wantNotStartedPrograms: [otherProgramName],
+            wantInProgressPrograms: [primaryProgramName],
+            wantSubmittedPrograms: [],
+          })
+          await validateScreenshot(
+            page,
+            'program-index-page-inprogress-northstar',
+          )
+        })
+
+        await test.step('First application is in "Submitted" section once submitted', async () => {
+          await applicantQuestions.applyProgram(primaryProgramName)
+          await applicantQuestions.answerTextQuestion('second answer')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.submitFromReviewPage(true)
+          await applicantQuestions.returnToProgramsFromSubmissionPage()
+          await applicantQuestions.expectPrograms({
+            wantNotStartedPrograms: [otherProgramName],
+            wantInProgressPrograms: [],
+            wantSubmittedPrograms: [primaryProgramName],
+          })
+          await validateScreenshot(
+            page,
+            'program-index-page-submitted-northstar',
+          )
+        })
+
+        await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
+          // TODO (#7377): Remove once we have a header with login/logout.
+          await disableFeatureFlag(page, 'north_star_applicant_ui')
+          await logout(page, false)
+          await enableFeatureFlag(page, 'north_star_applicant_ui')
+          await applicantQuestions.expectPrograms({
+            wantNotStartedPrograms: [otherProgramName, primaryProgramName],
+            wantInProgressPrograms: [],
+            wantSubmittedPrograms: [],
+          })
+        })
+      })
+    },
+  )
 })
 
 test.describe('applicant program index page with images', () => {
-  const ctx = createTestContext()
-
-  test('shows program with wide image', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('shows program with wide image', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     const programName = 'Wide Image Program'
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
@@ -272,8 +409,11 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
-  test('shows program with tall image', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('shows program with tall image', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     const programName = 'Tall Image Program'
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
@@ -287,8 +427,13 @@ test.describe('applicant program index page with images', () => {
     await validateScreenshot(page, 'program-image-tall')
   })
 
-  test('shows program with image and status', async () => {
-    const {page, adminPrograms, adminProgramStatuses, adminProgramImage} = ctx
+  test('shows program with image and status', async ({
+    page,
+    adminPrograms,
+    adminProgramStatuses,
+    adminProgramImage,
+    applicantQuestions,
+  }) => {
     const programName = 'Image And Status Program'
     await loginAsAdmin(page)
 
@@ -305,7 +450,13 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.expectActiveProgram(programName)
     await logout(page)
 
-    await submitApplicationAndApplyStatus(page, programName, approvedStatusName)
+    await submitApplicationAndApplyStatus(
+      page,
+      programName,
+      approvedStatusName,
+      adminPrograms,
+      applicantQuestions,
+    )
 
     // Verify program card shows both the Accepted status and image
     await loginAsTestUser(page)
@@ -314,15 +465,16 @@ test.describe('applicant program index page with images', () => {
 
   // This test puts programs with different specs in the different sections of the homepage
   // to verify that different card formats appear correctly next to each other and across sections.
-  test('shows programs with and without images in all sections', async () => {
-    const {
-      page,
-      adminPrograms,
-      adminProgramStatuses,
-      adminProgramImage,
-      adminQuestions,
-      applicantQuestions,
-    } = ctx
+  test('shows programs with and without images in all sections', async ({
+    page,
+    adminPrograms,
+    adminProgramStatuses,
+    adminProgramImage,
+    adminQuestions,
+    applicantQuestions,
+  }) => {
+    test.slow()
+
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     // Common Intake: Basic (no image or status)
@@ -390,6 +542,8 @@ test.describe('applicant program index page with images', () => {
       page,
       programNameSubmittedWithImageAndStatus,
       approvedStatusName,
+      adminPrograms,
+      applicantQuestions,
     )
 
     // Submitted #2: Basic
@@ -422,6 +576,8 @@ test.describe('applicant program index page with images', () => {
       page,
       programNameSubmittedWithStatus,
       approvedStatusName,
+      adminPrograms,
+      applicantQuestions,
     )
 
     // Submitted #4 (on new row): Image
@@ -465,8 +621,9 @@ test.describe('applicant program index page with images', () => {
     page: Page,
     programName: string,
     statusName: string,
+    adminPrograms: AdminPrograms,
+    applicantQuestions: ApplicantQuestions,
   ) {
-    const {adminPrograms, applicantQuestions} = ctx
     // Submit an application as a test user.
     await loginAsTestUser(page)
     await applicantQuestions.clickApplyProgramButton(programName)

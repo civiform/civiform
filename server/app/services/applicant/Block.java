@@ -241,6 +241,33 @@ public final class Block {
     return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
+  public int answeredQuestionsCount() {
+    return (int) getQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
+  }
+
+  /**
+   * The number of questions answered by the applicant (excluding static content questions because
+   * they have no fields for a user to answer)
+   */
+  public int answeredByUserQuestionsCount() {
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .filter(ApplicantQuestion::isAnswered)
+            .count();
+  }
+
+  /**
+   * The number of questions that can be answered by the applicant (excludes static content
+   * questions).
+   */
+  public int answerableQuestionsCount() {
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .count();
+  }
+
   /**
    * A block is complete with respect to a specific program if all of its questions are answered, or
    * are optional questions that were skipped in the program.
@@ -259,6 +286,11 @@ public final class Block {
     return getQuestions().isEmpty()
         || getQuestions().stream()
             .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
+  }
+
+  /** Returns true if this block contains only optional questions and false otherwise. */
+  public boolean hasOnlyOptionalQuestions() {
+    return getQuestions().stream().allMatch(ApplicantQuestion::isOptional);
   }
 
   /**

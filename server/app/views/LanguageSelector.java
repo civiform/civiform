@@ -17,8 +17,6 @@ import j2html.tags.specialized.SelectTag;
 import java.util.Locale;
 import javax.inject.Inject;
 import play.i18n.Lang;
-import play.i18n.MessagesApi;
-import play.mvc.Http;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -31,33 +29,14 @@ public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
   private final LanguageUtils languageUtils;
-  private final MessagesApi messagesApi;
 
   @Inject
-  public LanguageSelector(LanguageUtils languageUtils, MessagesApi messagesApi) {
+  public LanguageSelector(LanguageUtils languageUtils) {
     this.languageUtils = checkNotNull(languageUtils);
-    this.messagesApi = checkNotNull(messagesApi);
-
     this.supportedLanguages =
         languageUtils.getApplicantEnabledLanguages().stream()
             .map(Lang::toLocale)
             .collect(toImmutableList());
-  }
-
-  /**
-   * Returns the selected preferred language based on the applicant's browser settings. If the
-   * current browser settings are for a language that is not supported/enabled for applicants it
-   * returns the default system language.
-   */
-  public Lang getPreferredLangage(Http.RequestHeader request) {
-    var preferredLanguageCode = messagesApi.preferred(request).lang().code();
-
-    var preferredLanguage =
-        languageUtils.getApplicantEnabledLanguages().stream()
-            .filter(lang -> lang.code().equals(preferredLanguageCode))
-            .findFirst();
-
-    return preferredLanguage.orElse(Lang.defaultLang());
   }
 
   public SelectTag renderDropdown(String preferredLanguage) {
@@ -92,7 +71,7 @@ public final class LanguageSelector {
         .forEach(
             locale -> {
               String value = locale.toLanguageTag();
-              String label = formatLabel(locale);
+              String label = languageUtils.getDisplayString(locale);
               OptionTag optionTag = option(label).withLang(value).withValue(value);
               if (value.equals(preferredLanguage)) {
                 optionTag.isSelected();
@@ -109,7 +88,7 @@ public final class LanguageSelector {
             locale ->
                 options.with(
                     renderRadioOption(
-                        formatLabel(locale),
+                        languageUtils.getDisplayString(locale),
                         locale,
                         locale.toLanguageTag().equals(preferredLanguage))));
     return options;
@@ -133,19 +112,5 @@ public final class LanguageSelector {
             .withText(text);
 
     return div().withClasses("my-2", "relative").with(labelTag);
-  }
-
-  /**
-   * The dropdown option label should be the language name localized to that language - for example,
-   * "español" for "es-US". We capitalize the first letter, since some locales do not capitalize
-   * languages.
-   */
-  private String formatLabel(Locale locale) {
-    // The default for Java is 中文, but the City of Seattle prefers 繁體中文
-    if (locale.equals(Locale.TRADITIONAL_CHINESE)) {
-      return "繁體中文";
-    }
-    String language = locale.getDisplayLanguage(locale);
-    return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
 }

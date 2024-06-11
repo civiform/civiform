@@ -46,6 +46,7 @@ import views.style.StyleUtils;
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
+  private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -72,6 +73,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
+        program.getEligibilityIsGating(),
         program.getIsCommonIntakeForm(),
         programEditStatus,
         program.getTiGroups());
@@ -89,6 +91,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.externalLink(),
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
+        program.eligibilityIsGating(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()));
@@ -103,6 +106,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String confirmationSceen,
       String displayMode,
+      boolean eligibilityIsGating,
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
       List<Long> selectedTi) {
@@ -122,6 +126,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setRequired(true)
+            .setMarkdownSupported(true)
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, programEditStatus),
@@ -138,6 +143,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 "A custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"
                     + " application process and/or highlight other programs to apply for.")
+            .setMarkdownSupported(true)
             .setValue(confirmationSceen)
             .getTextareaTag(),
         h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
@@ -172,16 +178,58 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag()),
-        FieldWithLabel.radio()
-            .setId("program-display-mode-select-ti-only")
-            .setFieldName("displayMode")
-            .setAriaRequired(true)
-            .setLabelText("Visible to selected trusted intermediaries only")
-            .setValue(DisplayMode.SELECT_TI.getValue())
-            .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-            .getRadioTag(),
-        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-select-ti-only")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Visible to selected trusted intermediaries only")
+                    .setValue(DisplayMode.SELECT_TI.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
+                    .getRadioTag(),
+                showTiSelectionList(
+                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())))
+            .condWith(
+                settingsManifest.getDisabledVisibilityConditionEnabled(request),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-disabled")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Disabled")
+                    .setValue(DisplayMode.DISABLED.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+                    .getRadioTag()));
+
+    formTag.with(
+        // TODO(#2618): Consider using helpers for grouping related radio controls.
+        fieldset()
+            .with(
+                legend("Program eligibility gating")
+                    .withClass(BaseStyles.INPUT_LABEL)
+                    .with(ViewUtils.requiredQuestionIndicator())
+                    .condWith(
+                        settingsManifest.getIntakeFormEnabled(request),
+                        p("(Not applicable if this program is the pre-screener)")),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Only allow residents to submit applications if they meet all eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(true))
+                    .setChecked(eligibilityIsGating)
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Allow residents to submit applications even if they don't meet eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(false))
+                    .setChecked(!eligibilityIsGating)
+                    .getRadioTag()));
+
+    formTag.with(
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -326,9 +374,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private ButtonTag createSubmitButton(ProgramEditStatus programEditStatus) {
     String saveProgramDetailsText;
-    if (settingsManifest.getProgramCardImages()
-        && (programEditStatus == ProgramEditStatus.CREATION
-            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
+    if (programEditStatus == ProgramEditStatus.CREATION
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
       // If the admin is in the middle of creating a new program, they'll be redirected to the next
       // step of adding a program image, so we want the save button text to reflect that.
       saveProgramDetailsText = "Save and continue to next step";

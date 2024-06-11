@@ -16,7 +16,7 @@ import java.time.temporal.TemporalAdjusters;
  */
 public final class RecurringJobExecutionTimeResolvers {
 
-  /** Every Sunday at 2am local time. */
+  /** Every Sunday at 2am local time. Used for the OLD_JOB_CLEANUP job. */
   public static final class Sunday2Am implements RecurringJobExecutionTimeResolver {
 
     @Override
@@ -29,7 +29,9 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** First day of the month at 2am local time. */
+  /**
+   * First day of the month at 2am local time. Used for the REPORTING_DASHBOARD_MONTHLY_REFRESH job.
+   */
   public static final class FirstOfMonth2Am implements RecurringJobExecutionTimeResolver {
 
     @Override
@@ -42,7 +44,7 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Second day of the month at 2am local time. */
+  /** Second day of the month at 2am local time. Used for the UNUSED_ACCOUNT_CLEANUP job. */
   public static final class SecondOfMonth2Am implements RecurringJobExecutionTimeResolver {
 
     @Override
@@ -56,7 +58,7 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Third day of the month at 2am local time. */
+  /** Third day of the month at 2am local time. Used for the UNUSED_PROGRAM_IMAGES_CLEANUP job. */
   public static final class ThirdOfMonth2Am implements RecurringJobExecutionTimeResolver {
 
     @Override
@@ -70,15 +72,15 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Nightly at 2am local time */
-  public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
+  /** Nightly at 3am local time. Used for the MIGRATE_PRIMARY_APPLICANT_INFO job. */
+  public static final class Nightly3Am implements RecurringJobExecutionTimeResolver {
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDate.now(clock)
           .plusDays(1)
           .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
+          .plus(3, ChronoUnit.HOURS)
           .toInstant();
     }
   }

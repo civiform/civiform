@@ -61,11 +61,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        batch_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shard_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -80,54 +81,69 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-browser-tests
+
       - name: Build dev-oidc
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-dev-oidc
+
       - name: Build localstack
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-localstack-env
+
       - name: Build mock-web-services
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
+
       - name: Bring up test env with Localstack
         env:
           CI: true
         run: bin/run-browser-test-env --aws --ci
+
       - name: Run browser tests with Localstack
         env:
           CI: true
-        run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+        run: bin/run-browser-tests-ci --shard=${{ matrix.shard_number }}/${{strategy.job-total}}
+
       - name: Verify no new image snapshots added
         # jest-image-snapshots automatically adds snapshot if it's missing.
         # Use git diff to fail if we detect new images.
         run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
+
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v4
         with:
-          name: image diff output directory (aws) - batch-${{ matrix.batch_number }}-run-${{ github.run_attempt }}
+          name: image diff output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
           path: browser-test/diff_output
         if: failure()
+
       - name: Upload updated snapshots
         uses: actions/upload-artifact@v4
         with:
-          name: updated snapshots output directory (aws) - batch-${{ matrix.batch_number }}-run-${{ github.run_attempt }}
+          name: updated snapshots output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
           path: browser-test/updated_snapshots
         if: failure()
+
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v4
         with:
-          name: tests videos (aws) - batch-${{ matrix.batch_number }}-run-${{ github.run_attempt }}
-          path: browser-test/tmp
+          name: tests videos (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
+          path: |
+            browser-test/tmp/html-output/
+            browser-test/tmp/videos/
         if: failure()
+        
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs

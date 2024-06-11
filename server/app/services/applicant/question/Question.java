@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -104,7 +105,7 @@ public abstract class Question {
    * it will be considered unanswered.
    */
   public boolean isAnswered() {
-    return getAllPaths().stream().anyMatch(p -> applicantQuestion.getApplicantData().hasPath(p));
+    return getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
   }
 
   /**
@@ -115,8 +116,24 @@ public abstract class Question {
    */
   public abstract String getAnswerString();
 
+  /** Returns the default to use when there is no answer */
+  public String getDefaultAnswerString() {
+    return "-";
+  }
+
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
+
+  /** Return the first Path with a validation error, or an empty Optional if no errors */
+  public Optional<Path> getFirstPathWithError() {
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        getValidationErrors();
+    return getAllPaths().stream()
+        .filter(validationErrors::containsKey)
+        .findFirst()
+        .map(path -> Optional.of(path))
+        .orElse(Optional.empty());
+  }
 
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();

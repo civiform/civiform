@@ -6,10 +6,12 @@ import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.DB;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
@@ -140,21 +142,30 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
-  public void runJobs_jobNotFound() {
+  public void runJobs_jobNotFound_deletesJobFromDb() {
     PersistedDurableJobModel job = createPersistedJobToExecute();
 
-    durableJobRunner.runJobs();
+    // Assert the job was saved to the db
+    Optional<PersistedDurableJobModel> savedJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(savedJob.get().getJobName()).isEqualTo(job.getJobName());
 
-    job.refresh();
-    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
-    assertThat(job.getRemainingAttempts()).isEqualTo(0);
-    Mockito.verify(simpleEmailMock, Mockito.times(1))
-        .send(
-            Mockito.eq("test@example.com"),
-            Mockito.eq("ERROR: CiviForm Durable job failure on civiform-test.dev"),
-            Mockito.contains(
-                String.format(
-                    "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
+    // Assert the job does not exist in the registry
+    assertThat(durableJobRegistry.getRecurringJobs()).isEmpty();
+
+    // Since the job does not exist in the registry, it should be deleted when runJobs is run
+    durableJobRunner.runJobs();
+    Optional<PersistedDurableJobModel> foundJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(foundJob).isEmpty();
   }
 
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {

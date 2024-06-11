@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -25,7 +25,7 @@ public class HomeController extends Controller {
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
@@ -35,13 +35,13 @@ public class HomeController extends Controller {
       Config configuration,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes) {
     checkNotNull(configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
@@ -93,7 +93,7 @@ public class HomeController extends Controller {
                           .setLangFromBrowser(applicant.id));
                 }
               },
-              httpExecutionContext.current());
+              classLoaderExecutionContext.current());
     }
   }
 
@@ -114,5 +114,25 @@ public class HomeController extends Controller {
   @Secure
   public Result securePlayIndex() {
     return ok("You are logged in.");
+  }
+
+  public Result teapot() {
+    return status(
+        418,
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣘⣿⣿⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⣀⣀⡀⠀⠀⠀⢀⣀⠘⠛⠛⠛⠛⠛⠛⠁⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⢠⡿⠋⠉⠛⠃⣠⣤⣈⣉⡛⠛⠛⠛⠛⠛⠛⢛⣉⣁⣤⣄⠀⠀⣾⣿⡿⠗⠀\n"
+            + "⠀⢸⡇⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⣿⣿⠀⠀⠀\n"
+            + "⠀⢸⣇⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢉⣉⣠⣿⣿⡀⠀⠀\n"
+            + "⠀⠀⠙⠷⡆⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⢰⣿⣿⣿⣿⣿⡇⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠸⣿⣿⣿⣿⠟⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠈⠉⠁⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⢄⣉⠉⠛⠛⠛⠛⠛⠋⢉⣉⡠⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⠿⠿⠿⠿⠿⠿⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
+            + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n");
   }
 }

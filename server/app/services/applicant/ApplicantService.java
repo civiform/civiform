@@ -13,9 +13,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -41,7 +43,8 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -56,8 +59,8 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
-import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
+import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -66,6 +69,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
@@ -84,6 +88,7 @@ import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -108,13 +113,15 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
+  private final Database database;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -129,11 +136,12 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -144,9 +152,10 @@ public final class ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -157,6 +166,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
+    this.database = DB.getDefault();
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -192,7 +202,7 @@ public final class ApplicantService {
                   programDefinition,
                   baseUrl);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
@@ -221,7 +231,7 @@ public final class ApplicantService {
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
-  private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+  public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
         jsonPathPredicateGeneratorFactory, applicantData, programDefinition, baseUrl);
@@ -329,7 +339,7 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate);
                         },
-                        httpExecutionContext.current());
+                        classLoaderExecutionContext.current());
               }
 
               return stageAndUpdateIfValid(
@@ -340,7 +350,7 @@ public final class ApplicantService {
                   updates,
                   Optional.empty());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenCompose(
             (v) ->
                 applicationRepository
@@ -383,7 +393,7 @@ public final class ApplicantService {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
-              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+              (finishedSaving) -> roApplicantProgramService, classLoaderExecutionContext.current());
     }
 
     return CompletableFuture.completedFuture(roApplicantProgramService);
@@ -401,18 +411,20 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(v -> submitterProfile.getAccount(), httpExecutionContext.current())
+          .thenComposeAsync(
+              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
           .thenComposeAsync(
               account ->
                   submitApplication(
                       applicantId,
                       programId,
-                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
-              httpExecutionContext.current());
+                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
+                      request),
+              classLoaderExecutionContext.current());
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
@@ -420,7 +432,7 @@ public final class ApplicantService {
         .thenCompose(
             v ->
                 submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
   }
 
   /**
@@ -451,15 +463,96 @@ public final class ApplicantService {
         new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
   }
 
+  /**
+   * Saves the answers to the applicantion's Primary Applicant Info questions into the Primary
+   * Applicant Info columns in the applicants table. If the application is empty, nothing is saved.
+   *
+   * @param optionalApplication The application being submitted
+   * @return A CompletionStage returning the application with the Primary Applicant Info columns
+   *     updated on the applicant model.
+   */
+  CompletionStage<Optional<ApplicationModel>> savePrimaryApplicantInfoAnswers(
+      Optional<ApplicationModel> optionalApplication) {
+    if (optionalApplication.isEmpty()) {
+      return CompletableFuture.completedFuture(optionalApplication);
+    }
+    ApplicationModel application = optionalApplication.get();
+    ProgramModel applicationProgram = application.getProgram();
+    ApplicantModel applicant = application.getApplicant();
+    ApplicantData applicantData = application.getApplicantData();
+    return programService
+        .getFullProgramDefinition(applicationProgram)
+        .thenComposeAsync(
+            programDefinition -> {
+              database.beginTransaction();
+              programDefinition
+                  .getQuestionsWithPrimaryApplicantInfoTags()
+                  .forEach(
+                      question -> {
+                        Path path = Path.create("applicant").join(question.getQuestionNameKey());
+                        question
+                            .getPrimaryApplicantInfoTags()
+                            .forEach(
+                                tag -> {
+                                  switch (tag) {
+                                    case APPLICANT_NAME:
+                                      applicant.setFirstName(
+                                          applicantData
+                                              .readString(path.join(Scalar.FIRST_NAME))
+                                              .orElseThrow());
+                                      // Middle name is optional
+                                      applicant.setMiddleName(
+                                          applicantData
+                                              .readString(path.join(Scalar.MIDDLE_NAME))
+                                              .orElse(""));
+                                      applicant.setLastName(
+                                          applicantData
+                                              .readString(path.join(Scalar.LAST_NAME))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_EMAIL:
+                                      applicant.setEmailAddress(
+                                          applicantData
+                                              .readString(path.join(Scalar.EMAIL))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_PHONE:
+                                      // Country code is set automatically by setPhoneNumber
+                                      applicant.setPhoneNumber(
+                                          applicantData
+                                              .readString(path.join(Scalar.PHONE_NUMBER))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_DOB:
+                                      applicant.setDateOfBirth(
+                                          applicantData
+                                              .readDate(path.join(Scalar.DATE))
+                                              .orElseThrow());
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                });
+                      });
+              applicant.save();
+              database.commitTransaction();
+              return CompletableFuture.completedFuture(optionalApplication);
+            });
+  }
+
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId).toCompletableFuture();
+        getPersonalInfo(applicantId, request).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .thenComposeAsync(
+                application -> savePrimaryApplicantInfoAnswers(application),
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
+
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
             (v) -> {
@@ -486,7 +579,8 @@ public final class ApplicantService {
               CompletableFuture<Void> notifyProgramAdminsFuture =
                   CompletableFuture.runAsync(
                       () ->
-                          notifyProgramAdmins(applicantId, programId, application.id, programName));
+                          notifyProgramAdmins(applicantId, programId, application.id, programName),
+                      classLoaderExecutionContext.current());
 
               CompletableFuture<Void> notifyTiSubmitterFuture =
                   tiSubmitterEmail
@@ -502,33 +596,53 @@ public final class ApplicantService {
                       .orElse(CompletableFuture.completedFuture(null));
 
               ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<String> applicantEmail =
-                  applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
-                      ? applicantPersonalInfo.loggedIn().email()
-                      : Optional.empty();
+              Optional<ImmutableSet<String>> applicantEmails =
+                  getApplicantEmails(applicantPersonalInfo);
 
-              CompletableFuture<Void> notifyApplicantFuture =
-                  applicantEmail
-                      .map(
-                          email ->
-                              notifyApplicant(
+              CompletableFuture<Void> notifyApplicantFuture;
+              if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
+                notifyApplicantFuture = CompletableFuture.completedFuture(null);
+              } else {
+                ImmutableList<CompletableFuture<Void>> futures =
+                    applicantEmails.get().stream()
+                        .map(
+                            email -> {
+                              return notifyApplicant(
                                       applicantId,
                                       application.id,
                                       email,
                                       programDefinition,
                                       maybeDefaultStatus)
-                                  .toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
-
+                                  .toCompletableFuture();
+                            })
+                        .collect(ImmutableList.toImmutableList());
+                notifyApplicantFuture =
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+              }
               return CompletableFuture.allOf(
                       updateStatusFuture,
                       notifyProgramAdminsFuture,
                       notifyApplicantFuture,
                       notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
-                  .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
+                  .thenApplyAsync(
+                      (ignoreVoid) -> application, classLoaderExecutionContext.current());
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
+  }
+
+  public Optional<ImmutableSet<String>> getApplicantEmails(
+      ApplicantPersonalInfo applicantPersonalInfo) {
+    switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN:
+        return applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED:
+        return applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST:
+        return applicantPersonalInfo.guest().email();
+      default:
+        return Optional.empty();
+    }
   }
 
   /**
@@ -573,8 +687,10 @@ public final class ApplicantService {
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
-            .thenComposeAsync(storedFileRepository::lookupFiles, httpExecutionContext.current())
+                ReadOnlyApplicantProgramService::getStoredFileKeys,
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
@@ -593,7 +709,7 @@ public final class ApplicantService {
 
               return future;
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -695,7 +811,8 @@ public final class ApplicantService {
               } else {
                 amazonSESClient.send(tiEmail, subject, message);
               }
-            })
+            },
+            classLoaderExecutionContext.current())
         .toCompletableFuture();
   }
 
@@ -745,17 +862,19 @@ public final class ApplicantService {
             amazonSESClient.send(applicantEmail, subject, message);
           }
         },
-        httpExecutionContext.current());
+        classLoaderExecutionContext.current());
   }
 
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
+              Representation.Builder builder = Representation.builder();
+
               boolean hasAuthorityId =
                   applicant.isPresent()
                       && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
@@ -763,22 +882,34 @@ public final class ApplicantService {
                   applicant.isPresent()
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
+              if (applicant.isPresent()) {
+                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+                  builder.setName(name.get());
+                }
+
+                String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
+                ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
+                if (!Strings.isNullOrEmpty(accountEmailAddress)) {
+                  emailAddressesBuilder.add(accountEmailAddress);
+                }
+
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+                }
+
+                ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
+                if (!emailAddresses.isEmpty()) {
+                  builder.setEmail(emailAddresses);
+                }
+              }
+
               if (!hasAuthorityId && !isManagedByTi) {
                 // The authority ID is the source of truth for whether a user is logged in. However,
                 // if they were created by a TI, we skip this return and return later on with a more
                 // specific oneof value.
-                return ApplicantPersonalInfo.ofGuestUser();
-              }
-
-              Representation.Builder builder = Representation.builder();
-
-              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
-              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
-                builder.setName(name.get());
-              }
-              String emailAddress = applicant.get().getAccount().getEmailAddress();
-              if (!Strings.isNullOrEmpty(emailAddress)) {
-                builder.setEmail(emailAddress);
+                return ApplicantPersonalInfo.ofGuestUser(builder.build());
               }
 
               if (hasAuthorityId) {
@@ -787,7 +918,7 @@ public final class ApplicantService {
                 return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given applicant id. */
@@ -797,7 +928,7 @@ public final class ApplicantService {
         .thenApplyAsync(
             applicant ->
                 applicant.map(ApplicantModel::getApplicantData).map(ApplicantData::preferredLocale),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given TI email. */
@@ -815,7 +946,7 @@ public final class ApplicantService {
                   .map(ApplicantModel::getApplicantData)
                   .map(ApplicantData::preferredLocale);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -882,7 +1013,7 @@ public final class ApplicantService {
               return relevantProgramsForApplicantInternal(
                   activeProgramDefinitions, applications, allPrograms);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -913,7 +1044,7 @@ public final class ApplicantService {
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .filter(programData -> !programData.program().isCommonIntakeForm())
                     .collect(ImmutableList.toImmutableList()),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -1365,7 +1496,7 @@ public final class ApplicantService {
           case DATE:
             try {
               applicantData.putDate(currentPath, update.value());
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
@@ -1698,6 +1829,68 @@ public final class ApplicantService {
                       phoneQuestion.getCountryCodePath().toString(),
                       result.getCountryCode().orElse(""));
                 }
+              }
+
+              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
+            });
+  }
+
+  /**
+   * Checks the block for any {@link DateQuestion}. Since there are two different UI components that
+   * can display date questions, consolidate any Date questions into the central date path so UI
+   * differences are not reflected in the database.
+   */
+  public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Get a writeable map so the existing paths can be replaced
+              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+
+              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+                if (applicantQuestion.getType() != QuestionType.DATE) {
+                  continue;
+                }
+
+                DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+                String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+                String yearValue = formData.get(dateQuestion.getYearPath().toString());
+                String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+                String dayValue = formData.get(dateQuestion.getDayPath().toString());
+                // Whether at least one of the three values is present and non-empty.
+                boolean hasMemorableDateValue =
+                    !(yearValue == null || yearValue.isEmpty())
+                        || !(monthValue == null || monthValue.isEmpty())
+                        || !(dayValue == null || dayValue.isEmpty());
+
+                // If the value in the single input is not present or empty, and there is at least
+                // one memorable date value, convert to a date.
+                if ((singleDateValue == null || singleDateValue.isEmpty())
+                    && hasMemorableDateValue) {
+                  // Note: If a memorable date input value is not present, replace it with a
+                  // placeholder. This will fail to parse as a date without throwing a
+                  // NullPointerException when building the date string.
+                  String dateString =
+                      String.format(
+                          "%s-%s-%s",
+                          yearValue,
+                          monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
+                          dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
+                  newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+                }
+                // Remove the 3 individual paths, so they won't be stored.
+                newFormData.remove(dateQuestion.getYearPath().toString());
+                newFormData.remove(dateQuestion.getMonthPath().toString());
+                newFormData.remove(dateQuestion.getDayPath().toString());
               }
 
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));

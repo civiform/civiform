@@ -1,6 +1,5 @@
 # Builds on browser-test-compose.dev.yml
 # Expose port 3390 for OIDC container. May conflict with other stacks.
-version: '3.4'
 services:
   dev-oidc:
     ports:

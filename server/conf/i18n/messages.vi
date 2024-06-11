@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Ch�
 toast.errorMessageOutline=Lỗi: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Đóng
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Xem lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
 
@@ -58,9 +60,14 @@ button.deleteFile=Xoá
 button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
-button.review=Xem lại
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
@@ -70,15 +77,15 @@ modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi tr�
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và quay lại trang trước?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang đánh giá mà không lưu câu trả lời?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang câu hỏi trước đó mà không lưu câu trả lời?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=Tiếp tục chuyển đến trang đánh giá mà không lưu
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=Tiếp tục chuyển đến trang câu hỏi trước đó mà không lưu
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=Tiếp tục chỉnh sửa câu trả lời
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -94,6 +101,8 @@ button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền vào {0}
 button.editCommonIntakeSr=Chỉnh sửa thông tin đã gửi cho {0}
 button.continueCommonIntakeSr=Tiếp tục điền vào {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
 content.submittedDate=Đã gửi {0}
 content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
@@ -107,6 +116,18 @@ title.allProgramsSection=Tất cả các chương trình ({0})
 title.status=Trạng thái
 title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Mục đã hoàn thành
 title.submittedPrograms=Đã gửi
 toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
 toast.programCompleted=Đăng ký thành công.
@@ -125,6 +146,9 @@ banner.clientInfoUpdated=Đã cập nhật thành công thông tin khách hàng.
 banner.clientAcctDeleted=Đã xoá thành công tài khoản khách hàng của "{0}".
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Đã tạo thành công hồ sơ khách hàng mới.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Bạn đang đăng ký cho {0}. Bạn đang định đăng ký cho một khách hàng khác?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Thêm khách hàng mới
@@ -152,13 +176,27 @@ button.select=Chọn
 button.startApp=Bắt đầu đơn đăng ký
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Xem các đơn đăng ký
+# Button to view and add clients
+button.viewAndAddClients=Xem và thêm khách hàng
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Khách hàng mới {0} đã được thêm vào danh sách khách hàng của bạn. Bây giờ bạn có thể bắt đầu gửi đơn đăng ký cho khách hàng này.
+# The tooltip of the email input field.
+content.emailTooltip=Thêm địa chỉ email để khách hàng tự động nhận được thông tin cập nhật về trạng thái đơn đăng ký của họ. Nếu không có địa chỉ email, bạn hoặc tổ chức dựa vào cộng đồng của bạn sẽ chịu trách nhiệm truyền đạt thông tin cập nhật cho khách hàng.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=Đã gửi {0} đơn đăng ký
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=Đã gửi 1 đơn đăng ký
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Không có đơn đăng ký nào được gửi cho khách hàng này nên sẽ không có đơn đăng ký nào bị mất.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(không có địa chỉ email)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Chưa đăng nhập
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Đã đăng nhập nhưng chưa gửi đơn đăng ký nào
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Đơn đăng ký gần đây nhất được gửi vào ngày {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của khách hàng này không?
 
@@ -166,8 +204,10 @@ dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của
 header.acctSettings=Cài đặt tài khoản
 # Tab label for getting to the client list page
 header.clientList=Danh sách khách hàng
+# Label for search
+header.search=Tìm kiếm
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Trạng thái tài khoản
 # Label above the phone number for each client on the client list.
 label.contactInfo=Thông tin liên hệ
@@ -179,6 +219,16 @@ label.dob=Ngày sinh
 label.dobExample=Ví dụ: Ngày 28 tháng 1 năm 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Cần nhập ngày sinh
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Cần nhập tên
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Cần nhập họ
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,19 +245,31 @@ label.searchByDob=Tìm theo ngày sinh
 label.searchByName=Tìm theo tên
 # The label above the input field for the year of the client birth date.
 label.year=Năm
+# Label showing the user when there is no name
+label.unnamedUser=Người dùng chưa được đặt tên
 
 link.edit=Chỉnh sửa
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Chọn một khách hàng mới
 
 # This is the header above the list of clients and the client search.
 title.allClients=Tất cả khách hàng
 # This is the heading above a new client creation form.
 title.createClient=Tạo hồ sơ khách hàng mới
+# This is the heading above the client editing form.
+title.editClient=Chỉnh sửa thông tin khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Đang hiện {0} khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Đang hiện 1 khách hàng
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Hiện tất cả khách hàng
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Thành viên của tổ chức
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Trung gian đáng tin cậy — Quản lý khách hàng — CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Trung gian đáng tin cậy — Xem Cài đặt tài khoản — CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -215,8 +277,12 @@ title.orgMembers=Thành viên của tổ chức
 
 button.submit=Gửi
 button.continue=Tiếp tục
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Bắt đầu
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.
 content.doesNotQualify=Không đủ tiêu chuẩn
 link.edit=Chỉnh sửa
 link.answer=Câu trả lời
@@ -224,8 +290,10 @@ content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 ariaLabel.answer=Câu trả lời {0}
 
 ariaLabel.edit=Chỉnh sửa {0}
-title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Hãy bắt đầu.
+title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -267,7 +335,7 @@ content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể 
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
 
@@ -279,6 +347,19 @@ title.noChangesToSave=Không có thay đổi nào cần lưu đối với {0}
 content.noChanges=Bạn chưa thay đổi gì trong đơn đăng ký. Bạn có muốn tiếp tục chỉnh sửa không?
 button.continueEditing=Tiếp tục chỉnh sửa
 button.exitApplication=Thoát quy trình đăng ký
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -298,37 +379,25 @@ validation.stateRequired=Vui lòng nhập tên tiểu bang.
 validation.invalidZipcode=Vui lòng nhập mã bưu chính hợp lệ gồm 5 chữ số.
 validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận hộp thư bưu điện.
 
-title.verifyAddress=Xác minh địa chỉ
-
-content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Địa chỉ đã nhập:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Địa chỉ được đề xuất:
-content.suggestedAddresses=Các địa chỉ được đề xuất:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
-content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=Xác nhận địa chỉ của bạn
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=Chúng tôi không thể tìm thấy địa chỉ của bạn.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không hoặc chọn một địa chỉ từ danh sách được cung cấp.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không rồi chỉnh sửa để tiếp tục.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Địa chỉ bạn đã nhập:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Địa chỉ được đề xuất:
+content.suggestedAddresses=Các địa chỉ được đề xuất:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=Xác nhận địa chỉ
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -352,8 +421,39 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=01 — Tháng 1
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=02 — Tháng 2
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=03 — Tháng 3
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=04 — Tháng 4
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=05 — Tháng 5
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=06 — Tháng 6
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=07 — Tháng 7
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=08 — Tháng 8
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=09 — Tháng 9
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=10 — Tháng 10
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=11 — Tháng 11
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=12 — Tháng 12
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Chọn
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Lỗi: Vui lòng nhập tháng, ngày và năm.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=Ngày sinh phải là ngày trong quá khứ
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=Ngày sinh phải cách đây không quá 150 năm
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -363,7 +463,7 @@ button.addEntity=Thêm {0}
 button.removeEntity=Xoá {0}
 dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
 validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
 placeholder.entityName=Tên {0}
@@ -373,9 +473,9 @@ placeholder.entityName=Tên {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Vui lòng chọn một tệp.
-button.chooseFile=Chọn tệp
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=Tệp của bạn quá lớn. Vui lòng chọn tệp có kích thước dưới {0} MB.
+button.chooseFile=Chọn tệp
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +528,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái viết thường, số, dấu gạch dưới và dấu gạch ngang.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -464,3 +564,12 @@ banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên mi�
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
 banner.httpsSectionHeader=Các trang web .gov an toàn sử dụng HTTPS
 banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có nghĩa là bạn đã kết nối an toàn với trang web .gov. Bạn chỉ nên chia sẻ thông tin nhạy cảm trên các trang web chính thức, an toàn.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.

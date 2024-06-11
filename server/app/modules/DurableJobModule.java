@@ -12,7 +12,7 @@ import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
-import durablejobs.jobs.FixApplicantDobDataPathJob;
+import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -26,6 +26,7 @@ import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
+import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -74,7 +75,9 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsService settingsService,
+      Config config) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -96,17 +99,18 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
-        DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
-        persistedDurableJob ->
-            new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Nightly2Am());
-
-    durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
         persistedDurableJob ->
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+
+    durableJobRegistry.register(
+        DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
+        persistedDurableJob ->
+            new MigratePrimaryApplicantInfoJob(
+                persistedDurableJob, accountRepository, settingsService, config),
+        new RecurringJobExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
   }

@@ -17,7 +17,7 @@ import models.AccountModel;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -34,17 +34,22 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
+import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.UpsellParams;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
+  private final NorthStarApplicantUpsellView northStarUpsellView;
+  private final NorthStarApplicantCommonIntakeUpsellView northStarCommonIntakeUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -52,25 +57,29 @@ public final class UpsellController extends CiviFormController {
 
   @Inject
   public UpsellController(
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
+      NorthStarApplicantUpsellView northStarApplicantUpsellView,
+      NorthStarApplicantCommonIntakeUpsellView northStarApplicantCommonIntakeUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
+    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
+    this.northStarCommonIntakeUpsellView = checkNotNull(northStarApplicantCommonIntakeUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -98,13 +107,15 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
 
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
-            .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
+                v -> checkApplicantAuthorization(request, applicantId),
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                v -> profile.get().getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
@@ -135,7 +146,7 @@ public final class UpsellController extends CiviFormController {
                       v ->
                           applicantService.maybeEligibleProgramsForApplicant(
                               applicantId, profile.get()),
-                      httpContext.current())
+                      classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })
         .thenApplyAsync(
@@ -143,7 +154,33 @@ public final class UpsellController extends CiviFormController {
               Optional<ToastMessage> toastMessage =
                   request.flash().get("banner").map(m -> ToastMessage.alert(m));
 
-              if (isCommonIntake.join()) {
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                UpsellParams.Builder paramsBuilder =
+                    UpsellParams.builder()
+                        .setRequest(request)
+                        .setProfile(
+                            profile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                        .setApplicationId(applicationId)
+                        .setMessages(messagesApi.preferred(request))
+                        .setApplicantId(applicantId);
+
+                if (isCommonIntake.join()) {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                          .build();
+                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                      .as(Http.MimeTypes.HTML);
+                } else {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                          .build();
+                  return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+                }
+              } else if (isCommonIntake.join()) {
                 return ok(
                     cifUpsellView.render(
                         request,
@@ -177,7 +214,7 @@ public final class UpsellController extends CiviFormController {
                       toastMessage,
                       applicantRoutes));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -208,10 +245,8 @@ public final class UpsellController extends CiviFormController {
         .thenApplyAsync(
             check -> {
               PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generatePdf(
-                      applicationMaybe.join().get(),
-                      /* showEligibilityText= */ false,
-                      /* includeHiddenBlocks= */ false);
+                  pdfExporterService.generateApplicationPdf(
+                      applicationMaybe.join().get(), /* isAdmin= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -74,7 +75,7 @@ public final class QuestionsListView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
+    this.settingsManifest = settingsManifest;
   }
 
   /** Renders a page with a list view of all questions. */
@@ -159,15 +160,13 @@ public final class QuestionsListView extends BaseHtmlView {
                       .setReferencingPrograms(
                           createReferencingPrograms(
                               referencingPrograms.activeReferences(),
-                              referencingPrograms.draftReferences()))
+                              referencingPrograms.draftReferences(),
+                              request))
                       .build();
                 })
             .sorted(
                 Comparator.<QuestionCardData, Boolean>comparing(
-                        card ->
-                            settingsManifest.getUniversalQuestions(request)
-                                ? getDisplayQuestion(card).isUniversal()
-                                : true)
+                        card -> getDisplayQuestion(card).isUniversal())
                     .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
@@ -189,8 +188,7 @@ public final class QuestionsListView extends BaseHtmlView {
           renderQuestionCard(card, activeAndDraftQuestions, request);
       if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
-      } else if (getDisplayQuestion(card).isUniversal()
-          && settingsManifest.getUniversalQuestions(request)) {
+      } else if (getDisplayQuestion(card).isUniversal()) {
         universalQuestionRows.add(rowAndModals.getLeft());
       } else {
         nonArchivedQuestionRows.add(rowAndModals.getLeft());
@@ -274,7 +272,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
+        renderReferencingPrograms(
+            latestDefinition.getName(), cardData.referencingPrograms(), request);
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -320,8 +319,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
-                settingsManifest.getUniversalQuestions(request)
-                    && getDisplayQuestion(cardData).isUniversal(),
+                getDisplayQuestion(cardData).isUniversal(),
                 ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
             .with(adminNote)
@@ -414,10 +412,12 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
+      String questionName,
+      GroupedReferencingPrograms groupedReferencingPrograms,
+      Http.Request request) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty(), request);
 
     DivTag tag =
         div()
@@ -427,20 +427,30 @@ public final class QuestionsListView extends BaseHtmlView {
                 StyleUtils.responsiveXLarge("ml-10"),
                 "py-7",
                 "w-1/4");
-    if (groupedReferencingPrograms.isEmpty()) {
+    if (groupedReferencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       tag.with(p("Used in 0 programs."));
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Used in", numPrograms)));
+        tag.with(p(formatReferencingProgramsText("Used in", numPrograms, "program")));
       }
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Added to", numPrograms)));
+        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
+        } else {
+          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
+        }
       }
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms)));
+        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
+      }
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()
+          && settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+        int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
+        tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
     }
     if (maybeReferencingProgramsModal.isPresent()) {
@@ -458,8 +468,13 @@ public final class QuestionsListView extends BaseHtmlView {
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
   }
 
-  private static String formatReferencingProgramsText(String prefix, int numPrograms) {
-    return String.format("%s %d program%s.", prefix, numPrograms, (numPrograms > 1 ? "s" : ""));
+  private static String formatReferencingProgramsText(
+      String prefix, int numPrograms, String suffix) {
+    return String.format(
+        "%s %d %s.",
+        prefix,
+        numPrograms,
+        (numPrograms > 1 ? suffix.replaceAll("\\bprogram\\b", "programs") : suffix));
   }
 
   @AutoValue
@@ -470,12 +485,23 @@ public final class QuestionsListView extends BaseHtmlView {
 
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
+    /**
+     * Returns an immutable list of program definitions that are currently in draft status with
+     * disabled visibility.
+     */
+    abstract ImmutableList<ProgramDefinition> disabledPrograms();
+
     static Builder builder() {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
-    boolean isEmpty() {
-      return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    boolean isEmpty(boolean includeDisabledPrograms) {
+      boolean usedAndAddedAndRemovedProgramsIsEmpty =
+          usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+      if (includeDisabledPrograms) {
+        return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
+      }
+      return usedAndAddedAndRemovedProgramsIsEmpty;
     }
 
     int getTotalNumReferencingPrograms() {
@@ -490,25 +516,41 @@ public final class QuestionsListView extends BaseHtmlView {
 
       abstract Builder setRemovedPrograms(ImmutableList<ProgramDefinition> removedPrograms);
 
+      abstract Builder setDisabledPrograms(ImmutableList<ProgramDefinition> disabledPrograms);
+
       abstract GroupedReferencingPrograms build();
     }
   }
 
   private GroupedReferencingPrograms createReferencingPrograms(
-      Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
+      Collection<ProgramDefinition> activePrograms,
+      Collection<ProgramDefinition> draftPrograms,
+      Http.Request request) {
     ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftDisabledProgramsMap =
+        draftPrograms.stream()
+            .filter(program -> program.displayMode() == DisplayMode.DISABLED)
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
     ImmutableMap<String, ProgramDefinition> draftProgramsMap =
         draftPrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    // Use set operations to collect programs into 3 sets.
+    // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+      addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
+    }
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> disabledSet =
+        Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
 
     ImmutableList<ProgramDefinition> usedPrograms =
         usedSet.stream()
@@ -525,18 +567,26 @@ public final class QuestionsListView extends BaseHtmlView {
             .map(activeProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> disabledPrograms =
+        disabledSet.stream()
+            .map(draftDisabledProgramsMap::get)
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
     return GroupedReferencingPrograms.builder()
         .setUsedPrograms(usedPrograms)
         .setAddedPrograms(addedPrograms)
         .setRemovedPrograms(removedPrograms)
+        .setDisabledPrograms(disabledPrograms)
         .build();
   }
 
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
       GroupedReferencingPrograms referencingPrograms,
-      Optional<DomContent> modalHeader) {
-    if (referencingPrograms.isEmpty()) {
+      Optional<DomContent> modalHeader,
+      Http.Request request) {
+    if (referencingPrograms.isEmpty(
+        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
       return Optional.empty();
     }
 
@@ -596,7 +646,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             each(
                                 referencingPrograms,
                                 programReference -> {
-                                  return li(programReference.adminName());
+                                  return li(programReference.localizedName().getDefault());
                                 }))));
   }
 
@@ -769,7 +819,7 @@ public final class QuestionsListView extends BaseHtmlView {
         GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(), referencingPrograms, Optional.of(modalHeader));
+                definition.getName(), referencingPrograms, Optional.of(modalHeader), request);
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import models.AccountModel;
 import models.ApplicantModel;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
@@ -29,19 +29,19 @@ import services.settings.SettingsManifest;
  */
 public class CiviFormProfile {
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
   private final AccountRepository accountRepository;
 
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       CiviFormProfileData profileData,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
-    this.httpContext = Preconditions.checkNotNull(httpContext);
+    this.classLoaderExecutionContext = Preconditions.checkNotNull(classLoaderExecutionContext);
     this.profileData = Preconditions.checkNotNull(profileData);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
@@ -69,7 +69,7 @@ public class CiviFormProfile {
             (account) ->
                 getApplicantForAccount(account)
                     .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
-            httpContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
@@ -199,7 +199,8 @@ public class CiviFormProfile {
 
   /** Returns the authority id from the {@link AccountModel} associated with the profile. */
   public CompletableFuture<String> getAuthorityId() {
-    return this.getAccount().thenApplyAsync(AccountModel::getAuthorityId, httpContext.current());
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getAuthorityId, classLoaderExecutionContext.current());
   }
 
   /**
@@ -217,7 +218,8 @@ public class CiviFormProfile {
     }
 
     // If it's not present i.e. if user is a guest, fall back to the address in the database
-    return this.getAccount().thenApplyAsync(AccountModel::getEmailAddress, httpContext.current());
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
 
   /** Get the profile data. */

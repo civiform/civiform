@@ -1,0 +1,76 @@
+<!doctype html>
+<head th:fragment="pageHeaderScriptsAndLinks">
+  <meta charset="UTF-8" />
+  <title>Title</title>
+
+  <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
+  <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet" />
+  <script th:src="${uswdsJsInit}" type="text/javascript"></script>
+</head>
+
+<footer th:fragment="pageFooter">
+  <script th:src="${applicantJsBundle}" type="text/javascript"></script>
+  <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
+</footer>
+
+<div th:fragment="requiredFieldsExplanation">
+  <!--/* This uses utext because the parameter passed into the message is html,
+    it is a placeholder span with the red asterisk. We need it to be html and not
+    raw text to recreate the red style */-->
+  <p th:utext="#{content.requiredFieldsNote(~{this :: requiredAsterisk})}"></p>
+</div>
+
+<th:block th:fragment="requiredAsterisk">
+  <span class="usa-hint--required"> *</span>
+</th:block>
+
+<div
+  th:fragment="progressBar"
+  class="usa-step-indicator usa-step-indicator--center"
+  aria-label="progress"
+>
+  <!--/* The progress bar itself */-->
+  <ol class="usa-step-indicator__segments">
+    <th:block
+      th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
+      th:with="block=${applicationParams.blockList().get(i)}"
+    >
+      <li
+        th:class="'usa-step-indicator\_\_segment' +
+                  ${i == applicationParams.blockIndex() ? ' usa-step-indicator\_\_segment--current' : ''} +
+                  ${block.isCompletedInProgramWithoutErrors() ? ' usa-step-indicator\_\_segment--complete' : ''}"
+      >
+        <span
+          class="usa-step-indicator__segment-label"
+          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
+        ></span>
+      </li>
+    </th:block>
+  </ol>
+
+  <!--/* Text with "X of Y BlockName" */-->
+  <div class="usa-step-indicator__header">
+    <h1 class="usa-step-indicator__heading">
+      <span class="usa-step-indicator__heading-counter">
+        <span
+          th:utext="#{content.blockProgress(${applicationParams.blockIndex() + 1},
+        ${applicationParams.totalBlockCount()})}"
+          class="usa-step-indicator__total-steps"
+        >
+        </span>
+        <span
+          class="usa-step-indicator__heading-text"
+          th:text="${applicationParams.block().getName()}"
+        ></span>
+      </span>
+    </h1>
+  </div>
+</div>
+
+<svg
+  th:fragment="icon(icon)"
+  class="usa-icon"
+  th:attr="viewBox=${icon.getViewBox()}"
+>
+  <path th:attr="d=${icon.path}"></path>
+</svg>

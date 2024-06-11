@@ -17,7 +17,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -46,7 +46,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionsListView listView;
   private final QuestionEditView editView;
   private final FormFactory formFactory;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   public AdminQuestionController(
@@ -56,13 +56,13 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
-      HttpExecutionContext httpExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
   }
 
   /**
@@ -76,7 +76,7 @@ public final class AdminQuestionController extends CiviFormController {
         .thenApplyAsync(
             readOnlyService ->
                 ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -107,7 +107,7 @@ public final class AdminQuestionController extends CiviFormController {
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
@@ -253,7 +253,7 @@ public final class AdminQuestionController extends CiviFormController {
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** POST endpoint for updating a question in the draft version. */

@@ -20,6 +20,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_PRODUCTION_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The URL to the civic entity's production CiviForm site.",
+        "type": "string",
+        "required": false
+      },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
@@ -235,7 +241,7 @@
             "required": false
           },
           "Active Directory Federation Services": {
-            "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",
+            "group_description": "Configuration options for the [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc) provider.",
             "members": {
               "ADFS_CLIENT_ID": {
                 "mode": "HIDDEN",
@@ -270,7 +276,7 @@
             }
           },
           "OpenID Connect": {
-            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "group_description": "Configuration options for the [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc) provider.",
             "members": {
               "ADMIN_OIDC_PROVIDER_NAME": {
                 "mode": "HIDDEN",
@@ -453,8 +459,13 @@
         "members": {
           "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
             "mode": "ADMIN_READABLE",
-            "description": "The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+            "description": "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
             "type": "string"
+          },
+          "ESRI_FIND_ADDRESS_CANDIDATES_URLS": {
+            "mode": "ADMIN_READABLE",
+            "description": "The list of URLs CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). These are used sequentially and not all of them may need to be used for every correction. If any results have a score of 90 or higher, lower priority urls will not be called.",
+            "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
             "mode": "ADMIN_READABLE",
@@ -480,6 +491,16 @@
             "mode": "ADMIN_READABLE",
             "description": "The number of tries CiviForm will attempt requests to external Esri services.",
             "type": "int"
+          },
+          "ESRI_WELLKNOWN_ID_OVERRIDE": {
+            "mode": "ADMIN_READABLE",
+            "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
+            "type": "int"
+          },
+          "ESRI_ARCGIS_API_TOKEN": {
+            "mode": "HIDDEN",
+            "description": "A secret token value from Esri's arcgis.com online service created by your arcgis.com account for accessing the API.",
+            "type": "string"
           }
         }
       }
@@ -600,6 +621,11 @@
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
   },
+  "NUM_TRUSTED_PROXIES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
+    "type": "int"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -661,6 +687,11 @@
       "APPLICATION_EXPORTABLE": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
+        "type": "bool"
+      },
+      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows programs to be disabled from CiviForm",
         "type": "bool"
       },
       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
@@ -738,29 +769,39 @@
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
-      "UNIVERSAL_QUESTIONS": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables setting and displaying the universal question state on questions. These questions are intended to be used by all programs and will appear at the top of the question bank with a badge denoting them as universal.",
-        "type": "bool"
-      },
-      "PROGRAM_CARD_IMAGES": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
-        "type": "bool"
-      },
       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
       },
       "SAVE_ON_ALL_ACTIONS": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+        "mode": "ADMIN_READABLE",
+        "description": "Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
+        "type": "bool"
+      },
+      "PROGRAM_FILTERING_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
+        "type": "bool"
+      },
+      "MULTIPLE_FILE_UPLOAD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
+        "type": "bool"
+      },
+      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site. This banner will not show on Production sites even if this setting is enabled.",
         "type": "bool"
       }
     }

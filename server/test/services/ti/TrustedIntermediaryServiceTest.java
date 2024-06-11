@@ -8,8 +8,7 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.EditTiClientInfoForm;
+import forms.TiClientInfoForm;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -85,22 +84,26 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com",
+                        "ClientLast",
                         "dob",
-                        "")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
-    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of Birth required");
+                        "",
+                        "emailAddress",
+                        "emailAllPassEditClient",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
+    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of birth required");
   }
 
   @Test
@@ -111,21 +114,25 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com",
+                        "ClientLast",
                         "dob",
-                        "1865-07-07")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "1850-07-07",
+                        "emailAddress",
+                        "emailAllPassEditClient",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
     assertThat(returnedForm.error("dob").get().message())
         .isEqualTo("Date of Birth should be less than 150 years ago");
   }
@@ -138,23 +145,27 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com",
+                        "ClientLast",
                         "dob",
-                        "20-20-20")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "20-20-20",
+                        "emailAddress",
+                        "emailAllPassEditClient",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
     assertThat(returnedForm.error("dob").get().message())
-        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
+        .isEqualTo("Please enter a date in the correct format");
   }
 
   @Test
@@ -165,21 +176,25 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "first",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
                         "",
-                        "emailAddress",
-                        "sample1@fake.com",
                         "dob",
-                        "2022-07-07")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "2022-07-07",
+                        "emailAddress",
+                        "emailAllPassEditClient",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
     assertThat(returnedForm.error("lastName").get().message()).isEqualTo("Last name required");
   }
 
@@ -195,17 +210,21 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "middleName",
                         "middle",
                         "lastName",
-                        "Last",
-                        "emailAddress",
-                        "sample1@fake.com",
+                        "ClientLast",
                         "dob",
-                        "2012-07-07")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "2022-07-07",
+                        "emailAddress",
+                        "emailAllPassEditClient",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
     assertThat(returnedForm.error("firstName").get().message()).isEqualTo("First name required");
   }
 
@@ -217,23 +236,29 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "First",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "Last",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
                         "emailAddress",
                         "sample@fake.com",
-                        "dob",
-                        "2012-07-07")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm1 =
-        service.addNewClient(form, tiGroup);
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm2 =
-        service.addNewClient(form, tiGroup);
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnedForm1 =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
+    Form<TiClientInfoForm> returnedForm2 =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
     // The first form is successful
     assertThat(returnedForm1).isEqualTo(form);
     // The second form has the same emailAddress, so it errors
@@ -255,16 +280,19 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "middle",
                         "lastName",
                         "Email",
+                        "dob",
+                        "2011-11-11",
                         "emailAddress",
                         "",
-                        "dob",
-                        "2011-11-11")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    AddNewApplicantReturnObject returnObject =
+        service.addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()));
+    Form<TiClientInfoForm> returnedForm = returnObject.getForm();
     assertThat(returnedForm.errors()).isEmpty();
     AccountModel account =
         tiGroup.getManagedAccounts().stream()
@@ -273,6 +301,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .get();
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2011-11-11");
+    assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2011-11-11");
     assertThat(account.getEmailAddress()).isNull();
@@ -287,27 +316,30 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "First",
+                        "clientFirst",
                         "middleName",
                         "middle",
                         "lastName",
-                        "Last",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
                         "emailAddress",
                         "add1@fake.com",
-                        "dob",
-                        "2022-07-07")));
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory
-            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
-            .bindFromRequest(requestBuilder.build());
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        service.addNewClient(form, tiGroup);
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    AddNewApplicantReturnObject returnObject =
+        service.addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()));
+    Form<TiClientInfoForm> returnedForm = returnObject.getForm();
     assertThat(returnedForm).isEqualTo(form);
     AccountModel account = repo.lookupAccountByEmail("add1@fake.com").get();
 
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
-
+    assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
   }
@@ -450,9 +482,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "4259879090")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm).isEqualTo(form);
@@ -494,9 +526,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "42598790")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
@@ -525,9 +557,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "42598790UI")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
@@ -555,9 +587,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "0000000000")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
@@ -585,9 +617,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm).isEqualTo(form);
@@ -614,9 +646,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "4259870989")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm).isEqualTo(form);
@@ -643,9 +675,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "",
                         "phoneNumber",
                         "4259870989")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm).isEqualTo(form);
@@ -674,9 +706,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "42598790")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("dob").get().message())
@@ -707,9 +739,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "42598790")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("firstName").get().message()).isEqualTo("First name required");
@@ -739,9 +771,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "42598790")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm =
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("lastName").get().message()).isEqualTo("Last name required");
@@ -769,8 +801,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "unitTest",
                         "phoneNumber",
                         "4259879090")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     assertThatThrownBy(
             () ->
                 service.updateClientInfo(

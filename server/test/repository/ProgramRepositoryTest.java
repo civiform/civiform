@@ -2,6 +2,8 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -30,6 +32,7 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
 import play.libs.F;
+import play.test.Helpers;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
@@ -218,6 +221,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             draftVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     draftOne.save();
 
@@ -233,6 +237,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             draftVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
 
     var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
@@ -254,6 +259,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     ProgramModel withId = repo.insertProgramSync(program);
 
@@ -272,7 +278,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     ProgramModel updated = repo.updateProgramSync(updates);
 
-    assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
+    assertThat(updated.id).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "new name"));
   }
@@ -340,7 +346,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -388,9 +395,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }
 
+  // TODO (#5503): Remove this test when we remove the feature flag
   @Test
   @Parameters(method = "getSearchByNameOrEmailData")
-  public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
+  public void getApplicationsForAllProgramVersions_searchByNameOrEmailUsingWellKnownPaths(
       String searchFragment, ImmutableSet<String> wantEmails) {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
@@ -417,7 +425,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(searchFragment))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -427,6 +436,120 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
   }
 
+  @Test
+  public void getApplicationsForAllProgramVersions_searchesByNameEmailPhone() {
+    Mockito.when(mockSettingsManifest.getPrimaryApplicantInfoQuestionsEnabled(any()))
+        .thenReturn(true);
+
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
+
+    String emailOne = "one@email.com";
+    String emailTwo = "two@email.com";
+    makeApplicantWithAccountAndApplication("OneFirst", "OneLast", emailOne, "1234567890", program);
+    makeApplicantWithAccountAndApplication("TwoFirst", "TwoLast", emailTwo, "0987654321", program);
+
+    // should only return the applicant with first name "OneFirst"
+    PaginationResult<ApplicationModel> paginationResultOne =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("One"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultOne.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+
+    // should return both applicants with "Last" in their last names
+    PaginationResult<ApplicationModel> paginationResultTwo =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("Last"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultTwo.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(emailOne, emailTwo));
+
+    // should only return the applicant with email = "two@email.com"
+    PaginationResult<ApplicationModel> paginationResultThree =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of(emailTwo))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultThree.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailTwo);
+
+    // should only return the applicant whose phone number contains "1234"
+    PaginationResult<ApplicationModel> paginationResultFour =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("1234"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultFour.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+
+    // special characters (including spaces) in phone numbers are ignored in search
+    PaginationResult<ApplicationModel> paginationResultFive =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of("(1.23)- 456"))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
+
+    assertThat(
+            paginationResultFive.getPageContents().stream()
+                .map(a -> a.getApplicant().getEmailAddress().get())
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(emailOne);
+  }
+
+  private void makeApplicantWithAccountAndApplication(
+      String firstName, String lastName, String email, String phoneNumber, ProgramModel program) {
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(email));
+
+    applicant.setFirstName(firstName);
+    applicant.setLastName(lastName);
+    applicant.setEmailAddress(email);
+    applicant.setPhoneNumber(phoneNumber);
+    applicant.save();
+
+    resourceCreator.insertActiveApplication(applicant, program);
+  }
+
+  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
+  // flag
   private ApplicationModel makeApplicationWithName(
       ApplicantModel applicant,
       ProgramModel program,
@@ -569,7 +692,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            filter);
+            filter,
+            addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(result.hasMorePages()).isEqualTo(false);
     return result.getPageContents().stream()
         .map(app -> app.id)
@@ -647,7 +771,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -679,7 +804,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -692,7 +818,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -722,7 +849,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -736,7 +864,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);

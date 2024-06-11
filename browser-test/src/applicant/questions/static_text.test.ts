@@ -1,7 +1,12 @@
-import {test, expect} from '@playwright/test'
+import {Page} from 'playwright'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
+  AdminQuestions,
+  AdminPrograms,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
+  logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
@@ -20,10 +25,80 @@ test.describe('Static text question for applicant flow', () => {
     'This link should be autodetected: https://www.example.com\n' +
     '__Last line of content should be bold__'
   const programName = 'Test program for static text'
-  const ctx = createTestContext(/* clearDb= */ false)
 
-  test.beforeAll(async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test.describe('With north star flag disabled', () => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('displays static text', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.seeStaticQuestion(staticText)
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+
+    test('parses markdown', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'markdown-text')
+
+      await verifyMarkdownHtml(page)
+    })
+  })
+
+  test.describe('With north star flag enabled', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('parses markdown', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(
+        page.getByTestId('staticQuestionRoot'),
+        'markdown-text-north-star',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ true,
+      )
+
+      await verifyMarkdownHtml(page)
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+  })
+
+  async function setUpForSingleQuestion(
+    programName: string,
+    page: Page,
+    adminQuestions: AdminQuestions,
+    adminPrograms: AdminPrograms,
+  ) {
     // As admin, create program with static text question.
     await loginAsAdmin(page)
 
@@ -38,27 +113,10 @@ test.describe('Static text question for applicant flow', () => {
       ['static-text-q', 'partner-email-q'],
       programName,
     )
-  })
+    await logout(page)
+  }
 
-  test('displays static text', async () => {
-    const {applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    await applicantQuestions.seeStaticQuestion(staticText)
-  })
-
-  test('has no accessiblity violations', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    await validateAccessibility(page)
-  })
-
-  test('parses markdown', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-    await validateScreenshot(page, 'markdown-text')
-
+  async function verifyMarkdownHtml(page: Page) {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<p>Hello, I am some static text!<br>',
     )
@@ -77,5 +135,5 @@ test.describe('Static text question for applicant flow', () => {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<strong>Last line of content should be bold</strong>',
     )
-  })
+  }
 })

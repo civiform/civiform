@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.13",
+    scalaVersion := "2.13.14",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -22,30 +22,35 @@ lazy val root = (project in file("."))
       guice,
       javaJdbc,
       javaWs,
+      // Collections
+      "com.google.guava" % "guava" % "33.2.1-jre",
+      "com.google.auto" % "auto-common" % "1.2.2",
+
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
-      "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.1",
+      "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
-      "org.commonmark" % "commonmark" % "0.21.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
+      "org.commonmark" % "commonmark" % "0.22.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.22.0",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.24.13",
-      "software.amazon.awssdk" % "ses" % "2.24.13",
+      "software.amazon.awssdk" % "s3" % "2.25.70",
+      "software.amazon.awssdk" % "ses" % "2.25.70",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.11.2",
-      "com.azure" % "azure-storage-blob" % "12.25.2",
+      "com.azure" % "azure-identity" % "1.12.2",
+      "com.azure" % "azure-storage-blob" % "12.26.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.2",
+      "org.postgresql" % "postgresql" % "42.7.3",
       "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
@@ -55,60 +60,60 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.25.3" % Test,
+      "org.assertj" % "assertj-core" % "3.26.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.0.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.2.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.9",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
+      "jakarta.activation" % "jakarta.activation-api" % "2.1.3",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.5",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.2",
+      "org.pac4j" % "pac4j-core" % "5.7.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.2",
+      "org.pac4j" % "pac4j-http" % "5.7.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.2",
+      "org.pac4j" % "pac4j-oidc" % "5.7.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.2",
+      "org.pac4j" % "pac4j-saml" % "5.7.5",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.4",
-      "com.google.auto.value" % "auto-value" % "1.10.4",
+      "com.google.auto.value" % "auto-value-annotations" % "1.11.0",
+      "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.25.0",
+      "com.google.errorprone" % "error_prone_core" % "2.28.0",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.10.0",
-      "commons-validator" % "commons-validator" % "1.8.0",
+      "org.apache.commons" % "commons-csv" % "1.11.0",
+      "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.31",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.38",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.10.0",
+      "commons-net" % "commons-net" % "3.11.1",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.8"
+      "ch.qos.logback" % "logback-classic" % "1.5.6"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -165,6 +170,9 @@ lazy val root = (project in file("."))
     Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Play 2.9 started using a dynamically assigned port number. Setting it in the
+    // application.test.conf file didn't have any effect so we set it here.
+    Test / javaOptions += "-Dtestserver.port=9000",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
     // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
     // since running in non-forked mode causes javaOptions to not be propagated, which
@@ -238,9 +246,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

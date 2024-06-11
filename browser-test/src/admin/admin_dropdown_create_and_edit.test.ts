@@ -1,12 +1,8 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, loginAsAdmin, waitForPageJsLoad} from '../support'
+import {test, expect} from '../support/civiform_fixtures'
+import {loginAsAdmin, waitForPageJsLoad} from '../support'
 
 test.describe('create dropdown question with options', () => {
-  const ctx = createTestContext()
-
-  test('add remove buttons work correctly', async () => {
-    const {page, adminQuestions} = ctx
-
+  test('add remove buttons work correctly', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
 
     await page.click('text=Questions')

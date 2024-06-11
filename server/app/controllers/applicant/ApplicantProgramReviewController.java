@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
+import actions.ProgramDisabledAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -18,10 +19,12 @@ import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Call;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.VersionRepository;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -39,6 +42,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -50,12 +54,14 @@ import views.components.ToastMessage;
  * <p>CAUTION: You must explicitly check the current profile so that an unauthorized user cannot
  * access another applicant's data!
  */
+@With(ProgramDisabledAction.class)
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
@@ -65,9 +71,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      NorthStarApplicantProgramSummaryView northStarSummaryView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
@@ -77,9 +84,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -103,14 +111,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
     Optional<ToastMessage> flashSuccessBanner =
         request.flash().get("success-banner").map(m -> ToastMessage.success(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
@@ -164,10 +172,31 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
               }
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+                int completedBlockCount =
+                    roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
 
-              return ok(summaryView.render(params.build()));
+                NorthStarApplicantProgramSummaryView.Params northStarParams =
+                    NorthStarApplicantProgramSummaryView.Params.builder()
+                        .setBlocks(roApplicantProgramService.getAllActiveBlocks())
+                        .setApplicantId(applicantId)
+                        .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
+                        .setProfile(
+                            submittingProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setProgramId(programId)
+                        .setCompletedBlockCount(completedBlockCount)
+                        .setTotalBlockCount(totalBlockCount)
+                        .setMessages(messages)
+                        .build();
+                return ok(northStarSummaryView.render(request, northStarParams))
+                    .as(Http.MimeTypes.HTML);
+              } else {
+                return ok(summaryView.render(params.build()));
+              }
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -220,7 +249,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId),
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -283,7 +313,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
-            .submitApplication(applicantId, programId, submittingProfile)
+            .submitApplication(applicantId, programId, submittingProfile, request)
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
@@ -302,7 +332,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantRoutes.index(submittingProfile, applicantId).url());
               return found(endOfProgramSubmission);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

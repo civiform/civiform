@@ -1,6 +1,9 @@
-import {test, expect} from '@playwright/test'
+import {Page} from '@playwright/test'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
+  AdminPrograms,
+  AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -8,35 +11,19 @@ import {
 } from '../../support'
 
 test.describe('Dropdown question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
   test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single dropdown question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addDropdownQuestion({
-        questionName: 'dropdown-color-q',
-        options: [
-          {adminName: 'red_admin', text: 'red'},
-          {adminName: 'green_admin', text: 'green'},
-          {adminName: 'orange_admin', text: 'orange'},
-          {adminName: 'blue_admin', text: 'blue'},
-        ],
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['dropdown-color-q'],
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpSingleDropdownQuestion(
         programName,
+        page,
+        adminQuestions,
+        adminPrograms,
       )
-
-      await logout(page)
     })
 
-    test('Updates options in preview', async () => {
-      const {page, adminQuestions} = ctx
+    test('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createDropdownQuestion(
@@ -60,10 +47,10 @@ test.describe('Dropdown question for applicant flow', () => {
         questionHelpText: 'Sample question help text',
       })
       await adminQuestions.expectPreviewOptions([
-        'red',
-        'green',
-        'orange',
-        'blue',
+        'red\n',
+        'green\n',
+        'orange\n',
+        'blue\n',
       ])
 
       // Empty options renders default text.
@@ -76,26 +63,28 @@ test.describe('Dropdown question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-      await adminQuestions.expectPreviewOptions(['Sample question option'])
+      await adminQuestions.expectPreviewOptions(['Sample question option\n'])
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'dropdown')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'dropdown-errors')
     })
 
-    test('with selected option submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with selected option submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
@@ -103,8 +92,10 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no selection does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with no selection does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -119,8 +110,7 @@ test.describe('Dropdown question for applicant flow', () => {
   test.describe('multiple dropdown questions', () => {
     const programName = 'Test program for multiple dropdowns'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addDropdownQuestion({
@@ -154,8 +144,9 @@ test.describe('Dropdown question for applicant flow', () => {
       await logout(page)
     })
 
-    test('with selected options submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with selected options submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('beach', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
@@ -164,8 +155,9 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('red', 1)
@@ -174,11 +166,89 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessibility violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
   })
+
+  test.describe(
+    'single dropdown question with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single dropdown'
+
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleDropdownQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'dropdown-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'dropdown-errors-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
+    },
+  )
+
+  async function setUpSingleDropdownQuestion(
+    programName: string,
+    page: Page,
+    adminQuestions: AdminQuestions,
+    adminPrograms: AdminPrograms,
+  ) {
+    // As admin, create program with single dropdown question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDropdownQuestion({
+      questionName: 'dropdown-color-q',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['dropdown-color-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })

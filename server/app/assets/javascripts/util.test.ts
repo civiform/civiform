@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assertNotNull, formatText} from './util'
+import {addEventListenerToElements, assertNotNull, formatTextHtml} from './util'
 
 describe('addEventListenerToElements', () => {
   let container: HTMLElement
@@ -64,48 +64,48 @@ describe('assert', () => {
   })
 })
 
-describe('formatText', () => {
+describe('formatTextHtml', () => {
   it('handles basic markdown', () => {
     const text =
       'this is some _text_ with __markdown__ and a [link](https://www.example.com)'
-    expect(formatText(text).innerHTML).toContain(
-      '<p>this is some <em>text</em> with <strong>markdown</strong> and a <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">link</a></p>',
+    expect(formatTextHtml(text).innerHTML).toContain(
+      '<p>this is some <em>text</em> with <strong>markdown</strong> and a <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">link</a></p>',
     )
   })
 
-  it('changes line breaks into <br> tags', () => {
+  it('respects blank lines', () => {
     const text = 'this is some\n text with \n\n line breaks'
-    expect(formatText(text).innerHTML).toContain(
-      '<p>this is some<br> text with <br><br> line breaks</p>',
+    expect(formatTextHtml(text).innerHTML).toContain(
+      '<p>this is some&nbsp;<br>\ntext with &nbsp;</p>\n<p>&nbsp;<br>\nline breaks</p>\n',
     )
   })
 
   it('automatically detects links and emails', () => {
     const text =
       'here is a url https://www.example.com and an email test@example.com'
-    expect(formatText(text).innerHTML).toContain(
-      '<p>here is a url <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">https://www.example.com</a> and an email <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="mailto:test@example.com">test@example.com</a></p>',
+    expect(formatTextHtml(text).innerHTML).toContain(
+      '<p>here is a url <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">https://www.example.com</a> and an email <a href="mailto:test@example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">test@example.com</a></p>',
     )
   })
 
   it('adds formatting to lists', () => {
     const olText =
       'here is some markdown with an unordered list:\n - item one\n - item two\n - item 3'
-    expect(formatText(olText).innerHTML).toContain(
-      '<p>here is some markdown with an unordered list:<br> - item one<br> - item two<br> - item 3</p>',
+    expect(formatTextHtml(olText).innerHTML).toContain(
+      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="list-disc mx-8">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
     )
   })
 
   it('adds formatting to links', () => {
     const text = 'here is markdown with a [link](https://www.example.com)'
-    expect(formatText(text).innerHTML).toContain(
-      '<p>here is markdown with a <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">link</a></p>',
+    expect(formatTextHtml(text).innerHTML).toContain(
+      '<p>here is markdown with a <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">link</a></p>',
     )
   })
 
   it('converts h1s to h2s', () => {
     const text = 'here is some markdown with an # h1 tag'
-    expect(formatText(text).innerHTML).toContain(
+    expect(formatTextHtml(text).innerHTML).toContain(
       '<p>here is some markdown with an # h1 tag</p>',
     )
   })

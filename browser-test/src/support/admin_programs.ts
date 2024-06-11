@@ -1,4 +1,4 @@
-import {expect} from '@playwright/test'
+import {expect} from './civiform_fixtures'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -10,7 +10,7 @@ import {
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
-import {validateScreenshot} from '.'
+import {validateScreenshot, extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -39,6 +39,23 @@ export enum ProgramVisibility {
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted intermediaries only',
   SELECT_TI = 'Visible to selected trusted intermediaries only',
+  DISABLED = 'Disabled',
+}
+
+export enum Eligibility {
+  IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
+  IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export interface QuestionSpec {
+  name: string
+  isOptional?: boolean
+}
+
+export interface BlockSpec {
+  name?: string
+  description?: string
+  questions?: QuestionSpec[]
 }
 
 function slugify(value: string): string {
@@ -55,8 +72,14 @@ export class AdminPrograms {
     this.page = page
   }
 
-  async gotoAdminProgramsPage() {
+  /**
+   * @param isProgramDisabled If true, go to the disabled programs page rather than the main programs page.
+   */
+  async gotoAdminProgramsPage(isProgramDisabled = false) {
     await this.page.click('nav :text("Programs")')
+    if (isProgramDisabled) {
+      await this.page.click('a:has-text("Disabled")')
+    }
     await this.expectAdminProgramsPage()
     await waitForPageJsLoad(this.page)
   }
@@ -99,7 +122,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name.
+   * Creates a disabled program with given name.
+   */
+  async addDisabledProgram(programName: string) {
+    await this.addProgram(
+      programName,
+      'program description',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+    )
+  }
+
+  /**
+   * Creates a program with given name.
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
    * to the database and then the admin will be redirected to the next page in the
@@ -125,6 +160,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    eligibility = Eligibility.IS_GATING,
     submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
@@ -148,6 +184,8 @@ export class AdminPrograms {
       await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
+
+    await this.chooseEligibility(eligibility)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
@@ -192,8 +230,8 @@ export class AdminPrograms {
     await this.submitProgramDetailsEdits()
   }
 
-  async programNames() {
-    await this.gotoAdminProgramsPage()
+  async programNames(disabled = false) {
+    await this.gotoAdminProgramsPage(disabled)
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
   }
@@ -331,33 +369,29 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async gotoProgramSettingsPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
-    )
-
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramSettingsPage()
+  async setProgramEligibility(programName: string, eligibility: Eligibility) {
+    await this.goToProgramDescriptionPage(programName)
+    await this.chooseEligibility(eligibility)
+    await this.submitProgramDetailsEdits()
   }
 
-  async setProgramEligibilityToNongating(programName: string) {
-    await this.gotoProgramSettingsPage(programName)
-    const nonGatingEligibilityValue = await this.page
-      .locator('input[name=eligibilityIsGating]')
-      .inputValue()
-    if (nonGatingEligibilityValue == 'false') {
-      await this.page.locator('#eligibility-toggle').click()
-    }
+  async chooseEligibility(eligibility: Eligibility) {
+    await this.page.check(`label:has-text("${eligibility}")`)
   }
 
-  async gotoEditDraftProgramPage(programName: string) {
-    await this.gotoAdminProgramsPage()
+  getEligibilityIsGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_GATING}")`)
+  }
+
+  getEligibilityIsNotGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
+  }
+
+  async gotoEditDraftProgramPage(
+    programName: string,
+    isProgramDisabled: boolean = false,
+  ) {
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
     await this.page.click(
       this.withinProgramCardSelector(
@@ -542,52 +576,110 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Edit basic block details and required questions
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead.
+   */
   async editProgramBlock(
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    // Make sure input validation enables the button before clicking.
-    await this.page.click('#update-block-button:not([disabled])')
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
-    }
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => {
+        return {
+          name: questionName,
+        }
+      }),
+    })
   }
-  async editProgramBlockWithBlockName(
+
+  /**
+   * Edit basic block details and required and optional questions. Cannot handle more than one optional question.
+   * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead. Be aware that
+   * editProgramBlockWithOptional always puts the optional question first, whereas
+   * editProgramBlockUsingSpec orders questions according to the question array.
+   */
+  async editProgramBlockWithOptional(
     programName: string,
-    blockName: string,
     blockDescription = 'screen description',
-    questionNames: string[] = [],
+    questionNames: string[],
+    optionalQuestionName: string,
   ) {
+    const optionalQuestion: QuestionSpec = {
+      name: optionalQuestionName,
+      isOptional: true,
+    }
+    const nonOptionalQuestions: QuestionSpec[] = questionNames.map(
+      (questionName) => ({name: questionName}),
+    )
+
+    await this.editProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: [optionalQuestion].concat(nonOptionalQuestions),
+    })
+  }
+
+  /**
+   * Edit basic block details and questions
+   * @param programName Name of the program to edit
+   * @param block Block information
+   */
+  async editProgramBlockUsingSpec(programName: string, block: BlockSpec) {
     await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('#block-name-input', blockName)
-    await this.page.fill('textarea', blockDescription)
-    // Make sure input validation enables the button before clicking.
+
+    if (block.name !== undefined) {
+      await this.page.fill('#block-name-input', block.name)
+    }
+
+    await this.page.fill('textarea', block.description || 'screen description')
+
     await this.page.click('#update-block-button:not([disabled])')
 
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    for (const question of block.questions ?? []) {
+      await this.addQuestionFromQuestionBank(question.name)
+
+      if (question.isOptional) {
+        await this.page
+          .getByTestId(`question-admin-name-${question.name}`)
+          .locator(':is(button:has-text("optional"))')
+          .click()
+      }
     }
   }
 
-  async launchDeleteScreenModal() {
-    const programName = 'Test program 7'
-    await this.addProgram(programName)
-    await this.addProgramBlock(programName)
-    await this.goToBlockInProgram(programName, 'Screen 1')
+  /**
+   * Add questions to specified block. You must already be on the admin program edit block page,
+   * but if you are this is a significantly faster way to add multiple questions since it does
+   * not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Block information
+   */
+  async addQuestionsToProgramBlock(block: BlockSpec) {
+    await this.page.click(`a:has-text("${block.name}")`)
+    await waitForPageJsLoad(this.page)
+
+    for (const question of block.questions || []) {
+      await this.addQuestionFromQuestionBank(question.name)
+
+      if (question.isOptional) {
+        await this.page
+          .getByTestId(`question-admin-name-${question.name}`)
+          .locator(':is(button:has-text("optional"))')
+          .click()
+      }
+    }
+  }
+
+  async launchRemoveProgramBlockModal(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
     await clickAndWaitForModal(this.page, 'block-delete-modal')
   }
 
   async removeProgramBlock(programName: string, blockName: string) {
-    await this.goToBlockInProgram(programName, blockName)
-    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.launchRemoveProgramBlockModal(programName, blockName)
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
@@ -613,7 +705,7 @@ export class AdminPrograms {
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
+      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
@@ -634,48 +726,79 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
-  async editProgramBlockWithOptional(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[],
-    optionalQuestionName: string,
-  ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.fill('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.addQuestionFromQuestionBank(optionalQuestionName)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple option buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
-    }
-  }
-
+  /**
+   * Creates a new program block with the given questions, all marked as required.
+   *
+   * @deprecated prefer using {@link #addProgramBlockUsingSpec} instead.
+   */
   async addProgramBlock(
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoEditDraftProgramPage(programName)
+    return await this.addProgramBlockUsingSpec(programName, {
+      description: blockDescription,
+      questions: questionNames.map((questionName) => ({name: questionName})),
+    })
+  }
 
+  /**
+   * Creates a new program block as defined by {@link BlockSpec}.
+   *
+   * Prefer this method over {@link #addProgramBlock}.
+   *
+   * @param {string} programName Name of the program
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} isProgramDisabled Defaults to false. Flag to determine if the program status is disabled or not
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
+   */
+  async addProgramBlockUsingSpec(
+    programName: string,
+    block: BlockSpec,
+    isProgramDisabled: boolean = false,
+    editBlockScreenDetails: boolean = true,
+  ) {
+    await this.gotoEditDraftProgramPage(programName, isProgramDisabled)
+    return await this.addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
+      block,
+      editBlockScreenDetails,
+    )
+  }
+
+  /**
+   * Creates a new program block as defined by {@link BlockSpec}.
+   * You must already be on the admin program edit block page, but if you are this is a significantly
+   * faster way to add multiple questions since it does not return to the program list page each time and navigate back to the block.
+   * @param {BlockSpec} block Desired block settings
+   * @param {boolean} editBlockScreenDetails Defaults to true. If true the block name and description will be updated; if false they will not.
+   */
+  async addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
+    block: BlockSpec,
+    editBlockScreenDetails: boolean = true,
+  ) {
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
 
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.type('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-    // Wait for submit and redirect back to this page.
-    await this.page.waitForURL(this.page.url())
-    await waitForPageJsLoad(this.page)
+    if (editBlockScreenDetails) {
+      await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page.fill(
+        'textarea',
+        block.description || 'screen description',
+      )
+      await this.page.click('#update-block-button:not([disabled])')
+      // Wait for submit and redirect back to this page.
+      await this.page.waitForURL(this.page.url())
+      await waitForPageJsLoad(this.page)
+    }
 
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    for (const question of block.questions ?? []) {
+      await this.addQuestionFromQuestionBank(question.name)
+      if (question.isOptional) {
+        const optionalToggle = this.page
+          .locator(this.questionCardSelectorInProgramView(question.name))
+          .getByRole('button', {name: 'optional'})
+        await optionalToggle.click()
+      }
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -769,22 +892,17 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersion(
-    programName: string,
-    programReadOnlyViewEnabled = true,
-  ) {
-    await this.gotoAdminProgramsPage()
+  async createNewVersion(programName: string, isProgramDisabled = false) {
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectActiveProgram(programName)
 
-    if (programReadOnlyViewEnabled) {
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Active',
-          '.cf-with-dropdown',
-        ),
-      )
-    }
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Active',
+        '.cf-with-dropdown',
+      ),
+    )
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
@@ -794,7 +912,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await this.submitProgramDetailsEdits()
-    await this.gotoAdminProgramsPage()
+    await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectDraftProgram(programName)
   }
 
@@ -814,8 +932,9 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    const cardElements = await this.page.$$('.cf-admin-application-card')
-    expect(cardElements.length).toBe(expectedCount)
+    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
+      expectedCount,
+    )
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -842,12 +961,18 @@ export class AdminPrograms {
     'Only applications without a status'
 
   async filterProgramApplications({
+    fromDate = '',
+    untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
   }: {
+    fromDate?: string
+    untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
   }) {
+    await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
+    await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
     await this.page.fill('input[name="search"]', searchFragment)
     if (applicationStatusOption) {
       await this.page.selectOption('label:has-text("Application status")', {
@@ -1068,7 +1193,7 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
-  async getPdf() {
+  async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
@@ -1081,6 +1206,19 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
+  async getProgramPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByRole('button', {name: 'Download PDF preview'}).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
@@ -1114,6 +1252,7 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
   /*
    * Creates a program, ads the specified questions to it and publishes it.
    * To use this method, questions must have been previously created for example by using one of the helper methods in admin_questions.ts.
@@ -1181,16 +1320,23 @@ export class AdminPrograms {
     await this.page.click('input[name=isCommonIntakeForm]')
   }
 
-  async toggleEligibilityGating() {
-    await this.page.getByTestId('goto-program-settings-link').click()
-    await this.page.waitForLoadState()
-    await this.page.click('#eligibility-toggle')
-    await this.page.getByText('Back').click()
-    await this.page.waitForLoadState()
-  }
-
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async expectEmailSent(
+    numEmailsBefore: number,
+    userEmail: string,
+    emailBody: string,
+    programName: string,
+  ) {
+    const emailsAfter = await extractEmailsForRecipient(this.page, userEmail)
+    expect(emailsAfter.length).toEqual(numEmailsBefore + 1)
+    const sentEmail = emailsAfter[emailsAfter.length - 1]
+    expect(sentEmail.Subject).toEqual(
+      `[Test Message] An update on your application ${programName}`,
+    )
+    expect(sentEmail.Body.text_part).toContain(emailBody)
   }
 }

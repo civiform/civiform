@@ -13,7 +13,7 @@ public final class DateQuestionDefinition extends QuestionDefinition {
   @AutoValue
   public abstract static class DateValidationPredicates extends ValidationPredicates {
 
-    public static DateQuestionDefinition.DateValidationPredicates parse(String jsonString) {
+    public static DateValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString, AutoValue_DateQuestionDefinition_DateValidationPredicates.class);
@@ -27,8 +27,8 @@ public final class DateQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public DateQuestionDefinition.DateValidationPredicates getDateValidationPredicates() {
-    return (DateQuestionDefinition.DateValidationPredicates) getValidationPredicates();
+  public DateValidationPredicates getDateValidationPredicates() {
+    return (DateValidationPredicates) getValidationPredicates();
   }
 
   @Override

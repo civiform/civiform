@@ -56,6 +56,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
+  /** The URL to the civic entity's production CiviForm site. */
+  public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
+    return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
+  }
+
   /**
    * The URL of a 32x32 or 16x16 pixel
    * [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO
@@ -536,11 +541,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The URL CiviForm will use to call Esri’s [findAddressCandidates
+   * [Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call
+   * Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
    */
   public Optional<String> getEsriFindAddressCandidatesUrl() {
     return getString("ESRI_FIND_ADDRESS_CANDIDATES_URL");
+  }
+
+  /**
+   * The list of URLs CiviForm will use to call Esri’s [findAddressCandidates
+   * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
+   * These are used sequentially and not all of them may need to be used for every correction. If
+   * any results have a score of 90 or higher, lower priority urls will not be called.
+   */
+  public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrls() {
+    return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URLS");
   }
 
   /**
@@ -576,6 +592,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** The number of tries CiviForm will attempt requests to external Esri services. */
   public Optional<Integer> getEsriExternalCallTries() {
     return getInt("ESRI_EXTERNAL_CALL_TRIES");
+  }
+
+  /**
+   * Forces calls to Esri services to use the specified spatial reference wellKnownId value for the
+   * [coordinate
+   * system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm).
+   * If not set the default configuration from the Esri server is used. Setting this may be needed
+   * if using the results of the findAddressCandidates service return spatial references in a format
+   * different from one or more of the map query service endpoints.
+   */
+  public Optional<Integer> getEsriWellknownIdOverride() {
+    return getInt("ESRI_WELLKNOWN_ID_OVERRIDE");
+  }
+
+  /**
+   * A secret token value from Esri's arcgis.com online service created by your arcgis.com account
+   * for accessing the API.
+   */
+  public Optional<String> getEsriArcgisApiToken() {
+    return getString("ESRI_ARCGIS_API_TOKEN");
   }
 
   /** This email address is listed in the footer for applicants to contact support. */
@@ -703,6 +739,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * The count of reverse proxies between the internet and the server. In typical deployments, this
+   * value is 1.
+   */
+  public Optional<Integer> getNumTrustedProxies() {
+    return getInt("NUM_TRUSTED_PROXIES");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -773,6 +817,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables the feature that allows completed applications to be downloadable by PDF. */
   public boolean getApplicationExportable(RequestHeader request) {
     return getBool("APPLICATION_EXPORTABLE", request);
+  }
+
+  /** Enables the feature that allows programs to be disabled from CiviForm */
+  public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
+    return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
   }
 
   /**
@@ -871,23 +920,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting and displaying the universal question state on questions. These questions are
-   * intended to be used by all programs and will appear at the top of the question bank with a
-   * badge denoting them as universal.
-   */
-  public boolean getUniversalQuestions(RequestHeader request) {
-    return getBool("UNIVERSAL_QUESTIONS", request);
-  }
-
-  /**
-   * Enables images on program cards, both for admins to upload them and for applicants to view
-   * them.
-   */
-  public boolean getProgramCardImages() {
-    return getBool("PROGRAM_CARD_IMAGES");
-  }
-
-  /**
    * Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
@@ -896,16 +928,41 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
-   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
+   * instead of only saving on 'Save and next'.
    */
-  public boolean getSaveOnAllActions(RequestHeader request) {
-    return getBool("SAVE_ON_ALL_ACTIONS", request);
+  public boolean getSaveOnAllActions() {
+    return getBool("SAVE_ON_ALL_ACTIONS");
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled(RequestHeader request) {
+    return getBool("PROGRAM_MIGRATION_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage */
+  public boolean getProgramFilteringEnabled(RequestHeader request) {
+    return getBool("PROGRAM_FILTERING_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions. */
+  public boolean getMultipleFileUploadEnabled(RequestHeader request) {
+    return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
+  }
+
+  /**
+   * Enabling this will add a banner to the site to tell applicants this is not Production and that
+   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
+   * also include a link to your production site. This banner will not show on Production sites even
+   * if this setting is enabled.
+   */
+  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
+    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -933,6 +990,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
                       /* isRequired= */ true,
+                      SettingType.STRING,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "CIVIC_ENTITY_PRODUCTION_URL",
+                      "The URL to the civic entity's production CiviForm site.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1232,7 +1295,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "Active Directory Federation Services",
                               "Configuration options for the"
-                                  + " [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc)"
+                                  + " [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1286,7 +1349,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "OpenID Connect",
                               "Configuration options for the"
-                                  + " [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc)"
+                                  + " [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1526,10 +1589,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       ImmutableList.of(
                           SettingDescription.create(
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
-                              "The URL CiviForm will use to call Esri’s [findAddressCandidates"
+                              "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL"
+                                  + " CiviForm will use to call Esri’s [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
                               /* isRequired= */ false,
                               SettingType.STRING,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_FIND_ADDRESS_CANDIDATES_URLS",
+                              "The list of URLs CiviForm will use to call Esri’s"
+                                  + " [findAddressCandidates"
+                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
+                                  + " These are used sequentially and not all of them may need to"
+                                  + " be used for every correction. If any results have a score of"
+                                  + " 90 or higher, lower priority urls will not be called.",
+                              /* isRequired= */ false,
+                              SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
@@ -1566,7 +1641,27 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " services.",
                               /* isRequired= */ false,
                               SettingType.INT,
-                              SettingMode.ADMIN_READABLE)))),
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_WELLKNOWN_ID_OVERRIDE",
+                              "Forces calls to Esri services to use the specified spatial reference"
+                                  + " wellKnownId value for the [coordinate"
+                                  + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
+                                  + " If not set the default configuration from the Esri server is"
+                                  + " used. Setting this may be needed if using the results of the"
+                                  + " findAddressCandidates service return spatial references in a"
+                                  + " format different from one or more of the map query service"
+                                  + " endpoints.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_ARCGIS_API_TOKEN",
+                              "A secret token value from Esri's arcgis.com online service created"
+                                  + " by your arcgis.com account for accessing the API.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN)))),
               ImmutableList.of(
                   SettingDescription.create(
                       "AWS_REGION",
@@ -1748,6 +1843,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
+                      "DISABLED_VISIBILITY_CONDITION_ENABLED",
+                      "Enables the feature that allows programs to be disabled from CiviForm",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
@@ -1850,22 +1951,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "UNIVERSAL_QUESTIONS",
-                      "Enables setting and displaying the universal question state on questions."
-                          + " These questions are intended to be used by all programs and will"
-                          + " appear at the top of the question bank with a badge denoting them as"
-                          + " universal.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "PROGRAM_CARD_IMAGES",
-                      "Enables images on program cards, both for admins to upload them and for"
-                          + " applicants to view them.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
                           + " finishing an application.",
@@ -1874,15 +1959,46 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SAVE_ON_ALL_ACTIONS",
-                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
-                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
-                          + " on 'Save and next'.",
+                      "Save an applicant's answers when they take any action"
+                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
+                          + " and next'.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "NORTH_STAR_APPLICANT_UI",
+                      "Enables showing new UI with an updated user experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
+                          + " environments",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_FILTERING_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the"
+                          + " homepage",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "MULTIPLE_FILE_UPLOAD_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload"
+                          + " questions.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
+                      "Enabling this will add a banner to the site to tell applicants this is not"
+                          + " Production and that they shouldn't submit real applications."
+                          + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
+                          + " link to your production site. This banner will not show on Production"
+                          + " sites even if this setting is enabled.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
@@ -1975,5 +2091,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.ADMIN_READABLE,
-                      ImmutableList.of("DIRECT", "FORWARDED")))));
+                      ImmutableList.of("DIRECT", "FORWARDED")),
+                  SettingDescription.create(
+                      "NUM_TRUSTED_PROXIES",
+                      "The count of reverse proxies between the internet and the server. In typical"
+                          + " deployments, this value is 1.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE))));
 }

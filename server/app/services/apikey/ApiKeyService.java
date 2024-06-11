@@ -60,6 +60,7 @@ public final class ApiKeyService {
   public static final String FORM_FIELD_NAME_KEY_NAME = "keyName";
   public static final String FORM_FIELD_NAME_EXPIRATION = "expiration";
   public static final String FORM_FIELD_NAME_SUBNET = "subnet";
+  public static final String PROGRAMS_FIELD_GROUP_NAME = "programs";
 
   // This matches the default value specified in application.conf
   // A hard-coded matching value is provided here to ensure that the admin
@@ -180,6 +181,11 @@ public final class ApiKeyService {
     }
 
     ApiKeyGrants grants = resolveGrants(form);
+
+    if (grants.getProgramGrants().isEmpty()) {
+      form = form.withError(PROGRAMS_FIELD_GROUP_NAME, "");
+    }
+
     ApiKeyModel apiKey = new ApiKeyModel(grants);
 
     // apiKey is an ebean entity/model and is mutable. form is play form object and is immutable.

@@ -1,4 +1,5 @@
 import MarkdownIt = require('markdown-it')
+import DOMPurify = require('dompurify')
 
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
@@ -32,7 +33,7 @@ export function addEventListenerToElements<K extends keyof HTMLElementEventMap>(
  *
  * See TypeScirpt best practices for recommendations for when to use
  * assertNotNull vs non-null operator `!`:
- * https://docs.civiform.us/contributor-guide/developer-guide/development-standards
+ * https://github.com/civiform/civiform/wiki/Development-standards#assertnotnull-vs-non-null-expression
  *
  * @param value
  * @param extraInfo Additional info to add to the error if provided value is
@@ -63,9 +64,23 @@ const md = new MarkdownIt({
  *
  * @param {string} text The text to parse into HTML.
  */
-export function formatText(text: string): Element {
+export function formatTextHtml(text: string): Element {
+  const parsedHtml = formatText(text)
+  const html = parser.parseFromString(parsedHtml, 'text/html')
+
+  return html.body
+}
+
+export function formatText(text: string): string {
   // Preserve line breaks before parsing the text
-  text = text.split('\n').join('<br>')
+  const textArray = text.split('\n')
+  for (let i = 0; i < textArray.length; i++) {
+    if (!textArray[i]) {
+      textArray[i] = '\n'
+    }
+  }
+  // the non-breaking space character (&nbsp;) is required for the markdown parser to respect blank lines
+  text = textArray.join('&nbsp;\n')
 
   let parsedHtml = md.render(text)
   // Format lists
@@ -80,7 +95,5 @@ export function formatText(text: string): Element {
   // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
   parsedHtml = parsedHtml.split('<h1>').join('<h2>')
   parsedHtml = parsedHtml.split('</h1>').join('</h2>')
-
-  const html = parser.parseFromString(parsedHtml, 'text/html')
-  return html.body
+  return DOMPurify.sanitize(parsedHtml, {ADD_ATTR: ['target']})
 }

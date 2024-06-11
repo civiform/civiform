@@ -1,24 +1,17 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
-  createTestContext,
-  gotoEndpoint,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  resetContext,
   selectApplicantLanguage,
   validateScreenshot,
-  TestContext,
 } from './support'
 
 test.describe('navigating to a deep link', () => {
-  const ctx: TestContext = createTestContext()
-
   const questionText = 'What is your address?'
 
-  test.beforeEach(async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     // Arrange
     await loginAsAdmin(page)
 
@@ -41,12 +34,9 @@ test.describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  test('shows a login prompt for guest users', async () => {
-    await resetContext(ctx)
-    const {page} = ctx
-
-    await gotoEndpoint(page, '/programs/test-deep-link')
-    expect(await page.innerText('html')).toContain(
+  test('shows a login prompt for guest users', async ({page}) => {
+    await page.goto('/programs/test-deep-link')
+    await expect(page.locator('#modal-container')).toContainText(
       'Create an account or sign in',
     )
     await validateScreenshot(
@@ -55,91 +45,120 @@ test.describe('navigating to a deep link', () => {
     )
   })
 
-  test('does not show login prompt for logged in users', async () => {
-    await resetContext(ctx)
-    const {page} = ctx
-
-    await gotoEndpoint(page, '/programs/test-deep-link')
+  test('does not show login prompt for logged in users', async ({page}) => {
+    await page.goto('/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
-    expect(await page.innerText('html')).not.toContain(
+    await expect(page.locator('#modal-container')).not.toContainText(
       'Create an account or sign in',
     )
   })
 
-  test('takes guests and logged in users through the flow correctly', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions} = ctx
-
+  test('takes guests and logged in users through the flow correctly', async ({
+    page,
+    applicantQuestions,
+  }) => {
     // Exercise guest path
     // Act
-    await gotoEndpoint(page, '/programs/test-deep-link')
-    await page.click('text="Continue to application"')
+    await page.goto('/programs/test-deep-link')
+    await page.getByRole('button', {name: 'Continue to application'}).click()
+
     // Assert
-    await page.click('#continue-application-button')
+    await page.getByRole('link', {name: 'Continue'}).click()
     await applicantQuestions.validateQuestionIsOnPage(questionText)
 
     await logout(page)
 
     // Exercise test user path
     // Act
-    await gotoEndpoint(page, '/programs/test-deep-link')
+    await page.goto('/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
+
     // Assert
-    await page.click('#continue-application-button')
+    await page.getByRole('link', {name: 'Continue'}).click()
     await applicantQuestions.validateQuestionIsOnPage(questionText)
   })
 
-  test('Non-logged in user should get redirected to the program page and not an error', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions, browserContext} = ctx
+  test('Non-logged in user should get redirected to the program page and not an error', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await page.goto('/programs/test-deep-link')
+    await page.getByRole('button', {name: 'Continue to application'}).click()
 
-    await logout(page)
-    await browserContext.clearCookies()
-    await gotoEndpoint(page, '/programs/test-deep-link')
-    await page.click('text="Continue to application"')
     await selectApplicantLanguage(page, 'English')
 
     // Assert
-    await page.click('#continue-application-button')
+    await page.getByRole('link', {name: 'Continue'}).click()
     await applicantQuestions.validateQuestionIsOnPage(questionText)
-
-    await logout(page)
   })
 
-  test('Logging in to an existing account after opening a deep link in a new browser session', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions, browserContext} = ctx
-
-    // Log in and log out to establish the test user in the database.
-    await loginAsTestUser(page)
-    await logout(page)
-    await browserContext.clearCookies()
+  test('Logging in to an existing account after opening a deep link in a new browser session', async ({
+    page,
+    applicantQuestions,
+    context,
+  }) => {
+    await test.step('Log in and log out to establish the test user in the database', async () => {
+      await loginAsTestUser(page)
+      await logout(page)
+      await context.clearCookies()
+    })
 
     // Go to deep link as a guest
-    await gotoEndpoint(page, '/programs/test-deep-link')
+    await page.goto('/programs/test-deep-link')
     // Log in as the same test user
     await loginAsTestUser(page, 'button:has-text("Log in")')
 
-    await page.click('#continue-application-button')
+    await page.getByRole('link', {name: 'Continue'}).click()
     await applicantQuestions.validateQuestionIsOnPage(questionText)
 
     await logout(page)
   })
 
-  test('Going to a deep link does not retain redirect in session', async () => {
-    await resetContext(ctx)
-    const {page, browserContext} = ctx
-    await browserContext.clearCookies()
-
+  test('Going to a deep link does not retain redirect in session', async ({
+    page,
+  }) => {
     // Go to a deep link
-    await gotoEndpoint(page, '/programs/test-deep-link')
-    await page.click('text="Continue to application"')
+    await page.goto('/programs/test-deep-link')
+    await page.getByRole('button', {name: 'Continue to application'}).click()
 
     // Logging out should not take us back to /programs/test-deep-link, but rather
     // to the program index page.
     await logout(page)
-    expect(await page.innerText('h1')).toContain(
-      'Save time applying for programs and services',
-    )
+
+    await expect(
+      page.getByRole('heading', {
+        name: 'Save time applying for programs and services',
+      }),
+    ).toBeAttached()
+  })
+
+  test('redirects the applicant to an error info page if the program is disabled', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await test.step(`log in as admin and publish a disabled program`, async () => {
+      await loginAsAdmin(page)
+
+      const programName = 'dis1'
+      await adminPrograms.addDisabledProgram(programName)
+
+      await adminPrograms.gotoAdminProgramsPage(/* isProgramDisabled*/ true)
+      await adminPrograms.expectDraftProgram(programName)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step(`opens the deep link of the disabled program and gets redirected to an error info page`, async () => {
+      await page.goto('/programs/dis1')
+      expect(page.url()).toContain('/disabled')
+      await validateScreenshot(page, 'disabled-program-error-info-page')
+    })
+
+    await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
+      await page.click('#visit-home-page-button')
+      expect(page.url()).toContain('/programs')
+      await validateScreenshot(page, 'home-page')
+    })
   })
 })

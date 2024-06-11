@@ -81,7 +81,15 @@ export class AdminProgramStatuses {
     await waitForPageJsLoad(this.page)
   }
 
-  async createStatusWithoutClickingConfirm(statusName: string) {
+  // Creates an initial status, and sets it as the default status.
+  async createInitialDefaultStatus(statusName: string) {
+    const confirmHandle =
+      await this.createDefaultStatusWithoutClickingConfirm(statusName)
+    this.acceptDialogWithMessage(this.newDefaultStatusMessage(statusName))
+    await confirmHandle.click()
+  }
+
+  async createDefaultStatusWithoutClickingConfirm(statusName: string) {
     await this.page.click('button:has-text("Create a new status")')
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Create a new status')

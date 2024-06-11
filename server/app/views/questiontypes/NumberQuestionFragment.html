@@ -1,0 +1,47 @@
+<div
+  th:fragment="number(question, questionRendererParams)"
+  th:with="numberQuestion=${question.createNumberQuestion()},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             inputId=${'id-' + #strings.randomAlphanumeric(8)},
+             fieldErrors=${numberQuestion.getValidationErrors().get(numberQuestion.getNumberPath())},
+             questionErrors=${numberQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${questionRendererParams.shouldShowErrors() && !numberQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!--/* Display errors */-->
+  <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+  ></div>
+
+  <input
+    th:with="value=${numberQuestion.getNumberValue().isPresent() ? numberQuestion.getNumberValue().get(): null},
+                    min=${numberQuestion.getQuestionDefinition().getMin().isPresent() ? numberQuestion.getQuestionDefinition().getMin().getAsLong() : null},
+                    max=${numberQuestion.getQuestionDefinition().getMax().isPresent() ? numberQuestion.getQuestionDefinition().getMax().getAsLong() : null}"
+    type="number"
+    class="usa-input"
+    th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+    inputmode="decimal"
+    th:id="${inputId}"
+    th:name="${numberQuestion.getNumberPath()}"
+    th:value="${value}"
+    th:min="${min}"
+    th:max="${max}"
+    th:aria-describedby="${questionId} + '-description'"
+    th:aria-required="${!question.isOptional()}"
+    th:aria-invalid="${hasErrors}"
+    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+  />
+</div>

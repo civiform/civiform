@@ -70,6 +70,14 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract ErrorDisplayMode errorDisplayMode();
 
+  public boolean shouldShowErrors() {
+    return ErrorDisplayMode.shouldShowErrors(errorDisplayMode());
+  }
+
+  public boolean shouldShowErrorsWithModal() {
+    return ErrorDisplayMode.shouldShowErrorsWithModal(errorDisplayMode());
+  }
+
   public abstract AutoFocusTarget autofocus();
 
   /**

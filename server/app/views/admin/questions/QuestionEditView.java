@@ -172,8 +172,6 @@ public final class QuestionEditView extends BaseHtmlView {
     String title =
         String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
-    // When removing the UNIVERSAL_QUESTIONS feature flag, remove passing through
-    // the request down to buildQuestionForm.
     DivTag formContent =
         buildQuestionContainer(title)
             .with(
@@ -223,7 +221,7 @@ public final class QuestionEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
 
-    if (settingsManifest.getUniversalQuestions(request) && modal.isPresent()) {
+    if (modal.isPresent()) {
       htmlBundle.addModals(modal.get());
     }
     return layout.render(htmlBundle);
@@ -323,11 +321,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 id, questionForm.getQuestionType().toString())
             .url());
 
-    if (settingsManifest.getUniversalQuestions(request)) {
-      formTag.with(unsetUniversalModal.getButton());
-    } else {
-      formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
-    }
+    formTag.with(unsetUniversalModal.getButton());
 
     return formTag;
   }
@@ -389,6 +383,9 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionText")
             .setLabelText("Question text displayed to the applicant")
             .setRequired(true)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Markdown is supported, ")
+            .setMarkdownLinkText("see how it works")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -398,6 +395,9 @@ public final class QuestionEditView extends BaseHtmlView {
               .setId("question-help-text-textarea")
               .setFieldName("questionHelpText")
               .setLabelText("Question help text displayed to the applicant")
+              .setMarkdownSupported(true)
+              .setMarkdownText("Markdown is supported, ")
+              .setMarkdownLinkText("see how it works")
               .setDisabled(!submittable)
               .setValue(questionForm.getQuestionHelpText())
               .getTextareaTag());
@@ -440,9 +440,9 @@ public final class QuestionEditView extends BaseHtmlView {
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
-    if (settingsManifest.getUniversalQuestions(request)) {
-      questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
-    }
+
+    questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
+
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
         && questionForm.getEnumeratorId().isEmpty()
         && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {

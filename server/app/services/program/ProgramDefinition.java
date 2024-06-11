@@ -4,6 +4,9 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import auth.ProgramAcls;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
@@ -30,8 +33,22 @@ import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
-/** An immutable configuration of a program. */
+/**
+ * An immutable configuration of a program.
+ *
+ * <p>This class is serializable so that program definitions can be migrated between different
+ * instances of CiviForm, **not** so that it can be stored in the database. A program definition is
+ * stored in the database using {@link ProgramModel} instead.
+ *
+ * <p>The items marked as @JsonIgnore are either (1) properties that shouldn't be migrated across
+ * instances (like create time) or (2) no-argument getter functions. Jackson serializes no-arg
+ * getter functions by default, but we only want to serialize pure properties.
+ *
+ * <p>Any property marked with @JsonProperty here should also be marked with @JsonProperty in the
+ * {@link Builder}.
+ */
 @AutoValue
+@JsonDeserialize(builder = AutoValue_ProgramDefinition.Builder.class)
 public abstract class ProgramDefinition {
 
   // Lazy cache various computed values.
@@ -43,64 +60,84 @@ public abstract class ProgramDefinition {
   }
 
   /** Unique identifier for a ProgramDefinition. */
+  @JsonProperty("id")
   public abstract long id();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
    * program are linked by their immutable name.
    */
+  @JsonProperty("adminName")
   public abstract String adminName();
 
   /** A description of this program for the admin's reference. */
+  @JsonProperty("adminDescription")
   public abstract String adminDescription();
 
   /** An external link to a page containing more details for this program. */
+  @JsonProperty("externalLink")
   public abstract String externalLink();
 
   /** The program's display mode. */
+  @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
    * locale.
    */
+  @JsonProperty("localizedName")
   public abstract LocalizedStrings localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
+  @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
    */
+  @JsonProperty("localizedConfirmationMessage")
   public abstract LocalizedStrings localizedConfirmationMessage();
 
   /** The list of {@link BlockDefinition}s that make up the program. */
+  @JsonProperty("blockDefinitions")
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   /** The application review statuses available for the program. */
+  @JsonProperty("statusDefinitions")
   public abstract StatusDefinitions statusDefinitions();
 
   /** When was this program created. Could be null for older programs. */
+  @JsonIgnore
   public abstract Optional<Instant> createTime();
 
   /** When was this program last modified. Could be null for older programs. */
+  @JsonIgnore
   public abstract Optional<Instant> lastModifiedTime();
 
+  @JsonProperty("programType")
   public abstract ProgramType programType();
 
   /**
    * Whether or not eligibility criteria for this program blocks the application from being
    * submitted.
    */
+  @JsonProperty("eligibilityIsGating")
   public abstract Boolean eligibilityIsGating();
 
+  @JsonProperty("acls")
   public abstract ProgramAcls acls();
 
   /** A description of the program's summary image, used for alt text. */
+  @JsonProperty("localizedSummaryImageDescription")
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
   /** A key used to fetch the program's summary image from cloud storage. */
+  // JsonIgnored because the file key points to a file in cloud storage, and different instances
+  // will have different cloud storages so the file key will be inaccurate when migrating a program
+  // to a different instance.
+  @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
 
   /**
@@ -380,15 +417,6 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Visible since the /dev/seed view uses Jackson's ObjectMapper to only have keys for explicit
-   * getters.
-   */
-  @VisibleForTesting
-  public String getAdminNameForTests() {
-    return adminName();
-  }
-
-  /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
    *
    * <ul>
@@ -400,6 +428,7 @@ public abstract class ProgramDefinition {
    * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
    *     program
    */
+  @JsonIgnore
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
         streamQuestionDefinitions()
@@ -475,12 +504,14 @@ public abstract class ProgramDefinition {
    * @return the last {@link BlockDefinition}
    * @throws ProgramNeedsABlockException if the program has no blocks
    */
+  @JsonIgnore
   public BlockDefinition getLastBlockDefinition() throws ProgramNeedsABlockException {
     return getBlockDefinitionByIndex(blockDefinitions().size() - 1)
         .orElseThrow(() -> new ProgramNeedsABlockException(id()));
   }
 
   /** Returns the max block definition id. */
+  @JsonIgnore
   public long getMaxBlockDefinitionId() {
     return blockDefinitions().stream()
         .map(BlockDefinition::id)
@@ -488,6 +519,7 @@ public abstract class ProgramDefinition {
         .orElseGet(() -> 0L);
   }
 
+  @JsonIgnore
   public int getBlockCount() {
     return blockDefinitions().size();
   }
@@ -496,6 +528,7 @@ public abstract class ProgramDefinition {
     return MainModule.SLUGIFIER.slugify(this.adminName());
   }
 
+  @JsonIgnore
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
   }
@@ -542,6 +575,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Get non-repeated block definitions. */
+  @JsonIgnore
   public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
     return blockDefinitions().stream()
         .filter(blockDefinition -> blockDefinition.enumeratorId().isEmpty())
@@ -576,6 +610,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Returns a list of the question IDs in a program. */
+  @JsonIgnore
   public ImmutableList<Long> getQuestionIdsInProgram() {
     return blockDefinitions().stream()
         .map(BlockDefinition::programQuestionDefinitions)
@@ -713,32 +748,59 @@ public abstract class ProgramDefinition {
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
+  @JsonIgnore
   public boolean isCommonIntakeForm() {
     return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+  }
+
+  /**
+   * Get a list of {@link QuestionDefinition} in the program that are marked with
+   * PrimaryApplicantInfo tags. Requires a fully hydrated ProgramDefinition with all questions.
+   *
+   * @return List of questions in program with Primary Applicant Info tags.
+   */
+  @JsonIgnore
+  public ImmutableList<QuestionDefinition> getQuestionsWithPrimaryApplicantInfoTags() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(question -> !question.getPrimaryApplicantInfoTags().isEmpty())
+        .collect(toImmutableList());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
 
+    @JsonProperty("id")
     public abstract Builder setId(long id);
 
+    @JsonProperty("adminName")
     public abstract Builder setAdminName(String adminName);
 
+    @JsonProperty("externalLink")
     public abstract Builder setExternalLink(String externalLink);
 
+    @JsonProperty("displayMode")
     public abstract Builder setDisplayMode(DisplayMode displayMode);
 
+    @JsonProperty("adminDescription")
     public abstract Builder setAdminDescription(String adminDescription);
 
+    @JsonProperty("localizedName")
     public abstract Builder setLocalizedName(LocalizedStrings localizedName);
 
+    @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
         LocalizedStrings localizedConfirmationMessage);
 
+    @JsonProperty("blockDefinitions")
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
+    @JsonProperty("statusDefinitions")
     public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
 
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
@@ -753,12 +815,16 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
+    @JsonProperty("programType")
     public abstract Builder setProgramType(ProgramType programType);
 
+    @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
+    @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);
 
+    @JsonProperty("localizedSummaryImageDescription")
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
 

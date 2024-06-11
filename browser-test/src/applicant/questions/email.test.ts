@@ -1,6 +1,9 @@
-import {test, expect} from '@playwright/test'
+import {Page} from '@playwright/test'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
+  AdminQuestions,
+  AdminPrograms,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -8,42 +11,37 @@ import {
 } from '../../support'
 
 test.describe('Email question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
   test.describe('single email question', () => {
     const programName = 'Test program for single email'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single email question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['general-email-q'],
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(
         programName,
+        page,
+        adminQuestions,
+        adminPrograms,
       )
-
-      await logout(page)
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'email')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'email-errors')
     })
 
-    test('with email input submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with email input submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickNext()
@@ -51,8 +49,10 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no email input does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with no email input does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       // Click next without inputting anything.
       await applicantQuestions.clickNext()
@@ -68,8 +68,7 @@ test.describe('Email question for applicant flow', () => {
   test.describe('multiple email questions', () => {
     const programName = 'Test program for multiple emails'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addEmailQuestion({questionName: 'my-email-q'})
@@ -87,8 +86,9 @@ test.describe('Email question for applicant flow', () => {
       await logout(page)
     })
 
-    test('with email inputs submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with email inputs submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
@@ -97,8 +97,9 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
@@ -107,11 +108,93 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessiblity violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
   })
+
+  test.describe(
+    'single email question with North Star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single email'
+
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpForSingleQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'email-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'email-errors-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('with email input submits successfully', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
+    },
+  )
+
+  async function setUpForSingleQuestion(
+    programName: string,
+    page: Page,
+    adminQuestions: AdminQuestions,
+    adminPrograms: AdminPrograms,
+  ) {
+    // As admin, create program with single email question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['general-email-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })

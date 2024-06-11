@@ -3,8 +3,7 @@ package services.ti;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.EditTiClientInfoForm;
+import forms.TiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import play.i18n.Messages;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
 import services.PhoneValidationUtils;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -53,83 +53,72 @@ public final class TrustedIntermediaryService {
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
-  public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroupModel trustedIntermediaryGroup) {
-    form = validateFirstName(form);
-    form = validateLastName(form);
-    form = validateDateOfBirthForAddApplicant(form);
+  public AddNewApplicantReturnObject addNewClient(
+      Form<TiClientInfoForm> form,
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
+      Messages preferredLanguage) {
+    Long clientApplicantId;
+    form = validateFirstNameForEditClient(form, preferredLanguage);
+    form = validateLastNameForEditClient(form, preferredLanguage);
+    form = validatePhoneNumber(form, preferredLanguage);
+    form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
-      return form;
+      return new AddNewApplicantReturnObject(form);
     }
     try {
-      accountRepository.createNewApplicantForTrustedIntermediaryGroup(
-          form.get(), trustedIntermediaryGroup);
+      clientApplicantId =
+          accountRepository.createNewApplicantForTrustedIntermediaryGroup(
+              form.get(), trustedIntermediaryGroup);
     } catch (EmailAddressExistsException e) {
-      return form.withError(
-          FORM_FIELD_NAME_EMAIL_ADDRESS,
-          "Email address already in use. Cannot create applicant if an account already"
-              + " exists.");
+      return new AddNewApplicantReturnObject(
+          form.withError(
+              FORM_FIELD_NAME_EMAIL_ADDRESS,
+              preferredLanguage.at(MessageKey.ERROR_EMAIL_IN_USE_CLIENT_CREATE.getKeyName())));
     }
-    return form;
+    return new AddNewApplicantReturnObject(form, clientApplicantId);
   }
 
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
-      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
-    }
-    return form;
-  }
-
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
-      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
-    }
-    return form;
-  }
-
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirthForAddApplicant(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
-    if (errorMessage.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
-    }
-    return form;
-  }
-
-  private Optional<String> validateDateOfBirth(String dob) {
+  private Form<TiClientInfoForm> validateDateOfBirth(
+      Form<TiClientInfoForm> form, Messages messages) {
+    String dob = form.value().get().getDob();
     if (Strings.isNullOrEmpty(dob)) {
-      return Optional.of("Date of Birth required");
+      return form.withError(
+          FORM_FIELD_NAME_DOB, messages.at(MessageKey.DOB_ERROR_LABEL.getKeyName()));
     }
     final LocalDate currentDob;
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
     } catch (DateTimeParseException e) {
-      return Optional.of("Date of Birth must be in MM/dd/yyyy format");
+      return form.withError(
+          FORM_FIELD_NAME_DOB,
+          messages.at(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT.getKeyName()));
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return Optional.of("Date of Birth should be in the past");
+      return form.withError(
+          FORM_FIELD_NAME_DOB,
+          messages.at(MessageKey.DATE_VALIDATION_DOB_NOT_IN_PAST.getKeyName()));
     }
     if (currentDob.isBefore(dateConverter.getCurrentDateForZoneId().minusYears(150))) {
-      return Optional.of("Date of Birth should be less than 150 years ago");
-    }
-    return Optional.empty();
-  }
-
-  private Form<EditTiClientInfoForm> validateFirstNameForEditClient(
-      Form<EditTiClientInfoForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
-      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
+      return form.withError(
+          FORM_FIELD_NAME_DOB, messages.at(MessageKey.DATE_VALIDATION_IMPOSSIBLE_DOB.getKeyName()));
     }
     return form;
   }
 
-  private Form<EditTiClientInfoForm> validateLastNameForEditClient(
-      Form<EditTiClientInfoForm> form) {
+  private Form<TiClientInfoForm> validateFirstNameForEditClient(
+      Form<TiClientInfoForm> form, Messages messages) {
+    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
+      return form.withError(
+          FORM_FIELD_NAME_FIRST_NAME, messages.at(MessageKey.ERROR_FIRST_NAME.getKeyName()));
+    }
+    return form;
+  }
+
+  private Form<TiClientInfoForm> validateLastNameForEditClient(
+      Form<TiClientInfoForm> form, Messages messages) {
     if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
-      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
+      return form.withError(
+          FORM_FIELD_NAME_LAST_NAME, messages.at(MessageKey.ERROR_LAST_NAME.getKeyName()));
     }
     return form;
   }
@@ -138,8 +127,8 @@ public final class TrustedIntermediaryService {
     return !newEmail.equals(account.getEmailAddress());
   }
 
-  private Form<EditTiClientInfoForm> validatePhoneNumber(
-      Form<EditTiClientInfoForm> form, Messages preferredLanguage) {
+  private Form<TiClientInfoForm> validatePhoneNumber(
+      Form<TiClientInfoForm> form, Messages preferredLanguage) {
     String phoneNumber = form.value().get().getPhoneNumber();
 
     if (Strings.isNullOrEmpty(phoneNumber)) {
@@ -157,16 +146,8 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
-    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
-    if (errorMessage.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
-    }
-    return form;
-  }
-
-  private Form<EditTiClientInfoForm> validateEmailAddress(
-      Form<EditTiClientInfoForm> form, AccountModel currentAccount) {
+  private Form<TiClientInfoForm> validateEmailAddress(
+      Form<TiClientInfoForm> form, AccountModel currentAccount, Messages messages) {
     String newEmail = form.get().getEmailAddress();
     // email addresses not a requirement for TI Client
     if (Strings.isNullOrEmpty(newEmail)) {
@@ -176,8 +157,7 @@ public final class TrustedIntermediaryService {
         && accountRepository.lookupAccountByEmail(newEmail).isPresent()) {
       return form.withError(
           FORM_FIELD_NAME_EMAIL_ADDRESS,
-          "Email address already in use. Cannot update applicant if an account already"
-              + " exists.");
+          messages.at(MessageKey.ERROR_EMAIL_IN_USE_CLIENT_EDIT.getKeyName()));
     }
     return form;
   }
@@ -194,17 +174,17 @@ public final class TrustedIntermediaryService {
    *     will handle the field messages. If the account is not found for the given AccountId, a
    *     runtime exception is raised.
    */
-  public Form<EditTiClientInfoForm> updateClientInfo(
-      Form<EditTiClientInfoForm> form,
+  public Form<TiClientInfoForm> updateClientInfo(
+      Form<TiClientInfoForm> form,
       TrustedIntermediaryGroupModel tiGroup,
       Long accountId,
       Messages preferredLanguage)
       throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
-    form = validateFirstNameForEditClient(form);
-    form = validateLastNameForEditClient(form);
+    form = validateFirstNameForEditClient(form, preferredLanguage);
+    form = validateLastNameForEditClient(form, preferredLanguage);
     form = validatePhoneNumber(form, preferredLanguage);
-    form = validateDateOfBirth(form);
+    form = validateDateOfBirth(form, preferredLanguage);
     if (form.hasErrors()) {
       return form;
     }
@@ -215,12 +195,12 @@ public final class TrustedIntermediaryService {
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    form = validateEmailAddress(form, accountMaybe.get());
+    form = validateEmailAddress(form, accountMaybe.get(), preferredLanguage);
     if (form.hasErrors()) {
       return form;
     }
     ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
-    EditTiClientInfoForm currentForm = form.get();
+    TiClientInfoForm currentForm = form.get();
     // after the validations are over, we can directly update the changes, as there are only two
     // cases possible for an update
     // case 1- new updates were added to the form and an update is necessary
@@ -297,7 +277,7 @@ public final class TrustedIntermediaryService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private static List<SearchParameters.ParamTypes> findMissingSearchParams(
+  public static List<SearchParameters.ParamTypes> findMissingSearchParams(
       SearchParameters searchParameters) {
     List<SearchParameters.ParamTypes> missing = new ArrayList<>();
 

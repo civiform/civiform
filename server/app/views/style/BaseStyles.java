@@ -14,9 +14,9 @@ public final class BaseStyles {
 
   public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_CIVIFORM_BLUE = "bg-seattle-blue";
-  public static final String TEXT_CIVIFORM_BLUE = "text-seattle-blue";
-  public static final String BORDER_CIVIFORM_BLUE = "border-seattle-blue";
+  public static final String BG_CIVIFORM_BLUE = "bg-civiform-blue";
+  public static final String TEXT_CIVIFORM_BLUE = "text-civiform-blue";
+  public static final String BORDER_CIVIFORM_BLUE = "border-civiform-blue";
 
   public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
@@ -77,7 +77,8 @@ public final class BaseStyles {
    * input element and its label text, e.g., <label><input type="checkbox">This is the label
    * text.</label>
    */
-  public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
+  public static final String CHECKBOX_LABEL =
+      StyleUtils.joinStyles(INPUT_BASE, "align-middle", "flex", "flex-row");
 
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
@@ -90,7 +91,8 @@ public final class BaseStyles {
       StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base");
 
   /** For use on an `input` of type "checkbox". */
-  public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
+  public static final String CHECKBOX =
+      StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle", "self-center", "flex-none");
 
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
@@ -194,5 +196,18 @@ public final class BaseStyles {
   public static String ALERT_INFO = "usa-alert--info";
   public static String ALERT_WARNING = "usa-alert--warning";
   public static String ALERT_ERROR = "usa-alert--error";
+  public static String ALERT_SUCCESS = "usa-alert--success";
   public static String ALERT_SLIM = "usa-alert--slim";
+
+  public static final String TI_HEADER_BAND_H1 =
+      StyleUtils.joinStyles("py-16", "px-20", "ti-header-band");
+
+  public static final String TI_HEADER_BAND_H2 =
+      StyleUtils.joinStyles("flex", "items-center", "h-24", "px-20", "ti-header-band", "mb-10");
+
+  public static final String TI_NAV_CURRENT =
+      StyleUtils.joinStyles("border-b-4", "border-blue-600", "text-bold");
+
+  public static final String TI_NAV_NOT_CURRENT =
+      StyleUtils.joinStyles("hover:border-b-4", "hover:border-blue-600", "hover:text-blue-600");
 }

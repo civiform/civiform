@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -15,6 +16,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.program.ProgramQuestionDefinition;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -55,7 +57,7 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -69,7 +71,7 @@ public class NameQuestionTest extends ResetPostgres {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors()).isEmpty();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
     if (nameQuestion.getMiddleNameValue().isPresent()) {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
@@ -94,5 +96,35 @@ public class NameQuestionTest extends ResetPostgres {
                 .getValidationErrors()
                 .containsKey(applicantQuestion.getContextualizedPath()))
         .isFalse();
+  }
+
+  @Test
+  public void getNameValue_returnsPAIValueWhenTagged() {
+    NameQuestionDefinition nameQuestionDefinitionWithPaiTag =
+        new NameQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
+                .build());
+
+    // Save applicant's name to the PAI column
+    applicant.setFirstName("First");
+    applicant.setMiddleName("Middle");
+    applicant.setLastName("Last");
+
+    NameQuestion nameQuestion =
+        new ApplicantQuestion(nameQuestionDefinitionWithPaiTag, applicantData, Optional.empty())
+            .createNameQuestion();
+
+    assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(applicant.getFirstName().get());
+    assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(applicant.getMiddleName().get());
+    assertThat(nameQuestion.getLastNameValue().get()).isEqualTo(applicant.getLastName().get());
   }
 }

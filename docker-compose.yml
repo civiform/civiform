@@ -1,15 +1,12 @@
 # Use postgres/example user/password credentials
-version: '3.4'
-
 services:
   localstack:
-    image: localstack/localstack:2.3.2
+    image: localstack/localstack:3.4.0
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
     environment:
       - SERVICES=s3,ses
-      - PROVIDER_OVERRIDE_S3=legacy
     links:
       # Once a file is uploaded to localstack, localstack redirects back to CiviForm.
       # It does this by mapping any 'localhost' domain to the 'civiform' domain (see
@@ -50,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:12.18
+    image: postgres:16.3
     restart: always
     expose:
       - '5432'

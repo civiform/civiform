@@ -1,8 +1,6 @@
-import {expect} from '@playwright/test'
-import axios from 'axios'
+import {APIRequestContext, expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {BASE_URL} from './config'
 
 type CreateApiKeyParamsType = {
   name: string
@@ -13,9 +11,11 @@ type CreateApiKeyParamsType = {
 
 export class AdminApiKeys {
   public page!: Page
+  public request!: APIRequestContext
 
-  constructor(page: Page) {
+  constructor(page: Page, request: APIRequestContext) {
     this.page = page
+    this.request = request
   }
 
   // Create a new ApiKey, returning the credentials string
@@ -41,9 +41,19 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
-  async callCheckAuth(credentials: string): Promise<{status: number}> {
-    return await axios.get(BASE_URL + '/api/v1/checkAuth', {
-      headers: {Authorization: 'Basic ' + credentials},
+  async submitInvalidApiKeyRequest() {
+    await this.gotoNewApiKeyPage()
+    await this.page.fill('#subnet', 'invalid subnet')
+
+    await this.page.click('#apikey-submit-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async callCheckAuth(credentials: string) {
+    return await this.request.get('/api/v1/checkAuth', {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
     })
   }
 

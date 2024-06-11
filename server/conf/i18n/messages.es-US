@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" tamb
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Cerrar
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Revisar
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=se abre en una pestaña nueva
 
@@ -58,9 +60,14 @@ button.deleteFile=Borrar
 button.keepFile=Continuar
 button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
-button.review=Revisar
 button.skipFileUpload=Omitir
 content.blockProgress={0} de {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} de {1} completadas
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} de {1} cargados
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
@@ -70,15 +77,15 @@ modal.errorSaving.review.title=No respondiste todas las preguntas de esta págin
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y volver a la página anterior de todas formas?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de revisión sin guardarlas?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de preguntas anteriores sin guardarlas?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=Continuar a la página de revisión sin guardarlas
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=Volver a las preguntas anteriores sin guardarlas
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=Corregir los errores ahora
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -94,6 +101,8 @@ button.continueToApplication=Continuar a la solicitud
 button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
 button.editCommonIntakeSr=Editar la información enviada para {0}
 button.continueCommonIntakeSr=Continuar completando la solicitud {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
 content.submittedDate=Enviada el {0}
 content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
@@ -107,6 +116,18 @@ title.allProgramsSection=Todos los programas ({0})
 title.status=Estado
 title.inProgressProgramsUpdated=En curso
 title.activeProgramsUpdated=Sin comenzar
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Sección completada
 title.submittedPrograms=Enviados
 toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 toast.programCompleted=Ya se completó la solicitud.
@@ -125,6 +146,9 @@ banner.clientInfoUpdated=Se actualizó la información del cliente correctamente
 banner.clientAcctDeleted=Se borró la cuenta de cliente de "{0}" correctamente.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Se creó un cliente nuevo correctamente.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Estás enviando una solicitud para {0}. ¿Estás intentando enviar una solicitud para otro cliente?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Agregar cliente nuevo
@@ -152,13 +176,27 @@ button.select=Seleccionar
 button.startApp=Comenzar una solicitud
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Ver solicitudes
+# Button to view and add clients
+button.viewAndAddClients=Ver y agregar clientes
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Se agregó tu cliente nuevo {0} a tu lista de clientes. Ahora puedes comenzar a enviar solicitudes para este cliente.
+# The tooltip of the email input field.
+content.emailTooltip=Agrega una dirección de correo electrónico para que tu cliente reciba actualizaciones sobre el estado de su solicitud automáticamente. Sin un correo electrónico, tu organización social y tú estarán a cargo de comunicar las actualizaciones al cliente.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} solicitudes enviadas
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=Se envió 1 solicitud
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=No se enviaron solicitudes para este cliente, por lo que no se perderá ninguna.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no se proporcionó una dirección de correo electrónico)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Todavía no accedió
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Accedió, pero no envió solicitudes
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Se envió la última solicitud el {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 
@@ -166,8 +204,10 @@ dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 header.acctSettings=Configuración de la cuenta
 # Tab label for getting to the client list page
 header.clientList=Lista de clientes
+# Label for search
+header.search=Búsqueda
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Estado de la cuenta
 # Label above the phone number for each client on the client list.
 label.contactInfo=Información de contacto
@@ -179,6 +219,16 @@ label.dob=Fecha de nacimiento
 label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Se requiere la fecha de nacimiento
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Se requiere el nombre
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Se requiere el apellido
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,19 +245,31 @@ label.searchByDob=Buscar por fecha de nacimiento
 label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
 label.year=Año
+# Label showing the user when there is no name
+label.unnamedUser=Usuario sin nombre
 
 link.edit=Editar
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Seleccionar un nuevo cliente
 
 # This is the header above the list of clients and the client search.
 title.allClients=Todos los clientes
 # This is the heading above a new client creation form.
 title.createClient=Crea un cliente nuevo
+# This is the heading above the client editing form.
+title.editClient=Edita la información del cliente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Se muestran {0} clientes
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Se muestra 1 cliente
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Se muestran todos los clientes
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Miembros de la organización
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Intermediario de confianza - Administrar clientes - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Intermediario de confianza - Ver la configuración de la cuenta - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -215,8 +277,12 @@ title.orgMembers=Miembros de la organización
 
 button.submit=Enviar
 button.continue=Continuar
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Comenzar
 toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
 
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Selecciona un paso a continuación para comenzar tu solicitud. Puedes guardar tu progreso y regresar en cualquier momento.
 content.doesNotQualify=No califica
 link.edit=Editar
 link.answer=Responder
@@ -224,8 +290,10 @@ content.previouslyAnsweredOn=Ya se respondió el {0}
 ariaLabel.answer=Responder {0}
 
 ariaLabel.edit=Editar {0}
-title.programSummary=Resumen de la inscripción al programa
 title.commonIntakeSummary=Resumen del proceso de evaluación para acceder a los beneficios
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Comencemos.
+title.programSummary=Resumen de la inscripción al programa
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -267,7 +335,7 @@ content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontr
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 
@@ -279,6 +347,19 @@ title.noChangesToSave=No hay cambios para guardar en el programa {0}
 content.noChanges=Aún no realizaste cambios en la solicitud. ¿Deseas continuar con la edición?
 button.continueEditing=Seguir editando
 button.exitApplication=Salir de la solicitud
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -298,37 +379,25 @@ validation.stateRequired=Ingresa un estado.
 validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
 validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
 
-title.verifyAddress=Verifica la dirección
-
-content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Dirección ingresada:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Dirección sugerida:
-content.suggestedAddresses=Direcciones sugeridas:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=No se encontró ninguna dirección válida
-content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=Confirma tu dirección
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=No pudimos encontrar tu dirección.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=Revisa si la dirección tiene errores de ortografía o elige una opción de la lista que se ofrece.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=Revisa si la dirección tiene errores de ortografía y corrígela para continuar.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Dirección que ingresaste:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Dirección sugerida:
+content.suggestedAddresses=Direcciones sugeridas:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=Confirmar dirección
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -352,8 +421,39 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
 validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=01 - Enero
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=02 - Febrero
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=03 - Marzo
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=04 - Abril
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=05 - Mayo
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=06 - Junio
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=07 - Julio
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=08 - Agosto
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=09 - Septiembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=10 - Octubre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=11 - Noviembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=12 - Diciembre
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Seleccionar
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Ingresa día, mes y año.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=La fecha de nacimiento debe ser un día en el pasado
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=La fecha de nacimiento debe ser hace menos de 150 años
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -363,7 +463,7 @@ button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
 dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
 placeholder.entityName=Nombre de {0}
@@ -373,9 +473,9 @@ placeholder.entityName=Nombre de {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Elige un archivo.
-button.chooseFile=Elegir archivo
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=Tu archivo es demasiado grande. Elige un archivo de un tamaño menor a {0} MB.
+button.chooseFile=Elegir archivo
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +528,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden incluir letras minúsculas, números, guiones o guiones bajos.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -464,3 +564,12 @@ banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.
 banner.httpsSectionHeader=Los sitios web seguros .gov usan HTTPS
 banner.httpsSectionContent=Un candado ( {0} ) o https:// significa que te conectaste de forma segura a un sitio web .gov. Comparte información sensible solo en sitios web oficiales y seguros.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.

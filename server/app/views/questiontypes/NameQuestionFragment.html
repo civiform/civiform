@@ -1,0 +1,96 @@
+<div
+  th:fragment="name(question, questionRendererParams)"
+  th:with="nameQuestion=${question.createNameQuestion()},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             maxInputLength=10000,
+             firstPathWithError=${nameQuestion.getFirstPathWithError()}"
+  th:id="${questionId}"
+  data-testid="questionRoot"
+>
+  <!--/* Title and Help Text */-->
+  <div class="cf-question-header">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+    ></div>
+  </div>
+
+  <div
+    th:with="firstNameId=${'id-' + #strings.randomAlphanumeric(8)},
+        firstNamePath=${nameQuestion.getFirstNamePath()},
+        fieldErrors=${nameQuestion.getValidationErrors().get(firstNamePath)},
+        hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+    class="cf-name-first cf-applicant-question-field"
+    th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  >
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)}, ${questionRendererParams})}"
+    ></div>
+    <label th:for="${firstNameId}">
+      <span th:text="#{label.firstName}"></span>
+      <th:block th:if="${!question.isOptional()}">
+        <span class="usa-hint--required"> *</span>
+      </th:block>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+      th:maxlength="${maxInputLength}"
+      th:id="${firstNameId}"
+      autocomplete="given-name"
+      th:value="${nameQuestion.getFirstNameValue().orElse('')}"
+      th:name="${firstNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
+    />
+  </div>
+
+  <div
+    th:with="middleNameId=${'id-' + #strings.randomAlphanumeric(8)}"
+    class="cf-name-middle cf-applicant-question-field"
+  >
+    <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
+    <input
+      type="text"
+      class="usa-input"
+      th:maxlength="${maxInputLength}"
+      th:id="${middleNameId}"
+      autocomplete="additional-name"
+      th:value="${nameQuestion.getMiddleNameValue().orElse('')}"
+      th:name="${nameQuestion.getMiddleNamePath()}"
+    />
+  </div>
+
+  <div
+    th:with="lastNameId=${'id-' + #strings.randomAlphanumeric(8)},
+    lastNamePath=${nameQuestion.getLastNamePath()},
+    fieldErrors=${nameQuestion.getValidationErrors().get(lastNamePath)},
+    hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+    class="cf-name-last cf-applicant-question-field"
+    th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  >
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams})}"
+    ></div>
+    <label th:for="${lastNameId}">
+      <span th:text="#{label.lastName}"></span>
+      <th:block th:if="${!question.isOptional()}">
+        <span class="usa-hint--required"> *</span>
+      </th:block>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+      th:maxlength="${maxInputLength}"
+      th:id="${lastNameId}"
+      autocomplete="family-name"
+      th:value="${nameQuestion.getLastNameValue().orElse('')}"
+      th:name="${lastNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
+    />
+  </div>
+</div>

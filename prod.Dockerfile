@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # For production images, use the adoptium.net official JRE & JDK docker images.
-FROM --platform=linux/amd64 eclipse-temurin:11.0.22_7-jdk-alpine AS stage1
+FROM --platform=linux/amd64 eclipse-temurin:11.0.23_9-jdk-alpine AS stage1
 
 ARG SBT_VERSION
 ENV SBT_VERSION "${SBT_VERSION}"
@@ -13,7 +13,7 @@ RUN set -o pipefail && \
     apk update && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
-    apk add --no-cache --update bash wget npm git openssh && \
+    apk add --no-cache --update bash wget npm git && \
     mkdir -p "$SBT_HOME" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
@@ -24,7 +24,7 @@ ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
-    npm install -g npm@8.5.1 && \
+    npm install -g npm && \
     npm install && \
     sbt update && \
     sbt dist && \
@@ -33,7 +33,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM --platform=linux/amd64 eclipse-temurin:11.0.22_7-jre-alpine AS stage2
+FROM --platform=linux/amd64 eclipse-temurin:11.0.23_9-jre-alpine AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.

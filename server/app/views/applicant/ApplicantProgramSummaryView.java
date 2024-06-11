@@ -39,6 +39,7 @@ import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -185,17 +186,22 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                 .withClasses("font-semibold"))
             .withClasses("pr-2");
 
-    // Add existing answer.
-    if (data.isAnswered()) {
+    // When applicant info is pre-populated by TI entry, the question is not
+    // considered "answered" but we want the answers to show on the review screen
+    String defaultAnswerString = data.applicantQuestion().getQuestion().getDefaultAnswerString();
+    boolean haveAnswerText =
+        !data.answerText().isBlank() && !data.answerText().equals(defaultAnswerString);
+
+    if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink);
+        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
+        answerContent.withClasses("font-light", "text-sm");
       }
-      answerContent.withClasses("font-light", "text-sm");
       // Add answer text, converting newlines to <br/> tags.
       String[] texts = data.answerText().split("\n");
       texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
@@ -240,10 +246,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-
     QuestionDefinition questionDefinition = data.questionDefinition();
     Optional<String> questionName = Optional.of(questionDefinition.getName());
-    if (data.isAnswered()) {
+    if (data.isAnswered() || haveAnswerText) {
       editElement
           .setHref(
               applicantRoutes

@@ -1,7 +1,6 @@
 package services.cloud;
 
 import java.util.Optional;
-import play.mvc.Http;
 
 /**
  * Interface for working with cloud file storage backends for applicant files. This:
@@ -18,6 +17,8 @@ import play.mvc.Http;
  * the files.
  */
 public interface ApplicantStorageClient {
+  /** Returns the maximum file size in megabytes allowed for public files. */
+  int getFileLimitMb();
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
@@ -48,8 +49,7 @@ public interface ApplicantStorageClient {
    * @param successActionRedirectUrl a URL specifying where a user should be redirected upon
    *     successful file upload.
    */
-  StorageUploadRequest getSignedUploadRequest(
-      String fileKey, String successActionRedirectUrl, Http.Request request);
+  StorageUploadRequest getSignedUploadRequest(String fileKey, String successActionRedirectUrl);
 
   /** Gets the {@link StorageServiceName} for the current storage client. */
   StorageServiceName getStorageServiceName();

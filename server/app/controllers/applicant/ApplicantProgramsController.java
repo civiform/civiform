@@ -16,9 +16,11 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.Results;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -26,7 +28,10 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.settings.SettingsManifest;
+import views.applicant.ApplicantDisabledProgramView;
 import views.applicant.ApplicantProgramInfoView;
+import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
 
@@ -37,33 +42,42 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ApplicantDisabledProgramView disabledProgramInfoView;
   private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
+  private final NorthStarProgramIndexView northStarProgramIndexView;
 
   @Inject
   public ApplicantProgramsController(
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
+      ApplicantDisabledProgramView disabledProgramInfoView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      NorthStarProgramIndexView northStarProgramIndexView) {
     super(profileUtils, versionRepository);
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
+    this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
   }
 
   @Secure
@@ -77,29 +91,46 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
-            applicationPrograms ->
-                ok(programIndexView.render(
-                        messagesApi.preferred(request),
-                        request,
-                        applicantId,
-                        applicantStage.toCompletableFuture().join(),
-                        applicationPrograms,
-                        banner,
-                        requesterProfile.orElseThrow(
-                            () -> new MissingOptionalException(CiviFormProfile.class))))
-                    // If the user has been to the index page, any existing redirects should be
-                    // cleared to avoid an experience where they're unexpectedly redirected after
-                    // logging in.
-                    .removingFromSession(request, REDIRECT_TO_SESSION_KEY),
-            httpContext.current())
+            applicationPrograms -> {
+              Result result;
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                result =
+                    ok(northStarProgramIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))))
+                        .as(Http.MimeTypes.HTML);
+              } else {
+                result =
+                    ok(
+                        programIndexView.render(
+                            messagesApi.preferred(request),
+                            request,
+                            applicantId,
+                            applicantStage.toCompletableFuture().join(),
+                            applicationPrograms,
+                            banner,
+                            requesterProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class))));
+              }
+              // If the user has been to the index page, any existing redirects should be
+              // cleared to avoid an experience where they're unexpectedly redirected after
+              // logging in.
+              return result.removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+            },
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -136,13 +167,13 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+        this.applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =
@@ -163,7 +194,7 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               return badRequest(String.format("Program %d not found", programId));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -232,7 +263,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                                   block.getId(),
                                   /* questionName= */ Optional.empty()))));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
@@ -242,7 +273,7 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               return supplyAsync(resultMaybe::get);
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -270,5 +301,19 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return editWithApplicantId(request, applicantId.orElseThrow(), programId);
+  }
+
+  @Secure
+  public CompletionStage<Result> showInfoDisabledProgram(Request request, String programSlug) {
+    Optional<Long> applicantId = getApplicantId(request);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId.get(), request);
+    return CompletableFuture.completedFuture(
+        Results.notFound(
+            disabledProgramInfoView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId.orElseThrow(),
+                applicantStage.toCompletableFuture().join())));
   }
 }

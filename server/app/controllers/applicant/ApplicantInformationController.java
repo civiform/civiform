@@ -7,6 +7,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import controllers.LanguageUtils;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Session;
 import play.mvc.Result;
@@ -28,7 +29,6 @@ import repository.AccountRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
-import views.applicant.ApplicantLayout;
 
 /**
  * Provides methods for editing and updating an applicant's information, such as their preferred
@@ -36,30 +36,30 @@ import views.applicant.ApplicantLayout;
  */
 public final class ApplicantInformationController extends CiviFormController {
 
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final AccountRepository repository;
   private final FormFactory formFactory;
-  private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public ApplicantInformationController(
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       AccountRepository repository,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      ApplicantLayout layout,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      LanguageUtils languageUtils) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.repository = checkNotNull(repository);
     this.formFactory = checkNotNull(formFactory);
-    this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.languageUtils = languageUtils;
   }
 
   /**
@@ -71,15 +71,14 @@ public final class ApplicantInformationController extends CiviFormController {
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(
                     maybeApplicant,
                     applicantId,
-                    Locale.forLanguageTag(
-                        layout.languageSelector.getPreferredLangage(request).code())),
-            httpExecutionContext.current())
+                    Locale.forLanguageTag(languageUtils.getPreferredLanguage(request).code())),
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -105,7 +104,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   .withLang(preferredLocale, messagesApi)
                   .withSession(request.session());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -149,11 +148,11 @@ public final class ApplicantInformationController extends CiviFormController {
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(maybeApplicant, applicantId, infoForm.getLocale()),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -162,7 +161,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   .withLang(preferredLocale, messagesApi)
                   .withSession(session);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -189,7 +188,7 @@ public final class ApplicantInformationController extends CiviFormController {
       // Update the applicant, then pass the updated applicant to the next stage.
       return repository
           .updateApplicant(applicant)
-          .thenApplyAsync(v -> applicant, httpExecutionContext.current());
+          .thenApplyAsync(v -> applicant, classLoaderExecutionContext.current());
     } else {
       return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
     }

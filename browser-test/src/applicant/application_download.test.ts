@@ -1,7 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../support/civiform_fixtures'
 import {
-  createTestContext,
-  dropTables,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -14,16 +12,16 @@ import {
 } from '../support'
 
 test.describe('csv export for multioption question', () => {
-  const ctx = createTestContext()
-
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
+  test.beforeEach(async ({page}) => {
     await seedQuestions(page)
+    await page.goto('/')
   })
-  test('multioption csv into its own column', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('multioption csv into its own column', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     const noApplyFilters = false
 
     await loginAsAdmin(page)
@@ -110,16 +108,18 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('normal application flow', () => {
-  const ctx = createTestContext()
-
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
+  test.beforeEach(async ({page}) => {
     await seedQuestions(page)
+    await page.goto('/')
   })
 
-  test('all major steps', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+  test('all major steps', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    test.slow()
 
     const noApplyFilters = false
     const applyFilters = true
@@ -310,7 +310,7 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplicationForApplicant('smith, sarah')
     await validateScreenshot(page, 'applications-page')
 
-    const pdfFile = await adminPrograms.getPdf()
+    const pdfFile = await adminPrograms.getApplicationPdf()
     expect(pdfFile.length).toBeGreaterThan(1)
 
     await logout(page)
@@ -369,14 +369,15 @@ test.describe('normal application flow', () => {
     }
   })
 
-  test('download finished application', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('download finished application', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
-    await adminQuestions.addNameQuestion({questionName: 'Name'})
     await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
 
     await logout(page)

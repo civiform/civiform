@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -17,9 +18,9 @@ import repository.VersionRepository;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
+import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOneView;
-import views.admin.programs.ApiKeyCredentialsView;
 
 /** Controller for admins managing ApiKeys. */
 public class AdminApiKeysController extends CiviFormController {
@@ -95,7 +96,13 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    return ok(newOneView.render(request, programService.getActiveProgramNames()));
+    ImmutableSet<String> programNames = programService.getActiveProgramNames();
+
+    if (programNames.isEmpty()) {
+      return ok(newOneView.renderNoPrograms(request));
+    } else {
+      return ok(newOneView.render(request, programNames));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

@@ -20,7 +20,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
-import play.libs.concurrent.HttpExecutionContext;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.VersionRepository;
@@ -153,13 +154,17 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
     CiviFormController controller = instanceOf(CiviFormController.class);
     ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
@@ -189,13 +194,17 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
     CiviFormController controller = instanceOf(CiviFormController.class);
     ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),

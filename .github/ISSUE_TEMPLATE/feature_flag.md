@@ -8,6 +8,8 @@ assignees: ''
 
 See [Releasing a Feature Behind a Feature Flag](https://github.com/civiform/civiform/wiki/Feature-Flags#releasing-a-feature-behind-a-feature-flag) for more details.
 
+Be sure to keep the [feature flag tracking spreadsheet](https://docs.google.com/spreadsheets/d/149xPiY0WMLAE5be51pvznyytfGVRTzu4QqrBs427DaA/edit#gid=0) updated as the flag lifecycle changes.
+
 ### Flag name
 
 Add the string used as the feature flag name here

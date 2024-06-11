@@ -26,6 +26,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Modal;
@@ -61,7 +62,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public Content render(Params params) {
+  public Content render(ApplicationBaseViewParams params) {
     DivTag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
@@ -76,7 +77,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    if (settingsManifest.getSaveOnAllActions(params.request())
+    if (settingsManifest.getSaveOnAllActions()
         && shouldShowErrorsWithModal(params.errorDisplayMode())) {
       modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
@@ -109,7 +110,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params.bannerToastMessage().ifPresent(bundle::addToastMessages);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
@@ -144,7 +145,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .getContainerTag();
   }
 
-  private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
+  private ContainerTag<?> renderBlockWithSubmitForm(ApplicationBaseViewParams params) {
     if (params.block().isFileUpload()) {
       return applicantFileUploadRenderer.renderFileUploadBlock(
           params, applicantQuestionRendererFactory);
@@ -245,7 +246,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .render(params);
   }
 
-  private DivTag renderBottomNavButtons(Params params) {
+  private DivTag renderBottomNavButtons(ApplicationBaseViewParams params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         .with(renderReviewButton(settingsManifest, params))
@@ -253,7 +254,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(renderNextButton(params));
   }
 
-  private ButtonTag renderNextButton(Params params) {
+  private ButtonTag renderNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");

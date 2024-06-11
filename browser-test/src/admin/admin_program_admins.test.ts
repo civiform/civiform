@@ -1,12 +1,11 @@
-import {test} from '@playwright/test'
-import {createTestContext, loginAsAdmin, validateScreenshot} from '../support'
+import {test} from '../support/civiform_fixtures'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('manage program admins', () => {
-  const ctx = createTestContext()
-
-  test('does not add a program admin that does not exist', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('does not add a program admin that does not exist', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Add program admins'

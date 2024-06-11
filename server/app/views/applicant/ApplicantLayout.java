@@ -18,6 +18,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.AssetsFinder;
+import controllers.LanguageUtils;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -53,6 +54,7 @@ import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.PageNotProductionBanner;
 import views.dev.DebugContent;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
@@ -75,10 +77,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
-  public final LanguageSelector languageSelector;
+  private final LanguageUtils languageUtils;
+  private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
+  private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
 
   @Inject
@@ -87,18 +91,22 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
+      LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent,
-      AssetsFinder assetsFinder) {
+      AssetsFinder assetsFinder,
+      PageNotProductionBanner pageNotProductionBanner) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
+    this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
+    this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
   }
 
   @Override
@@ -144,8 +152,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
       HtmlBundle bundle,
       boolean includeAdminLogin,
       Long applicantId) {
+    bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
+
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
-    String language = languageSelector.getPreferredLangage(request).code();
+    String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages, applicantId));
 
@@ -219,7 +229,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "flex-shrink-0",
                             "grow",
                             StyleUtils.responsiveMedium("grow-0")))
-                .with(maybeRenderTiButton(profile))
+                .with(maybeRenderTiButton(profile, messages))
                 .with(
                     div(
                             getLanguageForm(request, messages, applicantId),
@@ -248,7 +258,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
     InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
-    String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+    String preferredLanguage = languageUtils.getPreferredLanguage(request).code();
     SelectTag languageDropdown =
         languageSelector
             .renderDropdown(preferredLanguage)
@@ -301,12 +311,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         span(text(" CiviForm")))));
   }
 
-  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile) {
+  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, Messages messages) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
     if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
-      String tiDashboardText = "View and add clients";
+      String tiDashboardText = messages.at(MessageKey.BUTTON_VIEW_AND_ADD_CLIENTS.getKeyName());
       div.with(
           a(tiDashboardText)
               .withId("ti-dashboard-link")
@@ -550,30 +560,29 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   /**
-   * Returns true if the request object points to a URI that is the Trusted Intermediary Dashboard.
-   * When a TI is impersonating an applicant to apply for them, this method will return false.
+   * Returns true if the request object points to a URI that is the Trusted Intermediary Dashboard
+   * or any of its related pages. When a TI is impersonating an applicant to apply for them, this
+   * method will return false.
    */
   private static boolean onTiDashboardPage(Http.Request request) {
     String currentPath = null;
-    String tiDashboardPath = null;
+
+    String tiDashboardPath =
+        controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty())
+            .url();
+
     try {
       URI currentPathUri = new URI(request.uri());
       currentPath = currentPathUri.getPath();
-
-      URI tiDashboardUri =
-          new URI(
-              controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty())
-                  .url());
-      tiDashboardPath = tiDashboardUri.getPath();
     } catch (URISyntaxException e) {
       logger.error("Could not get the path for uri {}", request.uri());
     }
 
-    return currentPath != null && currentPath.equals(tiDashboardPath);
+    return currentPath != null && currentPath.contains(tiDashboardPath);
   }
 }

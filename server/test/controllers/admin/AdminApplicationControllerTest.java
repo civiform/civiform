@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.pac4j.core.context.session.SessionStore;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -52,7 +52,7 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.export.CsvExporterService;
-import services.export.JsonExporter;
+import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
@@ -347,6 +347,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
+    Request blankRequest = addCSRFToken(Helpers.fakeRequest()).build();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program =
@@ -362,7 +363,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
             .build(),
-        adminAccount);
+        adminAccount,
+        blankRequest);
 
     Request request =
         addCSRFToken(
@@ -582,7 +584,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ProfileTester profileTester =
         new ProfileTester(
             instanceOf(DatabaseExecutionContext.class),
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
             instanceOf(SettingsManifest.class),
             adminAccount,
@@ -595,7 +597,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(ApplicantService.class),
         instanceOf(CsvExporterService.class),
         instanceOf(FormFactory.class),
-        instanceOf(JsonExporter.class),
+        instanceOf(JsonExporterService.class),
         instanceOf(PdfExporterService.class),
         instanceOf(ProgramApplicationListView.class),
         instanceOf(ProgramApplicationView.class),
@@ -631,12 +633,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
       public ProfileTester(
           DatabaseExecutionContext dbContext,
-          HttpExecutionContext httpContext,
+          ClassLoaderExecutionContext classLoaderExecutionContext,
           CiviFormProfileData profileData,
           SettingsManifest settingsManifest,
           Optional<AccountModel> adminAccount,
           AccountRepository accountRepository) {
-        super(dbContext, httpContext, profileData, settingsManifest, accountRepository);
+        super(
+            dbContext,
+            classLoaderExecutionContext,
+            profileData,
+            settingsManifest,
+            accountRepository);
         this.adminAccount = adminAccount;
       }
 

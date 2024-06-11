@@ -234,7 +234,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
         FieldWithLabel.number()
             .setFieldName(settingDescription.variableName())
             .setPlaceholderText("empty")
-            .setDisabled(settingDescription.isReadOnly());
+            .setDisabled(settingDescription.isReadOnly())
+            .setReadOnly(settingDescription.isReadOnly());
 
     value.ifPresent((val) -> field.setValue(OptionalInt.of(Integer.parseInt(val))));
 
@@ -261,6 +262,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .setValue(maybeUpdateError.map(UpdateError::updatedValue).orElse(value.orElse("")))
             .setPlaceholderText("empty")
             .setDisabled(settingDescription.isReadOnly())
+            .setReadOnly(settingDescription.isReadOnly())
             .getInputTag()
             .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT)
             .with(errors.orElse(null)))
@@ -282,7 +284,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                                 .setValue(optionValue)
                                 .build())
                     .collect(ImmutableList.toImmutableList()))
-            .setDisabled(settingDescription.isReadOnly());
+            .setDisabled(settingDescription.isReadOnly())
+            .setReadOnly(settingDescription.isReadOnly());
 
     value.ifPresent(val -> selectWithLabel.setValue(val));
 

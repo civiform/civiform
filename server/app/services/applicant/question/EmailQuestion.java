@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.EmailQuestionDefinition;
 
 /**
@@ -38,7 +40,7 @@ public final class EmailQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getEmailValue().orElse("-");
+    return getEmailValue().orElse(getDefaultAnswerString());
   }
 
   public Optional<String> getEmailValue() {
@@ -46,12 +48,23 @@ public final class EmailQuestion extends Question {
       return emailValue;
     }
 
-    emailValue = applicantQuestion.getApplicantData().readString(getEmailPath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> emailValue = applicantData.readString(getEmailPath());
+
+    if (emailValue.isEmpty() && isPaiQuestion()) {
+      emailValue = applicantData.getApplicantEmail();
+    }
 
     return emailValue;
   }
 
   public EmailQuestionDefinition getQuestionDefinition() {
     return (EmailQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
   }
 }

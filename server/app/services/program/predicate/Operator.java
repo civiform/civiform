@@ -16,17 +16,22 @@ public enum Operator {
       ">=",
       "age is older than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.LONG)),
+      ImmutableSet.of(OperatorRightHandType.LONG, OperatorRightHandType.DOUBLE)),
   AGE_YOUNGER_THAN(
       "<",
       "age is younger than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.LONG)),
+      ImmutableSet.of(OperatorRightHandType.LONG, OperatorRightHandType.DOUBLE)),
   ANY_OF(
       "anyof",
       "contains any of",
       ImmutableSet.of(ScalarType.LIST_OF_STRINGS),
       ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS, OperatorRightHandType.LIST_OF_STRINGS)),
+  BETWEEN(
+      "between",
+      "is between",
+      ImmutableSet.of(ScalarType.LONG, ScalarType.CURRENCY_CENTS, ScalarType.DATE),
+      ImmutableSet.of(OperatorRightHandType.PAIR_OF_LONGS, OperatorRightHandType.PAIR_OF_DATES)),
   EQUAL_TO(
       "==",
       "is equal to",

@@ -345,21 +345,50 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findApplicantsWithIncorrectDobPath() {
-    // Save an applicant with the correct path for dob
-    saveApplicantWithDob("Foo", "2001-11-01");
+  public void findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
+    // First name only
+    ApplicantModel applicantFirstName = savePlainApplicant();
+    applicantFirstName.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicantFirstName.save();
 
-    // Save an applicant with the incorrect path for dob
-    ApplicantModel applicantWithDeprecatedPath = saveApplicant("Bar");
-    applicantWithDeprecatedPath
-        .getApplicantData()
-        .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
-    applicantWithDeprecatedPath.save();
+    // DOB only (using preseeded question)
+    ApplicantModel applicantDob = savePlainApplicant();
+    applicantDob.getApplicantData().putString(WellKnownPaths.APPLICANT_DOB, "1999-01-11");
+    applicantDob.save();
 
-    List<ApplicantModel> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
-    // Only the applicant with the incorrect path should be returned
-    assertThat(applicants.size()).isEqualTo(1);
-    assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
+    // All the things a TI client has (except optional email address)
+    ApplicantModel applicantTiClient = savePlainApplicant();
+    ApplicantData applicantData = applicantTiClient.getApplicantData();
+    applicantData.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicantData.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
+    applicantData.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
+    applicantData.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
+    applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
+    applicantTiClient.save();
+
+    // Applicant with an account email address and no primary applicant info email
+    ApplicantModel applicantAccountEmail = savePlainApplicant();
+    AccountModel account = applicantAccountEmail.getAccount();
+    account.setEmailAddress("picard@starfleet.com");
+    account.save();
+
+    // Applicant with both an account email and primary applicant info email
+    ApplicantModel applicantPaiEmail = savePlainApplicant();
+    applicantPaiEmail.setEmailAddress("picard@starfleet.com");
+    AccountModel accountPaiEmail = applicantPaiEmail.getAccount();
+    accountPaiEmail.setEmailAddress("enterprise@starfleet.com");
+    accountPaiEmail.save();
+    applicantPaiEmail.save();
+
+    // Applicant with no well known path data or account email address
+    ApplicantModel applicantNoData = savePlainApplicant();
+
+    List<ApplicantModel> applicants =
+        repo.findApplicantsNeedingPrimaryApplicantInfoDataMigration().findList();
+    assertThat(applicants)
+        .containsOnly(applicantFirstName, applicantDob, applicantTiClient, applicantAccountEmail);
+    assertThat(applicants).doesNotContain(applicantNoData);
+    assertThat(applicants).doesNotContain(applicantPaiEmail);
   }
 
   @Test
@@ -419,6 +448,15 @@ public class AccountRepositoryTest extends ResetPostgres {
     account.save();
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant.save();
+    return applicant;
+  }
+
+  private ApplicantModel savePlainApplicant() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.save();
+    applicant.setAccount(account);
     applicant.save();
     return applicant;
   }

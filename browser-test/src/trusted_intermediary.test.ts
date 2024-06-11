@@ -1,7 +1,6 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
   ClientInformation,
-  createTestContext,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
@@ -11,13 +10,14 @@ import {
   AdminQuestions,
   dismissToast,
   selectApplicantLanguage,
+  enableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
-  const ctx = createTestContext()
-
-  test('expect Client Date Of Birth to be Updated', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect Client Date Of Birth to be Updated', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -38,11 +38,86 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-12-12',
     }
+    await tiDashboard.expectSuccessAlertOnUpdate()
+    await validateScreenshot(page.locator('main'), 'edit-client-success-alert')
+
+    // The 'You are applying for...' banner should only be present when the TI
+    // is actively applying for a client
+    await tiDashboard.expectApplyingForBannerNotPresent()
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+  test('expect client info to be updated with empty emails', async ({
+    page,
+    tiDashboard,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: '',
+      firstName: 'Tony',
+      middleName: '',
+      lastName: 'Stark',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientTiNoteAndPhone(
+      client,
+      'Technology',
+      '4259746122',
+    )
+    await tiDashboard.expectSuccessAlertOnUpdate()
 
-  test('expect client cannot be added with invalid date of birth', async () => {
-    const {page, tiDashboard} = ctx
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client)
+  })
+
+  test('verify success toast screenshot on adding new client', async ({
+    page,
+    tiDashboard,
+    applicantQuestions,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'abc@abc.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2022-07-11',
+    }
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    // The 'You are applying for...' banner should only be present when the TI
+    // is actively applying for a client
+    await tiDashboard.expectApplyingForBannerNotPresent()
+
+    await page.fill('#email-input', client.emailAddress)
+    await page.fill('#first-name-input', client.firstName)
+    await page.fill('#middle-name-input', client.middleName)
+    await page.fill('#last-name-input', client.lastName)
+    await page.fill('#date-of-birth-input', client.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectSuccessAlertOnAddNewClient()
+    await validateScreenshot(page, 'verify-success-toast-on-new-client')
+    await page.getByRole('link', {name: 'Start an application'}).click()
+    await applicantQuestions.expectProgramsPage()
+  })
+
+  test('expect client cannot be added with invalid date of birth', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -54,13 +129,23 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '1870-07-11',
     }
-    await tiDashboard.createClient(client)
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client.emailAddress)
+    await page.fill('#first-name-input', client.firstName)
+    await page.fill('#middle-name-input', client.middleName)
+    await page.fill('#last-name-input', client.lastName)
+    await page.fill('#date-of-birth-input', client.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await validateScreenshot(page, 'add-client-invalid-dob')
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
-    await validateScreenshot(page, 'dashboard-add-client-invalid-dob')
   })
 
-  test('expect Dashboard Contain New Client', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect Dashboard Contain New Client', async ({page, tiDashboard}) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -77,8 +162,10 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'dashboard-with-one-client')
   })
 
-  test('expect clients can be added without an email address', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect clients can be added without an email address', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -103,15 +190,13 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
     await tiDashboard.expectDashboardContainClient(client2)
-    await tiDashboard.expectSuccessToast(
-      `Successfully added new client: ${client2.firstName} ${client2.lastName}`,
-    )
-
-    await validateScreenshot(page, 'dashboard-add-clients-no-email')
+    await validateScreenshot(page, 'add-clients-no-email')
   })
 
-  test('expect client email address to be updated', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect client email address to be updated', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -133,11 +218,16 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-06-10',
     }
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
-  test('expect client ti notes and phone to be updated', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect client ti notes and phone to be updated', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -147,28 +237,24 @@ test.describe('Trusted intermediaries', () => {
       middleName: 'middle',
       lastName: 'last',
       dobDate: '2021-06-10',
+      phoneNumber: '4256007121',
+      notes: 'Housing Assistance',
     }
-    const phoneNumber: string = '4256007121'
-    const notes: string = 'Housing Assistance'
     await tiDashboard.createClient(client)
-    await waitForPageJsLoad(page)
-    await tiDashboard.updateClientTiNoteAndPhone(client, notes, phoneNumber)
+    await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
       client,
-      notes,
       '(425) 600-7121',
     )
-    await tiDashboard.expectEditFormContainsTiNoteAndPhone(
-      client,
-      notes,
-      phoneNumber,
-    )
+    await tiDashboard.expectEditFormContainsTiNoteAndPhone(client)
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
   })
 
-  test('expect client email to be updated to empty', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect client email to be updated to empty', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -182,6 +268,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientEmailAddress(client, '')
+    await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
 
     const card = page.locator(
@@ -192,8 +279,10 @@ test.describe('Trusted intermediaries', () => {
     expect(cardText).toContain(client.dobDate)
   })
 
-  test('expect back button to land in dashboard in the edit client page', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect back button to land in dashboard in the edit client page', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -215,12 +304,13 @@ test.describe('Trusted intermediaries', () => {
     await page.waitForSelector('h2:has-text("Edit Client")')
     await page.click('text=Back to client list')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Add Client")')
-    await validateScreenshot(page, 'back-link-leads-to-ti-dashboard')
+    await page.waitForSelector('h4:has-text("Search")')
   })
 
-  test('expect cancel button should not update client information', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect cancel button should not update client information', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -241,18 +331,16 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await page.waitForSelector('h2:has-text("Edit Client")')
     // update client dob
-    await page.fill('#edit-date-of-birth-input', '2022-10-13')
+    await page.fill('#date-of-birth-input', '2022-10-13')
 
     await page.click('text=Cancel')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Add Client")')
+    await page.waitForSelector('h4:has-text("Search")')
     // dob should not be updated
     await tiDashboard.expectDashboardContainClient(client)
-    await validateScreenshot(page, 'cancel-leads-to-dashboard')
   })
 
-  test('expect field errors', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect field errors', async ({page, tiDashboard}) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -272,13 +360,17 @@ test.describe('Trusted intermediaries', () => {
       .click()
     await waitForPageJsLoad(page)
     await page.waitForSelector('h2:has-text("Edit Client")')
-    await page.fill('#edit-date-of-birth-input', '2027-12-20')
+    await page.fill('#date-of-birth-input', '2027-12-20')
     await page.click('text="Save"')
+
+    await tiDashboard.expectSuccessAlertNotPresent()
     await validateScreenshot(page, 'edit-client-information-with-field-errors')
   })
 
-  test('expect client cannot be added with invalid email address', async () => {
-    const {page, tiDashboard} = ctx
+  test('expect client cannot be added with invalid email address', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -290,34 +382,85 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2023-07-11',
     }
-    await tiDashboard.createClient(client)
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client.emailAddress)
+    await page.fill('#first-name-input', client.firstName)
+    await page.fill('#middle-name-input', client.middleName)
+    await page.fill('#last-name-input', client.lastName)
+    await page.fill('#date-of-birth-input', client.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await validateScreenshot(page, 'cannot-add-client-with-existing-email')
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
-    // In an email-type input field, when the text is not formatted as a valid
-    // email address, there is a popup that shows and disappears after a period
-    // of time or when you move focus away from the field. Move focus away
-    // from the field in order to get a stable snapshot.
-    await page.focus('label:has-text("First Name")')
-    await validateScreenshot(page, 'dashboard-add-client-invalid-email')
   })
 
-  test('ti landing page is the TI Dashboard', async () => {
-    const {page} = ctx
+  test('expect client cannot be added with an existing email address', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'mail@test.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    const client2: ClientInformation = {
+      emailAddress: 'mail@test.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await tiDashboard.createClient(client1)
+
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client2.emailAddress)
+    await page.fill('#first-name-input', client2.firstName)
+    await page.fill('#middle-name-input', client2.middleName)
+    await page.fill('#last-name-input', client2.lastName)
+    await page.fill('#date-of-birth-input', client2.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await validateScreenshot(page, 'cannot-add-client-invalid-email')
+  })
+
+  test('ti landing page is the TI Dashboard', async ({page, tiDashboard}) => {
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.expectApplyingForBannerNotPresent()
     await validateScreenshot(page, 'ti')
   })
 
-  test('dashboard contains required indicator note and optional marker', async () => {
-    const {page} = ctx
+  test('ti client form contains required indicator note and optional marker', async ({
+    page,
+  }) => {
     await loginAsTrustedIntermediary(page)
-    expect(await page.textContent('html')).toContain('Email address (optional)')
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+    const content = await page.textContent('html')
+    expect(content).toContain('Email (optional)')
+    expect(content).toContain('Notes (optional)')
+    expect(content).toContain('Middle name (optional)')
+    expect(content).toContain('Phone number (optional)')
     expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
   })
 
-  test('Trusted intermediary sees the dashboard fully translated', async () => {
-    const {page, tiDashboard} = ctx
-
+  test('Trusted intermediary sees the dashboard fully translated', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -326,16 +469,14 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'ti-dashboard-chinese')
   })
 
-  test('Applicant sees the program review page fully translated', async () => {
-    const {
-      page,
-      adminQuestions,
-      adminPrograms,
-      applicantQuestions,
-      adminTranslations,
-      tiDashboard,
-    } = ctx
-
+  test('Applicant sees the program review page fully translated', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+    adminTranslations,
+    tiDashboard,
+  }) => {
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
 
@@ -376,8 +517,7 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'applicant-program-spanish')
   })
 
-  test('search For Client In TI Dashboard', async () => {
-    const {page, tiDashboard} = ctx
+  test('search For Client In TI Dashboard', async ({page, tiDashboard}) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -395,7 +535,7 @@ test.describe('Trusted intermediaries', () => {
       firstName: 'first2',
       middleName: 'middle',
       lastName: 'last2',
-      dobDate: '2021-11-07',
+      dobDate: '2021-12-07',
     }
     await tiDashboard.createClient(client2)
     const client3: ClientInformation = {
@@ -406,23 +546,42 @@ test.describe('Trusted intermediaries', () => {
       dobDate: '2021-12-07',
     }
     await tiDashboard.createClient(client3)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying all clients'}),
+    ).toBeVisible()
 
     await tiDashboard.searchByDateOfBirth('07', '12', '2021')
     await waitForPageJsLoad(page)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying 2 clients'}),
+    ).toBeVisible()
+    await tiDashboard.expectDashboardContainClient(client2)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
-    await tiDashboard.expectDashboardNotContainClient(client2)
 
     // If the day is a single digit, the search still works
     await tiDashboard.searchByDateOfBirth('7', '12', '2021')
     await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client2)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
-    await tiDashboard.expectDashboardNotContainClient(client2)
+
+    // We can clear the search and see all clients again
+    await page.getByText('Clear search').click()
+    await page.getByRole('button', {name: 'Search'}).click()
+    await waitForPageJsLoad(page)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying all clients'}),
+    ).toBeVisible()
+    await tiDashboard.expectDashboardContainClient(client1)
+    await tiDashboard.expectDashboardContainClient(client2)
+    await tiDashboard.expectDashboardContainClient(client3)
   })
 
-  test('incomplete dob and no name in the client search returns an error', async () => {
-    const {page, tiDashboard} = ctx
+  test('incomplete dob and no name in the client search returns an error', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -451,11 +610,14 @@ test.describe('Trusted intermediaries', () => {
     tiDashboard.expectRedDateFieldOutline(true, true, false)
     await tiDashboard.expectDashboardNotContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
+    await expect(page.getByTestId('displaying-clients')).toBeHidden()
     await validateScreenshot(page, 'incomplete-dob')
   })
 
-  test('incomplete dob with name in the client search returns client by name', async () => {
-    const {page, tiDashboard} = ctx
+  test('incomplete dob with name in the client search returns client by name', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -480,63 +642,100 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.searchByNameAndDateOfBirth('first1', '', '', '2021')
     await waitForPageJsLoad(page)
 
+    await expect(
+      page.getByRole('heading', {name: 'Displaying 1 client'}),
+    ).toBeVisible()
     await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
-  test('empty search parameters returns all clients', async () => {
-    const {page, tiDashboard} = ctx
-    await loginAsTrustedIntermediary(page)
-
-    await tiDashboard.gotoTIDashboardPage(page)
-    await waitForPageJsLoad(page)
-    const client1: ClientInformation = {
-      emailAddress: 'fake@sample.com',
-      firstName: 'first1',
-      middleName: 'middle',
-      lastName: 'last1',
-      dobDate: '2021-07-10',
-    }
-    await tiDashboard.createClient(client1)
-    const client2: ClientInformation = {
-      emailAddress: 'fake2@sample.com',
-      firstName: 'first2',
-      middleName: 'middle',
-      lastName: 'last2',
-      dobDate: '2021-11-10',
-    }
-    await tiDashboard.createClient(client2)
-
-    await tiDashboard.searchByNameAndDateOfBirth('', '', '', '')
-    await waitForPageJsLoad(page)
-    await tiDashboard.expectDashboardContainClient(client1)
-    await tiDashboard.expectDashboardContainClient(client2)
-  })
-
-  test('managing trusted intermediary', async () => {
-    const {page, adminTiGroups} = ctx
+  test('managing trusted intermediary', async ({page, adminTiGroups}) => {
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.fillInGroupBasics('group name', 'group description')
     await adminTiGroups.expectGroupExist('group name', 'group description')
     await validateScreenshot(page, 'ti-groups-page')
 
+    // validate error message if empty name
+    await adminTiGroups.editGroup('group name')
+    await page.click('text="Add"')
+    await validateToastMessage(page, 'Must provide email address.')
+
+    // validate adding valid email address works
     await adminTiGroups.editGroup('group name')
     await adminTiGroups.addGroupMember('foo@bar.com')
     await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
     await validateScreenshot(page, 'manage-ti-group-members-page')
   })
 
-  test('logging in as a trusted intermediary', async () => {
-    const {page} = ctx
+  test('sort trusted intermediaries based on selection', async ({
+    page,
+    adminTiGroups,
+  }) => {
+    await loginAsAdmin(page)
+    await test.step('set up group aaa with 3 memebers', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
+      await adminTiGroups.editGroup('aaa')
+      await adminTiGroups.addGroupMember('foo@bar.com')
+      await adminTiGroups.addGroupMember('foo2@bar.com')
+      await adminTiGroups.addGroupMember('foo3@bar.com')
+    })
+
+    await test.step('set up group bbb with 0 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
+    })
+
+    await test.step('set up group ccc with 1 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
+      await adminTiGroups.editGroup('ccc')
+      await adminTiGroups.addGroupMember('foo4@bar.com')
+    })
+
+    await adminTiGroups.gotoAdminTIPage()
+    await page.locator('#cf-ti-list').selectOption('tiname-asc')
+    const tiNamesAsc = await page.getByTestId('ti-info').allInnerTexts()
+    console.log(page.getByTestId('ti-info'))
+    expect(tiNamesAsc).toEqual(['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
+
+    await page.locator('#cf-ti-list').selectOption('tiname-desc')
+    const tiNamesDesc = await page.getByTestId('ti-info').allInnerTexts()
+    expect(tiNamesDesc).toEqual(['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
+
+    await page.locator('#cf-ti-list').selectOption('nummember-desc')
+    const tiMemberDesc = await page.getByTestId('ti-member').allInnerTexts()
+    expect(tiMemberDesc).toEqual([
+      'Members: 3\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 0\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
+
+    await page.locator('#cf-ti-list').selectOption('nummember-asc')
+    const tiMemberAsc = await page.getByTestId('ti-member').allInnerTexts()
+    expect(tiMemberAsc).toEqual([
+      'Members: 0\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 3\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-asc')
+  })
+
+  test('logging in as a trusted intermediary', async ({page}) => {
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
       'View and add clients',
     )
   })
 
-  test('sees client name in sub-banner while applying for them', async () => {
-    const {page, tiDashboard} = ctx
+  test('sees client name in sub-banner while applying for them', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -557,8 +756,10 @@ test.describe('Trusted intermediaries', () => {
     )
   })
 
-  test('returns to TI dashboard from application when clicks the sub-banner link', async () => {
-    const {page, tiDashboard} = ctx
+  test('returns to TI dashboard from application when clicks the sub-banner link', async ({
+    page,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -571,9 +772,8 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
-    await page.click('#ti-clients-link')
-
-    expect(await page.innerText('#add-client')).toContain('Add Client')
+    await page.getByRole('link', {name: 'Select a new client'}).click()
+    expect(await page.innerHTML('body')).toContain('id="name-search"')
   })
 
   test.describe('application flow with eligibility conditions', () => {
@@ -581,70 +781,73 @@ test.describe('Trusted intermediaries', () => {
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'ti-eligibility-number-q'
 
-    test.beforeAll(async () => {
-      const {
+    test.beforeEach(
+      async ({
         page,
         adminQuestions,
         adminPrograms,
         adminPredicates,
         tiDashboard,
-      } = ctx
-      await loginAsAdmin(page)
+      }) => {
+        await loginAsAdmin(page)
 
-      await adminQuestions.addNumberQuestion({
-        questionName: eligibilityQuestionId,
-      })
-      await adminQuestions.addEmailQuestion({
-        questionName: 'ti-eligibility-email-q',
-      })
+        await adminQuestions.addNumberQuestion({
+          questionName: eligibilityQuestionId,
+        })
+        await adminQuestions.addEmailQuestion({
+          questionName: 'ti-eligibility-email-q',
+        })
 
-      // Add the full program.
-      await adminPrograms.addProgram(fullProgramName)
-      await adminPrograms.editProgramBlock(
-        fullProgramName,
-        'first description',
-        [eligibilityQuestionId],
-      )
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        fullProgramName,
-        'Screen 1',
-      )
-      await adminPredicates.addPredicate(
-        eligibilityQuestionId,
-        /* action= */ null,
-        'number',
-        'is equal to',
-        '5',
-      )
+        // Add the full program.
+        await adminPrograms.addProgram(fullProgramName)
+        await adminPrograms.editProgramBlock(
+          fullProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          fullProgramName,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
 
-      await adminPrograms.addProgramBlock(
-        fullProgramName,
-        'second description',
-        ['ti-eligibility-email-q'],
-      )
+        await adminPrograms.addProgramBlock(
+          fullProgramName,
+          'second description',
+          ['ti-eligibility-email-q'],
+        )
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(fullProgramName)
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(fullProgramName)
 
-      await logout(page)
+        await logout(page)
 
-      await loginAsTrustedIntermediary(page)
+        await loginAsTrustedIntermediary(page)
 
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-      const client: ClientInformation = {
-        emailAddress: 'fake@sample.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2021-05-10',
-      }
-      await tiDashboard.createClient(client)
-      await tiDashboard.expectDashboardContainClient(client)
-    })
+        await tiDashboard.gotoTIDashboardPage(page)
+        await waitForPageJsLoad(page)
+        const client: ClientInformation = {
+          emailAddress: 'fake@sample.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2021-05-10',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.expectDashboardContainClient(client)
+      },
+    )
 
-    test('correctly handles eligibility', async () => {
-      const {page, tiDashboard, applicantQuestions} = ctx
+    test('correctly handles eligibility', async ({
+      page,
+      tiDashboard,
+      applicantQuestions,
+    }) => {
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnViewApplications()
@@ -692,64 +895,68 @@ test.describe('Trusted intermediaries', () => {
     const emailQuestionId = 'ti-email-question'
     const numberQuestionId = 'ti-number-question'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms, tiDashboard} = ctx
-      await loginAsAdmin(page)
+    test.beforeEach(
+      async ({page, adminQuestions, adminPrograms, tiDashboard}) => {
+        await loginAsAdmin(page)
 
-      await adminQuestions.addEmailQuestion({
-        questionName: emailQuestionId,
-      })
+        await adminQuestions.addEmailQuestion({
+          questionName: emailQuestionId,
+        })
 
-      await adminQuestions.addNumberQuestion({
-        questionName: numberQuestionId,
-      })
+        await adminQuestions.addNumberQuestion({
+          questionName: numberQuestionId,
+        })
 
-      // Create program 1
-      await adminPrograms.addProgram(program1)
-      await adminPrograms.editProgramBlock(program1, 'description', [
-        emailQuestionId,
-      ])
+        // Create program 1
+        await adminPrograms.addProgram(program1)
+        await adminPrograms.editProgramBlock(program1, 'description', [
+          emailQuestionId,
+        ])
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(program1)
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(program1)
 
-      // Create program 2
-      await adminPrograms.addProgram(program2)
-      await adminPrograms.editProgramBlock(program2, 'description', [
-        emailQuestionId,
-      ])
+        // Create program 2
+        await adminPrograms.addProgram(program2)
+        await adminPrograms.editProgramBlock(program2, 'description', [
+          emailQuestionId,
+        ])
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(program2)
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(program2)
 
-      // Create program 3
-      await adminPrograms.addProgram(program3)
-      await adminPrograms.editProgramBlock(program3, 'description', [
-        numberQuestionId,
-      ])
+        // Create program 3
+        await adminPrograms.addProgram(program3)
+        await adminPrograms.editProgramBlock(program3, 'description', [
+          numberQuestionId,
+        ])
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(program3)
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(program3)
 
-      await logout(page)
+        await logout(page)
 
-      await loginAsTrustedIntermediary(page)
+        await loginAsTrustedIntermediary(page)
 
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-      const client: ClientInformation = {
-        emailAddress: 'fake@sample.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2021-05-10',
-      }
-      await tiDashboard.createClient(client)
-      await tiDashboard.expectDashboardContainClient(client)
-    })
+        await tiDashboard.gotoTIDashboardPage(page)
+        await waitForPageJsLoad(page)
+        const client: ClientInformation = {
+          emailAddress: 'fake@sample.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2021-05-10',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.expectDashboardContainClient(client)
+      },
+    )
 
-    test('shows correct number of submitted applications in the client list', async () => {
-      const {page, tiDashboard, applicantQuestions} = ctx
+    test('shows correct number of submitted applications in the client list', async ({
+      page,
+      tiDashboard,
+      applicantQuestions,
+    }) => {
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.expectClientContainsNumberOfApplications('0')
@@ -798,239 +1005,306 @@ test.describe('Trusted intermediaries', () => {
     })
   })
 
-  test.describe('client list pagination', () => {
-    test('shows 1 page and no previous or next buttons when there are 10 clients', async () => {
-      const {page, tiDashboard} = ctx
+  test.describe('organization members table', () => {
+    test('shows name, email and account status', async ({
+      page,
+      tiDashboard,
+    }) => {
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await waitForPageJsLoad(page)
 
-      await tiDashboard.createMultipleClients('myname', 10)
-      const cardCount = await page.locator('.usa-card__container').count()
-      expect(cardCount).toBe(10)
-
-      // No 'Previous' button
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__previous-page',
-      )
-
-      // No 'Next' button
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__next-page',
-      )
-
-      // There should be a page 1 button
-      await tiDashboard.expectPageNumberButton('1')
-
-      // There should be no page 2 button
-      await tiDashboard.expectPageNumberButtonNotPresent('2')
-
-      // The page 1 button should be the current page
-      expect(await page.innerHTML('.usa-current')).toContain('1')
-
-      // There should be no ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__overflow',
-      )
-    })
-
-    test('shows 2 pages when there are 11 clients', async () => {
-      const {page, tiDashboard} = ctx
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.goToAccountSettingsPage(page)
       await waitForPageJsLoad(page)
-
-      await tiDashboard.createMultipleClients('myname', 11)
-
-      // Page 1 should still only show 10 clients
-      const cardCount = await page.locator('.usa-card__container').count()
-      expect(cardCount).toBe(10)
-
-      // No 'Previous' button because we're on the 1st page
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__previous-page',
-      )
-
-      // There should be a 'Next' button
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__next-page',
-      )
-
-      await tiDashboard.expectPageNumberButton('1')
-      await tiDashboard.expectPageNumberButton('2')
-
-      expect(await page.innerHTML('.usa-current')).toContain('1')
-
-      // There should be no ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__overflow',
-      )
-
-      // Going to page 2
-      await page.click('[aria-label=Page2]')
-
-      const page2CardCount = await page.locator('.usa-card__container').count()
-      expect(page2CardCount).toBe(1)
-
-      // Now there should be a 'Previous' button
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__previous-page',
-      )
-
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__next-page',
-      )
-
-      await tiDashboard.expectPageNumberButton('1')
-      await tiDashboard.expectPageNumberButton('2')
-
-      expect(await page.innerHTML('.usa-current')).toContain('2')
-    })
-
-    test('shows 7 pages and no ellipses when there are 65 clients', async () => {
-      const {page, tiDashboard} = ctx
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
-
-      await tiDashboard.createMultipleClients('myname', 65)
-
-      await tiDashboard.expectPageNumberButton('1')
-      await tiDashboard.expectPageNumberButton('2')
-      await tiDashboard.expectPageNumberButton('3')
-      await tiDashboard.expectPageNumberButton('4')
-      await tiDashboard.expectPageNumberButton('5')
-      await tiDashboard.expectPageNumberButton('6')
-      await tiDashboard.expectPageNumberButton('7')
-      await tiDashboard.expectPageNumberButtonNotPresent('8')
-
-      // Going to page 7
-      await page.click('[aria-label=Page7]')
-      expect(await page.innerHTML('.usa-current')).toContain('7')
-
-      // There should be no ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__overflow',
-      )
-
-      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
-        'usa-pagination__next-page',
-      )
 
       await validateScreenshot(
-        page.locator('.usa-pagination'),
-        'ti-pagination-no-ellipses',
+        page.getByTestId('org-members-table'),
+        'org-members-table',
       )
+
+      // Verifying the column headers
+      expect(page.getByTestId('org-members-name')).not.toBeNull()
+      expect(page.getByTestId('org-members-email')).not.toBeNull()
+      expect(page.getByTestId('org-members-status')).not.toBeNull()
     })
 
-    test('shows one ellipses on the right when more than 7 pages and current page is < 5', async () => {
-      const {page, tiDashboard} = ctx
+    test('displays multiple rows when there are several TIs in the group', async ({
+      page,
+      tiDashboard,
+      adminTiGroups,
+    }) => {
+      await loginAsAdmin(page)
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('TI group', 'test group')
+      await waitForPageJsLoad(page)
+      await adminTiGroups.expectGroupExist('TI group')
+
+      await adminTiGroups.editGroup('TI group')
+
+      // Note that these emails will be replaced by 'fake-email@example.com'
+      // to normalize the table contents (see src/support/index.ts).
+      await adminTiGroups.addGroupMember('testti2@test.com')
+      await adminTiGroups.addGroupMember('testti3@test.com')
+      await adminTiGroups.addGroupMember('testti4@test.com')
+
+      await logout(page)
+
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await waitForPageJsLoad(page)
 
-      await tiDashboard.createMultipleClients('myname', 75)
-
-      await tiDashboard.expectPageNumberButton('1')
-      await tiDashboard.expectPageNumberButton('2')
-      await tiDashboard.expectPageNumberButton('3')
-      await tiDashboard.expectPageNumberButton('4')
-      await tiDashboard.expectPageNumberButton('5')
-      // The ellipses takes the place of 6 and 7 when current page is < 5
-      await tiDashboard.expectPageNumberButtonNotPresent('6')
-      await tiDashboard.expectPageNumberButtonNotPresent('7')
-      await tiDashboard.expectPageNumberButton('8')
-
-      // There should be an ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__overflow',
-      )
-
-      // Going to page 4
-      await page.click('[aria-label=Page4]')
-      expect(await page.innerHTML('.usa-current')).toContain('4')
-
-      await tiDashboard.expectPageNumberButtonNotPresent('6')
-      await tiDashboard.expectPageNumberButtonNotPresent('7')
-
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__overflow',
-      )
-
-      await validateScreenshot(
-        page.locator('.usa-pagination'),
-        'ti-pagination-ellipses-right',
-      )
-    })
-
-    test('shows two ellipses when there are 9 pages and there is overflow on both sides', async () => {
-      const {page, tiDashboard} = ctx
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.goToAccountSettingsPage(page)
       await waitForPageJsLoad(page)
 
-      await tiDashboard.createMultipleClients('myname', 85)
-
-      // Going to page 5
-      await page.click('[aria-label=Page5]')
-      expect(await page.innerHTML('.usa-current')).toContain('5')
-
-      await tiDashboard.expectPageNumberButton('1')
-      // An ellipses takes the place of 2 and 3 when current page is 5
-      await tiDashboard.expectPageNumberButtonNotPresent('2')
-      await tiDashboard.expectPageNumberButtonNotPresent('3')
-      await tiDashboard.expectPageNumberButton('4')
-      await tiDashboard.expectPageNumberButton('5')
-      await tiDashboard.expectPageNumberButton('6')
-      // An ellipses takes the place of 7 and 8 when current page is 5
-      await tiDashboard.expectPageNumberButtonNotPresent('7')
-      await tiDashboard.expectPageNumberButtonNotPresent('8')
-      await tiDashboard.expectPageNumberButton('9')
-
-      // There should be an ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__overflow',
-      )
-
       await validateScreenshot(
-        page.locator('.usa-pagination'),
-        'ti-pagination-two-ellipses',
+        page.getByTestId('org-members-table'),
+        'org-members-table-many',
       )
     })
+  })
 
-    test('shows one ellipses on the left when more than 7 pages and current page is one of the last 4 pages', async () => {
-      const {page, tiDashboard} = ctx
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      await waitForPageJsLoad(page)
+  test.describe('ti navigation', () => {
+    test('marks the correct tab as current and matches screenshot', async ({
+      page,
+      tiDashboard,
+    }) => {
+      await test.step('Login as a TI and go to the dashboard', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        await waitForPageJsLoad(page)
+      })
 
-      await tiDashboard.createMultipleClients('myname', 85)
+      await test.step('Validate that TI navigation renders correctly with aria-current on dashboard page', async () => {
+        await validateScreenshot(
+          page.getByTestId('ti-nav'),
+          'ti-navigation-dashboard',
+        )
 
-      // Going to page 6 via page 5
-      await page.click('[aria-label=Page5]')
-      await page.click('.usa-pagination__next-page')
-      expect(await page.innerHTML('.usa-current')).toContain('6')
+        // When we're on the client list page (the dashboard), the current tab should be the client list tab.
+        expect(
+          await page.getAttribute('#account-settings-link', 'aria-current'),
+        ).toBeNull()
+        expect(
+          await page.getAttribute('#client-list-link', 'aria-current'),
+        ).not.toBeNull()
+      })
 
-      await tiDashboard.expectPageNumberButton('1')
-      // The ellipses is on the left
-      await tiDashboard.expectPageNumberButtonNotPresent('2')
-      await tiDashboard.expectPageNumberButtonNotPresent('3')
-      await tiDashboard.expectPageNumberButtonNotPresent('4')
-      await tiDashboard.expectPageNumberButton('5')
-      await tiDashboard.expectPageNumberButton('6')
-      await tiDashboard.expectPageNumberButton('7')
-      await tiDashboard.expectPageNumberButton('8')
-      await tiDashboard.expectPageNumberButton('9')
+      await test.step('Go to the TI Account Settings page', async () => {
+        await tiDashboard.goToAccountSettingsPage(page)
+        await waitForPageJsLoad(page)
+      })
 
-      // There should be an ellipses
-      expect(await page.innerHTML('.usa-pagination__list')).toContain(
-        'usa-pagination__overflow',
-      )
+      await test.step('Validate that TI navigation renders correctly with aria-current on account settings page', async () => {
+        await validateScreenshot(
+          page.getByTestId('ti-nav'),
+          'ti-navigation-account-settings',
+        )
 
-      await validateScreenshot(
-        page.locator('.usa-pagination'),
-        'ti-pagination-ellipses-left',
-      )
+        // When we're on the account settings page, the current tab should be the account settings tab.
+        expect(
+          await page.getAttribute('#account-settings-link', 'aria-current'),
+        ).not.toBeNull()
+        expect(
+          await page.getAttribute('#client-list-link', 'aria-current'),
+        ).toBeNull()
+      })
+    })
+  })
+
+  test.describe('pre-populating TI client info with PAI questions', () => {
+    const clientInfo: ClientInformation = {
+      emailAddress: 'test@email.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2001-01-01',
+      phoneNumber: '9178675309',
+    }
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+
+      await test.step('create a program with PAI questions', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addDateQuestion({
+          questionName: 'dob',
+          questionText: 'Date of birth',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addNameQuestion({
+          questionName: 'name',
+          questionText: 'Name',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addPhoneQuestion({
+          questionName: 'phone',
+          questionText: 'Phone',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addEmailQuestion({
+          questionName: 'email',
+          questionText: 'Email',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['dob', 'name', 'phone', 'email'],
+          'PAI Program',
+        )
+        await logout(page)
+      })
+    })
+
+    test('client info is pre-populated in the application', async ({
+      page,
+      applicantQuestions,
+      tiDashboard,
+    }) => {
+      await test.step('login as TI, add a client, and apply', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.createClientAndApply(clientInfo)
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+      })
+
+      await test.step('verify client info is pre-populated in the application', async () => {
+        expect(await page.innerText('#application-summary')).toContain(
+          '01/01/2001',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'first middle last',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          '+1 917-867-5309',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'test@email.com',
+        )
+        await validateScreenshot(page, 'pai-program-application-preview')
+      })
+
+      await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
+        await applicantQuestions.clickContinue()
+        expect(await page.locator('input[type=date]').inputValue()).toEqual(
+          '2001-01-01',
+        )
+        expect(
+          await page.locator('.cf-name-first').locator('input').inputValue(),
+        ).toEqual('first')
+        expect(
+          await page.locator('.cf-name-middle').locator('input').inputValue(),
+        ).toEqual('middle')
+        expect(
+          await page.locator('.cf-name-last').locator('input').inputValue(),
+        ).toEqual('last')
+        expect(
+          await page.locator('.cf-phone-number').locator('input').inputValue(),
+        ).toEqual('(917) 867-5309')
+        expect(await page.locator('input[type=email]').inputValue()).toEqual(
+          'test@email.com',
+        )
+        await validateScreenshot(page, 'pai-program-application')
+      })
+
+      await test.step('submitting the application without changing any values succeeds', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await applicantQuestions.expectConfirmationPage()
+      })
+    })
+
+    test('updating answers that are prefilled with PAI data works', async ({
+      page,
+      applicantQuestions,
+      tiDashboard,
+    }) => {
+      await test.step('login as TI, add a client, and apply', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.createClientAndApply(clientInfo)
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+      })
+
+      await test.step('fill in the name question with different values', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.answerNameQuestion('newfirst', 'newlast')
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
+        expect(await page.innerText('#application-summary')).toContain(
+          '01/01/2001',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'newfirst middle newlast',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          '+1 917-867-5309',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'test@email.com',
+        )
+      })
+
+      await test.step('submitting the application with changed values succeeds', async () => {
+        await applicantQuestions.clickSubmit()
+        await applicantQuestions.expectConfirmationPage()
+      })
+    })
+
+    test('data from PAI questions answered in the application shows up in the TI Dashboard', async ({
+      page,
+      applicantQuestions,
+      tiDashboard,
+    }) => {
+      await test.step('login as TI and add a client with partial data', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        const partialClientInfo: ClientInformation = {
+          emailAddress: '',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2001-01-01',
+        }
+        await tiDashboard.createClient(partialClientInfo)
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('login as TI and apply to program on behalf of client', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        await tiDashboard.clickOnViewApplications()
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('fill out the phone and email questions and submit the application', async () => {
+        await applicantQuestions.answerPhoneQuestion('7188675309')
+        await applicantQuestions.answerEmailQuestion('email@example.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+      })
+
+      const newClientInfo: ClientInformation = {
+        emailAddress: 'email@example.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2001-01-01',
+        notes: 'Notes',
+      }
+      await test.step('verify the client info is shown in the TI Dashboard', async () => {
+        await tiDashboard.gotoTIDashboardPage(page)
+        await waitForPageJsLoad(page)
+        await tiDashboard.expectDashboardContainClient(newClientInfo)
+        await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
+          newClientInfo,
+          '(718) 867-5309',
+        )
+        await validateScreenshot(page, 'pai-ti-dash')
+      })
     })
   })
 })

@@ -8,6 +8,7 @@ import static play.inject.Bindings.bind;
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
+import java.util.Collections;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -47,11 +48,7 @@ public class WithMockedProfiles {
         new GuiceApplicationBuilder()
             .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
             .build();
-    injector = app.injector();
-    resourceCreator = new ResourceCreator(injector);
-    Helpers.start(app);
-    profileFactory = injector.instanceOf(ProfileFactory.class);
-    ProgramBuilder.setInjector(injector);
+    setupInjectorForApp(app);
   }
 
   @AfterClass
@@ -60,6 +57,15 @@ public class WithMockedProfiles {
       Helpers.stop(app);
       app = null;
     }
+  }
+
+  public static void setupInjectorWithExtraBinding(play.api.inject.Binding<?> additionalBinding) {
+    stopApp();
+    app =
+        new GuiceApplicationBuilder()
+            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS), additionalBinding)
+            .build();
+    setupInjectorForApp(app);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {
@@ -103,10 +109,13 @@ public class WithMockedProfiles {
     TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
     AccountModel managedAccount = managedApplicant.getAccount();
     managedAccount.setManagedByGroup(group);
+    ApplicantModel tiApplicant = resourceCreator.insertApplicant();
+    ti.setApplicants(Collections.singletonList(tiApplicant));
+    tiApplicant.setAccount(ti);
+    tiApplicant.save();
     managedAccount.save();
     ti.setMemberOfGroup(group);
     ti.save();
-
     CiviFormProfile profile = profileFactory.wrap(ti);
     mockProfile(profile);
     return ti;
@@ -134,6 +143,14 @@ public class WithMockedProfiles {
     applicant.save();
 
     return adminAccount;
+  }
+
+  private static void setupInjectorForApp(Application app) {
+    injector = app.injector();
+    resourceCreator = new ResourceCreator(injector);
+    Helpers.start(app);
+    profileFactory = injector.instanceOf(ProfileFactory.class);
+    ProgramBuilder.setInjector(injector);
   }
 
   private ArgumentMatcher<Http.Request> skipUserProfile() {

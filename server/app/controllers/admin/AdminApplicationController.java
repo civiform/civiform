@@ -48,7 +48,7 @@ import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
-import services.export.JsonExporter;
+import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -74,10 +74,18 @@ public final class AdminApplicationController extends CiviFormController {
   private final ProgramService programService;
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
-  private final JsonExporter jsonExporter;
+  private final JsonExporterService jsonExporterService;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
+
+  public enum RelativeTimeOfDay {
+    UNKNOWN,
+    /** The start of the day, like 12:00:00 am */
+    START,
+    /** The end of the day, like 11:59:59 pm */
+    END
+  }
 
   @Inject
   public AdminApplicationController(
@@ -85,7 +93,7 @@ public final class AdminApplicationController extends CiviFormController {
       ApplicantService applicantService,
       CsvExporterService csvExporterService,
       FormFactory formFactory,
-      JsonExporter jsonExporter,
+      JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
@@ -104,7 +112,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
-    this.jsonExporter = checkNotNull(jsonExporter);
+    this.jsonExporterService = checkNotNull(jsonExporterService);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
@@ -138,8 +146,10 @@ public final class AdminApplicationController extends CiviFormController {
               .setSearchNameFragment(search)
               .setSubmitTimeFilter(
                   TimeFilter.builder()
-                      .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                      .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                      .setFromTime(
+                          parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+                      .setUntilTime(
+                          parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                       .build())
               .setApplicationStatus(applicationStatus)
               .build();
@@ -147,9 +157,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
-        jsonExporter.export(
-            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
-
+        jsonExporterService.export(
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters, request);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -175,8 +184,11 @@ public final class AdminApplicationController extends CiviFormController {
                 .setSearchNameFragment(search)
                 .setSubmitTimeFilter(
                     TimeFilter.builder()
-                        .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                        .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                        .setFromTime(
+                            parseDateTimeFromQuery(
+                                dateConverter, fromDate, RelativeTimeOfDay.START))
+                        .setUntilTime(
+                            parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                         .build())
                 .setApplicationStatus(applicationStatus)
                 .build();
@@ -184,7 +196,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters, request);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -216,17 +228,26 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   /**
-   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
-   * start of that date in the UTC time zone.
+   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing
+   * that date in the UTC time zone.
    */
-  private Optional<Instant> parseDateFromQuery(
-      DateConverter dateConverter, Optional<String> maybeQueryParam) {
+  private Optional<Instant> parseDateTimeFromQuery(
+      DateConverter dateConverter,
+      Optional<String> maybeQueryParam,
+      RelativeTimeOfDay relativeTimeOfDay) {
     return maybeQueryParam
         .filter(s -> !s.isBlank())
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                switch (relativeTimeOfDay) {
+                  case START:
+                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                  case END:
+                    return dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
+                  default:
+                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                }
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -243,8 +264,8 @@ public final class AdminApplicationController extends CiviFormController {
       Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .setFromTime(parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+            .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv(submitTimeFilter);
@@ -270,8 +291,7 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generatePdf(
-            application, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ true);
+        pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
@@ -404,7 +424,8 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).get().getAccount().join(),
+        request);
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
@@ -483,8 +504,10 @@ public final class AdminApplicationController extends CiviFormController {
             .setSearchNameFragment(search)
             .setSubmitTimeFilter(
                 TimeFilter.builder()
-                    .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                    .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                    .setFromTime(
+                        parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+                    .setUntilTime(
+                        parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                     .build())
             .setApplicationStatus(applicationStatus)
             .build();
@@ -500,7 +523,7 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, F.Either.Right(paginationSpec), filters, request);
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(

@@ -1,16 +1,11 @@
-import {test} from '@playwright/test'
-import {
-  createTestContext,
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-} from '../support'
+import {test} from '../support/civiform_fixtures'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('admin program view page', () => {
-  const ctx = createTestContext()
-
-  test('view active program shows read only view', async () => {
-    const {page, adminPrograms} = ctx
+  test('view active program shows read only view', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Active Program'
@@ -20,8 +15,7 @@ test.describe('admin program view page', () => {
     await validateScreenshot(page, 'program-read-only-view')
   })
 
-  test('view draft program', async () => {
-    const {page, adminPrograms} = ctx
+  test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Draft Program'
@@ -31,8 +25,11 @@ test.describe('admin program view page', () => {
     await validateScreenshot(page, 'program-draft-view')
   })
 
-  test('view program with universal questions', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
+  test('view program with universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with universal questions'
@@ -75,8 +72,11 @@ test.describe('admin program view page', () => {
     await validateScreenshot(page, 'program-view-universal-questions')
   })
 
-  test('view program, view multiple blocks, then start editing with extra long screen name and description', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
+  test('view program, view multiple blocks, then start editing with extra long screen name and description', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -85,19 +85,26 @@ test.describe('admin program view page', () => {
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
-    await adminPrograms.editProgramBlockWithBlockName(
-      programName,
-      'Screen 2 ooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name:
+        'Screen 2 ooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
-      'dummy description oooooooooooooooooooooooooooooooooooooo' +
+      description:
+        'dummy description oooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
-      ['address-q'],
-    )
+      questions: [
+        {
+          name: 'address-q',
+        },
+      ],
+    })
+
     await adminPrograms.publishAllDrafts()
 
     await adminPrograms.gotoViewActiveProgramPage(programName)
@@ -125,8 +132,11 @@ test.describe('admin program view page', () => {
     )
   })
 
-  test('view program, view multiple blocks, then start editing', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
+  test('view program, view multiple blocks, then start editing', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 

@@ -102,6 +102,12 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
+  public SelectWithLabel setReadOnly(boolean disabled) {
+    super.setReadOnly(disabled);
+    return this;
+  }
+
+  @Override
   public SelectWithLabel setRequired(boolean isRequired) {
     super.setRequired(isRequired);
     return this;
@@ -144,7 +150,7 @@ public final class SelectWithLabel extends FieldWithLabel {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
-    return applyAttrsAndGenLabel(fieldTag);
+    return applyAttrsClassesAndLabel(fieldTag);
   }
 
   private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {

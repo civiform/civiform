@@ -26,16 +26,12 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -50,7 +46,6 @@ import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
-import services.program.predicate.OperatorRightHandType;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -282,6 +277,30 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
+    DivTag helpTextRow = div().withClasses("flex", "predicate-help-text-row");
+    valueRowContainer.with(helpTextRow);
+    DivTag spacerText = div().withClasses("w-16", "shrink-0");
+
+    int columnNumber = 0;
+    for (QuestionDefinition questionDefinition : questionDefinitions) {
+      helpTextRow
+          .condWith(columnNumber++ != 0, spacerText)
+          .with(
+              div()
+                  .withClasses("w-48", "shrink-0")
+                  .with(
+                      div()
+                          .withClasses(
+                              ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
+                              "hidden",
+                              "text-xs",
+                              "pb-4",
+                              BaseStyles.FORM_LABEL_TEXT_COLOR)
+                          .withText(
+                              "Enter a list of comma-separated values. For example, \"v1,v2,v3\".")
+                          .withData("question-id", String.valueOf(questionDefinition.getId()))));
+    }
+
     if (maybeExistingPredicate.isPresent()) {
       PredicateDefinition existingPredicate = maybeExistingPredicate.get();
 
@@ -372,62 +391,42 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     }
   }
 
+  private static ImmutableMap<Long, LeafExpressionNode> getOneRowOfLeafNodes(
+      PredicateDefinition existingPredicate) {
+    return getExistingAndNodes(existingPredicate).get(0).getAndNode().children().stream()
+        .map(PredicateExpressionNode::getLeafNode)
+        .collect(ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
+  }
+
   private DivTag renderQuestionHeaders(
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate) {
     DivTag container = div().withClasses("flex", "py-4");
 
-    if (maybeExistingPredicate.isPresent()) {
-      int columnNumber = 1;
+    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
+        maybeExistingPredicate
+            .map(ProgramPredicateConfigureView::getOneRowOfLeafNodes)
+            .orElse(ImmutableMap.of());
 
-      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
-          getExistingAndNodes(maybeExistingPredicate.get()).stream()
-              .findFirst()
-              .get()
-              .getAndNode()
-              .children()
-              .stream()
-              .map(PredicateExpressionNode::getLeafNode)
-              .collect(
-                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
+    int columnNumber = 0;
+    for (var qd : questionDefinitions) {
+      Optional<LeafExpressionNode> maybeLeafNode =
+          Optional.ofNullable(questionIdLeafNodeMap.get(qd.getId()));
 
-      for (var qd : questionDefinitions) {
-        var leafNode = questionIdLeafNodeMap.get(qd.getId());
-
-        container.with(
-            div(
-                    div(qd.getQuestionText().getDefault())
-                        .withClasses(
-                            BaseStyles.INPUT,
-                            "text-gray-500",
-                            "mb-2",
-                            "truncate",
-                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                        .withData("testid", qd.getName())
-                        .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, Optional.of(leafNode)),
-                    createOperatorDropdown(qd, Optional.of(leafNode)))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
-      }
-    } else {
-      int columnNumber = 1;
-
-      for (var qd : questionDefinitions) {
-        container.with(
-            div(
-                    div(qd.getQuestionText().getDefault())
-                        .withClasses(
-                            BaseStyles.INPUT,
-                            "text-gray-500",
-                            "mb-2",
-                            "truncate",
-                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
-                        .withData("testid", qd.getName())
-                        .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, /* maybeLeafNode= */ Optional.empty()),
-                    createOperatorDropdown(qd, /* maybeLeafNode= */ Optional.empty()))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
-      }
+      container.with(
+          div(
+                  div(qd.getQuestionText().getDefault())
+                      .withClasses(
+                          BaseStyles.INPUT,
+                          "text-gray-500",
+                          "mb-2",
+                          "truncate",
+                          ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                      .withData("testid", qd.getName())
+                      .withData("question-id", String.valueOf(qd.getId())),
+                  createScalarDropdown(qd, maybeLeafNode),
+                  createOperatorDropdown(qd, maybeLeafNode))
+              .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 0, "ml-16")));
     }
 
     return container.with(div().withClasses("w-28"));
@@ -441,39 +440,31 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     DivTag row = div(innerRow).withClasses("flex", "mb-6", "predicate-config-value-row");
     DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
 
-    if (maybeAndNode.isPresent()) {
-      int columnNumber = 1;
+    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
+        maybeAndNode.map(AndNode::children).orElse(ImmutableList.of()).stream()
+            .map(PredicateExpressionNode::getLeafNode)
+            .collect(
+                ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
 
-      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
-          maybeAndNode.get().children().stream()
-              .map(PredicateExpressionNode::getLeafNode)
-              .collect(
-                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
-
-      for (var qd : questionDefinitions) {
-        var leafNode = questionIdLeafNodeMap.get(qd.getId());
-
-        innerRow
-            .condWith(columnNumber++ != 1, andText)
-            .with(createValueField(qd, groupId, Optional.of(leafNode)));
-      }
-    } else {
-      int columnNumber = 1;
-
-      for (var questionDefinition : questionDefinitions) {
-        innerRow
-            .condWith(columnNumber++ != 1, andText)
-            .with(
-                createValueField(
-                    questionDefinition, groupId, /* maybeLeafNode= */ Optional.empty()));
-      }
+    int columnNumber = 1;
+    for (QuestionDefinition questionDefinition : questionDefinitions) {
+      Optional<LeafExpressionNode> maybeLeafNode =
+          Optional.ofNullable(questionIdLeafNodeMap.get(questionDefinition.getId()));
+      innerRow
+          .condWith(columnNumber++ != 1, andText)
+          .with(createValueField(questionDefinition, groupId, maybeLeafNode));
     }
 
     DivTag delete =
-        div(Icons.svg(Icons.DELETE).withClasses("w-8", iff(groupId == 1, "hidden")))
+        div(Icons.svg(Icons.DELETE).withClasses("w-8"))
             .attr("role", "button")
             .withClasses(
-                "predicate-config-delete-value-row", "mx-6", "w-12", "pt-2", "cursor-pointer");
+                "predicate-config-delete-value-row",
+                "mx-6",
+                "w-12",
+                "pt-2",
+                "cursor-pointer",
+                iff(groupId == 1, "hidden"));
 
     return row.with(delete);
   }
@@ -531,7 +522,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                           .withValue(scalar.name())
                           // Add the scalar type as data so we can determine which operators to
                           // allow.
-                          .withData("type", scalar.toScalarType().name().toLowerCase(Locale.ROOT));
+                          .withData("type", scalar.toScalarType().name());
 
                   if (maybeSelectedScalar.isPresent()
                       && maybeSelectedScalar.get().name().equals(scalar.name())) {
@@ -691,7 +682,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
           .with(select.getSelectTag())
           .withData("question-id", String.valueOf(questionDefinition.getId()));
     } else if (questionDefinition.getQuestionType().isMultiOptionType()) {
-
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
@@ -733,11 +723,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
         assertLeafOperationNode(maybeLeafNode);
 
-    Optional<PredicateValue> maybePredicateValue =
-        maybeLeafOperationNode.map(LeafOperationExpressionNode::comparedValue);
-    Optional<Scalar> maybeScalar = maybeLeafOperationNode.map(LeafOperationExpressionNode::scalar);
-    Optional<Operator> maybeOperator =
-        maybeLeafOperationNode.map(LeafOperationExpressionNode::operator);
+    FormattedPredicateValue formattedValue =
+        FormattedPredicateValue.fromLeafNode(maybeLeafOperationNode);
+    boolean hasOneValue = formattedValue.isSingleValue();
 
     return valueField
         .withData("question-id", String.valueOf(questionDefinition.getId()))
@@ -746,107 +734,25 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .setFieldName(
                     String.format(
                         "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
-                .setValue(
-                    maybePredicateValue.map(
-                        predicateValue ->
-                            formatPredicateValue(maybeScalar.get(), maybeOperator, predicateValue)))
+                .setValue(formattedValue.mainValue())
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                 .getInputTag())
         .with(
             div()
                 .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR)
-                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."))
-        .with(
-            div("Enter two comma-separated or dash-separated values. For example \"18,30\" or"
-                    + " \"18-30\". The condition will become true on the applicant's birthday"
-                    + " for the first age, and will become false on the applicant's birthday"
-                    + " for the second age.")
-                .withClasses(
-                    ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
-                    "hidden",
-                    "text-xs",
-                    BaseStyles.FORM_LABEL_TEXT_COLOR));
-  }
-
-  private static String formatPredicateValue(
-      Scalar scalar, Optional<Operator> maybeOperator, PredicateValue predicateValue) {
-    switch (scalar.toScalarType()) {
-      case CURRENCY_CENTS:
-        {
-          long storedCents = Long.parseLong(predicateValue.value());
-          long dollars = storedCents / 100;
-          long cents = storedCents % 100;
-          return String.format("%d.%02d", dollars, cents);
-        }
-
-      case DATE:
-        {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LONG)) {
-            return predicateValue.value();
-          }
-          return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
-              .atZone(ZoneId.systemDefault())
-              .toLocalDate()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        }
-
-      case LONG:
-        {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
-            return formatListOfLongs(predicateValue.value());
-          }
-
-          return predicateValue.value();
-        }
-
-      case LIST_OF_STRINGS:
-      case STRING:
-        {
-          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_STRINGS)) {
-            String value = predicateValue.value();
-
-            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-            return Splitter.on(", ")
-                // Remove opening and closing brackets
-                .splitToStream(value.substring(1, value.length() - 1))
-                // Remove quotes
-                .map(item -> item.substring(1, item.length() - 1))
-                // Join to CSV
-                .collect(Collectors.joining(","));
-          }
-
-          return predicateValue.valueWithoutSurroundingQuotes();
-        }
-
-      default:
-        {
-          throw new RuntimeException(
-              String.format("Unknown scalar type: %s", scalar.toScalarType()));
-        }
-    }
-  }
-
-  private static boolean hasOperatorRightHandType(
-      Optional<Operator> maybeOperator, OperatorRightHandType operatorRightHandType) {
-    return maybeOperator
-        .map(operator -> operator.getRightHandTypes().contains(operatorRightHandType))
-        .orElse(false);
-  }
-
-  private static String formatListOfLongs(String value) {
-    // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
-    return Splitter.on(", ")
-        // Remove opening and closing brackets
-        .splitToStream(value.substring(1, value.length() - 1))
-        // Join to CSV
-        .collect(Collectors.joining(","));
+                    ReferenceClasses.PREDICATE_VALUE_SECOND_INPUT_CONTAINER,
+                    iff(hasOneValue, "hidden"))
+                .with(div("and").withClasses("text-center"))
+                .with(
+                    FieldWithLabel.input()
+                        .setFieldName(
+                            String.format(
+                                "group-%d-question-%d-predicateSecondValue",
+                                groupId, questionDefinition.getId()))
+                        .setValue(formattedValue.secondValue())
+                        .setDisabled(hasOneValue)
+                        .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
+                        .getInputTag()));
   }
 
   @Override

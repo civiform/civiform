@@ -1,15 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect, Frame, Page, Locator} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
-import {
-  Browser,
-  BrowserContext,
-  chromium,
-  Frame,
-  Page,
-  Locator,
-  devices,
-  BrowserContextOptions,
-} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 import {
@@ -20,22 +10,8 @@ import {
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
-  DISABLE_BROWSER_ERROR_WATCHER,
 } from './config'
-import {AdminQuestions} from './admin_questions'
-import {AdminPrograms} from './admin_programs'
-import {AdminApiKeys} from './admin_api_keys'
-import {AdminProgramStatuses} from './admin_program_statuses'
-import {ApplicantFileQuestion} from './applicant_file_question'
-import {ApplicantQuestions} from './applicant_questions'
-import {AdminPredicates} from './admin_predicates'
-import {AdminTranslations} from './admin_translations'
-import {AdminProgramImage} from './admin_program_image'
-import {TIDashboard} from './ti_dashboard'
-import {AdminTIGroups} from './admin_ti_groups'
-import {BrowserErrorWatcher} from './browser_error_watcher'
 
-export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
 export {AdminPrograms} from './admin_programs'
@@ -47,7 +23,6 @@ export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
-export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 
 export const isLocalDevEnvironment = () => {
@@ -71,264 +46,65 @@ export enum AuthStrategy {
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
 
-function makeBrowserContext(
-  browser: Browser,
-  useMobile = false,
-): Promise<BrowserContext> {
-  const contextOptions: BrowserContextOptions = {
-    ...(useMobile ? devices['Pixel 5'] : {}),
-    acceptDownloads: true,
-  }
-
-  if (process.env.RECORD_VIDEO) {
-    // https://playwright.dev/docs/videos
-    // Docs state that videos are only saved upon
-    // closing the returned context. In practice,
-    // this doesn't appear to be true. Restructuring
-    // to ensure that we always close the returned
-    // context is possible, but likely not necessary
-    // until it causes a problem. In practice, this
-    // will only be used when debugging failures.
-    const dirs = ['tmp/videos']
-    if ('expect' in global && expect.getState() != null) {
-      const testPath = test.info().file
-
-      if (testPath == null) {
-        throw new Error('testPath cannot be null')
-      }
-
-      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
-      dirs.push(testFile)
-
-      // Some test initialize context in beforeAll at which point test name is
-      // not set.
-
-      const testName = test.info().title
-
-      if (testName) {
-        // remove special characters
-        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
-      }
-    }
-
-    contextOptions.recordVideo = {
-      dir: path.join(...dirs),
-    }
-  }
-
-  return browser.newContext(contextOptions)
-}
-
-export const startSession = async (
-  browser: Browser | null = null,
-): Promise<{
-  browser: Browser
-  context: BrowserContext
-  page: Page
-}> => {
-  if (browser == null) {
-    browser = await chromium.launch()
-  }
-  const context = await makeBrowserContext(browser)
-  const page = await context.newPage()
-
-  await page.goto(BASE_URL)
-  await closeWarningMessage(page)
-
-  return {browser, context, page}
-}
-
-/**
- * Object containing properties and methods for interacting with browser and
- * app. See docs for createTestContext() method for more info.
- */
-export interface TestContext {
-  /**
-   * Playwright Page object. Provides functionality to directly interact with
-   * the browser .
-   * Methods: https://playwright.dev/docs/api/class-page
-   */
-  page: Page
-  browser: Browser
-  browserContext: BrowserContext
-  browserErrorWatcher: BrowserErrorWatcher
-  useMobile: boolean
-
-  adminQuestions: AdminQuestions
-  adminPrograms: AdminPrograms
-  adminApiKeys: AdminApiKeys
-  adminProgramStatuses: AdminProgramStatuses
-  applicantFileQuestion: ApplicantFileQuestion
-  applicantQuestions: ApplicantQuestions
-  adminPredicates: AdminPredicates
-  adminTranslations: AdminTranslations
-  adminProgramImage: AdminProgramImage
-  tiDashboard: TIDashboard
-  adminTiGroups: AdminTIGroups
-}
-
-/**
- * Launches a browser and returns context that contains objects needed to
- * interact with the browser. It should be called at the very beginning of the
- * top-most describe() and reused across all other describe/it functions.
- * Example usage:
- *
- * ```
- * describe('some test', () => {
- *   const ctx = createTestContext()
- *
- *   test('should do foo', async () => {
- *     await ctx.page.click('#some-button')
- *   })
- * })
- * ```
- *
- * Browser session is reset between tests and database is cleared by default.
- * Each test starts on the login page.
- *
- * Context object should be accessed only from within it(), before/afterEach(),
- * before/afterAll() functions.
- *
- * @param clearDb Whether database is cleared between tests. True by default.
- *     It's recommended that database is cleared between tests to keep tests
- *     hermetic.
- * @return object containing browser page. Context object is reset between tests
- *     so none of its properties should be cached and reused between tests.
- */
-export const createTestContext = (clearDb = true): TestContext => {
-  // TestContext properties are set in resetContext() later. For now we just
-  // need an object that we can return to caller. Caller is expected to access
-  // it only from before/afterX functions or tests.
-  const ctx: TestContext = {} as unknown as TestContext
-
-  test.beforeAll(async () => {
-    ctx.browser = await chromium.launch()
-    await resetContext(ctx)
-    // clear DB at beginning of each test suite. While data can leak/share
-    // between test cases within a test file, data should not be shared
-    // between test files.
-    await dropTables(ctx.page)
-    await ctx.page.goto(BASE_URL)
-  })
-
-  test.beforeEach(async () => {
-    await resetContext(ctx)
-  })
-
-  test.afterEach(async () => {
-    if (clearDb) {
-      await dropTables(ctx.page)
-    }
-    // resetting context here so that afterAll() functions of current describe()
-    // block and beforeAll() functions of the next describe() block have fresh
-    // result.page object.
-    await resetContext(ctx)
-  })
-
-  test.afterAll(async () => {
-    await endSession(ctx.browser)
-  })
-
-  return ctx
-}
-
-// We create new browser context and session before each test. It's
-// important to get fresh browser context so that each test gets its own
-// video file. If we reuse same browser context across multiple test cases -
-// we'll get one huge video for all tests.
-export async function resetContext(ctx: TestContext) {
-  if (ctx.browserContext != null) {
-    try {
-      if (!DISABLE_BROWSER_ERROR_WATCHER) {
-        ctx.browserErrorWatcher.failIfContainsErrors()
-      }
-    } finally {
-      // browserErrorWatcher might throw an error that should bubble up all
-      // the way to the developer. Regardless whether the error is thrown or
-      // not we need to close the browser context. Without that some processes
-      // won't be finished, like saving videos.
-      await ctx.browserContext.close()
-    }
-  }
-  ctx.browserContext = await makeBrowserContext(ctx.browser, ctx.useMobile)
-  ctx.page = await ctx.browserContext.newPage()
-  ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
-  // Default timeout is 30s. It's too long given that civiform is not JS
-  // heavy and all elements render quite quickly. Setting it to 5 sec so that
-  // tests fail fast.
-  ctx.page.setDefaultTimeout(8000)
-  ctx.adminQuestions = new AdminQuestions(ctx.page)
-  ctx.adminPrograms = new AdminPrograms(ctx.page)
-  ctx.adminApiKeys = new AdminApiKeys(ctx.page)
-  ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
-  ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
-  ctx.adminPredicates = new AdminPredicates(ctx.page)
-  ctx.adminTranslations = new AdminTranslations(ctx.page)
-  ctx.adminProgramImage = new AdminProgramImage(ctx.page)
-  ctx.applicantFileQuestion = new ApplicantFileQuestion(ctx.page)
-  ctx.tiDashboard = new TIDashboard(ctx.page)
-  ctx.adminTiGroups = new AdminTIGroups(ctx.page)
-  await ctx.page.goto(BASE_URL)
-  await closeWarningMessage(ctx.page)
-}
-
-export const endSession = async (browser: Browser) => {
-  await browser.close()
-}
-
-export const gotoEndpoint = async (page: Page, endpoint = '') => {
-  return await page.goto(BASE_URL + endpoint)
-}
-
 export const dismissToast = async (page: Page) => {
   await page.locator('#toast-container div:text("x")').click()
   await waitForPageJsLoad(page)
 }
 
 export const logout = async (page: Page, closeToast = true) => {
-  await page.click('#logout-button')
-  // If the user logged in through OIDC previously - during logout they are
-  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-  // logout.
-  if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
-    if (pageContent!.includes('Do you want to sign-out from')) {
-      // OIDC central provider confirmation page
-      await page.click('button:has-text("Yes")')
+  await test.step('Logout', async () => {
+    await page.click('#logout-button')
+    // If the user logged in through OIDC previously - during logout they are
+    // redirected to dev-oidc:PORT/session/end page. There they need to confirm
+    // logout.
+    if (page.url().match('dev-oidc.*/session/end')) {
+      const pageContent = await page.textContent('html')
+      if (pageContent!.includes('Do you want to sign-out from')) {
+        // OIDC central provider confirmation page
+        await page.click('button:has-text("Yes")')
+      }
     }
-  }
 
-  // Logout is handled by the play framework so it doesn't land on a
-  // page with civiform js where we should waitForPageJsLoad. Because
-  // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/programs')
-  await validateToastMessage(page, 'Your session has ended.')
-  if (closeToast) await dismissToast(page)
+    // Logout is handled by the play framework so it doesn't land on a
+    // page with civiform js where we should waitForPageJsLoad. Because
+    // the process goes through a sequence of redirects we need to wait
+    // for the final destination URL (the programs index page), to make tests reliable.
+    await page.waitForURL('**/programs')
+    await validateToastMessage(page, 'Your session has ended.')
+    if (closeToast) await dismissToast(page)
+  })
 }
 
 export const loginAsAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#program-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#program-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#dual-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform and Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#dual-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#trusted-intermediary')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Trusted Intermediary', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#trusted-intermediary')
+    await waitForPageJsLoad(page)
+  })
 }
 
 /**
@@ -344,26 +120,28 @@ export const loginAsTestUser = async (
   isTi = false,
   displayName: string = '',
 ) => {
-  switch (TEST_USER_AUTH_STRATEGY) {
-    case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page, loginButton, isTi)
-      break
-    case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page, loginButton, isTi)
-      break
-    case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page, loginButton)
-      break
-    default:
-      throw new Error(
-        `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
-      )
-  }
-  await waitForPageJsLoad(page)
-  if (displayName === '') {
-    displayName = testUserDisplayName()
-  }
-  await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  await test.step('Login as Test User', async () => {
+    switch (TEST_USER_AUTH_STRATEGY) {
+      case AuthStrategy.FAKE_OIDC:
+        await loginAsTestUserFakeOidc(page, loginButton, isTi)
+        break
+      case AuthStrategy.AWS_STAGING:
+        await loginAsTestUserAwsStaging(page, loginButton, isTi)
+        break
+      case AuthStrategy.SEATTLE_STAGING:
+        await loginAsTestUserSeattleStaging(page, loginButton)
+        break
+      default:
+        throw new Error(
+          `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
+        )
+    }
+    await waitForPageJsLoad(page)
+    if (displayName === '') {
+      displayName = testUserDisplayName()
+    }
+    await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  })
 }
 
 async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
@@ -459,10 +237,12 @@ export const supportsEmailInspection = () => {
  * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  await page.click('#select-language')
-  await page.selectOption('#select-language', {label: language})
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language')
+    await page.selectOption('#select-language', {label: language})
 
-  await waitForPageJsLoad(page)
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const dropTables = async (page: Page) => {
@@ -476,42 +256,48 @@ export const seedQuestions = async (page: Page) => {
 }
 
 export const seedPrograms = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-programs')
+  await test.step('Seed programs', async () => {
+    await page.goto('/dev/seed')
+    await page.click('#sample-programs')
+  })
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
+  await test.step(`Disable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/disable`)
+  })
 }
 
 export const enableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
+  await test.step(`Enable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/enable`)
+  })
 }
 
+/**
+ * Close the warning toast message if it is showing, otherwise the element may be in
+ * the way when trying to click on various top nav elements.
+ * @param {Page} page Playwright page to operate against
+ */
 export const closeWarningMessage = async (page: Page) => {
-  // The warning message may be in the way of this link
-  const element = await page.$('#warning-message-dismiss')
+  const warningMessageLocator = page.locator('#warning-message-dismiss')
 
-  if (element !== null) {
-    await element
-      .click()
-      .catch(() =>
-        console.log(
-          "Didn't find a warning toast message to dismiss, which is fine.",
-        ),
-      )
+  if (await warningMessageLocator.isVisible()) {
+    await warningMessageLocator.click()
   }
 }
 
 export const validateAccessibility = async (page: Page) => {
-  const results = await new AxeBuilder({page}).analyze()
-  const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-    results.violations,
-    null,
-    2,
-  )}`
+  await test.step('Validate accessiblity', async () => {
+    const results = await new AxeBuilder({page}).analyze()
+    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
+      results.violations,
+      null,
+      2,
+    )}`
 
-  expect(results.violations, errorMessage).toEqual([])
+    expect(results.violations, errorMessage).toEqual([])
+  })
 }
 
 /**
@@ -527,53 +313,56 @@ export const validateScreenshot = async (
   fullPage?: boolean,
   mobileScreenshot?: boolean,
 ) => {
-  if (fullPage === undefined) {
-    fullPage = true
-  }
-
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
   }
-  const page = 'page' in element ? element.page() : element
-  // Normalize all variable content so that the screenshot is stable.
-  await normalizeElements(page)
-  // Also process any sub frames.
-  for (const frame of page.frames()) {
-    await normalizeElements(frame)
-  }
 
-  if (fullPage) {
-    // Some tests take screenshots while scroll position in the middle. That
-    // affects header which is position fixed and on final full-page screenshots
-    // overlaps part of the page.
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
-    })
-  }
+  await test.step('Validate screenshot', async () => {
+    if (fullPage === undefined) {
+      fullPage = true
+    }
 
-  expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+    const page = 'page' in element ? element.page() : element
+    // Normalize all variable content so that the screenshot is stable.
+    await normalizeElements(page)
+    // Also process any sub frames.
+    for (const frame of page.frames()) {
+      await normalizeElements(frame)
+    }
 
-  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+    if (fullPage) {
+      // Some tests take screenshots while scroll position in the middle. That
+      // affects header which is position fixed and on final full-page screenshots
+      // overlaps part of the page.
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
+    }
 
-  const existingWidth = page.viewportSize()?.width || 1280
+    expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
 
-  if (mobileScreenshot) {
-    const height = page.viewportSize()?.height || 720
-    // Update the viewport size to different screen widths so we can test on a
-    // variety of sizes
-    await page.setViewportSize({width: 320, height})
+    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
 
-    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+    const existingWidth = page.viewportSize()?.width || 1280
 
-    // Medium width
-    await page.setViewportSize({width: 800, height})
+    if (mobileScreenshot) {
+      const height = page.viewportSize()?.height || 720
+      // Update the viewport size to different screen widths so we can test on a
+      // variety of sizes
+      await page.setViewportSize({width: 320, height})
 
-    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
 
-    // Reset back to original width
-    await page.setViewportSize({width: existingWidth, height})
-  }
+      // Medium width
+      await page.setViewportSize({width: 800, height})
+
+      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+      // Reset back to original width
+      await page.setViewportSize({width: existingWidth, height})
+    }
+  })
 }
 
 const takeScreenshot = async (
@@ -585,12 +374,12 @@ const takeScreenshot = async (
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  expect(
-    await element.screenshot({
+  await expect(element).toHaveScreenshot(
+    [testFileName, fullScreenshotFileName + '.png'],
+    {
       fullPage: fullPage,
-      animations: 'disabled',
-    }),
-  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
+    },
+  )
 }
 
 /*
@@ -665,7 +454,7 @@ export const extractEmailsForRecipient = async function (
     throw new Error('Unsupported call to extractEmailsForRecipient')
   }
   const originalPageUrl = page.url()
-  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  await page.goto(`${LOCALSTACK_URL}/_aws/ses`)
   const responseJson = JSON.parse(
     await page.innerText('body'),
   ) as LocalstackSesResponse
@@ -685,4 +474,22 @@ export const expectEnabled = async (page: Page, locator: string) => {
 
 export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
+}
+
+/**
+ * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
+ * committed into the codebase as a permanent fix to anything.
+ *
+ * This works by modifying the network requests of routes and adding a timeout to help extend the load
+ * time of pages. Place this at the beginning of a specific test or a beforeEach call. Playwright currently
+ * does not have any builtin throttling capabilities and this is the least invasive option.
+ *
+ * @param page Playwright page
+ * @param {number} timeout in milliseconds
+ */
+export const throttle = async (page: Page, timeout: number = 100) => {
+  await page.route('**/*', async (route) => {
+    await new Promise((f) => setTimeout(f, timeout))
+    await route.continue()
+  })
 }

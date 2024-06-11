@@ -8,6 +8,7 @@ import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
 import * as modal from './modal'
+import * as northStarModal from './north_star_modal'
 import * as fileUpload from './file_upload'
 import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
@@ -20,6 +21,7 @@ window.addEventListener('load', () => {
   radio.init()
   toast.init()
   modal.init()
+  northStarModal.init()
   fileUpload.init()
   azureDelete.init()
   azureUpload.init()

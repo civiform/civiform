@@ -347,6 +347,27 @@ public class BlockTest {
   }
 
   @Test
+  public void answeredByUserQuestionsCount_excludesStatic() {
+    ApplicantData applicantData = new ApplicantData();
+    // Fill in one questions.
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    BlockDefinition definition =
+        BlockDefinition.builder()
+            .setId(20L)
+            .setName("")
+            .setDescription("")
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.answeredByUserQuestionsCount()).isEqualTo(1);
+    assertThat(block.answerableQuestionsCount()).isEqualTo(2);
+  }
+
+  @Test
   public void wasAnsweredInProgram_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
@@ -685,6 +706,87 @@ public class BlockTest {
     Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
 
     assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+  }
+
+  @Test
+  public void hasOnlyOptionalQuestions_blockHasOnlyRequiredQuestions_false() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isFalse();
+  }
+
+  @Test
+  public void hasOnlyOptionalQuestions_blockHasRequiredAndOptionalQuestions_false() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(false);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isFalse();
+  }
+
+  @Test
+  public void hasOnlyOptionalQuestions_blockHasOnlyOptionalQuestions_true() {
+    long programId = 5L;
+    ProgramQuestionDefinition pqd1 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    ProgramQuestionDefinition pqd2 =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd1)
+            .addQuestion(pqd2)
+            .build();
+
+    Block block = new Block("id", blockDefinition, new ApplicantData(), Optional.empty());
+
+    assertThat(block.hasOnlyOptionalQuestions()).isTrue();
   }
 
   @Test
