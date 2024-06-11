@@ -153,7 +153,7 @@ public final class UpsellController extends CiviFormController {
             maybeEligiblePrograms -> {
               Optional<String> toastMessageValue = request.flash().get("banner");
               Optional<ToastMessage> toastMessage =
-              toastMessageValue.map(m -> ToastMessage.alert(m));
+                  toastMessageValue.map(m -> ToastMessage.alert(m));
 
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 UpsellParams.Builder paramsBuilder =
