@@ -75,12 +75,11 @@
   <!--/* Not eligible toast */-->
   <!-- TODO THIS DOESN'T WORK YET -->
   <th:block
-    th:if="${shouldShowNotEligibleBanner}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)},
-             toastMessage=${isTi ? #{toast.mayNotQualifyTi(programTitle)} : #{toast.mayNotQualify(programTitle)}}"
+    th:if="${notEligibleBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
   >
     <div
-      th:replace="~{this:: alert(${toastId}, ${toastMessage}, true, true, 0, null)}"
+      th:replace="~{this:: alert(${toastId}, ${notEligibleBannerMessage.get()}, true, false, 0, null)}"
     ></div>
   </th:block>
 </div>
