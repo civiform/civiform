@@ -76,7 +76,6 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
         ConfigFactory.parseMap(
             ImmutableMap.of("primary_applicant_info_questions_enabled", paiFlagEnabled.toString()));
 
-
     PersistedDurableJobModel job =
         new PersistedDurableJobModel(
             DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO.toString(),

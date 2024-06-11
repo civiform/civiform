@@ -109,6 +109,11 @@ public class QuestionModel extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
+    // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
+    // had relied on to mark the json fields as dirty. We now need to manually
+    // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
+    // get triggered.
+    io.ebean.DB.markAsDirty(this);
     setFieldsFromQuestionDefinition(questionDefinition);
   }
 
@@ -122,6 +127,9 @@ public class QuestionModel extends BaseModel {
     if (questionType.equalsIgnoreCase("REPEATER")) {
       questionType = "ENUMERATOR";
     }
+
+    initTags();
+
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
@@ -176,11 +184,12 @@ public class QuestionModel extends BaseModel {
     }
   }
 
-  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
+    return this;
   }
 
   public QuestionDefinition getQuestionDefinition() {
