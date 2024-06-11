@@ -5,9 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.statuses.StatusDefinitions;
 
