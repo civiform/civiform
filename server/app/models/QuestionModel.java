@@ -127,6 +127,9 @@ public class QuestionModel extends BaseModel {
     if (questionType.equalsIgnoreCase("REPEATER")) {
       questionType = "ENUMERATOR";
     }
+
+    initTags();
+
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
