@@ -27,14 +27,15 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     // test
     ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.ACTIVE);
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
     applicationStatusesModel.refresh();
     // assert
     assertThat(applicationStatusesModel).isNotNull();
     checkApplicationStatusRow(
-        applicationStatusesModel, programName, "Approved", StatusLifecycleStage.ACTIVE);
+        applicationStatusesModel, programName, "Approved", StatusDefinitionsLifecycleStage.ACTIVE);
   }
 
   @Test
@@ -46,25 +47,30 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
 
     ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.OBSOLETE);
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
     applicationStatusesModel.refresh();
 
     assertThat(applicationStatusesModel).isNotNull();
     checkApplicationStatusRow(
-        applicationStatusesModel, programName, "Approved", StatusLifecycleStage.OBSOLETE);
+        applicationStatusesModel,
+        programName,
+        "Approved",
+        StatusDefinitionsLifecycleStage.OBSOLETE);
   }
 
   public void checkApplicationStatusRow(
       ApplicationStatusesModel applicationStatusesModel,
       String programName,
       String statusText,
-      StatusLifecycleStage statusLifecycleStage) {
+      StatusDefinitionsLifecycleStage statusDefinitionsLifecycleStage) {
     assertThat(applicationStatusesModel.getCreateTime()).isEqualTo("2041-01-01T00:00:00Z");
     assertThat(applicationStatusesModel.getStatusDefinitions().getStatuses().get(0).statusText())
         .isEqualTo(statusText);
     assertThat(applicationStatusesModel.getProgramName()).isEqualTo(programName);
-    assertThat(applicationStatusesModel.getStatusLifecycleStage()).isEqualTo(statusLifecycleStage);
+    assertThat(applicationStatusesModel.getStatusLifecycleStage())
+        .isEqualTo(statusDefinitionsLifecycleStage);
   }
 }

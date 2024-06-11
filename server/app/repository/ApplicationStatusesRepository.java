@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationStatusesModel;
-import models.StatusLifecycleStage;
+import models.StatusDefinitionsLifecycleStage;
 import services.program.StatusDefinitions;
 
 /** A repository class used to interact with the application_statuses table. */
@@ -27,7 +27,7 @@ public final class ApplicationStatusesRepository {
             .where()
             .eq("program_name", programName)
             .and()
-            .eq("status_lifecycle_stage", StatusLifecycleStage.ACTIVE)
+            .eq("status_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
             .findOneOrEmpty();
     if (optionalApplicationStatusesModel.isEmpty()) {
       throw new RuntimeException("No active status found for program " + programName);
@@ -43,7 +43,7 @@ public final class ApplicationStatusesRepository {
             .where()
             .eq("program_name", programName)
             .and()
-            .eq("status_lifecycle_stage", StatusLifecycleStage.OBSOLETE)
+            .eq("status_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
             .findList();
     if (optionalApplicationStatusesModelList.isEmpty()) {
       throw new RuntimeException("No obsolete status found for program " + programName);

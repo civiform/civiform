@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 import models.ApplicationStatusesModel;
 import models.ProgramModel;
-import models.StatusLifecycleStage;
+import models.StatusDefinitionsLifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -39,7 +39,8 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     // test
     ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.ACTIVE);
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
@@ -71,7 +72,8 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
 
     ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.OBSOLETE);
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
     List<StatusDefinitions> statusDefinitionsResults =

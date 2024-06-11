@@ -20,15 +20,15 @@ public class ApplicationStatusesModel extends BaseModel {
 
   @Constraints.Required @DbJson private StatusDefinitions statusDefinitions;
   @WhenCreated private Instant createTime;
-  @Constraints.Required private StatusLifecycleStage statusLifecycleStage;
+  @Constraints.Required private StatusDefinitionsLifecycleStage statusDefinitionsLifecycleStage;
 
   public ApplicationStatusesModel(
       String programName,
       StatusDefinitions statusDefinitions,
-      StatusLifecycleStage statusLifecycleStage) {
+      StatusDefinitionsLifecycleStage statusDefinitionsLifecycleStage) {
     this.programName = checkNotNull(programName);
     this.statusDefinitions = checkNotNull(statusDefinitions);
-    this.statusLifecycleStage = checkNotNull(statusLifecycleStage);
+    this.statusDefinitionsLifecycleStage = checkNotNull(statusDefinitionsLifecycleStage);
   }
 
   @VisibleForTesting
@@ -49,7 +49,7 @@ public class ApplicationStatusesModel extends BaseModel {
     return createTime;
   }
 
-  public StatusLifecycleStage getStatusLifecycleStage() {
-    return statusLifecycleStage;
+  public StatusDefinitionsLifecycleStage getStatusLifecycleStage() {
+    return statusDefinitionsLifecycleStage;
   }
 }
