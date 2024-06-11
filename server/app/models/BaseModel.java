@@ -1,8 +1,8 @@
 package models;
 
 import io.ebean.Model;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * Superclass for all CiviForm models. All database interaction is brokered through subclasses of
