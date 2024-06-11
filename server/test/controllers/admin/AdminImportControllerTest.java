@@ -103,7 +103,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJSON", "{\"adminName : \"admin-name\"}")))
+                        .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}")))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -122,7 +122,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(
                             ImmutableMap.of(
-                                "programJSON",
+                                "programJson",
                                 "{ \"id\" : 32, \"adminName\" : \"admin-name\","
                                     + " \"adminDescription\" : \"description\"}")))
                 .build());
@@ -144,7 +144,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(
                             ImmutableMap.of(
-                                "programJSON",
+                                "programJson",
                                 "{ \"program\": { \"adminName\" : \"admin-name\","
                                     + " \"adminDescription\" : \"description\"}}")))
                 .build());
@@ -163,7 +163,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJSON", EXAMPLE_PROGRAM_JSON)))
+                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -181,7 +181,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJSON", EXAMPLE_PROGRAM_JSON)))
+                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);

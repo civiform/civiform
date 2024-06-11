@@ -26,11 +26,11 @@ export class AdminProgramMigration {
     await this.page.check(`text=${adminName}`)
   }
 
-  async generateJSON() {
+  async generateJson() {
     await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }
 
-  async expectJSONPreview() {
+  async expectJsonPreview() {
     const jsonPreview = this.page.locator('#program-json')
 
     // The json preview should be a text area and should be disabled to prevent editing
@@ -50,7 +50,7 @@ export class AdminProgramMigration {
     return jsonPreview.innerHTML()
   }
 
-  async downloadJSON() {
+  async downloadJson() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.getByRole('button', {name: 'Download JSON'}).click(),
@@ -74,7 +74,7 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async submitProgramJSON(content: string) {
+  async submitProgramJson(content: string) {
     await this.page.getByRole('textbox').fill(content)
     await this.page
       .getByRole('button', {name: 'Display program information'})

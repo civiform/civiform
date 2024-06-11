@@ -73,8 +73,8 @@ test.describe('program migration', () => {
         page.getByRole('button', {name: generateJSONButton}),
       ).toBeEnabled()
 
-      await adminProgramMigration.generateJSON()
-      const jsonPreview = await adminProgramMigration.expectJSONPreview()
+      await adminProgramMigration.generateJson()
+      const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
       expect(jsonPreview).toContain(block2Description)
@@ -83,7 +83,7 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain(phoneQuestionText)
     })
     await test.step('download json for program 2', async () => {
-      const downloadedProgram = await adminProgramMigration.downloadJSON()
+      const downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain(programName)
       expect(downloadedProgram).toContain(block1Description)
       expect(downloadedProgram).toContain(block2Description)
@@ -110,11 +110,11 @@ test.describe('program migration', () => {
     })
 
     await test.step('import a program', async () => {
-      const sampleJSON = readFileSync(
+      const sampleJson = readFileSync(
         'src/assets/import-program-sample.json',
         'utf8',
       )
-      await adminProgramMigration.submitProgramJSON(sampleJSON)
+      await adminProgramMigration.submitProgramJson(sampleJson)
 
       await adminProgramMigration.expectProgramImported(programName)
       await expect(
@@ -144,7 +144,7 @@ test.describe('program migration', () => {
     })
 
     await test.step('malformed: missing "', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
       await adminProgramMigration.expectImportError()
@@ -155,14 +155,14 @@ test.describe('program migration', () => {
     })
 
     await test.step('malformed: not matching {}', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "mismatched-brackets"',
       )
       await adminProgramMigration.expectImportError()
     })
 
     await test.step('malformed: missing ,', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
       )
       await adminProgramMigration.expectImportError()
@@ -170,7 +170,7 @@ test.describe('program migration', () => {
 
     await test.step('malformed: missing program field', async () => {
       // The JSON itself is correctly formatted but it should have a top-level "program" field
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
       )
       await adminProgramMigration.expectImportError()
@@ -179,7 +179,7 @@ test.describe('program migration', () => {
     await test.step('malformed: missing required program info', async () => {
       // The JSON itself is correctly formatted but it doesn't have all the fields
       // that we need to build a ProgramDefinition
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
       await adminProgramMigration.expectImportError()
@@ -209,8 +209,8 @@ test.describe('program migration', () => {
       await adminProgramMigration.selectProgramToExport(
         'comprehensive-sample-program',
       )
-      await adminProgramMigration.generateJSON()
-      downloadedProgram = await adminProgramMigration.downloadJSON()
+      await adminProgramMigration.generateJson()
+      downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain('comprehensive-sample-program')
     })
 
@@ -228,7 +228,7 @@ test.describe('program migration', () => {
         'Comprehensive Sample Program 2',
       )
 
-      await adminProgramMigration.submitProgramJSON(downloadedProgram)
+      await adminProgramMigration.submitProgramJson(downloadedProgram)
 
       // Assert the new title and admin name are shown
       await expect(

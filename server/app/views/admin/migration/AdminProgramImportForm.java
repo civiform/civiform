@@ -7,25 +7,25 @@ import com.google.common.collect.ImmutableList;
  * AdminImportView}.
  */
 public final class AdminProgramImportForm {
-  public static final String PROGRAM_JSON_FIELD = "programJSON";
+  public static final String PROGRAM_JSON_FIELD = "programJson";
   public static final ImmutableList<String> FIELD_NAMES = ImmutableList.of(PROGRAM_JSON_FIELD);
 
-  private String programJSON;
+  private String programJson;
 
   @SuppressWarnings("unused") // Used by FormFactory
   public AdminProgramImportForm() {}
 
   @SuppressWarnings("unused") // Used by FormFactory
-  public AdminProgramImportForm(String programJSON) {
-    this.programJSON = programJSON;
+  public AdminProgramImportForm(String programJson) {
+    this.programJson = programJson;
   }
 
-  public String getProgramJSON() {
-    return this.programJSON;
+  public String getProgramJson() {
+    return this.programJson;
   }
 
   @SuppressWarnings("unused") // Used by FormFactory
-  public void setProgramJSON(String programJSON) {
-    this.programJSON = programJSON;
+  public void setProgramJson(String programJson) {
+    this.programJson = programJson;
   }
 }

@@ -79,7 +79,7 @@ public class AdminImportController extends CiviFormController {
         formFactory
             .form(AdminProgramImportForm.class)
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
-    String jsonString = form.get().getProgramJSON();
+    String jsonString = form.get().getProgramJson();
     if (jsonString == null) {
       // If they didn't upload anything, just re-render the main import page.
       return redirect(routes.AdminImportController.index().url());
@@ -122,7 +122,7 @@ public class AdminImportController extends CiviFormController {
             .form(AdminProgramImportForm.class)
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
 
-    String jsonString = form.get().getProgramJSON();
+    String jsonString = form.get().getProgramJson();
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         programMigrationService.deserialize(jsonString);
