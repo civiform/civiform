@@ -6,9 +6,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
