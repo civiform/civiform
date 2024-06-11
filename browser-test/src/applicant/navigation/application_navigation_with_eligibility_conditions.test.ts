@@ -1,7 +1,6 @@
 import {test} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -372,8 +371,7 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe('With north star flag enabled', {tag: ['@northstar']}, () => {
-
-      test.beforeEach(async({page}) => {
+      test.beforeEach(async ({page}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
@@ -432,35 +430,35 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test(
-        'Shows may be eligible toast with an eligible answer',
-        async ({page, applicantQuestions}) => {
-          await applicantQuestions.applyProgram(fullProgramName)
-  
-          // Fill out application and without submitting.
-          await applicantQuestions.answerNumberQuestion('5')
-          await applicantQuestions.clickContinue()
-          await validateToastMessage(page, 'may qualify')
-          await validateScreenshot(
-            page,
-            'north-star-eligible-toast',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        }
-      )
+      test('Shows may be eligible toast with an eligible answer', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        // Fill out application and without submitting.
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+        await validateToastMessage(page, 'may qualify')
+        await validateScreenshot(
+          page,
+          'north-star-eligible-toast',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
       test('shows not eligible on review page with ineligible answer', async ({
         page,
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
-  
+
         // Fill out application and submit.
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectIneligiblePage()
-  
+
         // Verify the question is marked ineligible.
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeEligibilityTag(
@@ -468,7 +466,7 @@ test.describe('Applicant navigation flow', () => {
           /* isEligible= */ false,
         )
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
-  
+
         await validateToastMessage(page, 'may not qualify')
       })
     })
