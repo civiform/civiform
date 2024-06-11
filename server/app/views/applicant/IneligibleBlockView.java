@@ -91,10 +91,6 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                             .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                             .toLowerCase(Locale.ROOT))))));
 
-    System.out.println(
-        "ssandbekkhaug Go Back URL: "
-            + applicantRoutes.review(submittingProfile, applicantId, programId).url());
-
     DivTag content =
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
