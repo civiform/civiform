@@ -375,7 +375,7 @@ test.describe('Applicant navigation flow', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('Shows ineligible on home page', async ({
+      test('Shows ineligible tag on home page program cards', async ({
         page,
         applicantQuestions,
       }) => {
@@ -414,7 +414,7 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.clickContinue()
         })
 
-        await test.step('verify question is marked eligible', async () => {
+        await test.step('verify program is marked eligible', async () => {
           await applicantQuestions.gotoApplicantHomePage()
           await applicantQuestions.seeEligibilityTag(
             fullProgramName,
@@ -430,7 +430,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('Shows may be eligible toast with an eligible answer', async ({
+      test('Shows may be eligible toast on block edit page with an eligible answer', async ({
         page,
         applicantQuestions,
       }) => {
@@ -448,7 +448,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('shows not eligible on review page with ineligible answer', async ({
+      test('shows not eligible toast on review page with ineligible answer', async ({
         page,
         applicantQuestions,
       }) => {
