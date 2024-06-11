@@ -19,8 +19,8 @@ public final class ApplicationStatusesRepository {
     this.database = DB.getDefault();
   }
 
-  public StatusDefinitions lookupActiveStatuDefinitions(String programName) {
-    Optional<ApplicationStatusesModel> mayBeapplicationStatusesModel =
+  public StatusDefinitions lookupActiveStatusDefinitions(String programName) {
+    Optional<ApplicationStatusesModel> optionalApplicationStatusesModel =
         database
             .find(ApplicationStatusesModel.class)
             .setLabel("ApplicationStatusesModel.findByProgramName")
@@ -29,14 +29,14 @@ public final class ApplicationStatusesRepository {
             .and()
             .eq("status_lifecycle_stage", StatusLifecycleStage.ACTIVE)
             .findOneOrEmpty();
-    if (mayBeapplicationStatusesModel.isEmpty()) {
+    if (optionalApplicationStatusesModel.isEmpty()) {
       throw new RuntimeException("No active status found for program " + programName);
     }
-    return mayBeapplicationStatusesModel.get().getStatusDefinitions();
+    return optionalApplicationStatusesModel.get().getStatusDefinitions();
   }
 
   public List<StatusDefinitions> lookupListOfObsoleteStatusDefinitions(String programName) {
-    List<ApplicationStatusesModel> mayBeapplicationStatusesModelList =
+    List<ApplicationStatusesModel> optionalApplicationStatusesModelList =
         database
             .find(ApplicationStatusesModel.class)
             .setLabel("ApplicationStatusesModel.findByProgramName")
@@ -45,10 +45,10 @@ public final class ApplicationStatusesRepository {
             .and()
             .eq("status_lifecycle_stage", StatusLifecycleStage.OBSOLETE)
             .findList();
-    if (mayBeapplicationStatusesModelList.isEmpty()) {
+    if (optionalApplicationStatusesModelList.isEmpty()) {
       throw new RuntimeException("No obsolete status found for program " + programName);
     }
-    return mayBeapplicationStatusesModelList.stream()
+    return optionalApplicationStatusesModelList.stream()
         .map(ApplicationStatusesModel::getStatusDefinitions)
         .collect(Collectors.toList());
   }

@@ -42,21 +42,21 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
         new ApplicationStatusesModel(programName, statusDefinitions, StatusLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
-    StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatuDefinitions(programName);
+    StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     // assert
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
   }
 
   @Test
-  public void canQueryForActiveApplicationStatuses_throwsException() {
+  public void lookupActiveStatusDefinitions_throwsException() {
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> repo.lookupActiveStatuDefinitions("random"))
+        .isThrownBy(() -> repo.lookupActiveStatusDefinitions("random"))
         .withMessage("No active status found for program random");
   }
 
   @Test
-  public void canQueryForObsoleteApplicationStatuses_throwsException() {
+  public void lookupListOfObsoleteStatusDefinitions_throwsException() {
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> repo.lookupListOfObsoleteStatusDefinitions("random"))
         .withMessage("No obsolete status found for program random");
