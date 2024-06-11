@@ -75,7 +75,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
     }
 
     try {
-      URI jwkSetUri = this.configuration.getProviderMetadata().getJWKSetURI();
+      URI jwkSetUri = this.configuration.getOpMetadataResolver().load().getJWKSetURI();
       ImmutableMap<URI, Resource> jwkCache =
           ImmutableMap.of(
               jwkSetUri,
@@ -101,7 +101,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       if (headers == null) {
         headers = new HashMap<>();
       }
-      String authHeader = ((OidcCredentials) cred).getAccessToken().toAuthorizationHeader();
+      String authHeader = ((OidcCredentials) cred).toAccessToken().toAuthorizationHeader();
       logger.debug("Auth header in the resource retriever: {}", authHeader);
       headers.put("Authorization", List.of(authHeader));
       return headers;
