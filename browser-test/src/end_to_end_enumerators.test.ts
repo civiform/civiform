@@ -354,6 +354,19 @@ test.describe('End to end enumerator test', () => {
           page.locator('#enumerator-field-add-button'),
         ).toHaveAttribute('disabled')
       })
+
+      await test.step('Add button is still disabled after trying to save', async () => {
+        await applicantQuestions.clickNext()
+
+        // Error shows because of the empty entity
+        await expect(
+          page.locator('.cf-applicant-question-errors'),
+        ).toBeVisible()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
     })
 
     test('Applicant can navigate to previous blocks', async ({

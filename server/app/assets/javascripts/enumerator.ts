@@ -4,6 +4,8 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
 export function init() {
+  refreshAddButtonStatus()
+
   addEventListenerToElements(
     '.cf-question-enumerator input[data-entity-input]',
     'input',
@@ -169,21 +171,19 @@ function setFocusAfterEnumeratorRemoval() {
  * inputs).
  */
 function refreshAddButtonStatus() {
-  const enumeratorQuestion = assertNotNull(
-    document.querySelector('.cf-question-enumerator'),
-  )
-  if (enumeratorQuestion) {
-    const enumeratorInputValues = Array.from(
-      enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
-    ).map((item) => (item as HTMLInputElement).value)
+  const enumeratorInputValues = Array.from(
+    document.querySelectorAll(
+      '.cf-question-enumerator input[data-entity-input]',
+    ),
+  ).map((item) => (item as HTMLInputElement).value)
 
-    // validate that there are no empty inputs.
-    const addButton = <HTMLInputElement>(
-      document.getElementById('enumerator-field-add-button')
-    )
-    if (addButton) {
-      addButton.disabled = enumeratorInputValues.includes('')
-    }
+  // validate that there are no empty inputs.
+  const addButton = document.getElementById(
+    'enumerator-field-add-button',
+  ) as HTMLInputElement
+
+  if (addButton) {
+    addButton.disabled = enumeratorInputValues.includes('')
   }
 }
 
