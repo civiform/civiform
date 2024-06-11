@@ -73,7 +73,6 @@
     ></div>
   </th:block>
   <!--/* Not eligible toast */-->
-  <!-- TODO THIS DOESN'T WORK YET -->
   <th:block
     th:if="${notEligibleBannerMessage.isPresent()}"
     th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
