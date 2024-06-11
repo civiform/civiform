@@ -87,8 +87,8 @@ public class ViewUtilsTest {
             "header",
             false,
             button("Open the test modal"),
-            "",
-            "");
+            button("first button"),
+            button("second button"));
     assertThat(modal.render()).doesNotContain("usa-modal__footer");
   }
 
