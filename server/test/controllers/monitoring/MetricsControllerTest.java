@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
-import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -17,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -24,9 +24,6 @@ public class MetricsControllerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
-    CollectorRegistry.defaultRegistry.clear();
-    // TODO(#5933) initializing counters causes the test to fail in bin/sbt-test
-    MetricsController.initializeCounters();
   }
 
   @Test
@@ -38,7 +35,10 @@ public class MetricsControllerTest extends WithMockedProfiles {
                 .build());
     MetricsController controllerWithMetricsEnabled =
         new MetricsController(
-            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
+            config,
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(MonitoringMetricCounters.class));
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
@@ -63,7 +63,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(metricsContent).contains(getEbeanCountName("models.ProgramModel"));
     assertThat(metricsContent).contains(getEbeanCountName("models.Question"));
     assertThat(metricsContent).contains(getEbeanCountName("VersionModel.byId"));
-    assertThat(metricsContent).contains("location=\"VersionRepository.getActiveVersion");
+    assertThat(metricsContent).contains("location=\"repository.VersionRepository.getActiveVersion");
     assertThat(metricsContent).contains("className=\"models.VersionModel");
   }
 
@@ -76,7 +76,10 @@ public class MetricsControllerTest extends WithMockedProfiles {
                 .build());
     MetricsController controllerWithoutMetricsEnabled =
         new MetricsController(
-            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
+            config,
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(MonitoringMetricCounters.class));
     assertThat(controllerWithoutMetricsEnabled.getMetrics().status()).isEqualTo(404);
   }
 
