@@ -151,8 +151,9 @@ public final class UpsellController extends CiviFormController {
             })
         .thenApplyAsync(
             maybeEligiblePrograms -> {
+              Optional<String> toastMessageValue = request.flash().get("banner");
               Optional<ToastMessage> toastMessage =
-                  request.flash().get("banner").map(m -> ToastMessage.alert(m));
+              toastMessageValue.map(m -> ToastMessage.alert(m));
 
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 UpsellParams.Builder paramsBuilder =
@@ -164,6 +165,7 @@ public final class UpsellController extends CiviFormController {
                         .setApplicantPersonalInfo(applicantPersonalInfo.join())
                         .setApplicationId(applicationId)
                         .setMessages(messagesApi.preferred(request))
+                        .setBannerMessage(toastMessageValue)
                         .setApplicantId(applicantId);
 
                 if (isCommonIntake.join()) {
