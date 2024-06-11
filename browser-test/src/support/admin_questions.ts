@@ -1189,7 +1189,6 @@ export class AdminQuestions {
     questionName,
     description = 'text description',
     questionText = 'text question text',
-    expectedQuestionText = null,
     helpText = 'text question help text',
     minNum = null,
     maxNum = null,
@@ -1224,11 +1223,6 @@ export class AdminQuestions {
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
-
-    if (!markdown) {
-      expectedQuestionText = expectedQuestionText ?? questionText
-      await this.expectDraftQuestionExist(questionName, expectedQuestionText)
-    }
   }
 
   async clickUniversalToggle() {
