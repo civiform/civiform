@@ -99,3 +99,35 @@
     ></div>
   </th:block>
 </div>
+
+<!--/* Render the toasts used in the Program Index page */-->
+<div th:fragment="programIndexToasts">
+  <!--/* Success toast */-->
+  <th:block
+    th:if="${successBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: success(${toastId}, ${successBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Alert toast */-->
+  <th:block
+    th:if="${alertBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: alert(${toastId}, ${alertBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Not eligible toast */-->
+  <!-- TODO THIS DOESN'T WORK YET -->
+  <th:block
+    th:if="${notEligibleBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this:: alert(${toastId}, ${notEligibleBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+</div>
