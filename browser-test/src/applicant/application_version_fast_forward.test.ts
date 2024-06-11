@@ -917,7 +917,7 @@ class FastForwardApplicantActor {
 }
 
 /**
- * This class maintains the state and logic used by the Program Admin actorfs
+ * This class maintains the state and logic used by the Program Admin actor
  */
 class FastForwardProgramAdminActor {
   private programName: string
