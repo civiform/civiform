@@ -108,7 +108,7 @@
     th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
   >
     <div
-      th:replace="~{this :: alert(${toastId}, ${alertBannerMessage.get()}, true, false, 0, null)}"
+      th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
     ></div>
   </th:block>
   <!--/* Session toast */-->
