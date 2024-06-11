@@ -73,7 +73,7 @@ public class SingleSelectQuestionTest extends ResetPostgres {
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
         .hasValue(LocalizedQuestionOption.create(1L, 1L, "opt1", "option 1", Locale.US));
   }
@@ -87,7 +87,7 @@ public class SingleSelectQuestionTest extends ResetPostgres {
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 

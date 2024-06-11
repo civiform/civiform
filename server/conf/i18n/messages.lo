@@ -348,6 +348,19 @@ content.noChanges=ທ່ານຍັງບໍ່ໄດ້ດຳເນີນກ�
 button.continueEditing=ສືບຕໍ່ແກ້ໄຂ
 button.exitApplication=ອອກຈາກໃບສະໝັກ
 
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -551,3 +564,12 @@ banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາ�
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.
 banner.httpsSectionHeader=ເວັບໄຊ .gov ທີ່ປອດໄພຈະໃຊ້ HTTPS
 banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:// ໝາຍຄວາມວ່າທ່ານໄດ້ເຊື່ອມຕໍ່ກັບເວັບໄຊ .gov ຢ່າງປອດໄພ. ກະລຸນາແບ່ງປັນຂໍ້ມູນລະອຽດອ່ອນຢູ່ເວັບໄຊຢ່າງເປັນທາງການທີ່ປອດໄພເທົ່ານັ້ນ.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
