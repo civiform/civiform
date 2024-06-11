@@ -25,12 +25,12 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("Obsolete tests" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    // test
     ApplicationStatusesModel applicationStatusesModel =
         new ApplicationStatusesModel(
             programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+    // test
     applicationStatusesModel.refresh();
     // assert
     assertThat(applicationStatusesModel).isNotNull();
@@ -45,12 +45,12 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-
     ApplicationStatusesModel applicationStatusesModel =
         new ApplicationStatusesModel(
             programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+
     applicationStatusesModel.refresh();
 
     assertThat(applicationStatusesModel).isNotNull();

@@ -37,12 +37,12 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
             .build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    // test
     ApplicationStatusesModel applicationStatusesModel =
         new ApplicationStatusesModel(
             programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+    // test
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     // assert
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
@@ -70,17 +70,18 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-
     ApplicationStatusesModel applicationStatusesModel =
         new ApplicationStatusesModel(
             programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+
     List<StatusDefinitions> statusDefinitionsResults =
         repo.lookupListOfObsoleteStatusDefinitions(programName);
 
     assertThat(statusDefinitionsResults).isNotEmpty();
     assertThat(statusDefinitionsResults.size()).isEqualTo(1);
+    assertThat(statusDefinitionsResults.get(0).getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().get(0).statusText())
         .isEqualTo("Approved");
   }
