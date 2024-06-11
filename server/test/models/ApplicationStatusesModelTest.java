@@ -70,7 +70,7 @@ public class ApplicationStatusesModelTest extends ResetPostgres {
     assertThat(applicationStatusesModel.getStatusDefinitions().getStatuses().get(0).statusText())
         .isEqualTo(statusText);
     assertThat(applicationStatusesModel.getProgramName()).isEqualTo(programName);
-    assertThat(applicationStatusesModel.getStatusLifecycleStage())
+    assertThat(applicationStatusesModel.getStatusDefinitionsLifecycleStage())
         .isEqualTo(statusDefinitionsLifecycleStage);
   }
 }

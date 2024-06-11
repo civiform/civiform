@@ -49,7 +49,7 @@ public class ApplicationStatusesModel extends BaseModel {
     return createTime;
   }
 
-  public StatusDefinitionsLifecycleStage getStatusLifecycleStage() {
+  public StatusDefinitionsLifecycleStage getStatusDefinitionsLifecycleStage() {
     return statusDefinitionsLifecycleStage;
   }
 }

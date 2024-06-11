@@ -27,7 +27,7 @@ public final class ApplicationStatusesRepository {
             .where()
             .eq("program_name", programName)
             .and()
-            .eq("status_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
+            .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
             .findOneOrEmpty();
     if (optionalApplicationStatusesModel.isEmpty()) {
       throw new RuntimeException("No active status found for program " + programName);
@@ -43,7 +43,7 @@ public final class ApplicationStatusesRepository {
             .where()
             .eq("program_name", programName)
             .and()
-            .eq("status_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
+            .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
             .findList();
     if (optionalApplicationStatusesModelList.isEmpty()) {
       throw new RuntimeException("No obsolete status found for program " + programName);
