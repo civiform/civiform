@@ -1219,6 +1219,9 @@ export class AdminQuestions {
     if (maxNum != null) {
       await this.page.fill('label:has-text("Maximum length")', String(maxNum))
     }
+    if (!markdown) {
+      await this.expectDraftQuestionExist(questionName, questionText)
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
