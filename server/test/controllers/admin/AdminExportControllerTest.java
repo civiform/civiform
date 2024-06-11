@@ -128,16 +128,16 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void downloadJSON_downloadsJSON() {
+  public void downloadJson_downloadsJson() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     String adminName = "fake-admin-name";
 
     Result result =
-        controller.downloadJSON(
+        controller.downloadJson(
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJSON", String.valueOf(""))))
+                        .bodyForm(ImmutableMap.of("programJson", String.valueOf(""))))
                 .build(),
             adminName);
 
