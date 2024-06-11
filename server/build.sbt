@@ -74,7 +74,7 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY2.9",
+      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
       "org.pac4j" % "pac4j-core" % "6.0.2",
       // basic http authentication (for the anonymous client)
       "org.pac4j" % "pac4j-http" % "6.0.2",
