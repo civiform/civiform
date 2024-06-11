@@ -60,6 +60,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
+    context.setVariable("errorBannerMessage", request.flash().get("error"));
 
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }

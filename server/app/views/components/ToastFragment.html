@@ -23,6 +23,14 @@
 </div>
 
 <div
+  th:fragment="error(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+>
+  <div
+    th:replace="~{this :: toast(${id}, #{toast.errorMessageOutline(${message})}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'error')}"
+  ></div>
+</div>
+
+<div
   th:fragment="success(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
 >
   <div
@@ -70,6 +78,15 @@
   >
     <div
       th:replace="~{this :: alert(${toastId}, ${alertBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Error toast */-->
+  <th:block
+    th:if="${errorBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: error(${toastId}, ${errorBannerMessage.get()}, false, false, 0, null)}"
     ></div>
   </th:block>
   <!--/* Not eligible toast */-->
