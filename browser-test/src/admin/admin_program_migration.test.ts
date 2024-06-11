@@ -73,8 +73,8 @@ test.describe('program migration', () => {
         page.getByRole('button', {name: generateJSONButton}),
       ).toBeEnabled()
 
-      await adminProgramMigration.generateJSON()
-      const jsonPreview = await adminProgramMigration.expectJSONPreview()
+      await adminProgramMigration.generateJson()
+      const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
       expect(jsonPreview).toContain(block2Description)
@@ -83,7 +83,7 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain(phoneQuestionText)
     })
     await test.step('download json for program 2', async () => {
-      const downloadedProgram = await adminProgramMigration.downloadJSON()
+      const downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain(programName)
       expect(downloadedProgram).toContain(block1Description)
       expect(downloadedProgram).toContain(block2Description)
@@ -95,7 +95,13 @@ test.describe('program migration', () => {
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
   })
 
-  test('import a program', async ({page, adminProgramMigration}) => {
+  test('import a program', async ({
+    page,
+    adminProgramMigration,
+    adminPrograms,
+  }) => {
+    const programName = 'Import Sample Program'
+
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_migration_enabled')
@@ -104,13 +110,16 @@ test.describe('program migration', () => {
     })
 
     await test.step('import a program', async () => {
-      const sampleJSON = readFileSync(
+      const sampleJson = readFileSync(
         'src/assets/import-program-sample.json',
         'utf8',
       )
-      await adminProgramMigration.submitProgramJSON(sampleJSON)
+      await adminProgramMigration.submitProgramJson(sampleJson)
 
-      await adminProgramMigration.expectProgramImported('Import Sample Program')
+      await adminProgramMigration.expectProgramImported(programName)
+      await expect(
+        page.getByRole('button', {name: 'Save Program'}),
+      ).toBeEnabled()
       // The import page currently shows question IDs, so this screenshot needs
       // to be based on data that comes from a pre-created JSON file instead of
       // a runtime-downloaded JSON file, as the IDs could change at runtime.
@@ -121,6 +130,9 @@ test.describe('program migration', () => {
         'import-page-with-data',
         /* fullPage= */ false,
       )
+
+      await adminProgramMigration.saveProgram()
+      await adminPrograms.expectProgramExist(programName, 'desc')
     })
   })
 
@@ -132,7 +144,7 @@ test.describe('program migration', () => {
     })
 
     await test.step('malformed: missing "', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
       await adminProgramMigration.expectImportError()
@@ -143,14 +155,14 @@ test.describe('program migration', () => {
     })
 
     await test.step('malformed: not matching {}', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "mismatched-brackets"',
       )
       await adminProgramMigration.expectImportError()
     })
 
     await test.step('malformed: missing ,', async () => {
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
       )
       await adminProgramMigration.expectImportError()
@@ -158,7 +170,7 @@ test.describe('program migration', () => {
 
     await test.step('malformed: missing program field', async () => {
       // The JSON itself is correctly formatted but it should have a top-level "program" field
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
       )
       await adminProgramMigration.expectImportError()
@@ -167,7 +179,7 @@ test.describe('program migration', () => {
     await test.step('malformed: missing required program info', async () => {
       // The JSON itself is correctly formatted but it doesn't have all the fields
       // that we need to build a ProgramDefinition
-      await adminProgramMigration.submitProgramJSON(
+      await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
       await adminProgramMigration.expectImportError()
@@ -197,14 +209,38 @@ test.describe('program migration', () => {
       await adminProgramMigration.selectProgramToExport(
         'comprehensive-sample-program',
       )
-      await adminProgramMigration.generateJSON()
-      downloadedProgram = await adminProgramMigration.downloadJSON()
+      await adminProgramMigration.generateJson()
+      downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain('comprehensive-sample-program')
     })
 
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
-      await adminProgramMigration.submitProgramJSON(downloadedProgram)
+
+      // replace the admin name to avoid collision
+      downloadedProgram = downloadedProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-2',
+      )
+      // replace the program title so can confirm new program was imported
+      downloadedProgram = downloadedProgram.replace(
+        'Comprehensive Sample Program',
+        'Comprehensive Sample Program 2',
+      )
+
+      await adminProgramMigration.submitProgramJson(downloadedProgram)
+
+      // Assert the new title and admin name are shown
+      await expect(
+        page.getByRole('heading', {
+          name: 'Program name: Comprehensive Sample Program 2',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Admin name: comprehensive-sample-program-2',
+        }),
+      ).toBeVisible()
 
       // Assert all the blocks are shown
       await expect(page.getByRole('heading', {name: 'Screen 1'})).toBeVisible()
@@ -226,6 +262,14 @@ test.describe('program migration', () => {
       // Assert all the questions are shown
       await expect(page.getByText('Question ID:')).toHaveCount(17)
       // TODO(#7087): Once we can import the questions, assert that more question information is shown.
+    })
+
+    await test.step('save the imported program', async () => {
+      await adminProgramMigration.saveProgram()
+      await adminPrograms.expectProgramExist(
+        'Comprehensive Sample Program 2',
+        'desc',
+      )
     })
   })
 })

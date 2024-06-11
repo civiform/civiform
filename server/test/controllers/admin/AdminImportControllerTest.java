@@ -14,13 +14,18 @@ import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSO
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
+import io.ebean.DB;
+import io.ebean.Database;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
+import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
@@ -29,6 +34,7 @@ import views.admin.migration.AdminImportViewPartial;
 public class AdminImportControllerTest extends ResetPostgres {
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+  private Database database;
 
   @Before
   public void setUp() {
@@ -40,7 +46,9 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             mockSettingsManifest,
-            instanceOf(VersionRepository.class));
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramRepository.class));
+    database = DB.getDefault();
   }
 
   @Test
@@ -162,5 +170,26 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Import Sample Program");
     assertThat(contentAsString(result)).contains("import-program-sample");
     assertThat(contentAsString(result)).contains("Screen 1");
+  }
+
+  @Test
+  public void saveProgram_savesTheProgram() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.saveProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    ProgramModel program =
+        database.find(ProgramModel.class).where().eq("name", "import-program-sample").findOne();
+
+    ProgramDefinition programDefinition = program.getProgramDefinition();
+    assertThat(programDefinition.externalLink()).isEqualTo("https://github.com/civiform/civiform");
   }
 }
