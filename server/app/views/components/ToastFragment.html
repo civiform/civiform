@@ -111,7 +111,7 @@
       th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
     ></div>
   </th:block>
-  <!--/* Session toast */-->
+  <!--/* Session ended toast */-->
   <div
     th:replace="~{this :: success(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended')}"
   ></div>
