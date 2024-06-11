@@ -1195,7 +1195,6 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
-    markdown = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
