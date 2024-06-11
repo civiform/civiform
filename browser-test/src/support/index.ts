@@ -274,18 +274,16 @@ export const enableFeatureFlag = async (page: Page, flag: string) => {
   })
 }
 
+/**
+ * Close the warning toast message if it is showing, otherwise the element may be in
+ * the way when trying to click on various top nav elements.
+ * @param {Page} page Playwright page to operate against
+ */
 export const closeWarningMessage = async (page: Page) => {
-  // The warning message may be in the way of this link
-  const element = await page.$('#warning-message-dismiss')
+  const warningMessageLocator = page.locator('#warning-message-dismiss')
 
-  if (element !== null) {
-    await element
-      .click()
-      .catch(() =>
-        console.log(
-          "Didn't find a warning toast message to dismiss, which is fine.",
-        ),
-      )
+  if (await warningMessageLocator.isVisible()) {
+    await warningMessageLocator.click()
   }
 }
 

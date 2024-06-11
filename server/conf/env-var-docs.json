@@ -20,6 +20,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_PRODUCTION_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The URL to the civic entity's production CiviForm site.",
+        "type": "string",
+        "required": false
+      },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
@@ -786,6 +792,16 @@
       "PROGRAM_FILTERING_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
+        "type": "bool"
+      },
+      "MULTIPLE_FILE_UPLOAD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
+        "type": "bool"
+      },
+      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site. This banner will not show on Production sites even if this setting is enabled.",
         "type": "bool"
       }
     }

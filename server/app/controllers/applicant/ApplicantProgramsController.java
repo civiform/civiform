@@ -305,7 +305,15 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> showInfoDisabledProgram(Request request, String programSlug) {
+    Optional<Long> applicantId = getApplicantId(request);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId.get(), request);
     return CompletableFuture.completedFuture(
-        Results.notFound(disabledProgramInfoView.render(messagesApi.preferred(request), request)));
+        Results.notFound(
+            disabledProgramInfoView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId.orElseThrow(),
+                applicantStage.toCompletableFuture().join())));
   }
 }

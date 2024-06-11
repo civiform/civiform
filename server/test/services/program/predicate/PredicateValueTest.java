@@ -6,10 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
+@RunWith(JUnitParamsRunner.class)
 public class PredicateValueTest {
 
   private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
@@ -24,15 +28,37 @@ public class PredicateValueTest {
   }
 
   @Test
-  public void stringValue_escapedProperly() {
+  public void value_string() {
     PredicateValue value = PredicateValue.of("hello");
     assertThat(value.value()).isEqualTo("\"hello\"");
   }
 
   @Test
-  public void listOfStringsValue_escapedProperly() {
+  public void value_stringWithQuotes_stripsQuotesBeforeEncoding() {
+    PredicateValue value = PredicateValue.of("\"\"h\"el\"\"lo\"\"\"\"\"");
+    assertThat(value.value()).isEqualTo("\"hello\"");
+  }
+
+  @Test
+  public void value_listOfStrings() {
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
     assertThat(value.value()).isEqualTo("[\"hello\", \"world\"]");
+  }
+
+  @Test
+  public void value_pairOfDates() {
+    LocalDate date1 = LocalDate.of(2024, 5, 1);
+    LocalDate date2 = LocalDate.of(2024, 5, 2);
+    PredicateValue value = PredicateValue.pairOfDates(date1, date2);
+
+    assertThat(value.value()).isEqualTo("[1714521600000, 1714608000000]");
+  }
+
+  @Test
+  public void value_pairOfLongs() {
+    PredicateValue value = PredicateValue.pairOfLongs(18, 30);
+
+    assertThat(value.value()).isEqualTo("[18, 30]");
   }
 
   @Test
@@ -43,6 +69,16 @@ public class PredicateValueTest {
 
     assertThat(value.value()).isEqualTo("10001");
     assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
+  }
+
+  @Test
+  public void toDisplayString_currencyPair() {
+    QuestionDefinition currencyDef =
+        testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
+    PredicateValue value = PredicateValue.pairOfLongs(10001, 20002);
+
+    assertThat(value.value()).isEqualTo("[10001, 20002]");
+    assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01 and $200.02");
   }
 
   @Test
@@ -102,27 +138,50 @@ public class PredicateValueTest {
   }
 
   @Test
-  public void valueWithoutSurroundingQuotes_parsesCorrectly() {
-    PredicateValue value = PredicateValue.of("hello");
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("hello");
+  public void toDisplayString_pairOfDates() {
+    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
 
-    // Should only strip plain strings. Everything else should remain the same.
-    value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[\"hello\", \"world\"]");
+    LocalDate date1 = LocalDate.of(2024, 5, 1);
+    LocalDate date2 = LocalDate.of(2024, 5, 2);
+    PredicateValue value = PredicateValue.pairOfDates(date1, date2);
 
-    value = PredicateValue.of(10001);
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("10001");
-
-    value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("1609459200000");
-
-    value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
-    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[1, 2, 3]");
+    assertThat(value.toDisplayString(dateDef)).isEqualTo("2024-05-01 and 2024-05-02");
   }
 
   @Test
-  public void surroundWithQuotes_stripsQuotesThenAppendsCorrectly() {
-    PredicateValue value = PredicateValue.of("\"\"h\"el\"\"lo\"\"\"\"\"");
-    assertThat(value.value()).isEqualTo("\"hello\"");
+  public void toDisplayString_pairOfLongs() {
+    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
+
+    PredicateValue value = PredicateValue.pairOfLongs(18, 30);
+
+    assertThat(value.toDisplayString(dateDef)).isEqualTo("18 and 30");
+  }
+
+  @Test
+  public void valueWithoutSurroundingQuotes_string() {
+    PredicateValue value = PredicateValue.of("hello");
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("hello");
+  }
+
+  @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
+  private PredicateValue[] valueWithoutSurroundingQuotes_doesNotAffectNonStrings_parameters() {
+    return new PredicateValue[] {
+      // All possible PredicateValue types besides string
+      PredicateValue.of(10001),
+      PredicateValue.of(1.04),
+      PredicateValue.of(LocalDate.ofYearDay(2021, 1)),
+      PredicateValue.listOfStrings(ImmutableList.of("hello", "world")),
+      PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L)),
+      PredicateValue.pairOfDates(LocalDate.ofYearDay(2021, 1), LocalDate.ofYearDay(2021, 100)),
+      PredicateValue.pairOfLongs(18, 30),
+      PredicateValue.serviceArea("seattle"),
+    };
+  }
+
+  @Test
+  @Parameters(method = "valueWithoutSurroundingQuotes_doesNotAffectNonStrings_parameters")
+  public void valueWithoutSurroundingQuotes_doesNotAffectNonStrings(PredicateValue value) {
+    // valueWithoutSurrroundingQuotes should only affect plain strings
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo(value.value());
   }
 }

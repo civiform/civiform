@@ -60,7 +60,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -91,14 +91,13 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        enumeratorQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(
-            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED))));
   }
 
   @Test
@@ -114,14 +113,13 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        enumeratorQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(
-            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME))));
   }
 
   @Test

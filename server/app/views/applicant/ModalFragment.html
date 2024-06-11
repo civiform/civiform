@@ -62,10 +62,12 @@
 <dialog
   th:fragment="loginPromptModal(id, actionUrl, loginLink)"
   th:with="dialogId=${'login-dialog-' + id}"
-  class="usa-modal"
+  class="usa-modal cf-ns-modal"
   th:id="${dialogId}"
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
+  only-show-once-group="login-prompt"
+  th:attr="bypass-url=${actionUrl},dialog-id=${dialogId}"
 >
   <div class="usa-modal__content">
     <div class="usa-modal__main">

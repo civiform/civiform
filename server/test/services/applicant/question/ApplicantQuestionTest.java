@@ -79,7 +79,7 @@ public class ApplicantQuestionTest {
             new ApplicantData(),
             Optional.empty());
 
-    assertThat(applicantQuestion.getQuestion().getValidationErrors().isEmpty()).isTrue();
+    assertThat(applicantQuestion.getQuestion().getValidationErrors()).isEmpty();
   }
 
   @Test

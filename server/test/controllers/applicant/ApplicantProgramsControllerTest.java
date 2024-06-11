@@ -263,7 +263,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledProgram");
-    Request request = Helpers.fakeRequest().flash(flashData).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).flash(flashData).build();
 
     Result result =
         controller.showInfoDisabledProgram(request, "disabledProgram").toCompletableFuture().join();

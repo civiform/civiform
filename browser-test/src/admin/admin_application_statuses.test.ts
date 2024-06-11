@@ -76,7 +76,7 @@ test.describe('view program statuses', () => {
       adminPrograms,
       applicantQuestions,
     }) => {
-      // There is already 1 application from the beforeAll, so apply to 10 more programs.
+      // There is already 1 application from the beforeEach, so apply to 10 more programs.
       for (let i = 0; i < 10; i++) {
         await logout(page)
 
