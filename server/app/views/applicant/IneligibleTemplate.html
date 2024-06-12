@@ -5,11 +5,9 @@
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div role="main" class="margin-2">
-      <h1>
-        <th:block
-          th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
-        ></th:block>
-      </h1>
+      <h1
+        th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
+      ></h1>
 
       <ul>
         <li
