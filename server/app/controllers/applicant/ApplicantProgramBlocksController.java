@@ -828,7 +828,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
-    System.out.println("ssandbekkhaug render error OR redirect to requested page");
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -906,33 +905,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        System.out.println("ssandbekkhaug APBC is ineligible"); // hit
-
-        if (settingsManifest.getNorthStarApplicantUi(request)) {
-          NorthStarApplicantIneligibleView.Params params =
-              NorthStarApplicantIneligibleView.Params.builder()
-                  .setRequest(request)
-                  .setApplicantId(applicantId)
-                  .setProfile(profile)
-                  .setApplicantPersonalInfo(personalInfo)
-                  .setProgramDefinition(programDefinition)
-                  .setRoApplicantProgramService(roApplicantProgramService)
-                  .setMessages(messagesApi.preferred(request))
-                  .build();
-          return supplyAsync(
-              () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
-        } else {
-          return supplyAsync(
-              () ->
-                  ok(
-                      ineligibleBlockView.render(
-                          request,
-                          submittingProfile,
-                          roApplicantProgramService,
-                          messagesApi.preferred(request),
-                          applicantId,
-                          programDefinition)));
-        }
+        return renderIneligiblePage(
+            request,
+            submittingProfile,
+            applicantId,
+            personalInfo,
+            roApplicantProgramService,
+            programDefinition);
       }
     } catch (ProgramNotFoundException e) {
       notFound(e.toString());
@@ -960,6 +939,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedAction,
         roApplicantProgramService,
         flashingMap);
+  }
+
+  private CompletionStage<Result> renderIneligiblePage(
+      Request request,
+      CiviFormProfile profile,
+      long applicantId,
+      ApplicantPersonalInfo personalInfo,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      ProgramDefinition programDefinition) {
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      NorthStarApplicantIneligibleView.Params params =
+          NorthStarApplicantIneligibleView.Params.builder()
+              .setRequest(request)
+              .setApplicantId(applicantId)
+              .setProfile(profile)
+              .setApplicantPersonalInfo(personalInfo)
+              .setProgramDefinition(programDefinition)
+              .setRoApplicantProgramService(roApplicantProgramService)
+              .setMessages(messagesApi.preferred(request))
+              .build();
+      return supplyAsync(
+          () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+    } else {
+      return supplyAsync(
+          () ->
+              ok(
+                  ineligibleBlockView.render(
+                      request,
+                      profile,
+                      roApplicantProgramService,
+                      messagesApi.preferred(request),
+                      applicantId,
+                      programDefinition)));
+    }
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */

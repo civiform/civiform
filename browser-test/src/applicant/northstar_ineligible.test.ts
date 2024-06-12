@@ -7,10 +7,8 @@ import {
   validateScreenshot,
   validateAccessibility,
   loginAsTrustedIntermediary,
-  waitForPageJsLoad,
   ClientInformation,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   const programName = 'Pet Assistance Program'
@@ -18,13 +16,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   const questionText = 'How many pets do you have?'
 
   test.beforeEach(
-    async ({
-      page,
-      adminQuestions,
-      adminPrograms,
-      adminPredicates,
-      tiDashboard,
-    }) => {
+    async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addNumberQuestion({
@@ -58,7 +50,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     },
   )
 
-  test('As applicant, view ineligible page', async ({page, applicantQuestions}) => {
+  test('As applicant, view ineligible page', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await loginAsTestUser(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -101,14 +96,15 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      expect(await page.textContent('html')).toContain(
-        'Application confirmation',
-      )
-      expect(await page.textContent('html')).toContain(programName)
+      await applicantQuestions.expectConfirmationPage()
     })
   })
 
-  test('As TI, view ineligible page', async ({page, applicantQuestions, tiDashboard}) => {
+  test('As TI, view ineligible page', async ({
+    page,
+    applicantQuestions,
+    tiDashboard,
+  }) => {
     await loginAsTrustedIntermediary(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -139,73 +135,32 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
           programName,
       )
 
-      await tiDashboard.gotoTIDashboardPage(page)
+      await page.click('#header-return-home')
+
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(programName, false)
     })
 
     await test.step('Go back and update answers to become eligible', async () => {
-      await tiDashboard.goToProgramsPageForCurrentClient()
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.applyProgram(programName) // "Continue"
-      
-      await applicantQuestions.clickReview()
+      // Click "Continue" on the program card
+      await applicantQuestions.clickApplyProgramButton(programName)
 
+      await applicantQuestions.clickReview()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
-
       await applicantQuestions.submitFromReviewPage(
         /* northStarEnabled= */ true,
       )
     })
 
     await test.step('Expect application submitted page', async () => {
-      expect(await page.textContent('html')).toContain(
-        'Application confirmation',
-      )
-      expect(await page.textContent('html')).toContain(programName)
+      await applicantQuestions.expectConfirmationPage()
     })
 
     await test.step('Expect client is eligible in TI dashboard', async () => {
       await tiDashboard.goToProgramsPageForCurrentClient()
-      // await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(programName, true)
     })
   })
-
-  // test('correctly handles eligibility', async ({
-  //     page,
-  //     tiDashboard,
-  //     applicantQuestions,
-  //   }) => {
-  //     await loginAsTrustedIntermediary(page)
-  //     await tiDashboard.gotoTIDashboardPage(page)
-  //     await tiDashboard.clickOnViewApplications()
-
-  //     // Verify TI gets navigated to the ineligible page with TI text.
-  //     await applicantQuestions.applyProgram(fullProgramName)
-  //     await applicantQuestions.answerNumberQuestion('1')
-  //     await applicantQuestions.clickNext()
-  //     await tiDashboard.expectIneligiblePage()
-
-  //     // Verify the 'may not qualify' tag shows on the program page
-  //     await tiDashboard.gotoTIDashboardPage(page)
-  //     await tiDashboard.clickOnViewApplications()
-  //     await applicantQuestions.seeEligibilityTag(fullProgramName, false)
-  //     await applicantQuestions.clickApplyProgramButton(fullProgramName)
-
-  //     // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
-  //     await applicantQuestions.expectQuestionIsNotEligible(
-  //       AdminQuestions.NUMBER_QUESTION_TEXT,
-  //     )
-
-  //     // Change answer to one that passes eligibility and verify 'may qualify' tag appears on home page and as a toast.
-  //     await applicantQuestions.clickEdit()
-  //     await applicantQuestions.answerNumberQuestion('5')
-  //     await applicantQuestions.clickNext()
-  //     await tiDashboard.gotoTIDashboardPage(page)
-  //     await tiDashboard.clickOnViewApplications()
-  //     await applicantQuestions.seeEligibilityTag(fullProgramName, true)
-  //   })
 })

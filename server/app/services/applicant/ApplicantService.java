@@ -267,7 +267,6 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled) {
-    System.out.println("ssandbekkhaug updating");
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -1461,7 +1460,6 @@ public final class ApplicantService {
     ArrayList<Path> visitedPaths = new ArrayList<>();
     ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
     for (Update update : updates) {
-      System.out.println("ssandbekkhaug updating " + update.toString()); // Looks like it updated
       Path currentPath = update.path();
 
       // If we're updating an array we need to clear it the first time it is visited

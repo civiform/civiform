@@ -321,7 +321,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
-    System.out.println("ssandbekkhaug submit internal");
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletableFuture<ApplicationModel> submitAppFuture =
@@ -377,32 +376,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   try {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
-
-                    System.out.println("ssandbekkhaug about to render from Review Controller");
-
-                    if (settingsManifest.getNorthStarApplicantUi(request)) {
-                      NorthStarApplicantIneligibleView.Params params =
-                          NorthStarApplicantIneligibleView.Params.builder()
-                              .setRequest(request)
-                              .setApplicantId(applicantId)
-                              .setProfile(submittingProfile)
-                              .setApplicantPersonalInfo(applicantPersonalInfo.join())
-                              .setProgramDefinition(programDefinition)
-                              .setRoApplicantProgramService(roApplicantProgramService)
-                              .setMessages(messagesApi.preferred(request))
-                              .build();
-                      return ok(northStarApplicantIneligibleView.render(params))
-                          .as(Http.MimeTypes.HTML);
-                    } else {
-                      return ok(
-                          ineligibleBlockView.render(
-                              request,
-                              submittingProfile,
-                              roApplicantProgramService,
-                              messagesApi.preferred(request),
-                              applicantId,
-                              programDefinition));
-                    }
+                    return renderIneligiblePage(
+                        request,
+                        submittingProfile,
+                        applicantId,
+                        applicantPersonalInfo.join(),
+                        roApplicantProgramService,
+                        programDefinition);
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
@@ -422,5 +402,36 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private Result renderIneligiblePage(
+      Request request,
+      CiviFormProfile profile,
+      long applicantId,
+      ApplicantPersonalInfo personalInfo,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      ProgramDefinition programDefinition) {
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      NorthStarApplicantIneligibleView.Params params =
+          NorthStarApplicantIneligibleView.Params.builder()
+              .setRequest(request)
+              .setApplicantId(applicantId)
+              .setProfile(profile)
+              .setApplicantPersonalInfo(personalInfo)
+              .setProgramDefinition(programDefinition)
+              .setRoApplicantProgramService(roApplicantProgramService)
+              .setMessages(messagesApi.preferred(request))
+              .build();
+      return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+    } else {
+      return ok(
+          ineligibleBlockView.render(
+              request,
+              profile,
+              roApplicantProgramService,
+              messagesApi.preferred(request),
+              applicantId,
+              programDefinition));
+    }
   }
 }
