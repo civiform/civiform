@@ -12,11 +12,15 @@
       ></p>
       <a
         href="/"
-        class="usa-button"
+        class="usa-button margin-y-2"
         id="another-program"
         th:text="#{link.applyToAnotherProgram}"
-      >
-      </a>
+      ></a>
+      <a
+        th:href="${downloadHref}"
+        class="usa-button margin-y-2"
+        th:text="#{button.downloadPdf}"
+      ></a>
     </main>
     <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
     <footer
