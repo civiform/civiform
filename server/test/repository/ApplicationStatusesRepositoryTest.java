@@ -94,7 +94,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   public void canUpdateApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
+        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     ApplicationStatusesModel applicationStatusesModel =

@@ -56,14 +56,14 @@ public final class ApplicationStatusesRepository {
   public void updateStatusDefinitions(String programName, StatusDefinitions statusDefinitions) {
     // archive the previous active one
     database
-        .sqlQuery(
-            "UPDATE application_statuses SET status_definitions_lifecycle_stage=:obsolete_stage"
-                + " WHERE program_name =:programName AND"
-                + " status_definitions_lifecycle_stage=:active_stage")
-        .setLabel("ApplicationStatusRepository.updateStatus")
-        .setParameter("obsolete_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
-        .setParameter("programName", programName)
-        .setParameter("active_stage", StatusDefinitionsLifecycleStage.ACTIVE);
+        .update(ApplicationStatusesModel.class)
+        .set("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
+        .where()
+        .eq("program_name", programName)
+        .and()
+        .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
+        .update();
+
     // create new status
     ApplicationStatusesModel newStatusDefinition =
         new ApplicationStatusesModel(
