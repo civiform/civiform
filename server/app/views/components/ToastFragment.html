@@ -38,12 +38,6 @@
   ></div>
 </div>
 
-<th:block th:fragment="devOrStagingToast" th:if="${isDevOrStaging}">
-  <div
-  th:replace="~{this:: warning('warning-message', 'Do not enter actual or personal data in this demo site', true, true, 0, null)}"
-></div>
-</th:block>
-
 <!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
   <!--/* Eligibility success toast */-->
@@ -63,8 +57,6 @@
     <div
       th:replace="~{this:: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"
     ></div>
-  <!--/* Dev or staging toast */-->
-  <div th:replace="~{this:: devOrStagingToast}"></div>
   </th:block>
 </div>
 
@@ -106,8 +98,6 @@
       th:replace="~{this:: alert(${toastId}, ${notEligibleBannerMessage.get()}, true, false, 0, null)}"
     ></div>
   </th:block>
-  <!--/* Dev or staging toast */-->
-  <div th:replace="~{this:: devOrStagingToast}"></div>
 </div>
 
 <!--/* Render the toasts used in the Program Index page */-->
@@ -125,8 +115,6 @@
   <div
     th:replace="~{this :: success(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended')}"
   ></div>
-  <!--/* Dev or staging toast */-->
-  <div th:replace="~{this:: devOrStagingToast}"></div>
 </div>
 
 <!--/* Render the toasts used in the Upsell page */-->
@@ -140,8 +128,4 @@
       th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
     ></div>
   </th:block>
-  <!--/* Dev or staging toast */-->
-  <div th:replace="~{this:: devOrStagingToast}"></div>
 </div>
-
-<!-- TODO Do we need to add devOrStaging toast to all pages? -->
