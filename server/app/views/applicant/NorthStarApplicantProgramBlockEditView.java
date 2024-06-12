@@ -48,7 +48,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
-    System.out.println("ssandbekkhaug NorthStar Block Edit View render");
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,

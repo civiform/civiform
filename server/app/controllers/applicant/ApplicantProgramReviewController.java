@@ -321,7 +321,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
-    System.out.println("ssandbekkhaug submit internal");
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletableFuture<ApplicationModel> submitAppFuture =
@@ -377,7 +376,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   try {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
-<<<<<<< HEAD
                     return renderIneligiblePage(
                         request,
                         submittingProfile,
@@ -385,34 +383,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         roApplicantProgramService,
                         programDefinition);
-=======
-
-                    System.out.println("ssandbekkhaug about to render from Review Controller");
-
-                    if (settingsManifest.getNorthStarApplicantUi(request)) {
-                      NorthStarApplicantIneligibleView.Params params =
-                          NorthStarApplicantIneligibleView.Params.builder()
-                              .setRequest(request)
-                              .setApplicantId(applicantId)
-                              .setProfile(submittingProfile)
-                              .setApplicantPersonalInfo(applicantPersonalInfo.join())
-                              .setProgramDefinition(programDefinition)
-                              .setRoApplicantProgramService(roApplicantProgramService)
-                              .setMessages(messagesApi.preferred(request))
-                              .build();
-                      return ok(northStarApplicantIneligibleView.render(params))
-                          .as(Http.MimeTypes.HTML);
-                    } else {
-                      return ok(
-                          ineligibleBlockView.render(
-                              request,
-                              submittingProfile,
-                              roApplicantProgramService,
-                              messagesApi.preferred(request),
-                              applicantId,
-                              programDefinition));
-                    }
->>>>>>> cdc5bf4f7 (Fix bug where application was not updated)
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
