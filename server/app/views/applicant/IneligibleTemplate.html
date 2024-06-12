@@ -11,7 +11,7 @@
 
       <ul>
         <li
-          th:each="question : ${questions}"
+          th:each="question : ${ineligibleQuestions}"
           th:text="${question.getQuestionText()}"
           class="margin-y-2"
         ></li>
