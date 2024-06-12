@@ -86,6 +86,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     Optional<String> firstName =
         Optional.ofNullable(applicant).flatMap(ApplicantModel::getFirstName);
     Optional<String> lastName = Optional.ofNullable(applicant).flatMap(ApplicantModel::getLastName);
+    Optional<String> accountEmail = getAccountEmail();
     if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
       return getApplicantNameAtWellKnownPath();
@@ -106,7 +107,7 @@ public class ApplicantData extends CfJsonDocumentContext {
      * to the PAI columns will do this check and overwrite an email address
      * in the first name field.
      */
-    if (firstName.get().equals(applicant.getAccount().getEmailAddress())) {
+    if (accountEmail.isPresent() && firstName.get().equals(accountEmail.get())) {
       return Optional.of(getApplicantNameAtWellKnownPath().orElse(firstName.get()));
     }
     return lastName.isEmpty()
@@ -154,7 +155,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public Optional<String> getApplicantEmail() {
     return Optional.ofNullable(applicant)
         .flatMap(ApplicantModel::getEmailAddress)
-        .or(() -> Optional.ofNullable(applicant.getAccount().getEmailAddress()));
+        .or(() -> getAccountEmail());
   }
 
   public Optional<String> getPhoneNumber() {
@@ -333,5 +334,10 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   public Optional<LocalDate> getDeprecatedDateOfBirth() {
     return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
+  }
+
+  private Optional<String> getAccountEmail() {
+    return Optional.ofNullable(applicant)
+        .flatMap(a -> Optional.ofNullable(a.getAccount().getEmailAddress()));
   }
 }
