@@ -724,7 +724,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of());
               }
-
               return applicantService
                   .stageAndUpdateIfValid(
                       applicantId,
@@ -748,10 +747,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             })
         .exceptionally(this::handleUpdateExceptions);
   }
-
-  // private CompletionStage<Result> renderNorthStarIneligible() {
-
-  // }
 
   /**
    * Returns true if applicants can immediately navigate away from a block because they haven't even

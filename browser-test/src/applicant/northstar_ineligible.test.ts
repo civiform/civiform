@@ -17,40 +17,41 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
   test.beforeEach(
     async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
-      await loginAsAdmin(page)
+      await test.step('Setup: Create program with eligibility condition', async () => {
+        await loginAsAdmin(page)
 
-      await adminQuestions.addNumberQuestion({
-        questionName: eligibilityQuestionId,
-        questionText: questionText,
+        await adminQuestions.addNumberQuestion({
+          questionName: eligibilityQuestionId,
+          questionText: questionText,
+        })
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          name: 'Screen 1',
+          description: 'first screen',
+          questions: [{name: eligibilityQuestionId}],
+        })
+
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '0',
+        })
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+
+        await logout(page)
       })
-
-      // Add the full program.
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        description: 'first screen',
-        questions: [{name: eligibilityQuestionId}],
-      })
-
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 1',
-      )
-      await adminPredicates.addPredicates({
-        questionName: eligibilityQuestionId,
-        scalar: 'number',
-        operator: 'is greater than',
-        value: '0',
-      })
-
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(programName)
-
-      await logout(page)
     },
   )
 
-  test('As applicant, view ineligible page', async ({
+  test('As applicant, fill out application and view ineligible page', async ({
     page,
     applicantQuestions,
   }) => {
@@ -97,6 +98,47 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Expect application submitted page', async () => {
       await applicantQuestions.expectConfirmationPage()
+    })
+  })
+
+  test('As applicant, view review page, then view ineligible page', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    // When North Star is finalized, this test should navigate question -> review -> ineligible
+    // Until then, the test must navigate question -> submit -> ineligible -> review -> ineligible
+    await test.step('Expect ineligible page', async () => {
+      expect(await page.innerText('html')).toContain(
+        'Based on your responses to the following questions, you may not qualify for the ' +
+          programName,
+      )
+
+      expect(await page.textContent('html')).toContain(questionText)
+    })
+
+    await test.step('Go back to the review page and re-submit', async () => {
+      await applicantQuestions.clickGoBackAndEdit()
+      await applicantQuestions.clickSubmit()
+    })
+
+    await test.step('Expect ineligible page again', async () => {
+      expect(await page.innerText('html')).toContain(
+        'Based on your responses to the following questions, you may not qualify for the ' +
+          programName,
+      )
+
+      expect(await page.textContent('html')).toContain(questionText)
     })
   })
 
