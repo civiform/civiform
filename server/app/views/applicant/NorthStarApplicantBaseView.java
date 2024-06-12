@@ -90,7 +90,6 @@ public abstract class NorthStarApplicantBaseView {
       context.setVariable(
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
     }
-
     boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
     context.setVariable("showDebugTools", showDebugTools);
     if (showDebugTools) {
