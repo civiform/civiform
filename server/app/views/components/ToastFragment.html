@@ -88,6 +88,6 @@
 <!--/* Render the toasts used in the Upsell page */-->
 <div th:fragment="upsellToasts">
   <!--/* Alert toast */-->
-<div th:replace="~{this :: alert(${bannerMessage})}"></div>
-<div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
+  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
