@@ -504,7 +504,7 @@ export class ApplicantQuestions {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('h2')).toContain('you may not qualify')
+    expect(await this.page.innerText('html')).toContain('you may not qualify')
   }
 
   async clickGoBackAndEditOnIneligiblePage() {
