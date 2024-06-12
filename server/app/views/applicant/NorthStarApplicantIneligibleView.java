@@ -55,9 +55,9 @@ public class NorthStarApplicantIneligibleView extends NorthStarApplicantBaseView
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
 
-    ImmutableList<ApplicantQuestion> questions =
+    ImmutableList<ApplicantQuestion> ineligibleQuestions =
         params.roApplicantProgramService().getIneligibleQuestions();
-    context.setVariable("questions", questions);
+    context.setVariable("ineligibleQuestions", ineligibleQuestions);
 
     // Manually construct a hyperlink with a runtime href and localized string. The hyperlink will
     // be inserted into another localized string in the Thymeleaf template.
