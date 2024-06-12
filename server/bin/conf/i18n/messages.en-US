@@ -1,7 +1,0 @@
-# US English
-#
-# NOTE! This is not the default messages file - please add all messages to the file named "messages"
-#
-# This file is intentionally empty; Play falls back missing keys to the `messages` source strings file.
-# Since `messages` and this file are both English, we can allow all en_US keys to fall back to
-# keys in `messages`; this reduces duplication in our i18n files.
