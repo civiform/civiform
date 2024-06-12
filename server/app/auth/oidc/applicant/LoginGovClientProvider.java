@@ -80,7 +80,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   @Override
   public OidcClient get() {
     OidcClient client = super.get();
-    var providerMetadata = client.getConfiguration().getOpMetadataResolver().load();
+    var providerMetadata = client.getConfiguration().getProviderMetadata();
     providerMetadata.setCodeChallengeMethods(List.of(CodeChallengeMethod.S256));
 
     return client;

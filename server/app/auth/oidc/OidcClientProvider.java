@@ -241,7 +241,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
       logger.error("Error while initializing OIDC provider", e);
       throw e;
     }
-    var providerMetadata = client.getConfiguration().getOpMetadataResolver().load();
+    var providerMetadata = client.getConfiguration().getProviderMetadata();
     String responseMode = config.getResponseMode();
     String responseType = config.getResponseType();
     if (providerMetadata.supportsAuthorizationResponseIssuerParam()

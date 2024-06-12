@@ -12,7 +12,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.pac4j.core.client.IndirectClient;
-import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
@@ -97,7 +96,7 @@ public class LoginController extends Controller {
     }
     try {
       Optional<RedirectionAction> redirectMaybe =
-          client.getRedirectionAction(new CallContext(webContext, sessionStore));
+          client.getRedirectionAction(webContext, sessionStore);
       // If pac4j returns a redirect action, follow it.
       if (redirectMaybe.isPresent()) {
         RedirectionAction redirect = redirectMaybe.get();
