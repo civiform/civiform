@@ -15,6 +15,22 @@
 </div>
 
 <div
+  th:fragment="alert(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+>
+  <div
+    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'alert')}"
+  ></div>
+</div>
+
+<div
+  th:fragment="error(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+>
+  <div
+    th:replace="~{this :: toast(${id}, #{toast.errorMessageOutline(${message})}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'error')}"
+  ></div>
+</div>
+
+<div
   th:fragment="success(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
 >
   <div
@@ -42,4 +58,61 @@
       th:replace="~{this:: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"
     ></div>
   </th:block>
+</div>
+
+<!--/* Render the toasts used in the Review/Summary page */-->
+<div th:fragment="summaryToasts">
+  <!--/* Success toast */-->
+  <th:block
+    th:if="${successBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: success(${toastId}, ${successBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Alert toast */-->
+  <th:block
+    th:if="${alertBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: alert(${toastId}, ${alertBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Error toast */-->
+  <th:block
+    th:if="${errorBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: error(${toastId}, ${errorBannerMessage.get()}, false, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Not eligible toast */-->
+  <th:block
+    th:if="${notEligibleBannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this:: alert(${toastId}, ${notEligibleBannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+</div>
+
+<!--/* Render the toasts used in the Program Index page */-->
+<div th:fragment="programIndexToasts">
+  <!--/* Alert toast */-->
+  <th:block
+    th:if="${bannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <!--/* Session ended toast */-->
+  <div
+    th:replace="~{this :: success(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended')}"
+  ></div>
 </div>

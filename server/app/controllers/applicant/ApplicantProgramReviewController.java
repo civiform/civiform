@@ -106,10 +106,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     }
 
     boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
-    Optional<ToastMessage> flashBanner =
-        request.flash().get("banner").map(m -> ToastMessage.alert(m));
+    Optional<String> flashBannerMessage = request.flash().get("banner");
+    Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
+    Optional<String> flashSuccessBannerMessage = request.flash().get("success-banner");
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
+        flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);
 
@@ -123,16 +124,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
+              Optional<String> notEligibleBannerMessage = Optional.empty();
               try {
-                if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
-                  notEligibleBanner =
+                boolean shouldShowNotEligibleBanner =
+                    shouldShowNotEligibleBanner(roApplicantProgramService, programId);
+                if (shouldShowNotEligibleBanner) {
+                  notEligibleBannerMessage =
                       Optional.of(
-                          ToastMessage.alert(
-                              messages.at(
-                                  isTrustedIntermediary
-                                      ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                      : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                  roApplicantProgramService.getProgramTitle())));
+                          messages.at(
+                              isTrustedIntermediary
+                                  ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                  : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                              roApplicantProgramService.getProgramTitle()));
+                  notEligibleBanner =
+                      Optional.of(ToastMessage.alert(notEligibleBannerMessage.get()));
                 }
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
@@ -189,6 +194,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setCompletedBlockCount(completedBlockCount)
                         .setTotalBlockCount(totalBlockCount)
                         .setMessages(messages)
+                        .setAlertBannerMessage(flashBannerMessage)
+                        .setSuccessBannerMessage(flashSuccessBannerMessage)
+                        .setNotEligibleBannerMessage(notEligibleBannerMessage)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
