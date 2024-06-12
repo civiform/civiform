@@ -726,37 +726,51 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               System.out.println("ssandbekkhaug updateWithApplicantID");
-              if (settingsManifest.getNorthStarApplicantUi(request)) {
-                ProgramDefinition programDefinition;
-                try {
-                  programDefinition = programService.getFullProgramDefinition(programId);
-                } catch (ProgramNotFoundException e) {
-                  this.handleUpdateExceptions(e);
-                  return renderErrorOrRedirectToRequestedPage(
-                      request,
-                      profile,
-                      applicantId,
-                      programId,
-                      blockId,
-                      applicantStage.toCompletableFuture().join(),
-                      inReview,
-                      applicantRequestedAction,
-                      readOnlyApplicantProgramService);
-                }
 
-                NorthStarApplicantIneligibleView.Params params =
-                    NorthStarApplicantIneligibleView.Params.builder()
-                        .setRequest(request)
-                        .setApplicantId(applicantId)
-                        .setProfile(profile)
-                        .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
-                        .setProgramDefinition(programDefinition)
-                        .setRoApplicantProgramService(readOnlyApplicantProgramService)
-                        .setMessages(messagesApi.preferred(request))
-                        .build();
-                return CompletableFuture.completedFuture(
-                    ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
-              }
+              // if (settingsManifest.getNorthStarApplicantUi(request)) {
+              // // if (settingsManifest.getNorthStarApplicantUi(request) && blockId.equals("foo"))
+              // {
+              //   ProgramDefinition programDefinition;
+              //   try {
+              //     programDefinition = programService.getFullProgramDefinition(programId);
+              //   } catch (ProgramNotFoundException e) {
+              //     this.handleUpdateExceptions(e);
+              //     return renderErrorOrRedirectToRequestedPage(
+              //         request,
+              //         profile,
+              //         applicantId,
+              //         programId,
+              //         blockId,
+              //         applicantStage.toCompletableFuture().join(),
+              //         inReview,
+              //         applicantRequestedAction,
+              //         readOnlyApplicantProgramService);
+              //   }
+
+              //   NorthStarApplicantIneligibleView.Params params =
+              //       NorthStarApplicantIneligibleView.Params.builder()
+              //           .setRequest(request)
+              //           .setApplicantId(applicantId)
+              //           .setProfile(profile)
+              //           .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
+              //           .setProgramDefinition(programDefinition)
+              //           .setRoApplicantProgramService(readOnlyApplicantProgramService)
+              //           .setMessages(messagesApi.preferred(request))
+              //           .build();
+              //   return applicantService
+              //     .stageAndUpdateIfValid(
+              //         applicantId,
+              //         programId,
+              //         blockId,
+              //         formData,
+              //         settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+              //     .thenComposeAsync(
+              //         newReadOnlyApplicantProgramService ->
+              //         CompletableFuture.completedFuture(
+              //
+              // ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML)),
+              //         classLoaderExecutionContext.current());
+              // }
 
               return applicantService
                   .stageAndUpdateIfValid(
@@ -781,6 +795,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             })
         .exceptionally(this::handleUpdateExceptions);
   }
+
+  // private CompletionStage<Result> renderNorthStarIneligible() {
+
+  // }
 
   /**
    * Returns true if applicants can immediately navigate away from a block because they haven't even
@@ -857,7 +875,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
-    System.out.println("ssandbekkhaug render error");
+    System.out.println("ssandbekkhaug render error OR redirect to requested page");
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -935,6 +953,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
+<<<<<<< HEAD
         return renderIneligiblePage(
             request,
             submittingProfile,
@@ -942,6 +961,35 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             personalInfo,
             roApplicantProgramService,
             programDefinition);
+=======
+        System.out.println("ssandbekkhaug APBC is ineligible"); // hit
+
+        if (settingsManifest.getNorthStarApplicantUi(request)) {
+          NorthStarApplicantIneligibleView.Params params =
+              NorthStarApplicantIneligibleView.Params.builder()
+                  .setRequest(request)
+                  .setApplicantId(applicantId)
+                  .setProfile(profile)
+                  .setApplicantPersonalInfo(personalInfo)
+                  .setProgramDefinition(programDefinition)
+                  .setRoApplicantProgramService(roApplicantProgramService)
+                  .setMessages(messagesApi.preferred(request))
+                  .build();
+          return supplyAsync(
+              () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+        }
+
+        return supplyAsync(
+            () ->
+                ok(
+                    ineligibleBlockView.render(
+                        request,
+                        submittingProfile,
+                        roApplicantProgramService,
+                        messagesApi.preferred(request),
+                        applicantId,
+                        programDefinition)));
+>>>>>>> cdc5bf4f7 (Fix bug where application was not updated)
       }
     } catch (ProgramNotFoundException e) {
       notFound(e.toString());
