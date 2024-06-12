@@ -52,16 +52,22 @@ public final class ApplicationStatusesRepository {
         .map(ApplicationStatusesModel::getStatusDefinitions)
         .collect(Collectors.toList());
   }
+
   public void updateStatusDefinitions(String programName, StatusDefinitions statusDefinitions) {
-    //archive the previous active one
-    database.sqlQuery("UPDATE application_statuses SET status_definitions_lifecycle_stage=:obsolete_stage WHERE program_name =:programName AND status_definitions_lifecycle_stage=:active_stage")
-      .setLabel("ApplicationStatusRepository.updateStatus")
-      .setParameter("obsolete_stage",StatusDefinitionsLifecycleStage.OBSOLETE)
-      .setParameter("programName", programName)
-      .setParameter("active_stage",StatusDefinitionsLifecycleStage.ACTIVE);
-    //create new status
-    ApplicationStatusesModel newStatusDefinition = new ApplicationStatusesModel(programName,statusDefinitions,StatusDefinitionsLifecycleStage.ACTIVE);
+    // archive the previous active one
+    database
+        .sqlQuery(
+            "UPDATE application_statuses SET status_definitions_lifecycle_stage=:obsolete_stage"
+                + " WHERE program_name =:programName AND"
+                + " status_definitions_lifecycle_stage=:active_stage")
+        .setLabel("ApplicationStatusRepository.updateStatus")
+        .setParameter("obsolete_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
+        .setParameter("programName", programName)
+        .setParameter("active_stage", StatusDefinitionsLifecycleStage.ACTIVE);
+    // create new status
+    ApplicationStatusesModel newStatusDefinition =
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     newStatusDefinition.save();
   }
-
 }
