@@ -6,14 +6,6 @@
   th:text="${message}"
 ></div>
 
-<div
-  th:fragment="warning(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
->
-  <div
-    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'warning')}"
-  ></div>
-</div>
-
 <!--/* Render an alert toast with the default options */-->
 <div
   th:fragment="alert(optionalMessage)"
@@ -56,7 +48,7 @@
     th:with="toastId=${'locale-not-supported-'+ applicationParams.applicantId() + '-' + applicationParams.programId()}"
   >
     <div
-      th:replace="~{this:: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"
+      th:replace="~{this:: toast(${toastId}, #{toast.localeNotSupported}, true, true, 0, null, 'warning')}"
     ></div>
   </th:block>
 </div>
