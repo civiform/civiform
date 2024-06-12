@@ -83,8 +83,9 @@ public class ApplicantData extends CfJsonDocumentContext {
    * @return Formatted name of the applicant
    */
   public Optional<String> getApplicantName() {
-    Optional<String> firstName = applicant.getFirstName();
-    Optional<String> lastName = applicant.getLastName();
+    Optional<String> firstName =
+        Optional.ofNullable(applicant).flatMap(ApplicantModel::getFirstName);
+    Optional<String> lastName = Optional.ofNullable(applicant).flatMap(ApplicantModel::getLastName);
     if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
       return getApplicantNameAtWellKnownPath();
@@ -133,25 +134,33 @@ public class ApplicantData extends CfJsonDocumentContext {
   // that we can modify both the Primary Applicant Info columns and
   // Well Known Paths at the same time.
   public Optional<String> getApplicantFirstName() {
-    return applicant.getFirstName().or(() -> readString(WellKnownPaths.APPLICANT_FIRST_NAME));
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getFirstName)
+        .or(() -> readString(WellKnownPaths.APPLICANT_FIRST_NAME));
   }
 
   public Optional<String> getApplicantMiddleName() {
-    return applicant.getMiddleName().or(() -> readString(WellKnownPaths.APPLICANT_MIDDLE_NAME));
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getMiddleName)
+        .or(() -> readString(WellKnownPaths.APPLICANT_MIDDLE_NAME));
   }
 
   public Optional<String> getApplicantLastName() {
-    return applicant.getLastName().or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getLastName)
+        .or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
   }
 
   public Optional<String> getApplicantEmail() {
-    return applicant
-        .getEmailAddress()
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getEmailAddress)
         .or(() -> Optional.ofNullable(applicant.getAccount().getEmailAddress()));
   }
 
   public Optional<String> getPhoneNumber() {
-    return applicant.getPhoneNumber().or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getPhoneNumber)
+        .or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
   }
 
   public void setPhoneNumber(String phoneNumber) {
@@ -160,8 +169,8 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<LocalDate> getDateOfBirth() {
-    return applicant
-        .getDateOfBirth()
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getDateOfBirth)
         .or(
             () -> {
               Path dobPath = WellKnownPaths.APPLICANT_DOB;
