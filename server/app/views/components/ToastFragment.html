@@ -36,6 +36,13 @@
   ></div>
 </div>
 
+<!--/* A toast shown on all pages in dev and staging environments to warn against submitting real user data. */-->
+<div th:fragment="devOrStagingToast(isDevOrStaging)" th:if="${isDevOrStaging}">
+  <div
+    th:replace="~{this :: toast('warning-message', 'Do not enter actual or personal data in this demo site', true, true, 0, null, 'warning')}"
+  ></div>
+</div>
+
 <!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
   <!--/* Eligibility success toast */-->
@@ -83,10 +90,4 @@
   <!--/* Alert toast */-->
   <div th:replace="~{this :: alert(${bannerMessage})}"></div>
   <div th:replace="~{this :: devOrStagingToast($isDevOrStaging)}"></div>
-</div>
-
-<div th:fragment="devOrStagingToast(isDevOrStaging)" th:if="${isDevOrStaging}">
-  <div
-  th:replace="~{this :: toast('warning-message', 'Do not enter actual or personal data in this demo site', true, true, 0, null, 'warning')}"
-></div>
 </div>
