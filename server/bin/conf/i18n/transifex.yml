@@ -1,0 +1,18 @@
+filters:
+  - filter_type: file
+    # UNICODEPROPERTIES represents a Java Properties file (which is what Play uses for i18n),
+    # in Unicode format. https://help.transifex.com/en/articles/6220741-java-properties
+    file_format: UNICODEPROPERTIES
+    # The source file with English messages.
+    source_file: server/conf/i18n/messages
+    source_language: en_US
+    # The target files where translated messages will be stored.
+    translation_files_expression: server/conf/i18n/messages.<lang>
+settings:
+  language_mapping:
+    # Play requires that we use a dash between the language code and region subtag.
+    # Tell Transifex to look for files with a dash for a given region subtag, instead of
+    # the default underscore. For example, the region subtag es_US will have Transifex
+    # search for a file named server/conf/i18n/messages.es-US
+    es_US: es-US
+    zh_TW: zh-TW

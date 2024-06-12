@@ -1,0 +1,575 @@
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+button.logout=Salir
+label.selectLanguage=Selecciona tu idioma preferido.
+button.untranslatedSubmit=Enviar
+footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
+guest=Invitado
+label.languageSr=Elegir un idioma
+header.endSession=Finalizar sesión
+toast.sessionEnded=Finalizó la sesión.
+header.guestIndicator=Eres un usuario de invitado
+header.userName=Accediste como {0}
+validation.isRequired=Esta pregunta es obligatoria.
+validation.invalidInput=Ingresa una entrada válida.
+validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
+content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
+content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
+content.optional=(opcional)
+content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
+toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Cerrar
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Revisar
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=se abre en una pestaña nueva
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
+title.login=Acceso
+content.loginPrompt=Accede con tu cuenta {0}
+button.createAnAccount=Crear una cuenta
+button.login=Acceder
+content.alternativeLoginPrompt=¿No tienes una cuenta?
+content.or=o
+button.createAccount=Crear cuenta
+button.guestLogin=Continuar como invitado
+content.loginDisabledPrompt=Se inhabilitó el acceso a la cuenta por el momento
+content.adminLoginPrompt=¿Estás buscando otra cosa?
+content.adminFooterPrompt=¿Eres administrador?
+link.adminLogin=Acceso de administrador
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+input.fileAlreadyUploaded=Archivo subido: {0}
+button.deleteFile=Borrar
+button.keepFile=Continuar
+button.nextScreen=Guardar y continuar
+button.previousScreen=Anterior
+button.skipFileUpload=Omitir
+content.blockProgress={0} de {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull={0} de {1} completadas
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} de {1} cargados
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
+toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
+link.allDone=Listo
+link.applyToAnotherProgram=Solicitar otro programa
+link.createAccountOrSignIn=Crear una cuenta o acceder
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y comenzar la revisión de todas formas?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y volver a la página anterior de todas formas?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de revisión sin guardarlas?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de preguntas anteriores sin guardarlas?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=Continuar a la página de revisión sin guardarlas
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=Volver a las preguntas anteriores sin guardarlas
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.stayAndFixButton=Corregir los errores ahora
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+button.apply=Solicitar
+button.applySr=Solicitar {0}
+button.edit=Editar
+button.editSr=Editar la solicitud enviada a {0}
+button.continueSr=Continuar la solicitud para {0}
+button.startHere=Comenzar aquí
+button.continueToApplication=Continuar a la solicitud
+button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
+button.editCommonIntakeSr=Editar la información enviada para {0}
+button.continueCommonIntakeSr=Continuar completando la solicitud {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=View details
+content.submittedDate=Enviada el {0}
+content.findPrograms=Buscar programas
+content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
+content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
+content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
+link.programDetails=Detalles del programa
+link.programDetailsSr=Detalles del programa {0} (se abre en una pestaña nueva)
+title.programs=Programas y servicios
+title.getStartedSection=Comencemos
+title.allProgramsSection=Todos los programas ({0})
+title.status=Estado
+title.inProgressProgramsUpdated=En curso
+title.activeProgramsUpdated=Sin comenzar
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=Find services that can help you
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=Programs ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=Recommended ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Sección completada
+title.submittedPrograms=Enviados
+toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
+toast.programCompleted=Ya se completó la solicitud.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=No se puede borrar esta cuenta.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=No se puede borrar esta cuenta porque tiene aplicaciones abiertas.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=Se actualizó la información del cliente correctamente.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=Se borró la cuenta de cliente de "{0}" correctamente.
+# Message when a user successfully creates a client account.
+banner.newClientCreated=Se creó un cliente nuevo correctamente.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Estás enviando una solicitud para {0}. ¿Estás intentando enviar una solicitud para otro cliente?
+
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=Agregar cliente nuevo
+# Button that brings the user back to the list of their clients.
+button.backToClientList=Volver a la lista de clientes
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=Volver a editar
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=Cancelar
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=Borrar la búsqueda
+# Button for a user to delete their client's account
+button.deleteAcct=Borrar cuenta
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=Conservar cuenta
+# Button to navigate to the next page.
+button.nextPage=Siguiente
+# Button to save information that has been entered.
+button.save=Guardar
+# Button to execute a search to filter a client list.
+button.search=Buscar
+# Button to select a client.
+button.select=Seleccionar
+# Button to start an application on behalf of a client.
+button.startApp=Comenzar una solicitud
+# Button to view the applications belonging to an applicant.
+button.viewApplications=Ver solicitudes
+# Button to view and add clients
+button.viewAndAddClients=Ver y agregar clientes
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=Se agregó tu cliente nuevo {0} a tu lista de clientes. Ahora puedes comenzar a enviar solicitudes para este cliente.
+# The tooltip of the email input field.
+content.emailTooltip=Agrega una dirección de correo electrónico para que tu cliente reciba actualizaciones sobre el estado de su solicitud automáticamente. Sin un correo electrónico, tu organización social y tú estarán a cargo de comunicar las actualizaciones al cliente.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted={0} solicitudes enviadas
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=Se envió 1 solicitud
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=No se enviaron solicitudes para este cliente, por lo que no se perderá ninguna.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no se proporcionó una dirección de correo electrónico)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Todavía no accedió
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Accedió, pero no envió solicitudes
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Se envió la última solicitud el {0}
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
+
+# Header for the page with the Organization Members table.
+header.acctSettings=Configuración de la cuenta
+# Tab label for getting to the client list page
+header.clientList=Lista de clientes
+# Label for search
+header.search=Búsqueda
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
+label.acctStatus=Estado de la cuenta
+# Label above the phone number for each client on the client list.
+label.contactInfo=Información de contacto
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=Día
+# Label above the birth date input field when creating or editing a client
+label.dob=Fecha de nacimiento
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=Por ejemplo: 28 de enero de 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=Correo electrónico
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Se requiere la fecha de nacimiento
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Se requiere el nombre
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Se requiere el apellido
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+# The label above the dropdown select field for the month of the client birth date.
+label.month=Mes
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=Nombre
+# Example above the name input field for the client search.
+label.nameExample=Por ejemplo: López o Pablo o Pablo López
+# Label above the text input field for notes about a client.
+label.notes=Notas
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=Número de teléfono
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=Buscar por fecha de nacimiento
+# The label above the name search field of the client search.
+label.searchByName=Buscar por nombre(s)
+# The label above the input field for the year of the client birth date.
+label.year=Año
+# Label showing the user when there is no name
+label.unnamedUser=Usuario sin nombre
+
+link.edit=Editar
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Seleccionar un nuevo cliente
+
+# This is the header above the list of clients and the client search.
+title.allClients=Todos los clientes
+# This is the heading above a new client creation form.
+title.createClient=Crea un cliente nuevo
+# This is the heading above the client editing form.
+title.editClient=Edita la información del cliente
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients=Se muestran {0} clientes
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=Se muestra 1 cliente
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Se muestran todos los clientes
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=Miembros de la organización
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Intermediario de confianza - Administrar clientes - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Intermediario de confianza - Ver la configuración de la cuenta - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+button.submit=Enviar
+button.continue=Continuar
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Comenzar
+toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Selecciona un paso a continuación para comenzar tu solicitud. Puedes guardar tu progreso y regresar en cualquier momento.
+content.doesNotQualify=No califica
+link.edit=Editar
+link.answer=Responder
+content.previouslyAnsweredOn=Ya se respondió el {0}
+ariaLabel.answer=Responder {0}
+
+ariaLabel.edit=Editar {0}
+title.commonIntakeSummary=Resumen del proceso de evaluación para acceder a los beneficios
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=Comencemos.
+title.programSummary=Resumen de la inscripción al programa
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
+title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
+content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
+content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
+button.goBackAndEdit=Volver y editar
+toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
+toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
+tag.mayQualify=Es posible que califiques
+tag.mayQualifyTi=Es posible que tu cliente califique
+tag.mayNotQualify=Es posible que no califiques
+tag.mayNotQualifyTi=Es posible que tu cliente no califique
+
+toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
+
+toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
+banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+title.applicationConfirmation=Confirmación de la solicitud
+content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
+title.createAnAccount=Crea una cuenta o accede
+content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
+content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar una solicitud, ver su estado ni enviar solicitudes de inscripción rápidamente a otros programas si no tienes una cuenta.
+content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás enviar solicitudes de inscripción a varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
+button.continueWithoutAnAccount=Continuar sin una cuenta
+title.commonIntakeConfirmation=Programas para los que cumples los requisitos
+title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los requisitos
+content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
+# A header above a list of other programs the applicant might be interested in applying to.
+content.otherProgramsToApplyFor=Otros programas que te pueden interesar
+button.downloadPdf=Descargar PDF
+button.applyToPrograms=Postularse a programas
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=No hay cambios para guardar en el programa {0}
+content.noChanges=Aún no realizaste cambios en la solicitud. ¿Deseas continuar con la edición?
+button.continueEditing=Seguir editando
+button.exitApplication=Salir de la solicitud
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=This program is no longer available
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Back to homepage
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+label.addressLine2=Departamento, suite, etc. (opcional)
+label.city=Ciudad
+label.state=Estado
+label.selectState=Selecciona un estado
+label.street=Dirección
+label.zipcode=Código postal
+
+validation.streetRequired=Ingresa un nombre y un número de calle válidos.
+validation.cityRequired=Ingresa una ciudad.
+validation.currencyMisformatted=La moneda debe tener uno de estos formatos: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Ingresa un estado.
+validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
+validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirma tu dirección
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=No pudimos encontrar tu dirección.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Revisa si la dirección tiene errores de ortografía o elige una opción de la lista que se ofrece.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Revisa si la dirección tiene errores de ortografía y corrígela para continuar.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Dirección que ingresaste:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Dirección sugerida:
+content.suggestedAddresses=Direcciones sugeridas:
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirmar dirección
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+placeholder.noDropdownSelection=Elige una opción:
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=País
+label.phoneNumber=Ingresa el número de teléfono
+validation.phoneNumberRequired=El número de teléfono es obligatorio
+validation.phoneCountryCodeRequired=Debes seleccionar un país
+validation.phoneNumberMustContainNumbersOnly=Los números de teléfono no pueden contener caracteres no numéricos
+validation.invalidPhoneNumberProvided=Este número de teléfono no es válido
+validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de este país
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=01 - Enero
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=02 - Febrero
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=03 - Marzo
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=04 - Abril
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=05 - Mayo
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=06 - Junio
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=07 - Julio
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=08 - Agosto
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=09 - Septiembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=10 - Octubre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=11 - Noviembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=12 - Diciembre
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Seleccionar
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Error: Ingresa día, mes y año.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=La fecha de nacimiento debe ser un día en el pasado
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=La fecha de nacimiento debe ser hace menos de 150 años
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+button.addEntity=Agregar {0}
+button.removeEntity=Quitar {0}
+dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
+validation.entityNameRequired=Ingresa un valor para cada línea.
+validation.duplicateEntityName=Ingresa un valor único para cada línea.
+placeholder.entityName=Nombre de {0}
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+validation.fileRequired=Elige un archivo.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Tu archivo es demasiado grande. Elige un archivo de un tamaño menor a {0} MB.
+button.chooseFile=Elegir archivo
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+validation.idTooLong=Debe tener menos de {0} caracteres.
+validation.idTooShort=Debe tener más de {0} caracteres.
+validation.numberRequired=Solo debe contener números.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.tooFewSelections=Elige al menos {0} opción.
+validation.tooManySelections=Elige menos de {0} opciones.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+label.firstName=Nombre
+label.lastName=Apellido
+label.middleName=Segundo nombre
+
+placeholder.firstName=Nombre
+placeholder.lastName=Apellido
+placeholder.middleName=Segundo nombre
+
+validation.firstNameRequired=Ingresa tu nombre.
+validation.lastNameRequired=Ingresa tu apellido.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+validation.numberTooBig=El número debe ser menor que {0}.
+validation.numberTooSmall=El número debe ser mayor que {0}.
+validation.numberNonInteger=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+validation.textTooLong=Debe tener menos de {0} caracteres.
+validation.textTooShort=Debe tener más de {0} caracteres.
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
+adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden incluir letras minúsculas, números, guiones o guiones bajos.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
+error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
+error.notFoundDescription=Regresa a {0}
+error.notFoundDescriptionLink=página de inicio
+error.internalServerTitle=Se produjo un error.
+error.internalServerDescription=Comunícate con la asistencia técnica para recibir ayuda escribiendo a %s y utiliza el ID {0} del error.
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+email.loginToCiviform=Accede a CiviForm en {0}
+email.applicationReceivedSubject=Recibimos tu solicitud para el programa {0}
+email.applicationReceivedBody=Recibimos tu solicitud para el programa {0}. Tu ID de solicitante es {1} y el ID de solicitud es {2}
+email.tiApplicationSubmittedSubject=Enviaste una solicitud para el programa {0} en nombre del solicitante {1}
+email.tiApplicationSubmittedBody=Recibimos la solicitud al programa {0} para el solicitante {1} y el ID de solicitud es {2}.
+email.tiManageYourClients=Administra tus clientes en {0}.
+email.applicationUpdateSubject=Una actualización de tu solicitud {0}
+email.tiApplicationUpdateSubject=Una actualización de la solicitud para el programa {0} en nombre del solicitante {1}
+email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} cambió a {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=Este es un sitio web oficial del gobierno
+banner.link=Así es como puedes verificarlo
+banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
+banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.
+banner.httpsSectionHeader=Los sitios web seguros .gov usan HTTPS
+banner.httpsSectionContent=Un candado ( {0} ) o https:// significa que te conectaste de forma segura a un sitio web .gov. Comparte información sensible solo en sitios web oficiales y seguros.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=To apply to a program or service go to {0}.

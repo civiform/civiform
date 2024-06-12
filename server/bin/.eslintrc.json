@@ -1,0 +1,7 @@
+{
+  "root": true,
+  "extends": "../formatter/eslintrc_base.json",
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  }
+}

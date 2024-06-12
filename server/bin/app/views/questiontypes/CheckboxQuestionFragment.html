@@ -1,0 +1,56 @@
+<div
+  th:fragment="checkbox(question, questionRendererParams)"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+           multiSelectQuestion=${question.createMultiSelectQuestion()},
+           hasErrors=${questionRendererParams.shouldShowErrors() && !multiSelectQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <fieldset
+    class="usa-fieldset"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <!--/* Title and Help Text */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!--/* Display errors */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+    ></div>
+
+    <!--/* Hidden input that we have checked to allow clearing data from a multi-select question */-->
+    <input
+      type="checkbox"
+      class="hidden"
+      value=""
+      th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
+      checked
+    />
+    <!--/* Render each checkbox option */-->
+    <div
+      class="usa-checkbox"
+      th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
+      th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
+    >
+      <input
+        class="usa-checkbox__input usa-checkbox__input--tile"
+        th:id="${inputId}"
+        th:value="${option.id()}"
+        th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
+        th:checked="${multiSelectQuestion.optionIsSelected(option)}"
+        type="checkbox"
+        th:aria-required="${!question.isOptional()}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
+      />
+      <label
+        class="usa-checkbox__label"
+        th:for="${inputId}"
+        th:text="${option.optionText()}"
+      ></label>
+    </div>
+  </fieldset>
+</div>

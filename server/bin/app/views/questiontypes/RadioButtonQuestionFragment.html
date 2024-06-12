@@ -1,0 +1,48 @@
+<div
+  th:fragment="radio(question, questionRendererParams)"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+  singleSelectQuestion=${question.createSingleSelectQuestion()},
+  hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <fieldset
+    class="usa-fieldset"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <!--/* Title and Help Text */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!--/* Display errors */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+    ></div>
+
+    <!--/* Render each radio button option */-->
+    <div
+      class="usa-radio"
+      th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+    >
+      <input
+        class="usa-radio__input usa-radio__input--tile"
+        th:id="${inputId}"
+        th:value="${option.id()}"
+        th:name="${singleSelectQuestion.getSelectionPath()}"
+        th:checked="${singleSelectQuestion.optionIsSelected(option)}"
+        type="radio"
+        th:aria-required="${!question.isOptional()}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
+      />
+      <label
+        class="usa-radio__label"
+        th:for="${inputId}"
+        th:text="${option.optionText()}"
+      ></label>
+    </div>
+  </fieldset>
+</div>

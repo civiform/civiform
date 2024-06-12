@@ -1,0 +1,46 @@
+<div
+  th:fragment="phone(question, questionRendererParams)"
+  th:with="phoneQuestion=${question.createPhoneQuestion()},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             inputId=${'cf-phone-number-' + #strings.randomAlphanumeric(8)},
+             fieldErrors=${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())},
+             questionErrors=${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${questionRendererParams.shouldShowErrors() && !phoneQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!--/* Display errors */-->
+  <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+  ></div>
+
+  <div class="cf-phone-number">
+    <input
+      type="text"
+      class="usa-input"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+      maxlength="10000"
+      inputmode="tel"
+      th:id="${inputId}"
+      th:name="${phoneQuestion.getPhoneNumberPath()}"
+      th:value="${phoneQuestion.getPhoneNumberValue().orElse('')}"
+      placeholder="(xxx) xxx-xxxx"
+      th:aria-describedby="${questionId} + '-description'"
+      th:aria-required="${!question.isOptional()}"
+      th:aria-invalid="${hasErrors}"
+      th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    />
+  </div>
+</div>
