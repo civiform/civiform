@@ -110,7 +110,7 @@ test.describe('Applicant navigation flow', () => {
           )
         })
 
-        test('shows error with incomplete submission', async ({
+        test('shows error toast with incomplete submission', async ({
           page,
           applicantQuestions,
         }) => {
