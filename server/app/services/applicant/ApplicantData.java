@@ -83,8 +83,8 @@ public class ApplicantData extends CfJsonDocumentContext {
    * @return Formatted name of the applicant
    */
   public Optional<String> getApplicantName() {
-    Optional<String> firstName = applicant.getFirstName();
-    Optional<String> lastName = applicant.getLastName();
+    Optional<String> firstName = applicant == null ? Optional.empty() : applicant.getFirstName();
+    Optional<String> lastName = applicant == null ? Optional.empty() : applicant.getLastName();
     if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
       return getApplicantNameAtWellKnownPath();
@@ -133,25 +133,37 @@ public class ApplicantData extends CfJsonDocumentContext {
   // that we can modify both the Primary Applicant Info columns and
   // Well Known Paths at the same time.
   public Optional<String> getApplicantFirstName() {
-    return applicant.getFirstName().or(() -> readString(WellKnownPaths.APPLICANT_FIRST_NAME));
+    return applicant == null || applicant.getFirstName().isEmpty()
+        ? readString(WellKnownPaths.APPLICANT_FIRST_NAME)
+        : applicant.getFirstName();
   }
 
   public Optional<String> getApplicantMiddleName() {
-    return applicant.getMiddleName().or(() -> readString(WellKnownPaths.APPLICANT_MIDDLE_NAME));
+    return applicant == null || applicant.getMiddleName().isEmpty()
+        ? readString(WellKnownPaths.APPLICANT_MIDDLE_NAME)
+        : applicant.getMiddleName();
   }
 
   public Optional<String> getApplicantLastName() {
-    return applicant.getLastName().or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
+    return applicant == null || applicant.getLastName().isEmpty()
+        ? readString(WellKnownPaths.APPLICANT_LAST_NAME)
+        : applicant.getLastName();
   }
 
   public Optional<String> getApplicantEmail() {
-    return applicant
-        .getEmailAddress()
-        .or(() -> Optional.ofNullable(applicant.getAccount().getEmailAddress()));
+    if (applicant == null) {
+      return Optional.empty();
+    } else {
+      return applicant
+          .getEmailAddress()
+          .or(() -> Optional.ofNullable(applicant.getAccount().getEmailAddress()));
+    }
   }
 
   public Optional<String> getPhoneNumber() {
-    return applicant.getPhoneNumber().or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
+    return applicant == null || applicant.getPhoneNumber().isEmpty()
+        ? readString(WellKnownPaths.APPLICANT_PHONE_NUMBER)
+        : applicant.getPhoneNumber();
   }
 
   public void setPhoneNumber(String phoneNumber) {
@@ -160,14 +172,13 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<LocalDate> getDateOfBirth() {
-    return applicant
-        .getDateOfBirth()
-        .or(
-            () -> {
-              Path dobPath = WellKnownPaths.APPLICANT_DOB;
-              Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
-              return hasPath(dobPath) ? readDate(dobPath) : readDate(deprecatedDobPath);
-            });
+    if (applicant == null || applicant.getDateOfBirth().isEmpty()) {
+      Path dobPath = WellKnownPaths.APPLICANT_DOB;
+      Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+      return hasPath(dobPath) ? readDate(dobPath) : readDate(deprecatedDobPath);
+    } else {
+      return applicant.getDateOfBirth();
+    }
   }
 
   public void setDateOfBirth(String dateOfBirth) {
