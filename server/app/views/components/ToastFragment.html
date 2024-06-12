@@ -58,17 +58,17 @@
   <!--/* Success toast */-->
   <div th:replace="~{this :: success(${successBannerMessage})}"></div>
   <!--/* Alert toast */-->
-  <div th:replace="~{this :: alert(alertBannerMessage)}"></div>
+  <div th:replace="~{this :: alert(${alertBannerMessage})}"></div>
   <!--/* Error toast */-->
   <div th:replace="~{this :: error(${errorBannerMessage})}"></div>
   <!--/* Not eligible toast */-->
-  <div th:replace="~{this :: alert(notEligibleBannerMessage)}"></div>
+  <div th:replace="~{this :: alert(${notEligibleBannerMessage})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Program Index page */-->
 <div th:fragment="programIndexToasts">
   <!--/* Alert toast */-->
-  <div th:replace="~{this :: alert(bannerMessage)}"></div>
+  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
   <!--/* Session ended toast */-->
   <div
     th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended', 'success')}"
