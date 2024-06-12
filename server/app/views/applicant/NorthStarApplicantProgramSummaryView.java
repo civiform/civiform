@@ -42,6 +42,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
   }
 
   public String render(Request request, Params params) {
+    System.out.println("ssandbekkhaug render program summary view");
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,

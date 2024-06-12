@@ -1,0 +1,28 @@
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div role="main">
+      <!-- <h1 th:text="#{title.getStarted}"></h1>
+      <p th:text="#{content.reviewPageIntro}"></p> -->
+      <div class="usa-card__container">
+        <div class="usa-card__body">
+          <p th:text="">Placeholder text</p>
+        </div>
+      </div>
+
+      <!-- <a
+        th:href="${continueUrl}"
+        th:text="#{button.continue}"
+        id="continue-application-button"
+        class="usa-button"
+    ></a> -->
+    </div>
+    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>
