@@ -50,7 +50,8 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     // test
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     // assert
-    assertStatusDefinitions(statusDefinitionsResult, "Approved");
+    assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
+    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
   }
 
   @Test
@@ -101,19 +102,16 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
         new ApplicationStatusesModel(
             programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
     applicationStatusesModel.save();
+    // pre assert before test
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
-    assertStatusDefinitions(statusDefinitionsResult, "Approved");
-
+    assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
+    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
+    // test
     repo.updateStatusDefinitions(
         programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
 
     StatusDefinitions statusDefinitionsResult2 = repo.lookupActiveStatusDefinitions(programName);
-    assertStatusDefinitions(statusDefinitionsResult2, "Reapply");
-  }
-
-  public void assertStatusDefinitions(
-      StatusDefinitions statusDefinitionsResult, String statusText) {
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
-    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo(statusText);
+    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Reapply");
   }
 }
