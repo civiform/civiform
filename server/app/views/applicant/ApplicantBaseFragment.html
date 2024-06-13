@@ -17,16 +17,19 @@
   <!--/* This uses utext because the parameter passed into the message is html,
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style */-->
-  <p th:utext="#{content.requiredFieldsNote(~{this :: requiredAsterisk})}"></p>
+    <p
+    th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
+    class="margin-x-2 font-sans-xs"
+  ></p>
 </div>
 
 <th:block th:fragment="requiredAsterisk">
-  <span class="usa-hint--required"> *</span>
+  <span class="usa-hint--required">*</span>
 </th:block>
 
 <div
   th:fragment="progressBar"
-  class="usa-step-indicator usa-step-indicator--center"
+  class="usa-step-indicator usa-step-indicator--center margin-x-2"
   aria-label="progress"
 >
   <!--/* The progress bar itself */-->
