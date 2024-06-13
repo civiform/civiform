@@ -15,6 +15,7 @@ import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.LocalizedStrings;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -54,6 +55,11 @@ public abstract class BlockDefinition {
    */
   @JsonProperty("description")
   public abstract String description();
+
+
+  /** Name of a Block used to label it for the user. */
+  @JsonProperty("localizedName")
+  public abstract Optional<LocalizedStrings> localizedName();
 
   /**
    * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
