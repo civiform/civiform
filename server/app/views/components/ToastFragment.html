@@ -116,3 +116,16 @@
     th:replace="~{this :: success(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended')}"
   ></div>
 </div>
+
+<!--/* Render the toasts used in the Upsell page */-->
+<div th:fragment="upsellToasts">
+  <!--/* Alert toast */-->
+  <th:block
+    th:if="${bannerMessage.isPresent()}"
+    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+</div>
