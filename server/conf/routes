@@ -86,6 +86,7 @@ POST    /admin/questions             controllers.admin.AdminQuestionController.c
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+GET     /samplequestion              controllers.admin.NorthStarQuestionController.sampleQuestion(request: Request)
 
 # Routes for editing question localizations
 GET     /admin/questions/:questionName/translations/edit          controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)
