@@ -20,7 +20,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void fetchOrInsertUniqueCategory_insertsNewCategory() {
+  public void fetchOrSaveUniqueCategory_insertsNewCategory() {
     CategoryModel category = createCategory("Housing", "Vivienda");
     CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
 
@@ -43,7 +43,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void fetchOrInsertUniqueCategory_fetchesExistingCategory() {
+  public void fetchOrSaveUniqueCategory_fetchesExistingCategory() {
     CategoryModel category = createCategory("Health", "Salud");
     CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
     // Since the category already exists, the method should fetch the existing category rather than
@@ -51,6 +51,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
     CategoryModel fetchedCategory = repo.fetchOrSaveUniqueCategory(category);
 
     assertThat(fetchedCategory.getId()).isEqualTo(insertedCategory.getId());
+    assertThat(repo.listCategories().size()).isEqualTo(1);
   }
 
   @Test
