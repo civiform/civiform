@@ -11,6 +11,7 @@
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
       fileUploadQuestion=${question.createFileUploadQuestion()}"
     >
+      <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
       <form
         enctype="multipart/form-data"
         method="POST"

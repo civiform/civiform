@@ -36,6 +36,13 @@
   ></div>
 </div>
 
+<!--/* A toast shown on all pages in dev and staging environments to warn against submitting real user data. */-->
+<div th:fragment="devOrStagingToast(isDevOrStaging)" th:if="${isDevOrStaging}">
+  <div
+    th:replace="~{this :: toast('warning-message', 'Do not enter actual or personal data in this demo site', true, true, 0, null, 'warning')}"
+  ></div>
+</div>
+
 <!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
   <!--/* Eligibility success toast */-->
@@ -51,6 +58,7 @@
       th:replace="~{this:: toast(${toastId}, #{toast.localeNotSupported}, true, true, 0, null, 'warning')}"
     ></div>
   </th:block>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Review/Summary page */-->
@@ -63,6 +71,7 @@
   <div th:replace="~{this :: error(${errorBannerMessage})}"></div>
   <!--/* Not eligible toast */-->
   <div th:replace="~{this :: alert(${notEligibleBannerMessage})}"></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Program Index page */-->
@@ -73,10 +82,12 @@
   <div
     th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended', 'success')}"
   ></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Upsell page */-->
 <div th:fragment="upsellToasts">
   <!--/* Alert toast */-->
   <div th:replace="~{this :: alert(${bannerMessage})}"></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
