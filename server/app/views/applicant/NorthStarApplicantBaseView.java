@@ -31,7 +31,7 @@ public abstract class NorthStarApplicantBaseView {
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
 
-  NorthStarApplicantBaseView(
+  protected NorthStarApplicantBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,

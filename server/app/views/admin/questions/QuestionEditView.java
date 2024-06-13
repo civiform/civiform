@@ -220,10 +220,14 @@ public final class QuestionEditView extends BaseHtmlView {
     // TODO ssandbekkhaug replace here
     if (settingsManifest.getNorthStarApplicantUi(request)) {
       System.out.println("ssandbekkhaug render Thymeleaf");
+
       previewContent =
           div()
               .attr("hx-swap", "outerHTML")
-              .attr("hx-get", controllers.admin.routes.NorthStarQuestionController.sampleQuestion())
+              .attr(
+                  "hx-get",
+                  controllers.admin.routes.NorthStarQuestionController.sampleQuestion(
+                      type.getLabel()))
               .attr("hx-trigger", "load");
     } else {
       previewContent =
