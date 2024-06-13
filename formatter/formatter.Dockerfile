@@ -3,12 +3,13 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.23_9-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.19-7 as arm64
+FROM eclipse-temurin:17.0.11_9-jdk-alpine as amd64
+FROM bellsoft/liberica-openjdk-alpine:17.0.11-10 as arm64
 
 FROM ${TARGETARCH}
 
-ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/v1.18.1/google-java-format-1.18.1-all-deps.jar"
+ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/v1.22.0/google-java-format-1.22.0-all-deps.jar"
+
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \
     apk add --no-cache --update bash wget npm shfmt git py3-pip py3-yapf && \
