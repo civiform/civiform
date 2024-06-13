@@ -43,10 +43,6 @@
                   ${i == applicationParams.blockIndex() ? ' usa-step-indicator\_\_segment--current' : ''} +
                   ${block.isCompletedInProgramWithoutErrors() ? ' usa-step-indicator\_\_segment--complete' : ''}"
       >
-        <span
-          class="usa-step-indicator__segment-label"
-          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
-        ></span>
       </li>
     </th:block>
   </ol>
