@@ -111,7 +111,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
         programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
 
     StatusDefinitions statusDefinitionsResult2 = repo.lookupActiveStatusDefinitions(programName);
-    assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
-    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Reapply");
+    assertThat(statusDefinitionsResult2.getStatuses().size()).isEqualTo(1);
+    assertThat(statusDefinitionsResult2.getStatuses().get(0).statusText()).isEqualTo("Reapply");
   }
 }
