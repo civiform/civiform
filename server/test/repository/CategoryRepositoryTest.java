@@ -22,7 +22,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
   @Test
   public void fetchOrInsertUniqueCategory_insertsNewCategory() {
     CategoryModel category = createCategory("Housing", "Vivienda");
-    CategoryModel insertedCategory = repo.fetchOrInsertUniqueCategory(category);
+    CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
 
     assertThat(insertedCategory.getId()).isNotNull();
     assertThat(insertedCategory.getDefaultName()).isEqualTo("Housing");
@@ -32,10 +32,10 @@ public class CategoryRepositoryTest extends ResetPostgres {
   @Test
   public void listCategories_fetchesAllCategories() {
     CategoryModel category1 = createCategory("Health", "Salud");
-    repo.fetchOrInsertUniqueCategory(category1);
+    repo.fetchOrSaveUniqueCategory(category1);
 
     CategoryModel category2 = createCategory("Education", "Educación");
-    repo.fetchOrInsertUniqueCategory(category2);
+    repo.fetchOrSaveUniqueCategory(category2);
 
     ImmutableList<CategoryModel> allCategories = repo.listCategories();
 
@@ -45,10 +45,10 @@ public class CategoryRepositoryTest extends ResetPostgres {
   @Test
   public void fetchOrInsertUniqueCategory_fetchesExistingCategory() {
     CategoryModel category = createCategory("Health", "Salud");
-    CategoryModel insertedCategory = repo.fetchOrInsertUniqueCategory(category);
+    CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
     // Since the category already exists, the method should fetch the existing category rather than
     // creating a new one.
-    CategoryModel fetchedCategory = repo.fetchOrInsertUniqueCategory(category);
+    CategoryModel fetchedCategory = repo.fetchOrSaveUniqueCategory(category);
 
     assertThat(fetchedCategory.getId()).isEqualTo(insertedCategory.getId());
   }
@@ -56,10 +56,10 @@ public class CategoryRepositoryTest extends ResetPostgres {
   @Test
   public void findCategoriesByIds_fetchesCategoriesByIds() {
     CategoryModel category1 = createCategory("Health", "Salud");
-    CategoryModel insertedCategory1 = repo.fetchOrInsertUniqueCategory(category1);
+    CategoryModel insertedCategory1 = repo.fetchOrSaveUniqueCategory(category1);
 
     CategoryModel category2 = createCategory("Education", "Educación");
-    CategoryModel insertedCategory2 = repo.fetchOrInsertUniqueCategory(category2);
+    CategoryModel insertedCategory2 = repo.fetchOrSaveUniqueCategory(category2);
 
     ImmutableList<CategoryModel> fetchedCategories =
         repo.findCategoriesByIds(
