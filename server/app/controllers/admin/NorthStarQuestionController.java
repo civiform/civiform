@@ -47,7 +47,6 @@ public final class NorthStarQuestionController extends CiviFormController {
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
-  // TODO: adding question type breaks rendering
   @Secure
   public Result sampleQuestion(Request request, String questionType) {
     System.out.println("ssandbekkhaug sample question controller: " + questionType);
