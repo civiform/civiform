@@ -27,6 +27,8 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.NorthStarApplicantBaseView;
+import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
 
@@ -58,7 +60,7 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    // ApplicantQuestion question;
+    System.out.println("Got type: " + params.type());
 
     QuestionDefinition questionDefinition = questionDefinitionSample(params.type());
     ProgramQuestionDefinition pqd =
@@ -67,6 +69,9 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
 
     context.setVariable("question", applicantQuestion);
+
+    ApplicantQuestionRendererParams rendererParams = rendererParams(params);
+    context.setVariable("questionRendererParams", rendererParams);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
 
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
@@ -81,6 +86,8 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionType(questionType);
+    // TODO ssandbekkhaug QuestionText is not set (it appears as "Sample question text"). How to fix
+    // this?
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
@@ -99,9 +106,28 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
     try {
       return builder.build();
     } catch (UnsupportedQuestionTypeException e) {
+      System.out.println("Building question failed: " + e.getLocalizedMessage());
       // TODO: better exception handling (copying QuestionPreview.java)
       throw new RuntimeException(e);
     }
+  }
+
+  private ApplicantQuestionRendererParams rendererParams(Params params) {
+    ApplicantQuestionRendererParams.Builder paramsBuilder =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE);
+    // if (params.block().isFileUpload()) {
+    //   StorageUploadRequest signedRequest =
+    //       params
+    //           .applicantStorageClient()
+    //           .getSignedUploadRequest(
+    //               getFileUploadSignedRequestKey(params),
+    //               redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
+    //   paramsBuilder.setSignedFileUploadRequest(signedRequest);
+    // }
+    return paramsBuilder.build();
   }
 
   @AutoValue
