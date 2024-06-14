@@ -466,6 +466,10 @@ dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後�
 dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=「{0}」名稱
 
 #---------------------------------------------------------------------------------#
