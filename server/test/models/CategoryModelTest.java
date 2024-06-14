@@ -28,7 +28,7 @@ public class CategoryModelTest extends ResetPostgres {
     CategoryModel category = new CategoryModel(translations);
     category.save();
 
-    CategoryModel found = repo.fetchOrInsertUniqueCategory(category);
+    CategoryModel found = repo.fetchOrSaveUniqueCategory(category);
 
     assertThat(found).isEqualTo(category);
   }
@@ -45,7 +45,7 @@ public class CategoryModelTest extends ResetPostgres {
     assertThat(initialCategory.getLastModifiedTime()).isNotNull();
 
     // Ensure a freshly loaded copy has the same timestamps.
-    CategoryModel freshlyLoaded = repo.fetchOrInsertUniqueCategory(initialCategory);
+    CategoryModel freshlyLoaded = repo.fetchOrSaveUniqueCategory(initialCategory);
     assertThat(freshlyLoaded.getCreateTime()).isEqualTo(initialCategory.getCreateTime());
     assertThat(freshlyLoaded.getLastModifiedTime())
         .isEqualTo(initialCategory.getLastModifiedTime());
@@ -60,7 +60,7 @@ public class CategoryModelTest extends ResetPostgres {
     freshlyLoaded.markAsDirty();
     freshlyLoaded.save();
 
-    CategoryModel afterUpdate = repo.fetchOrInsertUniqueCategory(initialCategory);
+    CategoryModel afterUpdate = repo.fetchOrSaveUniqueCategory(initialCategory);
     assertThat(afterUpdate.getCreateTime()).isEqualTo(initialCategory.getCreateTime());
     assertThat(afterUpdate.getLastModifiedTime()).isNotNull();
     assertThat(afterUpdate.getLastModifiedTime()).isAfter(initialCategory.getLastModifiedTime());

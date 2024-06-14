@@ -38,7 +38,7 @@ public final class CategoryRepository {
             .findList());
   }
 
-  public CategoryModel fetchOrInsertUniqueCategory(CategoryModel category) {
+  public CategoryModel fetchOrSaveUniqueCategory(CategoryModel category) {
     CategoryModel existing =
         database
             .find(CategoryModel.class)
@@ -48,12 +48,12 @@ public final class CategoryRepository {
     if (existing != null) {
       return existing;
     }
-    return insertCategory(category);
+    return saveCategory(category);
   }
 
-  private CategoryModel insertCategory(CategoryModel category) {
+  private CategoryModel saveCategory(CategoryModel category) {
     category.id = null;
-    database.insert(category);
+    database.save(category);
     category.refresh();
     return category;
   }
