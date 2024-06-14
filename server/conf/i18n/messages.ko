@@ -466,6 +466,10 @@ dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클�
 dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토', '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName={0} 이름
 
 #---------------------------------------------------------------------------------#
