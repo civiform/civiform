@@ -50,17 +50,19 @@ public final class NorthStarQuestionController extends CiviFormController {
   // TODO: adding question type breaks rendering
   @Secure
   public Result sampleQuestion(Request request, String questionType) {
-    System.out.println("ssandbekkhaug sample question controller");
+    System.out.println("ssandbekkhaug sample question controller: " + questionType);
 
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
 
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
+    String underscores = questionType.replace(' ', '_');
     QuestionType questionType2;
     try {
-      questionType2 = QuestionType.of(questionType);
+      questionType2 = QuestionType.of(underscores);
     } catch (InvalidQuestionTypeException e) {
+      System.out.println("Invalid question type");
       return badRequest("Invalid question type: " + questionType);
     }
 

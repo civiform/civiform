@@ -29,6 +29,8 @@ public final class ApplicantQuestionRendererFactory {
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
+    System.out.println(
+        "ssandbekkhaug J2HTML question text: " + questionDefinition.getQuestionText());
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
