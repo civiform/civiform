@@ -576,4 +576,4 @@ banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxa
 # A stern message shown to the user to make it clear this is a test site only
 banner.notForProductionBannerLine1=Mareegtan kaliya waxaa loo hagaajiyey tijaabo. Ha galinin macluumaad shaqsiyadeed.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo{0}.
+banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0}.
