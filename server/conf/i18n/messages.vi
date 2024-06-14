@@ -466,6 +466,10 @@ dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng
 dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
 validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=Tên {0}
 
 #---------------------------------------------------------------------------------#
