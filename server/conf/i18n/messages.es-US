@@ -466,6 +466,10 @@ dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este 
 dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=Nombre de {0}
 
 #---------------------------------------------------------------------------------#
