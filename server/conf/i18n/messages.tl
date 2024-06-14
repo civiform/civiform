@@ -466,6 +466,10 @@ dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na
 dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na ito? Ise-save ang pagbabagong ito kapag na-click mo ang "Suriin," "Nakaraan," o "Susunod" at mawawala ang lahat ng data na nauugnay sa {0} na ito.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName={0} Palayaw
 
 #---------------------------------------------------------------------------------#
