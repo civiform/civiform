@@ -82,94 +82,93 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     String json = programJsonSampler.getSampleJson(programDefinition);
 
     String expectedJson =
-        "{\n"
-            + "  \"nextPageToken\" : null,\n"
-            + "  \"payload\" : [ {\n"
-            + "    \"applicant_id\" : 123,\n"
-            + "    \"application\" : {\n"
-            + "      \"name\" : {\n"
-            + "        \"first_name\" : \"Homer\",\n"
-            + "        \"last_name\" : \"Simpson\",\n"
-            + "        \"middle_name\" : \"Jay\",\n"
-            + "        \"question_type\" : \"NAME\"\n"
-            + "      },\n"
-            + "      \"sample_address_question\" : {\n"
-            + "        \"city\" : \"Springfield\",\n"
-            + "        \"corrected\" : \"Corrected\",\n"
-            + "        \"latitude\" : \"44.0462\",\n"
-            + "        \"line2\" : null,\n"
-            + "        \"longitude\" : \"-123.0236\",\n"
-            + "        \"question_type\" : \"ADDRESS\",\n"
-            + "        \"service_area\" :"
-            + " \"springfield_county_InArea_1709069741,portland_NotInArea_1709069741\",\n"
-            + "        \"state\" : \"OR\",\n"
-            + "        \"street\" : \"742 Evergreen Terrace\",\n"
-            + "        \"well_known_id\" : \"4326\",\n"
-            + "        \"zip\" : \"97403\"\n"
-            + "      },\n"
-            + "      \"sample_checkbox_question\" : {\n"
-            + "        \"question_type\" : \"MULTI_SELECT\",\n"
-            + "        \"selections\" : [ \"toaster\", \"pepper_grinder\" ]\n"
-            + "      },\n"
-            + "      \"sample_currency_question\" : {\n"
-            + "        \"currency_dollars\" : 123.45,\n"
-            + "        \"question_type\" : \"CURRENCY\"\n"
-            + "      },\n"
-            + "      \"sample_date_question\" : {\n"
-            + "        \"date\" : \"2023-01-02\",\n"
-            + "        \"question_type\" : \"DATE\"\n"
-            + "      },\n"
-            + "      \"sample_dropdown_question\" : {\n"
-            + "        \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "        \"selection\" : \"chocolate\"\n"
-            + "      },\n"
-            + "      \"sample_email_question\" : {\n"
-            + "        \"email\" : \"homer.simpson@springfield.gov\",\n"
-            + "        \"question_type\" : \"EMAIL\"\n"
-            + "      },\n"
-            + "      \"sample_file_upload_question\" : {\n"
-            + "        \"file_key\" :"
-            + " \"http://localhost:9000/admin/applicant-files/my-file-key\",\n"
-            + "        \"question_type\" : \"FILE_UPLOAD\"\n"
-            + "      },\n"
-            + "      \"sample_id_question\" : {\n"
-            + "        \"id\" : \"12345\",\n"
-            + "        \"question_type\" : \"ID\"\n"
-            + "      },\n"
-            + "      \"sample_number_question\" : {\n"
-            + "        \"number\" : 12321,\n"
-            + "        \"question_type\" : \"NUMBER\"\n"
-            + "      },\n"
-            + "      \"sample_phone_question\" : {\n"
-            + "        \"phone_number\" : \"+12143673764\",\n"
-            + "        \"question_type\" : \"PHONE\"\n"
-            + "      },\n"
-            + "      \"sample_predicate_date_question\" : {\n"
-            + "        \"date\" : \"2023-01-02\",\n"
-            + "        \"question_type\" : \"DATE\"\n"
-            + "      },\n"
-            + "      \"sample_radio_button_question\" : {\n"
-            + "        \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "        \"selection\" : \"winter\"\n"
-            + "      },\n"
-            + "      \"sample_text_question\" : {\n"
-            + "        \"question_type\" : \"TEXT\",\n"
-            + "        \"text\" : \"I love CiviForm!\"\n"
-            + "      }\n"
-            + "    },\n"
-            + "    \"application_id\" : 456,\n"
-            + "    \"create_time\" : \"2023-05-25T13:46:15-07:00\",\n"
-            + "    \"language\" : \"en-US\",\n"
-            + "    \"program_name\" : \"test-program-admin-name\",\n"
-            + "    \"program_version_id\" : 789,\n"
-            + "    \"revision_state\" : \"CURRENT\",\n"
-            + "    \"status\" : \"Pending Review\",\n"
-            + "    \"submit_time\" : \"2023-05-26T13:46:15-07:00\",\n"
-            + "    \"submitter_type\" : \"APPLICANT\",\n"
-            + "    \"ti_email\" : null,\n"
-            + "    \"ti_organization\" : null\n"
-            + "  } ]\n"
-            + "}";
+        """
+{
+  "nextPageToken" : null,
+  "payload" : [ {
+    "applicant_id" : 123,
+    "application" : {
+      "name" : {
+        "first_name" : "Homer",
+        "last_name" : "Simpson",
+        "middle_name" : "Jay",
+        "question_type" : "NAME"
+      },
+      "sample_address_question" : {
+        "city" : "Springfield",
+        "corrected" : "Corrected",
+        "latitude" : "44.0462",
+        "line2" : null,
+        "longitude" : "-123.0236",
+        "question_type" : "ADDRESS",
+        "service_area" : "springfield_county_InArea_1709069741,portland_NotInArea_1709069741",
+        "state" : "OR",
+        "street" : "742 Evergreen Terrace",
+        "well_known_id" : "4326",
+        "zip" : "97403"
+      },
+      "sample_checkbox_question" : {
+        "question_type" : "MULTI_SELECT",
+        "selections" : [ "toaster", "pepper_grinder" ]
+      },
+      "sample_currency_question" : {
+        "currency_dollars" : 123.45,
+        "question_type" : "CURRENCY"
+      },
+      "sample_date_question" : {
+        "date" : "2023-01-02",
+        "question_type" : "DATE"
+      },
+      "sample_dropdown_question" : {
+        "question_type" : "SINGLE_SELECT",
+        "selection" : "chocolate"
+      },
+      "sample_email_question" : {
+        "email" : "homer.simpson@springfield.gov",
+        "question_type" : "EMAIL"
+      },
+      "sample_file_upload_question" : {
+        "file_key" : "http://localhost:9000/admin/applicant-files/my-file-key",
+        "question_type" : "FILE_UPLOAD"
+      },
+      "sample_id_question" : {
+        "id" : "12345",
+        "question_type" : "ID"
+      },
+      "sample_number_question" : {
+        "number" : 12321,
+        "question_type" : "NUMBER"
+      },
+      "sample_phone_question" : {
+        "phone_number" : "+12143673764",
+        "question_type" : "PHONE"
+      },
+      "sample_predicate_date_question" : {
+        "date" : "2023-01-02",
+        "question_type" : "DATE"
+      },
+      "sample_radio_button_question" : {
+        "question_type" : "SINGLE_SELECT",
+        "selection" : "winter"
+      },
+      "sample_text_question" : {
+        "question_type" : "TEXT",
+        "text" : "I love CiviForm!"
+      }
+    },
+    "application_id" : 456,
+    "create_time" : "2023-05-25T13:46:15-07:00",
+    "language" : "en-US",
+    "program_name" : "test-program-admin-name",
+    "program_version_id" : 789,
+    "revision_state" : "CURRENT",
+    "status" : "Pending Review",
+    "submit_time" : "2023-05-26T13:46:15-07:00",
+    "submitter_type" : "APPLICANT",
+    "ti_email" : null,
+    "ti_organization" : null
+  } ]
+}""";
 
     assertThat(asPrettyJsonString(json)).isEqualTo(expectedJson);
   }
