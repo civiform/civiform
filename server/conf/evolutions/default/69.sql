@@ -17,10 +17,33 @@ SET block_definitions = (
   FROM jsonb_array_elements(p.block_definitions) AS block_definition
 );
 
+UPDATE programs p
+SET block_definitions = (
+  SELECT jsonb_agg(
+    CASE
+        WHEN block_definition ? 'description' AND NOT (block_definition ? 'localizedDescription')
+            THEN jsonb_set(
+                block_definition,
+                '{localizedDescription}',
+                jsonb_build_object('en-US', block_definition->'description')
+            )
+        ELSE block_definition -- Keep the block_definition as is
+    END
+  )
+  FROM jsonb_array_elements(p.block_definitions) AS block_definition
+);
+
 # --- !Downs
 UPDATE ONLY programs
 SET block_definitions = (
   SELECT jsonb_agg((block_definition - 'localizedName'))
+  FROM jsonb_array_elements(block_definitions) AS block_definition
+)
+WHERE block_definitions IS NOT NULL;
+
+UPDATE ONLY programs
+SET block_definitions = (
+  SELECT jsonb_agg((block_definition - 'localizedDescription'))
   FROM jsonb_array_elements(block_definitions) AS block_definition
 )
 WHERE block_definitions IS NOT NULL;
