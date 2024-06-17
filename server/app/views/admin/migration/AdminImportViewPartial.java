@@ -22,6 +22,11 @@ import services.program.ProgramQuestionDefinition;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import com.google.common.collect.ImmutableList;
+
+
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
@@ -49,7 +54,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(
       Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
+
     ProgramDefinition program = programMigrationWrapper.getProgram();
+    ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
+
     DivTag programDiv =
         div()
             .withId(PROGRAM_DATA_ID)
@@ -60,7 +68,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     // should show some kind of error because admin names need to be unique.
 
     for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(renderProgramBlock(block));
+      programDiv.with(renderProgramBlock(block, questions));
     }
 
     FormTag hiddenForm =
@@ -82,23 +90,35 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     return programDiv.with(hiddenForm);
   }
 
-  private DomContent renderProgramBlock(BlockDefinition block) {
+  private DomContent renderProgramBlock(BlockDefinition block, ImmutableList<QuestionDefinition> questions) {
     DivTag blockDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
             .with(h4(block.name()), p(block.description()));
     // TODO(#7087): Display eligibility and visibility predicates.
 
-    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+    for (QuestionDefinition question : questions) {
       blockDiv.with(renderQuestion(question));
     }
     return blockDiv;
   }
 
-  private DomContent renderQuestion(ProgramQuestionDefinition question) {
+  private DomContent renderQuestion(QuestionDefinition question) {
+
     return div()
         .withClasses("border", "border-gray-200", "p-2")
-        .with(p("Question ID: " + question.id()));
+        .with(
+          p("Question Type: " + question.getQuestionType()),
+          p("Name: " + question.getName()),
+          p("Description: " + question.getDescription()),
+          p("Question text with translations: " + question.getQuestionText()),
+          p("Help text with translations: " + question.getQuestionHelpText()),
+          p("Is universal: " + question.isUniversal()),
+          p("Validation predicates: " + question.getValidationPredicates()),
+          p("Is enumerator: " + question.isEnumerator()),
+          p("Is persisted: " + question.isPersisted()));
+    // what does "Is persisted" mean??
+    // TODO add Primary Applicant Info Tags
     // TODO(#7087): Fetch and display all the question info, not just the ID.
   }
 }

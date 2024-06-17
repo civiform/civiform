@@ -86,7 +86,7 @@ public class AdminImportController extends CiviFormController {
     }
 
     // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
-    jsonString = trimQuestionsOffJson(jsonString);
+    // jsonString = trimQuestionsOffJson(jsonString);
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         programMigrationService.deserialize(jsonString);

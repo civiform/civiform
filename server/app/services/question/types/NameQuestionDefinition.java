@@ -1,12 +1,13 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 /** Defines a name question. */
 public final class NameQuestionDefinition extends QuestionDefinition {
 
-  public NameQuestionDefinition(QuestionDefinitionConfig config) {
+  public NameQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
@@ -27,10 +28,12 @@ public final class NameQuestionDefinition extends QuestionDefinition {
     }
   }
 
+  // nameValidationPredicates
   public NameValidationPredicates getNameValidationPredicates() {
     return (NameValidationPredicates) getValidationPredicates();
   }
 
+  // questionType
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.NAME;
