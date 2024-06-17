@@ -14,58 +14,59 @@ test.describe(
     // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
     const draftQuestionText = `${questionText} new version`
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await loginAsAdmin(page)
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await loginAsAdmin(page)
 
-    // Create a hidden program with no questions
-    await adminPrograms.addProgram(
-      hiddenProgramNoQuestions,
-      'program description',
-      'https://usa.gov',
-      ProgramVisibility.HIDDEN,
-    )
+      // Create a hidden program with no questions
+      await adminPrograms.addProgram(
+        hiddenProgramNoQuestions,
+        'program description',
+        'https://usa.gov',
+        ProgramVisibility.HIDDEN,
+      )
 
-    // Create a new question referenced by a program.
-    await adminQuestions.addAddressQuestion({questionName, questionText})
-    await adminPrograms.addProgram(visibleProgramWithQuestion)
-    await adminPrograms.editProgramBlock(
-      visibleProgramWithQuestion,
-      'dummy description',
-      [questionName],
-    )
+      // Create a new question referenced by a program.
+      await adminQuestions.addAddressQuestion({questionName, questionText})
+      await adminPrograms.addProgram(visibleProgramWithQuestion)
+      await adminPrograms.editProgramBlock(
+        visibleProgramWithQuestion,
+        'dummy description',
+        [questionName],
+      )
 
-    // Publish.
-    await adminPrograms.publishAllDrafts()
+      // Publish.
+      await adminPrograms.publishAllDrafts()
 
-    // Make an edit to the program with no questions.
-    await adminPrograms.createNewVersion(hiddenProgramNoQuestions)
+      // Make an edit to the program with no questions.
+      await adminPrograms.createNewVersion(hiddenProgramNoQuestions)
 
-    // Make an edit to the shared question.
-    await adminQuestions.createNewVersion(questionName)
+      // Make an edit to the shared question.
+      await adminQuestions.createNewVersion(questionName)
 
-    await adminPrograms.gotoAdminProgramsPage()
-  })
-
-  test('shows programs and questions that will be published in the modal', async ({
-    adminPrograms,
-  }) => {
-    await adminPrograms.expectProgramReferencesModalContains({
-      expectedQuestionsContents: [`${draftQuestionText} - Edit`],
-      expectedProgramsContents: [
-        `${hiddenProgramNoQuestions} (Hidden from applicants) Edit`,
-        `${visibleProgramWithQuestion} (Publicly visible) Edit`,
-      ],
+      await adminPrograms.gotoAdminProgramsPage()
     })
-  })
 
-  test('validate screenshot', async ({adminPrograms}) => {
-    await adminPrograms.openPublishAllDraftsModal()
-    await validateScreenshot(
-      adminPrograms.publishAllProgramsModalLocator(),
-      'publish-modal',
-    )
-  })
-})
+    test('shows programs and questions that will be published in the modal', async ({
+      adminPrograms,
+    }) => {
+      await adminPrograms.expectProgramReferencesModalContains({
+        expectedQuestionsContents: [`${draftQuestionText} - Edit`],
+        expectedProgramsContents: [
+          `${hiddenProgramNoQuestions} (Hidden from applicants) Edit`,
+          `${visibleProgramWithQuestion} (Publicly visible) Edit`,
+        ],
+      })
+    })
+
+    test('validate screenshot', async ({adminPrograms}) => {
+      await adminPrograms.openPublishAllDraftsModal()
+      await validateScreenshot(
+        adminPrograms.publishAllProgramsModalLocator(),
+        'publish-modal',
+      )
+    })
+  },
+)
 
 test.describe(
   'publishing all programs with disabled programs feature flag on',
