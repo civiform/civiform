@@ -765,7 +765,7 @@
         "type": "bool"
       },
       "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },

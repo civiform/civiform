@@ -126,7 +126,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -318,14 +318,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
-            .submitApplication(applicantId, programId, submittingProfile, request)
+            .submitApplication(applicantId, programId, submittingProfile)
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
     return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
             (v) -> {

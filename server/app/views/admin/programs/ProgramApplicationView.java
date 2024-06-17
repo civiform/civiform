@@ -114,8 +114,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status,
-                        request))
+                        status))
             .collect(ImmutableList.toImmutableList());
     Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
@@ -344,8 +343,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status,
-      Request request) {
+      StatusDefinitions.Status status) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -393,7 +391,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
-                            applicantNameWithApplicationId, application, status, request)),
+                            applicantNameWithApplicationId, application, status)),
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
@@ -419,8 +417,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private DomContent renderStatusUpdateConfirmationModalEmailSection(
       String applicantNameWithApplicationId,
       ApplicationModel application,
-      StatusDefinitions.Status status,
-      Request request) {
+      StatusDefinitions.Status status) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
 
@@ -429,7 +426,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
     boolean emptyEmails = optionalAccountEmail.isEmpty();
 
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
       emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
     }
 
@@ -456,7 +453,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
 
     String emailString = "";
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
       emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
     } else {
       emailString = optionalAccountEmail.orElse("");
