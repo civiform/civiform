@@ -8,6 +8,7 @@ import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.geo.CorrectedAddressState;
@@ -22,7 +23,6 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
-import services.LocalizedStrings;
 
 public class ServiceAreaUpdateResolverTest extends ResetPostgres {
   private ServiceAreaUpdateResolver serviceAreaUpdateResolver;
