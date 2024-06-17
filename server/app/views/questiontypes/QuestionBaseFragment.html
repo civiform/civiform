@@ -21,6 +21,7 @@
   <div
     th:id="${questionId} + '-description'"
     th:text="${question.getQuestionHelpText()}"
+    class="font-sans-xs padding-top-05"
   ></div>
 </th:block>
 
@@ -43,12 +44,9 @@
 </th:block>
 
 <th:block th:fragment="titleContent(question)">
-  <span
-    class="cf-applicant-question-text"
-    th:text="${question.getQuestionText()}"
-  ></span>
+  <span th:text="${question.getQuestionText()}" class="font-sans-lg cf-applicant-question-text"></span>
   <!--/* Required asterisk */-->
   <th:block th:if="${!question.isOptional()}">
-    <span class="usa-hint--required"> *</span>
+    <span class="usa-hint--required font-sans-lg"> *</span>
   </th:block>
 </th:block>
