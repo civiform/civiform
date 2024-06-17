@@ -243,9 +243,9 @@ function attachFormDebouncers() {
 function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
-    window.location.href = assertNotNull(
-      (e.currentTarget as HTMLElement).dataset.redirectTo,
-    )
+    const destination = assertNotNull(
+      (e.currentTarget as HTMLElement).dataset.redirectTo)
+    window.location.href = destination
   })
 }
 
