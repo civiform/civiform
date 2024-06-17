@@ -5,17 +5,10 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main">
+    <div role="main" class="margin-left-2 margin-right-4 margin-y-4">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
       <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
 
         <div
           th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
@@ -31,18 +24,27 @@
           ></div>
         </div>
 
-        <button
-          type="submit"
-          id="cf-block-submit"
-          class="usa-button"
-          th:text="#{button.continue}"
-        ></button>
+        <div class="margin-bottom-2 margin-left-2">
+          <button
+            type="submit"
+            th:formaction="${previousFormAction}"
+            id="cf-block-previous"
+            class="usa-button usa-button--outline margin-bottom-1"
+            th:text="#{button.back}"
+          ></button>
+          <button
+            type="submit"
+            id="cf-block-submit"
+            class="usa-button margin-bottom-1"
+            th:text="#{button.continue}"
+          ></button>
+        </div>
         <button
           type="submit"
           th:formaction="${reviewFormAction}"
           id="review-application-button"
-          class="usa-button usa-button--outline"
-          th:text="#{button.review}"
+          class="usa-button usa-button--unstyled margin-right-1 margin-left-2"
+          th:text="#{button.saveAndExit}"
         ></button>
       </form>
     </div>

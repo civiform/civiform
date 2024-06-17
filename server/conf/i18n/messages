@@ -23,6 +23,8 @@ validation.invalidInput=Please enter valid input.
 validation.errorAnnouncementSr=There are errors in the form. Please fix before continuing.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(optional)
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
@@ -60,6 +62,10 @@ button.deleteFile=Delete
 button.keepFile=Continue
 button.nextScreen=Save and next
 button.previousScreen=Previous
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
