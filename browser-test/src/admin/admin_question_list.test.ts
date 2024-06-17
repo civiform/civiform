@@ -72,9 +72,9 @@ test.describe('Admin question list', () => {
       questionText: questionThreePublishedText,
     })
     await expectQuestionListElements(adminQuestions, [
-      'question list test question three\n',
-      'question list test question one new version\n',
-      'question list test question two\n',
+      questionThreePublishedText,
+      questionOneDraftText,
+      questionTwoPublishedText,
     ])
     await expectQuestionBankElements(programName, adminPrograms, [
       'question list test question three\n',
