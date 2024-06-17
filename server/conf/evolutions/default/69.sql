@@ -15,7 +15,8 @@ SET block_definitions = (
     END
   )
   FROM jsonb_array_elements(p.block_definitions) AS block_definition
-);
+)
+WHERE block_definitions IS NOT NULL AND jsonb_array_length(block_definitions) <> 0;
 
 UPDATE programs p
 SET block_definitions = (
@@ -31,7 +32,9 @@ SET block_definitions = (
     END
   )
   FROM jsonb_array_elements(p.block_definitions) AS block_definition
-);
+)
+WHERE block_definitions IS NOT NULL AND jsonb_array_length(block_definitions) <> 0;
+
 
 # --- !Downs
 UPDATE ONLY programs
