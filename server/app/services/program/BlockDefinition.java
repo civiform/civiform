@@ -9,13 +9,13 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.LocalizedStrings;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.LocalizedStrings;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -56,15 +56,14 @@ public abstract class BlockDefinition {
   @JsonProperty("description")
   public abstract String description();
 
-
   /** Name of a Block used to label it for the user. */
   @JsonProperty("localizedName")
   public abstract LocalizedStrings localizedName();
 
-    /** Description of a Block used to label it for the user. */
-    @JsonProperty("localizedDescription")
-    public abstract LocalizedStrings localizedDescription();
-  
+  /** Description of a Block used to label it for the user. */
+  @JsonProperty("localizedDescription")
+  public abstract LocalizedStrings localizedDescription();
+
   /**
    * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
    * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list

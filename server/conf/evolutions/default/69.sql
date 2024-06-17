@@ -9,7 +9,7 @@ SET block_definitions = (
             THEN jsonb_set(
                 block_definition,
                 '{localizedName}',
-                jsonb_build_object('en-US', block_definition->'name')
+                jsonb_build_object('translations', jsonb_build_object('en-US', block_definition->'name'))
             )
         ELSE block_definition -- Keep the block_definition as is
     END
@@ -25,7 +25,7 @@ SET block_definitions = (
             THEN jsonb_set(
                 block_definition,
                 '{localizedDescription}',
-                jsonb_build_object('en-US', block_definition->'description')
+                jsonb_build_object('translations', jsonb_build_object('en-US', block_definition->'description'))
             )
         ELSE block_definition -- Keep the block_definition as is
     END
