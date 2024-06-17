@@ -9,7 +9,6 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -519,8 +518,6 @@ test.describe('Program admin review of submitted applications', () => {
   }) => {
     const applyFilters = true
     const programName = 'Test program'
-
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await test.step('Login as an admin and create a program with three PAI questions', async () => {
       await loginAsAdmin(page)

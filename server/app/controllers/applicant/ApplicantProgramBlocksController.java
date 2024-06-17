@@ -297,7 +297,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ImmutableList<AddressSuggestion> suggestions,
       ApplicantRequestedAction applicantRequestedAction) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     return CompletableFuture.allOf(
             checkApplicantAuthorization(request, applicantId), applicantStage)
@@ -352,7 +352,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> previousWithApplicantId(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
@@ -447,7 +447,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       Optional<String> questionName) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     Optional<String> successBannerMessage = request.flash().get("success-banner");
     Optional<ToastMessage> flashSuccessBanner =
@@ -528,7 +528,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -667,7 +667,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
         applicantStage

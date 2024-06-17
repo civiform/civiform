@@ -35,7 +35,6 @@ import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
@@ -1694,10 +1693,9 @@ public final class ProgramService {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      SubmittedApplicationFilter filters,
-      Request request) {
+      SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, filters, request);
+        programId, paginationSpecEither, filters);
   }
 
   private static ImmutableSet<CiviFormError> validateBlockDefinition(

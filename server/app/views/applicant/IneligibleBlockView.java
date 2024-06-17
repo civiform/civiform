@@ -142,7 +142,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
 
     return layout.renderWithNav(
         request,
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture().join(),
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture().join(),
         messages,
         bundle,
         applicantId);

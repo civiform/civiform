@@ -10,7 +10,6 @@ import {
   AdminQuestions,
   dismissToast,
   selectApplicantLanguage,
-  enableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
@@ -1122,8 +1121,6 @@ test.describe('Trusted intermediaries', () => {
     }
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
       await test.step('create a program with PAI questions', async () => {
         await loginAsAdmin(page)
         await adminQuestions.addDateQuestion({
