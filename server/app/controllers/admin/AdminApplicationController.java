@@ -30,6 +30,7 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -78,6 +79,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -89,20 +91,20 @@ public final class AdminApplicationController extends CiviFormController {
 
   @Inject
   public AdminApplicationController(
-      ProgramService programService,
-      ApplicantService applicantService,
-      CsvExporterService csvExporterService,
-      FormFactory formFactory,
-      JsonExporterService jsonExporterService,
-      PdfExporterService pdfExporterService,
-      ProgramApplicationListView applicationListView,
-      ProgramApplicationView applicationView,
-      ProgramAdminApplicationService programAdminApplicationService,
-      ProfileUtils profileUtils,
-      MessagesApi messagesApi,
-      DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider,
-      VersionRepository versionRepository) {
+    ProgramService programService,
+    ApplicantService applicantService,
+    CsvExporterService csvExporterService,
+    FormFactory formFactory,
+    JsonExporterService jsonExporterService,
+    PdfExporterService pdfExporterService,
+    ProgramApplicationListView applicationListView,
+    ProgramApplicationView applicationView,
+    ProgramAdminApplicationService programAdminApplicationService,
+    ProfileUtils profileUtils,
+    MessagesApi messagesApi,
+    DateConverter dateConverter,
+    @Now Provider<LocalDateTime> nowProvider,
+    VersionRepository versionRepository, ApplicationStatusesRepository applicationStatusesRepository) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -116,6 +118,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -343,7 +346,7 @@ public final class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            program.statusDefinitions(),
+            applicationStatusesRepository.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));

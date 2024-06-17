@@ -19,6 +19,7 @@ import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
@@ -32,6 +33,7 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -50,18 +52,19 @@ public final class ProgramAdminApplicationService {
   private final String stagingTiNotificationMailingList;
   private final MessagesApi messagesApi;
   private final ApplicationRepository applicationRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   ProgramAdminApplicationService(
-      ApplicantService applicantService,
-      ApplicationEventRepository eventRepository,
-      AccountRepository accountRepository,
-      ProgramRepository programRepository,
-      Config configuration,
-      SimpleEmail emailClient,
-      DeploymentType deploymentType,
-      MessagesApi messagesApi,
-      ApplicationRepository applicationRepository) {
+    ApplicantService applicantService,
+    ApplicationEventRepository eventRepository,
+    AccountRepository accountRepository,
+    ProgramRepository programRepository,
+    Config configuration,
+    SimpleEmail emailClient,
+    DeploymentType deploymentType,
+    MessagesApi messagesApi,
+    ApplicationRepository applicationRepository, ApplicationStatusesRepository applicationStatusesRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -69,6 +72,7 @@ public final class ProgramAdminApplicationService {
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
 
     checkNotNull(configuration);
     checkNotNull(deploymentType);
@@ -81,7 +85,7 @@ public final class ProgramAdminApplicationService {
         configuration.getString("staging_ti_notification_mailing_list");
   }
 
-  /**
+  /*
    * Sets the status on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
@@ -95,9 +99,10 @@ public final class ProgramAdminApplicationService {
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
     boolean sendEmail = newStatusEvent.emailSent();
+    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
 
     Optional<Status> statusDefMaybe =
-        program.getStatusDefinitions().getStatuses().stream()
+      applicationStatusesRepository.lookupActiveStatusDefinitions(programDef.adminName()).getStatuses().stream()
             .filter(s -> s.statusText().equals(newStatusText))
             .findFirst();
     if (statusDefMaybe.isEmpty()) {
@@ -122,7 +127,7 @@ public final class ProgramAdminApplicationService {
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
         sendAdminSubmitterEmail(
-            programRepository.getShallowProgramDefinition(program),
+            programDef,
             applicant,
             statusDef,
             adminSubmitterEmail);
@@ -210,7 +215,7 @@ public final class ProgramAdminApplicationService {
         isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(), subject, body);
   }
 
-  /**
+  /*
    * Sets the note on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
@@ -226,7 +231,7 @@ public final class ProgramAdminApplicationService {
     eventRepository.insertSync(event);
   }
 
-  /** Returns the note content for {@code application}. */
+  /* Returns the note content for {@code application}. */
   public Optional<String> getNote(ApplicationModel application) {
     // The most recent note event is the current value for the note.
     return application.getApplicationEvents().stream()
@@ -235,7 +240,7 @@ public final class ProgramAdminApplicationService {
         .map(app -> app.getDetails().noteEvent().get().note());
   }
 
-  /**
+  /*
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
    */
@@ -249,7 +254,7 @@ public final class ProgramAdminApplicationService {
     }
   }
 
-  /** Validates that the given application is part of the given program. */
+  /* Validates that the given application is part of the given program. */
   private Optional<ApplicationModel> validateProgram(
       Optional<ApplicationModel> application, ProgramDefinition program)
       throws ProgramNotFoundException {
