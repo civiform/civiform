@@ -1,27 +1,21 @@
 -- These assume a default locale of en_US, which is true for all deployments as of 2023-09-05.
 
 # --- !Ups
-UPDATE ONLY programs
+UPDATE programs p
 SET block_definitions = (
   SELECT jsonb_agg(
-           jsonb_set(
-             block_definition,
-             '{localizedName,translations,en_US}',
-             CASE
-               WHEN block_definition->'localizedName'->'translations' ? 'en_US'
-                 AND jsonb_typeof(block_definition->'localizedName'->'translations'->'en_US') = 'string'
-                 AND block_definition->'localizedName'->'translations'->>'en_US' <> ''
-               THEN
-                 block_definition->'localizedName'->'translations'->'en_US'
-               ELSE
-                 block_definition->'name'
-               END,
-             true
-             )
-           )
-  FROM jsonb_array_elements(block_definitions) AS block_definition
-)
-WHERE block_definitions IS NOT NULL AND jsonb_array_length(block_definitions) <> 0;
+    CASE
+        WHEN block_definition ? 'name' AND NOT (block_definition ? 'localizedName')
+            THEN jsonb_set(
+                block_definition,
+                '{localizedName}',
+                jsonb_build_object('en-US', block_definition->'name')
+            )
+        ELSE block_definition -- Keep the block_definition as is
+    END
+  )
+  FROM jsonb_array_elements(p.block_definitions) AS block_definition
+);
 
 # --- !Downs
 UPDATE ONLY programs
