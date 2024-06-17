@@ -33,10 +33,12 @@ import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
+import play.Application;
 import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
@@ -85,21 +87,23 @@ public final class ProgramService {
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   public ProgramService(
-      ProgramRepository programRepository,
-      QuestionService questionService,
-      AccountRepository accountRepository,
-      VersionRepository versionRepository,
-      ClassLoaderExecutionContext classLoaderExecutionContext,
-      ProgramBlockValidationFactory programBlockValidationFactory) {
+    ProgramRepository programRepository,
+    QuestionService questionService,
+    AccountRepository accountRepository,
+    VersionRepository versionRepository,
+    ClassLoaderExecutionContext classLoaderExecutionContext,
+    ProgramBlockValidationFactory programBlockValidationFactory, ApplicationStatusesRepository applicationStatusesRepository) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   /** Get the names for all programs. */
@@ -716,6 +720,10 @@ public final class ProgramService {
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+
+    //Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(programDefinition.adminName(),new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,
@@ -813,7 +821,12 @@ public final class ProgramService {
                 .addAll(updatedStatuses)
                 .add(status)
                 .build());
-
+    //Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions().setStatuses(
+      ImmutableList.<StatusDefinitions.Status>builder()
+        .addAll(updatedStatuses)
+        .add(status)
+        .build()));
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.getShallowProgramDefinition(
@@ -877,6 +890,8 @@ public final class ProgramService {
             : ImmutableList.copyOf(statusesCopy);
 
     program.statusDefinitions().setStatuses(updatedStatuses);
+    //Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions().setStatuses(updatedStatuses));
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
@@ -909,8 +924,12 @@ public final class ProgramService {
         Lists.newArrayList(program.statusDefinitions().getStatuses());
     statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
+    //Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),
+      new StatusDefinitions().setStatuses(
+      ImmutableList.copyOf(statusesCopy)));
 
-    return ErrorAnd.of(
+      return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program.toProgram())))

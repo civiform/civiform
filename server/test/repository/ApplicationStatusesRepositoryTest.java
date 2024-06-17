@@ -107,7 +107,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
     // test
-    repo.updateStatusDefinitions(
+    repo.createOrUpdateStatusDefinitions(
         programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
 
     StatusDefinitions statusDefinitionsResult2 = repo.lookupActiveStatusDefinitions(programName);
