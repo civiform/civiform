@@ -403,7 +403,7 @@ test.describe('Admin question list', () => {
       'universalTestQuestionTwo\n',
     ])
     expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
-      question4Name + '\n',
+      'universalTestQuestionFour\n',
       'universalTestQuestionOne\n',
     ])
 
