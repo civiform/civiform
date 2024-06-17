@@ -36,8 +36,6 @@ public abstract class LocalizedStrings {
    * <p>The only way to create non-required localized strings is with {@link #create(ImmutableMap,
    * boolean)}, where the translations are empty and they can be empty.
    */
-  // isRequired inside of questionText
-  // already has a JsonProperty on it which is interesting...
   @JsonProperty("isRequired")
   public abstract boolean isRequired();
 

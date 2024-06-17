@@ -244,7 +244,7 @@ public abstract class QuestionDefinition {
   }
 
   /** Get the validation predicates. */
-  // validationPredicates
+  @JsonIgnore
   public final ValidationPredicates getValidationPredicates() {
     return config.validationPredicates().orElseGet(this::getDefaultValidationPredicates);
   }
