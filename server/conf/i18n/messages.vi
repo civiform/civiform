@@ -23,6 +23,8 @@ validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
@@ -60,6 +62,10 @@ button.deleteFile=Xoá
 button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
