@@ -4,29 +4,33 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.UlTag;
+import java.util.Objects;
 import java.util.Optional;
 import play.mvc.Http;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import com.google.common.collect.ImmutableList;
-
-
-import services.question.types.QuestionDefinition;
-import services.question.types.TextQuestionDefinition;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
@@ -67,8 +71,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
+    ImmutableMap<Long, QuestionDefinition> questionsById =
+        programMigrationWrapper.getQuestions().stream()
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
     for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(renderProgramBlock(block, questions));
+      programDiv.with(renderProgramBlock(block, questionsById));
     }
 
     FormTag hiddenForm =
@@ -90,35 +98,44 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     return programDiv.with(hiddenForm);
   }
 
-  private DomContent renderProgramBlock(BlockDefinition block, ImmutableList<QuestionDefinition> questions) {
+  private DomContent renderProgramBlock(
+      BlockDefinition block, ImmutableMap<Long, QuestionDefinition> questionsById) {
     DivTag blockDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
             .with(h4(block.name()), p(block.description()));
     // TODO(#7087): Display eligibility and visibility predicates.
 
-    for (QuestionDefinition question : questions) {
-      blockDiv.with(renderQuestion(question));
+    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+      blockDiv.with(renderQuestion(Objects.requireNonNull(questionsById.get(question.id()))));
     }
     return blockDiv;
   }
 
   private DomContent renderQuestion(QuestionDefinition question) {
+    DivTag questionDiv =
+        div()
+            .withClasses("border", "border-gray-200", "p-2")
+            .with(p(question.getQuestionText().getDefault()).withClass("font-bold"));
+    if (!question.getQuestionHelpText().isEmpty()) {
+      questionDiv.with(p(question.getQuestionHelpText().getDefault()));
+    }
 
-    return div()
-        .withClasses("border", "border-gray-200", "p-2")
-        .with(
-          p("Question Type: " + question.getQuestionType()),
-          p("Name: " + question.getName()),
-          p("Description: " + question.getDescription()),
-          p("Question text with translations: " + question.getQuestionText()),
-          p("Help text with translations: " + question.getQuestionHelpText()),
-          p("Is universal: " + question.isUniversal()),
-          p("Validation predicates: " + question.getValidationPredicates()),
-          p("Is enumerator: " + question.isEnumerator()),
-          p("Is persisted: " + question.isPersisted()));
-    // what does "Is persisted" mean??
-    // TODO add Primary Applicant Info Tags
-    // TODO(#7087): Fetch and display all the question info, not just the ID.
+    questionDiv.with(
+        p("Admin name: " + question.getName()),
+        p("Admin description: " + question.getDescription()),
+        p("Question type: " + question.getQuestionType().name()));
+
+    // If a question offers options, show them
+    if (question.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+      UlTag optionList = ul().withClasses("list-disc", "ml-10");
+      for (QuestionOption option : multiOption.getOptions()) {
+        optionList.with(li(option.optionText().getDefault()));
+      }
+      questionDiv.with(optionList);
+    }
+
+    return questionDiv;
   }
 }

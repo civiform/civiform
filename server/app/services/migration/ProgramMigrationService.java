@@ -13,8 +13,6 @@ import controllers.admin.ProgramMigrationWrapper;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 
 /**
  * A service responsible for helping admins migrate program definitions between different
@@ -26,9 +24,6 @@ public final class ProgramMigrationService {
   @Inject
   public ProgramMigrationService(ObjectMapper objectMapper) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
-
-    JsonFactory jsonFactory = objectMapper.getFactory();
-    jsonFactory.enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
     this.objectMapper =
         checkNotNull(objectMapper)
             .registerModule(new GuavaModule())

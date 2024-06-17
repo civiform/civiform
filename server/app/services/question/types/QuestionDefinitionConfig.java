@@ -1,5 +1,8 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
@@ -7,9 +10,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
@@ -39,7 +39,6 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("questionHelpText")
   abstract Optional<LocalizedStrings> questionHelpTextInternal();
 
-  // could i ignore this?
   @JsonIgnore
   abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
 
@@ -92,7 +91,7 @@ public abstract class QuestionDefinitionConfig {
   @AutoValue.Builder
   public abstract static class Builder
       implements RequiredName, RequiredDescription, RequiredQuestionText {
-    @JsonProperty("id")   
+    @JsonProperty("id")
     public abstract Builder setId(long id);
 
     @JsonProperty("id")
@@ -108,7 +107,7 @@ public abstract class QuestionDefinitionConfig {
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
 
-    // @JsonProperty("validationPredicates")
+    @JsonIgnore
     public abstract Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates);
 

@@ -1,5 +1,9 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -23,10 +27,6 @@ import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Superclass for all question types.
@@ -80,25 +80,28 @@ public abstract class QuestionDefinition {
     }
   }
 
+  // Note: All the methods below are @JsonIgnore-d because they all pull information from the {@code
+  // config} object, and the config object is already JSON-serialized.
+
   /** Return true if the question is persisted and has an unique identifier. */
-  // persisted
+  @JsonIgnore
   public final boolean isPersisted() {
     return config.id().isPresent();
   }
 
   /** Get the unique identifier for this question. */
-  // id
+  @JsonIgnore
   public final long getId() {
     return config.id().getAsLong();
   }
 
   /** True if the question is marked as a universal question. */
-  // universal
+  @JsonIgnore
   public final boolean isUniversal() {
     return config.universal();
   }
 
-  // primaryApplicantInfoTags
+  @JsonIgnore
   public final ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTags() {
     return config.primaryApplicantInfoTags();
   }
@@ -116,24 +119,24 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
-  // name
+  @JsonIgnore
   public final String getName() {
     return config.name();
   }
 
-  // lastModifiedTime
+  @JsonIgnore
   public final Optional<Instant> getLastModifiedTime() {
     return config.lastModifiedTime();
   }
 
   // Note that this formatting logic is duplicated in main.ts formatQuestionName()
-  //questionNameKey
+  @JsonIgnore
   public final String getQuestionNameKey() {
     return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
-  // questionPathSegment
+  @JsonIgnore
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
     String formattedName = getQuestionNameKey();
@@ -166,7 +169,7 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is an enumerator question.
    */
-  // enumerator
+  @JsonIgnore
   public final boolean isEnumerator() {
     return getQuestionType().equals(QuestionType.ENUMERATOR);
   }
@@ -176,13 +179,13 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is a repeated question.
    */
-  // repeated
+  @JsonIgnore
   public final boolean isRepeated() {
     return config.enumeratorId().isPresent();
   }
 
   /** True if the question is an {@link AddressQuestionDefinition}. */
-  // address
+  @JsonIgnore
   public final boolean isAddress() {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }
@@ -200,7 +203,7 @@ public abstract class QuestionDefinition {
    * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
    *     exists.
    */
-  // enumeratorId
+  @JsonIgnore
   public final Optional<Long> getEnumeratorId() {
     return config.enumeratorId();
   }
@@ -210,17 +213,17 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
-  // description
+  @JsonIgnore
   public final String getDescription() {
     return config.description();
   }
 
-  // questionText
+  @JsonIgnore
   public final LocalizedStrings getQuestionText() {
     return config.questionText();
   }
 
-  // questionHelpText
+  @JsonIgnore
   public final LocalizedStrings getQuestionHelpText() {
     return config.questionHelpText();
   }
@@ -229,7 +232,7 @@ public abstract class QuestionDefinition {
    * Get a set of {@link Locale}s that this question supports. A question fully supports a locale if
    * it provides translations for all applicant-visible text in that locale.
    */
-  // supportedLocales
+  @JsonIgnore
   public ImmutableSet<Locale> getSupportedLocales() {
     // Question help text is optional
     if (config.questionHelpText().isEmpty()) {
@@ -247,15 +250,17 @@ public abstract class QuestionDefinition {
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
-  // validationPredicatesAsString
+  @JsonIgnore
   public final String getValidationPredicatesAsString() {
     return getValidationPredicates().serializeAsString();
   }
 
   /** Get the type of this question. */
+  @JsonIgnore
   public abstract QuestionType getQuestionType();
 
   /** Get the default validation predicates for this question type. */
+  @JsonIgnore
   abstract ValidationPredicates getDefaultValidationPredicates();
 
   /**
