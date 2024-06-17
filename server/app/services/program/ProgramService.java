@@ -1727,6 +1727,8 @@ public final class ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
             .setEnumeratorId(maybeEnumeratorBlockId)
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
