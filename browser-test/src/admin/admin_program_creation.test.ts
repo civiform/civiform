@@ -520,25 +520,25 @@ test.describe('program creation', () => {
       questionName: 'a',
       questionText: '*italics*',
       helpText: '*italic help text*',
-      markdown: true
+      markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'b',
       questionText: '**bold**',
       helpText: '**bold help text**',
-      markdown: true
+      markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'c',
       questionText: '[link](example.com)',
       helpText: '[linked help text](example.com)',
-      markdown: true
+      markdown: true,
     })
     await adminQuestions.addTextQuestion({
       questionName: 'd',
       questionText: '[questionBank](example.com)',
       helpText: '[questionBank help text](e.com)',
-      markdown: true
+      markdown: true,
     })
 
     const programName = 'Acd program'

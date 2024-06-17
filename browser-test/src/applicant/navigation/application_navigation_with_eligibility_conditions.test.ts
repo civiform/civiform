@@ -355,7 +355,7 @@ test.describe('Applicant navigation flow', () => {
         questionName: questionName,
         questionText:
           'This is a _question_ with some [markdown](https://www.example.com) and \n line \n\n breaks',
-        markdown: true
+        markdown: true,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
