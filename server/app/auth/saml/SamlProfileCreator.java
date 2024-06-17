@@ -16,7 +16,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import javax.inject.Provider;
 import models.ApplicantModel;
-import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.creator.AuthenticatorProfileCreator;
@@ -57,10 +58,11 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
-    ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
+  public Optional<UserProfile> create(
+      Credentials cred, WebContext context, SessionStore sessionStore) {
+    ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
 
-    Optional<UserProfile> samlProfile = super.create(callContext, credentials);
+    Optional<UserProfile> samlProfile = super.create(cred, context, sessionStore);
 
     if (samlProfile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from SAML");
@@ -76,8 +78,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile =
-        profileUtils.currentUserProfile(callContext.webContext());
+    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }

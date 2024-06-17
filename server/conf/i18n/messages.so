@@ -102,7 +102,7 @@ button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
 button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
 button.continueCommonIntakeSr=Sii wad buuxinta {0}
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
+button.viewDetails=Eeg faahfaahinada
 content.submittedDate=La gudbiyay {0}
 content.findPrograms=Hel barnaamijyo
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
@@ -117,15 +117,15 @@ title.status=Heerka
 title.inProgressProgramsUpdated=Socda hadda
 title.activeProgramsUpdated=Lama bilaabin
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
+title.benefitsFinderSection=Raadi adeegyada ee ku caawin kara
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=Codsiyadayda ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+title.otherProgramsSection=Barnaamijyada kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
+title.programsSection=Barnaamijyada ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection=Lagu taliyey ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Qaybta la dhamaystiray
 title.submittedPrograms=La gudbiyay
@@ -226,9 +226,9 @@ label.errorFirstName=Magaca koowaad ayaa loo baahan yahay
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=Magaca dambe ayaa loo baahan yahay
 # Validation error message below email input when the TI tries to create a client with an email that is already in use.
-label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+label.errorEmailInUseForClientCreate=Ciwaanka iimaylka hore ayaa loogu furtay. Lama abuuri karo codsadaha haddi akoonka uu horey u jiray.
 # Validation error message below email input when the TI tries to edit a client with an email that is already in use.
-label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+label.errorEmailInUseForClientEdit=Ciwaanka iimaylka hore ayaa loogu furtay. Lama cusboonaysiin karo bogga aqoonsiga codsadaha haddi akoonka uu horey u jiray.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Bisha
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -354,11 +354,11 @@ button.exitApplication=Ka bax codsiga
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the page stating the program is disabled
-title.programNotAvailable=This program is no longer available
+title.programNotAvailable=Barnaamijkan lama heli karo
 # Info stating program disabled and see home page for other options.
-content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+content.disabledProgramInfo=Waanu ka xunahay, barnaamijka aad isku dayeyso inaad gasho waa la joojiyay. Si aad u hesho barnaamijyo dheeri ah, fadlan ku noqo bogga hore.
 # Button text on a button that takes the user back to the home page.
-button.homePage=Back to homepage
+button.homePage=Ku noqo bogga hore
 
 
 #----------------------------------------------------------#
@@ -466,6 +466,10 @@ dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan 
 dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad midkaan saarto{0}? Isbeddelkan waxa la kaydin doonaa marka aad gujiso "Dib-u-eeg", "Hore", ama "Xiga" oo dhammaan xogta la xiriirta tan {0} way lumi doontaa.
 validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
 validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=Naanaysta {0}
 
 #---------------------------------------------------------------------------------#
@@ -570,6 +574,6 @@ banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxa
 #----------------------------------------------------------------------------------------#
 
 # A stern message shown to the user to make it clear this is a test site only
-banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine1=Mareegtan kaliya waxaa loo hagaajiyey tijaabo. Ha galinin macluumaad shaqsiyadeed.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0}.

@@ -1,0 +1,58 @@
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div role="main" class="margin-2">
+      <div
+        th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
+      ></div>
+      <h1
+        th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
+      ></h1>
+
+      <ul>
+        <li
+          th:each="question : ${ineligibleQuestions}"
+          th:text="${question.getQuestionText()}"
+          class="margin-y-2"
+        ></li>
+      </ul>
+
+      <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
+      <p
+        th:utext="#{content.eligibilityCriteria(${programLinkHtml})}"
+        class="margin-y-2"
+      ></p>
+
+      <p
+        th:text="#{content.changeAnswersForEligibility}"
+        class="margin-y-2"
+      ></p>
+
+      <div>
+        <a
+          class="usa-button"
+          role="button"
+          id="another-program"
+          th:text="#{link.applyToAnotherProgram}"
+          th:href="${applyHref}"
+        >
+        </a>
+        <a
+          class="usa-button"
+          role="button"
+          id="go-back"
+          th:text="#{button.goBackAndEdit}"
+          th:href="${goBackHref}"
+        >
+        </a>
+      </div>
+    </div>
+    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
+    <footer
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+    ></footer>
+  </body>
+</html>

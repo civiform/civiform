@@ -1,25 +1,23 @@
+ --- Create the categories and programs_categories tables.
+
 # --- !Ups
 
-INSERT INTO application_statuses (program_name,status_definitions,status_definitions_lifecycle_stage,create_time)
-SELECT
-  p.name,
-  p.status_definitions,
-  'active' AS status_lifecycle_stage,
-  p.create_time
-FROM programs p
-       INNER JOIN versions_programs vp ON vp.programs_id = p.id
-       INNER JOIN versions v ON vp.versions_id = v.id
-WHERE v.lifecycle_stage IN ('active');
+CREATE TABLE IF NOT EXISTS categories (
+  id BIGSERIAL PRIMARY KEY NOT NULL,
+  localized_name JSONB NOT NULL,
+  create_time TIMESTAMP NOT NULL,
+  last_modified_time TIMESTAMP,
+  lifecycle_stage VARCHAR NOT NULL
+);
 
-INSERT INTO application_statuses (program_name,status_definitions,status_definitions_lifecycle_stage)
-SELECT
-  p.name,
-  p.status_definitions,
-  'obsolete' AS status_lifecycle_stage
-FROM programs p
-       INNER JOIN versions_programs vp ON vp.programs_id = p.id
-       INNER JOIN versions v ON vp.versions_id = v.id
-WHERE v.lifecycle_stage IN ('obsolete');
+CREATE TABLE IF NOT EXISTS programs_categories (
+  programs_id BIGINT NOT NULL,
+  categories_id BIGINT NOT NULL,
+  PRIMARY KEY (programs_id, categories_id)
+);
 
 # --- !Downs
 
+DROP TABLE IF EXISTS programs_categories;
+DROP TABLE IF EXISTS categories;
+>>>>>>> main

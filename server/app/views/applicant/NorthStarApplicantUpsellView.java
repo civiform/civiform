@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.routes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
@@ -41,6 +42,11 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
 
     context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
+    context.setVariable("bannerMessage", params.bannerMessage());
+
+    String downloadHref =
+        routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
+    context.setVariable("downloadHref", downloadHref);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }

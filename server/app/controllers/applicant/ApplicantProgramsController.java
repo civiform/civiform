@@ -89,7 +89,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
+    Optional<String> bannerMessage = request.flash().get("banner");
+    Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);
 
@@ -109,6 +110,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             applicantId,
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
+                            bannerMessage,
                             requesterProfile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class))))
                         .as(Http.MimeTypes.HTML);

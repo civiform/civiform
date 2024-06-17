@@ -102,7 +102,7 @@ button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
 button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
+button.viewDetails=ዝርዝሮችን አሳይ
 content.submittedDate={0} ገብቷል
 content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
@@ -117,15 +117,15 @@ title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
+title.benefitsFinderSection=ሊረዱዎት የሚችሉ አገልግሎቶችን ያግኙ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+title.otherProgramsSection=ሌሎች ፕሮግራሞች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
+title.programsSection=ፕሮግራሞች ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection=የሚመከር ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ክፍል ተጠናቅቋል
 title.submittedPrograms=የገቡ
@@ -226,9 +226,9 @@ label.errorFirstName=መጠሪያ ስም ያስፈልጋል
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=የመጨረሻ ስም ያስፈልጋል
 # Validation error message below email input when the TI tries to create a client with an email that is already in use.
-label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+label.errorEmailInUseForClientCreate=የኢሜይል አድራሻ አስቀድሞ ጥቅም ላይ ውሏል። መለያ አስቀድሞ ካለ አመልካችን መፍጠር አይቻልም።
 # Validation error message below email input when the TI tries to edit a client with an email that is already in use.
-label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+label.errorEmailInUseForClientEdit=የኢሜይል አድራሻ አስቀድሞ ጥቅም ላይ ውሏል። መለያ አስቀድሞ ካለ አመልካችን ማዘመን አይቻልም።
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ወር
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -354,11 +354,11 @@ button.exitApplication=ከመተግበሪያ ይውጡ
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the page stating the program is disabled
-title.programNotAvailable=This program is no longer available
+title.programNotAvailable=ይህ ፕሮግራም ከእንግዲህ አይገኝም
 # Info stating program disabled and see home page for other options.
-content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+content.disabledProgramInfo=እናዝናለን፣ ለመድረስ እየሞከሩት ያለው ፕሮግራም ተሰናክሏል። ተጨማሪ ፕሮግራሞችን ለማግኘት፣ እባክዎ ወደ መነሻ ገጽ ይመለሱ።
 # Button text on a button that takes the user back to the home page.
-button.homePage=Back to homepage
+button.homePage=ወደ መነሻ ገጽ ተመለስ
 
 
 #----------------------------------------------------------#
@@ -466,6 +466,10 @@ dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እር�
 dialog.confirmDeleteAllButtonsSave=ይህን {0} ለመሰረዝ በእርግጥ ይፈልጋሉ? «ግምገማ»፣ «ቀዳሚ» ወይም «ቀጣይ» ላይ ጠቅ ሲያደርጉ ይህ ለውጥ ይቀመጣል እና ከዚህ {0} ጋር የተያያዙ ሁሉም መረጃዎች ይጠፋሉ።
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
 validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName={0} ስም
 
 #---------------------------------------------------------------------------------#
@@ -570,6 +574,6 @@ banner.httpsSectionContent=ቁልፍ ( {0} ) ወይም ኤችቲቲፒኤስ:// 
 #----------------------------------------------------------------------------------------#
 
 # A stern message shown to the user to make it clear this is a test site only
-banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine1=ይህ ጣቢያ ለሙከራ ዓላማዎች ብቻ ነው። የግል መረጃ አያስገቡ።
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገልግሎት ለማመልከት ወደ {0} ይሂዱ።

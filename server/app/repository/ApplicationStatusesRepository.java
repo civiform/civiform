@@ -55,23 +55,24 @@ public final class ApplicationStatusesRepository {
         .collect(Collectors.toList());
   }
 
+
   public void createOrUpdateStatusDefinitions(String programName, StatusDefinitions statusDefinitions) {
     // Begin transaction
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       // archive the previous active one
       database
-          .update(ApplicationStatusesModel.class)
-          .set("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
-          .where()
-          .eq("program_name", programName)
-          .and()
-          .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
-          .update();
+        .update(ApplicationStatusesModel.class)
+        .set("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
+        .where()
+        .eq("program_name", programName)
+        .and()
+        .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
+        .update();
 
       // create new status
       ApplicationStatusesModel newStatusDefinition =
-          new ApplicationStatusesModel(
-              programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
+        new ApplicationStatusesModel(
+          programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
       newStatusDefinition.save();
       transaction.commit();
     }
