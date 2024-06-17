@@ -22,6 +22,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
+import services.LocalizedStrings;
 
 public class ServiceAreaUpdateResolverTest extends ResetPostgres {
   private ServiceAreaUpdateResolver serviceAreaUpdateResolver;
@@ -59,6 +60,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
