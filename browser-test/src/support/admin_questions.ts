@@ -1195,6 +1195,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1218,13 +1219,11 @@ export class AdminQuestions {
     if (maxNum != null) {
       await this.page.fill('label:has-text("Maximum length")', String(maxNum))
     }
+    await this.clickSubmitButtonAndNavigate('Create')
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
     if (!markdown) {
       await this.expectDraftQuestionExist(questionName, questionText)
     }
-
-    await this.clickSubmitButtonAndNavigate('Create')
-
-    await this.expectAdminQuestionsPageWithCreateSuccessToast()
   }
 
   async clickUniversalToggle() {
