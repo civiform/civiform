@@ -148,6 +148,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
@@ -193,6 +195,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
