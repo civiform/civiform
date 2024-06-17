@@ -30,10 +30,10 @@
 <div
   th:fragment="progressBar"
   class="usa-step-indicator usa-step-indicator--center margin-x-2 maxw-tablet"
-  aria-label="progress"
+  th:aria-label="#{content.blockProgressLabel}"
 >
   <!--/* The progress bar itself */-->
-  <ol class="usa-step-indicator__segments">
+  <ol class="usa-step-indicator__segments" aria-hidden="true">
     <th:block
       th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
       th:with="block=${applicationParams.blockList().get(i)}"
