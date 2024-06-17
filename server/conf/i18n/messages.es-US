@@ -23,6 +23,8 @@ validation.invalidInput=Ingresa una entrada válida.
 validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
 content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
@@ -60,6 +62,10 @@ button.deleteFile=Borrar
 button.keepFile=Continuar
 button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Omitir
 content.blockProgress={0} de {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
