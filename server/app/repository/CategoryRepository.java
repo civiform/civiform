@@ -6,6 +6,7 @@ import io.ebean.Database;
 import javax.inject.Inject;
 import models.CategoryModel;
 
+/** A repository object to perform queries on program categories, which are used for filtering. */
 public final class CategoryRepository {
 
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
@@ -18,6 +19,7 @@ public final class CategoryRepository {
     this.database = DB.getDefault();
   }
 
+  /** Fetches a list of categories with the given IDs. */
   public ImmutableList<CategoryModel> findCategoriesByIds(ImmutableList<Long> ids) {
     return ImmutableList.copyOf(
         database
@@ -29,6 +31,7 @@ public final class CategoryRepository {
             .findList());
   }
 
+  /** Fetches a list of all categories. */
   public ImmutableList<CategoryModel> listCategories() {
     return ImmutableList.copyOf(
         database
@@ -38,6 +41,10 @@ public final class CategoryRepository {
             .findList());
   }
 
+  /**
+   * Fetches the category with the given default name if such a category exists. Otherwise, creates
+   * a new category and saves it to the database.
+   */
   public CategoryModel fetchOrSaveUniqueCategory(CategoryModel category) {
     CategoryModel existing =
         database
