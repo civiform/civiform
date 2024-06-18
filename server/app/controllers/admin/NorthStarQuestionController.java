@@ -49,6 +49,9 @@ public final class NorthStarQuestionController extends CiviFormController {
   public Result sampleQuestion(Request request, String questionType) {
     System.out.println("ssandbekkhaug sample question controller: " + questionType);
 
+    // TODO ssandbekkhaug this method is called on page load. How do I get the default text
+    // from the question?
+
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
 
