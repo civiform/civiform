@@ -2,6 +2,7 @@ package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import services.LocalizedStrings;
 
@@ -18,10 +19,12 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   static final String DEFAULT_ENTITY_TYPE = "Item";
 
+  @JsonProperty("entityType")
   private final LocalizedStrings entityType;
 
   public EnumeratorQuestionDefinition(
-      QuestionDefinitionConfig config, LocalizedStrings entityType) {
+      @JsonProperty("config") QuestionDefinitionConfig config,
+      @JsonProperty("entityType") LocalizedStrings entityType) {
     super(config);
     this.entityType = checkNotNull(entityType);
   }

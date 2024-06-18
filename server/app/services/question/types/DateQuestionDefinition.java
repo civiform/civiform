@@ -1,12 +1,13 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 /** Defines a date question. */
 public final class DateQuestionDefinition extends QuestionDefinition {
 
-  public DateQuestionDefinition(QuestionDefinitionConfig config) {
+  public DateQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

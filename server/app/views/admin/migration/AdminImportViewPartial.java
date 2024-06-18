@@ -10,7 +10,6 @@ import static j2html.TagCreator.ul;
 import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
@@ -31,6 +30,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.TextFormatter;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
@@ -60,7 +60,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
 
     ProgramDefinition program = programMigrationWrapper.getProgram();
-    ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
 
     DivTag programDiv =
         div()
@@ -116,9 +115,15 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     DivTag questionDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
-            .with(p(question.getQuestionText().getDefault()).withClass("font-bold"));
+            .with(
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            question.getQuestionText().getDefault(), false, false))
+                    .withClass("font-bold"));
     if (!question.getQuestionHelpText().isEmpty()) {
-      questionDiv.with(p(question.getQuestionHelpText().getDefault()));
+      questionDiv.with(
+          TextFormatter.formatText(question.getQuestionHelpText().getDefault(), false, false));
     }
 
     questionDiv.with(
