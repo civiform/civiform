@@ -107,7 +107,74 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    assertThat(service.getStoredFileKeys()).containsExactly("file-key");
+    assertThat(service.getStoredFileKeys(false)).containsExactly("file-key");
+  }
+
+  @Test
+  public void getStoredFileKeys_worksForMultipleFileUploads() {
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withBlock("file-one")
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
+            .buildDefinition();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        0,
+        "file-key");
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        1,
+        "file-key-2");
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+
+    assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
+  }
+
+  @Test
+  public void getStoredFileKeys_doesNotReturnOldKeyWhenMultipleFileEnabled() {
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withBlock("file-one")
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
+            .buildDefinition();
+
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        "oldKey");
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        0,
+        "file-key");
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        1,
+        "file-key-2");
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+
+    assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
   }
 
   @Test
@@ -126,7 +193,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    assertThat(service.getStoredFileKeys()).isEmpty();
+    assertThat(service.getStoredFileKeys(false)).isEmpty();
   }
 
   @Test
