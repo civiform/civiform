@@ -444,9 +444,11 @@ test.describe('Program admin review of submitted applications', () => {
     await test.step('Add and publish program as Civiform Admin', async () => {
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({questionName: 'Name'})
+      await adminQuestions.addNameQuestion({
+        questionName: 'Sample Name Question',
+      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Name'],
+        ['Sample Name Question'],
         programName,
       )
 
