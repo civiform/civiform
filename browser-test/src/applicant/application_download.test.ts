@@ -43,7 +43,7 @@ test.describe('csv export for multioption question', () => {
       /* clickSubmit= */ true,
     )
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'csv-color'],
+      ['Sample Name Question', 'csv-color'],
       programName,
     )
     await logout(page)
@@ -151,14 +151,14 @@ test.describe('normal application flow', () => {
     )
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
     await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
-    await adminQuestions.exportQuestion('Name')
+    await adminQuestions.exportQuestion('Sample Name Question')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
     await adminQuestions.exportQuestion('csv-color')
     await adminPrograms.addAndPublishProgramWithQuestions(
       [
-        'Name',
+        'Sample Name Question',
         'dropdown-csv-download',
         'csv-date',
         'csv-currency',
@@ -341,8 +341,8 @@ test.describe('normal application flow', () => {
       )
     }
 
-    await adminQuestions.createNewVersion('Name')
-    await adminQuestions.exportQuestionOpaque('Name')
+    await adminQuestions.createNewVersion('Sample Name Question')
+    await adminQuestions.exportQuestionOpaque('Sample Name Question')
     await adminPrograms.publishProgram(programName)
 
     await adminPrograms.gotoAdminProgramsPage()
@@ -378,7 +378,10 @@ test.describe('normal application flow', () => {
     await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
-    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Sample Name Question'],
+      programName,
+    )
 
     await logout(page)
     await loginAsTestUser(page)
