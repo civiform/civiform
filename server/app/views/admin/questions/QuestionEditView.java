@@ -404,14 +404,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setMarkdownLinkText("see how it works")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
-            .getTextareaTag()
-        // TODO ssandbekkhaug
-        // .attr(
-        //       "hx-get",
-        //       controllers.admin.routes.NorthStarQuestionController.sampleQuestion(
-        //           questionType.getLabel()))
-        //   .attr("hx-trigger", "onchange")
-        );
+            .getTextareaTag());
     if (!questionType.equals(QuestionType.STATIC)) {
       formTag.with(
           FieldWithLabel.textArea()

@@ -70,6 +70,8 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
 
     context.setVariable("question", applicantQuestion);
 
+    // System.out.println("Question text: " + );
+
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);
     context.setVariable("questionRendererParams", rendererParams);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);

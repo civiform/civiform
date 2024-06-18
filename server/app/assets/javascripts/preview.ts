@@ -53,6 +53,12 @@ class PreviewController {
         false,
       )
       PreviewController.updateFromNewQuestionText(textInput.value)
+
+      // TODO ssandbekkhaug wait for trigger from Thymeleaf template?
+      // Wait 1 ms for Thymeleaf preview to load
+      // setTimeout(() => {
+      //   PreviewController.updateFromNewQuestionText(textInput.value)
+      // }, 1)
     }
     const helpTextInput = document.getElementById(
       PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
@@ -342,8 +348,20 @@ class PreviewController {
         text + ' #' + (index + 1).toString()
     })
   }
+
+  static printTest() {
+    console.log('Print test')
+  }
 }
 
 export function init() {
   new PreviewController()
 }
+
+export function northStarQuestionPreviewDidLoad() {
+  console.log('ssandbekkhaug northStarQuestionPreviewDidLoad')
+
+  // TODO ssandbekkhaug update question preview text
+}
+
+export default PreviewController

@@ -1,3 +1,25 @@
 <div
   th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations})}"
 ></div>
+
+<script th:src="${adminJsBundle}"></script>
+
+<script th:inline="javascript" type="text/javascript">
+  /*<![CDATA[*/
+  console.log('Thymeleaf JS')
+  
+  // PreviewController.printTest();
+
+  // Error: northStarQuestionPreviewDidLoad is not defined
+  northStarQuestionPreviewDidLoad();
+  /*]]>*/
+</script>
+
+<script type="module">
+  // Uncaught SyntaxError: The requested module
+  // '/assets/dist/d73e211765209571f62340603b12a7de-admin.bundle.js'
+  // does not provide an export named 'PreviewController'
+  // import {PreviewController} from '[[${adminJsBundle}]]'
+  // PreviewController.printTest()
+  // northStarQuestionPreviewDidLoad()
+</script>
