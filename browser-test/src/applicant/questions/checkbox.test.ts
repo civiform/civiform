@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -22,7 +21,6 @@ test.describe('Checkbox question for applicant flow', () => {
         adminQuestions,
         adminPrograms,
       )
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('Updates options in preview', async ({page, adminQuestions}) => {

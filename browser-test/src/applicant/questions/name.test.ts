@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -25,7 +24,6 @@ test.describe('name applicant flow', () => {
         adminQuestions,
         adminPrograms,
       )
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
