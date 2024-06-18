@@ -33,7 +33,6 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -56,15 +55,16 @@ public final class ProgramAdminApplicationService {
 
   @Inject
   ProgramAdminApplicationService(
-    ApplicantService applicantService,
-    ApplicationEventRepository eventRepository,
-    AccountRepository accountRepository,
-    ProgramRepository programRepository,
-    Config configuration,
-    SimpleEmail emailClient,
-    DeploymentType deploymentType,
-    MessagesApi messagesApi,
-    ApplicationRepository applicationRepository, ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicantService applicantService,
+      ApplicationEventRepository eventRepository,
+      AccountRepository accountRepository,
+      ProgramRepository programRepository,
+      Config configuration,
+      SimpleEmail emailClient,
+      DeploymentType deploymentType,
+      MessagesApi messagesApi,
+      ApplicationRepository applicationRepository,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -102,7 +102,10 @@ public final class ProgramAdminApplicationService {
     ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
 
     Optional<Status> statusDefMaybe =
-      applicationStatusesRepository.lookupActiveStatusDefinitions(programDef.adminName()).getStatuses().stream()
+        applicationStatusesRepository
+            .lookupActiveStatusDefinitions(programDef.adminName())
+            .getStatuses()
+            .stream()
             .filter(s -> s.statusText().equals(newStatusText))
             .findFirst();
     if (statusDefMaybe.isEmpty()) {
@@ -126,11 +129,7 @@ public final class ProgramAdminApplicationService {
       // Notify an Admin/TI if they applied.
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
-        sendAdminSubmitterEmail(
-            programDef,
-            applicant,
-            statusDef,
-            adminSubmitterEmail);
+        sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
       }
       // Notify the applicant.
       ApplicantPersonalInfo applicantPersonalInfo =

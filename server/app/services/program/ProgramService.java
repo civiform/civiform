@@ -33,7 +33,6 @@ import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import play.Application;
 import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
@@ -91,12 +90,13 @@ public final class ProgramService {
 
   @Inject
   public ProgramService(
-    ProgramRepository programRepository,
-    QuestionService questionService,
-    AccountRepository accountRepository,
-    VersionRepository versionRepository,
-    ClassLoaderExecutionContext classLoaderExecutionContext,
-    ProgramBlockValidationFactory programBlockValidationFactory, ApplicationStatusesRepository applicationStatusesRepository) {
+      ProgramRepository programRepository,
+      QuestionService questionService,
+      AccountRepository accountRepository,
+      VersionRepository versionRepository,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
+      ProgramBlockValidationFactory programBlockValidationFactory,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -721,8 +721,10 @@ public final class ProgramService {
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
 
-    //Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(programDefinition.adminName(),new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+    // Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(),
+        new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
 
     updateSummaryImageDescriptionLocalization(
         programDefinition,
@@ -821,12 +823,15 @@ public final class ProgramService {
                 .addAll(updatedStatuses)
                 .add(status)
                 .build());
-    //Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions().setStatuses(
-      ImmutableList.<StatusDefinitions.Status>builder()
-        .addAll(updatedStatuses)
-        .add(status)
-        .build()));
+    // Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.adminName(),
+        new StatusDefinitions()
+            .setStatuses(
+                ImmutableList.<StatusDefinitions.Status>builder()
+                    .addAll(updatedStatuses)
+                    .add(status)
+                    .build()));
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.getShallowProgramDefinition(
@@ -890,8 +895,9 @@ public final class ProgramService {
             : ImmutableList.copyOf(statusesCopy);
 
     program.statusDefinitions().setStatuses(updatedStatuses);
-    //Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions().setStatuses(updatedStatuses));
+    // Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions().setStatuses(updatedStatuses));
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
@@ -924,12 +930,12 @@ public final class ProgramService {
         Lists.newArrayList(program.statusDefinitions().getStatuses());
     statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
-    //Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.adminName(),
-      new StatusDefinitions().setStatuses(
-      ImmutableList.copyOf(statusesCopy)));
+    // Temporary hooks for StatusMigration work
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.adminName(),
+        new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
 
-      return ErrorAnd.of(
+    return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program.toProgram())))

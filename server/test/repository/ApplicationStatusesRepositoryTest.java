@@ -39,10 +39,11 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("Active status tests" + uniqueProgramId, "description")
-          .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
     // test
-    StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+    StatusDefinitions statusDefinitionsResult =
+        repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     // assert
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
@@ -66,12 +67,12 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   public void canQueryForOboseleteApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
-      ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
+        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     ApplicationStatusesModel applicationStatusesModel =
-      new ApplicationStatusesModel(
-        programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
     applicationStatusesModel.save();
     applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
 
@@ -90,7 +91,9 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     Long uniqueProgramId = new Random().nextLong();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description").withStatusDefinitions(statusDefinitions).build();
+        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description")
+            .withStatusDefinitions(statusDefinitions)
+            .build();
     String programName = program.getProgramDefinition().adminName();
 
     // pre assert before test

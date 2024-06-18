@@ -2254,32 +2254,32 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
-    ImmutableList<StatusDefinitions.Status> statuses =  ImmutableList.of(
-      StatusDefinitions.Status.builder()
-        .setStatusText(STATUS_WITH_EMAIL.statusText())
-        .setLocalizedStatusText(
-          STATUS_WITH_EMAIL
-            .localizedStatusText()
-            .updateTranslation(Locale.GERMAN, "german-status-with-email"))
-        .setLocalizedEmailBodyText(
-          Optional.of(
-            STATUS_WITH_EMAIL
-              .localizedEmailBodyText()
-              .get()
-              .updateTranslation(Locale.GERMAN, "german email body")))
-        .build(),
-      StatusDefinitions.Status.builder()
-        .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-        .setLocalizedStatusText(
-          STATUS_WITH_NO_EMAIL
-            .localizedStatusText()
-            .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
-        .build());
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(statuses);
-    //test hooks to new ApplicationStatusRepository
+    ImmutableList<StatusDefinitions.Status> statuses =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-email"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
+                        STATUS_WITH_EMAIL
+                            .localizedEmailBodyText()
+                            .get()
+                            .updateTranslation(Locale.GERMAN, "german email body")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(statuses);
+    // test hooks to new ApplicationStatusRepository
     assertThat(appRepo.lookupActiveStatusDefinitions(definition.adminName()).getStatuses())
-      .isEqualTo(statuses);
+        .isEqualTo(statuses);
   }
 
   @Test
@@ -2298,8 +2298,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
-    //test hooks to new ApplicationStatusRepository
-    assertThat(appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName()).getStatuses()).isNotEmpty();
+    // test hooks to new ApplicationStatusRepository
+    assertThat(
+            appRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -2333,36 +2337,36 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
-    ImmutableList<StatusDefinitions.Status> statusesResult =  ImmutableList.of(
-      StatusDefinitions.Status.builder()
-        .setStatusText(STATUS_WITH_EMAIL.statusText())
-        .setLocalizedStatusText(
-          STATUS_WITH_EMAIL
-            .localizedStatusText()
-            .updateTranslation(
-              Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
-        .setLocalizedEmailBodyText(
-          Optional.of(
-            STATUS_WITH_EMAIL
-              .localizedEmailBodyText()
-              .get()
-              .updateTranslation(
-                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
-        .build(),
-      StatusDefinitions.Status.builder()
-        .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-        .setLocalizedStatusText(
-          STATUS_WITH_NO_EMAIL
-            .localizedStatusText()
-            .updateTranslation(
-              Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
-        .build());
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(statusesResult);
+    ImmutableList<StatusDefinitions.Status> statusesResult =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
+                        STATUS_WITH_EMAIL
+                            .localizedEmailBodyText()
+                            .get()
+                            .updateTranslation(
+                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(statusesResult);
 
-    //test hooks to new ApplicationStatusRepository
+    // test hooks to new ApplicationStatusRepository
     assertThat(appRepo.lookupActiveStatusDefinitions(definition.adminName()).getStatuses())
-      .isEqualTo(statusesResult);
+        .isEqualTo(statusesResult);
   }
 
   @Test
@@ -2491,8 +2495,12 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    //test hooks to new ApplicationStatusRepository
-    assertThat(appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName()).getStatuses()).isNotEmpty();
+    // test hooks to new ApplicationStatusRepository
+    assertThat(
+            appRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
   }
 
   @Test
@@ -2519,13 +2527,16 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    //test hooks to new ApplicationStatusRepository
-    //no updates to repository
-    StatusDefinitions currentStatus = appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+    // test hooks to new ApplicationStatusRepository
+    // no updates to repository
+    StatusDefinitions currentStatus =
+        appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
-    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
-    assertThat(currentStatus.getStatuses().get(1).statusText()).isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2563,13 +2574,16 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    //test hooks to new ApplicationStatusRepository
-    //no updates to repository
-    StatusDefinitions currentStatus = appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+    // test hooks to new ApplicationStatusRepository
+    // no updates to repository
+    StatusDefinitions currentStatus =
+        appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
-    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
-    assertThat(currentStatus.getStatuses().get(1).statusText()).isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2763,7 +2777,8 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().statusDefinitions().getStatuses())
         .containsExactly(APPROVED_DEFAULT_STATUS);
-    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses()).containsExactly(APPROVED_DEFAULT_STATUS);
+    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+        .containsExactly(APPROVED_DEFAULT_STATUS);
 
     // Ensure that appending to a non-empty list actually appends.
     ErrorAnd<ProgramDefinition, CiviFormError> secondResult =
@@ -2772,7 +2787,8 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().statusDefinitions().getStatuses())
         .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
-    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses()).containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
+    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+        .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
   }
 
   @Test
@@ -2809,7 +2825,11 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    assertThat(appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName()).getStatuses()).containsExactly(APPROVED_STATUS);
+    assertThat(
+            appRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(APPROVED_STATUS);
 
     var editedStatus =
         StatusDefinitions.Status.builder()
@@ -2829,7 +2849,11 @@ public class ProgramServiceTest extends ResetPostgres {
             });
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().statusDefinitions().getStatuses()).containsExactly(editedStatus);
-    assertThat(appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName()).getStatuses()).containsExactly(editedStatus);
+    assertThat(
+            appRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(editedStatus);
   }
 
   @Test

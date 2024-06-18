@@ -91,20 +91,21 @@ public final class AdminApplicationController extends CiviFormController {
 
   @Inject
   public AdminApplicationController(
-    ProgramService programService,
-    ApplicantService applicantService,
-    CsvExporterService csvExporterService,
-    FormFactory formFactory,
-    JsonExporterService jsonExporterService,
-    PdfExporterService pdfExporterService,
-    ProgramApplicationListView applicationListView,
-    ProgramApplicationView applicationView,
-    ProgramAdminApplicationService programAdminApplicationService,
-    ProfileUtils profileUtils,
-    MessagesApi messagesApi,
-    DateConverter dateConverter,
-    @Now Provider<LocalDateTime> nowProvider,
-    VersionRepository versionRepository, ApplicationStatusesRepository applicationStatusesRepository) {
+      ProgramService programService,
+      ApplicantService applicantService,
+      CsvExporterService csvExporterService,
+      FormFactory formFactory,
+      JsonExporterService jsonExporterService,
+      PdfExporterService pdfExporterService,
+      ProgramApplicationListView applicationListView,
+      ProgramApplicationView applicationView,
+      ProgramAdminApplicationService programAdminApplicationService,
+      ProfileUtils profileUtils,
+      MessagesApi messagesApi,
+      DateConverter dateConverter,
+      @Now Provider<LocalDateTime> nowProvider,
+      VersionRepository versionRepository,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
