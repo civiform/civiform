@@ -8,9 +8,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
-import modules.ThymeleafModule;
 import org.pac4j.play.java.Secure;
-import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -27,8 +25,8 @@ import views.admin.questions.NorthStarQuestionPreview;
 /** Controller for rendering inputs for questions. */
 public final class NorthStarQuestionController extends CiviFormController {
 
-  private final TemplateEngine templateEngine;
-  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  // private final TemplateEngine templateEngine;
+  // private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final NorthStarQuestionPreview northStarQuestionPreview;
   private final Messages messages;
 
@@ -36,13 +34,13 @@ public final class NorthStarQuestionController extends CiviFormController {
   public NorthStarQuestionController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      // TemplateEngine templateEngine,
+      // ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       NorthStarQuestionPreview northStarQuestionPreview,
       MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    // this.templateEngine = checkNotNull(templateEngine);
+    // this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.northStarQuestionPreview = checkNotNull(northStarQuestionPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }

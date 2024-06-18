@@ -226,9 +226,13 @@ class PreviewController {
 
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
+
+    console.log('ssandbekkhaug preview got: ' + text)
+
     if (text.length > 0) {
-      const contentElement = formatTextHtml(text)
+      const contentElement = formatTextHtml(text) // ssandbekkhaug text set here
       contentElement.classList.add('pr-16')
+      contentElement.style.backgroundColor = 'red' // TODO ssandbekkhaug remove
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
