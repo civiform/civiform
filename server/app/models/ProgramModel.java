@@ -125,8 +125,19 @@ public class ProgramModel extends BaseModel {
   @OrderBy("id desc")
   private List<ApplicationModel> applications;
 
+  @ManyToMany(mappedBy = "programs")
+  @JoinTable(
+      name = "programs_categories",
+      joinColumns = @JoinColumn(name = "programs_id"),
+      inverseJoinColumns = @JoinColumn(name = "categories_id"))
+  private List<CategoryModel> categories;
+
   public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
+  }
+
+  public ImmutableList<CategoryModel> getCategories() {
+    return ImmutableList.copyOf(categories);
   }
 
   /**
