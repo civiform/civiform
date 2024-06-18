@@ -1,6 +1,5 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -54,10 +53,10 @@ test.describe('with program statuses', () => {
     {tag: ['@northstar']},
     () => {
       test('displays status', async ({page}) => {
-        await loginAsTestUser(page)
         await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+        await loginAsTestUser(page)
         await validateScreenshot(page, 'program-list-with-status-northstar')
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
         await logout(page)
       })
     },
