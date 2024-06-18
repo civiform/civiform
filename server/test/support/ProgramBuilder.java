@@ -327,8 +327,11 @@ public class ProgramBuilder {
     ProgramDefinition programDefinition = builder.build();
     ApplicationStatusesRepository appStatusRepo =
         injector.instanceOf(ApplicationStatusesRepository.class);
-    appStatusRepo.createOrUpdateStatusDefinitions(
+    if(!programDefinition.statusDefinitions().getStatuses().isEmpty())
+    {
+      appStatusRepo.createOrUpdateStatusDefinitions(
         programDefinition.adminName(), programDefinition.statusDefinitions());
+    }
 
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();

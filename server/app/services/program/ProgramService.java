@@ -381,7 +381,8 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             programAcls);
-
+    //temporary hooks to create a new row in ApplicationStatuses table
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(adminName,new StatusDefinitions());
     return ErrorAnd.of(
         programRepository.getShallowProgramDefinition(
             programRepository.insertProgramSync(program)));

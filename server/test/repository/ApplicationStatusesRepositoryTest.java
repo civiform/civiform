@@ -6,6 +6,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Random;
+
+import io.ebean.Database;
 import models.ApplicationStatusesModel;
 import models.ProgramModel;
 import models.StatusDefinitionsLifecycleStage;
@@ -67,23 +69,30 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   public void canQueryForOboseleteApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
+        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description")
+         // .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)))
+          .build();
+
     String programName = program.getProgramDefinition().adminName();
+
+    repo.createOrUpdateStatusDefinitions(programName,new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
+
+    assertThat(repo.lookupActiveStatusDefinitions(programName).getStatuses().size()).isEqualTo(1);
+    List<StatusDefinitions> list = repo.lookupListOfObsoleteStatusDefinitions(programName);
+    System.out.print("-------------------"+list.size());
+    list.stream().forEach(e->System.out.println("***************"+e.getStatuses().size()));
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(
-            programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
-    applicationStatusesModel.save();
-    applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+    repo.createOrUpdateStatusDefinitions(programName,statusDefinitions);
 
     List<StatusDefinitions> statusDefinitionsResults =
         repo.lookupListOfObsoleteStatusDefinitions(programName);
 
     assertThat(statusDefinitionsResults).isNotEmpty();
+    //one status is added as part of the program creation and one status as obsolete status
     assertThat(statusDefinitionsResults.size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().get(0).statusText())
-        .isEqualTo("Approved");
+        .isEqualTo("Reapply");
   }
 
   @Test
