@@ -2378,8 +2378,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
-    //test hooks to new ApplicationStatusRepository
-    assertThat(appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName()).getStatuses()).isNotEmpty();
 
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
@@ -2526,7 +2524,7 @@ public class ProgramServiceTest extends ResetPostgres {
     StatusDefinitions currentStatus = appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
-    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_EMAIL);
+    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
     assertThat(currentStatus.getStatuses().get(1).statusText()).isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
@@ -2570,7 +2568,7 @@ public class ProgramServiceTest extends ResetPostgres {
     StatusDefinitions currentStatus = appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
-    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_EMAIL);
+    assertThat(currentStatus.getStatuses().get(0).statusText()).isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
     assertThat(currentStatus.getStatuses().get(1).statusText()).isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
