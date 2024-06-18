@@ -62,6 +62,9 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
       boolean isOptional) {
     Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
+    boolean canUploadFile =
+        params.multipleFileUploadEnabled() ? fileUploadQuestion.canUploadFile() : true;
+
     return div()
         .with(
             label()
@@ -71,7 +74,8 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
         .with(
             applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
-        .with(
+        .condWith(
+            canUploadFile,
             label()
                 .withFor(fileInputId)
                 .with(
@@ -81,7 +85,8 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                         .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
                         .withClasses(
                             ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
-        .with(
+        .condWith(
+            canUploadFile,
             p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
                 .withClasses("text-sm", "text-gray-600", "my-2"));
   }

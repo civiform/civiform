@@ -57,6 +57,18 @@ export class ApplicantFileQuestion {
     expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(0)
   }
 
+  async expectHasFileInput() {
+    await expect(
+      this.page.getByRole('button', {name: 'Choose File'}),
+    ).toHaveCount(1)
+  }
+
+  async expectNoFileInput() {
+    await expect(
+      this.page.getByRole('button', {name: 'Choose File'}),
+    ).toHaveCount(0)
+  }
+
   async clickSkip() {
     await this.page.locator(this.skipButtonLocator).click()
   }

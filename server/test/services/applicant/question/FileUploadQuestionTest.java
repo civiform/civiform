@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.ApplicantModel;
@@ -110,5 +111,53 @@ public class FileUploadQuestionTest extends ResetPostgres {
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFilename().get()).isEqualTo("file%?\\/^&!@");
+  }
+
+  @Test
+  public void canUploadFile() {
+    FileUploadQuestionDefinition fileUploadQuestionDefinitionWithMax =
+        new FileUploadQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.builder()
+                        .setMaxFiles(OptionalInt.of(2))
+                        .build())
+                .setLastModifiedTime(Optional.empty())
+                .build());
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinitionWithMax, applicantData, Optional.empty());
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.canUploadFile()).isTrue();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, "filekey1");
+
+    assertThat(fileUploadQuestion.canUploadFile()).isTrue();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, "filekey2");
+
+    assertThat(fileUploadQuestion.canUploadFile()).isFalse();
+  }
+
+  @Test
+  public void canUploadFile_noMaxSet() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.canUploadFile()).isTrue();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, "filekey1");
+
+    assertThat(fileUploadQuestion.canUploadFile()).isTrue();
   }
 }

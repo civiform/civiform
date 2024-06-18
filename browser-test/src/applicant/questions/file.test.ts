@@ -242,6 +242,58 @@ test.describe('file upload applicant flow', () => {
     })
   })
 
+  test.describe('test multiple file upload with max files', () => {
+    const programName = 'Test program for multiple file upload'
+    const fileUploadQuestionText = 'Required file upload question'
+
+    test('hides upload button at max', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await test.step('Add file upload question and publish', async () => {
+        await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+        await loginAsAdmin(page)
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
+          programName,
+        )
+
+        await logout(page)
+      })
+
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Adding maximum files hides file input', async () => {
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file.txt',
+        )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file2.txt',
+        )
+
+        await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+        await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+        await applicantFileQuestion.expectNoFileInput()
+      })
+
+      await test.step('Removing a file shows file input again', async () => {
+        await applicantFileQuestion.removeFileUpload('file.txt')
+        await applicantFileQuestion.expectHasFileInput()
+      })
+    })
+  })
+
   test.describe('required file upload question with multiple file uploads', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'

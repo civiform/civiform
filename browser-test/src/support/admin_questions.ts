@@ -11,6 +11,7 @@ type QuestionParams = {
   questionName: string
   minNum?: number | null
   maxNum?: number | null
+  maxFiles?: number | null
   options?: Array<QuestionOption>
   description?: string
   questionText?: string
@@ -974,6 +975,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    maxFiles = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -990,6 +992,13 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (maxFiles != null) {
+      await this.page.fill(
+        'label:has-text("Maximum number of file uploads")',
+        String(maxFiles),
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 

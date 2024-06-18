@@ -722,6 +722,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (keysOptional.isPresent()) {
                 ImmutableList<String> keys = keysOptional.get();
 
+                if (!fileUploadQuestion.canUploadFile()) {
+                  return failedFuture(
+                      new IllegalArgumentException(
+                          "Cannot upload additional files for this question."));
+                }
+
                 boolean appendValue = true;
 
                 // Write the existing keys so that we don't delete any.
