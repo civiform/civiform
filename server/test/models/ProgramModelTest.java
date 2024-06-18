@@ -110,6 +110,7 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().eligibilityIsGating()).isEqualTo(false);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
+    assertThat(found.getCategories()).isInstanceOf(ImmutableList.class);
 
     assertThat(
             found
