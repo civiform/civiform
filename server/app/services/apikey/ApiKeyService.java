@@ -72,6 +72,10 @@ public final class ApiKeyService {
   private static final int KEY_ID_LENGTH = 128;
   private static final int KEY_SECRET_LENGTH = 256;
 
+  // This is the subnet mask that would represent the full network address space associated
+  // with the IP address. In CIDR notation this would be the ending '0' if given '10.1.1.1/0'
+  private static final String GLOBAL_SUBNET_NETMASK = "0.0.0.0";
+
   private final ApiKeyRepository repository;
   private final Environment environment;
   private final ProgramService programService;
@@ -256,12 +260,12 @@ public final class ApiKeyService {
     }
 
     for (String subnetString : Splitter.on(",").split(subnetInputString)) {
-      if (subnetString.endsWith("0") && banGlobalSubnet) {
-        return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot allow all IP addresses.");
-      }
-
       try {
-        new SubnetUtils(subnetString);
+        SubnetUtils subnetUtils = new SubnetUtils(subnetString);
+
+        if (subnetUtils.getInfo().getNetmask().equals(GLOBAL_SUBNET_NETMASK) && banGlobalSubnet) {
+          return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot allow all IP addresses.");
+        }
       } catch (IllegalArgumentException e) {
         return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet must be in CIDR notation.");
       }
