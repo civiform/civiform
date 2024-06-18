@@ -23,6 +23,8 @@ validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ�
 validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
 content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
 content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረገባቸው መስኮች አስፈላጊ ናቸው።
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(አማራጭ)
 content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
 toast.errorMessageOutline=ስህተት: {0}
@@ -60,10 +62,16 @@ button.deleteFile=ሰርዝ
 button.keepFile=ቀጥል
 button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")

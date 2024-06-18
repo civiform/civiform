@@ -23,6 +23,8 @@ validation.invalidInput=유효한 내용을 입력하세요.
 validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
@@ -60,10 +62,16 @@ button.deleteFile=삭제
 button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={1}개 중 {0}개 완료됨
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")

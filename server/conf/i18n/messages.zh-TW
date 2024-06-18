@@ -23,6 +23,8 @@ validation.invalidInput=請輸入有效內容。
 validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
 content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
@@ -60,10 +62,16 @@ button.deleteFile=刪除
 button.keepFile=繼續
 button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull=已上傳 {0} 個檔案 (共 {1} 個)
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")

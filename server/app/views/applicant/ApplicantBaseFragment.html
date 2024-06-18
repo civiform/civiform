@@ -29,11 +29,11 @@
 
 <div
   th:fragment="progressBar"
-  class="usa-step-indicator usa-step-indicator--center margin-x-2"
-  aria-label="progress"
+  class="usa-step-indicator usa-step-indicator--center margin-x-2 maxw-tablet"
+  th:aria-label="#{content.blockProgressLabel}"
 >
   <!--/* The progress bar itself */-->
-  <ol class="usa-step-indicator__segments">
+  <ol class="usa-step-indicator__segments" aria-hidden="true">
     <th:block
       th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
       th:with="block=${applicationParams.blockList().get(i)}"
@@ -42,12 +42,7 @@
         th:class="'usa-step-indicator\_\_segment' +
                   ${i == applicationParams.blockIndex() ? ' usa-step-indicator\_\_segment--current' : ''} +
                   ${block.isCompletedInProgramWithoutErrors() ? ' usa-step-indicator\_\_segment--complete' : ''}"
-      >
-        <span
-          class="usa-step-indicator__segment-label"
-          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
-        ></span>
-      </li>
+      ></li>
     </th:block>
   </ol>
 

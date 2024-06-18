@@ -297,13 +297,13 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static DivTag renderBoolInput(
       SettingDescription settingDescription, Optional<String> value) {
-    boolean isEnabled = value.map("TRUE"::equals).orElse(false);
+    boolean isTrue = value.map("TRUE"::equals).orElse(false);
 
     return div(div(
                 FieldWithLabel.radio()
                     .setFieldName(settingDescription.variableName())
-                    .setLabelText("Enabled")
-                    .setChecked(isEnabled)
+                    .setLabelText("True")
+                    .setChecked(isTrue)
                     .setValue("true")
                     .addStyleClass("mr-4")
                     .setDisabled(settingDescription.isReadOnly())
@@ -312,8 +312,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                         "testid", String.format("enable-%s", settingDescription.variableName())),
                 FieldWithLabel.radio()
                     .setFieldName(settingDescription.variableName())
-                    .setLabelText("Disabled")
-                    .setChecked(!isEnabled)
+                    .setLabelText("False")
+                    .setChecked(!isTrue)
                     .setValue("false")
                     .setDisabled(settingDescription.isReadOnly())
                     .getRadioTag()

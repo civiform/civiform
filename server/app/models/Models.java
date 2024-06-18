@@ -14,6 +14,7 @@ public final class Models {
           ApplicantModel.class,
           ApplicationModel.class,
           ApplicationEventModel.class,
+          CategoryModel.class,
           PersistedDurableJobModel.class,
           ProgramModel.class,
           QuestionModel.class,
