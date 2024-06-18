@@ -121,7 +121,13 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
+    await adminQuestions.addTextQuestion({
+      questionName: 'show-predicate-q',
+      description: 'desc',
+      questionText: 'text [markdown](example.com) *question*',
+      helpText: '**bolded**',
+      markdown: true,
+    })
     await adminQuestions.addTextQuestion({
       questionName: 'show-other-q',
       description: 'desc',
@@ -187,6 +193,7 @@ test.describe('create and edit predicates', () => {
     // The second screen should now appear, and we must fill it out
     await applicantQuestions.answerTextQuestion('hello world!')
     await applicantQuestions.clickNext()
+    await validateScreenshot(page, 'program-summary-page')
 
     // We should be on the review page
     expect(await page.innerText('#application-summary')).toContain(
@@ -499,6 +506,8 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
+      questionText: '[currency](example.com) *question*',
+      markdown: true,
     })
     await adminQuestions.addNumberQuestion({questionName: 'number-question'})
     await adminQuestions.addTextQuestion({questionName: 'text-question'})
@@ -609,6 +618,8 @@ test.describe('create and edit predicates', () => {
     await adminQuestions.addDateQuestion({questionName: 'date-question'})
     await adminQuestions.addCurrencyQuestion({
       questionName: 'currency-question',
+      questionText: '*currency question*',
+      markdown: true,
     })
 
     const programName = 'Test multiple question and value predicate config'
