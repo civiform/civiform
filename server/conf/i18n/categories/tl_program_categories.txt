@@ -1,0 +1,29 @@
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa pangangalaga ng bata.
+tag.childcare=Childcare
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa ekonomiya.
+tag.economic=Economic
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa edukasyon.
+tag.education=Education
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa pagkain.
+tag.food=Food
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may pangkalahatang layunin.
+tag.general=General
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa pangangalagang pangkalusugan.
+tag.healthcare=Healthcare
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa pabahay.
+tag.housing=Housing
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa Internet.
+tag.internet=Internet
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa transportasyon.
+tag.transportation=Transportation
+
+# Tag na ginagamit para i-filter ang listahan ng mga program at matira ang mga may kaugnayan sa mga utility.
+tag.utilities=Utilities
