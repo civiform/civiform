@@ -21,7 +21,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
 
   @Test
   public void fetchOrSaveUniqueCategory_insertsNewCategory() {
-    CategoryModel category = createCategory("Housing", "Vivienda");
+    CategoryModel category = createEnglishSpanishCategory("Housing", "Vivienda");
     CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
 
     assertThat(insertedCategory.getId()).isNotNull();
@@ -31,10 +31,10 @@ public class CategoryRepositoryTest extends ResetPostgres {
 
   @Test
   public void listCategories_fetchesAllCategories() {
-    CategoryModel category1 = createCategory("Health", "Salud");
+    CategoryModel category1 = createEnglishSpanishCategory("Health", "Salud");
     repo.fetchOrSaveUniqueCategory(category1);
 
-    CategoryModel category2 = createCategory("Education", "Educación");
+    CategoryModel category2 = createEnglishSpanishCategory("Education", "Educación");
     repo.fetchOrSaveUniqueCategory(category2);
 
     ImmutableList<CategoryModel> allCategories = repo.listCategories();
@@ -44,7 +44,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
 
   @Test
   public void fetchOrSaveUniqueCategory_fetchesExistingCategory() {
-    CategoryModel category = createCategory("Health", "Salud");
+    CategoryModel category = createEnglishSpanishCategory("Health", "Salud");
     CategoryModel insertedCategory = repo.fetchOrSaveUniqueCategory(category);
     // Since the category already exists, the method should fetch the existing category rather than
     // creating a new one.
@@ -56,10 +56,10 @@ public class CategoryRepositoryTest extends ResetPostgres {
 
   @Test
   public void findCategoriesByIds_fetchesCategoriesByIds() {
-    CategoryModel category1 = createCategory("Health", "Salud");
+    CategoryModel category1 = createEnglishSpanishCategory("Health", "Salud");
     CategoryModel insertedCategory1 = repo.fetchOrSaveUniqueCategory(category1);
 
-    CategoryModel category2 = createCategory("Education", "Educación");
+    CategoryModel category2 = createEnglishSpanishCategory("Education", "Educación");
     CategoryModel insertedCategory2 = repo.fetchOrSaveUniqueCategory(category2);
 
     ImmutableList<CategoryModel> fetchedCategories =
@@ -69,7 +69,7 @@ public class CategoryRepositoryTest extends ResetPostgres {
     assertThat(fetchedCategories).containsExactlyInAnyOrder(insertedCategory1, insertedCategory2);
   }
 
-  private CategoryModel createCategory(String englishName, String spanishName) {
+  private CategoryModel createEnglishSpanishCategory(String englishName, String spanishName) {
     ImmutableMap<Locale, String> translations =
         ImmutableMap.of(
             Lang.forCode("en-US").toLocale(),

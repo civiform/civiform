@@ -6,113 +6,88 @@
   th:text="${message}"
 ></div>
 
+<!--/* Render an alert toast with the default options */-->
 <div
-  th:fragment="warning(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+  th:fragment="alert(optionalMessage)"
+  th:if="${optionalMessage.isPresent()}"
 >
   <div
-    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'warning')}"
+    th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, ${optionalMessage.get()}, true, false, 0, null, 'alert')}"
   ></div>
 </div>
 
+<!--/* Render an error toast with the default options. Error messages are wrapped in a "Error: " prefix.  */-->
 <div
-  th:fragment="alert(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+  th:fragment="error(optionalMessage)"
+  th:if="${optionalMessage.isPresent()}"
 >
   <div
-    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'alert')}"
+    th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.errorMessageOutline(${optionalMessage.get})}, false, false, 0, null, 'error')}"
   ></div>
 </div>
 
+<!--/* Render a success toast with the default options.  */-->
 <div
-  th:fragment="error(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+  th:fragment="success(optionalMessage)"
+  th:if="${optionalMessage.isPresent()}"
 >
   <div
-    th:replace="~{this :: toast(${id}, #{toast.errorMessageOutline(${message})}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'error')}"
+    th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, ${optionalMessage.get()}, true, false, 0, null, 'success')}"
   ></div>
 </div>
 
-<div
-  th:fragment="success(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
->
+<!--/* A toast shown on all pages in dev and staging environments to warn against submitting real user data. */-->
+<div th:fragment="devOrStagingToast(isDevOrStaging)" th:if="${isDevOrStaging}">
   <div
-    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'success')}"
+    th:replace="~{this :: toast('warning-message', 'Do not enter actual or personal data in this demo site', true, true, 0, null, 'warning')}"
   ></div>
 </div>
 
 <!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
   <!--/* Eligibility success toast */-->
-  <th:block
-    th:if="${applicationParams.bannerMessage().isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this :: success(${toastId}, ${applicationParams.bannerMessage().get()}, true, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div
+    th:replace="~{this :: success(${applicationParams.bannerMessage()})}"
+  ></div>
   <!--/* Locale not supported toast */-->
   <th:block
     th:if="${!applicationParams.preferredLanguageSupported()}"
     th:with="toastId=${'locale-not-supported-'+ applicationParams.applicantId() + '-' + applicationParams.programId()}"
   >
     <div
-      th:replace="~{this:: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"
+      th:replace="~{this:: toast(${toastId}, #{toast.localeNotSupported}, true, true, 0, null, 'warning')}"
     ></div>
   </th:block>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Review/Summary page */-->
 <div th:fragment="summaryToasts">
   <!--/* Success toast */-->
-  <th:block
-    th:if="${successBannerMessage.isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this :: success(${toastId}, ${successBannerMessage.get()}, true, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div th:replace="~{this :: success(${successBannerMessage})}"></div>
   <!--/* Alert toast */-->
-  <th:block
-    th:if="${alertBannerMessage.isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this :: alert(${toastId}, ${alertBannerMessage.get()}, true, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div th:replace="~{this :: alert(${alertBannerMessage})}"></div>
   <!--/* Error toast */-->
-  <th:block
-    th:if="${errorBannerMessage.isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this :: error(${toastId}, ${errorBannerMessage.get()}, false, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div th:replace="~{this :: error(${errorBannerMessage})}"></div>
   <!--/* Not eligible toast */-->
-  <th:block
-    th:if="${notEligibleBannerMessage.isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this:: alert(${toastId}, ${notEligibleBannerMessage.get()}, true, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div th:replace="~{this :: alert(${notEligibleBannerMessage})}"></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>
 
 <!--/* Render the toasts used in the Program Index page */-->
 <div th:fragment="programIndexToasts">
   <!--/* Alert toast */-->
-  <th:block
-    th:if="${bannerMessage.isPresent()}"
-    th:with="toastId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
-    <div
-      th:replace="~{this :: alert(${toastId}, ${bannerMessage.get()}, true, false, 0, null)}"
-    ></div>
-  </th:block>
+  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
   <!--/* Session ended toast */-->
   <div
-    th:replace="~{this :: success(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended')}"
+    th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended', 'success')}"
   ></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
+</div>
+
+<!--/* Render the toasts used in the Upsell page */-->
+<div th:fragment="upsellToasts">
+  <!--/* Alert toast */-->
+  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
+  <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>

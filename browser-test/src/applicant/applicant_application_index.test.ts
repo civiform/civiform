@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -327,10 +326,7 @@ test.describe('applicant program index page', () => {
         applicantQuestions,
         page,
       }) => {
-        // TODO (#7377): Remove once we have a header with login/logout.
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
         await loginAsTestUser(page)
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
 
         await test.step('Programs start in not started', async () => {
           await applicantQuestions.expectPrograms({
@@ -374,10 +370,8 @@ test.describe('applicant program index page', () => {
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
-          // TODO (#7377): Remove once we have a header with login/logout.
-          await disableFeatureFlag(page, 'north_star_applicant_ui')
           await logout(page, false)
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
+
           await applicantQuestions.expectPrograms({
             wantNotStartedPrograms: [otherProgramName, primaryProgramName],
             wantInProgressPrograms: [],

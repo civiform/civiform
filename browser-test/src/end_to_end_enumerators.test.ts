@@ -317,9 +317,7 @@ test.describe('End to end enumerator test', () => {
       await test.step('Add button is enabled with a non-blank entity', async () => {
         await applicantQuestions.addEnumeratorAnswer('Bugs')
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is disabled if an entity is blank', async () => {
@@ -327,24 +325,20 @@ test.describe('End to end enumerator test', () => {
 
         await expect(
           page.locator('#enumerator-field-add-button'),
-        ).toHaveAttribute('disabled')
+        ).toBeDisabled()
       })
 
       await test.step('Add button is re-enabled when the blank item is removed', async () => {
         await applicantQuestions.deleteEnumeratorEntityByIndex(2)
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.clickPrevious()
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is disabled when an existing item is blanked', async () => {
@@ -352,7 +346,20 @@ test.describe('End to end enumerator test', () => {
 
         await expect(
           page.locator('#enumerator-field-add-button'),
-        ).toHaveAttribute('disabled')
+        ).toBeDisabled()
+      })
+
+      await test.step('Add button is still disabled after trying to save', async () => {
+        await applicantQuestions.clickNext()
+
+        // Error shows because of the empty entity
+        await expect(
+          page.locator('.cf-applicant-question-errors'),
+        ).toBeVisible()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeDisabled()
       })
     })
 
@@ -604,7 +611,7 @@ test.describe('End to end enumerator test', () => {
         page.locator(
           '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
         ),
-      ).toHaveAttribute('disabled')
+      ).toBeDisabled()
     })
 
     await test.step('Create the rest of the program.', async () => {

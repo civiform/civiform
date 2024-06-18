@@ -23,6 +23,8 @@ validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
@@ -60,10 +62,16 @@ button.deleteFile=Xoá
 button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -102,7 +110,7 @@ button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền và
 button.editCommonIntakeSr=Chỉnh sửa thông tin đã gửi cho {0}
 button.continueCommonIntakeSr=Tiếp tục điền vào {0}
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
+button.viewDetails=Xem chi tiết
 content.submittedDate=Đã gửi {0}
 content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
@@ -117,15 +125,15 @@ title.status=Trạng thái
 title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
+title.benefitsFinderSection=Tìm dịch vụ có thể giúp bạn
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+title.otherProgramsSection=Chương trình khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
+title.programsSection=Chương trình ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection=Chương trình được đề xuất ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Mục đã hoàn thành
 title.submittedPrograms=Đã gửi
@@ -226,9 +234,9 @@ label.errorFirstName=Cần nhập tên
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=Cần nhập họ
 # Validation error message below email input when the TI tries to create a client with an email that is already in use.
-label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+label.errorEmailInUseForClientCreate=Địa chỉ email này đã được sử dụng. Không thể tạo hồ sơ người nộp đơn mới nếu tài khoản đã tồn tại.
 # Validation error message below email input when the TI tries to edit a client with an email that is already in use.
-label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+label.errorEmailInUseForClientEdit=Địa chỉ email này đã được sử dụng. Không thể cập nhật hồ sơ người nộp đơn nếu tài khoản đã tồn tại.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -354,11 +362,11 @@ button.exitApplication=Thoát quy trình đăng ký
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the page stating the program is disabled
-title.programNotAvailable=This program is no longer available
+title.programNotAvailable=Chương trình này không còn hoạt động nữa
 # Info stating program disabled and see home page for other options.
-content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+content.disabledProgramInfo=Chúng tôi lấy làm tiếc vì chương trình bạn đang cố truy cập đã bị vô hiệu hoá. Để tìm chương trình khác, vui lòng quay lại trang chủ.
 # Button text on a button that takes the user back to the home page.
-button.homePage=Back to homepage
+button.homePage=Quay lại trang chủ
 
 
 #----------------------------------------------------------#
@@ -466,6 +474,10 @@ dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng
 dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
 validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=Tên {0}
 
 #---------------------------------------------------------------------------------#
@@ -570,6 +582,6 @@ banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có ngh
 #----------------------------------------------------------------------------------------#
 
 # A stern message shown to the user to make it clear this is a test site only
-banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine1=Trang web này chỉ dành cho mục đích thử nghiệm. Đừng nhập thông tin cá nhân.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc dịch vụ, hãy truy cập {0}.

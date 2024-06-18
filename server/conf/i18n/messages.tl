@@ -23,6 +23,8 @@ validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
@@ -60,10 +62,16 @@ button.deleteFile=Burahin
 button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} sa {1} ang natapos
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -102,7 +110,7 @@ button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0
 button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
+button.viewDetails=Tingnan ang mga detalye
 content.submittedDate=Isinumite noong {0}
 content.findPrograms=Maghanap ng mga program
 content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
@@ -117,15 +125,15 @@ title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
+title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=Mga aplikasyon ko ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+title.otherProgramsSection=Iba pang program ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
+title.programsSection=Mga Program ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection=Inirerekomenda ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Natapos na ang seksyon
 title.submittedPrograms=Isinumite
@@ -226,9 +234,9 @@ label.errorFirstName=Kinakailangan ang pangalan
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=Kinakailangan ang apelyido
 # Validation error message below email input when the TI tries to create a client with an email that is already in use.
-label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+label.errorEmailInUseForClientCreate=Ginagamit na ang email address. Hindi puwedeng gawin ang aplikante kung mayroon nang account.
 # Validation error message below email input when the TI tries to edit a client with an email that is already in use.
-label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+label.errorEmailInUseForClientEdit=Ginagamit na ang email address. Hindi puwedeng i-update ang aplikante kung mayroon nang account.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -354,11 +362,11 @@ button.exitApplication=Lumabas sa aplikasyon
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the page stating the program is disabled
-title.programNotAvailable=This program is no longer available
+title.programNotAvailable=Hindi na available ang program na ito
 # Info stating program disabled and see home page for other options.
-content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+content.disabledProgramInfo=Pasensya na, na-disable ang program na sinusubukan mong i-access. Para makakita ng mga karagdagang program, bumalik sa home page.
 # Button text on a button that takes the user back to the home page.
-button.homePage=Back to homepage
+button.homePage=Bumalik sa homepage
 
 
 #----------------------------------------------------------#
@@ -466,6 +474,10 @@ dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na
 dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na ito? Ise-save ang pagbabagong ito kapag na-click mo ang "Suriin," "Nakaraan," o "Susunod" at mawawala ang lahat ng data na nauugnay sa {0} na ito.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName={0} Palayaw
 
 #---------------------------------------------------------------------------------#
@@ -570,6 +582,6 @@ banner.httpsSectionContent=Ang lock na ( {0} ) o https:// ay nangangahulugang li
 #----------------------------------------------------------------------------------------#
 
 # A stern message shown to the user to make it clear this is a test site only
-banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine1=Para lang sa layunin ng pagsubok ang site na ito. Huwag maglagay ng personal na impormasyon.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, pumunta sa {0}.

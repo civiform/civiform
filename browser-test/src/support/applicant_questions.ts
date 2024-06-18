@@ -391,6 +391,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  /**
+   * Remove the enumerator answer specified by entityName.
+   * Note: only works if the value is in the DOM, i.e. was set at page load. Does not work if the
+   * value has been filled after the page loaded. Explanation: https://stackoverflow.com/q/10645552
+   */
   async deleteEnumeratorEntity(entityName: string) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
@@ -400,6 +405,7 @@ export class ApplicantQuestions {
     )
   }
 
+  /** Remove the enumerator entity at entityIndex (1-based) */
   async deleteEnumeratorEntityByIndex(entityIndex: number) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()

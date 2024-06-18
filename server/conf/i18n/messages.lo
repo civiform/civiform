@@ -23,6 +23,8 @@ validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ�
 validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
@@ -60,10 +62,16 @@ button.deleteFile=ລຶບ
 button.keepFile=ສືບຕໍ່
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=ຂ້າມ
 content.blockProgress={0} ຈາກທັງໝົດ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} ຈາກທັງໝົດ {1} ຄຳຖາມ
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} ຈາກທັງໝົດ {1} ໄຟລ໌
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -102,7 +110,7 @@ button.startHereCommonIntakeSr=ເລີ່ມຕົ້ນບ່ອນນີ້�
 button.editCommonIntakeSr=ແກ້ໄຂຂໍ້ມູນທີ່ສົ່ງສຳລັບ {0}
 button.continueCommonIntakeSr=ສືບຕໍ່ຕື່ມຂໍ້ມູນ {0}
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
+button.viewDetails=ເບິ່ງລາຍລະອຽດ
 content.submittedDate=ສົ່ງ {0} ແລ້ວ
 content.findPrograms=ຊອກຫາໂຄງການ
 content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາໂຄງການທີ່ທ່ານອາດມີສິດຮັບໃນ {0}. ເລີ່ມຕົ້ນໂດຍເລືອກໃບສະໝັກທາງລຸ່ມ.
@@ -117,15 +125,15 @@ title.status=ສະຖານະ
 title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
+title.benefitsFinderSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+title.otherProgramsSection=ໂຄງການອື່ນໆ ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
+title.programsSection=ໂຄງການ ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection=ແນະນຳ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ພາກສ່ວນທີ່ສຳເລັດແລ້ວ
 title.submittedPrograms=ສົ່ງແລ້ວ
@@ -226,9 +234,9 @@ label.errorFirstName=ຕ້ອງລະບຸຊື່
 # Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=ຕ້ອງລະບຸນາມສະກຸນ
 # Validation error message below email input when the TI tries to create a client with an email that is already in use.
-label.errorEmailInUseForClientCreate=Email address already in use. Cannot create applicant if an account already exists.
+label.errorEmailInUseForClientCreate=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດສ້າງຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
 # Validation error message below email input when the TI tries to edit a client with an email that is already in use.
-label.errorEmailInUseForClientEdit=Email address already in use. Cannot update applicant if an account already exists.
+label.errorEmailInUseForClientEdit=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດອັບເດດຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -354,11 +362,11 @@ button.exitApplication=ອອກຈາກໃບສະໝັກ
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the page stating the program is disabled
-title.programNotAvailable=This program is no longer available
+title.programNotAvailable=ບໍ່ສາມາດເຂົ້າເຖິງໂຄງການນີ້ໄດ້ອີກຕໍ່ໄປ
 # Info stating program disabled and see home page for other options.
-content.disabledProgramInfo=We''re sorry, the program you are trying to access has been disabled. To find additional programs, please return to the home page.
+content.disabledProgramInfo=ຂໍອະໄພ, ໂຄງການທີ່ທ່ານພະຍາຍາມເຂົ້າເຖິງໄດ້ຖືກປິດການນຳໃຊ້ແລ້ວ. ເພື່ອຊອກຫາໂຄງການເພີ່ມເຕີມ, ກະລຸນາກັບຄືນໄປຫາໜ້າຫຼັກ.
 # Button text on a button that takes the user back to the home page.
-button.homePage=Back to homepage
+button.homePage=ກັບຄືນໄປຫາໜ້າຫຼັກ
 
 
 #----------------------------------------------------------#
@@ -466,6 +474,10 @@ dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງ�
 dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນຫາຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName=ຊື່ {0}
 
 #---------------------------------------------------------------------------------#
@@ -570,6 +582,6 @@ banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:/
 #----------------------------------------------------------------------------------------#
 
 # A stern message shown to the user to make it clear this is a test site only
-banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
+banner.notForProductionBannerLine1=ເວັບໄຊນີ້ມີຈຸດປະສົງເພື່ອການທົດສອບເທົ່ານັ້ນ. ກະລຸນາຢ່າລະບຸຂໍ້ມູນສ່ວນຕົວ.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
-banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າຮ່ວມໂຄງການ ຫຼື ບໍລິການ, ໃຫ້ເຂົ້າໄປ {0}.

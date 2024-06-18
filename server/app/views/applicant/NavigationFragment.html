@@ -50,20 +50,20 @@
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
-    <button
+    <a
       type="button"
       class="usa-button usa-button--outline"
       th:text="#{header.endSession}"
       id="logout-button"
-      th:attr="data-redirect-to=${logoutLink}"
-    ></button>
-    <button
+      th:href="${logoutLink}"
+    ></a>
+    <a
       type="button"
       class="usa-button usa-button--outline"
       th:text="#{button.login}"
       id="login-button"
-      th:attr="data-redirect-to=${loginLink}"
-    ></button>
+      th:href="${loginLink}"
+    ></a>
   </th:block>
 
   <th:block th:if="${!isGuest}">
@@ -71,13 +71,13 @@
       th:text="#{header.userName(${loggedInAs})}"
       class="padding-right-1"
     ></span>
-    <button
+    <a
       type="button"
       class="usa-button usa-button--outline"
       th:text="#{button.logout}"
       id="logout-button"
-      th:attr="data-redirect-to=${logoutLink}"
-    ></button>
+      th:href="${logoutLink}"
+    ></a>
   </th:block>
 </th:block>
 

@@ -5,6 +5,9 @@
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div role="main" class="margin-2">
+      <div
+        th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
+      ></div>
       <h1
         th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
       ></h1>

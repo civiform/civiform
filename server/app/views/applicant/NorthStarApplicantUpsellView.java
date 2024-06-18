@@ -42,6 +42,7 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
 
     context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
+    context.setVariable("bannerMessage", params.bannerMessage());
 
     String downloadHref =
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();

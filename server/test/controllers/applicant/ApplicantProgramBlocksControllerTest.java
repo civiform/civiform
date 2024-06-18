@@ -272,12 +272,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                        applicant.id, program.id, 0, true)))
+                        applicant.id, draftProgram.id, 0, true)))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .previousWithApplicantId(request, applicant.id, draftProgram.id, 0, true)
             .toCompletableFuture()
             .join();
 
@@ -298,12 +297,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                        applicant.id, program.id, 0, true)))
+                        applicant.id, draftProgram.id, 0, true)))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .previousWithApplicantId(request, applicant.id, draftProgram.id, 0, true)
             .toCompletableFuture()
             .join();
 
@@ -318,16 +316,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                        applicant.id, program.id, 0, true)))
+                        applicant.id, obsoleteProgram.id, 0, true)))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
-                request,
-                applicant.id,
-                obsoleteProgram.id,
-                "1",
-                /* questionName= */ Optional.empty())
+            .previousWithApplicantId(request, applicant.id, obsoleteProgram.id, 0, true)
             .toCompletableFuture()
             .join();
 
@@ -375,15 +368,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
                         applicant.id,
-                        program.id,
+                        draftProgram.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
                         new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -405,15 +403,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
                         applicant.id,
-                        program.id,
+                        draftProgram.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
                         new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -422,26 +425,31 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
 
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
                         applicant.id,
-                        program.id,
+                        obsoleteProgram.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
                         new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
-            .editWithApplicantId(
+            .updateWithApplicantId(
                 request,
                 applicant.id,
                 obsoleteProgram.id,
-                "1",
-                /* questionName= */ Optional.empty())
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1480,7 +1488,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
 
     Request request =
@@ -1488,15 +1496,21 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                         applicant.id,
-                        program.id,
+                        draftProgram.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
                         new ApplicantRequestedActionWrapper(NEXT_BLOCK))))
             .build();
+
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .updateFileWithApplicantId(
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
@@ -1504,61 +1518,75 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_civiformAdminAccessToDraftProgram_isOk() {
+  public void updateFile_civiformAdminAccessToDraftProgram_works() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
 
-    Request request =
+    RequestBuilder request =
         addCSRFToken(
-                requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                        applicant.id,
-                        program.id,
-                        /* blockId= */ "1",
-                        /* inReview= */ false,
-                        new ApplicantRequestedActionWrapper(NEXT_BLOCK))))
-            .build();
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
+                    applicant.id,
+                    draftProgram.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(NEXT_BLOCK))));
+
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
     Result result =
         subject
-            .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .updateFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
-  public void updateFile_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
-
-    Request request =
-        addCSRFToken(
-                requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                        applicant.id,
-                        program.id,
-                        /* blockId= */ "1",
-                        /* inReview= */ false,
-                        new ApplicantRequestedActionWrapper(NEXT_BLOCK))))
+  public void updateFile_obsoleteProgram_works() {
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
+
+    RequestBuilder request =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
+                    applicant.id,
+                    obsoleteProgram.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(NEXT_BLOCK))));
+
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
     Result result =
         subject
-            .editWithApplicantId(
-                request,
+            .updateFileWithApplicantId(
+                request.build(),
                 applicant.id,
                 obsoleteProgram.id,
-                "1",
-                /* questionName= */ Optional.empty())
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test

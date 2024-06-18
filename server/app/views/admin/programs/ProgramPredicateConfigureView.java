@@ -65,6 +65,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
+import views.components.TextFormatter;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -415,7 +416,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
       container.with(
           div(
-                  div(qd.getQuestionText().getDefault())
+                  div()
+                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
                       .withClasses(
                           BaseStyles.INPUT,
                           "text-gray-500",
@@ -487,8 +489,14 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             div()
                 .withClasses("text-left")
                 .with(
-                    div(questionDefinition.getQuestionText().getDefault()).withClasses("font-bold"),
-                    div(questionHelpText).withClasses("mt-1", "text-sm"),
+                    div()
+                        .with(
+                            TextFormatter.formatText(
+                                questionDefinition.getQuestionText().getDefault()))
+                        .withClasses("font-bold"),
+                    div()
+                        .with(TextFormatter.formatText(questionHelpText))
+                        .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
   }

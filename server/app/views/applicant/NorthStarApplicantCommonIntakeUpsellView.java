@@ -68,6 +68,8 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
               .collect(ImmutableList.toImmutableList());
 
       context.setVariable("eligiblePrograms", displayPrograms);
+
+      context.setVariable("bannerMessage", params.bannerMessage());
     }
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
   }

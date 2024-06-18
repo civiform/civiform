@@ -15,13 +15,14 @@ public class JsonPrettifierTest {
 
     assertThat(prettyJson)
         .isEqualTo(
-            "{\n"
-                + "  \"deeply\" : {\n"
-                + "    \"nested\" : {\n"
-                + "      \"age\" : 12\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+            """
+            {
+              "deeply\" : {
+                "nested\" : {
+                  "age\" : 12
+                }
+              }
+            }""");
   }
 
   @Test
@@ -42,13 +43,14 @@ public class JsonPrettifierTest {
 
     assertThat(prettyJson)
         .isEqualTo(
-            "{\n"
-                + "  \"deeply\" : {\n"
-                + "    \"nested\" : {\n"
-                + "      \"age\" : 12\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+            """
+            {
+              "deeply" : {
+                "nested" : {
+                  "age" : 12
+                }
+              }
+            }""");
   }
 
   @Test
