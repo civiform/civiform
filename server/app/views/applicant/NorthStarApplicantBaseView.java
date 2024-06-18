@@ -85,7 +85,7 @@ public abstract class NorthStarApplicantBaseView {
 
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
-    context.setVariable("endSessionLink", org.pac4j.play.routes.LogoutController.logout().url());
+    context.setVariable("logoutLink", org.pac4j.play.routes.LogoutController.logout().url());
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
