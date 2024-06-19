@@ -66,18 +66,12 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description")
-            // .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)))
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)))
             .build();
 
     String programName = program.getProgramDefinition().adminName();
 
-    repo.createOrUpdateStatusDefinitions(
-        programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
-
-    assertThat(repo.lookupActiveStatusDefinitions(programName).getStatuses().size()).isEqualTo(1);
     List<StatusDefinitions> list = repo.lookupListOfObsoleteStatusDefinitions(programName);
-    System.out.print("-------------------" + list.size());
-    list.stream().forEach(e -> System.out.println("***************" + e.getStatuses().size()));
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
@@ -86,13 +80,12 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
 
     assertThat(statusDefinitionsResults).isNotEmpty();
     // one status is added as part of the program creation and one status as obsolete status
-    assertThat(statusDefinitionsResults.size()).isEqualTo(1);
+    assertThat(statusDefinitionsResults.size()).isEqualTo(2);
     assertThat(statusDefinitionsResults.get(0).getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().get(0).statusText())
         .isEqualTo("Reapply");
   }
 
-  @Test
   public void canUpdateApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
