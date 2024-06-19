@@ -19,7 +19,7 @@ import play.i18n.Lang;
  * Parses the program category translation files to create {@code CategoryModel}s used to seed the
  * database with pre-defined categories.
  */
-public class CategoryTranslationFileParser {
+public final class CategoryTranslationFileParser {
 
   public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/categories/";
   public static final String CATEGORY_TRANSLATIONS_FILE_EXTENSION = ".txt";
