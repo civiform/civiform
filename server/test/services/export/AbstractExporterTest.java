@@ -239,7 +239,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program");
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program", "Test program");
     for (int i = 0; i < fakeQuestions.size(); i++) {
       int screenNumber = i + 1;
       fakeProgram
