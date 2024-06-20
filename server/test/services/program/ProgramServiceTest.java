@@ -2356,6 +2356,56 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void updateLocalizations_blockTranslationsProvided() throws Exception {
+    ProgramModel program =
+    ProgramBuilder.newDraftProgram("English name", "English description")
+        .withLocalizedName(Locale.FRENCH, "existing French name")
+        .withLocalizedDescription(Locale.FRENCH, "existing French description")
+        .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+        .setLocalizedSummaryImageDescription(
+            LocalizedStrings.of(
+                Locale.US,
+                "English image description",
+                Locale.FRENCH,
+                "existing French image description"))
+        .withBlock("first block", "a description")
+        .withBlock("second block", "another description")
+        .build();
+
+        LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("a french screen name")
+                        .setLocalizedDescription("a french description")
+                        .build(),
+                        LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(2L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    BlockDefinition firstBlock = definition.getBlockDefinition(1L);
+    assertThat(firstBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a french screen name");
+    assertThat(firstBlock.localizedDescription().get(Locale.FRENCH)).isEqualTo("a french description");
+    BlockDefinition secondBlock = definition.getBlockDefinition(2L);
+    assertThat(secondBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a second french screen name");
+    assertThat(secondBlock.localizedDescription().get(Locale.FRENCH)).isEqualTo("another french description");
+  }
+
+  @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
