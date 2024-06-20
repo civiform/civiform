@@ -223,12 +223,8 @@ public final class ProgramTranslationForm {
 
               LocalizationUpdate.ScreenUpdate.Builder resultBuilder =
                   LocalizationUpdate.ScreenUpdate.builder().setBlockIdToUpdate(blockId);
-              if (!maybeBlockName.get().isEmpty()) {
-                resultBuilder.setLocalizedName(maybeBlockName.get());
-              }
-              if (!maybeBlockDescription.get().isEmpty()) {
-                resultBuilder.setLocalizedDescription(maybeBlockDescription.get());
-              }
+              resultBuilder.setLocalizedName(maybeBlockName.orElse(""));
+              resultBuilder.setLocalizedDescription(maybeBlockDescription.orElse(""));
               return Optional.of(resultBuilder.build());
             })
         .filter(Optional::isPresent)
