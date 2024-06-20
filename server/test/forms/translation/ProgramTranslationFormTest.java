@@ -32,6 +32,16 @@ public class ProgramTranslationFormTest extends ResetPostgres {
           .put(ProgramTranslationForm.localizedEmailFieldName(1), "second status email")
           .build();
 
+  private static final ImmutableMap<String, String> REQUEST_DATA_WITH_TWO_BLOCKS_TRANSLATED =
+      ImmutableMap.<String, String>builder()
+          .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+          .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+          .put(ProgramTranslationForm.localizedScreenName(0), "first block name")
+          .put(ProgramTranslationForm.localizedScreenDescription(0), "first block description")
+          .put(ProgramTranslationForm.localizedScreenName(1), "second block name")
+          .put(ProgramTranslationForm.localizedScreenDescription(1), "second block description")
+          .build();
+
   @Test
   public void bindFromRequest() throws Exception {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
@@ -132,6 +142,41 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setLocalizedEmailBody(Optional.of("second status email"))
                             .build()))
                 .setScreens(ImmutableList.of())
+                .build());
+  }
+
+  @Test
+  public void bindFromRequest_includesScreenNameAndDescription() throws Exception {
+    Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_BLOCKS_TRANSLATED).build();
+
+    ImmutableList<Long> blockIds = ImmutableList.of(0l, 1l);
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 3,
+            /* hasSummaryImageDescription= */ false,
+            blockIds);
+    assertThat(form.getUpdateData(blockIds))
+        .isEqualTo(
+            LocalizationUpdate.builder()
+                .setLocalizedDisplayName("display name")
+                .setLocalizedDisplayDescription("display description")
+                .setLocalizedConfirmationMessage("")
+                .setStatuses(ImmutableList.of())
+                .setScreens(
+                    ImmutableList.of(
+                        LocalizationUpdate.ScreenUpdate.builder()
+                            .setBlockIdToUpdate(0l)
+                            .setLocalizedName("first block name")
+                            .setLocalizedDescription("first block description")
+                            .build(),
+                        LocalizationUpdate.ScreenUpdate.builder()
+                            .setBlockIdToUpdate(1l)
+                            .setLocalizedName("second block name")
+                            .setLocalizedDescription("second block description")
+                            .build()))
                 .build());
   }
 
