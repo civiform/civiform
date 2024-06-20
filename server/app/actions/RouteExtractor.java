@@ -74,6 +74,8 @@ public final class RouteExtractor {
   }
 
   /**
+   * The given key's value converted into a long format.
+   *
    * @param key Path parameter key name as defined in the routes file.
    * @return the given key's value converted into a long format.
    */
@@ -90,9 +92,7 @@ public final class RouteExtractor {
     }
   }
 
-  /**
-   * @return the number of parameters found
-   */
+  /** The number of parameters found */
   @VisibleForTesting
   int size() {
     return routeParameters.size();
