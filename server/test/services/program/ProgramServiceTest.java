@@ -2358,21 +2358,21 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void updateLocalizations_blockTranslationsProvided() throws Exception {
     ProgramModel program =
-    ProgramBuilder.newDraftProgram("English name", "English description")
-        .withLocalizedName(Locale.FRENCH, "existing French name")
-        .withLocalizedDescription(Locale.FRENCH, "existing French description")
-        .withLocalizedConfirmationMessage(Locale.FRENCH, "")
-        .setLocalizedSummaryImageDescription(
-            LocalizedStrings.of(
-                Locale.US,
-                "English image description",
-                Locale.FRENCH,
-                "existing French image description"))
-        .withBlock("first block", "a description")
-        .withBlock("second block", "another description")
-        .build();
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .withBlock("second block", "another description")
+            .build();
 
-        LocalizationUpdate updateData =
+    LocalizationUpdate updateData =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
@@ -2386,7 +2386,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedName("a french screen name")
                         .setLocalizedDescription("a french description")
                         .build(),
-                        LocalizationUpdate.ScreenUpdate.builder()
+                    LocalizationUpdate.ScreenUpdate.builder()
                         .setBlockIdToUpdate(2L)
                         .setLocalizedName("a second french screen name")
                         .setLocalizedDescription("another french description")
@@ -2399,10 +2399,13 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition definition = result.getResult();
     BlockDefinition firstBlock = definition.getBlockDefinition(1L);
     assertThat(firstBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a french screen name");
-    assertThat(firstBlock.localizedDescription().get(Locale.FRENCH)).isEqualTo("a french description");
+    assertThat(firstBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("a french description");
     BlockDefinition secondBlock = definition.getBlockDefinition(2L);
-    assertThat(secondBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a second french screen name");
-    assertThat(secondBlock.localizedDescription().get(Locale.FRENCH)).isEqualTo("another french description");
+    assertThat(secondBlock.localizedName().get(Locale.FRENCH))
+        .isEqualTo("a second french screen name");
+    assertThat(secondBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("another french description");
   }
 
   @Test
