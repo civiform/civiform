@@ -37,14 +37,14 @@ WHERE block_definitions IS NOT NULL AND jsonb_array_length(block_definitions) <>
 
 
 # --- !Downs
-UPDATE ONLY programs
+UPDATE programs
 SET block_definitions = (
   SELECT jsonb_agg((block_definition - 'localizedName'))
   FROM jsonb_array_elements(block_definitions) AS block_definition
 )
 WHERE block_definitions IS NOT NULL;
 
-UPDATE ONLY programs
+UPDATE programs
 SET block_definitions = (
   SELECT jsonb_agg((block_definition - 'localizedDescription'))
   FROM jsonb_array_elements(block_definitions) AS block_definition
