@@ -125,6 +125,7 @@ public final class QuestionConfig {
             .setFieldName("maxFiles")
             .setLabelText("Maximum number of file uploads")
             .setValue(fileUploadQuestionForm.getMaxFiles())
+            .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
   }

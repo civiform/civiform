@@ -33,8 +33,7 @@ public class FileUploadQuestionForm extends QuestionForm {
     if (maxFiles.isEmpty()) {
       this.maxFiles = OptionalInt.empty();
     } else {
-      Integer maxFilesInt = Integer.parseInt(maxFiles);
-      this.maxFiles = maxFilesInt <= 0 ? OptionalInt.empty() : OptionalInt.of(maxFilesInt);
+      this.maxFiles = OptionalInt.of(Integer.parseInt(maxFiles));
     }
   }
 
