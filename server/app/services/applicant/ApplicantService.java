@@ -242,7 +242,8 @@ public final class ApplicantService {
    * valid, they are saved to storage. If not, a set of errors are returned along with the modified
    * {@link ApplicantData}, but none of the updates are persisted to storage.
    *
-   * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written.
+   * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written. If
+   * {@code forceUpdate} is {@code true} then updates will be written even if they fail validation.
    *
    * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates. If the service
    *     cannot perform the update due to exceptions, they are wrapped in `CompletionException`s.
@@ -266,7 +267,8 @@ public final class ApplicantService {
       long programId,
       String blockId,
       ImmutableMap<String, String> updateMap,
-      boolean addressServiceAreaValidationEnabled) {
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -284,7 +286,13 @@ public final class ApplicantService {
     }
 
     return stageAndUpdateIfValid(
-        applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
+        applicantId,
+        programId,
+        blockId,
+        updateMap,
+        updates,
+        addressServiceAreaValidationEnabled,
+        forceUpdate);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -293,7 +301,8 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
-      boolean addressServiceAreaValidationEnabled) {
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -337,7 +346,8 @@ public final class ApplicantService {
                               blockBeforeUpdate,
                               programDefinition,
                               updates,
-                              serviceAreaUpdate);
+                              serviceAreaUpdate,
+                              forceUpdate);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -348,7 +358,8 @@ public final class ApplicantService {
                   blockBeforeUpdate,
                   programDefinition,
                   updates,
-                  Optional.empty());
+                  Optional.empty(),
+                  forceUpdate);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -364,7 +375,8 @@ public final class ApplicantService {
       Block blockBeforeUpdate,
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
-      Optional<ServiceAreaUpdate> serviceAreaUpdate) {
+      Optional<ServiceAreaUpdate> serviceAreaUpdate,
+      boolean forceUpdate) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -389,7 +401,7 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
-    if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+    if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(

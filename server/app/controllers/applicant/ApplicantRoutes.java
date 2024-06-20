@@ -282,6 +282,32 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant remove file action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @param blockId - ID of the block containing file upload question
+   * @param fileKey - The key for the stored file.
+   * @return Route for the applicant update file action
+   */
+  public Call removeFile(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      String fileKey,
+      boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
+          applicantId, programId, blockId, fileKey, inReview);
+    } else {
+      return routes.ApplicantProgramBlocksController.removeFile(
+          programId, blockId, fileKey, inReview);
+    }
+  }
+
+  /**
    * Returns the route corresponding to the applicant update file action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
