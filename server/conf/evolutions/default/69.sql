@@ -1,4 +1,4 @@
--- These assume a default locale of en_US, which is true for all deployments as of 2023-09-05.
+-- These assume a default locale of en_US, which is true for all deployments as of 2024-06-20.
 
 # --- !Ups
 UPDATE programs p
