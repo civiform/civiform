@@ -1194,11 +1194,6 @@ public final class ProgramService {
                     .localizedDescription()
                     .updateDefaultTranslation(blockForm.getDescription()))
             .build();
-    // blockDefinition = blockDefinition.toBuilder()
-    //         .setLocalizedName(blockDefinition.localizedName().updateTranslation(locale,
-    // displayName))
-    //         .setLocalizedDescription(null)
-    //         .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
