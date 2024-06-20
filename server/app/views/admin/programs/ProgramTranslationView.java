@@ -17,7 +17,6 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
@@ -170,8 +169,6 @@ public final class ProgramTranslationView extends TranslationFormView {
               .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
               .findFirst()
               .get();
-      LocalizedStrings localizedNameStrings  = block.localizedName().orElse(LocalizedStrings.withDefaultValue(block.name()));
-      LocalizedStrings localizedDescriptionStrings  = block.localizedName().orElse(LocalizedStrings.withDefaultValue(block.description()));
       ImmutableList.Builder<DomContent> fieldsBuilder =
           ImmutableList.<DomContent>builder()
               .add(
@@ -182,16 +179,19 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setScreenReaderText("Screen name")
                           .setValue(screenUpdateData.localizedName())
                           .getInputTag(),
-                          localizedNameStrings))
-                          .add(
-                            fieldWithDefaultLocaleTextHint(
-                                FieldWithLabel.input()
-                                    .setFieldName(ProgramTranslationForm.localizedScreenDescription(i))
-                                    .setLabelText("Screen description")
-                                    .setScreenReaderText("Screen description")
-                                    .setValue(screenUpdateData.localizedDescription())
-                                    .getInputTag(),
-                                    localizedDescriptionStrings));
+                      block.localizedName()))
+              .add(
+                  fieldWithDefaultLocaleTextHint(
+                      FieldWithLabel.input()
+                          .setFieldName(ProgramTranslationForm.localizedScreenDescription(i))
+                          .setLabelText("Screen description")
+                          .setScreenReaderText("Screen description")
+                          .setValue(screenUpdateData.localizedDescription())
+                          .getInputTag(),
+                      block.localizedDescription()));
+      String blockDetailsLink =
+          controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
+              .url();
       result.add(
           fieldSetForFields(
               legend()
@@ -199,7 +199,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                       span(String.format("Screen %d", i + 1)),
                       new LinkElement()
                           .setText("(edit default)")
-                          .setHref(programStatusesLink)
+                          .setHref(blockDetailsLink)
                           .setStyles("ml-2")
                           .asAnchorText()),
               fieldsBuilder.build()));
