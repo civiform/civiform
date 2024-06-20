@@ -709,23 +709,16 @@ public final class ProgramService {
         toUpdateBlockBuilder.add(block);
         continue;
       }
-      BlockDefinition.Builder blockBuilder = block.toBuilder();
-      if (screenUpdate.get().localizedName().isPresent()) {
-        blockBuilder.setLocalizedName(
-            Optional.of(
-                block
-                    .localizedName()
-                    .get()
-                    .updateTranslation(locale, screenUpdate.get().localizedName())));
-      }
-      if (screenUpdate.get().localizedDescription().isPresent()) {
-        blockBuilder.setLocalizedDescription(
-            Optional.of(
-                block
-                    .localizedDescription()
-                    .get()
-                    .updateTranslation(locale, screenUpdate.get().localizedDescription())));
-      }
+      BlockDefinition.Builder blockBuilder =
+          block.toBuilder()
+              .setLocalizedName(
+                  block
+                      .localizedName()
+                      .updateTranslation(locale, screenUpdate.get().localizedName()))
+              .setLocalizedDescription(
+                  block
+                      .localizedDescription()
+                      .updateTranslation(locale, screenUpdate.get().localizedDescription()));
       toUpdateBlockBuilder.add(blockBuilder.build());
     }
 
@@ -802,11 +795,11 @@ public final class ProgramService {
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
-                  screenUpdate.localizedName().orElse(""));
+                  screenUpdate.localizedName());
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
-                  screenUpdate.localizedDescription().orElse(""));
+                  screenUpdate.localizedDescription());
             });
   }
 

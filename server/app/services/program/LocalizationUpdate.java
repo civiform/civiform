@@ -85,10 +85,10 @@ public abstract class LocalizationUpdate {
     public abstract Long blockIdToUpdate();
 
     /** The new block name to update for a locale. */
-    public abstract Optional<String> localizedName();
+    public abstract String localizedName();
 
     /** The new block description to update for a locale. */
-    public abstract Optional<String> localizedDescription();
+    public abstract String localizedDescription();
 
     public static Builder builder() {
       return new AutoValue_LocalizationUpdate_ScreenUpdate.Builder();
@@ -98,9 +98,9 @@ public abstract class LocalizationUpdate {
     public abstract static class Builder {
       public abstract Builder setBlockIdToUpdate(Long v);
 
-      public abstract Builder setLocalizedName(Optional<String> v);
+      public abstract Builder setLocalizedName(String v);
 
-      public abstract Builder setLocalizedDescription(Optional<String> v);
+      public abstract Builder setLocalizedDescription(String v);
 
       public abstract ScreenUpdate build();
     }

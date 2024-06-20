@@ -87,23 +87,11 @@ public final class ProgramTranslationForm {
       BlockDefinition blockDefinition = program.blockDefinitions().get(i);
       formValuesBuilder.put(
           localizedScreenName(blockDefinition.id()),
-          new String[] {
-            blockDefinition
-                .localizedName()
-                .orElse(LocalizedStrings.empty())
-                .maybeGet(locale)
-                .orElse("")
-          });
+          new String[] {blockDefinition.localizedName().maybeGet(locale).orElse("")});
 
       formValuesBuilder.put(
           localizedScreenDescription(blockDefinition.id()),
-          new String[] {
-            blockDefinition
-                .localizedDescription()
-                .orElse(LocalizedStrings.empty())
-                .maybeGet(locale)
-                .orElse("")
-          });
+          new String[] {blockDefinition.localizedDescription().maybeGet(locale).orElse("")});
     }
 
     ImmutableList<Long> blockIds =
@@ -236,10 +224,10 @@ public final class ProgramTranslationForm {
               LocalizationUpdate.ScreenUpdate.Builder resultBuilder =
                   LocalizationUpdate.ScreenUpdate.builder().setBlockIdToUpdate(blockId);
               if (!maybeBlockName.get().isEmpty()) {
-                resultBuilder.setLocalizedName(maybeBlockName);
+                resultBuilder.setLocalizedName(maybeBlockName.get());
               }
               if (!maybeBlockDescription.get().isEmpty()) {
-                resultBuilder.setLocalizedDescription(maybeBlockDescription);
+                resultBuilder.setLocalizedDescription(maybeBlockDescription.get());
               }
               return Optional.of(resultBuilder.build());
             })
