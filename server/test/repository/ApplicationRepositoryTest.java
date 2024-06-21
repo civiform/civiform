@@ -371,7 +371,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     repo.updateDraftApplicationProgram(applicant.id, programV2.id);
 
     // Reload the application and check that it points to program v2
-    application = repo.getApplication(applicant.id).toCompletableFuture().join().get();
+    application = repo.getApplication(application.id).toCompletableFuture().join().get();
     assertThat(application.getProgram().id).isEqualTo(programV2.id);
   }
 
