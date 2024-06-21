@@ -67,10 +67,7 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
-
     context.setVariable("question", applicantQuestion);
-
-    // System.out.println("Question text: " + );
 
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);
     context.setVariable("questionRendererParams", rendererParams);
@@ -88,8 +85,6 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionType(questionType);
-    // TODO ssandbekkhaug QuestionText is not set (it appears as "Sample question text"). How to fix
-    // this?
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(

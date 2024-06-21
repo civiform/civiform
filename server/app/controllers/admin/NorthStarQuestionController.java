@@ -47,22 +47,15 @@ public final class NorthStarQuestionController extends CiviFormController {
 
   @Secure
   public Result sampleQuestion(Request request, String questionType) {
-    System.out.println("ssandbekkhaug sample question controller: " + questionType);
-
-    // TODO ssandbekkhaug this method is called on page load. How do I get the default text
-    // from the question?
-
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
-
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    String underscores = questionType.replace(' ', '_');
-    QuestionType questionType2;
+    QuestionType questionTypeEnum;
     try {
-      questionType2 = QuestionType.of(underscores);
+      questionTypeEnum = QuestionType.of(questionType);
     } catch (InvalidQuestionTypeException e) {
-      System.out.println("Invalid question type");
+      System.out.println("Invalid question type: " + questionType);
       return badRequest("Invalid question type: " + questionType);
     }
 
@@ -72,7 +65,7 @@ public final class NorthStarQuestionController extends CiviFormController {
             .setApplicantId(0l)
             .setApplicantPersonalInfo(api)
             .setProfile(profile.orElse(null))
-            .setType(questionType2)
+            .setType(questionTypeEnum)
             .setMessages(messages)
             .build();
 

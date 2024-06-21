@@ -1,6 +1,7 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull, formatText, formatTextHtml} from './util'
 import * as DOMPurify from 'dompurify'
+import htmx from 'htmx.org';
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -52,13 +53,13 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewQuestionText(textInput.value)
 
-      // TODO ssandbekkhaug wait for trigger from Thymeleaf template?
-      // Wait 1 ms for Thymeleaf preview to load
-      // setTimeout(() => {
-      //   PreviewController.updateFromNewQuestionText(textInput.value)
-      // }, 1)
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewQuestionText(textInput.value)
+      })
     }
     const helpTextInput = document.getElementById(
       PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
@@ -71,7 +72,13 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+      })
     }
     const enumeratorSelector = document.getElementById(
       PreviewController.QUESTION_ENUMERATOR_INPUT_ID,
@@ -86,9 +93,17 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewEnumeratorSelector(
         enumeratorSelector.value,
       )
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewEnumeratorSelector(
+          enumeratorSelector.value,
+        )
+      })
     }
     const entityTypeInput = document.getElementById(
       PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID,
@@ -101,20 +116,36 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewEntityType(entityTypeInput.value)
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewEntityType(entityTypeInput.value)
+      })
     }
 
-    const questionSettings = document.getElementById(
-      PreviewController.QUESTION_SETTINGS_ID,
-    )
-    const questionPreviewContainer = document.getElementById(
-      PreviewController.SAMPLE_QUESTION_ID,
-    )
-    if (questionSettings && questionPreviewContainer) {
-      PreviewController.addOptionObservers({
-        questionSettings,
-        questionPreviewContainer,
-      })
+
+      const questionSettings = document.getElementById(
+        PreviewController.QUESTION_SETTINGS_ID,
+      )
+      const questionPreviewContainer = document.getElementById(
+        PreviewController.SAMPLE_QUESTION_ID,
+      )
+      if (questionSettings && questionPreviewContainer) {
+        // Old path
+        PreviewController.addOptionObservers({
+          questionSettings,
+          questionPreviewContainer,
+        })
+
+        // North Star
+        htmx.on("htmx:afterSettle", () => {
+          PreviewController.addOptionObservers({
+            questionSettings,
+            questionPreviewContainer,
+          })
+        })
     }
   }
 
@@ -236,9 +267,8 @@ class PreviewController {
     console.log('ssandbekkhaug preview got: ' + text)
 
     if (text.length > 0) {
-      const contentElement = formatTextHtml(text) // ssandbekkhaug text set here
+      const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
-      contentElement.style.backgroundColor = 'red' // TODO ssandbekkhaug remove
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
@@ -348,20 +378,12 @@ class PreviewController {
         text + ' #' + (index + 1).toString()
     })
   }
-
-  static printTest() {
-    console.log('Print test')
-  }
 }
 
 export function init() {
   new PreviewController()
 }
 
-export function northStarQuestionPreviewDidLoad() {
-  console.log('ssandbekkhaug northStarQuestionPreviewDidLoad')
-
-  // TODO ssandbekkhaug update question preview text
-}
-
-export default PreviewController
+// TODO ssandbekkhaug listen for htmx:afterSettle (or maybe a diff event)
+// Could put a class on the root of the question preview fragment, and listen
+// for that loading
