@@ -13,8 +13,8 @@ public final class RouteExtractorTest {
     RouteExtractor routeExtractor = new RouteExtractor(routePattern, path);
 
     assertThat(routeExtractor.size()).isEqualTo(2);
-    assertThat(routeExtractor.getLongValue("programId")).isEqualTo(1);
-    assertThat(routeExtractor.getLongValue("blockId")).isEqualTo(2);
+    assertThat(routeExtractor.getParamLongValue("programId")).isEqualTo(1);
+    assertThat(routeExtractor.getParamLongValue("blockId")).isEqualTo(2);
   }
 
   @Test
@@ -32,6 +32,6 @@ public final class RouteExtractorTest {
     String path = "/programs/1/blocks/2/edit";
     RouteExtractor routeExtractor = new RouteExtractor(routePattern, path);
 
-    assertThatThrownBy(() -> routeExtractor.getLongValue("unexpectedId"));
+    assertThatThrownBy(() -> routeExtractor.getParamLongValue("unexpectedId"));
   }
 }

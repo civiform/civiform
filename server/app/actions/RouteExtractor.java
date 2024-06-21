@@ -26,6 +26,7 @@ public final class RouteExtractor {
   private final ImmutableMap<String, String> routeParameters;
 
   // Example: something like /$id<[^/]+>
+  // This is the pattern used to break the route apart
   private static final String INDEX_PATTERN = "\\$(.+?)<\\[\\^/\\]\\+>";
 
   /**
@@ -79,7 +80,7 @@ public final class RouteExtractor {
    * @param key Path parameter key name as defined in the routes file.
    * @return the given key's value converted into a long format.
    */
-  public long getLongValue(String key) {
+  public long getParamLongValue(String key) {
     if (!routeParameters.containsKey(key)) {
       throw new RuntimeException(String.format("Could not find '%s' in route '%s'", key, path));
     }
@@ -88,7 +89,7 @@ public final class RouteExtractor {
       return Long.parseLong(routeParameters.get(key));
     } catch (NumberFormatException ex) {
       throw new RuntimeException(
-          String.format("Could parse value from '%s' in route '%s'", key, path), ex);
+          String.format("Could not parse value from '%s' in route '%s'", key, path), ex);
     }
   }
 
