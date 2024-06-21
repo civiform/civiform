@@ -176,4 +176,16 @@ public class ApplicationModel extends BaseModel {
   void setLatestStatusForTest(String latestStatus) {
     this.latestStatus = latestStatus;
   }
+
+  /**
+   * Point the application to a new {@link ProgramModel}.
+   *
+   * <p>This typically doesn't need to be done aside from when we want to migrate an application to
+   * a newer version of a program.
+   *
+   * @param program {@link ProgramModel}
+   */
+  public void setProgram(ProgramModel program) {
+    this.program = program;
+  }
 }
