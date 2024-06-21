@@ -2,39 +2,29 @@ package views.admin.questions;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DeploymentType;
-import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
-import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.NorthStarApplicantBaseView;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
-import services.cloud.ApplicantFileNameFormatter;
-import services.cloud.StorageUploadRequest;
-import views.ApplicationBaseViewParams;
-import views.fileupload.FileUploadViewStrategy;
-import views.html.helper.CSRF;
 
 public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
 
