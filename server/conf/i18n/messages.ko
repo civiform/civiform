@@ -503,6 +503,8 @@ validation.numberRequired=숫자만 포함해야 합니다.
 
 validation.tooFewSelections={0}개 이상 선택하세요.
 validation.tooManySelections={0}개보다 적게 선택하세요.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
