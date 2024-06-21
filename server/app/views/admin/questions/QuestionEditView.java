@@ -217,10 +217,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    // TODO ssandbekkhaug replace here
     if (settingsManifest.getNorthStarApplicantUi(request)) {
-      System.out.println("ssandbekkhaug render Thymeleaf");
-
       previewContent =
           div()
               .attr("hx-swap", "outerHTML")

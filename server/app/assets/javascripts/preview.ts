@@ -125,28 +125,34 @@ class PreviewController {
       })
     }
 
+    const questionSettings = document.getElementById(
+      PreviewController.QUESTION_SETTINGS_ID,
+    )
+    var questionPreviewContainer = document.getElementById(
+      PreviewController.SAMPLE_QUESTION_ID,
+    )
 
-      const questionSettings = document.getElementById(
-        PreviewController.QUESTION_SETTINGS_ID,
-      )
-      const questionPreviewContainer = document.getElementById(
+    // Old path
+    if (questionSettings && questionPreviewContainer) {
+      PreviewController.addOptionObservers({
+        questionSettings,
+        questionPreviewContainer,
+      })
+    }
+
+    // North Star
+    htmx.on("htmx:afterSettle", () => {
+      // In North Star, the preview needs time to load
+      questionPreviewContainer = document.getElementById(
         PreviewController.SAMPLE_QUESTION_ID,
       )
       if (questionSettings && questionPreviewContainer) {
-        // Old path
         PreviewController.addOptionObservers({
           questionSettings,
           questionPreviewContainer,
         })
-
-        // North Star
-        htmx.on("htmx:afterSettle", () => {
-          PreviewController.addOptionObservers({
-            questionSettings,
-            questionPreviewContainer,
-          })
-        })
-    }
+      }
+    })
   }
 
   private static addOptionObservers({
@@ -263,9 +269,6 @@ class PreviewController {
 
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
-
-    console.log('ssandbekkhaug preview got: ' + text)
-
     if (text.length > 0) {
       const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
@@ -383,7 +386,3 @@ class PreviewController {
 export function init() {
   new PreviewController()
 }
-
-// TODO ssandbekkhaug listen for htmx:afterSettle (or maybe a diff event)
-// Could put a class on the root of the question preview fragment, and listen
-// for that loading

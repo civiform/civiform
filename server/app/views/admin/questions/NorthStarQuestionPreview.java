@@ -27,8 +27,14 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.NorthStarApplicantBaseView;
+import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
+import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.StorageUploadRequest;
+import views.ApplicationBaseViewParams;
+import views.fileupload.FileUploadViewStrategy;
+import views.html.helper.CSRF;
 
 public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
 
@@ -59,10 +65,14 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
             params.profile(),
             params.applicantPersonalInfo(),
             params.messages());
-
-    System.out.println("Got type: " + params.type());
-
-    QuestionDefinition questionDefinition = questionDefinitionSample(params.type());
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition = ApplicantQuestionRendererFactory.questionDefinitionSample(params.type());
+    } catch (UnsupportedQuestionTypeException e) {
+      System.out.println("Building question failed: " + e.getLocalizedMessage());
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
@@ -76,54 +86,12 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
-  // TODO: merge with original from ApplicantQuestionRendererFactory?
-  private static QuestionDefinition questionDefinitionSample(QuestionType questionType) {
-    QuestionDefinitionBuilder builder =
-        new QuestionDefinitionBuilder()
-            .setId(1L)
-            .setName("")
-            .setDescription("")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
-            .setQuestionType(questionType);
-
-    if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(
-          ImmutableList.of(
-              QuestionOption.create(
-                  1L,
-                  1L,
-                  "sample option admin name",
-                  LocalizedStrings.of(Locale.US, "Sample question option"))));
-    }
-
-    if (questionType.equals(QuestionType.ENUMERATOR)) {
-      builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
-    }
-
-    try {
-      return builder.build();
-    } catch (UnsupportedQuestionTypeException e) {
-      System.out.println("Building question failed: " + e.getLocalizedMessage());
-      // TODO: better exception handling (copying QuestionPreview.java)
-      throw new RuntimeException(e);
-    }
-  }
-
   private ApplicantQuestionRendererParams rendererParams(Params params) {
     ApplicantQuestionRendererParams.Builder paramsBuilder =
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE);
-    // if (params.block().isFileUpload()) {
-    //   StorageUploadRequest signedRequest =
-    //       params
-    //           .applicantStorageClient()
-    //           .getSignedUploadRequest(
-    //               getFileUploadSignedRequestKey(params),
-    //               redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
-    //   paramsBuilder.setSignedFileUploadRequest(signedRequest);
-    // }
     return paramsBuilder.build();
   }
 

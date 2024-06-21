@@ -39,6 +39,10 @@
         th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'File Upload'">
+      <!-- TODO(#7849): Support File Upload questions -->
+      <span>File Upload question type not yet supported for previews. See #7849</span>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"
@@ -65,7 +69,6 @@
       ></div>
     </th:block>
     <th:block th:case="'Static Text'">
-      <span>ssandbekkhaug got static text</span>
       <div
         th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"
       ></div>

@@ -29,8 +29,6 @@ public final class ApplicantQuestionRendererFactory {
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
-    System.out.println(
-        "ssandbekkhaug J2HTML question text: " + questionDefinition.getQuestionText());
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
@@ -83,7 +81,7 @@ public final class ApplicantQuestionRendererFactory {
     }
   }
 
-  private static QuestionDefinition questionDefinitionSample(QuestionType questionType)
+  public static QuestionDefinition questionDefinitionSample(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()

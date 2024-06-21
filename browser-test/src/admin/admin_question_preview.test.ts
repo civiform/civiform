@@ -17,7 +17,6 @@ test.describe('Admin question preview', () => {
 
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    // TODO ssandbekkhaug Question text is not updated on page load
     await validateScreenshot(page, 'text-question')
   })
 
