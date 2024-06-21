@@ -503,6 +503,8 @@ validation.numberRequired=Chỉ được chứa chữ số.
 
 validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
 validation.tooManySelections=Vui lòng chọn ít hơn {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
