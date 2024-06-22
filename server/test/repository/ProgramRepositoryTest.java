@@ -870,4 +870,41 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
   }
+
+  @Test
+  public void getMostRecentActiveProgramVersion_returnsDifferentProgramIdWhichIsTheLatest() {
+    ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
+    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
+    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-1");
+    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-1");
+    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
+
+    long latestId = repo.getMostRecentActiveProgramId(programModel1.id);
+
+    assertThat(latestId).isEqualTo(programModel4.id);
+  }
+
+  @Test
+  public void getMostRecentActiveProgramVersion_returnsSameProgramIdWhichIsTheLatest() {
+    ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
+    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
+    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
+    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
+    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
+
+    long latestId = repo.getMostRecentActiveProgramId(programModel1.id);
+
+    assertThat(latestId).isEqualTo(programModel1.id);
+  }
+
+  @Test
+  public void getMostRecentActiveProgramVersion_throwsWhenProgramIdDoesNotExist() {
+    ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
+    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
+    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
+    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
+    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
+
+    assertThatThrownBy(() -> repo.getMostRecentActiveProgramId(-1));
+  }
 }

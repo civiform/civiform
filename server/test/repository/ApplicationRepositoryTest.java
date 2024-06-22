@@ -356,6 +356,42 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  public void updateDraftApplicationProgram_updatesExistingDraft() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel programV1 = createActiveProgram("Program");
+
+    // Check the application points to program v1
+    ApplicationModel application =
+        repo.createOrUpdateDraft(applicant, programV1).toCompletableFuture().join();
+    assertThat(application.getProgram().id).isEqualTo(programV1.id);
+
+    // Update the application program v2
+    ProgramModel programV2 = createActiveProgram("Program");
+    repo.updateDraftApplicationProgram(applicant.id, programV2.id);
+
+    // Reload the application and check that it points to program v2
+    application = repo.getApplication(application.id).toCompletableFuture().join().get();
+    assertThat(application.getProgram().id).isEqualTo(programV2.id);
+  }
+
+  @Test
+  public void updateDraftApplicationProgram_throwIfProgramNotFound() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel programV1 = createActiveProgram("Program");
+
+    // Check the application points to program v1
+    ApplicationModel application =
+        repo.createOrUpdateDraft(applicant, programV1).toCompletableFuture().join();
+    assertThat(application.getProgram().id).isEqualTo(programV1.id);
+
+    // Update the application program v2
+    long fakeProgramV2Id = -1;
+    assertThatThrownBy(() -> repo.updateDraftApplicationProgram(applicant.id, fakeProgramV2Id))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("Program not found");
+  }
+
   private ApplicantModel saveApplicant(String name) {
     AccountModel account = new AccountModel();
     // TODO (#5503): This can be removed when we are no longer checking name

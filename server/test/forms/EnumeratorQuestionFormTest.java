@@ -6,52 +6,42 @@ import java.util.Locale;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 
 public class EnumeratorQuestionFormTest {
   @Test
-  public void getBuilder_returnsCompleteBuilder() throws Exception {
-    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
-    form.setQuestionName("name");
-    form.setQuestionDescription("description");
-    form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
-    QuestionDefinitionBuilder builder = form.getBuilder();
-
-    EnumeratorQuestionDefinition expected =
-        new EnumeratorQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("name")
-                .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build(),
-            LocalizedStrings.empty());
-
-    QuestionDefinition actual = builder.build();
-
-    assertThat(actual).isEqualTo(expected);
+  public void getEntityType_returnsEntityTypeFromQuestionDefinition() {
+    QuestionDefinitionConfig config = makeQuestionDefinitionConfig();
+    EnumeratorQuestionForm form =
+        new EnumeratorQuestionForm(
+            new EnumeratorQuestionDefinition(
+                config, LocalizedStrings.withDefaultValue("entity type")));
+    assertThat(form.getEntityType()).isEqualTo("entity type");
   }
 
   @Test
-  public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    EnumeratorQuestionDefinition originalQd =
-        new EnumeratorQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("name")
-                .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build(),
-            LocalizedStrings.empty());
+  public void getEntityType_returnsDefaultWhenMissingInQuestionDefinition() {
+    QuestionDefinitionConfig config = makeQuestionDefinitionConfig();
+    EnumeratorQuestionForm form =
+        new EnumeratorQuestionForm(
+            new EnumeratorQuestionDefinition(config, LocalizedStrings.empty()));
+    assertThat(form.getEntityType()).isEqualTo("");
+  }
 
-    EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+  @Test
+  public void getBuilder_returnsBuilderWithEntityType() throws Exception {
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+    form.setEntityType("entity type");
+    EnumeratorQuestionDefinition qd = (EnumeratorQuestionDefinition) form.getBuilder().build();
+    assertThat(qd.getEntityType()).isEqualTo(LocalizedStrings.withDefaultValue("entity type"));
+  }
 
-    QuestionDefinition actual = builder.build();
-
-    assertThat(actual).isEqualTo(originalQd);
+  /** Returns a QuestionDefinitionConfig with minimal required fields set */
+  private QuestionDefinitionConfig makeQuestionDefinitionConfig() {
+    return QuestionDefinitionConfig.builder()
+        .setName("name")
+        .setDescription("description")
+        .setQuestionText(LocalizedStrings.of(Locale.US, "question text"))
+        .build();
   }
 }

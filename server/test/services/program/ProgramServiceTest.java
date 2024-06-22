@@ -2607,6 +2607,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(1L)
                     .setName("enumerator")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("enumerator"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
@@ -2617,6 +2619,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(2L)
                     .setName("top level")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("top level"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantEmail().getQuestionDefinition(),
@@ -2627,6 +2631,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(3L)
                     .setName("nested enumerator")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("nested enumerator"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2638,6 +2644,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(4L)
                     .setName("repeated")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("repeated"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2649,6 +2657,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(5L)
                     .setName("nested repeated")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("nested repeated"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(3L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2662,6 +2672,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(6L)
                     .setName("top level 2")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("top level 2"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantName().getQuestionDefinition(),

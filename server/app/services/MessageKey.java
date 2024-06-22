@@ -210,6 +210,7 @@ public enum MessageKey {
   MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),
+  MULTI_SELECT_VALIDATION_TOO_MANY_V2("validation.tooManySelections.v2"),
   NAME_EXAMPLE("label.nameExample"),
   NAME_LABEL_FIRST("label.firstName"),
   NAME_LABEL_LAST("label.lastName"),

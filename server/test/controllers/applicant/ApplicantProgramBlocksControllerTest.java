@@ -1913,6 +1913,336 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void addFile_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    RequestBuilder request =
+        requestBuilderWithSettings(
+            routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                badApplicantId, program.id, /* blockId= */ "2", /* inReview= */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                badApplicantId,
+                program.id,
+                /* blockId= */ "2",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void addFile_applicantAccessToDraftProgram_returnsUnauthorized() {
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                        applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)))
+            .build();
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request, applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void addFile_civiformAdminAccessToDraftProgram_isOk() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)));
+
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void addFile_obsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, obsoleteProgram.id, /* blockId= */ "1", /* inReview= */ false)));
+
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                obsoleteProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void addFile_invalidProgram_returnsBadRequest() {
+    long badProgramId = program.id + 1000;
+    RequestBuilder request =
+        requestBuilderWithSettings(
+            routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                applicant.id, badProgramId, /* blockId= */ "2", /* inReview= */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                badProgramId,
+                /* blockId= */ "2",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void addFile_invalidBlock_returnsBadRequest() {
+    String badBlockId = "1000";
+    RequestBuilder request =
+        requestBuilderWithSettings(
+            routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                applicant.id, program.id, badBlockId, /* inReview= */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(), applicant.id, program.id, badBlockId, /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void addFile_notFileUploadBlock_returnsBadRequest() {
+    String badBlockId = "1";
+    RequestBuilder request =
+        requestBuilderWithSettings(
+            routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                applicant.id, program.id, badBlockId, /* inReview= */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(), applicant.id, program.id, badBlockId, /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void addFile_missingFileKeyAndBucket_returnsBadRequest() {
+    RequestBuilder request =
+        requestBuilderWithSettings(
+            routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                applicant.id, program.id, /* blockId= */ "2", /* inReview= */ false));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "2",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void addFile_addsFileAndRerendersSameBlock() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .build();
+    RequestBuilder request =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("1 of 2");
+
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("fake-key");
+  }
+
+  @Test
+  public void addFile_canAddMultipleFiles() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+    RequestBuilder requestOne =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)));
+    addQueryString(requestOne, ImmutableMap.of("key", "keyOne", "bucket", "fake-bucket"));
+
+    subject
+        .addFileWithApplicantId(
+            requestOne.build(), applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+        .toCompletableFuture()
+        .join();
+
+    RequestBuilder requestTwo =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)));
+    addQueryString(requestTwo, ImmutableMap.of("key", "keyTwo", "bucket", "fake-bucket"));
+
+    subject
+        .addFileWithApplicantId(
+            requestTwo.build(), applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("keyOne");
+    assertThat(applicantData).contains("keyTwo");
+
+    // Assert that corresponding entries were created in the stored file repo.
+    var storedFileRepo = instanceOf(StoredFileRepository.class);
+    int storedFileCount =
+        storedFileRepo
+            .lookupFiles(ImmutableList.of("keyOne", "keyTwo"))
+            .toCompletableFuture()
+            .join()
+            .size();
+    assertThat(storedFileCount).isEqualTo(2);
+  }
+
+  @Test
+  public void addFile_addingDuplicateFileDoesNothing() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+    RequestBuilder request =
+        addCSRFToken(
+            requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    var result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).containsOnlyOnce("fake-key");
+
+    // Assert that there aren't duplicate entries in the file permissions repo.
+    var storedFileRepo = instanceOf(StoredFileRepository.class);
+    int storedFileCount =
+        storedFileRepo
+            .lookupFiles(ImmutableList.of("fake-key"))
+            .toCompletableFuture()
+            .join()
+            .size();
+    assertThat(storedFileCount).isEqualTo(1);
+  }
+
+  @Test
   public void confirmAddress_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = Long.MAX_VALUE;
 
