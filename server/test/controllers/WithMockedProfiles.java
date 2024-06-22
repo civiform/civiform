@@ -100,6 +100,10 @@ public class WithMockedProfiles {
     ApplicantModel applicant = createApplicant();
     CiviFormProfile profile = profileFactory.wrap(applicant);
     mockProfile(profile);
+
+    when(MOCK_UTILS.getApplicantId(not(argThat(skipUserProfile()))))
+        .thenReturn(Optional.of(applicant.id));
+
     return applicant;
   }
 
