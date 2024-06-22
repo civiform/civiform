@@ -65,7 +65,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // All the assertions and verifications
     assertThat(result).isNull();
 
-    // This is the main reason for this action and must have run given the inputs for this test
+    // This is the main reason for this action and must not have run given the inputs for this test
     verify(applicationRepositoryMock, Mockito.times(0))
         .updateDraftApplicationProgram(any(Long.class), any(Long.class));
   }
