@@ -108,6 +108,7 @@ public class ProfileUtils {
     }
   }
 
+  /** Retrieves the applicant id from the user profile, if present. */
   public Optional<Long> getApplicantId(Http.Request request) {
     Optional<CiviFormProfile> profile = currentUserProfile(request);
     if (profile.map(CiviFormProfile::getProfileData).isEmpty()) {
