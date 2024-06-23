@@ -40,8 +40,8 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
@@ -209,7 +209,7 @@ public class SecurityModule extends AbstractModule {
             // successfully authenticated. In practice, that profile is just an object we
             // use to store the API key ID so that it can be used to look up the
             // authenticated caller's ApiKey in controller code.
-            (Credentials credentials, WebContext context, SessionStore sessionStore) -> {
+            (CallContext callContext, Credentials credentials) -> {
               BasicUserProfile profile = new BasicUserProfile();
               String keyId = ((UsernamePasswordCredentials) credentials).getUsername();
               profile.setId(keyId);
