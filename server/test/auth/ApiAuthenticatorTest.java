@@ -107,10 +107,10 @@ public class ApiAuthenticatorTest {
     apiAuthenticator.validate(
         new CallContext(
             new PlayWebContext(
-            fakeRequestBuilder()
-                .rawCredentials(validRawCredentials)
-                .remoteAddress("1.1.1.1")
-                .build()),
+                fakeRequestBuilder()
+                    .rawCredentials(validRawCredentials)
+                    .remoteAddress("1.1.1.1")
+                    .build()),
             MOCK_SESSION_STORE),
         new UsernamePasswordCredentials(keyId, secret));
 
@@ -133,11 +133,11 @@ public class ApiAuthenticatorTest {
 
     authenticator.validate(
         new CallContext(
-        new PlayWebContext(
-            fakeRequestBuilder()
-                .rawCredentials(validRawCredentials)
-                .addXForwardedFor("2.2.2.2, 3.3.3.3")
-                .build()),
+            new PlayWebContext(
+                fakeRequestBuilder()
+                    .rawCredentials(validRawCredentials)
+                    .addXForwardedFor("2.2.2.2, 3.3.3.3")
+                    .build()),
             MOCK_SESSION_STORE),
         new UsernamePasswordCredentials(keyId, secret));
 
@@ -235,13 +235,13 @@ public class ApiAuthenticatorTest {
             () ->
                 authenticator.validate(
                     new CallContext(
-                    new PlayWebContext(
-                        fakeRequestBuilder()
-                            .addXForwardedFor("5.5.5.5, 6.6.6.6")
-                            .rawCredentials(validRawCredentials)
-                            .remoteAddress("7.7.7.7")
-                            .build()),
-                    MOCK_SESSION_STORE),
+                        new PlayWebContext(
+                            fakeRequestBuilder()
+                                .addXForwardedFor("5.5.5.5, 6.6.6.6")
+                                .rawCredentials(validRawCredentials)
+                                .remoteAddress("7.7.7.7")
+                                .build()),
+                        MOCK_SESSION_STORE),
                     new UsernamePasswordCredentials(keyId, secret)))
         .isInstanceOf(BadCredentialsException.class);
 
