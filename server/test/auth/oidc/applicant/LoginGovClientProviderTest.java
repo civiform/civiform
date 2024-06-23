@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.profile.creator.ProfileCreator;
@@ -97,7 +98,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   public void testRedirectURI() throws Exception {
     OidcClient client = loginGovProvider.get();
 
-    var redirectAction = client.getRedirectionAction(webContext, mockSessionStore);
+    var redirectAction = client.getRedirectionAction(new CallContext(webContext, mockSessionStore));
     assertThat(redirectAction).containsInstanceOf(FoundAction.class);
     var redirectUri = new URI(((FoundAction) redirectAction.get()).getLocation());
     assertThat(redirectUri)
@@ -118,7 +119,9 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
         client.getLogoutAction(
-            webContext, mockSessionStore, new CiviFormProfileData(1L), afterLogoutUri);
+            new CallContext(webContext, mockSessionStore),
+            new CiviFormProfileData(1L),
+            afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)
