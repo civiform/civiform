@@ -1135,10 +1135,20 @@ public final class ProgramService {
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+    BlockDefinition existingBlockDefinition =
+        programDefinition.getBlockDefinition(blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+        existingBlockDefinition.toBuilder()
             .setName(blockForm.getName())
             .setDescription(blockForm.getDescription())
+            .setLocalizedName(
+                existingBlockDefinition
+                    .localizedName()
+                    .updateDefaultTranslation(blockForm.getName()))
+            .setLocalizedDescription(
+                existingBlockDefinition
+                    .localizedDescription()
+                    .updateDefaultTranslation(blockForm.getDescription()))
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     if (!errors.isEmpty()) {
@@ -1724,6 +1734,8 @@ public final class ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
             .setEnumeratorId(maybeEnumeratorBlockId)
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);

@@ -60,6 +60,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
+      Optional<String> bannerMessage,
       CiviFormProfile profile) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
@@ -143,6 +144,9 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
                     program -> program.programId(),
                     program ->
                         applicantRoutes.review(profile, applicantId, program.programId()).url())));
+
+    // Toasts
+    context.setVariable("bannerMessage", bannerMessage);
 
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }

@@ -4,20 +4,25 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
 export function init() {
-  // Configure the button on the enumerator question form to add more enumerator field options
-  const enumeratorOptionButton = document.getElementById(
-    'enumerator-field-add-button',
+  refreshAddButtonStatus()
+
+  addEventListenerToElements(
+    '.cf-question-enumerator input[data-entity-input]',
+    'input',
+    refreshAddButtonStatus,
   )
-  if (enumeratorOptionButton) {
-    enumeratorOptionButton.addEventListener('click', addNewEnumeratorField)
-  }
+
+  addEventListenerToElements(
+    '#enumerator-field-add-button',
+    'click',
+    addNewEnumeratorField,
+  )
 
   addEventListenerToElements(
     '.cf-enumerator-delete-button',
     'click',
     removeExistingEnumeratorField,
   )
-  addEnumeratorListeners()
 }
 
 // Used to allow us to generate a unique ID for each newly added enumerator entity.
@@ -79,10 +84,13 @@ function addNewEnumeratorField() {
   // Set disabled to false so the data is submitted with the form.
   newInput.disabled = false
   newInput.focus()
+
+  newInput.addEventListener('input', refreshAddButtonStatus)
+  refreshAddButtonStatus()
 }
 
 /**
- * In the enumerator form - remove a input field for a repeated entity
+ * Remove an entity that was added client-side and has not been saved to the server.
  * @param {Event} event The event that triggered this action.
  */
 function removeEnumeratorField(event: Event) {
@@ -94,13 +102,13 @@ function removeEnumeratorField(event: Event) {
 
   // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
-
+  refreshAddButtonStatus()
   setFocusAfterEnumeratorRemoval()
 }
 
 /**
- * Enumerator delete buttons for existing entities behave differently than removing fields that
- * were just added client-side and were not saved server-side.
+ * Remove an entity that has been saved to the server. The server needs to know the entity was
+ * deleted, so we can't just delete it from the DOM.
  * @param {Event} event The event that triggered this action.
  */
 function removeExistingEnumeratorField(event: Event) {
@@ -135,7 +143,7 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
-
+  refreshAddButtonStatus()
   setFocusAfterEnumeratorRemoval()
 }
 
@@ -150,86 +158,32 @@ function setFocusAfterEnumeratorRemoval() {
     '.cf-enumerator-field:not(.hidden) .cf-enumerator-delete-button',
   )
   if (deleteButtons.length === 0) {
-    // No entries, set focus to add button.
-    const enumeratorQuestion = assertNotNull(
-      document.querySelector('.cf-question-enumerator'),
-    )
-    // Enable button before setting focus. The mutation observer that sets this
-    // isn't guaranteed to run first.
-    maybeToggleEnumeratorAddButton(enumeratorQuestion)
-    const addButton = assertNotNull(
-      document.getElementById('enumerator-field-add-button'),
-    )
-    addButton.focus()
+    // Set focus to add button
+    document.getElementById('enumerator-field-add-button')!.focus()
   } else {
-    // Other entries, set to last remove button.
+    // Set focus to last remove button
     ;(deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
   }
 }
 
-/** Add listeners to all enumerator inputs to update validation on changes. */
-function addEnumeratorListeners() {
-  // Assumption: There is only ever zero or one enumerators per block.
-  const enumeratorQuestion = document.querySelector('.cf-question-enumerator')
-  if (!enumeratorQuestion) {
-    return
-  }
-  const enumeratorInputs = Array.from(
-    enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
-  )
-  // Whenever an input changes we need to revalidate.
-  enumeratorInputs.forEach((enumeratorInput) => {
-    enumeratorInput.addEventListener('input', () => {
-      maybeToggleEnumeratorAddButton(enumeratorQuestion)
-    })
-  })
-
-  // Whenever an input is added, we need to add a change listener.
-  const mutationObserver = new MutationObserver((records: MutationRecord[]) => {
-    for (const record of records) {
-      for (const newNode of Array.from(record.addedNodes)) {
-        // changes to the label and button texts trigger the mutationObserver which results in an error
-        // this if statement protects against that case
-        if ((<Element>newNode).querySelectorAll) {
-          const newInputs = Array.from(
-            (<Element>newNode).querySelectorAll('input'),
-          )
-          newInputs.forEach((newInput) => {
-            newInput.addEventListener('input', () => {
-              maybeToggleEnumeratorAddButton(enumeratorQuestion)
-            })
-          })
-        }
-      }
-    }
-    maybeToggleEnumeratorAddButton(enumeratorQuestion)
-  })
-
-  mutationObserver.observe(enumeratorQuestion, {
-    childList: true,
-    subtree: true,
-    characterDataOldValue: true,
-  })
-}
-
 /**
- * Disable the add button if there are empty inputs, re-enable the add button otherwise.
- * (We don't need two blank inputs.)
- * @param {Element} enumeratorQuestion The question to hide/show the add button for.
+ * Enable the add button if and only if all inputs are filled (the user doesn't need two blank
+ * inputs).
  */
-function maybeToggleEnumeratorAddButton(enumeratorQuestion: Element) {
-  if (enumeratorQuestion) {
-    const enumeratorInputValues = Array.from(
-      enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
-    ).map((item) => (item as HTMLInputElement).value)
+function refreshAddButtonStatus() {
+  const enumeratorInputValues = Array.from(
+    document.querySelectorAll(
+      '.cf-question-enumerator input[data-entity-input]',
+    ),
+  ).map((item) => (item as HTMLInputElement).value)
 
-    // validate that there are no empty inputs.
-    const addButton = <HTMLInputElement>(
-      document.getElementById('enumerator-field-add-button')
-    )
-    if (addButton) {
-      addButton.disabled = enumeratorInputValues.includes('')
-    }
+  // validate that there are no empty inputs.
+  const addButton = document.getElementById(
+    'enumerator-field-add-button',
+  ) as HTMLInputElement
+
+  if (addButton) {
+    addButton.disabled = enumeratorInputValues.includes('')
   }
 }
 

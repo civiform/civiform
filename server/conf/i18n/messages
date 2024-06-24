@@ -23,6 +23,8 @@ validation.invalidInput=Please enter valid input.
 validation.errorAnnouncementSr=There are errors in the form. Please fix before continuing.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(optional)
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
@@ -60,10 +62,16 @@ button.deleteFile=Delete
 button.keepFile=Continue
 button.nextScreen=Save and next
 button.previousScreen=Previous
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Back
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Save and finish application later
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} of {1} completed
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Application progress
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -466,6 +474,10 @@ dialog.confirmDelete=Are you sure you want to remove this {0}? This change will 
 dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Please enter a value for each line.
 validation.duplicateEntityName=Please enter a unique value for each line.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Please enter at most {0} values.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Please enter at least {0} values.
 placeholder.entityName={0} name
 
 #---------------------------------------------------------------------------------#
@@ -491,6 +503,8 @@ validation.numberRequired=Must contain only numbers.
 
 validation.tooFewSelections=Please select at least {0}.
 validation.tooManySelections=Please select fewer than {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #

@@ -2,6 +2,8 @@ package repository;
 
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,5 +53,27 @@ public final class ApplicationStatusesRepository {
     return optionalApplicationStatusesModelList.stream()
         .map(ApplicationStatusesModel::getStatusDefinitions)
         .collect(Collectors.toList());
+  }
+
+  public void updateStatusDefinitions(String programName, StatusDefinitions statusDefinitions) {
+    // Begin transaction
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      // archive the previous active one
+      database
+          .update(ApplicationStatusesModel.class)
+          .set("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
+          .where()
+          .eq("program_name", programName)
+          .and()
+          .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.ACTIVE)
+          .update();
+
+      // create new status
+      ApplicationStatusesModel newStatusDefinition =
+          new ApplicationStatusesModel(
+              programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
+      newStatusDefinition.save();
+      transaction.commit();
+    }
   }
 }

@@ -46,19 +46,18 @@ public class FakeAdminClient extends IndirectClient {
   // is being handled by the parent class.
   @Override
   protected void internalInit(final boolean forceReinit) {
-    setCredentialsExtractor(
-        ctx -> {
+    defaultCredentialsExtractor(
+        (ctx, store) -> {
           // Double check that we haven't been fooled into allowing this somehow.
-          if (!acceptedHosts.contains(ctx.webContext().getServerName())) {
+          if (!acceptedHosts.contains(ctx.getServerName())) {
             throw new UnsupportedOperationException(
                 "You cannot create a fake admin unless you are running locally.");
           }
           return Optional.of(new AnonymousCredentials());
         });
-
-    setAuthenticator(
-        (ctx, cred) -> {
-          Optional<String> adminType = ctx.webContext().getRequestParameter("adminType");
+    defaultAuthenticator(
+        (cred, ctx, store) -> {
+          Optional<String> adminType = ctx.getRequestParameter("adminType");
           if (adminType.isEmpty()) {
             throw new IllegalArgumentException("no admin type provided.");
           }
@@ -74,14 +73,11 @@ public class FakeAdminClient extends IndirectClient {
             throw new IllegalArgumentException(
                 String.format("admin type %s not recognized", adminType.get()));
           }
-
-          return Optional.of(cred);
         });
-
-    setRedirectionActionBuilder(
-        (ctx) ->
+    defaultRedirectionActionBuilder(
+        (ctx, store) ->
             Optional.of(
                 HttpActionHelper.buildRedirectUrlAction(
-                    ctx.webContext(), routes.AdminProgramController.index().url())));
+                    ctx, routes.AdminProgramController.index().url())));
   }
 }

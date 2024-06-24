@@ -323,10 +323,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".kitchen_tools",
-        "{\n"
-            + "  \"question_type\" : \"MULTI_SELECT\",\n"
-            + "  \"selections\" : [ \"pepper_grinder\", \"garlic_press\" ]\n"
-            + "}");
+        """
+        {
+          "question_type" : "MULTI_SELECT",
+          "selections" : [ "pepper_grinder", "garlic_press" ]
+        }""");
   }
 
   @Test
@@ -350,10 +351,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".kitchen_tools",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"MULTI_SELECT\",\n"
-            + "  \"selections\" : [ ]\n"
-            + "}");
+        """
+        {
+          "question_type" : "MULTI_SELECT",
+          "selections" : [ ]
+        }""");
   }
 
   @Test
@@ -377,10 +379,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_monthly_income",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"currency_dollars\" : 5444.33,\n"
-            + "  \"question_type\" : \"CURRENCY\"\n"
-            + "}");
+        """
+        {
+          "currency_dollars" : 5444.33,
+          "question_type" : "CURRENCY"
+        }""");
   }
 
   @Test
@@ -404,10 +407,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_monthly_income",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"currency_dollars\" : null,\n"
-            + "  \"question_type\" : \"CURRENCY\"\n"
-            + "}");
+        """
+        {
+          "currency_dollars" : null,
+          "question_type" : "CURRENCY"
+        }""");
   }
 
   @Test
@@ -431,10 +435,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : \"2015-10-21\",\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : "2015-10-21",
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -458,10 +463,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : null,\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : null,
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -487,10 +493,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"strawberry\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "strawberry"
+        }""");
   }
 
   @Test
@@ -514,10 +521,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : null\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : null
+        }""");
   }
 
   @Test
@@ -543,10 +551,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n"
-            + "  \"email\" : \"chell@aperturescience.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "chell@aperturescience.com",
+          "question_type" : "EMAIL"
+        }""");
   }
 
   @Test
@@ -570,10 +579,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
   }
 
   @Test
@@ -597,10 +607,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 42,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 42,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -624,10 +635,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : null,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : null,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -653,10 +665,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_phone",
-        "{\n"
-            + "  \"phone_number\" : \"+15558675309\",\n"
-            + "  \"question_type\" : \"PHONE\"\n"
-            + "}");
+        """
+        {
+          "phone_number" : "+15558675309",
+          "question_type" : "PHONE"
+        }""");
   }
 
   @Test
@@ -680,10 +693,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_phone",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"phone_number\" : null,\n"
-            + "  \"question_type\" : \"PHONE\"\n"
-            + "}");
+        """
+        {
+          "phone_number" : null,
+          "question_type" : "PHONE"
+        }""");
   }
 
   @Test
@@ -709,10 +723,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_season",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"summer\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "summer"
+        }""");
   }
 
   @Test
@@ -736,10 +751,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_season",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : null\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : null
+        }""");
   }
 
   @Test
@@ -763,10 +779,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"entities\" : [ ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -793,22 +810,23 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : \"stars\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : \"hearts\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : "stars"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : "hearts"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -833,22 +851,23 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -875,30 +894,31 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -928,54 +948,55 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"singer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"songwriter\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"performer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"composer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "singer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "songwriter",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "performer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "composer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -1009,54 +1030,55 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"singer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 34,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"songwriter\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 35,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"performer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 13,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"composer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 14,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "singer",
+                "household_members_days_worked" : {
+                  "number" : 34,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "songwriter",
+                "household_members_days_worked" : {
+                  "number" : 35,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "performer",
+                "household_members_days_worked" : {
+                  "number" : 13,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "composer",
+                "household_members_days_worked" : {
+                  "number" : 14,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -1081,17 +1103,20 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // assert answered question
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_color",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"TEXT\",\n"
-            + "  \"text\" : \"red\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : "red"
+        }""");
+
     // assert hidden question is still in export
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : null,\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : null,
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -1163,33 +1188,37 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 3,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 3,
+          "question_type" : "NUMBER"
+        }""");
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 4,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 4,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -1228,33 +1257,37 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 3,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 3,
+          "question_type" : "NUMBER"
+        }""");
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 4,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 4,
+          "question_type" : "NUMBER"
+        }""");
 
     ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(fakeProgram.id);
@@ -1300,10 +1333,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // Assert application only includes 1 question
     programBResultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     programBResultAsserter.assertJsonDoesNotContainApplicationPath(
         ".number_of_items_applicant_can_juggle");
 
@@ -1326,16 +1360,18 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // answer in the applicant data.
     updatedProgramBResultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     updatedProgramBResultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : null,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : null,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -1387,10 +1423,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"mint\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "mint"
+        }""");
   }
 
   private static class ResultAsserter {

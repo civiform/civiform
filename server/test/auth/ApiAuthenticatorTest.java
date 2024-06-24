@@ -19,7 +19,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.exception.BadCredentialsException;
@@ -104,11 +103,10 @@ public class ApiAuthenticatorTest {
   @Test
   public void validate_success_direct() {
     apiAuthenticator.validate(
-        new CallContext(
-            new PlayWebContext(
-                new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
-            MOCK_SESSION_STORE),
-        new UsernamePasswordCredentials(keyId, secret));
+        new UsernamePasswordCredentials(keyId, secret),
+        new PlayWebContext(
+            new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
+        MOCK_SESSION_STORE);
 
     Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
     Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
@@ -128,14 +126,13 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     authenticator.validate(
-        new CallContext(
-            new PlayWebContext(
-                new FakeRequestBuilder()
-                    .withRawCredentials(validRawCredentials)
-                    .withXForwardedFor("2.2.2.2, 3.3.3.3")
-                    .build()),
-            MOCK_SESSION_STORE),
-        new UsernamePasswordCredentials(keyId, secret));
+        new UsernamePasswordCredentials(keyId, secret),
+        new PlayWebContext(
+            new FakeRequestBuilder()
+                .withRawCredentials(validRawCredentials)
+                .withXForwardedFor("2.2.2.2, 3.3.3.3")
+                .build()),
+        MOCK_SESSION_STORE);
 
     Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
     Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
@@ -233,15 +230,14 @@ public class ApiAuthenticatorTest {
     assertThatThrownBy(
             () ->
                 authenticator.validate(
-                    new CallContext(
-                        new PlayWebContext(
-                            new FakeRequestBuilder()
-                                .withRemoteAddress("7.7.7.7")
-                                .withXForwardedFor("5.5.5.5, 6.6.6.6")
-                                .withRawCredentials(validRawCredentials)
-                                .build()),
-                        MOCK_SESSION_STORE),
-                    new UsernamePasswordCredentials(keyId, secret)))
+                    new UsernamePasswordCredentials(keyId, secret),
+                    new PlayWebContext(
+                        new FakeRequestBuilder()
+                            .withRemoteAddress("7.7.7.7")
+                            .withXForwardedFor("5.5.5.5, 6.6.6.6")
+                            .withRawCredentials(validRawCredentials)
+                            .build()),
+                    MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class);
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
@@ -287,7 +283,7 @@ public class ApiAuthenticatorTest {
     assertThatThrownBy(
             () ->
                 apiAuthenticator.validate(
-                    new CallContext(new PlayWebContext(request), MOCK_SESSION_STORE), credentials))
+                    credentials, new PlayWebContext(request), MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class)
         .hasMessage(expectedMessage);
   }

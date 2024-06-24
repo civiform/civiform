@@ -1,7 +1,6 @@
 import {test} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -100,67 +99,6 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test(
-      'North Star shows ineligible on home page',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(fullProgramName)
-
-        await test.step('fill out application and submit', async () => {
-          await applicantQuestions.answerNumberQuestion('1')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.expectIneligiblePage()
-        })
-
-        await test.step('verify question is marked ineligible', async () => {
-          await applicantQuestions.gotoApplicantHomePage()
-          await applicantQuestions.seeEligibilityTag(
-            fullProgramName,
-            /* isEligible= */ false,
-          )
-
-          await validateScreenshot(
-            page,
-            'ineligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
-      },
-    )
-
-    test(
-      'North Star shows eligible on home page',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(fullProgramName)
-
-        await test.step('fill out application and submit', async () => {
-          await applicantQuestions.answerNumberQuestion('5')
-          await applicantQuestions.clickContinue()
-        })
-
-        await test.step('verify question is marked eligible', async () => {
-          await applicantQuestions.gotoApplicantHomePage()
-          await applicantQuestions.seeEligibilityTag(
-            fullProgramName,
-            /* isEligible= */ true,
-          )
-
-          await validateScreenshot(
-            page,
-            'eligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
-      },
-    )
-
     test('shows may be eligible with an eligible answer', async ({
       page,
       applicantQuestions,
@@ -203,27 +141,6 @@ test.describe('Applicant navigation flow', () => {
         /* isEligible= */ true,
       )
     })
-
-    test(
-      'North Star shows may be eligible toast with an eligible answer',
-      {tag: ['@northstar']},
-      async ({page, applicantQuestions}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(fullProgramName)
-
-        // Fill out application and without submitting.
-        await applicantQuestions.answerNumberQuestion('5')
-        await applicantQuestions.clickContinue()
-        await validateToastMessage(page, 'may qualify')
-        await validateScreenshot(
-          page,
-          'north-star-eligible-toast',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-        await disableFeatureFlag(page, 'north_star_applicant_ui')
-      },
-    )
 
     test('shows not eligible with ineligible answer from another application', async ({
       page,
@@ -355,9 +272,7 @@ test.describe('Applicant navigation flow', () => {
         questionName: questionName,
         questionText:
           'This is a _question_ with some [markdown](https://www.example.com) and \n line \n\n breaks',
-        // Newline characters break the comparison, so pass in just the first part of the question text
-        expectedQuestionText:
-          'This is a _question_ with some [markdown](https://www.example.com)',
+        markdown: true,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
@@ -451,6 +366,107 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+    })
+
+    test.describe('With north star flag enabled', {tag: ['@northstar']}, () => {
+      test.beforeEach(async ({page}) => {
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('Shows ineligible tag on home page program cards', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.answerNumberQuestion('1')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectIneligiblePage()
+        })
+
+        await test.step('verify question is marked ineligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ false,
+          )
+
+          await validateScreenshot(
+            page,
+            'ineligible-home-page-program-tagnorthstar',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('Shows eligible on home page', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.answerNumberQuestion('5')
+          await applicantQuestions.clickContinue()
+        })
+
+        await test.step('verify program is marked eligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ true,
+          )
+
+          await validateScreenshot(
+            page,
+            'eligible-home-page-program-tagnorthstar',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('Shows may be eligible toast on block edit page with an eligible answer', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        // Fill out application and without submitting.
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+        await validateToastMessage(page, 'may qualify')
+        await validateScreenshot(
+          page,
+          'north-star-eligible-toast',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('shows not eligible toast on review page with ineligible answer', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(fullProgramName)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectIneligiblePage()
+
+        // Verify the question is marked ineligible.
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeEligibilityTag(
+          fullProgramName,
+          /* isEligible= */ false,
+        )
+        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+        await validateToastMessage(page, 'may not qualify')
+      })
     })
   })
 })

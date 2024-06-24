@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.play.PlayWebContext;
@@ -78,9 +77,7 @@ public class Auth0ProviderTest extends ResetPostgres {
         auth0Provider
             .get()
             .getLogoutAction(
-                new CallContext(webContext, mockSessionStore),
-                new CiviFormProfileData(1L),
-                afterLogoutUri);
+                webContext, mockSessionStore, new CiviFormProfileData(1L), afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)

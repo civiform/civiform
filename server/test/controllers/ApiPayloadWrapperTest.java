@@ -24,14 +24,15 @@ public class ApiPayloadWrapperTest extends ResetPostgres {
 
     assertThat(asPrettyJsonString(result))
         .isEqualTo(
-            "{\n"
-                + "  \"nextPageToken\" : null,\n"
-                + "  \"payload\" : {\n"
-                + "    \"United States\" : {\n"
-                + "      \"New York State\" : [ \"New York City\", \"Albany\" ]\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+            """
+            {
+              "nextPageToken" : null,
+              "payload" : {
+                "United States" : {
+                  "New York State" : [ "New York City", "Albany" ]
+                }
+              }
+            }""");
   }
 
   @Test
@@ -53,15 +54,15 @@ public class ApiPayloadWrapperTest extends ResetPostgres {
 
     assertThat(asPrettyJsonString(result))
         .isEqualTo(
-            "{\n"
-                + "  \"nextPageToken\" : \""
-                + expectedToken
-                + "\",\n"
-                + "  \"payload\" : {\n"
-                + "    \"United States\" : {\n"
-                + "      \"New York State\" : [ \"New York City\", \"Albany\" ]\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+            """
+            {
+              "nextPageToken" : "%s",
+              "payload" : {
+                "United States" : {
+                  "New York State" : [ "New York City", "Albany" ]
+                }
+              }
+            }"""
+                .formatted(expectedToken));
   }
 }

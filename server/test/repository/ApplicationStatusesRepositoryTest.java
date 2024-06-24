@@ -21,6 +21,11 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .build();
+  private static final StatusDefinitions.Status REAPPLY_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Reapply")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Reapply"))
+          .build();
   ApplicationStatusesRepository repo;
 
   @Before
@@ -84,5 +89,29 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     assertThat(statusDefinitionsResults.get(0).getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().get(0).statusText())
         .isEqualTo("Approved");
+  }
+
+  @Test
+  public void canUpdateApplicationStatuses() {
+    Long uniqueProgramId = new Random().nextLong();
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description").build();
+    String programName = program.getProgramDefinition().adminName();
+    StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
+    ApplicationStatusesModel applicationStatusesModel =
+        new ApplicationStatusesModel(
+            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
+    applicationStatusesModel.save();
+    // pre assert before test
+    StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
+    assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
+    assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
+    // test
+    repo.updateStatusDefinitions(
+        programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
+
+    StatusDefinitions statusDefinitionsResult2 = repo.lookupActiveStatusDefinitions(programName);
+    assertThat(statusDefinitionsResult2.getStatuses().size()).isEqualTo(1);
+    assertThat(statusDefinitionsResult2.getStatuses().get(0).statusText()).isEqualTo("Reapply");
   }
 }

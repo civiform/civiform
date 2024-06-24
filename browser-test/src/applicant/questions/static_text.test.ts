@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -34,7 +33,6 @@ test.describe('Static text question for applicant flow', () => {
         adminQuestions,
         adminPrograms,
       )
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('displays static text', async ({applicantQuestions}) => {

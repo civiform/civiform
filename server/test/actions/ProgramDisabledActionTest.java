@@ -19,6 +19,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramService;
 import services.program.ProgramType;
@@ -31,6 +32,8 @@ public class ProgramDisabledActionTest extends WithApplication {
           .setId(1)
           .setName("Screen 1")
           .setDescription("Screen 1 description")
+          .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+          .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
           .build();
 
   @Test

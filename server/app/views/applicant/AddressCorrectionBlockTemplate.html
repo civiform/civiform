@@ -13,6 +13,9 @@
       th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
                anySuggestions=${suggestions.size() > 0}"
     >
+      <div
+        th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
+      ></div>
       <input hidden th:value="${csrfToken}" name="csrfToken" />
       <div th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"></div>
 

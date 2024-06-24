@@ -42,6 +42,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
@@ -62,6 +63,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final NorthStarApplicantProgramSummaryView northStarSummaryView;
+  private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
@@ -75,6 +77,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       NorthStarApplicantProgramSummaryView northStarSummaryView,
+      NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
@@ -88,6 +91,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.northStarSummaryView = checkNotNull(northStarSummaryView);
+    this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -106,10 +110,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     }
 
     boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
-    Optional<ToastMessage> flashBanner =
-        request.flash().get("banner").map(m -> ToastMessage.alert(m));
+    Optional<String> flashBannerMessage = request.flash().get("banner");
+    Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
+    Optional<String> flashSuccessBannerMessage = request.flash().get("success-banner");
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
+        flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);
 
@@ -123,16 +128,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
+              Optional<String> notEligibleBannerMessage = Optional.empty();
               try {
-                if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
-                  notEligibleBanner =
+                boolean shouldShowNotEligibleBanner =
+                    shouldShowNotEligibleBanner(roApplicantProgramService, programId);
+                if (shouldShowNotEligibleBanner) {
+                  notEligibleBannerMessage =
                       Optional.of(
-                          ToastMessage.alert(
-                              messages.at(
-                                  isTrustedIntermediary
-                                      ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                      : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                  roApplicantProgramService.getProgramTitle())));
+                          messages.at(
+                              isTrustedIntermediary
+                                  ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                  : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                              roApplicantProgramService.getProgramTitle()));
+                  notEligibleBanner =
+                      Optional.of(ToastMessage.alert(notEligibleBannerMessage.get()));
                 }
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
@@ -189,6 +198,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setCompletedBlockCount(completedBlockCount)
                         .setTotalBlockCount(totalBlockCount)
                         .setMessages(messages)
+                        .setAlertBannerMessage(flashBannerMessage)
+                        .setSuccessBannerMessage(flashSuccessBannerMessage)
+                        .setNotEligibleBannerMessage(notEligibleBannerMessage)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
@@ -319,6 +331,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
     return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
             (v) -> {
@@ -362,15 +376,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   try {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
-
-                    return ok(
-                        ineligibleBlockView.render(
-                            request,
-                            submittingProfile,
-                            roApplicantProgramService,
-                            messagesApi.preferred(request),
-                            applicantId,
-                            programDefinition));
+                    return renderIneligiblePage(
+                        request,
+                        submittingProfile,
+                        applicantId,
+                        applicantPersonalInfo.join(),
+                        roApplicantProgramService,
+                        programDefinition);
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
@@ -390,5 +402,36 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private Result renderIneligiblePage(
+      Request request,
+      CiviFormProfile profile,
+      long applicantId,
+      ApplicantPersonalInfo personalInfo,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      ProgramDefinition programDefinition) {
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      NorthStarApplicantIneligibleView.Params params =
+          NorthStarApplicantIneligibleView.Params.builder()
+              .setRequest(request)
+              .setApplicantId(applicantId)
+              .setProfile(profile)
+              .setApplicantPersonalInfo(personalInfo)
+              .setProgramDefinition(programDefinition)
+              .setRoApplicantProgramService(roApplicantProgramService)
+              .setMessages(messagesApi.preferred(request))
+              .build();
+      return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+    } else {
+      return ok(
+          ineligibleBlockView.render(
+              request,
+              profile,
+              roApplicantProgramService,
+              messagesApi.preferred(request),
+              applicantId,
+              programDefinition));
+    }
   }
 }
