@@ -96,7 +96,8 @@
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
   th:only-show-once-group="${onlyShowOnceGroup}"
-  th:attr="bypass-url=${bypassUrl},dialog-id=${dialogId},show-on-load=${showOnLoad}"
+  th:show-on-load="${showOnLoad ? '' : null}"
+  th:attr="bypass-url=${bypassUrl},dialog-id=${dialogId}"
 >
   <div class="usa-modal__content">
     <div class="usa-modal__main">
