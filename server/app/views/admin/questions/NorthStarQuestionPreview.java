@@ -21,12 +21,12 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.applicant.NorthStarApplicantBaseView;
+import views.NorthStarBaseView;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
-public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
+public class NorthStarQuestionPreview extends NorthStarBaseView {
 
   @Inject
   NorthStarQuestionPreview(
@@ -59,7 +59,6 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
     try {
       questionDefinition = ApplicantQuestionRendererFactory.questionDefinitionSample(params.type());
     } catch (UnsupportedQuestionTypeException e) {
-      System.out.println("Building question failed: " + e.getLocalizedMessage());
       e.printStackTrace();
       throw new RuntimeException(e);
     }

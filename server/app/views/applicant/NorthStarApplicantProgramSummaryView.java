@@ -18,9 +18,10 @@ import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
+public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantProgramSummaryView(

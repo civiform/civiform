@@ -1,4 +1,4 @@
-package views.applicant;
+package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -22,7 +22,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
 
-public abstract class NorthStarApplicantBaseView {
+public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   protected final AssetsFinder assetsFinder;
@@ -31,7 +31,7 @@ public abstract class NorthStarApplicantBaseView {
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
 
-  protected NorthStarApplicantBaseView(
+  protected NorthStarBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,

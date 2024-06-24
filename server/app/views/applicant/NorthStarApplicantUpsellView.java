@@ -9,8 +9,9 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
-public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
+public class NorthStarApplicantUpsellView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantUpsellView(

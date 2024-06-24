@@ -19,8 +19,9 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
-public class NorthStarApplicantIneligibleView extends NorthStarApplicantBaseView {
+public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantIneligibleView(
