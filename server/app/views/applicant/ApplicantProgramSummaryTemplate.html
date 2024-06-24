@@ -75,7 +75,9 @@
         ></a>
       </form>
     </div>
-    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(false, ${isGuest && redirectedFromProgramSlug.isPresent()})}"
+    ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>
