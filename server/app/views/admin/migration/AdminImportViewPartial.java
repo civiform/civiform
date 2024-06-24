@@ -58,9 +58,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(
       Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
-
     ProgramDefinition program = programMigrationWrapper.getProgram();
-
     DivTag programDiv =
         div()
             .withId(PROGRAM_DATA_ID)
