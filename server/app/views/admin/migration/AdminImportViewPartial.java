@@ -70,7 +70,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
     // If there are no questions in the program, the "questions" field will not be included in the
-    // json blob
+    // JSON and programMigrationWrapper.getQuestions() will return null
     if (programMigrationWrapper.getQuestions() != null) {
       questionsById =
           programMigrationWrapper.getQuestions().stream()

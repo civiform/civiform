@@ -94,15 +94,6 @@ test.describe('program migration', () => {
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
   })
 
-  test('import a program', async ({page, adminProgramMigration}) => {
-    await test.step('load import page', async () => {
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
-      await adminProgramMigration.goToImportPage()
-      await validateScreenshot(page.locator('main'), 'import-page-no-data')
-    })
-  })
-
   test('import errors', async ({page, adminProgramMigration}) => {
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
@@ -183,6 +174,7 @@ test.describe('program migration', () => {
 
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
+      await validateScreenshot(page.locator('main'), 'import-page-no-data')
 
       // replace the admin name to avoid collision
       downloadedProgram = downloadedProgram.replace(
