@@ -553,7 +553,6 @@ validation.numberRequired=只能輸入數字。
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=請至少選取 {0} 項。
-validation.tooManySelections=最多只能選取 {0} 項。
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=最多只能選取 {0} 個選項。
 

@@ -553,7 +553,6 @@ validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
-validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=እባክዎ ቢበዛ {0} ይምረጡ።
 
