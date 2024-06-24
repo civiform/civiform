@@ -126,7 +126,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .with(
                         TextFormatter.formatText(
                             question.getQuestionText().getDefault(), false, false))
-                    .withClass("font-bold"));
+                    .withClass("font-bold")
+                    .withData("testid", "question-div"));
     if (!question.getQuestionHelpText().isEmpty()) {
       questionDiv.with(
           TextFormatter.formatText(question.getQuestionHelpText().getDefault(), false, false));
