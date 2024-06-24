@@ -222,8 +222,8 @@ test.describe('program migration', () => {
       const allQuestions = page.getByTestId('question-div')
       await expect(allQuestions).toHaveCount(17)
       // Check that all the expected fields are shown on at least one question
-      // question text
       const programDataDiv = page.locator('#program-data')
+      // question text
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
