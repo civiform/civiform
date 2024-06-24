@@ -68,9 +68,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
-    ImmutableMap<Long, QuestionDefinition> questionsById =
-        programMigrationWrapper.getQuestions().stream()
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+    ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
+    // If there are no questions in the program, the "questions" field will not be included in the
+    // json blob
+    if (programMigrationWrapper.getQuestions() != null) {
+      questionsById =
+          programMigrationWrapper.getQuestions().stream()
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+    }
 
     for (BlockDefinition block : program.blockDefinitions()) {
       programDiv.with(renderProgramBlock(block, questionsById));
@@ -103,9 +108,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .with(h4(block.name()), p(block.description()));
     // TODO(#7087): Display eligibility and visibility predicates.
 
-    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-      blockDiv.with(renderQuestion(Objects.requireNonNull(questionsById.get(question.id()))));
+    if (!questionsById.isEmpty()) {
+      for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+        blockDiv.with(renderQuestion(Objects.requireNonNull(questionsById.get(question.id()))));
+      }
     }
+
     return blockDiv;
   }
 
