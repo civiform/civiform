@@ -83,6 +83,9 @@ export function formatText(text: string): string {
   text = textArray.join('&nbsp;\n')
 
   let parsedHtml = md.render(text)
+
+  console.log("ssandbekkhaug formatText parsed HTML: " + parsedHtml)
+
   // Format lists
   parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
   parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')

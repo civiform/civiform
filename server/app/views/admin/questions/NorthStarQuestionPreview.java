@@ -64,7 +64,7 @@ public class NorthStarQuestionPreview extends NorthStarApplicantBaseView {
       throw new RuntimeException(e);
     }
     ProgramQuestionDefinition pqd =
-        ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
+        ProgramQuestionDefinition.create(questionDefinition, Optional.empty(), true, false);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
     context.setVariable("question", applicantQuestion);

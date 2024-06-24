@@ -92,7 +92,7 @@ test.describe('Admin question preview', () => {
     await validateScreenshot(page, 'email-question')
   })
 
-  // TODO ssandbekkhaug do some extra manual testing
+  // TODO(#7859): Fully support enumerator question previews
   test('Preview enumerator question', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
     await adminQuestions.addEnumeratorQuestion({
@@ -147,6 +147,7 @@ test.describe('Admin question preview', () => {
     await validateScreenshot(page, 'number-question')
   })
 
+  // TODO(#7858, #7860): Support radio button previews
   test('Preview radio button question', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
     await adminQuestions.addRadioButtonQuestion({
