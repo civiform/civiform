@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import services.LocalizedStrings;
 
 /**
  * Represents a block in the context of a specific user's application.
