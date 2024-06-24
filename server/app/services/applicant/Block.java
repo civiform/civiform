@@ -80,25 +80,11 @@ public final class Block {
   }
 
   public String getLocalizedName(Locale preferredLocale) {
-    Optional<LocalizedStrings> localizedName = blockDefinition.localizedName();
-    if (localizedName.isPresent()
-        && localizedName.get().hasTranslationFor(preferredLocale)) {
-      return localizedName.get().getOrDefault(preferredLocale);
-    } else {
-      // Fall back to the untranslated name.
-      return getName();
-    }
+    return blockDefinition.localizedName().getOrDefault(preferredLocale);
   }
 
   public String getLocalizedDescription(Locale preferredLocale) {
-    Optional<LocalizedStrings> localizedDescription = blockDefinition.localizedDescription();
-    if (localizedDescription.isPresent()
-        && localizedDescription.get().hasTranslationFor(preferredLocale)) {
-      return localizedDescription.get().getOrDefault(preferredLocale);
-    } else {
-      // Fall back to the untranslated description.
-      return getDescription();
-    }
+    return blockDefinition.localizedDescription().getOrDefault(preferredLocale);
   }
 
   public Optional<EligibilityDefinition> getEligibilityDefinition() {
