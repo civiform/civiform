@@ -270,15 +270,8 @@ class PreviewController {
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     if (text.length > 0) {
-      console.log("Will input text: " + text)
       const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
-
-      if (contentElement == null) {
-        console.log("content element is null")
-      } else {
-        console.log(contentElement)
-      }
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
