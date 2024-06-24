@@ -859,8 +859,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled(RequestHeader request) {
-    return getBool("INTAKE_FORM_ENABLED", request);
+  public boolean getIntakeFormEnabled() {
+    return getBool("INTAKE_FORM_ENABLED");
   }
 
   /**
@@ -1887,7 +1887,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the Common Intake Form feature.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"

@@ -165,8 +165,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
-    Request request =
-        addCSRFToken(requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 

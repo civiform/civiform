@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
@@ -42,7 +41,7 @@ public final class ProgramCardFactory {
     this.settingsManifest = settingsManifest;
   }
 
-  public DivTag renderCard(Request request, ProgramCardData cardData) {
+  public DivTag renderCard(ProgramCardData cardData) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
@@ -89,7 +88,7 @@ public final class ProgramCardFactory {
                                     /* addRequiredIndicator= */ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
-                        shouldShowCommonIntakeFormIndicator(request, displayProgram),
+                        shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
                             .withClasses("text-black", "items-center", "flex", "pt-4")
                             .with(
@@ -192,9 +191,8 @@ public final class ProgramCardFactory {
                                 .with(programRow.extraRowActions()))));
   }
 
-  private boolean shouldShowCommonIntakeFormIndicator(
-      Request request, ProgramDefinition displayProgram) {
-    return settingsManifest.getIntakeFormEnabled(request)
+  private boolean shouldShowCommonIntakeFormIndicator(ProgramDefinition displayProgram) {
+    return settingsManifest.getIntakeFormEnabled()
         && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 

@@ -140,7 +140,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        settingsManifest.getIntakeFormEnabled(params.request())
+        settingsManifest.getIntakeFormEnabled()
                 && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
