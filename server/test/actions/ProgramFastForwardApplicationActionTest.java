@@ -54,7 +54,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
         new ProgramFastForwardApplicationAction(
             profileUtilsMock, programRepositoryMock, applicationRepositoryMock);
 
-    // Configure a fake secondary action to serve as a stand in for the the last action in the chain
+    // Configure a fake secondary action to serve as a stand in for the last action in the chain
     // (i.e. controller)
     when(nextActionInChainMock.call(request)).thenReturn(CompletableFuture.completedFuture(null));
     action.delegate = nextActionInChainMock;
