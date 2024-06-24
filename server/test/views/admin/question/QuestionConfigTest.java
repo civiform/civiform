@@ -26,6 +26,10 @@ public class QuestionConfigTest {
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
+  // This tests just the file upload behavior from resultForAllQuestions to test the new
+  // multipleFileUpload feature.
+  // When that flag is removed, we will need to move this logic to the test below, and remove this
+  // test.
   @Test
   public void fileUpload_withAllowMultipleFlag() throws Exception {
     QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.FILEUPLOAD);
