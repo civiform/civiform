@@ -136,14 +136,24 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable("authProviderName", authProviderName);
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
-    context.setVariable(
-        "programIdsToActionUrls",
+    ImmutableMap<Long, String> programIdsToLoginBypassUrls =
         applicationPrograms.allPrograms().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     program -> program.programId(),
                     program ->
-                        applicantRoutes.review(profile, applicantId, program.programId()).url())));
+                        applicantRoutes.review(profile, applicantId, program.programId()).url()));
+    context.setVariable("programIdsToLoginBypassUrls", programIdsToLoginBypassUrls);
+    context.setVariable(
+        "programIdsToLoginUrls",
+        applicationPrograms.allPrograms().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    program -> program.programId(),
+                    program ->
+                        routes.LoginController.applicantLogin(
+                                Optional.of(programIdsToLoginBypassUrls.get(program.programId())))
+                            .url())));
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

@@ -1,16 +1,46 @@
 <div
-  th:fragment="modalContainer"
+  th:fragment="modalContainer(showProgramIndexLogin, showReviewLogin)"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
   <th:block th:if="${showDebugTools}">
     <div th:replace="~{this :: devToolsModal}"></div>
   </th:block>
-  <div th:each="programIdAndActionUrl: ${programIdsToActionUrls}">
+  <th:block th:if="${showProgramIndexLogin}">
+    <div th:each="programIdAndLoginBypassUrl: ${programIdsToLoginBypassUrls}">
+      <div
+        th:replace="~{this :: loginPromptModal(${'login-dialog-' + programIdAndLoginBypassUrl.key},
+                                             ${programIdAndLoginBypassUrl.value},
+                                             ${programIdsToLoginUrls.get(programIdAndLoginBypassUrl.key)},
+                                             #{content.initialLoginModalPrompt(${authProviderName})},
+                                             #{button.continueToApplication},
+                                             'login-prompt',
+                                             false)}"
+      ></div>
+    </div>
+  </th:block>
+  <th:block
+    th:if="${showReviewLogin}"
+    th:with="dialogId=${'login-dialog-' + #strings.randomAlphanumeric(8)}"
+  >
     <div
-      th:replace="~{this :: loginPromptModal(${programIdAndActionUrl.key}, ${programIdAndActionUrl.value}, ${loginLink})}"
+      th:replace="~{this :: loginPromptModal(${dialogId},
+                                         ${slugBypassUrl},
+                                         ${slugLoginUrl},
+                                         #{content.initialLoginModalPrompt(${authProviderName})},
+                                         #{button.continueToApplication},
+                                         'program_slug_login_prompt',
+                                         true)}"
     ></div>
-  </div>
+    <!--/* Create an invisible button that we will use to trigger this modal on load */-->
+    <a
+      th:href="${'#' + dialogId}"
+      class="usa-button is-hidden"
+      th:aria-controls="${dialogId}"
+      data-open-modal
+      >Login</a
+    >
+  </th:block>
 </div>
 
 <dialog
@@ -60,14 +90,15 @@
 </dialog>
 
 <dialog
-  th:fragment="loginPromptModal(id, actionUrl, loginLink)"
-  th:with="dialogId=${'login-dialog-' + id}"
+  th:fragment="loginPromptModal(dialogId, bypassUrl, loginLink, descriptionText, bypassButtonText, onlyShowOnceGroup, showOnLoad)"
   class="usa-modal cf-ns-modal"
   th:id="${dialogId}"
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
-  only-show-once-group="login-prompt"
-  th:attr="bypass-url=${actionUrl},dialog-id=${dialogId}"
+  th:only-show-once-group="${onlyShowOnceGroup}"
+  th:show-on-load="${showOnLoad ? 'true' : null}"
+  data-testid="slug-login"
+  th:attr="bypass-url=${bypassUrl},dialog-id=${dialogId}"
 >
   <div class="usa-modal__content">
     <div class="usa-modal__main">
@@ -79,7 +110,7 @@
       <div class="usa-prose">
         <p
           th:id="${dialogId + '-description'}"
-          th:text="#{content.initialLoginModalPrompt(${authProviderName})}"
+          th:text="${descriptionText}"
           class="margin-y-2"
         ></p>
       </div>
@@ -88,8 +119,8 @@
           <li class="usa-button-group__item">
             <a
               class="usa-button"
-              th:text="#{button.continueToApplication}"
-              th:href="${actionUrl}"
+              th:text="${bypassButtonText}"
+              th:href="${bypassUrl}"
               th:id="${'bypass-login-prompt-button-' + dialogId}"
             ></a>
           </li>

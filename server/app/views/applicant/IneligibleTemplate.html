@@ -50,7 +50,10 @@
         </a>
       </div>
     </div>
-    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->false)}"
+    ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

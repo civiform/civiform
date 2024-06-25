@@ -1,5 +1,8 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +24,7 @@ import services.settings.SettingsManifest;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
+  private final String authProviderName;
 
   @Inject
   NorthStarApplicantProgramSummaryView(
@@ -29,6 +33,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     super(
@@ -39,6 +44,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
         settingsManifest,
         languageUtils,
         deploymentType);
+    this.authProviderName = checkNotNull(authProviderName);
   }
 
   public String render(Request request, Params params) {
@@ -61,6 +67,22 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get("error"));
+
+    // Login modal
+    Optional<String> redirectedFromProgramSlug =
+        request.flash().get("redirected-from-program-slug");
+    context.setVariable("redirectedFromProgramSlug", redirectedFromProgramSlug);
+    if (redirectedFromProgramSlug.isPresent()) {
+      String postLoginRedirect =
+          controllers.applicant.routes.ApplicantProgramsController.show(
+                  request.flash().get("redirected-from-program-slug").get())
+              .url();
+      context.setVariable("slugBypassUrl", postLoginRedirect);
+      context.setVariable(
+          "slugLoginUrl",
+          controllers.routes.LoginController.applicantLogin(Optional.of(postLoginRedirect)).url());
+      context.setVariable("authProviderName", authProviderName);
+    }
 
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }
