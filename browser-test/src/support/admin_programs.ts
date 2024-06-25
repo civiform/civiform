@@ -10,7 +10,7 @@ import {
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
-import {validateScreenshot, extractEmailsForRecipient} from '.'
+import {extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -180,8 +180,6 @@ export class AdminPrograms {
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
-      const screenshotname = programName.replaceAll(' ', '-').toLowerCase()
-      await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
