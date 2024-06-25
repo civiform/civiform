@@ -1,5 +1,6 @@
 package services.question.types;
 
+import java.util.Locale;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
@@ -55,12 +56,20 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
+    // Match label, e.g. "Phone Number" -> PHONE
     for (QuestionType type : QuestionType.values()) {
       if (type.getLabel().equalsIgnoreCase(name)) {
         return type;
       }
     }
-    throw new InvalidQuestionTypeException(name);
+
+    // Match naive string, e.g. "PHONE" -> PHONE
+    String upperName = name.toUpperCase(Locale.ROOT);
+    try {
+      return valueOf(upperName);
+    } catch (IllegalArgumentException e) {
+      throw new InvalidQuestionTypeException(upperName);
+    }
   }
 
   public String getLabel() {
