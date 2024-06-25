@@ -24,7 +24,8 @@
       ></a>
     </main>
     <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(false, false)}"
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->false)}"
     ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"

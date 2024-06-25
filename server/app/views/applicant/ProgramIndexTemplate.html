@@ -92,7 +92,8 @@
       </th:block>
     </div>
     <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(true, false)}"
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->true,
+                                                             <!--/* showReviewLogin= */-->false)}"
     ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"

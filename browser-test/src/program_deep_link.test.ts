@@ -5,6 +5,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
@@ -162,7 +163,7 @@ test.describe('navigating to a deep link', () => {
     })
   })
 
-  test.describe('with north star flag enabled', () => {
+  test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
@@ -176,6 +177,8 @@ test.describe('navigating to a deep link', () => {
         page,
         'login-prompt-for-guest-users-using-program-slug-north-star',
       )
+
+      await validateAccessibility(page)
     })
 
     test('does not show login prompt for logged in users', async ({page}) => {

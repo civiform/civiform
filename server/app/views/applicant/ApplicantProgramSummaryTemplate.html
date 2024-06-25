@@ -76,7 +76,8 @@
       </form>
     </div>
     <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(false, ${isGuest && redirectedFromProgramSlug.isPresent()})}"
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->${isGuest && redirectedFromProgramSlug.isPresent()})}"
     ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
