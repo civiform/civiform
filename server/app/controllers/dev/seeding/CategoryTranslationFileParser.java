@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Properties;
 import models.CategoryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,70 +23,42 @@ import play.i18n.Lang;
 public final class CategoryTranslationFileParser {
 
   public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/categories/";
-  public static final String CATEGORY_TRANSLATIONS_FILE_EXTENSION = ".txt";
 
   /** Maps each English category tag to its translation in Amharic. */
   public static final ImmutableMap<String, String> AM_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "am_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.am");
 
   /** Maps each English category tag to its translation in English. */
   public static final ImmutableMap<String, String> EN_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "en-US_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.en-US");
 
   /** Maps each English category tag to its translation in Spanish. */
   public static final ImmutableMap<String, String> ES_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "es-US_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.es-US");
 
   /** Maps each English category tag to its translation in Korean. */
   public static final ImmutableMap<String, String> KO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "ko_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.ko");
 
   /** Maps each English category tag to its translation in Lao. */
   public static final ImmutableMap<String, String> LO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "lo_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.lo");
 
   /** Maps each English category tag to its translation in Somali. */
   public static final ImmutableMap<String, String> SO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "so_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.so");
 
   /** Maps each English category tag to its translation in Tagalog. */
   public static final ImmutableMap<String, String> TL_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "tl_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.tl");
 
   /** Maps each English category tag to its translation in Vietnamese. */
   public static final ImmutableMap<String, String> VI_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "vi_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.vi");
 
   /** Maps each English category tag to its translation in Chinese. */
   public static final ImmutableMap<String, String> ZH_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(
-          CATEGORY_TRANSLATIONS_DIRECTORY
-              + "zh-TW_program_categories"
-              + CATEGORY_TRANSLATIONS_FILE_EXTENSION);
+      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.zh-TW");
 
   public static final ImmutableList<String> PROGRAM_CATEGORY_NAMES =
       getCategoryNamesFromTranslationMap(AM_CATEGORY_TRANSLATIONS);
@@ -120,15 +93,16 @@ public final class CategoryTranslationFileParser {
     ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
 
     try (BufferedReader reader = Files.newBufferedReader(Paths.get(fileName), UTF_8)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String[] parts = line.split("=", 2);
-        if (parts.length >= 2) {
-          String key = parts[0];
-          String value = parts[1];
-          mapBuilder.put(key, value);
-        }
-      }
+
+      Properties prop = new Properties();
+      prop.load(reader);
+
+      prop.entrySet()
+          .forEach(
+              entry -> {
+                mapBuilder.put((String) entry.getKey(), (String) entry.getValue());
+              });
+
     } catch (FileNotFoundException e) {
       logger.error("File not found: " + fileName);
     } catch (IOException e) {
