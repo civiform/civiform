@@ -1,8 +1,10 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Preconditions;
@@ -159,6 +161,19 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .asAnchorText()),
               fieldsBuilder.build()));
     }
+
+    // Add slim alert with warning that translations aren't visible yet.
+    result.add(
+        div()
+            .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
+            .with(
+                div()
+                    .withClass("usa-alert__body")
+                    .with(
+                        p().withClass("usa-alert__text")
+                            .withText(
+                                "Translations entered below will be visible at a future launch"
+                                    + " date."))));
 
     // Add fields for Screen names and descriptions
     for (int i = 0; i < updateData.screens().size(); i++) {
