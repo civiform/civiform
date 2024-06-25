@@ -1,4 +1,3 @@
-
 -- These assume a default locale of en_US, which is true for all deployments as of 2024-06-20.
 
 # --- !Ups
@@ -51,4 +50,3 @@ SET block_definitions = (
   FROM jsonb_array_elements(block_definitions) AS block_definition
 )
 WHERE block_definitions IS NOT NULL;
-
