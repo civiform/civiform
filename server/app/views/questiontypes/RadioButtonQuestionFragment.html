@@ -24,12 +24,12 @@
 
     <!--/* Render each radio button option */-->
     <div
-      class="usa-radio"
+      class="usa-radio cf-multi-option-question-option"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
     >
       <input
-        class="usa-radio__input usa-radio__input--tile"
+        class="usa-radio__input usa-radio__input--tile cf-radio-input"
         th:id="${inputId}"
         th:value="${option.id()}"
         th:name="${singleSelectQuestion.getSelectionPath()}"
@@ -39,7 +39,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />
       <label
-        class="usa-radio__label maxw-mobile-lg"
+        class="usa-radio__label maxw-mobile-lg cf-multi-option-value"
         th:for="${inputId}"
         th:text="${option.optionText()}"
       ></label>
