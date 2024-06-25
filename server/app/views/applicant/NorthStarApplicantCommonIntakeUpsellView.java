@@ -6,6 +6,7 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
@@ -41,6 +42,13 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
             params.profile(),
             params.applicantPersonalInfo(),
             params.messages());
+
+    // Info for login modal
+    String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
+    context.setVariable("upsellBypassUrl", applyToProgramsUrl);
+    context.setVariable(
+        "upsellLoginUrl",
+        controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
 
     // In Thymeleaf, there's no easy way to construct a hyperlink inside a localized string
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
