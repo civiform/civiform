@@ -59,6 +59,14 @@ export class NorthStarModalController {
       NorthStarModalController.attachModalListener(modalElement)
 
       NorthStarModalController.maybeUpdateButtonHrefToBypassUrl(modalElement)
+
+      // To show a modal on load, we click the button linking to it so the modal is opened.
+      if (modal.getAttribute('show-on-load')) {
+        const modalButton = document.querySelector<HTMLAnchorElement>(
+          `a[href='#` + modal.getAttribute('dialog-id') + `']`,
+        )
+        modalButton?.click()
+      }
     })
 
     // Advertise (e.g., for browser tests) that modal.ts initialization is done
