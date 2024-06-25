@@ -179,6 +179,7 @@ class PreviewController {
     const previewOptionTemplate = firstPreviewOption.cloneNode(
       true,
     ) as HTMLElement
+    
     const syncOptionsToPreview = () => {
       PreviewController.updateOptionsList({
         questionSettings,
@@ -186,6 +187,16 @@ class PreviewController {
         previewQuestionOptionContainer,
       })
     }
+
+    // Update existing options based on user input
+    const options = Array.from(
+      questionSettings.querySelectorAll('[name="options[]"]')
+    )
+    options.forEach((inputOption) => {
+      inputOption.addEventListener('input', syncOptionsToPreview)
+    })
+
+    // When the user clicks "Add answer option", add an event listener to the new option
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
         syncOptionsToPreview()
@@ -201,7 +212,6 @@ class PreviewController {
         }
       },
     )
-
     mutationObserver.observe(questionSettings, {
       childList: true,
       subtree: true,
@@ -219,6 +229,9 @@ class PreviewController {
     previewQuestionOptionContainer: HTMLElement
     previewOptionTemplate: HTMLElement
   }) {
+    // on text update, all params are non-null
+    console.log("ssandbekkhaug update options list")
+
     // Gets the input elements from the Question Settings section
     // And maps to an array of just the values from the inputs
     const configuredOptions = Array.from(
@@ -262,6 +275,8 @@ class PreviewController {
       optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption), {
         ADD_ATTR: ['target'],
       })
+
+      console.log("setting preview option: " + optionText.innerHTML)
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -351,6 +366,9 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
+    if (document.querySelector(selector) === null) {
+      return
+    }
     const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 

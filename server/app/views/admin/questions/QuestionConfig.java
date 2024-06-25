@@ -239,6 +239,8 @@ public final class QuestionConfig {
                 "ml-2",
                 "row-start-3",
                 "row-span-2");
+
+    // optionInput.input().withClass("cf-option-input-ssandbekkhaug");
     ButtonTag removeOptionButton =
         button()
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))

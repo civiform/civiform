@@ -63,6 +63,15 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
+    // Match label, e.g. "Phone Number" -> PHONE
+    for (QuestionType type : QuestionType.values()) {
+      if (type.getLabel().equalsIgnoreCase(name)) {
+        return type;
+      }
+    }
+
+    // Match naive string, e.g. "PHONE" -> PHONE
+
     String upperName = name.toUpperCase(Locale.ROOT);
     try {
       if (irregularMappings.containsKey(upperName)) {

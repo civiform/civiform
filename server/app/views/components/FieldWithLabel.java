@@ -472,6 +472,8 @@ public class FieldWithLabel {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromMap(inputFieldTag);
+    inputFieldTag.withClass("cf-option-input-ssandbekkhaug");
+
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
