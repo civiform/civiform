@@ -18,13 +18,23 @@ public class QuestionTypeTest {
   }
 
   @Test
+  public void fromLabel_regular() throws InvalidQuestionTypeException {
+    assertThat(QuestionType.fromLabel("Text")).isEqualTo(QuestionType.TEXT);
+  }
+
+  @Test
+  public void fromLabel_irregular() throws InvalidQuestionTypeException {
+    assertThat(QuestionType.fromLabel("Phone Number")).isEqualTo(QuestionType.PHONE);
+  }
+
+  @Test
   public void of_regular() throws InvalidQuestionTypeException {
     assertThat(QuestionType.of("Text")).isEqualTo(QuestionType.TEXT);
   }
 
   @Test
   public void of_irregular() throws InvalidQuestionTypeException {
-    assertThat(QuestionType.of("Phone Number")).isEqualTo(QuestionType.PHONE);
+    assertThat(QuestionType.of("Phone")).isEqualTo(QuestionType.PHONE);
   }
 
   @Test
