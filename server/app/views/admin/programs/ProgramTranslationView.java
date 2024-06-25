@@ -84,10 +84,9 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program, ProgramTranslationForm translationForm) {
+    ImmutableList<BlockDefinition> blockDefinitions = program.blockDefinitions();
     ImmutableList<Long> blockIds =
-        program.blockDefinitions().stream()
-            .map(block -> block.id())
-            .collect(ImmutableList.toImmutableList());
+        blockDefinitions.stream().map(block -> block.id()).collect(ImmutableList.toImmutableList());
     LocalizationUpdate updateData = translationForm.getUpdateData(blockIds);
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(
@@ -176,11 +175,12 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     + " date."))));
 
     // Add fields for Screen names and descriptions
-    for (int i = 0; i < updateData.screens().size(); i++) {
-      LocalizationUpdate.ScreenUpdate screenUpdateData = updateData.screens().get(i);
+    ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
+    for (int i = 0; i < screens.size(); i++) {
+      LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
 
       BlockDefinition block =
-          program.blockDefinitions().stream()
+          blockDefinitions.stream()
               .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
               .findFirst()
               .get();
