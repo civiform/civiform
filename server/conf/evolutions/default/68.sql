@@ -1,4 +1,5 @@
  --- Create the categories and programs_categories tables.
+
 # --- !Ups
 
 CREATE TABLE IF NOT EXISTS categories (
