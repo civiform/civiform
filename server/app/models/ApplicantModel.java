@@ -56,6 +56,7 @@ public class ApplicantModel extends BaseModel {
   private String firstName;
   private String middleName;
   private String lastName;
+  private String nameSuffix;
   private String emailAddress;
   private String countryCode;
   private String phoneNumber;
@@ -127,6 +128,15 @@ public class ApplicantModel extends BaseModel {
 
   public Optional<String> getLastName() {
     return Optional.ofNullable(lastName);
+  }
+
+  public ApplicantModel setNameSuffix(String nameSuffix) {
+    this.nameSuffix = nameSuffix.isEmpty() || nameSuffix.isBlank() ? null : nameSuffix;
+    return this;
+  }
+
+  public Optional<String> getNameSuffix() {
+    return Optional.ofNullable(nameSuffix);
   }
 
   public ApplicantModel setEmailAddress(String emailAddress) {

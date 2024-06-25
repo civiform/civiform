@@ -77,6 +77,8 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
+    // FieldWithLabel suffixField = some sort of dropdown
+
     if (!alreadyAutofocused
         && params.autofocusFirstError()
         && validationErrors.containsKey(nameQuestion.getLastNamePath())) {

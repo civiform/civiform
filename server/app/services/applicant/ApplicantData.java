@@ -86,6 +86,8 @@ public class ApplicantData extends CfJsonDocumentContext {
     Optional<String> firstName =
         Optional.ofNullable(applicant).flatMap(ApplicantModel::getFirstName);
     Optional<String> lastName = Optional.ofNullable(applicant).flatMap(ApplicantModel::getLastName);
+    Optional<String> nameSuffix =
+        Optional.ofNullable(applicant).flatMap(ApplicantModel::getNameSuffix);
     Optional<String> accountEmail = getAccountEmail();
     if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
@@ -112,7 +114,8 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
     return lastName.isEmpty()
         ? Optional.of(firstName.get())
-        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
+        : Optional.of(
+            String.format("%s, %s, %s", lastName.get(), firstName.get(), nameSuffix.get()));
   }
 
   public Optional<String> getApplicantNameAtWellKnownPath() {
@@ -124,8 +127,13 @@ public class ApplicantData extends CfJsonDocumentContext {
         hasPath(WellKnownPaths.APPLICANT_LAST_NAME)
             ? readString(WellKnownPaths.APPLICANT_LAST_NAME)
             : Optional.empty();
+    Optional<String> nameSuffix =
+        hasPath(WellKnownPaths.APPLICANT_NAME_SUFFIX)
+            ? readAsString(WellKnownPaths.APPLICANT_NAME_SUFFIX)
+            : Optional.empty();
     if (firstName.isPresent() && lastName.isPresent()) {
-      return Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
+      return Optional.of(
+          String.format("%s, %s, %s", lastName.get(), firstName.get(), nameSuffix.get()));
     }
     return firstName;
   }
@@ -150,6 +158,12 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.ofNullable(applicant)
         .flatMap(ApplicantModel::getLastName)
         .or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
+  }
+
+  public Optional<String> getApplicantNameSuffix() {
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getNameSuffix)
+        .or(() -> readString(WellKnownPaths.APPLICANT_NAME_SUFFIX));
   }
 
   public Optional<String> getApplicantEmail() {

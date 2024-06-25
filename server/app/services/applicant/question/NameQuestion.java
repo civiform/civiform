@@ -23,6 +23,7 @@ public final class NameQuestion extends Question {
   private Optional<String> firstNameValue;
   private Optional<String> middleNameValue;
   private Optional<String> lastNameValue;
+  private Optional<String> nameSuffixValue;
 
   NameQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -102,6 +103,20 @@ public final class NameQuestion extends Question {
     return lastNameValue;
   }
 
+  public Optional<String> getNameSuffixValue() {
+    if (nameSuffixValue != null) {
+      return nameSuffixValue;
+    }
+
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    nameSuffixValue = applicantData.readString(getNameSuffixPath());
+
+    if (nameSuffixValue.isEmpty() && isPaiQuestion()) {
+      nameSuffixValue = applicantData.getApplicantNameSuffix();
+    }
+    return nameSuffixValue;
+  }
+
   public NameQuestionDefinition getQuestionDefinition() {
     return (NameQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -118,10 +133,17 @@ public final class NameQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.LAST_NAME);
   }
 
+  public Path getNameSuffixPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.NAME_SUFFIX);
+  }
+
   @Override
   public String getAnswerString() {
     String[] parts = {
-      getFirstNameValue().orElse(""), getMiddleNameValue().orElse(""), getLastNameValue().orElse("")
+      getFirstNameValue().orElse(""),
+      getMiddleNameValue().orElse(""),
+      getLastNameValue().orElse(""),
+      getNameSuffixValue().orElse("")
     };
 
     return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
