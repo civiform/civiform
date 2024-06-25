@@ -41,19 +41,17 @@
       >Login</a
     >
   </th:block>
-  <th:block
-  th:if="${showUpsellLogin}"
->
-  <div
-    th:replace="~{this :: loginPromptModal('login-dialog-upsell',
+  <th:block th:if="${showUpsellLogin}">
+    <div
+      th:replace="~{this :: loginPromptModal('login-dialog-upsell',
                                        ${upsellBypassUrl},
                                        ${upsellLoginUrl},
                                        #{content.generalLoginModalPrompt},
                                        #{button.continueWithoutAnAccount},
                                        null,
                                        false)}"
-  ></div>
-</th:block>
+    ></div>
+  </th:block>
 </div>
 
 <dialog

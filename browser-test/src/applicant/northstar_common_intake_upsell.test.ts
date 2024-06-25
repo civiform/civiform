@@ -115,13 +115,9 @@ test.describe(
 
       await applicantQuestions.clickApplyToAnotherProgramButton()
 
-      await validateScreenshot(
-        page,
-        'upsell-north-star-common-intake-login',
-      )
+      await validateScreenshot(page, 'upsell-north-star-common-intake-login')
 
       await validateAccessibility(page)
-
     })
 
     test('As TI, view application submitted page with one eligible program', async ({

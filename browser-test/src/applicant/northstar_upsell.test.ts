@@ -11,7 +11,7 @@ import {
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
 
-  test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {
@@ -22,7 +22,10 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('view application submitted page while logged in', async ({page, applicantQuestions}) => {
+  test('view application submitted page while logged in', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await loginAsTestUser(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -33,30 +36,31 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
     })
-  
+
     expect(await page.textContent('html')).toContain('Application confirmation')
     expect(await page.textContent('html')).toContain(programName)
 
     await test.step('Validate screenshot and accessibility', async () => {
-
-    await validateScreenshot(
-      page,
-      'upsell-north-star',
-      /* fullPage= */ true,
-      /* mobileScreenshot= */ true,
-    )
-  })
+      await validateScreenshot(
+        page,
+        'upsell-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
 
     await validateAccessibility(page)
 
     await test.step('Validate that user can click through without logging in', async () => {
       await applicantQuestions.clickApplyToAnotherProgramButton()
-    await expect(page.locator('[data-testId="login"]')).not.toBeVisible()
+      await expect(page.locator('[data-testId="login"]')).toBeHidden()
     })
   })
 
-  test('view application submitted page while logged out', async ({page, applicantQuestions}) => {
-
+  test('view application submitted page while logged out', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Submit application', async () => {
@@ -67,20 +71,15 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Validate screenshot and accessibility', async () => {
+      await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
+        await applicantQuestions.clickApplyToAnotherProgramButton()
+        await expect(page.getByTestId('login')).toContainText(
+          'Create an account or sign in',
+        )
+        await validateScreenshot(page, 'upsell-north-star-login')
 
-    await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
-      await applicantQuestions.clickApplyToAnotherProgramButton()
-      await expect(page.getByTestId('login')).toContainText(
-        'Create an account or sign in',
-      )
-      await validateScreenshot(
-        page,
-        'upsell-north-star-login',
-      )
-
-      await validateAccessibility(page)
+        await validateAccessibility(page)
+      })
     })
-  })
-
   })
 })

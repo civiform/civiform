@@ -38,17 +38,17 @@
         th:text="#{link.applyToAnotherProgram}"
       ></a>
       <a
-      th:if="${isGuest}"
-      href="#login-dialog-upsell"
-      aria-controls="login-dialog-upsell"
-      class="usa-button"
-      id="another-program"
-      th:text="#{link.applyToAnotherProgram}"
-      data-open-modal
-    ></a>
+        th:if="${isGuest}"
+        href="#login-dialog-upsell"
+        aria-controls="login-dialog-upsell"
+        class="usa-button"
+        id="another-program"
+        th:text="#{link.applyToAnotherProgram}"
+        data-open-modal
+      ></a>
     </main>
     <div
-    th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
                                                            <!--/* showReviewLogin= */-->false,
                                                            <!--/* showUpsellLogin= */-->${isGuest})}"
     ></div>
