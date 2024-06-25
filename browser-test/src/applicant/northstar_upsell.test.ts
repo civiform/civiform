@@ -70,16 +70,14 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
-    await test.step('Validate screenshot and accessibility', async () => {
-      await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
-        await applicantQuestions.clickApplyToAnotherProgramButton()
-        await expect(page.getByTestId('login')).toContainText(
-          'Create an account or sign in',
-        )
-        await validateScreenshot(page, 'upsell-north-star-login')
+    await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await expect(page.getByTestId('login')).toContainText(
+        'Create an account or sign in',
+      )
+      await validateScreenshot(page, 'upsell-north-star-login')
 
-        await validateAccessibility(page)
-      })
+      await validateAccessibility(page)
     })
   })
 })
