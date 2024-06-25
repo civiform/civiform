@@ -64,7 +64,7 @@ const md = new MarkdownIt({
  *
  * @param {string} text The text to parse into HTML.
  */
-export function formatTextHtml(text: string): Element {
+export function formatTextHtml(text: string): HTMLElement {
   const parsedHtml = formatText(text)
   const html = parser.parseFromString(parsedHtml, 'text/html')
 
@@ -83,6 +83,7 @@ export function formatText(text: string): string {
   text = textArray.join('&nbsp;\n')
 
   let parsedHtml = md.render(text)
+
   // Format lists
   parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
   parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')

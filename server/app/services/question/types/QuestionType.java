@@ -1,6 +1,7 @@
 package services.question.types;
 
 import java.util.Locale;
+import java.util.Map;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
@@ -40,6 +41,12 @@ public enum QuestionType {
 
   private final String label;
   private final Class<? extends Question> supportedQuestion;
+  private static final Map<String, QuestionType> irregularMappings =
+      Map.of(
+          "FILE UPLOAD", FILEUPLOAD,
+          "RADIO BUTTON", RADIO_BUTTON,
+          "STATIC TEXT", STATIC,
+          "PHONE NUMBER", PHONE);
 
   QuestionType(String label, Class<? extends Question> supportedQuestion) {
     this.label = label;
@@ -56,8 +63,21 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
+    // Match label, e.g. "Phone Number" -> PHONE
+    for (QuestionType type : QuestionType.values()) {
+      if (type.getLabel().equalsIgnoreCase(name)) {
+        return type;
+      }
+    }
+
+    // Match naive string, e.g. "PHONE" -> PHONE
+
     String upperName = name.toUpperCase(Locale.ROOT);
     try {
+      if (irregularMappings.containsKey(upperName)) {
+        return irregularMappings.get(upperName);
+      }
+
       return valueOf(upperName);
     } catch (IllegalArgumentException e) {
       throw new InvalidQuestionTypeException(upperName);

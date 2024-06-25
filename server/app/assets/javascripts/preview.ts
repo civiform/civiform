@@ -1,6 +1,7 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull, formatText, formatTextHtml} from './util'
 import * as DOMPurify from 'dompurify'
+import htmx from 'htmx.org';
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -52,7 +53,13 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewQuestionText(textInput.value)
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewQuestionText(textInput.value)
+      })
     }
     const helpTextInput = document.getElementById(
       PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
@@ -65,7 +72,13 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+      })
     }
     const enumeratorSelector = document.getElementById(
       PreviewController.QUESTION_ENUMERATOR_INPUT_ID,
@@ -80,9 +93,17 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewEnumeratorSelector(
         enumeratorSelector.value,
       )
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewEnumeratorSelector(
+          enumeratorSelector.value,
+        )
+      })
     }
     const entityTypeInput = document.getElementById(
       PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID,
@@ -95,21 +116,43 @@ class PreviewController {
         },
         false,
       )
+      // Old path
       PreviewController.updateFromNewEntityType(entityTypeInput.value)
+
+      // North Star
+      htmx.on("htmx:afterSettle", () => {
+        PreviewController.updateFromNewEntityType(entityTypeInput.value)
+      })
     }
 
     const questionSettings = document.getElementById(
       PreviewController.QUESTION_SETTINGS_ID,
     )
-    const questionPreviewContainer = document.getElementById(
+    var questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
+
+    // Old path
     if (questionSettings && questionPreviewContainer) {
       PreviewController.addOptionObservers({
         questionSettings,
         questionPreviewContainer,
       })
     }
+
+    // North Star
+    htmx.on("htmx:afterSettle", () => {
+      // In North Star, the preview needs time to load
+      questionPreviewContainer = document.getElementById(
+        PreviewController.SAMPLE_QUESTION_ID,
+      )
+      if (questionSettings && questionPreviewContainer) {
+        PreviewController.addOptionObservers({
+          questionSettings,
+          questionPreviewContainer,
+        })
+      }
+    })
   }
 
   private static addOptionObservers({
@@ -136,6 +179,7 @@ class PreviewController {
     const previewOptionTemplate = firstPreviewOption.cloneNode(
       true,
     ) as HTMLElement
+    
     const syncOptionsToPreview = () => {
       PreviewController.updateOptionsList({
         questionSettings,
@@ -143,6 +187,16 @@ class PreviewController {
         previewQuestionOptionContainer,
       })
     }
+
+    // Update existing options based on user input
+    const options = Array.from(
+      questionSettings.querySelectorAll('[name="options[]"]')
+    )
+    options.forEach((inputOption) => {
+      inputOption.addEventListener('input', syncOptionsToPreview)
+    })
+
+    // When the user clicks "Add answer option", add an event listener to the new option
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
         syncOptionsToPreview()
@@ -158,7 +212,6 @@ class PreviewController {
         }
       },
     )
-
     mutationObserver.observe(questionSettings, {
       childList: true,
       subtree: true,
@@ -176,6 +229,9 @@ class PreviewController {
     previewQuestionOptionContainer: HTMLElement
     previewOptionTemplate: HTMLElement
   }) {
+    // on text update, all params are non-null
+    console.log("ssandbekkhaug update options list")
+
     // Gets the input elements from the Question Settings section
     // And maps to an array of just the values from the inputs
     const configuredOptions = Array.from(
@@ -219,6 +275,8 @@ class PreviewController {
       optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption), {
         ADD_ATTR: ['target'],
       })
+
+      console.log("setting preview option: " + optionText.innerHTML)
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -308,6 +366,9 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
+    if (document.querySelector(selector) === null) {
+      return
+    }
     const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 
