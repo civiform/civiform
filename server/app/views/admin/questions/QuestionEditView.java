@@ -436,7 +436,9 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> questionConfig =
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest.getMultipleFileUploadEnabled(request));
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
