@@ -1197,7 +1197,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("block-edit-form")
         .with(
             div(
-                    h1("The screen name and description will help a user understand which part of an application they are on.")
+                    h1("The screen name and description will help a user understand which part of"
+                           + " an application they are on.")
                         .withClasses("text-base", "mb-2"),
                     FieldWithLabel.input()
                         .setId("block-name-input")
