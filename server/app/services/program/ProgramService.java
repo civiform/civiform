@@ -662,7 +662,7 @@ public final class ProgramService {
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
     validateLocalizationStatuses(localizationUpdate, programDefinition);
-    validateBlockLocalizations(errorsBuilder, localizationUpdate);
+    validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
     // to be consistently ordered above.
@@ -788,10 +788,19 @@ public final class ProgramService {
   }
 
   private void validateBlockLocalizations(
-      ImmutableSet.Builder<CiviFormError> errorsBuilder, LocalizationUpdate localizationUpdate) {
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      LocalizationUpdate localizationUpdate,
+      ProgramDefinition program) {
     localizationUpdate.screens().stream()
         .forEach(
             screenUpdate -> {
+              if (program.blockDefinitions().stream()
+                  .filter(blockDefinition -> blockDefinition.id() == screenUpdate.blockIdToUpdate())
+                  .findAny()
+                  .isEmpty()) {
+                errorsBuilder.add(
+                    CiviFormError.of("Found invalid block id " + screenUpdate.blockIdToUpdate()));
+              }
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),

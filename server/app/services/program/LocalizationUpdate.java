@@ -6,7 +6,7 @@ import java.util.Optional;
 
 /**
  * Captures an update to the localized text associated with a program and its associated application
- * statuses.
+ * statuses and blocks.
  */
 @AutoValue
 public abstract class LocalizationUpdate {

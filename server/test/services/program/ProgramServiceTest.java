@@ -2409,6 +2409,85 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void updateLocalizations_blockTranslationsForNonexistantBlock() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(3L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).containsExactly(CiviFormError.of("Found invalid block id 3"));
+  }
+
+  @Test
+  public void updateLocalizations_blockTranslationsEmpty() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("program screen-name-1 cannot be blank"),
+            CiviFormError.of("program screen-description-1 cannot be blank"));
+  }
+
+  @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 

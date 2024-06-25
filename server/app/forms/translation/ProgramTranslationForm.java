@@ -214,17 +214,17 @@ public final class ProgramTranslationForm {
     return blockIds.stream()
         .map(
             blockId -> {
-              Optional<String> maybeBlockName = getStringFormField(localizedScreenName(blockId));
-              Optional<String> maybeBlockDescription =
+              Optional<String> optionalBlockName = getStringFormField(localizedScreenName(blockId));
+              Optional<String> optionalBlockDescription =
                   getStringFormField(localizedScreenDescription(blockId));
-              if (maybeBlockName.isEmpty() || maybeBlockDescription.isEmpty()) {
+              if (optionalBlockName.isEmpty() || optionalBlockDescription.isEmpty()) {
                 return Optional.<LocalizationUpdate.ScreenUpdate>empty();
               }
 
               LocalizationUpdate.ScreenUpdate.Builder resultBuilder =
                   LocalizationUpdate.ScreenUpdate.builder().setBlockIdToUpdate(blockId);
-              resultBuilder.setLocalizedName(maybeBlockName.orElse(""));
-              resultBuilder.setLocalizedDescription(maybeBlockDescription.orElse(""));
+              resultBuilder.setLocalizedName(optionalBlockName.orElse(""));
+              resultBuilder.setLocalizedDescription(optionalBlockDescription.orElse(""));
               return Optional.of(resultBuilder.build());
             })
         .filter(Optional::isPresent)
