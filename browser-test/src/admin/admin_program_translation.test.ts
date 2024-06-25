@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -304,7 +305,13 @@ test.describe('Admin can manage program translations', () => {
   test(
     'Add translations for block name and description',
     {tag: ['@northstar']},
-    async ({page, adminPrograms, adminQuestions, adminTranslations}) => {
+    async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      adminTranslations,
+      applicantQuestions,
+    }) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addTextQuestion({questionName: 'text-question'})
@@ -336,6 +343,19 @@ test.describe('Admin can manage program translations', () => {
           'Spanish block name',
           'Spanish block description',
         )
+      })
+
+      await test.step('Publish and verify in the applicant experience', async () => {
+        await adminPrograms.publishProgram(programName)
+
+        await logout(page)
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await selectApplicantLanguage(page, 'Español')
+
+        await applicantQuestions.clickApplyProgramButton('Spanish name')
+
+        await expect(page.getByText('Spanish block name')).toBeVisible()
+        await expect(page.getByText('Spanish block description')).toBeVisible()
       })
     },
   )
