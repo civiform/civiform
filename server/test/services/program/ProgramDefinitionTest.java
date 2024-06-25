@@ -45,6 +45,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .build();
     ProgramDefinition def =
         ProgramDefinition.builder()
@@ -74,6 +76,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .build();
     ProgramDefinition program =
         ProgramDefinition.builder()
@@ -205,6 +209,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
@@ -214,6 +220,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(321L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
@@ -345,6 +353,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
@@ -353,6 +363,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .addQuestion(
@@ -396,6 +408,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(1L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
@@ -410,6 +424,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(2L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
@@ -418,6 +434,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(3L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .build();
@@ -479,6 +497,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(2L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
@@ -493,6 +513,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(5L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
@@ -501,6 +523,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(1L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .build();
@@ -566,6 +590,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(1L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
@@ -574,6 +600,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(2L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionBEnum, Optional.of(programDefinitionId)))
             .build();
@@ -582,6 +610,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(3L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
@@ -591,6 +621,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(4L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionDEnum, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
@@ -600,6 +632,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(5L)
             .setName("Screen Name")
             .setDescription("Screen Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionE, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(4L))
@@ -689,6 +723,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
         BlockDefinition.builder()
             .setName("new screen")
             .setDescription("new screen")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("new screen"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("new screen"))
             .setId(100L)
             .setEnumeratorId(Optional.of(1L))
             .build();
@@ -1267,6 +1303,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Block A")
             .setDescription("Block A Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block A"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block A Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     questionA,
@@ -1280,6 +1318,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(321L)
             .setName("Block B")
             .setDescription("Block B Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block B"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block B Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     questionB,
@@ -1404,6 +1444,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(123L)
             .setName("Block A")
             .setDescription("Block A Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block A"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block A Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     questionA.getId(),
@@ -1415,6 +1457,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(321L)
             .setName("Block B")
             .setDescription("Block B Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block B"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block B Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     questionB.getId(), /* optional= */ false, /* addressCorrectionEnabled= */ true))
@@ -1448,6 +1492,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(100L)
             .setName("Block A Name")
             .setDescription("Block A Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block A"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block A Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(mainEnumQ, Optional.of(programDefinitionId)))
             .build();
@@ -1456,6 +1502,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(200L)
             .setName("Block B Name")
             .setDescription("Block B Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block B"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block B Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(qForMainEnum, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(100L))
@@ -1465,6 +1513,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(300L)
             .setName("Block C Name")
             .setDescription("Block C Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block C"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block C Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(nestedEnumQ, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(100L))
@@ -1474,6 +1524,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(400L)
             .setName("Block D Name")
             .setDescription("Block D Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block D"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block D Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(qForNestedEnum, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(300L))
@@ -1515,6 +1567,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(100L)
             .setName("Block A Name")
             .setDescription("Block A Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block A"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block A Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     mainEnumQ.getId(),
@@ -1527,6 +1581,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(200L)
             .setName("Block B Name")
             .setDescription("Block B Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block B"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block B Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     qForMainEnum.getId(),
@@ -1539,6 +1595,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(300L)
             .setName("Block C Name")
             .setDescription("Block C Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block C"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block C Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     nestedEnumQ.getId(),
@@ -1551,6 +1609,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setId(400L)
             .setName("Block D Name")
             .setDescription("Block D Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block D"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block D Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     qForNestedEnum.getId(),

@@ -516,6 +516,155 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /**
    * Used by the file upload question. We let users directly upload files to S3 bucket from
    * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We add this to the list of uploaded files, or if it's already
+   * present, do nothing.
+   *
+   * <p>After adding the file, the current question block is reloaded, showing the user the uploaded
+   * file.
+   */
+  @Secure
+  public CompletionStage<Result> addFile(
+      Request request, long programId, String blockId, boolean inReview) {
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return addFileWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview);
+  }
+
+  @Secure
+  public CompletionStage<Result> addFileWithApplicantId(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId, request);
+
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<String> bucket = request.queryString("bucket");
+              Optional<String> key = request.queryString("key");
+
+              if (bucket.isEmpty() || key.isEmpty()) {
+                return failedFuture(
+                    new IllegalArgumentException("missing file key and bucket names"));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+
+                boolean appendValue = true;
+
+                // Write the existing keys so that we don't delete any.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(), keyValue);
+                  // Key already exists in question, no need to append it. But we may want to render
+                  // some kind of error in this case in the future, since it means the user
+                  // essentially "replaced" whatever
+                  // file already existed with that same name. Alternatively, we could prevent this
+                  // on the client-side.
+                  if (keyValue.equals(key.get())) {
+                    appendValue = false;
+                  }
+                }
+
+                if (appendValue) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(keys.size()).toString(),
+                      key.get());
+                }
+              } else {
+                fileUploadQuestionFormData.put(
+                    fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
+              }
+
+              return ensureFileRecord(key.get(), Optional.empty())
+                  .thenComposeAsync(
+                      (StoredFileModel unused) ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(
+                                  request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Re-render the current page, with the updated file info.
+              return supplyAsync(
+                  () -> {
+                    ApplicantPersonalInfo personalInfo =
+                        applicantStage.toCompletableFuture().join();
+                    CiviFormProfile submittingProfile =
+                        profileUtils.currentUserProfileOrThrow(request);
+
+                    ApplicationBaseViewParams applicationParams =
+                        buildApplicationBaseViewParams(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            block.get(),
+                            personalInfo,
+                            DISPLAY_ERRORS,
+                            applicantRoutes,
+                            submittingProfile);
+                    if (settingsManifest.getNorthStarApplicantUi(request)) {
+                      return ok(northStarApplicantProgramBlockEditView.render(
+                              request, applicationParams))
+                          .as(Http.MimeTypes.HTML);
+                    } else {
+                      return ok(editView.render(applicationParams));
+                    }
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
    * file key in the query string. We parse and store them in the database for record and redirect
    * users to the next block or review page.
    */

@@ -53,6 +53,9 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
                 .setId(135L)
                 .setName("Test Block Definition")
                 .setDescription("Test Block Description")
+                .setLocalizedName(LocalizedStrings.withDefaultValue("Test Block Definition"))
+                .setLocalizedDescription(
+                    LocalizedStrings.withDefaultValue("Test Block Description"))
                 .setProgramQuestionDefinitions(
                     ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM
                         .map(

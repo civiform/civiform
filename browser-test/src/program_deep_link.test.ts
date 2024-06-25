@@ -5,6 +5,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
@@ -159,6 +160,31 @@ test.describe('navigating to a deep link', () => {
       await page.click('#visit-home-page-button')
       expect(page.url()).toContain('/programs')
       await validateScreenshot(page, 'home-page')
+    })
+  })
+
+  test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('shows a login prompt for guest users', async ({page}) => {
+      await page.goto('/programs/test-deep-link')
+      await expect(page.getByTestId('slug-login')).toContainText(
+        'Create an account or sign in',
+      )
+      await validateScreenshot(
+        page,
+        'login-prompt-for-guest-users-using-program-slug-north-star',
+      )
+
+      await validateAccessibility(page)
+    })
+
+    test('does not show login prompt for logged in users', async ({page}) => {
+      await loginAsTestUser(page)
+      await page.goto('/programs/test-deep-link')
+      await expect(page.locator('[data-testId="slug-login"]')).toHaveCount(0)
     })
   })
 })

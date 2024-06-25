@@ -40,6 +40,8 @@ public class ProgramBuilder {
           .setId(1)
           .setName("Screen 1")
           .setDescription("Screen 1 description")
+          .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+          .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
           .build();
 
   private static Injector injector;
@@ -365,17 +367,21 @@ public class ProgramBuilder {
               .setId(id)
               .setName(name)
               .setDescription(description)
+              .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+              .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
               .setEnumeratorId(enumeratorId);
       return blockBuilder;
     }
 
     public BlockBuilder withName(String name) {
       blockDefBuilder.setName(name);
+      blockDefBuilder.setLocalizedName(LocalizedStrings.withDefaultValue(name));
       return this;
     }
 
     public BlockBuilder withDescription(String description) {
       blockDefBuilder.setDescription(description);
+      blockDefBuilder.setLocalizedDescription(LocalizedStrings.withDefaultValue(description));
       return this;
     }
 

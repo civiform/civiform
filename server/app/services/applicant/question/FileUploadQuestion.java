@@ -37,12 +37,7 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath());
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
+    return ImmutableList.of(getFileKeyPath(), getFileKeyListPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
@@ -58,6 +53,10 @@ public final class FileUploadQuestion extends Question {
         Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
 
     return fileKeyValueCache.get();
+  }
+
+  public Optional<ImmutableList<String>> getFileKeyListValue() {
+    return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
   }
 
   public Optional<String> getOriginalFileName() {
@@ -77,6 +76,18 @@ public final class FileUploadQuestion extends Question {
 
   public Path getFileKeyPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
+  }
+
+  public Path getFileKeyListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY_LIST);
+  }
+
+  public Path getFileKeyListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.FILE_KEY_LIST)
+        .asArrayElement()
+        .atIndex(index);
   }
 
   public Path getOriginalFileNamePath() {

@@ -28,6 +28,18 @@
         "id": 1,
         "name": "Screen 1",
         "description": "one of each question type - part 1",
+        "localizedName": {
+          "translations": {
+            "en_US": "Screen 1"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "one of each question type - part 1"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -73,6 +85,18 @@
         "id": 2,
         "name": "Screen 2",
         "description": "one of each question type - part 2",
+        "localizedName": {
+          "translations": {
+            "en_US": "Screen 2"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "one of each question type - part 2"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": null,
         "eligibilityDefinition": {
@@ -182,6 +206,18 @@
         "id": 3,
         "name": "Household information",
         "description": "List all household members",
+        "localizedName": {
+          "translations": {
+            "en_US": "Household information"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "List all household members"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -197,6 +233,18 @@
         "id": 4,
         "name": "Household member info",
         "description": "Collect information about each household member",
+        "localizedName": {
+          "translations": {
+            "en_US": "Household member info"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "Collect information about each household member"
+          },
+          "isRequired": true
+        },
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -222,6 +270,18 @@
         "id": 9,
         "name": "Car information",
         "description": "Information about an applicant's cars",
+        "localizedName": {
+          "translations": {
+            "en_US": "Car information"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "Information about an applicant's cars"
+          },
+          "isRequired": true
+        },
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -237,6 +297,18 @@
         "id": 10,
         "name": "Car price per car",
         "description": "",
+        "localizedName": {
+          "translations": {
+            "en_US": "Car price per car"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": ""
+          },
+          "isRequired": true
+        },
         "repeaterId": 9,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -252,6 +324,18 @@
         "id": 5,
         "name": "Screen 3",
         "description": "Additional questions",
+        "localizedName": {
+          "translations": {
+            "en_US": "Screen 3"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "Additional questions"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -267,6 +351,18 @@
         "id": 6,
         "name": "Screen only for Spring and Summer",
         "description": "A screen exercising visibility conditions",
+        "localizedName": {
+          "translations": {
+            "en_US": "Screen only for Spring and Summer"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "A screen exercising visibility conditions"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -296,6 +392,18 @@
         "id": 7,
         "name": "File upload",
         "description": "Upload a file",
+        "localizedName": {
+          "translations": {
+            "en_US": "File upload"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "Upload a file"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -351,6 +459,18 @@
         "id": 11,
         "name": "Just Static Text Screen",
         "description": "Some final static information",
+        "localizedName": {
+          "translations": {
+            "en_US": "Just Static Text Screen"
+          },
+          "isRequired": true
+        },
+        "localizedDescription": {
+          "translations": {
+            "en_US": "Some final static information"
+          },
+          "isRequired": true
+        },
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
