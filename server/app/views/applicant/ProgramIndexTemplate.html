@@ -91,11 +91,8 @@
         ></div>
       </th:block>
     </div>
-    <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->true,
-                                                             <!--/* showReviewLogin= */-->false,
-                                                             <!--/* showUpsellLogin= */-->false)}"
-    ></div>
+    <div th:replace="~{applicant/ModalFragment:: maybeDevToolsModal}"></div>
+    <div th:replace="~{applicant/ModalFragment:: programIndexLoginModal}"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

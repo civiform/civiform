@@ -47,11 +47,8 @@
         data-open-modal
       ></a>
     </main>
-    <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
-                                                           <!--/* showReviewLogin= */-->false,
-                                                           <!--/* showUpsellLogin= */-->${isGuest})}"
-    ></div>
+    <div th:replace="~{applicant/ModalFragment:: maybeDevToolsModal}"></div>
+    <div th:replace="~{applicant/ModalFragment :: reviewLoginModal}"></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
     ></footer>

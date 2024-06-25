@@ -1,7 +1,6 @@
 export class NorthStarModalController {
   /**
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
-   * @param {Element} modalContainer The container holding the modal.
    * @param {HTMLElement} modal The modal element.
    **/
   static attachModalListener(modal: HTMLElement) {
