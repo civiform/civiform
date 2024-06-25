@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
+import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
@@ -44,7 +45,8 @@ public final class QuestionConfig {
 
   private QuestionConfig() {}
 
-  public static Optional<DivTag> buildQuestionConfig(QuestionForm questionForm, Messages messages) {
+  public static Optional<DivTag> buildQuestionConfig(
+      QuestionForm questionForm, Messages messages, boolean multipleFileUpload) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -79,8 +81,14 @@ public final class QuestionConfig {
             config
                 .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
                 .getContainer());
+      case FILEUPLOAD:
+        return multipleFileUpload
+            ? Optional.of(
+                config
+                    .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
+                    .getContainer())
+            : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
-      case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended
       case EMAIL: // fallthrough intended
@@ -107,6 +115,18 @@ public final class QuestionConfig {
             .setValue("true")
             .setChecked(addressQuestionForm.getDisallowPoBox())
             .getCheckboxTag());
+    return this;
+  }
+
+  private QuestionConfig addFileUploadQuestionFields(
+      FileUploadQuestionForm fileUploadQuestionForm) {
+    content.with(
+        FieldWithLabel.number()
+            .setFieldName("maxFiles")
+            .setLabelText("Maximum number of file uploads")
+            .setValue(fileUploadQuestionForm.getMaxFiles())
+            .setMin(OptionalLong.of(1))
+            .getNumberTag());
     return this;
   }
 

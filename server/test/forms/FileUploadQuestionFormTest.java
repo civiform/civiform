@@ -1,8 +1,10 @@
 package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Locale;
+import java.util.OptionalInt;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.FileUploadQuestionDefinition;
@@ -18,6 +20,7 @@ public class FileUploadQuestionFormTest {
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setMaxFiles("4");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     FileUploadQuestionDefinition expected =
@@ -27,6 +30,10 @@ public class FileUploadQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.builder()
+                        .setMaxFiles(OptionalInt.of(4))
+                        .build())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -43,6 +50,10 @@ public class FileUploadQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.builder()
+                        .setMaxFiles(OptionalInt.of(4))
+                        .build())
                 .build());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);
@@ -51,5 +62,24 @@ public class FileUploadQuestionFormTest {
     QuestionDefinition actual = builder.build();
 
     assertThat(actual).isEqualTo(originalQd);
+  }
+
+  @Test
+  public void setMaxFiles_emptyStringClearsMaxFiles() throws Exception {
+    FileUploadQuestionForm form = new FileUploadQuestionForm();
+    form.setMaxFiles("4");
+
+    assertThat(form.getMaxFiles().getAsInt()).isEqualTo(4);
+
+    form.setMaxFiles("");
+
+    assertThat(form.getMaxFiles()).isEmpty();
+  }
+
+  @Test
+  public void setMaxFiles_invalidStringThrowsException() throws Exception {
+    FileUploadQuestionForm form = new FileUploadQuestionForm();
+
+    assertThrows(NumberFormatException.class, () -> form.setMaxFiles("four"));
   }
 }
