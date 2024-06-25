@@ -503,6 +503,8 @@ validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ
 
 validation.tooFewSelections=ກະລຸນາເລືອກຢ່າງໜ້ອຍ {0} ຂໍ້.
 validation.tooManySelections=ກະລຸນາເລືອກໜ້ອຍກວ່າ {0} ຂໍ້.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
