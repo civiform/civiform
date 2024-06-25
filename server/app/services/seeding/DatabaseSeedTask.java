@@ -5,21 +5,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
+import models.CategoryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -90,16 +95,22 @@ public final class DatabaseSeedTask {
 
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
+  private final CategoryRepository categoryRepository;
   private final Database database;
 
   @Inject
-  public DatabaseSeedTask(QuestionService questionService, VersionRepository versionRepository) {
+  public DatabaseSeedTask(
+      QuestionService questionService,
+      VersionRepository versionRepository,
+      CategoryRepository categoryRepository) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.database = DB.getDefault();
   }
 
   public ImmutableList<QuestionDefinition> run() {
+    seedProgramCategories();
     return seedCanonicalQuestions();
   }
 
@@ -151,6 +162,32 @@ public final class DatabaseSeedTask {
       LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
+  }
+
+  /** Seeds the predefined program categories from the category translation files. */
+  private List<CategoryModel> seedProgramCategories() {
+    List<CategoryModel> categories = new ArrayList<>();
+
+    CategoryTranslationFileParser.PROGRAM_CATEGORY_NAMES.forEach(
+        categoryName -> {
+          categories.add(
+              CategoryTranslationFileParser.createCategoryModelFromTranslationsMap(categoryName));
+        });
+
+    List<CategoryModel> dbCategories = new ArrayList<>();
+    categories.forEach(
+        category -> {
+          inSerializableTransaction(
+              () -> {
+                CategoryModel inserted = categoryRepository.fetchOrSaveUniqueCategory(category);
+                if (inserted != null) {
+                  dbCategories.add(inserted);
+                }
+              },
+              1);
+        });
+
+    return dbCategories;
   }
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {
