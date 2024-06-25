@@ -1,5 +1,5 @@
 <div
-  th:fragment="modalContainer(showProgramIndexLogin, showReviewLogin)"
+  th:fragment="modalContainer(showProgramIndexLogin, showReviewLogin, showUpsellLogin)"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
@@ -41,6 +41,19 @@
       >Login</a
     >
   </th:block>
+  <th:block
+  th:if="${showUpsellLogin}"
+>
+  <div
+    th:replace="~{this :: loginPromptModal('login-dialog-upsell',
+                                       ${upsellBypassUrl},
+                                       ${upsellLoginUrl},
+                                       #{content.generalLoginModalPrompt},
+                                       #{button.continueWithoutAnAccount},
+                                       null,
+                                       false)}"
+  ></div>
+</th:block>
 </div>
 
 <dialog
@@ -97,7 +110,7 @@
   th:aria-describedby="${dialogId + '-description'}"
   th:only-show-once-group="${onlyShowOnceGroup}"
   th:show-on-load="${showOnLoad ? 'true' : null}"
-  data-testid="slug-login"
+  data-testid="login"
   th:attr="bypass-url=${bypassUrl},dialog-id=${dialogId}"
 >
   <div class="usa-modal__content">

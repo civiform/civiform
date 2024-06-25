@@ -12,11 +12,21 @@
         class="cf-application-id"
       ></p>
       <a
+        th:if="${!isGuest}"
         href="/"
         class="usa-button margin-y-2"
         id="another-program"
         th:text="#{link.applyToAnotherProgram}"
       ></a>
+      <a
+      th:if="${isGuest}"
+      href="#login-dialog-upsell"
+      aria-controls="login-dialog-upsell"
+      class="usa-button margin-y-2"
+      id="another-program"
+      th:text="#{link.applyToAnotherProgram}"
+      data-open-modal
+    ></a>
       <a
         th:href="${downloadHref}"
         class="usa-button margin-y-2"
@@ -25,7 +35,8 @@
     </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
-                                                             <!--/* showReviewLogin= */-->false)}"
+                                                             <!--/* showReviewLogin= */-->false,
+                                                             <!--/* showUpsellLogin= */-->${isGuest})}"
     ></div>
     <footer
       th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"

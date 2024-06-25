@@ -20,22 +20,24 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await adminPrograms.expectActiveProgram(programName)
       await logout(page)
     })
+  })
 
+  test('view application submitted page while logged in', async ({page, applicantQuestions}) => {
     await loginAsTestUser(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-    await test.step('Setup: submit application', async () => {
+    await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.submitFromReviewPage(
         /* northStarEnabled= */ true,
       )
     })
-  })
-
-  test('view application submitted page', async ({page}) => {
+  
     expect(await page.textContent('html')).toContain('Application confirmation')
     expect(await page.textContent('html')).toContain(programName)
+
+    await test.step('Validate screenshot and accessibility', async () => {
 
     await validateScreenshot(
       page,
@@ -45,7 +47,40 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     )
   })
 
-  test('passes accessibility checks', async ({page}) => {
     await validateAccessibility(page)
+
+    await test.step('Validate that user can click through without logging in', async () => {
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+    await expect(page.locator('[data-testId="login"]')).not.toBeVisible()
+    })
+  })
+
+  test('view application submitted page while logged out', async ({page, applicantQuestions}) => {
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
+    })
+
+    await test.step('Validate screenshot and accessibility', async () => {
+
+    await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await expect(page.getByTestId('login')).toContainText(
+        'Create an account or sign in',
+      )
+      await validateScreenshot(
+        page,
+        'upsell-north-star-login',
+      )
+
+      await validateAccessibility(page)
+    })
+  })
+
   })
 })

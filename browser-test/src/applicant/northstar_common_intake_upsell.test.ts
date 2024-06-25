@@ -98,6 +98,32 @@ test.describe(
       )
     })
 
+    test('As a guest, clicking on apply to more programs brings up login dialog', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await logout(page) // Log out as admin
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await test.step('Setup: submit application', async () => {
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+
+      await validateScreenshot(
+        page,
+        'upsell-north-star-common-intake-login',
+      )
+
+      await validateAccessibility(page)
+
+    })
+
     test('As TI, view application submitted page with one eligible program', async ({
       page,
       tiDashboard,
