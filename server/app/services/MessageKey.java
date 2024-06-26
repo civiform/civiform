@@ -152,6 +152,7 @@ public enum MessageKey {
   DOB_LABEL("label.dob"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   END_SESSION("header.endSession"),
+  END_YOUR_SESSION("banner.endYourSession"),
   EMAIL_APPLICATION_RECEIVED_BODY("email.applicationReceivedBody"),
   EMAIL_APPLICATION_RECEIVED_SUBJECT("email.applicationReceivedSubject"),
   EMAIL_APPLICATION_UPDATE_SUBJECT("email.applicationUpdateSubject"),

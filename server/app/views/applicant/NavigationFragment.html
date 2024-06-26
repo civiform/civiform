@@ -136,9 +136,16 @@
   </svg>
 </span>
 
-<div th:fragment="guestSessionAlert" class="usa-alert usa-alert--info usa-alert--slim">
+<div
+  th:fragment="guestSessionAlert"
+  class="usa-alert usa-alert--info usa-alert--slim"
+  th:if="${isGuest}"
+>
   <div class="usa-alert__body">
-    <p class="usa-alert__text">
+    <p
+      class="usa-alert__text"
+      th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
+    >
       Lorem ipsum dolor sit amet,
       <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a>
       elit, sed do eiusmod.
@@ -159,14 +166,6 @@
 
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
-    <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
-    <a
-      type="button"
-      class="usa-button usa-button--outline"
-      th:text="#{header.endSession}"
-      id="logout-button"
-      th:href="${logoutLink}"
-    ></a>
     <a
       type="button"
       class="usa-button usa-button--outline"
