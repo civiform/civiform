@@ -201,7 +201,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    settingsManifest.getIntakeFormEnabled(request),
+                                    settingsManifest.getIntakeFormEnabled(),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.

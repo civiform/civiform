@@ -20,8 +20,6 @@ test.describe(
     const eligibleProgram1 = 'Eligible Program 1'
 
     test.beforeEach(async ({page, adminPrograms}) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       await loginAsAdmin(page)
 
       await test.step('Setup: Publish common intake program', async () => {

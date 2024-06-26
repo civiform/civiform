@@ -150,19 +150,15 @@ test.describe('applicant program index page', () => {
     })
   })
 
-  test('common intake form enabled but not present', async ({page}) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
+  test('common intake form not present', async ({page}) => {
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form enabled and present', () => {
+  test.describe('common intake form present', () => {
     const commonIntakeFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
         commonIntakeFormProgramName,
@@ -468,8 +464,6 @@ test.describe('applicant program index page with images', () => {
     applicantQuestions,
   }) => {
     test.slow()
-
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     // Common Intake: Basic (no image or status)
     await loginAsAdmin(page)

@@ -208,7 +208,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withClass(BaseStyles.INPUT_LABEL)
                     .with(ViewUtils.requiredQuestionIndicator())
                     .condWith(
-                        settingsManifest.getIntakeFormEnabled(request),
+                        settingsManifest.getIntakeFormEnabled(),
                         p("(Not applicable if this program is the pre-screener)")),
                 FieldWithLabel.radio()
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
@@ -236,7 +236,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Program note for administrative use only")
             .setValue(adminDescription)
             .getTextareaTag());
-    if (settingsManifest.getIntakeFormEnabled(request)) {
+    if (settingsManifest.getIntakeFormEnabled()) {
       formTag
           .with(
               FieldWithLabel.checkbox()
