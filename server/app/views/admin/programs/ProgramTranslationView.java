@@ -189,7 +189,7 @@ public final class ProgramTranslationView extends TranslationFormView {
               .add(
                   fieldWithDefaultLocaleTextHint(
                       FieldWithLabel.input()
-                          .setFieldName(ProgramTranslationForm.localizedScreenName(i))
+                          .setFieldName(ProgramTranslationForm.localizedScreenName(block.id()))
                           .setLabelText("Screen name")
                           .setScreenReaderText("Screen name")
                           .setValue(screenUpdateData.localizedName())
@@ -198,7 +198,8 @@ public final class ProgramTranslationView extends TranslationFormView {
               .add(
                   fieldWithDefaultLocaleTextHint(
                       FieldWithLabel.input()
-                          .setFieldName(ProgramTranslationForm.localizedScreenDescription(i))
+                          .setFieldName(
+                              ProgramTranslationForm.localizedScreenDescription(block.id()))
                           .setLabelText("Screen description")
                           .setScreenReaderText("Screen description")
                           .setValue(screenUpdateData.localizedDescription())
