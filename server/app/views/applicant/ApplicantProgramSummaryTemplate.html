@@ -56,7 +56,8 @@
                 class="usa-button"
                 th:href="${blockEditUrlMap.get(block.getId())}"
                 th:unless="${block.isCompletedInProgramWithoutErrors()}"
-                >Start</a
+                th:text="#{button.start}"
+                ></a
               >
             </div>
           </div>

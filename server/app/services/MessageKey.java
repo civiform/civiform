@@ -197,6 +197,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
+  MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
   MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON("modal.errorSaving.stayAndFixButton"),
   MODAL_ERROR_SAVING_PREVIOUS_CONTENT("modal.errorSaving.previous.content"),
