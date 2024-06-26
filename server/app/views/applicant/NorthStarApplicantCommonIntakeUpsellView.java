@@ -54,11 +54,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
-        "<a href=\""
-            + linkHref
-            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
-            + linkText
-            + "</a>";
+        "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
     if (params.eligiblePrograms().isPresent()) {

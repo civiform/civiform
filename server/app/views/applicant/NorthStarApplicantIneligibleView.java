@@ -69,11 +69,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
     String linkHtml =
-        "<a href=\""
-            + linkHref
-            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
-            + linkText
-            + "</a>";
+        "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("programLinkHtml", linkHtml);
 
     String applyHref = applicantRoutes.index(params.profile(), params.applicantId()).url();
