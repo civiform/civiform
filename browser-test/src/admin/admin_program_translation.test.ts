@@ -50,6 +50,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: publicName,
       description: publicDescription,
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [],
     })
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -115,6 +117,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: publicName,
       description: publicDescription,
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [],
     })
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -139,6 +143,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: publicName,
       description: publicDescription,
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [
         {
           configuredStatusText: statusWithEmailName,
@@ -193,6 +199,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [],
     })
     await adminTranslations.editProgramImageDescription(
@@ -231,6 +239,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [],
     })
     await adminTranslations.editProgramImageDescription(
@@ -271,6 +281,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
+      blockName: 'Spanish block name',
+      blockDescription: 'Spanish block description',
       statuses: [],
     })
     await adminTranslations.editProgramImageDescription(
@@ -288,4 +300,43 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectNoProgramImageDescription()
   })
+
+  test(
+    'Add translations for block name and description',
+    {tag: ['@northstar']},
+    async ({page, adminPrograms, adminQuestions, adminTranslations}) => {
+      await loginAsAdmin(page)
+
+      await adminQuestions.addTextQuestion({questionName: 'text-question'})
+
+      const programName = 'Program with blocks'
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: 'text-question'}],
+      })
+
+      await test.step('Update translations', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.editProgramTranslations({
+          name: 'Spanish name',
+          description: 'Spanish description',
+          blockName: 'Spanish block name',
+          blockDescription: 'Spanish block description',
+          statuses: [],
+        })
+      })
+
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.expectBlockTranslations(
+          'Spanish block name',
+          'Spanish block description',
+        )
+      })
+    },
+  )
 })
