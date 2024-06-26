@@ -16,9 +16,6 @@ export function init() {
     return
   }
 
-  // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
-  // because the file-upload-action-button class is only added when that flag is on
-  // (see {@link views.applicant.ApplicantFileUploadRenderer.java}).
   addEventListenerToElements(
     '.file-upload-action-button',
     'click',
