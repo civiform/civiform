@@ -120,8 +120,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
         applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             classLoaderExecutionContext.current())
@@ -259,11 +257,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
           redirect(controllers.admin.routes.AdminProgramPreviewController.back(programId).url()));
     }
 
-    return checkApplicantAuthorization(request, applicantId)
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-        .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId),
-            classLoaderExecutionContext.current())
+    return submitInternal(request, applicantId, programId)
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

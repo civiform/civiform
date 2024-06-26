@@ -302,9 +302,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
 
-    return CompletableFuture.allOf(
-            checkApplicantAuthorization(request, applicantId), applicantStage)
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+    return applicantStage
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
@@ -357,29 +355,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId, request);
 
-    CompletableFuture<Void> applicantAuthCompletableFuture =
-        applicantStage
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
-
     CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
-
-    return CompletableFuture.allOf(
-            applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
+    return applicantStage
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
-            (v) -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
+            (roApplicantProgramService) -> {
               ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
               String blockId = blocks.get(previousBlockIndex).getId();
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
@@ -457,10 +440,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         successBannerMessage.map(m -> ToastMessage.success(m));
 
     return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             classLoaderExecutionContext.current())
@@ -544,12 +523,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         this.applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            v -> checkProgramAuthorization(request, programId),
-            classLoaderExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             classLoaderExecutionContext.current())
@@ -683,10 +656,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         this.applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             classLoaderExecutionContext.current())
@@ -824,9 +793,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
         applicantStage
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId),
-                classLoaderExecutionContext.current())
-            .thenComposeAsync(
                 v -> {
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
@@ -843,9 +809,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantService.cleanDateQuestions(applicantId, programId, blockId, formData),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
+
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
                 classLoaderExecutionContext.current())
