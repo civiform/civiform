@@ -469,7 +469,6 @@ validation.impossibleDob=La fecha de nacimiento debe ser hace menos de 150 años
 
 button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
-dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
 validation.entityNameRequired=Ingresa un valor para cada línea.

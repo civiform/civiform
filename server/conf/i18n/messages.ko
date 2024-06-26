@@ -469,7 +469,6 @@ validation.impossibleDob=생년월일은 150년 전 미만이어야 합니다.
 
 button.addEntity={0} 추가
 button.removeEntity={0} 삭제
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토', '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
