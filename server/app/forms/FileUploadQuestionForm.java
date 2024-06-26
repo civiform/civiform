@@ -30,11 +30,8 @@ public class FileUploadQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMaxFiles(String maxFiles) {
-    if (maxFiles.isEmpty()) {
-      this.maxFiles = OptionalInt.empty();
-    } else {
-      this.maxFiles = OptionalInt.of(Integer.parseInt(maxFiles));
-    }
+    this.maxFiles =
+        maxFiles.isEmpty() ? OptionalInt.empty() : OptionalInt.of(Integer.parseInt(maxFiles));
   }
 
   @Override
