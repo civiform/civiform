@@ -7,6 +7,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
+import controllers.FlashKey;
 import java.util.Optional;
 import models.VersionModel;
 import org.junit.After;
@@ -48,7 +49,7 @@ public class DevDatabaseSeedControllerTest {
     // Seed the fake data.
     result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
-    assertThat(result.flash().get("success")).hasValue("The database has been seeded");
+    assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
@@ -61,7 +62,7 @@ public class DevDatabaseSeedControllerTest {
     // Clear the data.
     result = controller.clear();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
-    assertThat(result.flash().get("success")).hasValue("The database has been cleared");
+    assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been cleared");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
@@ -86,7 +87,7 @@ public class DevDatabaseSeedControllerTest {
     // Seed the fake data.
     result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
-    assertThat(result.flash().get("success")).hasValue("The database has been seeded");
+    assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");

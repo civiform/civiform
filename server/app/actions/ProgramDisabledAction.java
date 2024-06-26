@@ -2,6 +2,7 @@ package actions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -39,7 +40,7 @@ public class ProgramDisabledAction extends Action.Simple {
 
   @Override
   public CompletionStage<Result> call(Request req) {
-    Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
+    Optional<String> programSlugOptional = req.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG);
 
     if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
       return CompletableFuture.completedFuture(

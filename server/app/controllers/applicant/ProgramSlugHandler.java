@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import controllers.LanguageUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -131,7 +132,7 @@ public final class ProgramSlugHandler {
       CiviFormProfile profile) {
     return controller
         .redirect(applicantRoutes.review(profile, applicantId, programId))
-        .flashing("redirected-from-program-slug", programSlug)
+        .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.
         .removingFromSession(request, REDIRECT_TO_SESSION_KEY);

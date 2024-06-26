@@ -14,6 +14,7 @@ import static j2html.TagCreator.tr;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.FlashKey;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
@@ -71,9 +72,9 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get("error").get());
+          .info(request.flash().get(FlashKey.ERROR).get());
       bundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
+          ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }

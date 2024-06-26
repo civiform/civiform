@@ -10,6 +10,7 @@ import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -110,11 +111,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
     }
 
     boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
-    Optional<String> flashBannerMessage = request.flash().get("banner");
+    Optional<String> flashBannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
-    Optional<String> flashSuccessBannerMessage = request.flash().get("success-banner");
+    Optional<String> flashSuccessBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
     Optional<ToastMessage> flashSuccessBanner =
         flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);
 
@@ -161,13 +163,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
-              if (request.flash().get("redirected-from-program-slug").isPresent()
+              if (request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG).isPresent()
                   && applicantStage.toCompletableFuture().join().getType() == ApplicantType.GUEST) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,
                             /* postLoginRedirectTo= */ routes.ApplicantProgramsController.show(
-                                    request.flash().get("redirected-from-program-slug").get())
+                                    request
+                                        .flash()
+                                        .get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG)
+                                        .get())
                                 .url(),
                             messages.at(
                                 MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
@@ -181,6 +186,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
               }
+
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
                 int completedBlockCount =
@@ -358,7 +364,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       messagesApi
                           .preferred(request)
                           .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
-                  return found(reviewPage).flashing("banner", errorMsg);
+                  return found(reviewPage).flashing(FlashKey.BANNER, errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
                   String errorMsg =
@@ -367,7 +373,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
-                  return redirect(reviewPage).flashing("error", errorMsg);
+                  return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
                   ReadOnlyApplicantProgramService roApplicantProgramService =

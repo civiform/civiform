@@ -21,6 +21,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.FlashKey;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -108,11 +109,11 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
             .addMainStyles("bg-white");
 
     Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
+    if (flash.get(FlashKey.ERROR).isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get("error").get());
+          .info(request.flash().get(FlashKey.ERROR).get());
       bundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
+          ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
