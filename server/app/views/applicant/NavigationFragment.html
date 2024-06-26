@@ -109,6 +109,9 @@
   </div>
 </section>
 
+<!--/* We should be able to use ApplicantBaseFragment :: icon to render the icon, but this icon
+       is being rendered within a message, which means it can't include any thymeleaf processing,
+       so we have to directly invoke the html of the icon. */-->
 <span th:fragment="lockIcon" class="icon-lock"
   ><svg
     th:fragment="lockIcon"
