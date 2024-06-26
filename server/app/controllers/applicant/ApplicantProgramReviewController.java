@@ -10,13 +10,12 @@ import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import controllers.FlashKey;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
@@ -170,7 +169,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     createLoginPromptModal(
                             messages,
                             /* postLoginRedirectTo= */ routes.ApplicantProgramsController.show(
-                                    request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG).get())
+                                    request
+                                        .flash()
+                                        .get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG)
+                                        .get())
                                 .url(),
                             messages.at(
                                 MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),

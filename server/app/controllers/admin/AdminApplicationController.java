@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -22,8 +23,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-
-import controllers.FlashKey;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;

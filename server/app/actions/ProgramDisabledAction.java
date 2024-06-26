@@ -2,12 +2,11 @@ package actions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import controllers.FlashKey;
 import models.DisplayMode;
 import play.mvc.Action;
 import play.mvc.Http.Request;

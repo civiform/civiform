@@ -10,9 +10,8 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
-import java.util.Locale;
-
 import controllers.FlashKey;
+import java.util.Locale;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -64,7 +63,8 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
-    assertThat(result.flash().get(FlashKey.ERROR).get()).isEqualTo("The en-US locale is not supported");
+    assertThat(result.flash().get(FlashKey.ERROR).get())
+        .isEqualTo("The en-US locale is not supported");
   }
 
   @Test

@@ -74,7 +74,8 @@ public class TrustedIntermediaryManagementController extends Controller {
   private Result flashCreateTIFieldValuesWithError(
       String error, Form<CreateTrustedIntermediaryGroupForm> form) {
     Result result =
-        redirect(routes.TrustedIntermediaryManagementController.index()).flashing(FlashKey.ERROR, error);
+        redirect(routes.TrustedIntermediaryManagementController.index())
+            .flashing(FlashKey.ERROR, error);
     if (form.value().isPresent()) {
       result = result.flashing(FlashKey.PROVIDED_NAME, form.value().get().getName());
       result = result.flashing(FlashKey.PROVIDED_DESCRIPTION, form.value().get().getDescription());
@@ -85,9 +86,11 @@ public class TrustedIntermediaryManagementController extends Controller {
   private Result flashAddTIFieldValuesWithError(
       String error, Form<AddTrustedIntermediaryForm> form, long id) {
     Result result =
-        redirect(routes.TrustedIntermediaryManagementController.edit(id)).flashing(FlashKey.ERROR, error);
+        redirect(routes.TrustedIntermediaryManagementController.edit(id))
+            .flashing(FlashKey.ERROR, error);
     if (form.value().isPresent()) {
-      result = result.flashing(FlashKey.PROVIDED_EMAIL_ADDRESS, form.value().get().getEmailAddress());
+      result =
+          result.flashing(FlashKey.PROVIDED_EMAIL_ADDRESS, form.value().get().getEmailAddress());
     }
     return result;
   }

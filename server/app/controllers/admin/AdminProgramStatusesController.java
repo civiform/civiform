@@ -215,7 +215,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ErrorAnd<ProgramDefinition, CiviFormError> deleteStatusResult =
         service.deleteStatus(program.id(), deleteStatusText);
     if (deleteStatusResult.isError()) {
-      return redirect(indexUrl).flashing(FlashKey.ERROR, joinErrors(deleteStatusResult.getErrors()));
+      return redirect(indexUrl)
+          .flashing(FlashKey.ERROR, joinErrors(deleteStatusResult.getErrors()));
     }
     return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Status deleted");
   }

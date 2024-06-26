@@ -7,10 +7,9 @@ import auth.ProfileUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import javax.inject.Inject;
-
-import controllers.FlashKey;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;

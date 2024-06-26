@@ -7,11 +7,10 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
-
-import controllers.FlashKey;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;

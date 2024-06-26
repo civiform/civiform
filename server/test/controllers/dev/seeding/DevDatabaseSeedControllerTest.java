@@ -7,9 +7,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
-import java.util.Optional;
-
 import controllers.FlashKey;
+import java.util.Optional;
 import models.VersionModel;
 import org.junit.After;
 import org.junit.Test;
