@@ -14,6 +14,8 @@ button.untranslatedSubmit=Isumite
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 guest=Bisita
 label.languageSr=Pumili ng wika
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Tapusin ang session
 toast.sessionEnded=Natapos na ang iyong session.
 header.guestIndicator=Bisitang user ka
