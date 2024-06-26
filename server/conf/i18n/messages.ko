@@ -14,6 +14,8 @@ button.untranslatedSubmit=제출
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 guest=게스트
 label.languageSr=언어 선택
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=세션 종료
 toast.sessionEnded=세션이 종료되었습니다.
 header.guestIndicator=게스트 사용자
