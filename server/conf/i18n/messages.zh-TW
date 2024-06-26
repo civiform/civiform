@@ -14,6 +14,8 @@ button.untranslatedSubmit=提交
 footer.supportLinkDescription=如需技術支援，請洽詢
 guest=訪客
 label.languageSr=選擇語言
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=結束工作階段
 toast.sessionEnded=您的工作階段已結束。
 header.guestIndicator=您是訪客使用者
