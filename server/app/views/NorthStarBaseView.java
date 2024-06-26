@@ -71,6 +71,8 @@ public abstract class NorthStarBaseView {
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("closeIcon", Icons.CLOSE);
+    context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
+    context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
