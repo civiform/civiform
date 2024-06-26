@@ -10,6 +10,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
+import actions.ApplicantAuthorizationAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -37,6 +38,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.MessageKey;
@@ -75,6 +77,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
+@With(ApplicantAuthorizationAction.class)
 public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
   @VisibleForTesting static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
