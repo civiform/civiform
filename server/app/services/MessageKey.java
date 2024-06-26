@@ -30,6 +30,7 @@ public enum MessageKey {
   BANNER_ACCT_DELETE_ERROR("banner.acctDeleteError"),
   BANNER_ACCT_DELETE_ERROR_REASON("banner.acctDeleteErrorReason"),
   BANNER_NEW_CLIENT_CREATED("banner.newClientCreated"),
+  BANNER_GUEST_BANNER_TEXT("banner.guestBannerText"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),
   BANNER_GOV_WEBSITE_SECTION_CONTENT("banner.govWebsiteSectionContent"),
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
