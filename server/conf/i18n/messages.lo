@@ -14,6 +14,8 @@ button.untranslatedSubmit=ສົ່ງ
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
 guest=ແຂກ
 label.languageSr=ເລືອກພາສາ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=ສິ້ນສຸດເຊດຊັນ
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
