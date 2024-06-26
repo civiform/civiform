@@ -146,26 +146,11 @@ export class AdminTranslations {
     await expect(imageDescriptionValue).toHaveValue(expectImageDescription)
   }
 
-<<<<<<< HEAD
   async expectBlockTranslations(blockName: string, blockDescription: string) {
     const blockNameValue = this.page.getByLabel('Screen name')
     await expect(blockNameValue).toHaveValue(blockName)
     const blockDescriptionValue = this.page.getByLabel('Screen description')
     await expect(blockDescriptionValue).toHaveValue(blockDescription)
-=======
-  async editBlockTranslations(blockName: string, blockDescription: string) {
-    await this.page.fill('text=Screen name', blockName)
-    await this.page.fill('text=Screen description', blockDescription)
-
-    await this.page.click('#update-localizations-button')
-  }
-
-  async expectBlockTranslations(blockName: string, blockDescription: string) {
-    await expect(this.page.getByLabel('Screen name')).toHaveValue(blockName)
-    await expect(this.page.getByLabel('Screen description')).toHaveValue(
-      blockDescription,
-    )
->>>>>>> bde4f67d4 (add translation test)
   }
 
   async editQuestionTranslations(
