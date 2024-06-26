@@ -56,7 +56,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     String linkHtml =
         "<a href=\""
             + linkHref
-            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
+            + "\" target=\"_blank\" class=\"usa-link\">"
             + linkText
             + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
