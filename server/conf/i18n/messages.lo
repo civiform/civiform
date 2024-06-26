@@ -24,7 +24,7 @@ validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບ�
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=ຊ່ອງຂໍ້ມູນທີ່ຈຳເປັນແມ່ນໝາຍດ້ວຍເຄື່ອງໝາຍດອກຈັນ ({0}).
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
@@ -63,9 +63,9 @@ button.keepFile=ສືບຕໍ່
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=ກັບຄືນ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=ບັນທຶກ ແລະ ສຳເລັດແອັບພລິເຄຊັນພາຍຫຼັງ
 button.skipFileUpload=ຂ້າມ
 content.blockProgress={0} ຈາກທັງໝົດ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -474,9 +474,9 @@ dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າ
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=ກະລຸນາໃສ່ສູງສຸດ {0} ຄ່າ.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=ກະລຸນາໃສ່ຢ່າງໜ້ອຍ {0} ຄ່າ.
 placeholder.entityName=ຊື່ {0}
 
 #---------------------------------------------------------------------------------#

@@ -24,7 +24,7 @@ validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka h
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
 content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Goobaha loo baahan yahay waxaa lagu calaamadeeyay calaamadda xiddigta ({0}).
 content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
@@ -63,9 +63,9 @@ button.keepFile=Sii wad
 button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Keydi oo hadhow dhammaystir arjiga
 button.skipFileUpload=Ka bood
 content.blockProgress={0} ee {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -474,9 +474,9 @@ dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad midkaan saarto
 validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
 validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Fadlan gali ugu badnaan {0} tirooyin.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Fadlan gali ugu yaraan {0} tirooyin.
 placeholder.entityName=Naanaysta {0}
 
 #---------------------------------------------------------------------------------#
