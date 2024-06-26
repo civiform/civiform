@@ -27,10 +27,15 @@
                 th:if="${!block.isCompletedInProgramWithoutErrors() && block.answeredByUserQuestionsCount() != 0}"
                 th:text="#{title.inProgressProgramsUpdated}"
               ></span>
-              <h2 class="usa-card__heading" th:text="${block.getName()}"></h2>
+              <h2
+                class="usa-card__heading"
+                th:text="${block.getLocalizedName(preferredLanguage.toLocale())}"
+              ></h2>
             </div>
             <div class="usa-card__body">
-              <p th:text="${block.getDescription()}"></p>
+              <p
+                th:text="${block.getLocalizedDescription(preferredLanguage.toLocale())}"
+              ></p>
               <p
                 th:if="${block.isFileUpload()}"
                 th:text="#{content.fileUploadBlockProgressFull(${block.answeredByUserQuestionsCount()}, ${block.answerableQuestionsCount()})}"
