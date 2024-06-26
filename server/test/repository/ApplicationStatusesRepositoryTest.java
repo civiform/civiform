@@ -71,7 +71,6 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
 
     String programName = program.getProgramDefinition().adminName();
 
-    List<StatusDefinitions> list = repo.lookupListOfObsoleteStatusDefinitions(programName);
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
@@ -86,6 +85,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
         .isEqualTo("Reapply");
   }
 
+  @Test
   public void canUpdateApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));

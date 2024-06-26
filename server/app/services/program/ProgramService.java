@@ -381,12 +381,20 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             programAcls);
-    // temporary hooks to create a new row in ApplicationStatuses table
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        adminName, new StatusDefinitions());
-    return ErrorAnd.of(
-        programRepository.getShallowProgramDefinition(
-            programRepository.insertProgramSync(program)));
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            programRepository.getShallowProgramDefinition(
+                programRepository.insertProgramSync(program)));
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table.
+      // Remove these hooks when we have created service class for creating/updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          adminName, new StatusDefinitions());
+    }
+    return result;
   }
 
   /**
@@ -723,23 +731,29 @@ public final class ProgramService {
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
 
-    // Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(),
-        new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
-
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,
         localizationUpdate.localizedSummaryImageDescription(),
         locale);
 
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(newProgram.build().toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(newProgram.build().toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // Remove these hooks when we have created service class for creating/updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          programDefinition.adminName(),
+          new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+    }
+    return result;
   }
 
   private void validateProgramText(
@@ -825,21 +839,29 @@ public final class ProgramService {
                 .addAll(updatedStatuses)
                 .add(status)
                 .build());
-    // Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        program.adminName(),
-        new StatusDefinitions()
-            .setStatuses(
-                ImmutableList.<StatusDefinitions.Status>builder()
-                    .addAll(updatedStatuses)
-                    .add(status)
-                    .build()));
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
+      // Remove these hooks when we have created service class for creating/updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(),
+          new StatusDefinitions()
+              .setStatuses(
+                  ImmutableList.<StatusDefinitions.Status>builder()
+                      .addAll(updatedStatuses)
+                      .add(status)
+                      .build()));
+    }
+    return result;
   }
 
   private ImmutableList<StatusDefinitions.Status> unsetDefaultStatus(
@@ -897,16 +919,22 @@ public final class ProgramService {
             : ImmutableList.copyOf(statusesCopy);
 
     program.statusDefinitions().setStatuses(updatedStatuses);
-    // Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        program.adminName(), new StatusDefinitions().setStatuses(updatedStatuses));
-
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
+      // Remove these hooks when we have created service class for creating/updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(), new StatusDefinitions().setStatuses(updatedStatuses));
+    }
+    return result;
   }
 
   /**
@@ -932,17 +960,23 @@ public final class ProgramService {
         Lists.newArrayList(program.statusDefinitions().getStatuses());
     statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
-    // Temporary hooks for StatusMigration work
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        program.adminName(),
-        new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
-
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
+      // Remove these hooks when we have created service class for creating/updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(),
+          new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
+    }
+    return result;
   }
 
   private static ImmutableMap<String, Integer> statusNameToIndexMap(

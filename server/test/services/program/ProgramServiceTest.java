@@ -75,7 +75,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private SettingsManifest mockSettingsManifest;
   private final Request request = fakeRequest().build();
-  private ApplicationStatusesRepository appRepo;
+  private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before
   public void setProgramServiceImpl() {
@@ -84,7 +84,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
-    appRepo = instanceOf(ApplicationStatusesRepository.class);
+    applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Before
@@ -2254,7 +2254,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
-    ImmutableList<StatusDefinitions.Status> statuses =
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
         ImmutableList.of(
             StatusDefinitions.Status.builder()
                 .setStatusText(STATUS_WITH_EMAIL.statusText())
@@ -2276,10 +2276,12 @@ public class ProgramServiceTest extends ResetPostgres {
                         .localizedStatusText()
                         .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
                 .build());
-    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(statuses);
-    // test hooks to new ApplicationStatusRepository
-    assertThat(appRepo.lookupActiveStatusDefinitions(definition.adminName()).getStatuses())
-        .isEqualTo(statuses);
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
 
   @Test
@@ -2298,9 +2300,8 @@ public class ProgramServiceTest extends ResetPostgres {
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
-    // test hooks to new ApplicationStatusRepository
     assertThat(
-            appRepo
+            applicationStatusesRepo
                 .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .isNotEmpty();
@@ -2337,7 +2338,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
-    ImmutableList<StatusDefinitions.Status> statusesResult =
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
         ImmutableList.of(
             StatusDefinitions.Status.builder()
                 .setStatusText(STATUS_WITH_EMAIL.statusText())
@@ -2362,11 +2363,12 @@ public class ProgramServiceTest extends ResetPostgres {
                         .updateTranslation(
                             Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                 .build());
-    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(statusesResult);
-
-    // test hooks to new ApplicationStatusRepository
-    assertThat(appRepo.lookupActiveStatusDefinitions(definition.adminName()).getStatuses())
-        .isEqualTo(statusesResult);
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
 
   @Test
@@ -2495,9 +2497,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    // test hooks to new ApplicationStatusRepository
     assertThat(
-            appRepo
+            applicationStatusesRepo
                 .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .isNotEmpty();
@@ -2527,10 +2528,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    // test hooks to new ApplicationStatusRepository
-    // no updates to repository
+    // no updates to ApplicationStatus table
     StatusDefinitions currentStatus =
-        appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
     assertThat(currentStatus.getStatuses().get(0).statusText())
@@ -2574,10 +2575,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
-    // test hooks to new ApplicationStatusRepository
-    // no updates to repository
+    // no updates to ApplicationStatus table
     StatusDefinitions currentStatus =
-        appRepo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
     assertThat(currentStatus.getStatuses()).isNotEmpty();
     assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
     assertThat(currentStatus.getStatuses().get(0).statusText())
@@ -2781,7 +2782,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     String programName = program.getProgramDefinition().adminName();
     assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
-    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses()).isEmpty();
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+        .isEmpty();
 
     final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
         ps.appendStatus(program.id, APPROVED_DEFAULT_STATUS);
@@ -2789,7 +2791,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().statusDefinitions().getStatuses())
         .containsExactly(APPROVED_DEFAULT_STATUS);
-    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_DEFAULT_STATUS);
 
     // Ensure that appending to a non-empty list actually appends.
@@ -2799,7 +2801,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().statusDefinitions().getStatuses())
         .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
-    assertThat(appRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
   }
 
@@ -2838,7 +2840,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
     assertThat(
-            appRepo
+            applicationStatusesRepo
                 .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .containsExactly(APPROVED_STATUS);
@@ -2862,7 +2864,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().statusDefinitions().getStatuses()).containsExactly(editedStatus);
     assertThat(
-            appRepo
+            applicationStatusesRepo
                 .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .containsExactly(editedStatus);
