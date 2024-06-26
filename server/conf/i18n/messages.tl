@@ -24,7 +24,7 @@ validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago m
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Minamarkahan ng asterisk ({0}) ang mga nire-require na field.
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
@@ -63,9 +63,9 @@ button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Mag-save at tapusin ang application sa ibang pagkakataon
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -474,9 +474,9 @@ dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Maglagay ng hindi lalampas sa {0} (na) value.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Maglagay ng hindi bababa sa {0} (na) value.
 placeholder.entityName={0} Palayaw
 
 #---------------------------------------------------------------------------------#
