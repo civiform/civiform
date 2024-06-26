@@ -22,6 +22,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+
+import controllers.FlashKey;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -428,7 +430,7 @@ public final class AdminApplicationController extends CiviFormController {
         request);
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
-    return redirect(redirectUrl).flashing("success", "Application status updated");
+    return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
   }
 
   /**
@@ -472,7 +474,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
-    return redirect(redirectUrl).flashing("success", "Application note updated");
+    return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application note updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

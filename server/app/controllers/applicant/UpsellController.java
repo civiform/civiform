@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import controllers.FlashKey;
 import models.AccountModel;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
@@ -151,7 +153,7 @@ public final class UpsellController extends CiviFormController {
             })
         .thenApplyAsync(
             maybeEligiblePrograms -> {
-              Optional<String> toastMessageValue = request.flash().get("banner");
+              Optional<String> toastMessageValue = request.flash().get(FlashKey.BANNER);
               Optional<ToastMessage> toastMessage =
                   toastMessageValue.map(m -> ToastMessage.alert(m));
 

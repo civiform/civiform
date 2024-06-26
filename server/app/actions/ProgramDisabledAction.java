@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import controllers.FlashKey;
 import models.DisplayMode;
 import play.mvc.Action;
 import play.mvc.Http.Request;
@@ -39,7 +41,7 @@ public class ProgramDisabledAction extends Action.Simple {
 
   @Override
   public CompletionStage<Result> call(Request req) {
-    Optional<String> programSlugOptional = req.flash().get("redirected-from-program-slug");
+    Optional<String> programSlugOptional = req.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG);
 
     if (programSlugOptional.isPresent() && programIsDisabled(programSlugOptional.get())) {
       return CompletableFuture.completedFuture(

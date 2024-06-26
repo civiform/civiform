@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import controllers.FlashKey;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -89,7 +91,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<String> bannerMessage = request.flash().get("banner");
+    Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId, request);

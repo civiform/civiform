@@ -10,6 +10,8 @@ import controllers.CiviFormController;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+
+import controllers.FlashKey;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
@@ -65,7 +67,7 @@ public class AdminSettingsController extends CiviFormController {
 
     Result destination = redirect(routes.AdminSettingsController.index());
     return result.updated()
-        ? destination.flashing("success", "Settings updated")
-        : destination.flashing("warning", "No changes to save");
+        ? destination.flashing(FlashKey.SUCCESS, "Settings updated")
+        : destination.flashing(FlashKey.WARNING, "No changes to save");
   }
 }

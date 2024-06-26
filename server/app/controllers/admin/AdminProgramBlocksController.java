@@ -8,6 +8,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -159,7 +160,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       BlockDefinition block = program.getBlockDefinition(blockId);
 
       Optional<ToastMessage> maybeToastMessage =
-          request.flash().get("success").map(ToastMessage::success);
+          request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
@@ -217,7 +218,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       programService.moveBlock(programId, blockId, direction);
     } catch (IllegalPredicateOrderingException e) {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
-          .flashing("error", e.getLocalizedMessage());
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }
@@ -233,7 +234,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       programService.deleteBlock(programId, blockId);
     } catch (IllegalPredicateOrderingException e) {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
-          .flashing("error", e.getLocalizedMessage());
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }

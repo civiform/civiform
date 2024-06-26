@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -202,7 +203,7 @@ public final class AdminProgramController extends CiviFormController {
       return redirect(routes.AdminProgramController.index());
     } catch (CantPublishProgramWithSharedQuestionsException e) {
       return redirect(routes.AdminProgramController.index())
-          .flashing("error", e.userFacingMessage());
+          .flashing(FlashKey.ERROR, e.userFacingMessage());
     }
   }
 
