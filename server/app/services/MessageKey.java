@@ -35,6 +35,7 @@ public enum MessageKey {
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
+  BANNER_NORTH_STAR_TITLE("banner.northStarTitle"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
