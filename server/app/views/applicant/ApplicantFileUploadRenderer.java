@@ -353,8 +353,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   // Renders the save and next button for uploading multiple files. Since the upload and save
-  // happens as soon as the applicant chooses the file, this instead just "submits" a no-op
-  // form and moves to the next page.
+  // happens as soon as the applicant chooses the file, this instead just "submits" a no-op form
+  // and moves to the next page.
   private ButtonTag renderMultipleFileSaveAndNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
