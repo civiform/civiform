@@ -173,11 +173,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       entityNameInputField.forceAriaInvalid();
       entityNameInputField.focusOnError();
     }
-    // TODO(#6844): Replace this with {@link
-    // MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE_ALL_BUTTONS_SAVE} once the
-    // SAVE_ON_ALL_ACTIONS flag is enabled.
     String confirmationMessage =
-        messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
+        messages.at(
+            MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE_ALL_BUTTONS_SAVE.getKeyName(),
+            localizedEntityType);
     ButtonTag removeEntityButton =
         TagCreator.button()
             .withType("button")

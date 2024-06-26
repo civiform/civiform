@@ -469,7 +469,6 @@ validation.impossibleDob=Ngày sinh phải cách đây không quá 150 năm
 
 button.addEntity=Thêm {0}
 button.removeEntity=Xoá {0}
-dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.

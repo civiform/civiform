@@ -469,7 +469,6 @@ validation.impossibleDob=የልደት ቀን ከ150 ዓመታት በፊት ያ�
 
 button.addEntity={0}ን አክል
 button.removeEntity={0}ን አስወግድ
-dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=ይህን {0} ለመሰረዝ በእርግጥ ይፈልጋሉ? «ግምገማ»፣ «ቀዳሚ» ወይም «ቀጣይ» ላይ ጠቅ ሲያደርጉ ይህ ለውጥ ይቀመጣል እና ከዚህ {0} ጋር የተያያዙ ሁሉም መረጃዎች ይጠፋሉ።
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
