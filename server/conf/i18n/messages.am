@@ -574,6 +574,8 @@ email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {
 #------------------------------------------------------------------------------#
 
 banner.title=ይህ ይፋዊ የመንግስት ድረ-ገጽ ነው።
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=እንዴት እንደሚያውቁት እነሆ
 banner.govWebsiteSectionHeader=ኦፊሴላዊ ድረ-ገጾች .govን ይጠቀማሉ
 banner.govWebsiteSectionContent=በ .gov የሚያልቁ የድርጣቢያ አድራሻዎች በአሜሪካ ውስጥ ያሉ ኦፊሴላዊ የመንግስት ድርጅቶች ናቸው።
