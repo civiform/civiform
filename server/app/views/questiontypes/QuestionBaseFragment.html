@@ -9,7 +9,8 @@
   ></div>
 </th:block>
 
-<th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
+<div th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
+class="margin-bottom-1">
   <!--/* Question title */-->
   <legend class="usa-legend display-flex">
     <div th:replace="~{this :: titleContent(${question})}"></div>
@@ -18,13 +19,15 @@
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
+    th:if="${!question.getQuestionHelpText().isEmpty()}"
     th:utext="${question.getFormattedQuestionHelpText()}"
     class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
   ></div>
-</th:block>
+</div>
 
-<th:block
+<div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
+  class="margin-bottom-1"
 >
   <!--/* Question title */-->
   <label class="usa-label display-flex" th:for="${inputId}">
@@ -37,7 +40,7 @@
     th:utext="${question.getFormattedQuestionHelpText()}"
     class="cf-applicant-question-help-text"
   ></div>
-</th:block>
+</div>
 
 <th:block th:fragment="titleContent(question)">
   <span

@@ -23,13 +23,13 @@
         firstNamePath=${nameQuestion.getFirstNamePath()},
         fieldErrors=${nameQuestion.getValidationErrors().get(firstNamePath)},
         hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
-    class="cf-name-first cf-applicant-question-field"
+    class="cf-name-first cf-applicant-question-field margin-bottom-1"
     th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   >
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)}, ${questionRendererParams})}"
     ></div>
-    <label th:for="${firstNameId}">
+    <label class="usa-label" th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
       <th:block th:if="${!question.isOptional()}">
         <span class="usa-hint--required"> *</span>
@@ -50,9 +50,9 @@
 
   <div
     th:with="middleNameId=${'id-' + #strings.randomAlphanumeric(8)}"
-    class="cf-name-middle cf-applicant-question-field"
+    class="cf-name-middle cf-applicant-question-field margin-bottom-1"
   >
-    <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
+    <label class="usa-label" th:for="${middleNameId}" th:text="#{label.middleName}"></label>
     <input
       type="text"
       class="usa-input"
@@ -75,7 +75,7 @@
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams})}"
     ></div>
-    <label th:for="${lastNameId}">
+    <label class="usa-label" th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
       <th:block th:if="${!question.isOptional()}">
         <span class="usa-hint--required"> *</span>
