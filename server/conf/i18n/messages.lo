@@ -590,3 +590,11 @@ banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:/
 banner.notForProductionBannerLine1=ເວັບໄຊນີ້ມີຈຸດປະສົງເພື່ອການທົດສອບເທົ່ານັ້ນ. ກະລຸນາຢ່າລະບຸຂໍ້ມູນສ່ວນຕົວ.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າຮ່ວມໂຄງການ ຫຼື ບໍລິການ, ໃຫ້ເຂົ້າໄປ {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=end your session
