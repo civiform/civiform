@@ -2242,6 +2242,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.GERMAN, updateData);
@@ -2326,6 +2327,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2372,6 +2374,138 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void updateLocalizations_blockTranslationsProvided() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .withBlock("second block", "another description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("a french screen name")
+                        .setLocalizedDescription("a french description")
+                        .build(),
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(2L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    BlockDefinition firstBlock = definition.getBlockDefinition(1L);
+    assertThat(firstBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a french screen name");
+    assertThat(firstBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("a french description");
+    BlockDefinition secondBlock = definition.getBlockDefinition(2L);
+    assertThat(secondBlock.localizedName().get(Locale.FRENCH))
+        .isEqualTo("a second french screen name");
+    assertThat(secondBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("another french description");
+  }
+
+  @Test
+  public void updateLocalizations_blockTranslationsForNonexistantBlock() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(3L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).containsExactly(CiviFormError.of("Found invalid block id 3"));
+  }
+
+  @Test
+  public void updateLocalizations_blockTranslationsEmpty() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("program screen-name-1 cannot be blank"),
+            CiviFormError.of("program screen-description-1 cannot be blank"));
+  }
+
+  @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
@@ -2381,6 +2515,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2400,6 +2535,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("a description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -2430,6 +2566,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     LocalizationUpdate.StatusUpdate.builder()
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2493,6 +2630,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2524,6 +2662,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2571,6 +2710,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
@@ -2600,6 +2740,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =

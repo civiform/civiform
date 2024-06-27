@@ -8,6 +8,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
@@ -21,9 +22,10 @@ import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
+public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
   private final String authProviderName;
 
   @Inject
@@ -66,16 +68,16 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
-    context.setVariable("errorBannerMessage", request.flash().get("error"));
+    context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
 
     // Login modal
     Optional<String> redirectedFromProgramSlug =
-        request.flash().get("redirected-from-program-slug");
+        request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG);
     context.setVariable("redirectedFromProgramSlug", redirectedFromProgramSlug);
     if (redirectedFromProgramSlug.isPresent()) {
       String postLoginRedirect =
           controllers.applicant.routes.ApplicantProgramsController.show(
-                  request.flash().get("redirected-from-program-slug").get())
+                  request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG).get())
               .url();
       context.setVariable("slugBypassUrl", postLoginRedirect);
       context.setVariable(

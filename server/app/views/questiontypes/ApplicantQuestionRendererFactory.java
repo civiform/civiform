@@ -81,7 +81,7 @@ public final class ApplicantQuestionRendererFactory {
     }
   }
 
-  private static QuestionDefinition questionDefinitionSample(QuestionType questionType)
+  public static QuestionDefinition questionDefinitionSample(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()

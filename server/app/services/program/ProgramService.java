@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import forms.translation.ProgramTranslationForm;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -387,8 +388,8 @@ public final class ProgramService {
             programRepository.getShallowProgramDefinition(
                 programRepository.insertProgramSync(program)));
     if (!result.isError()) {
-      // Temporary hook to create a new row in ApplicationStatuses table.
-      // Remove these hooks when we have created service class for creating/updating
+      // Temporary hook to create a new row in ApplicationStatuses table for the new program
+      // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
@@ -675,6 +676,7 @@ public final class ProgramService {
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
     validateLocalizationStatuses(localizationUpdate, programDefinition);
+    validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
     // to be consistently ordered above.
@@ -709,6 +711,31 @@ public final class ProgramService {
       toUpdateStatusesBuilder.add(updateBuilder.build());
     }
 
+    ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
+    for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
+      BlockDefinition block = programDefinition.blockDefinitions().get(i);
+      Optional<LocalizationUpdate.ScreenUpdate> screenUpdate =
+          localizationUpdate.screens().stream()
+              .filter(update -> update.blockIdToUpdate().equals(block.id()))
+              .findFirst();
+      if (screenUpdate.isEmpty()) {
+        // If there is no update, keep the block as is.
+        toUpdateBlockBuilder.add(block);
+        continue;
+      }
+      BlockDefinition.Builder blockBuilder =
+          block.toBuilder()
+              .setLocalizedName(
+                  block
+                      .localizedName()
+                      .updateTranslation(locale, screenUpdate.get().localizedName()))
+              .setLocalizedDescription(
+                  block
+                      .localizedDescription()
+                      .updateTranslation(locale, screenUpdate.get().localizedDescription()));
+      toUpdateBlockBuilder.add(blockBuilder.build());
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -729,8 +756,8 @@ public final class ProgramService {
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
-                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
-
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
+            .setBlockDefinitions(toUpdateBlockBuilder.build());
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,
@@ -746,7 +773,8 @@ public final class ProgramService {
                 .join());
     if (!result.isError()) {
       // Temporary hook to create a new row in ApplicationStatuses table for the status change
-      // Remove these hooks when we have created service class for creating/updating
+      // and update the existing 'active' status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
@@ -783,6 +811,31 @@ public final class ProgramService {
     if (!localizationStatusNames.equals(configuredStatusNames)) {
       throw new OutOfDateStatusesException();
     }
+  }
+
+  private void validateBlockLocalizations(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      LocalizationUpdate localizationUpdate,
+      ProgramDefinition program) {
+    localizationUpdate.screens().stream()
+        .forEach(
+            screenUpdate -> {
+              if (program.blockDefinitions().stream()
+                  .filter(blockDefinition -> blockDefinition.id() == screenUpdate.blockIdToUpdate())
+                  .findAny()
+                  .isEmpty()) {
+                errorsBuilder.add(
+                    CiviFormError.of("Found invalid block id " + screenUpdate.blockIdToUpdate()));
+              }
+              validateProgramText(
+                  errorsBuilder,
+                  ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
+                  screenUpdate.localizedName());
+              validateProgramText(
+                  errorsBuilder,
+                  ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
+                  screenUpdate.localizedDescription());
+            });
   }
 
   /**
@@ -848,8 +901,9 @@ public final class ProgramService {
                 .toCompletableFuture()
                 .join());
     if (!result.isError()) {
-      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
-      // Remove these hooks when we have created service class for creating/updating
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing 'active' status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
@@ -927,8 +981,9 @@ public final class ProgramService {
                 .toCompletableFuture()
                 .join());
     if (!result.isError()) {
-      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
-      // Remove these hooks when we have created service class for creating/updating
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing 'active' status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
@@ -968,8 +1023,9 @@ public final class ProgramService {
                 .toCompletableFuture()
                 .join());
     if (!result.isError()) {
-      // Temporary hook to create a new row in ApplicationStatuses table for the status change.
-      // Remove these hooks when we have created service class for creating/updating
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing 'active' status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
       applicationStatusesRepository.createOrUpdateStatusDefinitions(

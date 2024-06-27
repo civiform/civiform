@@ -170,7 +170,7 @@ test.describe('navigating to a deep link', () => {
 
     test('shows a login prompt for guest users', async ({page}) => {
       await page.goto('/programs/test-deep-link')
-      await expect(page.getByTestId('slug-login')).toContainText(
+      await expect(page.getByTestId('login')).toContainText(
         'Create an account or sign in',
       )
       await validateScreenshot(
@@ -184,7 +184,7 @@ test.describe('navigating to a deep link', () => {
     test('does not show login prompt for logged in users', async ({page}) => {
       await loginAsTestUser(page)
       await page.goto('/programs/test-deep-link')
-      await expect(page.locator('[data-testId="slug-login"]')).toHaveCount(0)
+      await expect(page.locator('[data-testId="login"]')).toHaveCount(0)
     })
   })
 })

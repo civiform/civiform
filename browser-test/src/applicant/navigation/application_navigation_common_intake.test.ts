@@ -1,7 +1,6 @@
 import {test} from '../../support/civiform_fixtures'
 import {
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -23,7 +22,6 @@ test.describe('Applicant navigation flow', () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'intake_form_enabled')
 
         // Add questions
         await adminQuestions.addNumberQuestion({
@@ -75,8 +73,6 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       await loginAsTestUser(page)
       // Fill out common intake form, with non-eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
@@ -104,8 +100,6 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       await loginAsTestUser(page)
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
@@ -133,8 +127,6 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       // Fill out common intake form, with non-eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion('4')
@@ -161,8 +153,6 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
@@ -197,8 +187,6 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
@@ -227,8 +215,6 @@ test.describe('Applicant navigation flow', () => {
       tiDashboard,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       // Create trusted intermediary client
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
@@ -270,8 +256,6 @@ test.describe('Applicant navigation flow', () => {
       tiDashboard,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       // Create trusted intermediary client
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)

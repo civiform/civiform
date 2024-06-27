@@ -24,10 +24,11 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
-public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
+public class NorthStarProgramIndexView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
   private final String authProviderName;
 
@@ -69,7 +70,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
 
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
 
-    if (settingsManifest.getIntakeFormEnabled(request)
+    if (settingsManifest.getIntakeFormEnabled()
         && applicationPrograms.commonIntakeForm().isPresent()) {
       intakeSection =
           Optional.of(

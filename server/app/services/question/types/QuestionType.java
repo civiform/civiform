@@ -56,12 +56,23 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
+    // Match naive string, e.g. "PHONE" -> PHONE
     String upperName = name.toUpperCase(Locale.ROOT);
     try {
       return valueOf(upperName);
     } catch (IllegalArgumentException e) {
       throw new InvalidQuestionTypeException(upperName);
     }
+  }
+
+  public static QuestionType fromLabel(String label) throws InvalidQuestionTypeException {
+    // Match label, e.g. "Phone Number" -> PHONE
+    for (QuestionType type : QuestionType.values()) {
+      if (type.getLabel().equalsIgnoreCase(label)) {
+        return type;
+      }
+    }
+    throw new InvalidQuestionTypeException(label);
   }
 
   public String getLabel() {

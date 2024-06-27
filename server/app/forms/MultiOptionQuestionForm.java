@@ -145,11 +145,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMinChoicesRequired(String minChoicesRequiredAsString) {
-    if (minChoicesRequiredAsString.isEmpty()) {
-      this.minChoicesRequired = OptionalInt.empty();
-    } else {
-      this.minChoicesRequired = OptionalInt.of(Integer.parseInt(minChoicesRequiredAsString));
-    }
+    this.minChoicesRequired =
+        minChoicesRequiredAsString.isEmpty()
+            ? OptionalInt.empty()
+            : OptionalInt.of(Integer.parseInt(minChoicesRequiredAsString));
   }
 
   public OptionalInt getMaxChoicesAllowed() {
@@ -163,11 +162,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMaxChoicesAllowed(String maxChoicesAllowedAsString) {
-    if (maxChoicesAllowedAsString.isEmpty()) {
-      this.maxChoicesAllowed = OptionalInt.empty();
-    } else {
-      this.maxChoicesAllowed = OptionalInt.of(Integer.parseInt(maxChoicesAllowedAsString));
-    }
+    this.maxChoicesAllowed =
+        maxChoicesAllowedAsString.isEmpty()
+            ? OptionalInt.empty()
+            : OptionalInt.of(Integer.parseInt(maxChoicesAllowedAsString));
   }
 
   /**
