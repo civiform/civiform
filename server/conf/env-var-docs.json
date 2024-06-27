@@ -720,7 +720,7 @@
         "type": "bool"
       },
       "INTAKE_FORM_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables the Common Intake Form feature.",
         "type": "bool"
       },

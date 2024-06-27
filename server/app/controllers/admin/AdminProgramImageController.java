@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.admin.ProgramImageDescriptionForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -124,7 +125,7 @@ public final class AdminProgramImageController extends CiviFormController {
 
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl).flashing("success", "Image set");
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image set");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -133,6 +134,6 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     programService.deleteSummaryImageFileKey(programId);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl).flashing("success", "Image removed");
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image removed");
   }
 }

@@ -67,6 +67,7 @@ public final class CsvExporter implements AutoCloseable {
         answerMapBuilder.put(p, answerData);
       }
     }
+    String adminNote = application.getProgram().getProgramDefinition().adminDescription();
     ImmutableMap<Path, AnswerData> answerMap = answerMapBuilder.build();
 
     for (Column column : columns) {
@@ -152,6 +153,9 @@ public final class CsvExporter implements AutoCloseable {
           break;
         case STATUS_TEXT:
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
+          break;
+        case ADMIN_NOTE:
+          printer.print(adminNote);
           break;
       }
     }

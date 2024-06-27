@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -65,7 +66,7 @@ public class AdminSettingsController extends CiviFormController {
 
     Result destination = redirect(routes.AdminSettingsController.index());
     return result.updated()
-        ? destination.flashing("success", "Settings updated")
-        : destination.flashing("warning", "No changes to save");
+        ? destination.flashing(FlashKey.SUCCESS, "Settings updated")
+        : destination.flashing(FlashKey.WARNING, "No changes to save");
   }
 }

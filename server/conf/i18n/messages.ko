@@ -14,6 +14,8 @@ button.untranslatedSubmit=제출
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 guest=게스트
 label.languageSr=언어 선택
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=세션 종료
 toast.sessionEnded=세션이 종료되었습니다.
 header.guestIndicator=게스트 사용자
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=필수 입력란은 별표({0})로 표시됩니다.
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
@@ -63,9 +65,9 @@ button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=저장하고 나중에 신청 완료
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=생년월일은 150년 전 미만이어야 합니다.
 
 button.addEntity={0} 추가
 button.removeEntity={0} 삭제
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토', '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=최대 {0}개의 값을 입력하세요.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=최소 {0}개의 값을 입력하세요.
 placeholder.entityName={0} 이름
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=숫자만 포함해야 합니다.
 
 validation.tooFewSelections={0}개 이상 선택하세요.
 validation.tooManySelections={0}개보다 적게 선택하세요.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(�
 #------------------------------------------------------------------------------#
 
 banner.title=공식 정부 웹사이트입니다
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=파악 방법
 banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
 banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.

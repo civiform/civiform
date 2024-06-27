@@ -14,6 +14,8 @@ button.untranslatedSubmit=提交
 footer.supportLinkDescription=如需技術支援，請洽詢
 guest=訪客
 label.languageSr=選擇語言
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=結束工作階段
 toast.sessionEnded=您的工作階段已結束。
 header.guestIndicator=您是訪客使用者
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續�
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
 content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=標有星號 ({0}) 的欄位是必填欄位。
 content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
@@ -63,9 +65,9 @@ button.keepFile=繼續
 button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=返回
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=儲存申請書，之後再填寫
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=出生日期必須是過去 150 年內的日期
 
 button.addEntity=新增「{0}」
 button.removeEntity=移除「{0}」
-dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=最多只能輸入 {0} 個值。
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=請至少輸入 {0} 個值。
 placeholder.entityName=「{0}」名稱
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=只能輸入數字。
 
 validation.tooFewSelections=請至少選取 {0} 項。
 validation.tooManySelections=最多只能選取 {0} 項。
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀�
 #------------------------------------------------------------------------------#
 
 banner.title=這是官方政府網站。
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=以下說明判斷方式
 banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。

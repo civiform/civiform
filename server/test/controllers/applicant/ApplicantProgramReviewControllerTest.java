@@ -10,6 +10,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.FlashKey;
 import controllers.WithMockedProfiles;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -235,8 +236,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     // The questions haven't been answered.
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get())
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get())
         .contains("There's been an update to the application");
   }
 

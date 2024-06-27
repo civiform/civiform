@@ -24,10 +24,11 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
-public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
+public class NorthStarProgramIndexView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
   private final String authProviderName;
 
@@ -69,7 +70,7 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
 
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
 
-    if (settingsManifest.getIntakeFormEnabled(request)
+    if (settingsManifest.getIntakeFormEnabled()
         && applicationPrograms.commonIntakeForm().isPresent()) {
       intakeSection =
           Optional.of(
@@ -136,14 +137,24 @@ public class NorthStarProgramIndexView extends NorthStarApplicantBaseView {
     context.setVariable("authProviderName", authProviderName);
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
-    context.setVariable(
-        "programIdsToActionUrls",
+    ImmutableMap<Long, String> programIdsToLoginBypassUrls =
         applicationPrograms.allPrograms().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     program -> program.programId(),
                     program ->
-                        applicantRoutes.review(profile, applicantId, program.programId()).url())));
+                        applicantRoutes.review(profile, applicantId, program.programId()).url()));
+    context.setVariable("programIdsToLoginBypassUrls", programIdsToLoginBypassUrls);
+    context.setVariable(
+        "programIdsToLoginUrls",
+        applicationPrograms.allPrograms().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    program -> program.programId(),
+                    program ->
+                        routes.LoginController.applicantLogin(
+                                Optional.of(programIdsToLoginBypassUrls.get(program.programId())))
+                            .url())));
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

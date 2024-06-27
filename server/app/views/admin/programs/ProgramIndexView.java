@@ -168,7 +168,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     publishSingleProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(request, cardData)))));
+                        .map(cardData -> programCardFactory.renderCard(cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -647,7 +647,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
+          settingsManifest.getIntakeFormEnabled() && activeProgram.isCommonIntakeForm()
               ? "Forms"
               : "Applications";
       ButtonTag button =

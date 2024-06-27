@@ -136,6 +136,7 @@ class PreviewController {
     const previewOptionTemplate = firstPreviewOption.cloneNode(
       true,
     ) as HTMLElement
+
     const syncOptionsToPreview = () => {
       PreviewController.updateOptionsList({
         questionSettings,
@@ -143,6 +144,16 @@ class PreviewController {
         previewQuestionOptionContainer,
       })
     }
+
+    // Update existing options based on user input
+    const options = Array.from(
+      questionSettings.querySelectorAll('[name="options[]"]'),
+    )
+    options.forEach((inputOption) => {
+      inputOption.addEventListener('input', syncOptionsToPreview)
+    })
+
+    // When the user clicks "Add answer option", add an event listener to the new option
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
         syncOptionsToPreview()

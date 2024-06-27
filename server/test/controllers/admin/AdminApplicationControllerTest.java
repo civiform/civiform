@@ -16,6 +16,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
+import controllers.FlashKey;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -386,8 +387,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).contains("application state has changed");
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get()).contains("application state has changed");
   }
 
   @Test

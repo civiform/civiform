@@ -18,12 +18,13 @@ import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
+import views.NorthStarBaseView;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
-public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
+public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
   private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject

@@ -6,12 +6,14 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
-public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicantBaseView {
+public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantCommonIntakeUpsellView(
@@ -41,15 +43,18 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarApplicant
             params.applicantPersonalInfo(),
             params.messages());
 
+    // Info for login modal
+    String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
+    context.setVariable("upsellBypassUrl", applyToProgramsUrl);
+    context.setVariable(
+        "upsellLoginUrl",
+        controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
+
     // In Thymeleaf, there's no easy way to construct a hyperlink inside a localized string
     String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
-        "<a href=\""
-            + linkHref
-            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
-            + linkText
-            + "</a>";
+        "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
     if (params.eligiblePrograms().isPresent()) {

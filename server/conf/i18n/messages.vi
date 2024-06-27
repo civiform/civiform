@@ -14,6 +14,8 @@ button.untranslatedSubmit=Gửi
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Kết thúc phiên truy cập
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 header.guestIndicator=Bạn là người dùng khách
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc ph
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Các trường bắt buộc được đánh dấu bằng dấu hoa thị ({0}).
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
@@ -63,9 +65,9 @@ button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Quay lại
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Lưu và hoàn tất quá trình đăng ký sau
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=Ngày sinh phải cách đây không quá 150 năm
 
 button.addEntity=Thêm {0}
 button.removeEntity=Xoá {0}
-dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
 validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Vui lòng nhập không quá {0} giá trị.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Vui lòng nhập ít nhất {0} giá trị.
 placeholder.entityName=Tên {0}
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=Chỉ được chứa chữ số.
 
 validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
 validation.tooManySelections=Vui lòng chọn ít hơn {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 #------------------------------------------------------------------------------#
 
 banner.title=Đây là một trang web chính thức của chính phủ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.

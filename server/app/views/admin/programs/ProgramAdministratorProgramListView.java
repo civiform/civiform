@@ -67,16 +67,16 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(p -> buildCardData(request, p, civiformProfile))
+                        .map(p -> buildCardData(p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(request, cardData))));
+                        .map(cardData -> programCardFactory.renderCard(cardData))));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
   private ProgramCardFactory.ProgramCardData buildCardData(
-      Request request, ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
+      ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -85,14 +85,14 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                     .setRowActions(
                         ImmutableList.of(
                             renderShareLink(activeProgram),
-                            renderViewApplicationsLink(request, activeProgram)))
+                            renderViewApplicationsLink(activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
         .setProfile(profile)
         .build();
   }
 
-  private ButtonTag renderViewApplicationsLink(Request request, ProgramDefinition activeProgram) {
+  private ButtonTag renderViewApplicationsLink(ProgramDefinition activeProgram) {
     String viewApplicationsLink =
         routes.AdminApplicationController.index(
                 activeProgram.id(),
@@ -105,7 +105,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             .url();
 
     String buttonText =
-        settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
+        settingsManifest.getIntakeFormEnabled() && activeProgram.isCommonIntakeForm()
             ? "Forms"
             : "Applications";
     ButtonTag button =
