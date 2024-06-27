@@ -81,7 +81,9 @@ public abstract class QuestionDefinition {
   }
 
   // Note: All the methods below are @JsonIgnore-d because they all pull information from the {@code
-  // config} object, and the config object is already JSON-serialized.
+  // config} object, and the config object is already JSON-serialized. Methods that are not
+  // @JsonIgnore-d are not automatically serialized by Jackson because they are not getters (do not
+  // start with "is" or "get") and do not represent a field on the object.
 
   /** Return true if the question is persisted and has an unique identifier. */
   @JsonIgnore
