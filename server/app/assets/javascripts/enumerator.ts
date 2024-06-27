@@ -4,6 +4,11 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
 export function init() {
+  updateListeners()
+}
+
+/** Safe to call multiple times */
+export function updateListeners() {
   refreshAddButtonStatus()
 
   addEventListenerToElements(
