@@ -393,13 +393,6 @@ public final class QuestionService {
                   questionDefinition.getQuestionPathSegment(), toUpdate.getQuestionPathSegment())));
     }
 
-    if (!questionDefinition.getQuestionType().equals(toUpdate.getQuestionType())) {
-      errors.add(
-          CiviFormError.of(
-              String.format(
-                  "question types mismatch: %s does not match %s",
-                  questionDefinition.getQuestionType(), toUpdate.getQuestionType())));
-    }
     return errors.build();
   }
 
