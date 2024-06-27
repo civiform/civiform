@@ -98,7 +98,12 @@ public final class FileUploadQuestion extends Question {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
     }
-    return getFileKeyValue().map(key -> key.split("/", 4)).map(arr -> arr[arr.length - 1]);
+    return getFileKeyValue().map(FileUploadQuestion::getFileName);
+  }
+
+  public static String getFileName(String fileKey) {
+    String[] parts = fileKey.split("/", 4);
+    return parts[parts.length - 1];
   }
 
   @Override
