@@ -12,7 +12,6 @@ import play.Environment;
 import play.Mode;
 import play.inject.ApplicationLifecycle;
 import repository.ResetPostgres;
-import services.settings.SettingsManifest;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
@@ -33,7 +32,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
-            instanceOf(SettingsManifest.class),
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD),
             instanceOf(ApplicationLifecycle.class));
@@ -52,7 +50,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
-            instanceOf(SettingsManifest.class),
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.DEV),
             instanceOf(ApplicationLifecycle.class));
@@ -74,7 +71,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(AwsStorageUtils.class),
             region,
             credentials,
-            instanceOf(SettingsManifest.class),
             instanceOf(Config.class),
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
@@ -141,7 +137,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
-            instanceOf(SettingsManifest.class),
             instanceOf(Config.class),
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
@@ -165,7 +160,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
-            instanceOf(SettingsManifest.class),
             instanceOf(Config.class),
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
@@ -178,19 +172,15 @@ public class AwsApplicantStorageTest extends ResetPostgres {
 
   /** Regression test for https://github.com/civiform/civiform/issues/6737. */
   @Test
-  public void getSignedUploadRequest_saveOnAllActionsFlagOn_successActionRedirectTreatedAsPrefix() {
-    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+  public void getSignedUploadRequest_successActionRedirectTreatedAsPrefix() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
-            mockSettingsManifest,
             instanceOf(Config.class),
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
-
-    when(mockSettingsManifest.getSaveOnAllActions()).thenReturn(true);
 
     SignedS3UploadRequest uploadRequest =
         awsApplicantStorage.getSignedUploadRequest(
@@ -202,32 +192,5 @@ public class AwsApplicantStorageTest extends ResetPostgres {
         .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true");
     // Verify that the redirect URL is treated as a prefix.
     assertThat(uploadRequest.useSuccessActionRedirectAsPrefix()).isTrue();
-  }
-
-  @Test
-  public void
-      getSignedUploadRequest_saveOnAllActionsFlagOff_successActionRedirectTreatedAsExactMatch() {
-    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    AwsApplicantStorage awsApplicantStorage =
-        new AwsApplicantStorage(
-            instanceOf(AwsStorageUtils.class),
-            instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
-            mockSettingsManifest,
-            instanceOf(Config.class),
-            instanceOf(Environment.class),
-            instanceOf(ApplicationLifecycle.class));
-
-    when(mockSettingsManifest.getSaveOnAllActions()).thenReturn(false);
-
-    SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest(
-            "fileKey", "https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK");
-
-    // Verify the redirect URL wasn't modified
-    assertThat(uploadRequest.successActionRedirect())
-        .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK");
-    // Verify that the redirect URL is not being treated as a prefix.
-    assertThat(uploadRequest.useSuccessActionRedirectAsPrefix()).isFalse();
   }
 }

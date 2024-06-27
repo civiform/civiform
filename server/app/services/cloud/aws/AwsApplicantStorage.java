@@ -18,7 +18,6 @@ import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
-import services.settings.SettingsManifest;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -35,7 +34,6 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
-  private final SettingsManifest settingsManifest;
   private final String bucket;
   private final int fileLimitMb;
   private final Client client;
@@ -45,14 +43,12 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
       AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
-      SettingsManifest settingsManifest,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
     this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
     this.fileLimitMb = checkNotNull(config).getInt(AWS_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
@@ -99,26 +95,15 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirectUrl) {
-    if (settingsManifest.getSaveOnAllActions()) {
-      // For the file upload question, assets/javascripts/file_upload.ts may modify the
-      // applicant-requested action part of the success_action_redirect URL to specify where the
-      // user should be taken after the file has been successfully uploaded. So, the redirect
-      // URL we send to {@link SignedS3UploadRequest} needs to have that action removed and needs
-      // the redirect URL to be considered just a prefix so that the applicant-requested action at
-      // the end of the URL can be changed without causing an AWS policy error. See {@link
-      // SignedS3UploadRequest#useSuccessActionRedirectAsPrefix} for more details.
-      String successActionRedirectPrefix =
-          ApplicantRequestedAction.stripActionFromEndOfUrl(successActionRedirectUrl);
-      return awsStorageUtils.getSignedUploadRequest(
-          credentials,
-          region,
-          fileLimitMb,
-          bucket,
-          client.actionLink(),
-          fileKey,
-          successActionRedirectPrefix,
-          /* useSuccessActionRedirectAsPrefix= */ true);
-    }
+    // For the file upload question, assets/javascripts/file_upload.ts may modify the
+    // applicant-requested action part of the success_action_redirect URL to specify where the
+    // user should be taken after the file has been successfully uploaded. So, the redirect
+    // URL we send to {@link SignedS3UploadRequest} needs to have that action removed and needs
+    // the redirect URL to be considered just a prefix so that the applicant-requested action at
+    // the end of the URL can be changed without causing an AWS policy error. See {@link
+    // SignedS3UploadRequest#useSuccessActionRedirectAsPrefix} for more details.
+    String successActionRedirectPrefix =
+        ApplicantRequestedAction.stripActionFromEndOfUrl(successActionRedirectUrl);
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
@@ -126,8 +111,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
         bucket,
         client.actionLink(),
         fileKey,
-        successActionRedirectUrl,
-        /* useSuccessActionRedirectAsPrefix= */ false);
+        successActionRedirectPrefix,
+        /* useSuccessActionRedirectAsPrefix= */ true);
   }
 
   @Override
