@@ -104,11 +104,3 @@ See the radio-option below as an example.
 h1.usa-step-indicator__heading {
   line-height: inherit;
 }
-
-/**
- * USWDS adds a top margin above all alerts with something above them, but we want ours flush to
- * the header.
- */
-.usa-header+.usa-alert {
-  margin-top: 0;
-}
