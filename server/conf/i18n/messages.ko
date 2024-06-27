@@ -590,3 +590,11 @@ banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이�
 banner.notForProductionBannerLine1=이 사이트는 테스트용입니다. 개인 정보를 입력하지 마세요.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려면 {0} 페이지로 이동하세요.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=end your session
