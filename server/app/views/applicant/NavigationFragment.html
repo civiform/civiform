@@ -136,22 +136,16 @@
   </svg>
 </span>
 
-<div
-  th:fragment="guestSessionAlert"
-  class="usa-alert usa-alert--info usa-alert--slim"
-  th:if="${isGuest}"
->
-  <div class="usa-alert__body">
-    <p
-      class="usa-alert__text"
-      th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
-    >
-      Lorem ipsum dolor sit amet,
-      <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a>
-      elit, sed do eiusmod.
-    </p>
+<nav th:fragment="guestSessionAlert" th:if="${isGuest}">
+  <div class="usa-alert usa-alert--info usa-alert--slim">
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
+      ></p>
+    </div>
   </div>
-</div>
+</nav>
 
 <a
   th:fragment="showDebugTools"
