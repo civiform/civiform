@@ -574,6 +574,8 @@ email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has ch
 #------------------------------------------------------------------------------#
 
 banner.title=This is an official government website.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Here''s how you know
 banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
