@@ -14,6 +14,8 @@ button.untranslatedSubmit=Gửi
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Kết thúc phiên truy cập
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 header.guestIndicator=Bạn là người dùng khách
