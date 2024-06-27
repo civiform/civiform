@@ -14,6 +14,8 @@ button.untranslatedSubmit=Isumite
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 guest=Bisita
 label.languageSr=Pumili ng wika
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Tapusin ang session
 toast.sessionEnded=Natapos na ang iyong session.
 header.guestIndicator=Bisitang user ka
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago m
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Minamarkahan ng asterisk ({0}) ang mga nire-require na field.
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
@@ -63,9 +65,9 @@ button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Mag-save at tapusin ang application sa ibang pagkakataon
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=Kailangang hindi hihigit sa 150 taon ang nakalipas ng P
 
 button.addEntity=Idagdag {0}
 button.removeEntity=Alisin {0}
-dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na ito ay maitatala matapos mong i-click ang "Next" at lahat ng mga data na nauugnay dito ay mawawala.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na ito? Ise-save ang pagbabagong ito kapag na-click mo ang "Suriin," "Nakaraan," o "Susunod" at mawawala ang lahat ng data na nauugnay sa {0} na ito.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Maglagay ng hindi lalampas sa {0} (na) value.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Maglagay ng hindi bababa sa {0} (na) value.
 placeholder.entityName={0} Palayaw
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
 
 validation.tooFewSelections=Maaari lamang na pumili ng hindi bababa sa {0}.
 validation.tooManySelections=Maaari lamang na pumili ng mas-kaunti sa {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.

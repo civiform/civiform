@@ -19,8 +19,9 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
-public class NorthStarApplicantIneligibleView extends NorthStarApplicantBaseView {
+public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantIneligibleView(
@@ -68,11 +69,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarApplicantBaseView
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
     String linkHtml =
-        "<a href=\""
-            + linkHref
-            + "\" target=\"_blank\" style=\"color: blue; text-decoration: underline;\">"
-            + linkText
-            + "</a>";
+        "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("programLinkHtml", linkHtml);
 
     String applyHref = applicantRoutes.index(params.profile(), params.applicantId()).url();

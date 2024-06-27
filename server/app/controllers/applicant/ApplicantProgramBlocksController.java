@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
@@ -449,7 +450,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId, request);
 
-    Optional<String> successBannerMessage = request.flash().get("success-banner");
+    Optional<String> successBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
     Optional<ToastMessage> flashSuccessBanner =
         successBannerMessage.map(m -> ToastMessage.success(m));
 
@@ -1014,9 +1015,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           });
     }
 
-    // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
-    // requires correction but but then click "Previous", you're still taken forward to the
-    // address correction screen which is unexpected.
+    // TODO(#7893): When you enter an address that requires correction but then click "Previous",
+    // you're still taken forward to the address correction screen which is unexpected.
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
@@ -1065,7 +1065,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
         && roApplicantProgramService.isActiveBlockEligible(blockId)) {
       flashingMap.put(
-          "success-banner",
+          FlashKey.SUCCESS_BANNER,
           messagesApi
               .preferred(request)
               .at(

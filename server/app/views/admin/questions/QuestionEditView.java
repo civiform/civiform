@@ -215,8 +215,23 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
-    DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+    DivTag previewContent;
+
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
+      // fragments without using HTMX
+      previewContent =
+          div()
+              .attr("hx-swap", "outerHTML")
+              .attr(
+                  "hx-get",
+                  controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
+                      type.getLabel()))
+              .attr("hx-trigger", "load");
+    } else {
+      previewContent =
+          QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+    }
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
@@ -436,7 +451,9 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> questionConfig =
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest.getMultipleFileUploadEnabled(request));
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }

@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
@@ -48,7 +47,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     programRepository = instanceOf(ProgramRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getIntakeFormEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getIntakeFormEnabled()).thenReturn(true);
 
     controller =
         new AdminProgramController(
@@ -341,7 +340,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
-                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -373,7 +371,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -404,7 +402,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
-                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -454,7 +451,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
-                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -750,7 +746,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -785,7 +781,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -818,7 +814,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -865,7 +861,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     String newProgramDescription = "External program description";
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",

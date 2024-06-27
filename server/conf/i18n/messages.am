@@ -14,6 +14,8 @@ button.untranslatedSubmit=ያስገቡ
 footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
 guest=እንግዳ
 label.languageSr=ቋንቋ ይምረጡ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=ክፍለ-ጊዜን አብቃ
 toast.sessionEnded=የእርስዎ ክፍለ-ጊዜ አብቅቷል።
 header.guestIndicator=እንግዳ ተጠቃሚ ነዎት
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እ
 content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
 content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረገባቸው መስኮች አስፈላጊ ናቸው።
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=አስፈላጊ መስኮች የኮከብ ምልክት ተደርጎባቸዋል ({0})።
 content.optional=(አማራጭ)
 content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
 toast.errorMessageOutline=ስህተት: {0}
@@ -63,9 +65,9 @@ button.keepFile=ቀጥል
 button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=ተመለስ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=ማመልከቻውን አስቀምጥ እና በኋላ ላይ ጨርስ
 button.skipFileUpload=ዝለል
 content.blockProgress={0} ከ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=የልደት ቀን ከ150 ዓመታት በፊት ያ�
 
 button.addEntity={0}ን አክል
 button.removeEntity={0}ን አስወግድ
-dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=ይህን {0} ለመሰረዝ በእርግጥ ይፈልጋሉ? «ግምገማ»፣ «ቀዳሚ» ወይም «ቀጣይ» ላይ ጠቅ ሲያደርጉ ይህ ለውጥ ይቀመጣል እና ከዚህ {0} ጋር የተያያዙ ሁሉም መረጃዎች ይጠፋሉ።
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
 validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=እባክዎ ቢበዛ {0} እሴቶችን ያስገቡ።
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=እባክዎ ቢያንስ {0} እሴቶችን ያስገቡ።
 placeholder.entityName={0} ስም
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 
 validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
 validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {
 #------------------------------------------------------------------------------#
 
 banner.title=ይህ ይፋዊ የመንግስት ድረ-ገጽ ነው።
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=እንዴት እንደሚያውቁት እነሆ
 banner.govWebsiteSectionHeader=ኦፊሴላዊ ድረ-ገጾች .govን ይጠቀማሉ
 banner.govWebsiteSectionContent=በ .gov የሚያልቁ የድርጣቢያ አድራሻዎች በአሜሪካ ውስጥ ያሉ ኦፊሴላዊ የመንግስት ድርጅቶች ናቸው።

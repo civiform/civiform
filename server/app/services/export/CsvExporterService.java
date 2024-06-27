@@ -305,7 +305,9 @@ public final class CsvExporterService {
                     ? buildColumnsForEveryOption(answerData)
                     : buildColumnsForEveryScalar(answerData))
         .forEachOrdered(columnsBuilder::add);
-
+    // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
+    columnsBuilder.add(
+        Column.builder().setHeader("Admin Note").setColumnType(ColumnType.ADMIN_NOTE).build());
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }
 

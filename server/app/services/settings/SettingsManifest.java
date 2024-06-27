@@ -859,8 +859,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled(RequestHeader request) {
-    return getBool("INTAKE_FORM_ENABLED", request);
+  public boolean getIntakeFormEnabled() {
+    return getBool("INTAKE_FORM_ENABLED");
   }
 
   /**
@@ -925,14 +925,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
-  }
-
-  /**
-   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
-   * instead of only saving on 'Save and next'.
-   */
-  public boolean getSaveOnAllActions() {
-    return getBool("SAVE_ON_ALL_ACTIONS");
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
@@ -1887,7 +1879,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the Common Intake Form feature.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"
@@ -1957,14 +1949,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "SAVE_ON_ALL_ACTIONS",
-                      "Save an applicant's answers when they take any action"
-                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
-                          + " and next'.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",

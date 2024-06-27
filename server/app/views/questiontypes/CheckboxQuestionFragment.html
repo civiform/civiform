@@ -32,7 +32,7 @@
     />
     <!--/* Render each checkbox option */-->
     <div
-      class="usa-checkbox"
+      class="usa-checkbox cf-multi-option-question-option"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
       th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
     >

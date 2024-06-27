@@ -14,6 +14,8 @@ button.untranslatedSubmit=ສົ່ງ
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
 guest=ແຂກ
 label.languageSr=ເລືອກພາສາ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=ສິ້ນສຸດເຊດຊັນ
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບ�
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=ຊ່ອງຂໍ້ມູນທີ່ຈຳເປັນແມ່ນໝາຍດ້ວຍເຄື່ອງໝາຍດອກຈັນ ({0}).
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
@@ -63,9 +65,9 @@ button.keepFile=ສືບຕໍ່
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=ກັບຄືນ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=ບັນທຶກ ແລະ ສຳເລັດແອັບພລິເຄຊັນພາຍຫຼັງ
 button.skipFileUpload=ຂ້າມ
 content.blockProgress={0} ຈາກທັງໝົດ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=ວັນເດືອນປີເກີດຕ້ອງ�
 
 button.addEntity=ເພີ່ມ {0}
 button.removeEntity=ລຶບ {0} ອອກ
-dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນຫາຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=ກະລຸນາໃສ່ສູງສຸດ {0} ຄ່າ.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=ກະລຸນາໃສ່ຢ່າງໜ້ອຍ {0} ຄ່າ.
 placeholder.entityName=ຊື່ {0}
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ
 
 validation.tooFewSelections=ກະລຸນາເລືອກຢ່າງໜ້ອຍ {0} ຂໍ້.
 validation.tooManySelections=ກະລຸນາເລືອກໜ້ອຍກວ່າ {0} ຂໍ້.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັ�
 #------------------------------------------------------------------------------#
 
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.

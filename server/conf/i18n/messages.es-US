@@ -14,6 +14,8 @@ button.untranslatedSubmit=Enviar
 footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
 guest=Invitado
 label.languageSr=Elegir un idioma
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Finalizar sesión
 toast.sessionEnded=Finalizó la sesión.
 header.guestIndicator=Eres un usuario de invitado
@@ -24,7 +26,7 @@ validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes d
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
 content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Los campos obligatorios estan marcados con un asterisco ({0}).
 content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
@@ -63,9 +65,9 @@ button.keepFile=Continuar
 button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Volver
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Guardar y terminar la solicitud más adelante
 button.skipFileUpload=Omitir
 content.blockProgress={0} de {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
@@ -469,15 +471,14 @@ validation.impossibleDob=La fecha de nacimiento debe ser hace menos de 150 años
 
 button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
-dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Ingresa hasta {0} valores.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Ingresa al menos {0} valores.
 placeholder.entityName=Nombre de {0}
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +504,8 @@ validation.numberRequired=Solo debe contener números.
 
 validation.tooFewSelections=Elige al menos {0} opción.
 validation.tooManySelections=Elige menos de {0} opciones.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +574,8 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 #------------------------------------------------------------------------------#
 
 banner.title=Este es un sitio web oficial del gobierno
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Así es como puedes verificarlo
 banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.

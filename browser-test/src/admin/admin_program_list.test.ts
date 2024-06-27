@@ -104,7 +104,6 @@ test.describe('Program list page.', () => {
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     const programOne = 'List test program one'
     const programTwo = 'List test program two'

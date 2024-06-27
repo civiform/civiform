@@ -109,7 +109,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "kitchen tools (selections - toaster)",
             "kitchen tools (selections - pepper_grinder)",
             "kitchen tools (selections - garlic_press)",
-            "kitchen tools (selections - stand_mixer)");
+            "kitchen tools (selections - stand_mixer)",
+            "Admin Note");
     assertThat(records.get(0).get("kitchen tools (selections - toaster)")).contains("NOT_SELECTED");
     assertThat(records.get(0).get("kitchen tools (selections - pepper_grinder)"))
         .contains("SELECTED");
@@ -166,7 +167,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant favorite season (selection)",
             "applicant file (file_key)",
             "applicant ice cream (selection)",
-            "applicant id (id)");
+            "applicant id (id)",
+            "Admin Note");
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
@@ -190,6 +192,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
+    assertThat(records.get(0).get("Admin Note")).isEqualTo("Test program");
 
     // Check list for multiselect in default locale
     QuestionModel checkboxQuestion =
@@ -247,7 +250,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
-            "applicant favorite color (text)");
+            "applicant favorite color (text)",
+            "Admin Note");
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
@@ -299,7 +303,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Submitter Type",
             "TI Email",
             "TI Organization",
-            "Status");
+            "Status",
+            "Admin Note");
   }
 
   @Test
@@ -383,7 +388,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant household members[0] - household members jobs[2] - household"
                 + " members days worked (number)",
             "applicant household members[1] - household members jobs[0] - household"
-                + " members days worked (number)");
+                + " members days worked (number)",
+            "Admin Note");
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(3);
