@@ -773,7 +773,7 @@ public final class ProgramService {
                 .join());
     if (!result.isError()) {
       // Temporary hook to create a new row in ApplicationStatuses table for the status change
-      // and update the existing 'active' status as obsolete.
+      // and update the existing active status as obsolete.
       // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
@@ -902,7 +902,7 @@ public final class ProgramService {
                 .join());
     if (!result.isError()) {
       // Temporary hook to create a new row in ApplicationStatuses table for the status change
-      // and update the existing 'active' status as obsolete.
+      // and update the existing active status as obsolete.
       // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
@@ -982,7 +982,7 @@ public final class ProgramService {
                 .join());
     if (!result.isError()) {
       // Temporary hook to create a new row in ApplicationStatuses table for the status change
-      // and update the existing 'active' status as obsolete.
+      // and update the existing active status as obsolete.
       // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040
@@ -1024,7 +1024,7 @@ public final class ProgramService {
                 .join());
     if (!result.isError()) {
       // Temporary hook to create a new row in ApplicationStatuses table for the status change
-      // and update the existing 'active' status as obsolete.
+      // and update the existing active status as obsolete.
       // Remove these hooks when we have created service class for creating and updating
       // statuses from program controllers.
       // github issue- https://github.com/civiform/civiform/issues/7040

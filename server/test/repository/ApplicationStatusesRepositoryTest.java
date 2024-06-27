@@ -33,16 +33,16 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
 
   @Test
   public void canQueryForActiveApplicationStatuses() {
-    // setup
+
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("Active status tests" + uniqueProgramId, "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    // test
+
     StatusDefinitions statusDefinitionsResult =
         repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
-    // assert
+
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
   }
@@ -95,11 +95,10 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
             .build();
     String programName = program.getProgramDefinition().adminName();
 
-    // pre assert before test
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
-    // test
+
     repo.createOrUpdateStatusDefinitions(
         programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
 

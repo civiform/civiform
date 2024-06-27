@@ -1,4 +1,5 @@
 # --- !Ups
+# -- Migrate Status data both from active and obsolete program state from programs table to the Application_statuses table
 INSERT INTO application_statuses (program_name,status_definitions,status_definitions_lifecycle_stage,create_time)
 SELECT
   p.name,
