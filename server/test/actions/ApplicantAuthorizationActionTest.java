@@ -35,7 +35,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
   }
 
   @Test
-  public void pass_applicant_and_program_auth_then_moves_to_next_step_in_the_chain() {
+  public void when_applicant_and_program_auth_pass_then_moves_to_next_step_in_the_chain() {
     // Setup mocks
     Action.Simple nextActionInChainMock = mock(Action.Simple.class);
     ApplicantModel applicant = createApplicantWithMockedProfile();
@@ -69,7 +69,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
   }
 
   @Test
-  public void pass_applicant_auth_fail_program_auth_redirects_to_home()
+  public void when_applicant_auth_passes_and_program_auth_fails_redirects_to_home()
       throws ExecutionException, InterruptedException {
     // Setup mocks
     ApplicantModel applicant = createApplicantWithMockedProfile();
@@ -100,7 +100,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
   }
 
   @Test
-  public void fail_applicant_auth_redirects_to_home()
+  public void when_applicant_auth_fails_redirect_home()
       throws ExecutionException, InterruptedException {
     // Setup mocks
     long applicantId = 20000L;
