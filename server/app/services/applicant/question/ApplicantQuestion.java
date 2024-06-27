@@ -16,6 +16,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import views.components.TextFormatter;
 
 /**
  * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
@@ -134,6 +135,14 @@ public final class ApplicantQuestion {
   }
 
   /**
+   * Sanitized HTML for the question text that processes Markdown.
+   */
+  public String getFormattedQuestionText() {
+    return TextFormatter.formatTextToSanitizedHTML(getQuestionText(), /* preserveEmptyLines= */ true,
+    /* addRequiredIndicator= */ false);
+  }
+
+  /**
    * Returns the question text that should be used for screen readers.
    *
    * <p>We add a styled asterisk, which should be read out to screen readers.
@@ -150,6 +159,14 @@ public final class ApplicantQuestion {
     String helpText =
         getQuestionDefinition().getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
     return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
+  }
+
+    /**
+   * Sanitized HTML for the question help text that processes Markdown.
+   */
+  public String getFormattedQuestionHelpText() {
+    return TextFormatter.formatTextToSanitizedHTML(getQuestionHelpText(), /* preserveEmptyLines= */ true,
+    /* addRequiredIndicator= */ false);
   }
 
   /**
