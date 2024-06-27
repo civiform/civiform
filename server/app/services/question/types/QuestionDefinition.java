@@ -6,14 +6,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Random;
 import services.CiviFormError;
 import services.LocalizedStrings;
@@ -215,6 +213,14 @@ public abstract class QuestionDefinition {
   abstract ValidationPredicates getDefaultValidationPredicates();
 
   /**
+   * Validate question configuration sepecific to the question type. To be overridden if the
+   * concrete question has any of its own validation to do.
+   */
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    return ImmutableSet.of();
+  }
+
+  /**
    * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
    *
    * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
@@ -264,118 +270,12 @@ public abstract class QuestionDefinition {
           CiviFormError.of(
               String.format("Administrative identifier '%s' is not allowed", getName())));
     }
-    if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
-      EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-          (EnumeratorQuestionDefinition) this;
-      if (enumeratorQuestionDefinition.getEntityType().hasEmptyTranslation()) {
-        errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
-      }
-    }
 
     if (isRepeated() && !questionTextContainsRepeatedEntityNameFormatString()) {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
 
-    if (getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
-          (MultiOptionQuestionDefinition) this;
-
-      if (multiOptionQuestionDefinition.getOptions().isEmpty()) {
-        errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
-      }
-
-      if (multiOptionQuestionDefinition.getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
-        errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
-      }
-
-      var existingAdminNames =
-          previousDefinition
-              .map(qd -> (MultiOptionQuestionDefinition) qd)
-              .map(MultiOptionQuestionDefinition::getOptionAdminNames)
-              .orElse(ImmutableList.of())
-              // New option admin names can only be lowercase, but existing option
-              // admin names may have capital letters. We lowercase them before
-              // comparing to avoid collisions.
-              .stream()
-              .map(o -> o.toLowerCase(Locale.ROOT))
-              .collect(ImmutableList.toImmutableList());
-
-      if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
-          // This is O(n^2) but the list is small and it's simpler than creating a Set
-          .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
-          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
-        errors.add(
-            CiviFormError.of(
-                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
-                    + " and dashes"));
-      }
-      if (multiOptionQuestionDefinition.getOptions().stream()
-          .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
-        errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
-      }
-
-      int numOptions = multiOptionQuestionDefinition.getOptions().size();
-      long numUniqueOptionDefaultValues =
-          multiOptionQuestionDefinition.getOptions().stream()
-              .map(QuestionOption::optionText)
-              .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
-              .distinct()
-              .count();
-      if (numUniqueOptionDefaultValues != numOptions) {
-        errors.add(CiviFormError.of("Multi-option question options must be unique"));
-      }
-
-      long numUniqueOptionAdminNames =
-          multiOptionQuestionDefinition.getOptions().stream()
-              .map(QuestionOption::adminName)
-              .map(e -> e.toLowerCase(Locale.ROOT))
-              .distinct()
-              .count();
-      if (numUniqueOptionAdminNames != numOptions) {
-        errors.add(CiviFormError.of("Multi-option question admin names must be unique"));
-      }
-
-      OptionalInt minChoicesRequired =
-          multiOptionQuestionDefinition.getMultiOptionValidationPredicates().minChoicesRequired();
-      OptionalInt maxChoicesAllowed =
-          multiOptionQuestionDefinition.getMultiOptionValidationPredicates().maxChoicesAllowed();
-      if (minChoicesRequired.isPresent()) {
-        if (minChoicesRequired.getAsInt() < 0) {
-          errors.add(CiviFormError.of("Minimum number of choices required cannot be negative"));
-        }
-
-        if (minChoicesRequired.getAsInt() > numOptions) {
-          errors.add(
-              CiviFormError.of(
-                  "Minimum number of choices required cannot exceed the number of options"));
-        }
-      }
-
-      if (maxChoicesAllowed.isPresent()) {
-        if (maxChoicesAllowed.getAsInt() < 0) {
-          errors.add(CiviFormError.of("Maximum number of choices allowed cannot be negative"));
-        }
-
-        if (maxChoicesAllowed.getAsInt() > numOptions) {
-          errors.add(
-              CiviFormError.of(
-                  "Maximum number of choices allowed cannot exceed the number of options"));
-        }
-      }
-
-      if (minChoicesRequired.isPresent() && maxChoicesAllowed.isPresent()) {
-        if (minChoicesRequired.getAsInt() == 0 && maxChoicesAllowed.getAsInt() == 0) {
-          errors.add(CiviFormError.of("Cannot require exactly 0 choices"));
-        }
-
-        if (minChoicesRequired.getAsInt() > maxChoicesAllowed.getAsInt()) {
-          errors.add(
-              CiviFormError.of(
-                  "Minimum number of choices required must be less than or equal to the maximum"
-                      + " choices allowed"));
-        }
-      }
-    }
+    errors.addAll(internalValidate(previousDefinition));
     return errors.build();
   }
 

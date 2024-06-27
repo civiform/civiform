@@ -13,6 +13,7 @@ import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
+import services.CiviFormError;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
@@ -77,6 +78,105 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<Locale> questionTextLocales = super.getSupportedLocales();
     return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, getSupportedOptionLocales()));
+  }
+
+  @Override
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+    if (getOptions().isEmpty()) {
+      errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
+    }
+
+    if (getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
+      errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
+    }
+
+    var existingAdminNames =
+        previousDefinition
+            .map(qd -> (MultiOptionQuestionDefinition) qd)
+            .map(MultiOptionQuestionDefinition::getOptionAdminNames)
+            .orElse(ImmutableList.of())
+            // New option admin names can only be lowercase, but existing option
+            // admin names may have capital letters. We lowercase them before
+            // comparing to avoid collisions.
+            .stream()
+            .map(o -> o.toLowerCase(Locale.ROOT))
+            .collect(ImmutableList.toImmutableList());
+
+    if (getOptionAdminNames().stream()
+        // This is O(n^2) but the list is small and it's simpler than creating a Set
+        .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
+        .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
+      errors.add(
+          CiviFormError.of(
+              "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                  + " and dashes"));
+    }
+    if (getOptions().stream().anyMatch(option -> option.optionText().hasEmptyTranslation())) {
+      errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
+    }
+
+    int numOptions = getOptions().size();
+    long numUniqueOptionDefaultValues =
+        getOptions().stream()
+            .map(QuestionOption::optionText)
+            .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
+            .distinct()
+            .count();
+    if (numUniqueOptionDefaultValues != numOptions) {
+      errors.add(CiviFormError.of("Multi-option question options must be unique"));
+    }
+
+    long numUniqueOptionAdminNames =
+        getOptions().stream()
+            .map(QuestionOption::adminName)
+            .map(e -> e.toLowerCase(Locale.ROOT))
+            .distinct()
+            .count();
+    if (numUniqueOptionAdminNames != numOptions) {
+      errors.add(CiviFormError.of("Multi-option question admin names must be unique"));
+    }
+
+    OptionalInt minChoicesRequired = getMultiOptionValidationPredicates().minChoicesRequired();
+    OptionalInt maxChoicesAllowed = getMultiOptionValidationPredicates().maxChoicesAllowed();
+    if (minChoicesRequired.isPresent()) {
+      if (minChoicesRequired.getAsInt() < 0) {
+        errors.add(CiviFormError.of("Minimum number of choices required cannot be negative"));
+      }
+
+      if (minChoicesRequired.getAsInt() > numOptions) {
+        errors.add(
+            CiviFormError.of(
+                "Minimum number of choices required cannot exceed the number of options"));
+      }
+    }
+
+    if (maxChoicesAllowed.isPresent()) {
+      if (maxChoicesAllowed.getAsInt() < 0) {
+        errors.add(CiviFormError.of("Maximum number of choices allowed cannot be negative"));
+      }
+
+      if (maxChoicesAllowed.getAsInt() > numOptions) {
+        errors.add(
+            CiviFormError.of(
+                "Maximum number of choices allowed cannot exceed the number of options"));
+      }
+    }
+
+    if (minChoicesRequired.isPresent() && maxChoicesAllowed.isPresent()) {
+      if (minChoicesRequired.getAsInt() == 0 && maxChoicesAllowed.getAsInt() == 0) {
+        errors.add(CiviFormError.of("Cannot require exactly 0 choices"));
+      }
+
+      if (minChoicesRequired.getAsInt() > maxChoicesAllowed.getAsInt()) {
+        errors.add(
+            CiviFormError.of(
+                "Minimum number of choices required must be less than or equal to the maximum"
+                    + " choices allowed"));
+      }
+    }
+
+    return errors.build();
   }
 
   private ImmutableSet<Locale> getSupportedOptionLocales() {

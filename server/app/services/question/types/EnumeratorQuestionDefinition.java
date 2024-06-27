@@ -3,6 +3,9 @@ package services.question.types;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
+import services.CiviFormError;
 import services.LocalizedStrings;
 
 /**
@@ -38,6 +41,13 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return EnumeratorValidationPredicates.create();
+  }
+
+  @Override
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    return getEntityType().hasEmptyTranslation()
+        ? ImmutableSet.of(CiviFormError.of("Enumerator question must have specified entity type"))
+        : ImmutableSet.of();
   }
 
   public LocalizedStrings getEntityType() {
