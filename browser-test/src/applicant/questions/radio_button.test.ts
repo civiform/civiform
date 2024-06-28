@@ -347,7 +347,7 @@ test.describe('Radio button question for applicant flow', () => {
           )
         })
       })
-    }
+    },
   )
 
   async function setUpForSingleQuestion(

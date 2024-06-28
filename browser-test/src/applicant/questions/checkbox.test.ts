@@ -418,7 +418,7 @@ test.describe('Checkbox question for applicant flow', () => {
           )
         })
       })
-    }
+    },
   )
 
   async function setUpForSingleQuestion(
