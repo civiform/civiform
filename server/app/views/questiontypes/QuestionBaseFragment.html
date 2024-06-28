@@ -27,7 +27,7 @@
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
 >
   <!--/* Question title */-->
-  <label class="usa-label" th:for="${inputId}">
+  <label class="usa-label display-flex" th:for="${inputId}">
     <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 
@@ -46,6 +46,6 @@
   ></span>
   <!--/* Required asterisk */-->
   <th:block th:if="${!question.isOptional()}">
-    <span class="usa-hint--required font-sans-lg"> *</span>
+    <span class="usa-hint--required font-sans-lg text-pre"> *</span>
   </th:block>
 </th:block>
