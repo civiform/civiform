@@ -3,6 +3,7 @@ package actions;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -49,8 +50,10 @@ public class ProgramFastForwardApplicationAction extends Action.Simple {
 
       return CompletableFuture.completedFuture(
           redirect(
-              controllers.applicant.routes.ApplicantProgramReviewController.review(latestProgramId)
-                  .url()));
+                  controllers.applicant.routes.ApplicantProgramReviewController.review(
+                          latestProgramId)
+                      .url())
+              .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
     }
 
     return delegate.call(request);
