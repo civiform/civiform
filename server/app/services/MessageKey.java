@@ -22,6 +22,30 @@ public enum MessageKey {
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),
   ADDRESS_VALIDATION_STATE_REQUIRED("validation.stateRequired"),
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
+  ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE("alert.eligibility_applicant_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT("alert.eligibility_applicant_not_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE(
+      "alert.eligibility_applicant_fastforwarded_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT(
+      "alert.eligibility_applicant_fastforwarded_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TITLE(
+      "alert.eligibility_applicant_fastforwarded_not_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
+      "alert.eligibility_applicant_fastforwarded_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_ELIGIBLE_TITLE("alert.eligibility_ti_eligible_title"),
+  ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT("alert.eligibility_ti_eligible_text"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE("alert.eligibility_ti_not_eligible_title"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT("alert.eligibility_ti_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE(
+      "alert.eligibility_ti_fastforwarded_eligible_title"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT(
+      "alert.eligibility_ti_fastforwarded_eligible_text"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE(
+      "alert.eligibility_ti_fastforwarded_not_eligible_title"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
+      "alert.eligibility_ti_fastforwarded_not_eligible_text"),
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
