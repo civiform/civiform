@@ -10,12 +10,23 @@ import {
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
+  const customConfirmationText =
+    'Custom confirmation message for sample program'
 
   test.beforeEach(async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {
-      await adminPrograms.addProgram(programName)
+      await adminPrograms.addProgram(
+        programName,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        customConfirmationText,
+      )
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
       await logout(page)
@@ -39,6 +50,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     expect(await page.textContent('html')).toContain('Application confirmation')
     expect(await page.textContent('html')).toContain(programName)
+    expect(await page.textContent('html')).toContain(customConfirmationText)
 
     await test.step('Validate screenshot and accessibility', async () => {
       await validateScreenshot(
