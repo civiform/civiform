@@ -326,6 +326,46 @@ toast.mayNotQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່າ
 toast.mayNotQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
 banner.errorSavingApplication=ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກໃບສະໝັກ
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=You may be eligible for this program
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
