@@ -134,12 +134,10 @@ public final class ApplicantQuestion {
     return repeatedEntity.map(r -> r.contextualize(text)).orElse(text);
   }
 
-  /**
-   * Sanitized HTML for the question text that processes Markdown.
-   */
+  /** Sanitized HTML for the question text that processes Markdown. */
   public String getFormattedQuestionText() {
-    return TextFormatter.formatTextToSanitizedHTML(getQuestionText(), /* preserveEmptyLines= */ true,
-    /* addRequiredIndicator= */ false);
+    return TextFormatter.formatTextToSanitizedHTML(
+        getQuestionText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
   }
 
   /**
@@ -161,12 +159,10 @@ public final class ApplicantQuestion {
     return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
   }
 
-    /**
-   * Sanitized HTML for the question help text that processes Markdown.
-   */
+  /** Sanitized HTML for the question help text that processes Markdown. */
   public String getFormattedQuestionHelpText() {
-    return TextFormatter.formatTextToSanitizedHTML(getQuestionHelpText(), /* preserveEmptyLines= */ true,
-    /* addRequiredIndicator= */ false);
+    return TextFormatter.formatTextToSanitizedHTML(
+        getQuestionHelpText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
   }
 
   /**

@@ -12,9 +12,7 @@
 <th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
   <!--/* Question title */-->
   <legend class="usa-legend display-flex">
-    <div
-      th:replace="~{this :: titleContent(${question})}"
-    ></div>
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </legend>
 
   <!--/* Question help text */-->
@@ -30,9 +28,7 @@
 >
   <!--/* Question title */-->
   <label class="usa-label" th:for="${inputId}">
-    <div
-      th:replace="~{this :: titleContent(${question})}"
-    ></div>
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 
   <!--/* Question help text */-->
