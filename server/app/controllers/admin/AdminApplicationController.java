@@ -303,11 +303,15 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    String programName = program.adminName();
+    String programSlug = programService.getFullProgramDefinition(programId).slug();
+    ProgramDefinition program =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join();
 
     try {
-      checkProgramAdminAuthorization(request, programName).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -339,7 +343,7 @@ public final class AdminApplicationController extends CiviFormController {
     return ok(
         applicationView.render(
             programId,
-            programName,
+            program.adminName(),
             application,
             applicantNameWithApplicationId,
             blocks,
@@ -360,11 +364,16 @@ public final class AdminApplicationController extends CiviFormController {
           StatusEmailNotFoundException,
           StatusNotFoundException,
           AccountHasNoEmailException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    String programName = program.adminName();
 
+    String programSlug = programService.getFullProgramDefinition(programId).slug();
+    ProgramDefinition program =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join();
+    // ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
-      checkProgramAdminAuthorization(request, programName).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
