@@ -3,13 +3,11 @@ package controllers.monitoring;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
-import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -17,6 +15,7 @@ import java.io.UncheckedIOException;
 import javax.inject.Inject;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.monitoring.MonitoringMetricCounters;
 
 /**
  * Controller for exporting Prometheus server metrics via HTTP. Based on the implementation found in
@@ -28,14 +27,6 @@ public final class MetricsController extends CiviFormController {
   private final boolean metricsEnabled;
   private final CollectorRegistry collectorRegistry;
   private final Database database;
-  private static Counter QUERY_METRIC_COUNT;
-  private static Counter QUERY_METRIC_MEAN_LATENCY;
-  private static Counter QUERY_METRIC_MAX_LATENCY;
-  private static Counter QUERY_METRIC_TOTAL_LATENCY;
-
-  static {
-    initializeCounters();
-  }
 
   // The start index we use for the metric substring. By default, the metric names start with
   // "orm.", which is why we use 4 as the start index.
@@ -44,11 +35,16 @@ public final class MetricsController extends CiviFormController {
   // The start index we use for the metric substring. By default, the metric names start with
   // "class ", which is why we use 6 as the start index.
   private static final int CLASS_SUBSTRING_INDEX = 6;
+  private final MonitoringMetricCounters monitoringMetricCounters;
 
   @Inject
   public MetricsController(
-      Config config, ProfileUtils profileUtils, VersionRepository versionRepository) {
+      Config config,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
+      MonitoringMetricCounters monitoringMetricCounters) {
     super(profileUtils, versionRepository);
+    this.monitoringMetricCounters = monitoringMetricCounters;
     this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
     this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
     this.database = DB.getDefault();
@@ -83,14 +79,20 @@ public final class MetricsController extends CiviFormController {
                   name = className;
                   location = className;
                 }
-                QUERY_METRIC_COUNT.labels(name, location, className).inc((double) metric.count());
-                QUERY_METRIC_MEAN_LATENCY
+                monitoringMetricCounters
+                    .getQueryMetricCount()
+                    .labels(name, location, className)
+                    .inc((double) metric.count());
+                monitoringMetricCounters
+                    .getQueryMetricMeanLatency()
                     .labels(name, location, className)
                     .inc((double) metric.mean());
-                QUERY_METRIC_MAX_LATENCY
+                monitoringMetricCounters
+                    .getQueryMetricMaxLatency()
                     .labels(name, location, className)
                     .inc((double) metric.max());
-                QUERY_METRIC_TOTAL_LATENCY
+                monitoringMetricCounters
+                    .getQueryMetricTotalLatency()
                     .labels(name, location, className)
                     .inc((double) metric.total());
               });
@@ -101,36 +103,5 @@ public final class MetricsController extends CiviFormController {
     }
 
     return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
-  }
-
-  @VisibleForTesting
-  static void initializeCounters() {
-    QUERY_METRIC_COUNT =
-        Counter.build()
-            .name("ebean_queries_total")
-            .help("Count of database queries")
-            .labelNames("name", "location", "className")
-            .register();
-
-    QUERY_METRIC_MEAN_LATENCY =
-        Counter.build()
-            .name("ebean_queries_mean_latency_micros")
-            .help("Mean latency of database queries in micros")
-            .labelNames("name", "location", "className")
-            .register();
-
-    QUERY_METRIC_MAX_LATENCY =
-        Counter.build()
-            .name("ebean_queries_max_latency_micros")
-            .help("Max latency of database queries in micros")
-            .labelNames("name", "location", "className")
-            .register();
-
-    QUERY_METRIC_TOTAL_LATENCY =
-        Counter.build()
-            .name("ebean_queries_total_latency_micros")
-            .help("Total latency of database queries in micros")
-            .labelNames("name", "location", "className")
-            .register();
   }
 }
