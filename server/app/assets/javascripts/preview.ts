@@ -268,6 +268,7 @@ export default class PreviewController {
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       )
       if (contentParent) {
+        contentParent.classList.add('mb-4')
         contentParent.innerHTML = ''
         contentParent.appendChild(contentElement)
       }

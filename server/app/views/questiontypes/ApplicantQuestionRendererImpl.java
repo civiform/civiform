@@ -73,12 +73,12 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
-                            /* preserveEmptyLines= */ true,
+                            /* preserveEmptyLines= */ false,
                             /* addRequiredIndicator= */ false,
                             messages
                                 .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                 .toLowerCase(Locale.ROOT))))
-            .withClasses("mb-4");
+            .withCondClass(!applicantQuestion.getQuestionHelpText().isEmpty(), "mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(

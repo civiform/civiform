@@ -208,6 +208,45 @@ test.describe('Text question for applicant flow', () => {
     })
   })
 
+  test.describe('multiple text question with interesting help text', () => {
+    const programName =
+      'Test program for multiple text with interesting help text'
+    
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'text-q',
+          helpText: '',
+          minNum: 5,
+          maxNum: 20,
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'text-y',
+          helpText: 'long help text with two line breaks \n\nhere and one break\nhere.',
+          minNum: 5,
+          maxNum: 20,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['text-q', 'text-y'],
+          programName,
+        )
+        await logout(page)
+      })
+
+    test('validate empty spaces are not rendered', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'text-with-interesting-help-text')
+      const innerText =  await page.locator('.cf-applicant-question-help-text').allInnerTexts();
+      // not entirely accurate representation of what is rendered (screenshot test is better) 
+      // because util.ts strips out line breaks and inserts a blank space and new line 
+      // whereever a line break is found. 
+      expect(innerText).toEqual(['', 'long help text with two line breaks\n\nhere and one break\nhere.'])
+    })
+  })
+
   test.describe('multiple text questions', () => {
     const programName = 'Test program for multiple text qs'
 
