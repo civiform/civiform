@@ -22,6 +22,6 @@ public final class QueryProfileLocationBuilder {
    * @return ProfileLocation created using the provided file name and function name.
    */
   ProfileLocation create(String functionName) {
-    return ProfileLocation.createAt(fileName + "." + functionName);
+    return ProfileLocation.create(fileName + "." + functionName);
   }
 }

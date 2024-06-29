@@ -297,11 +297,18 @@ public class ApiKeyServiceTest extends ResetPostgres {
                         "grant-program-read[test-program]", "true")),
                 adminProfile)
             .getApiKey();
-    apiKeyService.retireApiKey(apiKey.id, adminProfile);
 
-    assertThatThrownBy(() -> apiKeyService.retireApiKey(apiKey.id, adminProfile))
+    assertThat(apiKey.getRetiredTime().isPresent())
+        .withFailMessage("Key is retired, but should not be.")
+        .isFalse();
+    ApiKeyModel retiredApiKey = apiKeyService.retireApiKey(apiKey.id, adminProfile);
+    assertThat(retiredApiKey.getRetiredTime().isPresent())
+        .withFailMessage("Key is not retired, but should be.")
+        .isTrue();
+
+    assertThatThrownBy(() -> apiKeyService.retireApiKey(retiredApiKey.id, adminProfile))
         .isInstanceOf(NotChangeableException.class)
-        .hasMessage(String.format("ApiKey %s is already retired", apiKey));
+        .hasMessage(String.format("ApiKey %s is already retired", retiredApiKey.id));
   }
 
   @Test
