@@ -1,6 +1,5 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -20,6 +19,7 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import org.apache.pekko.actor.ActorSystem;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
@@ -41,7 +41,9 @@ public final class DurableJobModule extends AbstractModule {
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
-  /** Schedules the job runner to run on an interval using the akka scheduling system. */
+  /**
+   * Schedules the job runner to run on an interval using the org.apache.pekko scheduling system.
+   */
   public static final class DurableJobRunnerScheduler {
 
     @Inject

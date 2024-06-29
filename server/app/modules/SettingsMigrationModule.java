@@ -1,10 +1,10 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import java.time.Duration;
 import javax.inject.Provider;
+import org.apache.pekko.actor.ActorSystem;
 import scala.concurrent.ExecutionContext;
 import services.settings.SettingsService;
 

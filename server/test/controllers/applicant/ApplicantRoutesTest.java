@@ -40,6 +40,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
     for (MetricFamilySamples mfs : Collections.list(registry.metricFamilySamples())) {
       if (mfs.name.equals("applicant_id_in_profile")) {
         for (MetricFamilySamples.Sample sample : mfs.samples) {
+          if (!sample.name.equals("applicant_id_in_profile_total")) {
+            continue;
+          }
+
           if (sample.labelValues.contains("present")) {
             counts.present = sample.value;
           } else if (sample.labelValues.contains("absent")) {

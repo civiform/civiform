@@ -2,10 +2,10 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import akka.stream.Materializer;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import org.apache.pekko.stream.Materializer;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
