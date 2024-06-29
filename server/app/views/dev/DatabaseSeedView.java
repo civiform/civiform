@@ -130,7 +130,7 @@ public class DatabaseSeedView extends BaseHtmlView {
             createForm(
                 request,
                 "sample-programs",
-                "Seed sample programs",
+                "Seed sample programs and categories",
                 routes.DevDatabaseSeedController.seedPrograms().url()))
         .with(
             createForm(

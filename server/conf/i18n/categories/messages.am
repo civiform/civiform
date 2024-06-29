@@ -1,0 +1,29 @@
+# A tag used to filter the list of programs down to those that are related to childcare.
+tag.childcare=የልጅ እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+tag.economic=ኢኮኖሚያዊ
+
+# A tag used to filter the list of programs down to those that are related to education.
+tag.education=ትምህርት
+
+# A tag used to filter the list of programs down to those that are related to food.
+tag.food=ምግብ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+tag.general=ጠቅላላ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+tag.healthcare=የጤና እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+tag.housing=ቤት
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+tag.internet=በይነመረብ
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+tag.transportation=መጓጓዣ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+tag.utilities=መገልገያዎች

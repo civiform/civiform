@@ -1,0 +1,29 @@
+# A tag used to filter the list of programs down to those that are related to childcare.
+tag.childcare=Dịch vụ chăm sóc trẻ em
+
+# A tag used to filter the list of programs down to those that are related to economy.
+tag.economic=Kinh tế
+
+# A tag used to filter the list of programs down to those that are related to education.
+tag.education=Giáo dục
+
+# A tag used to filter the list of programs down to those that are related to food.
+tag.food=Thực phẩm
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+tag.general=Mục đích chung
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+tag.healthcare=Dịch vụ chăm sóc sức khoẻ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+tag.housing=Nhà ở
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+tag.transportation=Vận tải
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+tag.utilities=Dịch vụ tiện ích

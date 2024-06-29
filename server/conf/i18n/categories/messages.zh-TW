@@ -1,0 +1,29 @@
+# A tag used to filter the list of programs down to those that are related to childcare.
+tag.childcare=兒童保育
+
+# A tag used to filter the list of programs down to those that are related to economy.
+tag.economic=經濟
+
+# A tag used to filter the list of programs down to those that are related to education.
+tag.education=教育
+
+# A tag used to filter the list of programs down to those that are related to food.
+tag.food=食物
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+tag.general=一般
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+tag.healthcare=醫療照護
+
+# A tag used to filter the list of programs down to those that are related to housing.
+tag.housing=住宅
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+tag.internet=網際網路
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+tag.transportation=交通運輸
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+tag.utilities=公用事業
