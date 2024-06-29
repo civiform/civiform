@@ -76,7 +76,8 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:question
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/toggleAddressCorrectionEnabledState  controllers.admin.AdminProgramBlockQuestionsController.toggleAddressCorrectionEnabledState(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
-GET     /admin/questions             controllers.admin.AdminQuestionController.index(request: Request)
+GET     /admin/questions                   controllers.admin.AdminQuestionController.index(request: Request)
+GET     /admin/questions/hx/questionList   controllers.admin.AdminQuestionController.hxQuestionList(request: Request)
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit    controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
