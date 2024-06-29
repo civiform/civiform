@@ -9,11 +9,11 @@ import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 
