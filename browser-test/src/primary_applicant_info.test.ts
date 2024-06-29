@@ -1,6 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -18,8 +17,6 @@ test.describe('primary applicant info questions', () => {
     page,
     adminQuestions,
   }) => {
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
     await loginAsAdmin(page)
 
     const enumeratorName = 'name-enumerator'
@@ -87,8 +84,6 @@ test.describe('primary applicant info questions', () => {
     page,
     adminQuestions,
   }) => {
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
     await loginAsAdmin(page)
 
     const nameQuestion = 'name-question'
@@ -197,8 +192,6 @@ test.describe('primary applicant info questions', () => {
     page,
     adminQuestions,
   }) => {
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
     await loginAsAdmin(page)
 
     const paiNameQuestion = 'pai-name-question'

@@ -121,7 +121,7 @@ public final class QuestionEditView extends BaseHtmlView {
     DivTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
+                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -176,11 +176,7 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(
                 buildEditQuestionForm(
-                        id,
-                        questionForm,
-                        maybeEnumerationQuestionDefinition,
-                        request,
-                        unsetUniversalModal)
+                        id, questionForm, maybeEnumerationQuestionDefinition, unsetUniversalModal)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -207,7 +203,7 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     DivTag formContent =
         buildQuestionContainer(title)
-            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
+            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(
         request, formContent, questionType, title, /* modal= */ Optional.empty());
@@ -243,18 +239,14 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private FormTag buildSubmittableQuestionForm(
-      QuestionForm questionForm,
-      SelectWithLabel enumeratorOptions,
-      boolean forCreate,
-      Request request) {
-    return buildQuestionForm(
-        questionForm, enumeratorOptions, /* submittable= */ true, forCreate, request);
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
+    return buildQuestionForm(questionForm, enumeratorOptions, /* submittable= */ true, forCreate);
   }
 
   private FormTag buildReadOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions, Request request) {
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
     return buildQuestionForm(
-        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false, request);
+        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
   }
 
   private DivTag buildQuestionContainer(String title) {
@@ -295,8 +287,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private FormTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
-      Request request) {
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
@@ -304,7 +295,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (Strings.isNullOrEmpty(cancelUrl)) {
       cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
     }
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -326,11 +317,10 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Request request,
       Modal unsetUniversalModal) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
     formTag.withAction(
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())
@@ -375,8 +365,7 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionForm questionForm,
       SelectWithLabel enumeratorOptions,
       boolean submittable,
-      boolean forCreate,
-      Request request) {
+      boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag =
         form()
@@ -460,7 +449,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
 
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
         && questionForm.getEnumeratorId().isEmpty()
         && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
       questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));

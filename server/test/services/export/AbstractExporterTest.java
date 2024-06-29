@@ -1,7 +1,5 @@
 package services.export;
 
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -16,8 +14,6 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
-import play.mvc.Http.Request;
-import play.test.Helpers;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
@@ -212,14 +208,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     application.setCreateTimeForTest(FAKE_CREATE_TIME);
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     application.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
     if (status != null && admin != null) {
       programAdminApplicationService.setStatus(
           application,
           StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-          admin,
-          request);
+          admin);
     }
     application.refresh();
     return application;

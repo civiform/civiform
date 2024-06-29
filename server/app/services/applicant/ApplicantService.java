@@ -44,7 +44,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -411,7 +410,7 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
+      long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
@@ -422,8 +421,7 @@ public final class ApplicantService {
                   submitApplication(
                       applicantId,
                       programId,
-                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
-                      request),
+                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
               classLoaderExecutionContext.current());
     }
 
@@ -432,7 +430,7 @@ public final class ApplicantService {
         .thenCompose(
             v ->
                 submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
   /**
@@ -542,9 +540,9 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId, request).toCompletableFuture();
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -873,7 +871,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -899,7 +897,7 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
                 }

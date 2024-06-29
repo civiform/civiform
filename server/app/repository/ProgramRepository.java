@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
-import play.mvc.Http.Request;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -338,8 +337,7 @@ public final class ProgramRepository {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      SubmittedApplicationFilter filters,
-      Request request) {
+      SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
@@ -364,7 +362,7 @@ public final class ProgramRepository {
 
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
-      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
         query = searchUsingPrimaryApplicantInfo(search, query);
       } else {
         query = searchUsingWellKnownPaths(search, query);

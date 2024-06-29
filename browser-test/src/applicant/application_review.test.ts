@@ -9,7 +9,6 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -445,9 +444,11 @@ test.describe('Program admin review of submitted applications', () => {
     await test.step('Add and publish program as Civiform Admin', async () => {
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({questionName: 'Name'})
+      await adminQuestions.addNameQuestion({
+        questionName: 'Sample Name Question',
+      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Name'],
+        ['Sample Name Question'],
         programName,
       )
 
@@ -519,8 +520,6 @@ test.describe('Program admin review of submitted applications', () => {
   }) => {
     const applyFilters = true
     const programName = 'Test program'
-
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await test.step('Login as an admin and create a program with three PAI questions', async () => {
       await loginAsAdmin(page)

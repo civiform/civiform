@@ -1,10 +1,10 @@
 package controllers.dev.seeding;
 
-import static services.seeding.DatabaseSeedTask.CANONICAL_NAME_QUESTION;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
@@ -15,6 +15,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -100,6 +101,8 @@ public final class SampleQuestionDefinitions {
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setUniversal(true)
+              .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
               .build());
 
   @VisibleForTesting
@@ -136,10 +139,17 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  // We use the canonical name question as a "sample", so that business logic that
-  // relies on it (such as filtering on the canonical name) works correctly.
   @VisibleForTesting
-  public static final QuestionDefinition NAME_QUESTION_DEFINITION = CANONICAL_NAME_QUESTION;
+  public static final NameQuestionDefinition NAME_QUESTION_DEFINITION =
+      new NameQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Name Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.withDefaultValue("What is your name?"))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setUniversal(true)
+              .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
+              .build());
 
   @VisibleForTesting
   public static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
@@ -209,6 +219,8 @@ public final class SampleQuestionDefinitions {
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setUniversal(true)
+              .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
               .build());
 
   @VisibleForTesting
@@ -219,6 +231,8 @@ public final class SampleQuestionDefinitions {
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("When is your birthday?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setUniversal(true)
+              .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
               .build());
 
   static final DateQuestionDefinition DATE_PREDICATE_QUESTION_DEFINITION =

@@ -109,8 +109,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     program,
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
-                    filterParams,
-                    request),
+                    filterParams),
                 each(
                     paginatedApplications.getPageContents(),
                     application ->
@@ -173,8 +172,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
-      RenderFilterParams filterParams,
-      Http.Request request) {
+      RenderFilterParams filterParams) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -186,7 +184,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
     String labelText =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
             ? "Search by name, email, phone number, or application ID"
             : "Search by name, email, or application ID";
     return form()

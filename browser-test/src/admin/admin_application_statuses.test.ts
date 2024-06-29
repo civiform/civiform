@@ -12,7 +12,6 @@ import {
   testUserDisplayName,
   extractEmailsForRecipient,
   validateScreenshot,
-  enableFeatureFlag,
   AdminProgramStatuses,
 } from '../support'
 
@@ -728,10 +727,6 @@ test.describe('view program statuses', () => {
           adminPrograms,
           applicantQuestions,
           adminProgramStatuses,
-        )
-        await enableFeatureFlag(
-          page,
-          'primary_applicant_info_questions_enabled',
         )
         await loginAsAdmin(page)
         await adminQuestions.addEmailQuestion({

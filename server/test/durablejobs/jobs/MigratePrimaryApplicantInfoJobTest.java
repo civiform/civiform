@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import durablejobs.DurableJobName;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -67,25 +68,16 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     database.beginTransaction(TxIsolation.SERIALIZABLE);
 
     SettingsService settingsService = instanceOf(SettingsService.class);
-    ImmutableMap<String, String> settings =
-        settingsService.loadSettings().toCompletableFuture().join().get();
-    ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
-    for (var entry : settings.entrySet()) {
-      if (!entry.getKey().equals("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED")) {
-        newSettings.put(entry);
-      }
-    }
-    newSettings.put("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", paiFlagEnabled.toString());
-    settingsService.updateSettings(newSettings.build(), "test");
-    database.commitTransaction();
-    database.beginTransaction(TxIsolation.SERIALIZABLE);
+    Config config =
+        ConfigFactory.parseMap(
+            ImmutableMap.of("primary_applicant_info_questions_enabled", paiFlagEnabled.toString()));
 
     PersistedDurableJobModel job =
         new PersistedDurableJobModel(
             DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO.toString(), Instant.ofEpochMilli(0));
     MigratePrimaryApplicantInfoJob migrateJob =
         new MigratePrimaryApplicantInfoJob(
-            job, instanceOf(AccountRepository.class), settingsService, instanceOf(Config.class));
+            job, instanceOf(AccountRepository.class), settingsService, config);
     migrateJob.run();
     database.commitTransaction();
   }

@@ -3,7 +3,6 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -39,8 +38,6 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
-import play.test.Helpers;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
@@ -807,11 +804,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -915,10 +910,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -985,9 +979,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     var storedFile = new StoredFileModel().setName(fileKey);
     storedFile.save();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, request)
+        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
         .toCompletableFuture()
         .join();
 
@@ -996,7 +989,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile, request)
+        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
         .toCompletableFuture()
         .join();
 
@@ -1019,11 +1012,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel oldApplication =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -1035,8 +1026,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicationModel newApplication =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -1067,11 +1057,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1101,11 +1089,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1181,11 +1167,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1256,11 +1240,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1316,10 +1298,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), applicantProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), applicantProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1356,11 +1337,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1371,14 +1350,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_failsWithApplicationSubmissionException() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
-                    .submitApplication(
-                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), request)
+                    .submitApplication(9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -1405,13 +1382,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1439,11 +1415,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -1573,14 +1547,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -1594,9 +1567,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1611,9 +1583,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1626,9 +1597,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1644,9 +1614,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1662,9 +1631,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1679,9 +1647,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1693,9 +1660,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.setEmailAddress("test@example.com");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofGuestUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1711,9 +1677,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setEmailAddress("ticlient@example.com");
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofTiPartiallyCreated(
                 Representation.builder()
@@ -1727,9 +1692,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -1742,16 +1706,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
   }
 
   @Test
   public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThat(subject.getPersonalInfo(9999L, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -3837,11 +3799,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+
     ApplicationModel ineligibleApplication =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -3857,8 +3818,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     ApplicationModel eligibleApplication =
         subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
