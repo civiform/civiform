@@ -139,7 +139,7 @@ public final class ApplicantQuestion {
     return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
-        /* addRequiredIndicator= */ !(isOptional() || getType().isMultiInputType()));
+        /* addRequiredIndicator= */ !isOptional());
   }
 
   /**
