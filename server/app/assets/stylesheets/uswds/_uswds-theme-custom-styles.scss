@@ -78,9 +78,18 @@ See the radio-option below as an example.
 }
 
 @media (max-width: 63.9em) {
+  .usa-header {
+    height: 48px;
+  }
+
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
+  }
+
+  .cf-header-logo {
+    max-height: 48px;
+    object-fit: contain;
   }
 }
 
