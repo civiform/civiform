@@ -732,6 +732,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false,
   }: QuestionParams) {
     await this.createCheckboxQuestion({
       questionName,
@@ -748,7 +749,7 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
   }
 
   /** Fills out the form for a checkbox question and optionally clicks submit.  */
@@ -1128,6 +1129,7 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
   }: QuestionParams) {
     await this.createRadioButtonQuestion({
       questionName,
@@ -1141,7 +1143,7 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
   }
 
   async createRadioButtonQuestion(

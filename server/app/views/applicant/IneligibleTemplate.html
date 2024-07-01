@@ -15,7 +15,7 @@
       <ul>
         <li
           th:each="question : ${ineligibleQuestions}"
-          th:text="${question.getQuestionText()}"
+          th:utext="${question.getFormattedQuestionTextWithoutRequiredAsterisk()}"
           class="margin-y-2"
         ></li>
       </ul>

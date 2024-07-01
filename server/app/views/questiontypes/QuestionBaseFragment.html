@@ -11,16 +11,14 @@
 
 <th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
   <!--/* Question title */-->
-  <legend class="usa-legend">
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
-    ></div>
+  <legend class="usa-legend display-flex">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </legend>
 
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:text="${question.getQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText()}"
     class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
   ></div>
 </th:block>
@@ -29,27 +27,21 @@
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
 >
   <!--/* Question title */-->
-  <label class="usa-label" th:for="${inputId}">
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
-    ></div>
+  <label class="usa-label display-flex" th:for="${inputId}">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:text="${question.getQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText()}"
     class="cf-applicant-question-help-text"
   ></div>
 </th:block>
 
 <th:block th:fragment="titleContent(question)">
   <span
-    th:text="${question.getQuestionText()}"
+    th:utext="${question.getFormattedQuestionText()}"
     class="font-sans-lg cf-applicant-question-text"
   ></span>
-  <!--/* Required asterisk */-->
-  <th:block th:if="${!question.isOptional()}">
-    <span class="usa-hint--required font-sans-lg"> *</span>
-  </th:block>
 </th:block>
