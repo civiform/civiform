@@ -31,9 +31,7 @@
     ></div>
     <label class="usa-label" th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
-      <th:block th:if="${!question.isOptional()}">
-        <span class="usa-hint--required"> *</span>
-      </th:block>
+      <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
     </label>
     <input
       type="text"
@@ -77,9 +75,7 @@
     ></div>
     <label class="usa-label" th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
-      <th:block th:if="${!question.isOptional()}">
-        <span class="usa-hint--required"> *</span>
-      </th:block>
+      <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
     </label>
     <input
       type="text"

@@ -34,11 +34,10 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
-      <label
-        class="usa-label"
-        th:for="${inputId}"
-        th:text="#{label.street}"
-      ></label>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.street}"></span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      </label>
       <input
         class="usa-input"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
@@ -93,11 +92,10 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
-      <label
-        class="usa-label"
-        th:for="${inputId}"
-        th:text="#{label.city}"
-      ></label>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.city}"></span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      </label>
       <input
         class="usa-input"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
@@ -123,11 +121,10 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
-      <label
-        class="usa-label"
-        th:for="${inputId}"
-        th:text="#{label.state}"
-      ></label>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.state}"></span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      </label>
       <select
         class="usa-select"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
@@ -160,11 +157,10 @@
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
       ></div>
-      <label
-        class="usa-label"
-        th:for="${inputId}"
-        th:text="#{label.zipcode}"
-      ></label>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.zipcode}"></span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      </label>
       <input
         class="usa-input usa-input--medium"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"

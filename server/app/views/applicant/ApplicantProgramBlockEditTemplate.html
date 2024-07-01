@@ -7,7 +7,7 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div role="main" class="margin-left-2 margin-right-4 margin-y-4">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
+      <form id="cf-block-form" th:action="${submitFormAction}" method="POST" class="usa-form usa-form--large">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
 
         <div

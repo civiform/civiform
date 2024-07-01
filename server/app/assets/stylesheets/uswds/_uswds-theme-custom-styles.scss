@@ -52,15 +52,30 @@ See the radio-option below as an example.
  * Less padding when there is an error, since we add a border and still want the inputs to line up.
  */
  .cf-applicant-question-field.cf-question-field-with-error {
-  @include u-padding-left('105')
+  @include u-padding-left('105');
+}
+
+/**
+ * Reduce default padding on labels within question to match spacing mocks.
+ */
+.cf-applicant-question-field .usa-label {
+  @include u-margin-top('105')
+}
+
+/**
+ * Remove  top margin because other surrounding elements add this margin.
+ */
+.usa-legend,
+.usa-memorable-date .usa-form-group {
+  margin-top: 0;
 }
 
 .cf-north-star-enumerator-field {
-  @include u-padding-y('105')
+  @include u-padding-y('105');
 }
 
 .cf-north-star-enumerator-field:last-child {
-  @include u-padding-bottom(0)
+  @include u-padding-bottom(0);
 }
 
 /**
