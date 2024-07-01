@@ -142,13 +142,14 @@ public final class ApplicantQuestion {
         /* addRequiredIndicator= */ !(isOptional() || getType().isMultiInputType()));
   }
 
-    /** Sanitized HTML for the question text that processes Markdown, but in a context where we don't want to show required asterisks. */
-    public String getFormattedQuestionTextWithoutRequiredAsterisk() {
-      return TextFormatter.formatTextToSanitizedHTML(
-          getQuestionText(),
-          /* preserveEmptyLines= */ true,
-          /* addRequiredIndicator= */ false);
-    }
+  /**
+   * Sanitized HTML for the question text that processes Markdown, but in a context where we don't
+   * want to show required asterisks.
+   */
+  public String getFormattedQuestionTextWithoutRequiredAsterisk() {
+    return TextFormatter.formatTextToSanitizedHTML(
+        getQuestionText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+  }
 
   /**
    * Returns the question text that should be used for screen readers.
