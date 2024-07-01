@@ -167,6 +167,8 @@ public final class UpsellController extends CiviFormController {
                         .setApplicationId(applicationId)
                         .setMessages(messagesApi.preferred(request))
                         .setBannerMessage(toastMessageValue)
+                        .setCustomConfirmationMessage(
+                            roApplicantProgramService.join().getCustomConfirmationMessage())
                         .setApplicantId(applicantId);
 
                 if (isCommonIntake.join()) {

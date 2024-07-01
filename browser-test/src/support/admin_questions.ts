@@ -1434,6 +1434,8 @@ export class AdminQuestions {
    */
   async addEnumeratorQuestion({
     questionName,
+    minNum = null,
+    maxNum = null,
     description = 'enumerator description',
     questionText = 'enumerator question text',
     helpText = 'enumerator question help text',
@@ -1458,6 +1460,13 @@ export class AdminQuestions {
     })
 
     await this.page.fill('text=Repeated entity type', 'Entity')
+    if (minNum != null) {
+      await this.page.fill('text=Minimum entity count', String(minNum))
+    }
+
+    if (maxNum != null) {
+      await this.page.fill('text=Maximum entity count', String(maxNum))
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 

@@ -5,6 +5,7 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
+import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -45,6 +46,11 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
+
+    Locale locale = params.messages().lang().toLocale();
+    String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
+
+    context.setVariable("customConfirmationMessage", customConfirmationMessage);
 
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
