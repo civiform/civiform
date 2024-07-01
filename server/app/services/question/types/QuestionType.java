@@ -55,6 +55,17 @@ public enum QuestionType {
         || getSupportedQuestion() == MultiSelectQuestion.class;
   }
 
+  /**
+   * Returns whether the question type generates multiple user inputs for the user to enter. This is
+   * used to determine whether the required asterisk should be shown on the top level question or on
+   * individual required inputs.
+   */
+  public boolean isMultiInputType() {
+    return getSupportedQuestion() == AddressQuestion.class
+        || getSupportedQuestion() == DateQuestion.class
+        || getSupportedQuestion() == NameQuestion.class;
+  }
+
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
     // Match naive string, e.g. "PHONE" -> PHONE
     String upperName = name.toUpperCase(Locale.ROOT);

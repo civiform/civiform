@@ -137,7 +137,9 @@ public final class ApplicantQuestion {
   /** Sanitized HTML for the question text that processes Markdown. */
   public String getFormattedQuestionText() {
     return TextFormatter.formatTextToSanitizedHTML(
-        getQuestionText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+        getQuestionText(),
+        /* preserveEmptyLines= */ true,
+        /* addRequiredIndicator= */ !(isOptional() || getType().isMultiInputType()));
   }
 
   /**

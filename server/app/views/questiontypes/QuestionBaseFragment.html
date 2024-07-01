@@ -44,8 +44,4 @@
     th:utext="${question.getFormattedQuestionText()}"
     class="font-sans-lg cf-applicant-question-text"
   ></span>
-  <!--/* Required asterisk */-->
-  <th:block th:if="${!question.isOptional()}">
-    <span class="usa-hint--required font-sans-lg text-pre"> *</span>
-  </th:block>
 </th:block>
