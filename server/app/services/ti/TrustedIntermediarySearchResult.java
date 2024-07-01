@@ -12,15 +12,20 @@ import models.AccountModel;
  * <p>If the filtering attempt was not successful, contains all the accounts of the TIGroup along
  * with the error message of why the filtering failed.
  */
-public final record TrustedIntermediarySearchResult(ImmutableList<AccountModel> accounts, Optional<String> errorMessage) {
+public final record TrustedIntermediarySearchResult(
+    ImmutableList<AccountModel> accounts, Optional<String> errorMessage) {
 
-public TrustedIntermediarySearchResult(ImmutableList<AccountModel> accounts) {
-     new TrustedIntermediarySearchResult(
-      accounts, /* errorMessage= */ Optional.empty());
+  public TrustedIntermediarySearchResult(
+      ImmutableList<AccountModel> accounts, Optional<String> errorMessage) {
+    this.accounts = accounts;
+    this.errorMessage = errorMessage;
+  }
+
+  public TrustedIntermediarySearchResult(ImmutableList<AccountModel> accounts) {
+    this(accounts, Optional.empty());
   }
 
   public boolean isSuccessful() {
     return errorMessage.isEmpty();
   }
-
 }
