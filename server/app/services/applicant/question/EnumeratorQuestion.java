@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.OptionalInt;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -51,6 +52,16 @@ public final class EnumeratorQuestion extends Question {
       errorsBuilder.add(
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
     }
+    if (getMinEntities().isPresent() && entityNames.size() < getMinEntities().getAsInt()) {
+      errorsBuilder.add(
+          ValidationErrorMessage.create(
+              MessageKey.ENUMERATOR_VALIDATION_TOO_FEW_ENTITIES, getMinEntities().getAsInt()));
+    }
+    if (getMaxEntities().isPresent() && entityNames.size() > getMaxEntities().getAsInt()) {
+      errorsBuilder.add(
+          ValidationErrorMessage.create(
+              MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, getMaxEntities().getAsInt()));
+    }
     return errorsBuilder.build();
   }
 
@@ -73,6 +84,14 @@ public final class EnumeratorQuestion extends Question {
     return getQuestionDefinition()
         .getEntityType()
         .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  public OptionalInt getMinEntities() {
+    return getQuestionDefinition().getMinEntities();
+  }
+
+  public OptionalInt getMaxEntities() {
+    return getQuestionDefinition().getMaxEntities();
   }
 
   @Override
