@@ -27,10 +27,6 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public PhoneValidationPredicates getPhoneValidationPredicates() {
-    return (PhoneValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.PHONE;

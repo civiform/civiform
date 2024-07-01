@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -49,10 +50,6 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public FileUploadValidationPredicates getFileUploadValidationPredicates() {
-    return (FileUploadValidationPredicates) getValidationPredicates();
-  }
-
   public OptionalInt getMaxFiles() {
     return getFileUploadValidationPredicates().maxFiles();
   }
@@ -65,5 +62,10 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return FileUploadValidationPredicates.create();
+  }
+
+  @JsonIgnore
+  private FileUploadValidationPredicates getFileUploadValidationPredicates() {
+    return (FileUploadValidationPredicates) getValidationPredicates();
   }
 }

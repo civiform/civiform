@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -61,10 +62,6 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public IdValidationPredicates getIdValidationPredicates() {
-    return (IdValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ID;
@@ -81,5 +78,10 @@ public final class IdQuestionDefinition extends QuestionDefinition {
 
   public OptionalInt getMaxLength() {
     return getIdValidationPredicates().maxLength();
+  }
+
+  @JsonIgnore
+  private IdValidationPredicates getIdValidationPredicates() {
+    return (IdValidationPredicates) getValidationPredicates();
   }
 }
