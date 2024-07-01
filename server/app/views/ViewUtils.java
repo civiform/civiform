@@ -36,7 +36,6 @@ import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -421,11 +420,8 @@ public final class ViewUtils {
           default -> "";
         };
 
-    // Add the alert type class to the classes list
-    String[] updatedClasses = Arrays.copyOf(classes, classes.length + 1);
-    updatedClasses[classes.length] = alertTypeStyle;
-
-    return makeAlert(text, hidden, title, updatedClasses);
+    return makeAlert(
+        text, hidden, title, Lists.asList(alertTypeStyle, classes).toArray(new String[0]));
   }
 
   /**
