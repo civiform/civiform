@@ -9,8 +9,10 @@
   ></div>
 </th:block>
 
-<div th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
-class="margin-bottom-105">
+<div
+  th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
+  class="margin-bottom-105"
+>
   <!--/* Question title */-->
   <legend class="usa-legend display-flex">
     <div th:replace="~{this :: titleContent(${question})}"></div>

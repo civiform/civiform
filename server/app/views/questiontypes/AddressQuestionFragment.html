@@ -36,7 +36,9 @@
       ></div>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.street}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          *</span
+        >
       </label>
       <input
         class="usa-input"
@@ -94,7 +96,9 @@
       ></div>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.city}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          *</span
+        >
       </label>
       <input
         class="usa-input"
@@ -123,7 +127,9 @@
       ></div>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.state}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          *</span
+        >
       </label>
       <select
         class="usa-select"
@@ -159,7 +165,9 @@
       ></div>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.zipcode}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          *</span
+        >
       </label>
       <input
         class="usa-input usa-input--medium"

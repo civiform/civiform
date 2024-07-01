@@ -31,7 +31,9 @@
     ></div>
     <label class="usa-label" th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
-      <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        *</span
+      >
     </label>
     <input
       type="text"
@@ -50,7 +52,11 @@
     th:with="middleNameId=${'id-' + #strings.randomAlphanumeric(8)}"
     class="cf-name-middle cf-applicant-question-field margin-bottom-1"
   >
-    <label class="usa-label" th:for="${middleNameId}" th:text="#{label.middleName}"></label>
+    <label
+      class="usa-label"
+      th:for="${middleNameId}"
+      th:text="#{label.middleName}"
+    ></label>
     <input
       type="text"
       class="usa-input"
@@ -75,7 +81,9 @@
     ></div>
     <label class="usa-label" th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
-      <span th:if="${!question.isOptional()}" class="usa-hint--required"> *</span>
+      <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        *</span
+      >
     </label>
     <input
       type="text"
