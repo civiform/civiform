@@ -312,6 +312,7 @@ export const validateScreenshot = async (
   screenshotFileName: string,
   fullPage?: boolean,
   mobileScreenshot?: boolean,
+  timeout: number = 5000,
 ) => {
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
@@ -342,7 +343,7 @@ export const validateScreenshot = async (
 
     expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
 
-    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+    await takeScreenshot(element, `${screenshotFileName}`, timeout, fullPage)
 
     const existingWidth = page.viewportSize()?.width || 1280
 
@@ -352,12 +353,22 @@ export const validateScreenshot = async (
       // variety of sizes
       await page.setViewportSize({width: 320, height})
 
-      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+      await takeScreenshot(
+        element,
+        `${screenshotFileName}-mobile`,
+        timeout,
+        fullPage,
+      )
 
       // Medium width
       await page.setViewportSize({width: 800, height})
 
-      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+      await takeScreenshot(
+        element,
+        `${screenshotFileName}-medium`,
+        timeout,
+        fullPage,
+      )
 
       // Reset back to original width
       await page.setViewportSize({width: existingWidth, height})
@@ -368,6 +379,7 @@ export const validateScreenshot = async (
 const takeScreenshot = async (
   element: Page | Locator,
   fullScreenshotFileName: string,
+  timeout: number,
   fullPage?: boolean,
 ) => {
   const testFileName = path
@@ -377,7 +389,8 @@ const takeScreenshot = async (
   await expect(element).toHaveScreenshot(
     [testFileName, fullScreenshotFileName + '.png'],
     {
-      fullPage: fullPage,
+      fullPage,
+      timeout,
     },
   )
 }
