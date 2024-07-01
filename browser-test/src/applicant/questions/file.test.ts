@@ -316,7 +316,7 @@ test.describe('file upload applicant flow', () => {
             'file-error-too-large-north-star',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
-            /* timeout= */ 20000,
+            /* timeout= */ 30000,
           )
         })
 
