@@ -358,8 +358,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email3");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getEmailAddress()).isEqualTo("email3");
   }
 
   @Test
@@ -371,8 +371,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         SearchParameters.builder().setNameQuery(Optional.of("Emily")).build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email20");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getEmailAddress()).isEqualTo("email20");
   }
 
   @Test
@@ -388,7 +388,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     // The size is 3 because two other accounts are added to the tiGroup in setup()
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+    assertThat(tiResult.accounts().size()).isEqualTo(3);
   }
 
   @Test
@@ -404,7 +404,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     // The size is 3 because two other accounts are added to the tiGroup in setup()
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+    assertThat(tiResult.accounts().size()).isEqualTo(3);
   }
 
   @Test
@@ -421,7 +421,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(0);
+    assertThat(tiResult.accounts().size()).isEqualTo(0);
   }
 
   @Test
@@ -437,8 +437,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getApplicantName()).contains("Bobo");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getApplicantName()).contains("Bobo");
   }
 
   @Test
@@ -455,8 +455,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
-    assertThat(tiResult.getErrorMessage().get()).isEqualTo("Please enter a valid birth date.");
+    assertThat(tiResult.accounts().size()).isEqualTo(tiGroup.getManagedAccounts().size());
+    assertThat(tiResult.errorMessage().get()).isEqualTo("Please enter a valid birth date.");
   }
 
   @Test
