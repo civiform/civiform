@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import play.api.mvc.request.RequestAttrKey;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
@@ -18,16 +19,14 @@ public final class FakeRequestBuilder extends RequestBuilder {
   private ImmutableMap.Builder<String, String> settingsMap = ImmutableMap.builder();
 
   public static Request fakeRequest() {
-    return new FakeRequestBuilder().build();
+    return fakeRequestBuilder().build();
   }
 
   public static FakeRequestBuilder fakeRequestBuilder() {
-    return new FakeRequestBuilder();
+    return new FakeRequestBuilder().addCSRFToken().cspNonce("do-not-assert-on-this-value-in-tests");
   }
 
-  private FakeRequestBuilder() {
-    addCSRFToken();
-  }
+  private FakeRequestBuilder() {}
 
   public FakeRequestBuilder call(Call call) {
     method(call.method());
@@ -56,6 +55,11 @@ public final class FakeRequestBuilder extends RequestBuilder {
     String encodedCreds =
         Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
     header("Authorization", "Basic " + encodedCreds);
+    return this;
+  }
+
+  public FakeRequestBuilder cspNonce(String nonce) {
+    attr(RequestAttrKey.CSPNonce().asJava(), nonce);
     return this;
   }
 
