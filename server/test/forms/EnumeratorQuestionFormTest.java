@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.OptionalInt;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -29,11 +30,31 @@ public class EnumeratorQuestionFormTest {
   }
 
   @Test
-  public void getBuilder_returnsBuilderWithEntityType() throws Exception {
+  public void getBuilder_returnsBuilderWithEnumeratorFields() throws Exception {
     EnumeratorQuestionForm form = new EnumeratorQuestionForm();
     form.setEntityType("entity type");
+    form.setMinEntities("2");
+    form.setMaxEntities("3");
+
     EnumeratorQuestionDefinition qd = (EnumeratorQuestionDefinition) form.getBuilder().build();
+
     assertThat(qd.getEntityType()).isEqualTo(LocalizedStrings.withDefaultValue("entity type"));
+    assertThat(qd.getMinEntities()).isEqualTo(OptionalInt.of(2));
+    assertThat(qd.getMaxEntities()).isEqualTo(OptionalInt.of(3));
+  }
+
+  @Test
+  public void getBuilder_emptyFormInputs_returnsDefaults() throws Exception {
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+    form.setEntityType("");
+    form.setMinEntities("");
+    form.setMaxEntities("");
+
+    EnumeratorQuestionDefinition qd = (EnumeratorQuestionDefinition) form.getBuilder().build();
+
+    assertThat(qd.getEntityType()).isEqualTo(LocalizedStrings.withDefaultValue(""));
+    assertThat(qd.getMinEntities()).isEqualTo(OptionalInt.empty());
+    assertThat(qd.getMaxEntities()).isEqualTo(OptionalInt.empty());
   }
 
   /** Returns a QuestionDefinitionConfig with minimal required fields set */

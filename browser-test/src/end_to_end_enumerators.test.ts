@@ -314,8 +314,28 @@ test.describe('End to end enumerator test', () => {
         await applicantQuestions.clickNext()
       })
 
-      await test.step('Add button is enabled with a non-blank entity', async () => {
+      await test.step('Add button is disabled when the maximum number of entities is entered', async () => {
         await applicantQuestions.addEnumeratorAnswer('Bugs')
+        await applicantQuestions.addEnumeratorAnswer('Daffy')
+        await applicantQuestions.addEnumeratorAnswer('Donald')
+        await applicantQuestions.addEnumeratorAnswer('Tweety')
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is still disabled after navigating away and back', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickPrevious()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is enabled with less than the maximum entities', async () => {
+        await applicantQuestions.deleteEnumeratorEntity('Tweety')
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
@@ -328,8 +348,8 @@ test.describe('End to end enumerator test', () => {
         ).toBeDisabled()
       })
 
-      await test.step('Add button is re-enabled when the blank item is removed', async () => {
-        await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+      await test.step('Add button is re-enabled when the blank entity is removed', async () => {
+        await applicantQuestions.deleteEnumeratorEntity('')
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
@@ -341,7 +361,7 @@ test.describe('End to end enumerator test', () => {
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
-      await test.step('Add button is disabled when an existing item is blanked', async () => {
+      await test.step('Add button is disabled when an existing entity is blanked', async () => {
         await applicantQuestions.editEnumeratorAnswer('Bugs', '')
 
         await expect(
@@ -521,6 +541,7 @@ test.describe('End to end enumerator test', () => {
         description: 'desc',
         questionText: 'Household members',
         helpText: 'list household members',
+        maxNum: 4,
       })
       await adminQuestions.addNameQuestion({
         questionName: 'enumerator-ete-repeated-name',
