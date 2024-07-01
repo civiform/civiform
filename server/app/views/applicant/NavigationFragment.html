@@ -39,6 +39,7 @@
       </nav>
     </div>
   </header>
+  <div th:replace="~{this :: guestSessionAlert}"></div>
 </th:block>
 
 <section
@@ -135,6 +136,17 @@
   </svg>
 </span>
 
+<nav th:fragment="guestSessionAlert" th:if="${isGuest}">
+  <div class="usa-alert usa-alert--info usa-alert--slim">
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
+      ></p>
+    </div>
+  </div>
+</nav>
+
 <a
   th:fragment="showDebugTools"
   type="button"
@@ -148,14 +160,6 @@
 
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
-    <span th:text="#{header.guestIndicator}" class="padding-right-1"></span>
-    <a
-      type="button"
-      class="usa-button usa-button--outline"
-      th:text="#{header.endSession}"
-      id="logout-button"
-      th:href="${logoutLink}"
-    ></a>
     <a
       type="button"
       class="usa-button usa-button--outline"

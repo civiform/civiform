@@ -2,7 +2,7 @@
 import {assertNotNull, formatText, formatTextHtml} from './util'
 import * as DOMPurify from 'dompurify'
 
-class PreviewController {
+export default class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
     'question-help-text-textarea'
@@ -41,6 +41,11 @@ class PreviewController {
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
 
   constructor() {
+    PreviewController.updateListeners()
+  }
+
+  /** Safe to call multiple times */
+  public static updateListeners() {
     const textInput = document.getElementById(
       PreviewController.QUESTION_TEXT_INPUT_ID,
     ) as HTMLInputElement | null
@@ -104,6 +109,7 @@ class PreviewController {
     const questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
+
     if (questionSettings && questionPreviewContainer) {
       PreviewController.addOptionObservers({
         questionSettings,
@@ -169,7 +175,6 @@ class PreviewController {
         }
       },
     )
-
     mutationObserver.observe(questionSettings, {
       childList: true,
       subtree: true,
@@ -319,6 +324,9 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
+    if (document.querySelector(selector) === null) {
+      return
+    }
     const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 

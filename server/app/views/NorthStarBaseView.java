@@ -17,6 +17,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DeploymentType;
+import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
@@ -86,7 +87,18 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
-    context.setVariable("logoutLink", org.pac4j.play.routes.LogoutController.logout().url());
+    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
+    context.setVariable("logoutLink", logoutLink);
+    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+    // difficult to add HTML within a message. So we have to manually build the html for a link
+    // that will be embedded in the guest alert in the header.
+    context.setVariable(
+        "endSessionLinkHtml",
+        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+            + logoutLink
+            + "\">"
+            + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
+            + "</a>");
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
