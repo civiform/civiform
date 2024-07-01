@@ -10,8 +10,7 @@
 >
   <fieldset
     class="usa-fieldset"
-    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             firstPathWithError=${dateQuestion.getFirstPathWithError()}"
+    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   >
     <!--/* Title and Help Text */-->
     <div
@@ -48,7 +47,7 @@
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
           th:aria-describedby="${questionId} + '-description'"
-          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty()}"
+          th:autofocus="${questionRendererParams.autofocusFirstError()}"
         >
           <option value th:text="#{placeholder.memorableDate}"></option>
           <option

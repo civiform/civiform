@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -27,8 +26,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
           Mockito.mock(ApplicantFileUploadRenderer.class),
           Mockito.mock(ApplicantQuestionRendererFactory.class),
           applicantRoutes,
-          new EditOrDiscardAnswersModalCreator(),
-          Mockito.mock(SettingsManifest.class));
+          new EditOrDiscardAnswersModalCreator());
 
   @Test
   public void

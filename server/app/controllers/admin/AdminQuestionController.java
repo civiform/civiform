@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -317,7 +318,7 @@ public final class AdminQuestionController extends CiviFormController {
 
   private Result withSuccessMessage(Result result, String message) {
     if (!message.isEmpty()) {
-      return result.flashing("success", message);
+      return result.flashing(FlashKey.SUCCESS, message);
     }
     return result;
   }

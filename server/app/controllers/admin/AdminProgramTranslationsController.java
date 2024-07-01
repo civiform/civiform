@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public Result redirectToFirstLocale(Http.Request request, String programName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
-          .flashing("error", "Translations are not enabled for this configuration");
+          .flashing(FlashKey.ERROR, "Translations are not enabled for this configuration");
     }
 
     return redirect(
@@ -84,10 +85,10 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
-        request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
+        request.flash().get(FlashKey.ERROR).map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
-          .flashing("error", String.format("The %s locale is not supported", locale));
+          .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
@@ -124,7 +125,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
-          .flashing("error", String.format("The %s locale is not supported", locale));
+          .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
@@ -148,7 +149,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
               program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
     } catch (OutOfDateStatusesException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
-          .flashing("error", e.userFacingMessage());
+          .flashing(FlashKey.ERROR, e.userFacingMessage());
     }
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));

@@ -14,6 +14,8 @@ button.untranslatedSubmit=Isumite
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 guest=Bisita
 label.languageSr=Pumili ng wika
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Tapusin ang session
 toast.sessionEnded=Natapos na ang iyong session.
 header.guestIndicator=Bisitang user ka
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.

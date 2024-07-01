@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
 import org.pac4j.play.java.Secure;
@@ -125,7 +126,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
     if (mutateResult.isError()) {
-      return redirect(indexUrl).flashing("error", joinErrors(mutateResult.getErrors()));
+      return redirect(indexUrl).flashing(FlashKey.ERROR, joinErrors(mutateResult.getErrors()));
     }
     boolean isUpdate =
         previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size();
@@ -138,7 +139,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       toastMessage =
           programStatusesForm.getStatusText() + " has been updated to the default status";
     }
-    return redirect(indexUrl).flashing("success", toastMessage);
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, toastMessage);
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
@@ -214,8 +215,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ErrorAnd<ProgramDefinition, CiviFormError> deleteStatusResult =
         service.deleteStatus(program.id(), deleteStatusText);
     if (deleteStatusResult.isError()) {
-      return redirect(indexUrl).flashing("error", joinErrors(deleteStatusResult.getErrors()));
+      return redirect(indexUrl)
+          .flashing(FlashKey.ERROR, joinErrors(deleteStatusResult.getErrors()));
     }
-    return redirect(indexUrl).flashing("success", "Status deleted");
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Status deleted");
   }
 }

@@ -22,6 +22,30 @@ public enum MessageKey {
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),
   ADDRESS_VALIDATION_STATE_REQUIRED("validation.stateRequired"),
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
+  ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE("alert.eligibility_applicant_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT("alert.eligibility_applicant_not_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE(
+      "alert.eligibility_applicant_fastforwarded_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT(
+      "alert.eligibility_applicant_fastforwarded_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TITLE(
+      "alert.eligibility_applicant_fastforwarded_not_eligible_title"),
+  ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
+      "alert.eligibility_applicant_fastforwarded_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_ELIGIBLE_TITLE("alert.eligibility_ti_eligible_title"),
+  ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT("alert.eligibility_ti_eligible_text"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE("alert.eligibility_ti_not_eligible_title"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT("alert.eligibility_ti_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE(
+      "alert.eligibility_ti_fastforwarded_eligible_title"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT(
+      "alert.eligibility_ti_fastforwarded_eligible_text"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE(
+      "alert.eligibility_ti_fastforwarded_not_eligible_title"),
+  ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
+      "alert.eligibility_ti_fastforwarded_not_eligible_text"),
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -30,11 +54,13 @@ public enum MessageKey {
   BANNER_ACCT_DELETE_ERROR("banner.acctDeleteError"),
   BANNER_ACCT_DELETE_ERROR_REASON("banner.acctDeleteErrorReason"),
   BANNER_NEW_CLIENT_CREATED("banner.newClientCreated"),
+  BANNER_GUEST_BANNER_TEXT("banner.guestBannerText"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),
   BANNER_GOV_WEBSITE_SECTION_CONTENT("banner.govWebsiteSectionContent"),
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
+  BANNER_NORTH_STAR_TITLE("banner.northStarTitle"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
@@ -151,6 +177,7 @@ public enum MessageKey {
   DOB_LABEL("label.dob"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   END_SESSION("header.endSession"),
+  END_YOUR_SESSION("banner.endYourSession"),
   EMAIL_APPLICATION_RECEIVED_BODY("email.applicationReceivedBody"),
   EMAIL_APPLICATION_RECEIVED_SUBJECT("email.applicationReceivedSubject"),
   EMAIL_APPLICATION_UPDATE_SUBJECT("email.applicationUpdateSubject"),
@@ -197,6 +224,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
+  MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
   MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON("modal.errorSaving.stayAndFixButton"),
   MODAL_ERROR_SAVING_PREVIOUS_CONTENT("modal.errorSaving.previous.content"),

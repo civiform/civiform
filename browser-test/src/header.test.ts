@@ -4,6 +4,7 @@ import {
   validateScreenshot,
   validateAccessibility,
   logout,
+  enableFeatureFlag,
 } from './support'
 
 test.describe('Header', () => {
@@ -56,4 +57,37 @@ test.describe('Header', () => {
       await expect(usaBannerContentLocator).toBeHidden()
     })
   })
+
+  test(
+    'Government banner with north star enabled',
+    {tag: ['@northstar']},
+    async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      const usaBannerLocator = page.getByTestId('governmentBanner')
+      const usaBannerContentLocator = usaBannerLocator.locator(
+        '.usa-banner__content',
+      )
+      const usaBannerButtonLocator = usaBannerLocator.getByRole('button', {
+        name: "Here's how you know",
+      })
+
+      await test.step('Page loads with the banner visible and collapsed', async () => {
+        await expect(usaBannerLocator).toContainText(
+          'An official website of the United States government',
+        )
+        await expect(usaBannerContentLocator).toBeHidden()
+      })
+
+      await test.step('Clicking the button expands the banner', async () => {
+        await usaBannerButtonLocator.click()
+        await expect(usaBannerContentLocator).toBeVisible()
+        await validateScreenshot(usaBannerLocator, 'banner-expanded-north-star')
+      })
+
+      await test.step('Clicking the button again collapses the banner', async () => {
+        await usaBannerButtonLocator.click()
+        await expect(usaBannerContentLocator).toBeHidden()
+      })
+    },
+  )
 })

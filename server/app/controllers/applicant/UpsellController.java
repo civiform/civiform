@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -151,7 +152,7 @@ public final class UpsellController extends CiviFormController {
             })
         .thenApplyAsync(
             maybeEligiblePrograms -> {
-              Optional<String> toastMessageValue = request.flash().get("banner");
+              Optional<String> toastMessageValue = request.flash().get(FlashKey.BANNER);
               Optional<ToastMessage> toastMessage =
                   toastMessageValue.map(m -> ToastMessage.alert(m));
 
@@ -166,6 +167,8 @@ public final class UpsellController extends CiviFormController {
                         .setApplicationId(applicationId)
                         .setMessages(messagesApi.preferred(request))
                         .setBannerMessage(toastMessageValue)
+                        .setCustomConfirmationMessage(
+                            roApplicantProgramService.join().getCustomConfirmationMessage())
                         .setApplicantId(applicantId);
 
                 if (isCommonIntake.join()) {

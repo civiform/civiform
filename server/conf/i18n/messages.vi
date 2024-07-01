@@ -14,6 +14,8 @@ button.untranslatedSubmit=Gửi
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Kết thúc phiên truy cập
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 header.guestIndicator=Bạn là người dùng khách
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 #------------------------------------------------------------------------------#
 
 banner.title=Đây là một trang web chính thức của chính phủ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.

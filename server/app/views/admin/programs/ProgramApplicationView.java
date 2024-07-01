@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -166,7 +167,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
-    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }

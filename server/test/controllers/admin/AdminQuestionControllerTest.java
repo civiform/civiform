@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import controllers.FlashKey;
 import forms.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -68,7 +69,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("success").get()).contains("created");
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -99,7 +100,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("success").get()).contains("created");
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -131,7 +132,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("success").get()).contains("created");
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -339,7 +340,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("success").get()).contains("updated");
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
 
     QuestionModel updatedNameQuestion =
         questionRepo
