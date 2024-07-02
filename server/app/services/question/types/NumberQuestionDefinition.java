@@ -73,10 +73,12 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     return NumberValidationPredicates.create();
   }
 
+  @JsonIgnore
   public OptionalLong getMin() {
     return getNumberValidationPredicates().min();
   }
 
+  @JsonIgnore
   public OptionalLong getMax() {
     return getNumberValidationPredicates().max();
   }

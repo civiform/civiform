@@ -73,10 +73,12 @@ public final class TextQuestionDefinition extends QuestionDefinition {
     return TextValidationPredicates.create();
   }
 
+  @JsonIgnore
   public OptionalInt getMinLength() {
     return getTextValidationPredicates().minLength();
   }
 
+  @JsonIgnore
   public OptionalInt getMaxLength() {
     return getTextValidationPredicates().maxLength();
   }

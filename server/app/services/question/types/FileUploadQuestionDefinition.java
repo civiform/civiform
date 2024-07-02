@@ -50,6 +50,7 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
     }
   }
 
+  @JsonIgnore
   public OptionalInt getMaxFiles() {
     return getFileUploadValidationPredicates().maxFiles();
   }

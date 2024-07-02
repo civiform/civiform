@@ -72,10 +72,12 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     return IdValidationPredicates.create();
   }
 
+  @JsonIgnore
   public OptionalInt getMinLength() {
     return getIdValidationPredicates().minLength();
   }
 
+  @JsonIgnore
   public OptionalInt getMaxLength() {
     return getIdValidationPredicates().maxLength();
   }

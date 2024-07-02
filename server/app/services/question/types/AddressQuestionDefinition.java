@@ -63,6 +63,7 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     return AddressValidationPredicates.create();
   }
 
+  @JsonIgnore
   public boolean getDisallowPoBox() {
     return getAddressValidationPredicates().disallowPoBox().orElse(false);
   }
