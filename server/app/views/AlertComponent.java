@@ -20,7 +20,7 @@ import views.style.BaseStyles;
  * <p>{@see <a
  * href="https://designsystem.digital.gov/components/alert">https://designsystem.digital.gov/components/alert</a>}
  */
-public class AlertComponent {
+public final class AlertComponent {
   /**
    * Heading levels that can be used for Alerts H1 tags are limited to a single instance per page
    * and and not allowed as headings.
