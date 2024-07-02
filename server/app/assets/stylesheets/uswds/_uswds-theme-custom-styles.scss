@@ -119,3 +119,11 @@ See the radio-option below as an example.
 h1.usa-step-indicator__heading {
   line-height: inherit;
 }
+
+/**
+ * USWDS color utils are turned off, so we use the USWDS color manually.
+ * See #7951 for detils
+ */
+.cf-footer-help-links a {
+  color: #1b1b1b;
+}

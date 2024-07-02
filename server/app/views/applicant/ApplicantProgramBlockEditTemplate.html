@@ -56,8 +56,9 @@
                                                              <!--/* showReviewLogin= */-->false,
                                                              <!--/* showUpsellLogin= */-->false)}"
     ></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageFooter}"></div>
     <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
+      th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
     ></footer>
   </body>
 </html>
