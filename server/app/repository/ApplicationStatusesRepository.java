@@ -55,7 +55,8 @@ public final class ApplicationStatusesRepository {
         .collect(Collectors.toList());
   }
 
-  public void updateStatusDefinitions(String programName, StatusDefinitions statusDefinitions) {
+  public void createOrUpdateStatusDefinitions(
+      String programName, StatusDefinitions statusDefinitions) {
     // Begin transaction
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       // archive the previous active one

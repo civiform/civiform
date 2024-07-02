@@ -41,6 +41,7 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
 import play.mvc.Http.Request;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -74,6 +75,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private SettingsManifest mockSettingsManifest;
   private final Request request = fakeRequest().build();
+  private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before
   public void setProgramServiceImpl() {
@@ -82,6 +84,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
+    applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Before
@@ -2252,29 +2255,34 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_EMAIL.statusText())
-                    .setLocalizedStatusText(
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-email"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
                         STATUS_WITH_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(Locale.GERMAN, "german-status-with-email"))
-                    .setLocalizedEmailBodyText(
-                        Optional.of(
-                            STATUS_WITH_EMAIL
-                                .localizedEmailBodyText()
-                                .get()
-                                .updateTranslation(Locale.GERMAN, "german email body")))
-                    .build(),
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-                    .setLocalizedStatusText(
-                        STATUS_WITH_NO_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
-                    .build()));
+                            .localizedEmailBodyText()
+                            .get()
+                            .updateTranslation(Locale.GERMAN, "german email body")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
 
   @Test
@@ -2293,6 +2301,11 @@ public class ProgramServiceTest extends ResetPostgres {
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -2327,32 +2340,37 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_EMAIL.statusText())
-                    .setLocalizedStatusText(
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
                         STATUS_WITH_EMAIL
-                            .localizedStatusText()
+                            .localizedEmailBodyText()
+                            .get()
                             .updateTranslation(
-                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
-                    .setLocalizedEmailBodyText(
-                        Optional.of(
-                            STATUS_WITH_EMAIL
-                                .localizedEmailBodyText()
-                                .get()
-                                .updateTranslation(
-                                    Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
-                    .build(),
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-                    .setLocalizedStatusText(
-                        STATUS_WITH_NO_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(
-                                Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
-                    .build()));
+                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
 
   @Test
@@ -2617,6 +2635,11 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
   }
 
   @Test
@@ -2644,6 +2667,16 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    // no updates to ApplicationStatus table
+    StatusDefinitions currentStatus =
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
+    assertThat(currentStatus.getStatuses()).isNotEmpty();
+    assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2682,6 +2715,16 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    // no updates to ApplicationStatus table
+    StatusDefinitions currentStatus =
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
+    assertThat(currentStatus.getStatuses()).isNotEmpty();
+    assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2878,13 +2921,18 @@ public class ProgramServiceTest extends ResetPostgres {
     // Also tests unsetDefaultStatus
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    String programName = program.getProgramDefinition().adminName();
     assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+        .isEmpty();
 
     final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
         ps.appendStatus(program.id, APPROVED_DEFAULT_STATUS);
 
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_DEFAULT_STATUS);
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_DEFAULT_STATUS);
 
     // Ensure that appending to a non-empty list actually appends.
@@ -2893,6 +2941,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
   }
 
@@ -2930,6 +2980,11 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(APPROVED_STATUS);
 
     var editedStatus =
         StatusDefinitions.Status.builder()
@@ -2949,6 +3004,11 @@ public class ProgramServiceTest extends ResetPostgres {
             });
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().statusDefinitions().getStatuses()).containsExactly(editedStatus);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(editedStatus);
   }
 
   @Test
