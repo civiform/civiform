@@ -32,7 +32,32 @@
     aria-live="polite"
   ></div>
 
-  <!--/* TODO(#7335): Display errors for file too large and file selection failed */-->
+  <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    id="cf-fileupload-required-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileRequired})}"
+      ></p>
+    </div>
+  </div>
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    id="cf-fileupload-too-large-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileTooLarge(${maxFileSizeMb})})}"
+      ></p>
+    </div>
+  </div>
+
   <input
     th:id="${inputId}"
     class="usa-file-input"
@@ -40,7 +65,7 @@
     name="file"
     th:aria-describedby="${questionId} + '-description'"
     accept="image/*,.pdf"
-    data-file-limit-mb="100"
+    th:data-file-limit-mb="${maxFileSizeMb}"
   />
 </div>
 
