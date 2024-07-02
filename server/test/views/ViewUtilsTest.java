@@ -9,17 +9,23 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
+import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+import services.AlertType;
 import services.DateConverter;
 import views.style.BaseStyles;
 
+@RunWith(JUnitParamsRunner.class)
 public class ViewUtilsTest {
 
   @Rule public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
@@ -75,6 +81,18 @@ public class ViewUtilsTest {
             "<div class=\"usa-alert usa-alert--warning\" aria-live=\"polite\" role=\"alert\"><div"
                 + " class=\"usa-alert__body\"><p class=\"usa-alert__text\">some"
                 + " text</p></div></div>");
+  }
+
+  private Object[] alertTypeTestParameters() {
+    return new Object[] {AlertType.ERROR, AlertType.INFO, AlertType.SUCCESS, AlertType.WARNING};
+  }
+
+  @Test
+  @Parameters(method = "alertTypeTestParameters")
+  public void makeAlert_withAlertType(AlertType alertType) {
+    DivTag alertComponent = ViewUtils.makeAlert("some text", false, Optional.empty(), alertType);
+    assertThat(alertComponent.render())
+        .contains(String.format("usa-alert--%s", alertType.toString().toLowerCase(Locale.ROOT)));
   }
 
   @Test
