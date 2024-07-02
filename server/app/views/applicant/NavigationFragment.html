@@ -213,8 +213,8 @@
   >
     <a href="#" th:text="#{footer.returnToTop}"></a>
   </div>
-  <div class="display-flex flex-justify bg-base-lightest padding-x-4">
-    <div class="display-flex cf-footer-help-links">
+  <div class="display-flex flex-justify flex-wrap bg-base-lightest padding-x-4 cf-footer-help-bar">
+    <div class="display-flex flex-wrap cf-footer-help-links">
       <a
         th:href="${adminLoginUrl}"
         th:text="#{link.adminLogin}"
@@ -227,7 +227,7 @@
       ></a>
     </div>
     <div
-      class="padding-2"
+      class="padding-2 cf-footer-technical-suppport"
       th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
     ></div>
   </div>
@@ -245,10 +245,7 @@
               th:attr="alt=${civicEntityFullName + ' Logo'}"
           /></a>
         </div>
-        <section
-          class="usa-identifier__identity"
-          aria-label="Agency description,"
-        >
+        <section class="usa-identifier__identity">
           <p
             class="usa-identifier__identity-disclaimer"
             th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"
