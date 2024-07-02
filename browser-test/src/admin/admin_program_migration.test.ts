@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   seedPrograms,
@@ -154,6 +155,10 @@ test.describe('program migration', () => {
     adminProgramMigration,
   }) => {
     await test.step('seed comprehensive program', async () => {
+      // Force this to be disabled for the time being. I think it's causing intermittent issues
+      // because the flag may have been enabled in a different run
+      await disableFeatureFlag(page, 'multiple_file_upload_enabled')
+
       await seedPrograms(page)
       await page.goto('/')
       await loginAsAdmin(page)
