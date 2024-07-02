@@ -45,6 +45,7 @@ import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
+import views.applicant.NorthStarPreventDuplicateSubmissionView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -67,6 +68,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
+  private final NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
@@ -81,6 +83,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
+      NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -95,6 +98,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
+    this.northStarPreventDuplicateSubmissionView =
+        checkNotNull(northStarPreventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
@@ -394,15 +399,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   }
                 }
                 if (cause instanceof DuplicateApplicationException) {
-                  ReadOnlyApplicantProgramService roApplicantProgramService =
-                      readOnlyApplicantProgramServiceFuture.join();
-                  return ok(
-                      preventDuplicateSubmissionView.render(
-                          request,
-                          roApplicantProgramService,
-                          messagesApi.preferred(request),
-                          applicantId,
-                          profileUtils.currentUserProfileOrThrow(request)));
+                  return renderPreventDuplicateSubmissionPage(
+                      request,
+                      profileUtils.currentUserProfileOrThrow(request),
+                      applicantId,
+                      applicantPersonalInfo.join(),
+                      readOnlyApplicantProgramServiceFuture.join());
                 }
                 throw new RuntimeException(cause);
               }
@@ -410,6 +412,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  // TODO(#7266): Delete the old codepath and inline the North Star path
   private Result renderIneligiblePage(
       Request request,
       CiviFormProfile profile,
@@ -438,6 +441,35 @@ public class ApplicantProgramReviewController extends CiviFormController {
               messagesApi.preferred(request),
               applicantId,
               programDefinition));
+    }
+  }
+
+  // TODO(#7266): Delete the old codepath and inline the North Star path
+  private Result renderPreventDuplicateSubmissionPage(
+      Request request,
+      CiviFormProfile profile,
+      long applicantId,
+      ApplicantPersonalInfo applicantPersonalInfo,
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      NorthStarPreventDuplicateSubmissionView.Params params =
+          NorthStarPreventDuplicateSubmissionView.Params.builder()
+              .setRequest(request)
+              .setApplicantId(applicantId)
+              .setApplicantPersonalInfo(applicantPersonalInfo)
+              .setProfile(profile)
+              .setRoApplicantProgramService(roApplicantProgramService)
+              .setMessages(messagesApi.preferred(request))
+              .build();
+      return ok(northStarPreventDuplicateSubmissionView.render(params)).as(Http.MimeTypes.HTML);
+    } else {
+      return ok(
+          preventDuplicateSubmissionView.render(
+              request,
+              roApplicantProgramService,
+              messagesApi.preferred(request),
+              applicantId,
+              profileUtils.currentUserProfileOrThrow(request)));
     }
   }
 }
