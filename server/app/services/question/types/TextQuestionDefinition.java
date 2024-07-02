@@ -9,7 +9,7 @@ import java.util.OptionalInt;
 /** Defines a text question. */
 public final class TextQuestionDefinition extends QuestionDefinition {
 
-  public TextQuestionDefinition(QuestionDefinitionConfig config) {
+  public TextQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

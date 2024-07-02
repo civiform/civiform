@@ -85,9 +85,6 @@ public class AdminImportController extends CiviFormController {
       return redirect(routes.AdminImportController.index().url());
     }
 
-    // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
-    jsonString = trimQuestionsOffJson(jsonString);
-
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         programMigrationService.deserialize(jsonString);
 
@@ -140,19 +137,5 @@ public class AdminImportController extends CiviFormController {
     programRepository.insertProgramSync(programModel);
 
     return ok(adminImportView.render(request));
-  }
-
-  // TODO(#7087) remove this when we add the ability to parse questions into QuestionDefinitions
-  private String trimQuestionsOffJson(String jsonString) {
-    int indexOfQuestions = jsonString.indexOf("\"questions\"");
-    // questions are not included in the json if the array of questions is empty, so we need to
-    // check that this field exists before building a substring off of it
-    if (indexOfQuestions != -1) {
-      StringBuilder jsonStringBuilder =
-          new StringBuilder(jsonString.substring(0, indexOfQuestions));
-      jsonString =
-          jsonStringBuilder.deleteCharAt(jsonStringBuilder.lastIndexOf(",")).append("}").toString();
-    }
-    return jsonString;
   }
 }

@@ -40,6 +40,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
+import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
 import services.question.types.QuestionDefinition;
@@ -394,6 +395,33 @@ public final class ViewUtils {
                     title.isPresent(),
                     h4().withClass("usa-alert__heading").withText(title.orElse("")))
                 .with(p().withClass("usa-alert__text").withText(text)));
+  }
+
+  /**
+   * Makes a USWDS Alert component with the given text and optional title. Alert variant is
+   * determined by the {@link AlertType} passed in.
+   * https://designsystem.digital.gov/components/alert/
+   *
+   * @param text The text to include in the alert.
+   * @param hidden Whether or not to set the hidden property on the component.
+   * @param title An optional title to be included in the alert.
+   * @param alertType The type of {@link AlertType} alert to show
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag makeAlert(
+      String text, boolean hidden, Optional<String> title, AlertType alertType, String... classes) {
+    String alertTypeStyle =
+        switch (alertType) {
+          case INFO -> BaseStyles.ALERT_INFO;
+          case ERROR -> BaseStyles.ALERT_ERROR;
+          case SUCCESS -> BaseStyles.ALERT_SUCCESS;
+          case WARNING -> BaseStyles.ALERT_WARNING;
+          default -> "";
+        };
+
+    return makeAlert(
+        text, hidden, title, Lists.asList(alertTypeStyle, classes).toArray(new String[0]));
   }
 
   /**

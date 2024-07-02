@@ -5,9 +5,7 @@ import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.ConfigFactory;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
@@ -18,7 +16,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import support.cloud.FakeApplicantStorageClient;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.fileupload.AwsFileUploadViewStrategy;
@@ -50,8 +47,7 @@ public class ApplicantQuestionRendererFactoryTest {
             new ApplicantFileUploadRenderer(
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new FakeApplicantStorageClient()));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -78,8 +74,7 @@ public class ApplicantQuestionRendererFactoryTest {
             new ApplicantFileUploadRenderer(
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new FakeApplicantStorageClient()));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 

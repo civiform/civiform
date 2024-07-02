@@ -14,6 +14,8 @@ button.untranslatedSubmit=ສົ່ງ
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
 guest=ແຂກ
 label.languageSr=ເລືອກພາສາ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=ສິ້ນສຸດເຊດຊັນ
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັ�
 #------------------------------------------------------------------------------#
 
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.

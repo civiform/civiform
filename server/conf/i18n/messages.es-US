@@ -14,6 +14,8 @@ button.untranslatedSubmit=Enviar
 footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
 guest=Invitado
 label.languageSr=Elegir un idioma
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Finalizar sesión
 toast.sessionEnded=Finalizó la sesión.
 header.guestIndicator=Eres un usuario de invitado
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 #------------------------------------------------------------------------------#
 
 banner.title=Este es un sitio web oficial del gobierno
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Así es como puedes verificarlo
 banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.

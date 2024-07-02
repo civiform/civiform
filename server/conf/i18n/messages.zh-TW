@@ -14,6 +14,8 @@ button.untranslatedSubmit=提交
 footer.supportLinkDescription=如需技術支援，請洽詢
 guest=訪客
 label.languageSr=選擇語言
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=結束工作階段
 toast.sessionEnded=您的工作階段已結束。
 header.guestIndicator=您是訪客使用者
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀�
 #------------------------------------------------------------------------------#
 
 banner.title=這是官方政府網站。
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=以下說明判斷方式
 banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。

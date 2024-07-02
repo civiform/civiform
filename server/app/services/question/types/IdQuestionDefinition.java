@@ -9,7 +9,7 @@ import java.util.OptionalInt;
 /** Defines an id question. */
 public final class IdQuestionDefinition extends QuestionDefinition {
 
-  public IdQuestionDefinition(QuestionDefinitionConfig config) {
+  public IdQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

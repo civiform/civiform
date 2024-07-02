@@ -239,15 +239,16 @@ public final class TrustedIntermediaryService {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
     List<SearchParameters.ParamTypes> missingParams = findMissingSearchParams(searchParameters);
     if (missingParams.size() == 4) {
-      return TrustedIntermediarySearchResult.success(allAccounts);
+      return new TrustedIntermediarySearchResult(allAccounts);
     }
     final ImmutableList<AccountModel> searchedResult;
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts, missingParams);
     } catch (DateTimeParseException e) {
-      return TrustedIntermediarySearchResult.fail(allAccounts, "Please enter a valid birth date.");
+      return new TrustedIntermediarySearchResult(
+          allAccounts, Optional.of("Please enter a valid birth date."));
     }
-    return TrustedIntermediarySearchResult.success(searchedResult);
+    return new TrustedIntermediarySearchResult(searchedResult);
   }
 
   private ImmutableList<AccountModel> searchAccounts(

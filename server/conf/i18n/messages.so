@@ -14,6 +14,8 @@ button.untranslatedSubmit=Gudbi
 footer.supportLinkDescription=Taageero farsamo, la xidhiidh
 guest=Marti
 label.languageSr=Dooro luqad
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Dhammee kullanka
 toast.sessionEnded=Kullankaagii wuu dhammaaday.
 header.guestIndicator=Waxaad tahay isticmaale marti ah
@@ -572,6 +574,8 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 #------------------------------------------------------------------------------#
 
 banner.title=Tani waa websaydka rasmiga ah ee dowladda.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Halkan waxaa ah sida aad u garanayso
 banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
