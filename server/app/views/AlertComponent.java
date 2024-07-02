@@ -22,7 +22,7 @@ import views.style.BaseStyles;
  */
 public final class AlertComponent {
   /**
-   * Heading levels that can be used for Alerts H1 tags are limited to a single instance per page
+   * Heading levels that can be used for Alerts. H1 tags are limited to a single instance per page
    * and and not allowed as headings.
    */
   public enum HeadingLevel {
