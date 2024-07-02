@@ -208,43 +208,61 @@
 </div>
 
 <div th:fragment="pageFooter">
-  <div class="padding-x-4 padding-y-2 usa-footer__return-to-top border-t border-base-lighter">
+  <div
+    class="padding-x-4 padding-y-2 usa-footer__return-to-top border-t border-base-lighter"
+  >
     <a href="#" th:text="#{footer.returnToTop}"></a>
   </div>
   <div class="display-flex flex-justify bg-base-lightest padding-x-4">
     <div class="display-flex cf-footer-help-links">
-      <a th:href="${adminLoginUrl}" th:text="#{link.adminLogin}" class="padding-2"></a>
-      <a href="https://civiform.us/" th:text="#{footer.aboutCiviform}" class="padding-2"></a>
+      <a
+        th:href="${adminLoginUrl}"
+        th:text="#{link.adminLogin}"
+        class="padding-2"
+      ></a>
+      <a
+        href="https://civiform.us/"
+        th:text="#{footer.aboutCiviform}"
+        class="padding-2"
+      ></a>
     </div>
-    <div class="padding-2" th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}">
-    </div>
+    <div
+      class="padding-2"
+      th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
+    ></div>
   </div>
   <div class="usa-identifier">
-  <section
-    class="usa-identifier__section usa-identifier__section--masthead"
-    aria-label="Agency identifier,"
-  >
-    <div class="usa-identifier__container">
-      <div class="usa-identifier__logos">
-        <a href="" class="usa-identifier__logo">
-          <img
-            th:src="${smallLogoUrl}"
-            class="usa-identifier__logo-img"
-            th:attr="alt=${civicEntityFullName + ' Logo'}"
-        /></a>
+    <section
+      class="usa-identifier__section usa-identifier__section--masthead"
+      aria-label="Agency identifier,"
+    >
+      <div class="usa-identifier__container">
+        <div class="usa-identifier__logos">
+          <a href="" class="usa-identifier__logo">
+            <img
+              th:src="${smallLogoUrl}"
+              class="usa-identifier__logo-img"
+              th:attr="alt=${civicEntityFullName + ' Logo'}"
+          /></a>
+        </div>
+        <section
+          class="usa-identifier__identity"
+          aria-label="Agency description,"
+        >
+          <p
+            class="usa-identifier__identity-disclaimer"
+            th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"
+          ></p>
+        </section>
       </div>
-      <section
-        class="usa-identifier__identity"
-        aria-label="Agency description,"
-      >
-        <p
-          class="usa-identifier__identity-disclaimer"
-          th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"
-        ></p>
-      </section>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
 </div>
 
-<a th:fragment="technicalSupportLink" class="usa-link" href="mailto:civiform-dev@exygy.com" target="_blank">civiform-dev@exygy.com</a>
+<a
+  th:fragment="technicalSupportLink"
+  class="usa-link"
+  href="mailto:civiform-dev@exygy.com"
+  target="_blank"
+  >civiform-dev@exygy.com</a
+>
