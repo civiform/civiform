@@ -1,11 +1,12 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 public final class PhoneQuestionDefinition extends QuestionDefinition {
 
-  public PhoneQuestionDefinition(QuestionDefinitionConfig config) {
+  public PhoneQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

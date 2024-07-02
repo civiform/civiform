@@ -2,6 +2,7 @@ package services.question;
 
 import com.google.auto.value.AutoValue;
 import java.util.Locale;
+import views.components.TextFormatter;
 
 /**
  * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition},
@@ -27,6 +28,11 @@ public abstract class LocalizedQuestionOption {
 
   /** The text strings to display to the user. */
   public abstract String optionText();
+
+  /** Sanitized HTML for the option that processes Markdown. */
+  public String formattedOptionText() {
+    return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false);
+  }
 
   /** The locale this option is localized to. */
   public abstract Locale locale();

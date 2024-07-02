@@ -9,7 +9,7 @@ import java.util.OptionalInt;
 /** Defines a file upload question. */
 public final class FileUploadQuestionDefinition extends QuestionDefinition {
 
-  public FileUploadQuestionDefinition(QuestionDefinitionConfig config) {
+  public FileUploadQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

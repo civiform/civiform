@@ -169,7 +169,21 @@ public final class QuestionConfig {
             .setLabelText("Repeated entity type (What are we enumerating?)")
             .setRequired(true)
             .setValue(enumeratorQuestionForm.getEntityType())
-            .getInputTag());
+            .getInputTag(),
+        FieldWithLabel.number()
+            .setFieldName("minEntities")
+            .setLabelText("Minimum entity count")
+            .setRequired(false)
+            .setValue(enumeratorQuestionForm.getMinEntities())
+            .setMin(OptionalLong.of(0))
+            .getNumberTag(),
+        FieldWithLabel.number()
+            .setFieldName("maxEntities")
+            .setLabelText("Maximum entity count")
+            .setRequired(false)
+            .setValue(enumeratorQuestionForm.getMaxEntities())
+            .setMin(OptionalLong.of(1))
+            .getNumberTag());
     return this;
   }
 

@@ -169,6 +169,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private void addFileUploadParameters(
       ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
         "nextBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
     context.setVariable(

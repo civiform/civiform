@@ -96,7 +96,7 @@ export class ApplicantQuestions {
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
-    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    const filePath = 'file-size-' + mbSize + '-mb.pdf'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)

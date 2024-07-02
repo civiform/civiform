@@ -173,7 +173,7 @@ function setFocusAfterEnumeratorRemoval() {
 
 /**
  * Enable the add button if and only if all inputs are filled (the user doesn't need two blank
- * inputs).
+ * inputs) and the user has not reached the maximum number of inputs.
  */
 function refreshAddButtonStatus() {
   const enumeratorInputValues = Array.from(
@@ -188,7 +188,11 @@ function refreshAddButtonStatus() {
   ) as HTMLInputElement
 
   if (addButton) {
-    addButton.disabled = enumeratorInputValues.includes('')
+    // converts to 0 or NaN if unset
+    const maxEntities = Number(addButton.dataset.maxEntities)
+    addButton.disabled =
+      enumeratorInputValues.includes('') ||
+      (maxEntities > 0 && enumeratorInputValues.length >= maxEntities)
   }
 }
 
