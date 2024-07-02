@@ -204,7 +204,6 @@ public enum MessageKey {
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
-  FOOTER_VISIT_LINK("footer.visitLink"),
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),

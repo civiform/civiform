@@ -22,8 +22,6 @@ footer.returnToTop=Return to top
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=For technical support: {0}
-# Text within a link to visit the given website
-footer.visitLink=Visit {0}
 guest=Guest
 label.languageSr=Choose a language
 # A label on the button that opens the header menu shown on mobile
