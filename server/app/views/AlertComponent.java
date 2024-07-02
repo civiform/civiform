@@ -17,8 +17,8 @@ import views.style.BaseStyles;
 /**
  * Render a USWDS Alert Component
  *
- * <p>{@see <a
- * href="https://designsystem.digital.gov/components/alert">https://designsystem.digital.gov/components/alert</a>}
+ * @see <a
+ *     href="https://designsystem.digital.gov/components/alert">https://designsystem.digital.gov/components/alert</a>
  */
 public final class AlertComponent {
   /**
