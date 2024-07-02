@@ -200,7 +200,6 @@ public enum MessageKey {
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FILEUPLOAD_VALIDATION_FILE_TOO_LARGE("validation.fileTooLarge"),
   FOOTER_ABOUT_CIVIFORM("footer.aboutCiviform"),
-  FOOTER_LOOKING_FOR_MORE_INFO("footer.lookingForMoreInformation"),
   FOOTER_OFFICIAL_WEBSITE_OF("footer.officialWebsiteOf"),
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),

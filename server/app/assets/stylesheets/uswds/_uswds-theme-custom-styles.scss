@@ -125,7 +125,7 @@ h1.usa-step-indicator__heading {
  * See #7951 for detils
  */
 .cf-footer-help-links a {
-  color: #1b1b1b;
+  @include u-text('base-darkest')
 }
 
 /**
@@ -142,7 +142,7 @@ h1.usa-step-indicator__heading {
   }
 
   .cf-footer-help-links a {
-    border-bottom: 1px solid #71767a;
+    @include u-border-bottom('base', 1px);
     @include u-padding-x(6);
     width: 100%;
   }

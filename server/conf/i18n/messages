@@ -15,8 +15,6 @@ button.untranslatedSubmit=Submit
 # not be translated.
 footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=For technical support, contact
-# Text in the footer. The placeholder is a link call to action to visit a website.
-footer.lookingForMoreInformation=Looking for more information and services? {0}
 # Text in the footer telling users that this is an official website of the specified Civic entity.
 footer.officialWebsiteOf=An official website of the {0}
 # Text on a link that will scroll to the top of the page
