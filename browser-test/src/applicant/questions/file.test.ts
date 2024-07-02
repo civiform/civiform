@@ -309,15 +309,8 @@ test.describe('file upload applicant flow', () => {
           await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
           await applicantFileQuestion.expectFileTooLargeErrorShown()
-          // Add extra long timeout because the file input has a loading spinner that won't
-          // stabilize until the entire 101 MB file uploads.
-          await validateScreenshot(
-            page,
-            'file-error-too-large-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
-            /* timeout= */ 30000,
-          )
+          // Don't perform a screenshot here because it shows a spinner that doesn't become stable
+          // while the file is uploading.
         })
 
         await test.step('Cannot save file if too large', async () => {
