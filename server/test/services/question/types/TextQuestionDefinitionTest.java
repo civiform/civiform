@@ -13,20 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.LocalizedStrings;
-import services.question.types.EnumeratorQuestionDefinition.EnumeratorValidationPredicates;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 @RunWith(JUnitParamsRunner.class)
-public class EnumeratorQuestionDefinitionTest {
-  @Test
-  public void validate_withEmptyEntityString_returnsError() throws Exception {
-    QuestionDefinition question =
-        new EnumeratorQuestionDefinition(
-            makeConfigBuilder().build(), LocalizedStrings.withDefaultValue(""));
-
-    assertThat(question.validate())
-        .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));
-  }
-
+public class TextQuestionDefinitionTest {
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
   private static ImmutableList<Object[]> getValidationTestData() {
     return ImmutableList.of(
@@ -36,36 +26,33 @@ public class EnumeratorQuestionDefinitionTest {
         new Object[] {OptionalInt.of(1), OptionalInt.of(2), Optional.<String>empty()},
         new Object[] {OptionalInt.of(1), OptionalInt.of(1), Optional.<String>empty()},
         new Object[] {
-          OptionalInt.of(-1),
-          OptionalInt.empty(),
-          Optional.of("Minimum entity count cannot be negative")
+          OptionalInt.of(-1), OptionalInt.empty(), Optional.of("Minimum length cannot be negative")
         },
         new Object[] {
           OptionalInt.empty(),
           OptionalInt.of(0),
-          Optional.of("Maximum entity count cannot be less than 1")
+          Optional.of("Maximum length cannot be less than 1")
         },
         new Object[] {
           OptionalInt.of(2),
           OptionalInt.of(1),
-          Optional.of("Minimum entity count must be less than or equal to the maximum entity count")
+          Optional.of("Minimum length must be less than or equal to the maximum length")
         });
   }
 
   @Test
   @Parameters(method = "getValidationTestData")
   public void validate_settingConstraints(
-      OptionalInt minEntities, OptionalInt maxEntities, Optional<String> expectedErrorMessage) {
+      OptionalInt minLength, OptionalInt maxLength, Optional<String> expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()
             .setValidationPredicates(
-                EnumeratorValidationPredicates.builder()
-                    .setMinEntities(minEntities)
-                    .setMaxEntities(maxEntities)
+                TextValidationPredicates.builder()
+                    .setMinLength(minLength)
+                    .setMaxLength(maxLength)
                     .build())
             .build();
-    QuestionDefinition question =
-        new EnumeratorQuestionDefinition(config, LocalizedStrings.withDefaultValue("foo"));
+    QuestionDefinition question = new TextQuestionDefinition(config);
 
     ImmutableSet<CiviFormError> errors = question.validate();
 
