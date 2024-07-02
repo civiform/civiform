@@ -19,12 +19,12 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
+import services.AlertType;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.cloud.StorageUploadRequest;
-import views.ViewUtils;
+import views.AlertComponent;
 import views.applicant.ApplicantFileUploadRenderer;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /**
@@ -119,11 +119,11 @@ public abstract class FileUploadViewStrategy {
    * fileLimitMb}.
    */
   public static DivTag createFileTooLargeError(int fileLimitMb, Messages messages) {
-    return ViewUtils.makeAlertSlim(
+    return AlertComponent.renderSlimView(
+            AlertType.ERROR,
             fileTooLargeMessage(fileLimitMb).getMessage(messages),
             // TypeScript will un-hide this error when needed.
             /* hidden= */ true,
-            /* classes...= */ BaseStyles.ALERT_ERROR,
             "mb-4")
         .withId(ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR_ID);
   }
