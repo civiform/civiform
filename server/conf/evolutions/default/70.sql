@@ -1,6 +1,5 @@
--- Lots of casting going on here. validation_predicates are stored as jsonb strings which means
--- we need to turn them into json to insert the new field, then case the whole object back into
--- a jsonb string before re-saving it. 
+-- A note about the type casting going on here: validation_predicates are stored as jsonb strings which means we need to turn them into json to insert the new field. 
+-- To save it back in it's original format, we have to cast it back to text and then wrap it in to_jsonb again. 
 
 
 # --- !Ups

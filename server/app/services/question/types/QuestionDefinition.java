@@ -61,6 +61,12 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+  /**
+   * Superclass for all question validation predicates.
+   *
+   * <p>The {@link JsonSubTypes} information lets us parse ValidationPredicates into JSON, and then
+   * deserialize the JSON back into the correct ValidationPredicates subclass.
+   */
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes({
     @JsonSubTypes.Type(

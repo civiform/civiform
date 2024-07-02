@@ -359,7 +359,7 @@ public final class QuestionService {
   /**
    * Validates that a question's updates do not change its immutable members.
    *
-   * <p>Question immutable members are: name, enumerator id, path, and type.
+   * <p>Question immutable members are: name, enumerator id, and path.
    */
   private ImmutableSet<CiviFormError> validateQuestionImmutableMembers(
       QuestionDefinition questionDefinition, QuestionDefinition toUpdate) {
