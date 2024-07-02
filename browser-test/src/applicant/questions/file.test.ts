@@ -265,15 +265,67 @@ test.describe('file upload applicant flow', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+      test('validate screenshots', async ({
+        page,
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initial rendering screenshot', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantFileQuestion.expectFileSelectionErrorHidden()
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'file-required-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'file-required-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Show missing file alert', async () => {
+          await applicantQuestions.clickNext()
+          await applicantFileQuestion.expectFileSelectionErrorShown()
+
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'file-missing-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('File too large error', async ({
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initially no error is shown', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantFileQuestion.expectFileTooLargeErrorHidden()
+        })
+
+        await test.step('Shows error when file size is too large', async () => {
+          await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+
+          await applicantFileQuestion.expectFileTooLargeErrorShown()
+          // Don't perform a screenshot here because it shows a spinner that doesn't become stable
+          // while the file is uploading.
+        })
+
+        await test.step('Cannot save file if too large', async () => {
+          await applicantQuestions.clickNext()
+
+          // Verify the file isn't saved and we're still on the file upload question block
+          await applicantQuestions.validateQuestionIsOnPage(
+            fileUploadQuestionText,
+          )
+        })
+
+        await test.step('Hides error when smaller file is uploaded', async () => {
+          await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+
+          await applicantFileQuestion.expectFileTooLargeErrorHidden()
+        })
       })
 
       test('form is correctly formatted', async ({

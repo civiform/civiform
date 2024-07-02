@@ -368,6 +368,59 @@ test.describe('Checkbox question for applicant flow', () => {
     },
   )
 
+  test.describe(
+    'single checkbox question with markdown with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      test('markdown is rendered for questions', async ({
+        page,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
+        const programName = 'Test program for single checkbox'
+
+        await test.step('Set up program with markdown', async () => {
+          // As admin, create program with single checkbox question.
+          await loginAsAdmin(page)
+
+          await adminQuestions.addCheckboxQuestion({
+            questionName: 'checkbox-color-q',
+            questionText: '**bold question**',
+            helpText: '[link help text](link.com)',
+            markdown: true,
+            options: [
+              {adminName: 'red_admin', text: '**red**'},
+              {adminName: 'green_admin', text: '*green*'},
+              {adminName: 'orange_admin', text: '[Orange](orange.com)'},
+              {adminName: 'blue_admin', text: '* list'},
+            ],
+            minNum: 1,
+            maxNum: 2,
+          })
+          await adminPrograms.addAndPublishProgramWithQuestions(
+            ['checkbox-color-q'],
+            programName,
+          )
+
+          await logout(page)
+          await enableFeatureFlag(page, 'north_star_applicant_ui')
+        })
+
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot', async () => {
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'checkbox-markdown-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+    },
+  )
+
   async function setUpForSingleQuestion(
     programName: string,
     page: Page,

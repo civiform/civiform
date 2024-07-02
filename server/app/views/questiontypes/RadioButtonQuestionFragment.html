@@ -41,7 +41,7 @@
       <label
         class="usa-radio__label maxw-mobile-lg cf-multi-option-value"
         th:for="${inputId}"
-        th:text="${option.optionText()}"
+        th:utext="${option.formattedOptionText()}"
       ></label>
     </div>
   </fieldset>
