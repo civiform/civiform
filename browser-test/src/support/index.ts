@@ -362,7 +362,7 @@ export const validateScreenshot = async (
       // Reset back to original width
       await page.setViewportSize({width: existingWidth, height})
     }
-  })
+  }, { box: true })
 }
 
 const takeScreenshot = async (
