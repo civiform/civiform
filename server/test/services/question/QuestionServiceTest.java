@@ -140,7 +140,6 @@ public class QuestionServiceTest extends ResetPostgres {
         new QuestionDefinitionBuilder(nameQuestion)
             .setName("this is a new name")
             .setEnumeratorId(Optional.of(100L))
-            .setQuestionType(QuestionType.ADDRESS)
             .setQuestionText(LocalizedStrings.withDefaultValue("$this new name"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("$this again"))
             .build();
@@ -162,11 +161,7 @@ public class QuestionServiceTest extends ResetPostgres {
             CiviFormError.of(
                 String.format(
                     "question enumerator ids mismatch: [no enumerator] does not match %s",
-                    toUpdate.getEnumeratorId().get())),
-            CiviFormError.of(
-                String.format(
-                    "question types mismatch: %s does not match %s",
-                    nameQuestion.getQuestionType(), toUpdate.getQuestionType())));
+                    toUpdate.getEnumeratorId().get())));
   }
 
   @Test

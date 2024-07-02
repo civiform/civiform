@@ -32,10 +32,6 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public StaticContentValidationPredicates getStaticContentValidationPredicates() {
-    return (StaticContentValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.STATIC;

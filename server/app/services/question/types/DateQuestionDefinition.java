@@ -28,10 +28,6 @@ public final class DateQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public DateValidationPredicates getDateValidationPredicates() {
-    return (DateValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.DATE;

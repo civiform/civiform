@@ -2,6 +2,7 @@ package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,10 +36,6 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     this.entityType = checkNotNull(entityType);
   }
 
-  public EnumeratorValidationPredicates getEnumeratorValidationPredicates() {
-    return (EnumeratorValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ENUMERATOR;
@@ -60,12 +57,18 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     return entityType;
   }
 
+  @JsonIgnore
   public OptionalInt getMinEntities() {
     return getEnumeratorValidationPredicates().minEntities();
   }
 
+  @JsonIgnore
   public OptionalInt getMaxEntities() {
     return getEnumeratorValidationPredicates().maxEntities();
+  }
+
+  private EnumeratorValidationPredicates getEnumeratorValidationPredicates() {
+    return (EnumeratorValidationPredicates) getValidationPredicates();
   }
 
   @JsonDeserialize(

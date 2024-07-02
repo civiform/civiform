@@ -28,10 +28,6 @@ public final class NameQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public NameValidationPredicates getNameValidationPredicates() {
-    return (NameValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.NAME;

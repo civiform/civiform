@@ -39,7 +39,7 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("questionHelpText")
   abstract Optional<LocalizedStrings> questionHelpTextInternal();
 
-  @JsonIgnore
+  @JsonProperty("validationPredicates")
   abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
 
   @JsonProperty("id")
@@ -107,7 +107,7 @@ public abstract class QuestionDefinitionConfig {
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
 
-    @JsonIgnore
+    @JsonProperty("validationPredicates")
     public abstract Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates);
 

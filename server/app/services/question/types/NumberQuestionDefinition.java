@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -62,10 +63,6 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public NumberValidationPredicates getNumberValidationPredicates() {
-    return (NumberValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.NUMBER;
@@ -76,11 +73,18 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     return NumberValidationPredicates.create();
   }
 
+  @JsonIgnore
   public OptionalLong getMin() {
     return getNumberValidationPredicates().min();
   }
 
+  @JsonIgnore
   public OptionalLong getMax() {
     return getNumberValidationPredicates().max();
+  }
+
+  @JsonIgnore
+  private NumberValidationPredicates getNumberValidationPredicates() {
+    return (NumberValidationPredicates) getValidationPredicates();
   }
 }

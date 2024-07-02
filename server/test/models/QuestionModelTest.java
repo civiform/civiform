@@ -154,6 +154,9 @@ public class QuestionModelTest extends ResetPostgres {
 
     QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
+    // assert type field is saved to json blob
+    assertThat(found.getQuestionDefinition().getValidationPredicatesAsString())
+        .contains("\"type\":\"text\"");
     assertThat(found.getQuestionDefinition().getValidationPredicates())
         .isEqualTo(TextValidationPredicates.create(0, 128));
   }
