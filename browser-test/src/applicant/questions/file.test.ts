@@ -296,7 +296,6 @@ test.describe('file upload applicant flow', () => {
       })
 
       test('File too large error', async ({
-        page,
         applicantFileQuestion,
         applicantQuestions,
       }) => {
