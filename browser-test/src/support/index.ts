@@ -287,17 +287,20 @@ export const closeWarningMessage = async (page: Page) => {
   }
 }
 
+/**
+ * Run accessibility tests using axe accessibility testing engine
+ * @param {Page} page Playwright page to operate against
+ */
 export const validateAccessibility = async (page: Page) => {
-  await test.step('Validate accessiblity', async () => {
-    const results = await new AxeBuilder({page}).analyze()
-    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-      results.violations,
-      null,
-      2,
-    )}`
-
-    expect(results.violations, errorMessage).toEqual([])
-  })
+  await test.step(
+    'Validate accessiblity',
+    async () => {
+      const results = await new AxeBuilder({page}).analyze()
+      const errorMessage = `Found ${results.violations.length} axe accessibility violations\nOn page: ${page.url()}`
+      expect(results.violations, errorMessage).toEqual([])
+    },
+    {box: true},
+  )
 }
 
 /**
@@ -423,9 +426,20 @@ const normalizeElements = async (page: Frame | Page) => {
   })
 }
 
+/**
+ * Check if the toast message contains the expected value
+ * @param {Page} page Playwright page to operate against
+ * @param {string} value Text to look for within the toast message
+ */
 export const validateToastMessage = async (page: Page, value: string) => {
-  const toastMessages = await page.innerText('#toast-container')
-  expect(toastMessages).toContain(value)
+  await test.step(
+    'Validate toast message',
+    async () => {
+      const toastMessages = await page.innerText('#toast-container')
+      expect(toastMessages).toContain(value)
+    },
+    {box: true},
+  )
 }
 
 type LocalstackSesResponse = {
