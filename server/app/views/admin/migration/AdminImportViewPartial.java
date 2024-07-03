@@ -48,7 +48,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     return div()
         .withId(PROGRAM_DATA_ID)
         .with(
-            AlertComponent.renderFullView(
+            AlertComponent.renderFullAlert(
                 AlertType.ERROR,
                 /* text= */ errorMessage,
                 /* title= */ Optional.of("Error processing JSON"),

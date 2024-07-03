@@ -167,7 +167,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     if (!isSuccessfulSave) {
       return div();
     }
-    return AlertComponent.renderFullView(
+    return AlertComponent.renderFullAlert(
         AlertType.SUCCESS, successToast, optionalSuccessMessage, false, "mb-4", "w-3/5");
   }
 

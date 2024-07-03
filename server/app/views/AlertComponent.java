@@ -23,7 +23,7 @@ import views.style.BaseStyles;
 public final class AlertComponent {
   /**
    * Heading levels that can be used for Alerts. H1 tags are limited to a single instance per page
-   * and and not allowed as headings.
+   * and not allowed as headings.
    */
   public enum HeadingLevel {
     H2,
@@ -45,7 +45,7 @@ public final class AlertComponent {
    * @param classes One or more additional classes to apply to the USWDS Alert component.
    * @return DivTag containing the alert.
    */
-  public static DivTag renderFullView(
+  public static DivTag renderFullAlert(
       AlertType alertType,
       String text,
       Optional<String> title,
@@ -96,9 +96,9 @@ public final class AlertComponent {
    * @param classes One or more additional classes to apply to the USWDS Alert component.
    * @return DivTag containing the alert.
    */
-  public static DivTag renderFullView(
+  public static DivTag renderFullAlert(
       AlertType alertType, String text, Optional<String> title, boolean hidden, String... classes) {
-    return renderFullView(alertType, text, title, hidden, HeadingLevel.H4, classes);
+    return renderFullAlert(alertType, text, title, hidden, HeadingLevel.H4, classes);
   }
 
   /**
@@ -111,9 +111,9 @@ public final class AlertComponent {
    * @param classes One or more additional classes to apply to the USWDS Alert component.
    * @return DivTag containing the alert.
    */
-  public static DivTag renderSlimView(
+  public static DivTag renderSlimAlert(
       AlertType alertType, String text, boolean hidden, String... classes) {
-    return renderFullView(
+    return renderFullAlert(
         alertType,
         text,
         /* title= */ Optional.empty(),

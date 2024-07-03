@@ -112,7 +112,7 @@ public class AlertComponentTest {
   @Parameters(method = "alertTypeTestParameters")
   public void makeAlert_createsAlertComponentCorrectly(Param param) {
     DivTag alertComponent =
-        AlertComponent.renderFullView(
+        AlertComponent.renderFullAlert(
             param.alertType(), param.text(), param.title(), param.hidden());
     assertThat(alertComponent.renderFormatted())
         .isEqualTo(
@@ -145,7 +145,7 @@ public class AlertComponentTest {
   @Parameters(method = "headingLevelParameters")
   public void makeAlert_usesTheCorrectHeadingLevel(AlertComponent.HeadingLevel headingLevel) {
     DivTag alertComponent =
-        AlertComponent.renderFullView(
+        AlertComponent.renderFullAlert(
             AlertType.INFO, "some text", Optional.of("title"), true, headingLevel);
     assertThat(alertComponent.render()).contains(headingLevel.name().toLowerCase(Locale.ROOT));
   }

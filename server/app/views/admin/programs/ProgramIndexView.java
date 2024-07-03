@@ -269,7 +269,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               DivTag missingUniversalQuestionsWarning =
                   div()
                       .with(
-                          AlertComponent.renderFullView(
+                          AlertComponent.renderFullAlert(
                               AlertType.WARNING,
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
@@ -353,7 +353,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
-                AlertComponent.renderFullView(
+                AlertComponent.renderFullAlert(
                     AlertType.WARNING,
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
