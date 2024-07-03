@@ -127,7 +127,7 @@ public class AlertComponentTest {
     // The only difference between these and makeAlert is the inclusion of the
     // class usa-alert--slim
     DivTag alertComponent =
-        AlertComponent.renderSlimView(param.alertType(), param.text(), param.hidden());
+        AlertComponent.renderSlimAlert(param.alertType(), param.text(), param.hidden());
     assertThat(alertComponent.render()).contains(BaseStyles.ALERT_SLIM);
   }
 

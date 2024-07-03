@@ -211,7 +211,7 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimView(
+                  AlertComponent.renderSlimAlert(
                       AlertType.INFO,
                       "We recommend using Universal questions in your program for all personal and"
                           + " contact information questions.",

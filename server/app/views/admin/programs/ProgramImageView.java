@@ -212,7 +212,7 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
-            AlertComponent.renderSlimView(
+            AlertComponent.renderSlimAlert(
                 AlertType.INFO,
                 "Note: Image description is required before uploading an image.",
                 /* hidden= */ false,

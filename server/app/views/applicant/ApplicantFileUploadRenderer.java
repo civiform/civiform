@@ -114,7 +114,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
-        AlertComponent.renderSlimView(
+        AlertComponent.renderSlimAlert(
                 AlertType.ERROR,
                 fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
                 // file_upload.ts will un-hide this error if needed.

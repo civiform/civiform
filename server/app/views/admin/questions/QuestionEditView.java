@@ -553,7 +553,7 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          AlertComponent.renderSlimView(
+                          AlertComponent.renderSlimAlert(
                               AlertType.INFO,
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
@@ -561,7 +561,7 @@ public final class QuestionEditView extends BaseHtmlView {
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimView(
+                          AlertComponent.renderSlimAlert(
                               AlertType.INFO,
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
@@ -569,7 +569,7 @@ public final class QuestionEditView extends BaseHtmlView {
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimView(
+                          AlertComponent.renderSlimAlert(
                               AlertType.INFO,
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),

@@ -119,7 +119,7 @@ public abstract class FileUploadViewStrategy {
    * fileLimitMb}.
    */
   public static DivTag createFileTooLargeError(int fileLimitMb, Messages messages) {
-    return AlertComponent.renderSlimView(
+    return AlertComponent.renderSlimAlert(
             AlertType.ERROR,
             fileTooLargeMessage(fileLimitMb).getMessage(messages),
             // TypeScript will un-hide this error when needed.

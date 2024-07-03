@@ -172,7 +172,7 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimView(
+                  AlertComponent.renderSlimAlert(
                       AlertType.INFO,
                       "We recommend using all universal questions in your program for personal and"
                           + " contact information questions.",
