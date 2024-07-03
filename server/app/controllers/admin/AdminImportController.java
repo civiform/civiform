@@ -4,8 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Optional;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -13,9 +16,14 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
+import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
+import services.program.BlockDefinition;
+import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
@@ -40,6 +48,7 @@ public class AdminImportController extends CiviFormController {
   private final ProgramMigrationService programMigrationService;
   private final SettingsManifest settingsManifest;
   private final ProgramRepository programRepository;
+  private final QuestionRepository questionRepository;
 
   @Inject
   public AdminImportController(
@@ -50,7 +59,8 @@ public class AdminImportController extends CiviFormController {
       ProgramMigrationService programMigrationService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository,
-      ProgramRepository programRepository) {
+      ProgramRepository programRepository,
+      QuestionRepository questionRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
@@ -58,6 +68,7 @@ public class AdminImportController extends CiviFormController {
     this.programMigrationService = checkNotNull(programMigrationService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programRepository = checkNotNull(programRepository);
+    this.questionRepository = checkNotNull(questionRepository);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -114,15 +125,7 @@ public class AdminImportController extends CiviFormController {
       return notFound("Program import is not enabled");
     }
 
-    Form<AdminProgramImportForm> form =
-        formFactory
-            .form(AdminProgramImportForm.class)
-            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
-
-    String jsonString = form.get().getProgramJson();
-
-    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
-        programMigrationService.deserialize(jsonString);
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
 
     if (deserializeResult.isError()) {
       return ok(
@@ -130,12 +133,73 @@ public class AdminImportController extends CiviFormController {
               .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
+
     ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
-    ProgramModel programModel =
-        new ProgramModel(
-            programMigrationWrapper.getProgram(), versionRepository.getDraftVersionOrCreate());
-    programRepository.insertProgramSync(programModel);
+    ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
+    ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+
+    ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+        questionsOnJson.stream()
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+        questionRepository.bulkCreateQuestions(questionsOnJson).stream()
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    ImmutableList<BlockDefinition> updatedBlockDefinitions =
+        programOnJson.blockDefinitions().stream()
+            .map(
+                blockDefinition -> {
+                  ImmutableList<ProgramQuestionDefinition> updatedProgramQuestionDefinitions =
+                      blockDefinition.programQuestionDefinitions().stream()
+                          .map(
+                              pqd ->
+                                  updateProgramQuestionDefinition(
+                                      pqd, questionsOnJsonById, updatedQuestionsMap))
+                          .collect(ImmutableList.toImmutableList());
+                  return blockDefinition.toBuilder()
+                      .setProgramQuestionDefinitions(updatedProgramQuestionDefinitions)
+                      .build();
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    ProgramDefinition updatedProgram =
+        programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    programRepository.insertProgramSync(
+        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
     return ok(adminImportView.render(request));
+  }
+
+  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    Form<AdminProgramImportForm> form =
+        formFactory
+            .form(AdminProgramImportForm.class)
+            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+
+    String jsonString = form.get().getProgramJson();
+
+    return programMigrationService.deserialize(jsonString);
+  }
+
+  private ProgramQuestionDefinition updateProgramQuestionDefinition(
+      ProgramQuestionDefinition programQuestionDefinitionFromJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    Long id = programQuestionDefinitionFromJson.id();
+    // This is how we turn the updated question into a ProgramQuestionDefinition
+    // so it can be inserted into the BlockDefinition
+    // The BlockDefinition contains the id of the question from the old environment
+    // so we need to use the unique question name (admin name) to associate
+    // the question from the old environment with the version of that question
+    // that we just saved in the new environment.
+    QuestionDefinition questionOnJson = questionsOnJsonById.get(id);
+    QuestionDefinition updatedQuestion = updatedQuestionsMap.get(questionOnJson.getName());
+    return ProgramQuestionDefinition.create(
+        updatedQuestion,
+        Optional.empty(),
+        programQuestionDefinitionFromJson.optional(),
+        programQuestionDefinitionFromJson.addressCorrectionEnabled());
   }
 }

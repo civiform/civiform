@@ -151,6 +151,38 @@ public final class QuestionRepository {
   }
 
   /**
+   * Create multiple questions at once. Used in program migration to import all the questions in a
+   * program.
+   */
+  public ImmutableList<QuestionModel> bulkCreateQuestions(
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
+      ImmutableList<QuestionModel> updatedQuestions =
+          questionDefinitions.stream()
+              .map(
+                  questionDefinition -> {
+                    try {
+                      QuestionModel newDraftQuestion =
+                          new QuestionModel(
+                              new QuestionDefinitionBuilder(questionDefinition)
+                                  .setId(null)
+                                  .build());
+                      newDraftQuestion.addVersion(
+                          versionRepositoryProvider.get().getDraftVersionOrCreate());
+                      newDraftQuestion.save();
+                      return newDraftQuestion;
+                    } catch (UnsupportedQuestionTypeException error) {
+                      throw new RuntimeException(error);
+                    }
+                  })
+              .collect(ImmutableList.toImmutableList());
+      transaction.commit();
+      return updatedQuestions;
+    }
+  }
+
+  /**
    * Update DRAFT and ACTIVE questions that reference {@code oldEnumeratorId} to reference {@code
    * newEnumeratorId}.
    */

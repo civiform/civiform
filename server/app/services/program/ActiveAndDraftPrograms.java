@@ -84,6 +84,7 @@ public final class ActiveAndDraftPrograms {
       Optional<ProgramService> service,
       VersionModel versionModel,
       Optional<DisplayMode> excludeDisplayMode) {
+    // for some reason versionModel is null
     return repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
         .map(
             program ->
