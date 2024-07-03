@@ -3,7 +3,6 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
@@ -33,6 +32,7 @@ import models.AccountModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -2969,8 +2969,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     DuplicateStatusException exc =
-        catchThrowableOfType(
-            () -> ps.appendStatus(program.id, newApprovedStatus), DuplicateStatusException.class);
+        Assertions.catchThrowableOfType(
+            DuplicateStatusException.class,
+            () -> {
+              ps.appendStatus(program.id, newApprovedStatus);
+            });
+
     assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
   }
 
@@ -3037,7 +3041,8 @@ public class ProgramServiceTest extends ResetPostgres {
     // We update the "rejected" status entry so that it's text is the same as the
     // "approved" status entry.
     DuplicateStatusException exc =
-        catchThrowableOfType(
+        Assertions.catchThrowableOfType(
+            DuplicateStatusException.class,
             () ->
                 ps.editStatus(
                     program.id,
@@ -3050,8 +3055,7 @@ public class ProgramServiceTest extends ResetPostgres {
                           .setLocalizedEmailBodyText(
                               Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
                           .build();
-                    }),
-            DuplicateStatusException.class);
+                    }));
     assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
   }
 
