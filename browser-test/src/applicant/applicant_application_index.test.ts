@@ -399,6 +399,27 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
+  test(
+    'shows program with wide image in North Star',
+    {tag: ['@northstar']},
+    async ({page, adminPrograms, adminProgramImage}) => {
+      const programName = 'Wide Image Program'
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await validateScreenshot(page, 'north-star-program-image-wide')
+      await validateAccessibility(page)
+    },
+  )
+
   test('shows program with tall image', async ({
     page,
     adminPrograms,

@@ -51,7 +51,7 @@ public final class ProgramImageUtils {
             .withClasses(styleClasses));
   }
 
-  private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
+  public static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
     if (program.localizedSummaryImageDescription().isPresent()
         && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
       return program.localizedSummaryImageDescription().get().getOrDefault(preferredLocale);
