@@ -248,12 +248,6 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('Garlic Press')
     })
 
-    await validateScreenshot(
-      page.locator('main'),
-      'import-page-with-data',
-      /* fullPage= */ false,
-    )
-
     await test.step('save the imported program', async () => {
       await adminProgramMigration.saveProgram()
       await adminPrograms.expectProgramExist(
