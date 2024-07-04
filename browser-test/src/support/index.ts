@@ -308,11 +308,11 @@ export const validateAccessibility = async (page: Page) => {
  * browser-test/image_snapshots/test_file_name/{screenshotFileName}-snap.png.
  * If the screenshot already exists, compare the new screenshot with the
  * existing screenshot, and save a pixel diff instead if the two don't match.
- * @param screenshotFileName Must use dash-separated-case for consistency.
+ * @param fileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
   element: Page | Locator,
-  screenshotFileName: string,
+  fileName: string,
   fullPage?: boolean,
   mobileScreenshot?: boolean,
 ) => {
@@ -345,48 +345,52 @@ export const validateScreenshot = async (
         })
       }
 
-      expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+      expect(fileName).toMatch(/^[a-z0-9-]+$/)
 
-      await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+      // Full/desktop width
+      await softAssertScreenshot(element, `${fileName}`, fullPage)
 
-      const existingWidth = page.viewportSize()?.width || 1280
-
+      // If we add additional breakpoints the browser-test/src/reporters/file_placement_reporter.ts
+      // needs to be updated to handle the additional options.
       if (mobileScreenshot) {
+        const existingWidth = page.viewportSize()?.width || 1280
         const height = page.viewportSize()?.height || 720
-        // Update the viewport size to different screen widths so we can test on a
-        // variety of sizes
+        // Mobile width
         await page.setViewportSize({width: 320, height})
-
-        await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+        await softAssertScreenshot(element, `${fileName}-mobile`, fullPage)
 
         // Medium width
         await page.setViewportSize({width: 800, height})
-
-        await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+        await softAssertScreenshot(element, `${fileName}-medium`, fullPage)
 
         // Reset back to original width
         await page.setViewportSize({width: existingWidth, height})
       }
+
+      // Do a hard assert that we have no errors. This allows us to do soft asserts on the
+      // different sized images.
+      expect(test.info().errors).toHaveLength(0)
     },
-    {box: true},
+    {
+      box: true,
+    },
   )
 }
 
-const takeScreenshot = async (
+const softAssertScreenshot = async (
   element: Page | Locator,
-  fullScreenshotFileName: string,
+  fileName: string,
   fullPage?: boolean,
 ) => {
   const testFileName = path
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  await expect(element).toHaveScreenshot(
-    [testFileName, fullScreenshotFileName + '.png'],
-    {
+  await expect
+    .soft(element)
+    .toHaveScreenshot([testFileName, fileName + '.png'], {
       fullPage: fullPage,
-    },
-  )
+    })
 }
 
 /*

@@ -60,24 +60,38 @@ class FilePlacementReporter implements Reporter {
 
       for (const test of spec.tests) {
         for (const result of test.results) {
-          const attachments = <Array<Attachment>>result.attachments
-          const expected = this.findAttachment(
-            attachments,
-            AttachmentType.EXPECTED,
+          const pngAttachmentPartition = this.partitionImagePngAttachments(
+            <Array<Attachment>>result.attachments,
           )
-          const actual = this.findAttachment(attachments, AttachmentType.ACTUAL)
-          const diff = this.findAttachment(attachments, AttachmentType.DIFF)
 
-          if (expected === null || actual === null || diff === null) {
-            continue
+          for (const key of pngAttachmentPartition.keys()) {
+            const attachments = pngAttachmentPartition.get(key)
+
+            if (attachments == null) {
+              break
+            }
+
+            const expected = this.findAttachment(
+              attachments,
+              AttachmentType.EXPECTED,
+            )
+            const actual = this.findAttachment(
+              attachments,
+              AttachmentType.ACTUAL,
+            )
+            const diff = this.findAttachment(attachments, AttachmentType.DIFF)
+
+            if (expected === null || actual === null || diff === null) {
+              continue
+            }
+
+            this.copyActualImageToUpdatedSnapshotsFolder(actual)
+            await this.createCompositeDiffAndCopyToDiffOutputFolder(
+              expected,
+              actual,
+              diff,
+            )
           }
-
-          this.copyActualImageToUpdatedSnapshotsFolder(actual)
-          await this.createCompositeDiffAndCopyToDiffOutputFolder(
-            expected,
-            actual,
-            diff,
-          )
         }
       }
     }
@@ -154,6 +168,44 @@ class FilePlacementReporter implements Reporter {
       })
   }
 
+  /** Attachment types to filter for */
+  attachmentTypes = `${AttachmentType.EXPECTED}|${AttachmentType.ACTUAL}|${AttachmentType.DIFF}`
+
+  /** Regular expression to match for filetypes */
+  attachmentNameRegex = new RegExp(
+    `-(mobile|medium)-(${this.attachmentTypes}).png`,
+  )
+  /**
+   * Takes the full list of attachments attached to a single test and returns a map having grouped
+   * the attachments into related groups of images. Non-png attachments are ignored.
+   * @param attachments[] List of attachment from a single test
+   * @returns {Map<string, Attachment[]>} Map of images grouped by type
+   */
+  partitionImagePngAttachments(
+    attachments: Attachment[],
+  ): Map<string, Attachment[]> {
+    const attachmentMap = new Map<string, Attachment[]>()
+
+    for (const attachment of attachments) {
+      if (attachment.contentType != 'image/png') {
+        continue
+      }
+
+      // Desktop isn't actually applied to screenshots file names, a null match at this point
+      // is the fallback which we assume is the default desktop image.
+      const match = this.attachmentNameRegex.exec(attachment.name)
+      const key = match == null ? 'desktop' : match[1]
+
+      if (attachmentMap.has(key)) {
+        attachmentMap.get(key)?.push(attachment)
+      } else {
+        attachmentMap.set(key, [attachment])
+      }
+    }
+
+    return attachmentMap
+  }
+
   /**
    * Find attachment by attachment type
    * @param attachments list of attachments to search through
@@ -176,6 +228,9 @@ class FilePlacementReporter implements Reporter {
 
 /** The shape of the attachment element in the playwright json output */
 interface Attachment {
+  /** Content MIME type (image/png, application/zip, etc) */
+  contentType: string
+
   /** Absolute path to the image file */
   path: string
 
