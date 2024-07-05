@@ -6,9 +6,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Random;
-import models.ApplicationStatusesModel;
 import models.ProgramModel;
-import models.StatusDefinitionsLifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -35,21 +33,16 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
 
   @Test
   public void canQueryForActiveApplicationStatuses() {
-    // setup
+
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("Active status tests" + uniqueProgramId, "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    String programName = program.getProgramDefinition().adminName();
-    StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(
-            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
-    applicationStatusesModel.save();
-    applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
-    // test
-    StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
-    // assert
+
+    StatusDefinitions statusDefinitionsResult =
+        repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
+
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
   }
@@ -72,42 +65,41 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   public void canQueryForOboseleteApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
+        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)))
+            .build();
+
     String programName = program.getProgramDefinition().adminName();
+
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(
-            programName, statusDefinitions, StatusDefinitionsLifecycleStage.OBSOLETE);
-    applicationStatusesModel.save();
-    applicationStatusesModel.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+    repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
     List<StatusDefinitions> statusDefinitionsResults =
         repo.lookupListOfObsoleteStatusDefinitions(programName);
 
     assertThat(statusDefinitionsResults).isNotEmpty();
-    assertThat(statusDefinitionsResults.size()).isEqualTo(1);
+    // one status is added as part of the program creation and one status as obsolete status
+    assertThat(statusDefinitionsResults.size()).isEqualTo(2);
     assertThat(statusDefinitionsResults.get(0).getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResults.get(0).getStatuses().get(0).statusText())
-        .isEqualTo("Approved");
+        .isEqualTo("Reapply");
   }
 
   @Test
   public void canUpdateApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description").build();
-    String programName = program.getProgramDefinition().adminName();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
-    ApplicationStatusesModel applicationStatusesModel =
-        new ApplicationStatusesModel(
-            programName, statusDefinitions, StatusDefinitionsLifecycleStage.ACTIVE);
-    applicationStatusesModel.save();
-    // pre assert before test
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description")
+            .withStatusDefinitions(statusDefinitions)
+            .build();
+    String programName = program.getProgramDefinition().adminName();
+
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);
     assertThat(statusDefinitionsResult.getStatuses().get(0).statusText()).isEqualTo("Approved");
-    // test
-    repo.updateStatusDefinitions(
+
+    repo.createOrUpdateStatusDefinitions(
         programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
 
     StatusDefinitions statusDefinitionsResult2 = repo.lookupActiveStatusDefinitions(programName);

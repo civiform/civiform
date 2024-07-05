@@ -85,8 +85,6 @@
                                                              <!--/* showReviewLogin= */-->${isGuest && redirectedFromProgramSlug.isPresent()},
                                                              <!--/* showUpsellLogin= */-->false)}"
     ></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>
