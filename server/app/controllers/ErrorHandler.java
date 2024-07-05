@@ -27,10 +27,10 @@ import services.apikey.ApiKeyNotFoundException;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applications.AccountHasNoEmailException;
 import services.applications.StatusEmailNotFoundException;
+import services.applicationstatuses.StatusNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
-import services.applicationstatuses.StatusNotFoundException;
 import views.errors.InternalServerError;
 import views.errors.NotFound;
 

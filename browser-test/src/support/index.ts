@@ -287,17 +287,20 @@ export const closeWarningMessage = async (page: Page) => {
   }
 }
 
+/**
+ * Run accessibility tests using axe accessibility testing engine
+ * @param {Page} page Playwright page to operate against
+ */
 export const validateAccessibility = async (page: Page) => {
-  await test.step('Validate accessiblity', async () => {
-    const results = await new AxeBuilder({page}).analyze()
-    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-      results.violations,
-      null,
-      2,
-    )}`
-
-    expect(results.violations, errorMessage).toEqual([])
-  })
+  await test.step(
+    'Validate accessiblity',
+    async () => {
+      const results = await new AxeBuilder({page}).analyze()
+      const errorMessage = `Found ${results.violations.length} axe accessibility violations\nOn page: ${page.url()}`
+      expect(results.violations, errorMessage).toEqual([])
+    },
+    {box: true},
+  )
 }
 
 /**
@@ -318,51 +321,55 @@ export const validateScreenshot = async (
     return
   }
 
-  await test.step('Validate screenshot', async () => {
-    if (fullPage === undefined) {
-      fullPage = true
-    }
+  await test.step(
+    'Validate screenshot',
+    async () => {
+      if (fullPage === undefined) {
+        fullPage = true
+      }
 
-    const page = 'page' in element ? element.page() : element
-    // Normalize all variable content so that the screenshot is stable.
-    await normalizeElements(page)
-    // Also process any sub frames.
-    for (const frame of page.frames()) {
-      await normalizeElements(frame)
-    }
+      const page = 'page' in element ? element.page() : element
+      // Normalize all variable content so that the screenshot is stable.
+      await normalizeElements(page)
+      // Also process any sub frames.
+      for (const frame of page.frames()) {
+        await normalizeElements(frame)
+      }
 
-    if (fullPage) {
-      // Some tests take screenshots while scroll position in the middle. That
-      // affects header which is position fixed and on final full-page screenshots
-      // overlaps part of the page.
-      await page.evaluate(() => {
-        window.scrollTo(0, 0)
-      })
-    }
+      if (fullPage) {
+        // Some tests take screenshots while scroll position in the middle. That
+        // affects header which is position fixed and on final full-page screenshots
+        // overlaps part of the page.
+        await page.evaluate(() => {
+          window.scrollTo(0, 0)
+        })
+      }
 
-    expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+      expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
 
-    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+      await takeScreenshot(element, `${screenshotFileName}`, fullPage)
 
-    const existingWidth = page.viewportSize()?.width || 1280
+      const existingWidth = page.viewportSize()?.width || 1280
 
-    if (mobileScreenshot) {
-      const height = page.viewportSize()?.height || 720
-      // Update the viewport size to different screen widths so we can test on a
-      // variety of sizes
-      await page.setViewportSize({width: 320, height})
+      if (mobileScreenshot) {
+        const height = page.viewportSize()?.height || 720
+        // Update the viewport size to different screen widths so we can test on a
+        // variety of sizes
+        await page.setViewportSize({width: 320, height})
 
-      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+        await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
 
-      // Medium width
-      await page.setViewportSize({width: 800, height})
+        // Medium width
+        await page.setViewportSize({width: 800, height})
 
-      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+        await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
 
-      // Reset back to original width
-      await page.setViewportSize({width: existingWidth, height})
-    }
-  })
+        // Reset back to original width
+        await page.setViewportSize({width: existingWidth, height})
+      }
+    },
+    {box: true},
+  )
 }
 
 const takeScreenshot = async (
@@ -419,9 +426,20 @@ const normalizeElements = async (page: Frame | Page) => {
   })
 }
 
+/**
+ * Check if the toast message contains the expected value
+ * @param {Page} page Playwright page to operate against
+ * @param {string} value Text to look for within the toast message
+ */
 export const validateToastMessage = async (page: Page, value: string) => {
-  const toastMessages = await page.innerText('#toast-container')
-  expect(toastMessages).toContain(value)
+  await test.step(
+    'Validate toast message',
+    async () => {
+      const toastMessages = await page.innerText('#toast-container')
+      expect(toastMessages).toContain(value)
+    },
+    {box: true},
+  )
 }
 
 type LocalstackSesResponse = {

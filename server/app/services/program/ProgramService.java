@@ -46,7 +46,6 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
-import services.applicationstatuses.OutOfDateStatusesException;
 import services.applicationstatuses.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
@@ -659,12 +658,10 @@ public final class ProgramService {
    * @return the {@link ProgramDefinition} that was successfully updated, or a set of errors if the
    *     update failed
    * @throws ProgramNotFoundException if the programId does not correspond to a valid program
-   * @throws OutOfDateStatusesException if the program's status definitions are out of sync with
-   *     those in the provided update
    */
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
-      throws ProgramNotFoundException, OutOfDateStatusesException {
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());

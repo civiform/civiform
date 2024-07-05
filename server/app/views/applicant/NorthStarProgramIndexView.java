@@ -131,8 +131,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         applicationPrograms.inProgress().size()
             + applicationPrograms.submitted().size()
             + applicationPrograms.unapplied().size());
-    context.setVariable(
-        "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
+
     context.setVariable("sections", sectionParamsBuilder.build());
     context.setVariable("authProviderName", authProviderName);
     context.setVariable("createAccountLink", routes.LoginController.register().url());
