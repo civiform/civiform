@@ -16,11 +16,11 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 @RunWith(MockitoJUnitRunner.class)

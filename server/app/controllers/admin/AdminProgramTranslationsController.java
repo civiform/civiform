@@ -20,7 +20,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
-import services.program.OutOfDateStatusesException;
+import services.applicationstatuses.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;

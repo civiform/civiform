@@ -30,7 +30,7 @@ import services.applications.StatusEmailNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
-import services.program.StatusNotFoundException;
+import services.applicationstatuses.StatusNotFoundException;
 import views.errors.InternalServerError;
 import views.errors.NotFound;
 

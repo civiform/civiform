@@ -49,14 +49,14 @@ import services.applications.AccountHasNoEmailException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
+import services.applicationstatuses.StatusDefinitions;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
-import services.program.StatusNotFoundException;
+import services.applicationstatuses.StatusNotFoundException;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -530,12 +530,16 @@ public final class AdminApplicationController extends CiviFormController {
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters, request);
 
+    StatusDefinitions currentStatusDefinitions =
+        applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName());
+
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
         applicationListView.render(
             request,
             profile,
             program,
+            currentStatusDefinitions.getDefaultStatus(),
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,

@@ -27,10 +27,10 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -152,12 +152,6 @@ public class ProgramModel extends BaseModel {
 
   public StatusDefinitions getStatusDefinitions() {
     return checkNotNull(this.statusDefinitions);
-  }
-
-  public Optional<StatusDefinitions.Status> getDefaultStatus() {
-    return this.statusDefinitions.getStatuses().stream()
-        .filter(StatusDefinitions.Status::computedDefaultStatus)
-        .findFirst();
   }
 
   public ProgramModel(ProgramDefinition definition) {

@@ -44,8 +44,10 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
+import services.applicationstatuses.DuplicateStatusException;
+import services.applicationstatuses.StatusDefinitions;
+import services.applicationstatuses.StatusService;
 import services.program.CantAddQuestionToBlockException;
-import services.program.DuplicateStatusException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -53,7 +55,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -83,6 +84,7 @@ public final class DevDatabaseSeedTask {
 
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final StatusService statusService;
 
   private final VersionRepository versionRepository;
   private final Database database;
@@ -91,8 +93,10 @@ public final class DevDatabaseSeedTask {
   public DevDatabaseSeedTask(
       QuestionService questionService,
       ProgramService programService,
+      StatusService statusService,
       VersionRepository versionRepository) {
     this.questionService = checkNotNull(questionService);
+    this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
@@ -214,8 +218,8 @@ public final class DevDatabaseSeedTask {
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
 
-      ErrorAnd<ProgramDefinition, CiviFormError> appendStatusResult =
-          programService.appendStatus(
+      ErrorAnd<StatusDefinitions, CiviFormError> appendStatusResult =
+          statusService.appendStatus(
               programId,
               StatusDefinitions.Status.builder()
                   .setStatusText("Pending Review")

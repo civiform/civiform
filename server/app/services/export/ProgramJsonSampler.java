@@ -11,11 +11,11 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.DeploymentType;
 import services.Path;
+import services.applicationstatuses.StatusDefinitions.Status;
 import services.export.JsonExporterService.ApplicationExportData;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionDefinition;
 
 /** Contains methods related to sampling JSON data for programs. */

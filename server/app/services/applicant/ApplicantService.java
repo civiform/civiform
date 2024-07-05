@@ -48,6 +48,7 @@ import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
@@ -60,7 +61,6 @@ import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.Representation;
-import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -73,6 +73,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
+import services.applicationstatuses.StatusDefinitions;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -84,7 +85,6 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -108,6 +108,7 @@ public final class ApplicantService {
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
   private final ProgramRepository programRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -132,6 +133,7 @@ public final class ApplicantService {
       ProgramRepository programRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -149,6 +151,7 @@ public final class ApplicantService {
     this.programRepository = checkNotNull(programRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -567,8 +570,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition =
                   programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
+              StatusDefinitions currentStatusDefinitions =
+                  applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
-                  applicationProgram.getDefaultStatus();
+                  currentStatusDefinitions.getDefaultStatus();
 
               CompletableFuture<ApplicationEventModel> updateStatusFuture =
                   maybeDefaultStatus

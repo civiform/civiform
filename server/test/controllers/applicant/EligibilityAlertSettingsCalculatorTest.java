@@ -25,11 +25,11 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 
 @RunWith(JUnitParamsRunner.class)
 public class EligibilityAlertSettingsCalculatorTest {

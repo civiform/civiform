@@ -13,8 +13,8 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.LocalizationUpdate;
-import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ProgramTranslationFormTest extends ResetPostgres {

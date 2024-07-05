@@ -29,8 +29,8 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -65,6 +65,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
    *
    * @param request The associated request.
    * @param program The program to render program statuses for.
+   * @param currentStatusDefnitions StatusDefinitions which needs to be rendered
    * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
    *     edit a program status. Note that while the view itself may render multiple program
    *     statuses, the provided form will correspond to creating / editing a single program status.
@@ -72,6 +73,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
+      StatusDefinitions currentStatusDefnitions,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     final boolean displayOnLoad;
     final Form<ProgramStatusesForm> createStatusForm;
@@ -87,6 +89,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         makeStatusUpdateModal(
             request,
             program,
+            currentStatusDefnitions.getDefaultStatus(),
             createStatusForm,
             displayOnLoad,
             /* showEmailDeletionWarning= */ false);
@@ -96,7 +99,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderProgramStatusesContainer(request, program, maybeStatusForm);
+        renderProgramStatusesContainer(request, program, currentStatusDefnitions, maybeStatusForm);
 
     DivTag topBarDiv =
         div()
@@ -155,8 +158,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Pair<DivTag, ImmutableList<Modal>> renderProgramStatusesContainer(
       Http.Request request,
       ProgramDefinition program,
+      StatusDefinitions currentStatusDefnitions,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
-    ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
+    ImmutableList<StatusDefinitions.Status> statuses = currentStatusDefnitions.getStatuses();
+    Optional<StatusDefinitions.Status> currentDefaultStatus =
+        currentStatusDefnitions.getDefaultStatus();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
@@ -176,7 +182,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     displayEditFormOnLoad = false;
                   }
                   return renderStatusItem(
-                      request, program, s, statusEditForm, displayEditFormOnLoad);
+                      request,
+                      program,
+                      s,
+                      currentDefaultStatus,
+                      statusEditForm,
+                      displayEditFormOnLoad);
                 })
             .collect(ImmutableList.toImmutableList());
     // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
@@ -214,12 +225,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
+      Optional<StatusDefinitions.Status> currentDefaultStatus,
       Form<ProgramStatusesForm> statusEditForm,
       boolean displayOnLoad) {
     Modal editStatusModal =
         makeStatusUpdateModal(
             request,
             program,
+            currentDefaultStatus,
             statusEditForm,
             displayOnLoad,
             /* showEmailDeletionWarning= */ status.localizedEmailBodyText().isPresent());
@@ -332,6 +345,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Modal makeStatusUpdateModal(
       Http.Request request,
       ProgramDefinition program,
+      Optional<StatusDefinitions.Status> currentDefaultStatus,
       Form<ProgramStatusesForm> form,
       boolean displayOnLoad,
       boolean showEmailDeletionWarning) {
@@ -348,8 +362,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .withCondChecked(isCurrentDefault)
                     .withClasses(BaseStyles.CHECKBOX, "cf-set-default-status-checkbox"),
                 span("Set as default status"));
-    Optional<StatusDefinitions.Status> currentDefaultStatus =
-        program.toProgram().getDefaultStatus();
+
     String messagePart =
         currentDefaultStatus
             .map(status -> String.format("from %s to ", status.statusText()))

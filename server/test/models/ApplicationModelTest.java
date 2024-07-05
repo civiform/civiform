@@ -9,7 +9,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ApplicationModelTest extends ResetPostgres {

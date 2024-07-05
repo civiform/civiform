@@ -1,4 +1,4 @@
-package services.program;
+package services.applicationstatuses;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -57,6 +57,10 @@ public final class StatusDefinitions {
     Preconditions.checkState(
         statuses.stream().map(Status::statusText).noneMatch(String::isEmpty),
         "The provided set of statuses may not contain empty statusTexts.");
+  }
+
+  public Optional<StatusDefinitions.Status> getDefaultStatus() {
+    return statuses.stream().filter(StatusDefinitions.Status::computedDefaultStatus).findFirst();
   }
 
   /**
