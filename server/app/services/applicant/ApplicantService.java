@@ -508,7 +508,11 @@ public final class ApplicantService {
                                       applicant.setLastName(
                                           applicantData
                                               .readString(path.join(Scalar.LAST_NAME))
-                                              .orElseThrow());
+                                              .orElseThrow()); // Middle name is optional
+                                      applicant.setNameSuffix(
+                                          applicantData
+                                              .readString(path.join(Scalar.NAME_SUFFIX))
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_EMAIL:
                                       applicant.setEmailAddress(

@@ -6,12 +6,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-
 import java.util.Optional;
 import java.util.stream.Stream;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
@@ -30,13 +30,6 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
   public String getReferenceClass() {
     return ReferenceClasses.NAME_QUESTION;
   }
-
-  public enum nameSuffixEnum {
-    JUNIOR,
-    SENIOR,
-    II,
-    III
-}
 
   @Override
   protected DivTag renderInputTags(
@@ -88,21 +81,21 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
-    SelectWithLabel nameSuffixField = 
-            new SelectWithLabel()
+    SelectWithLabel nameSuffixField =
+        new SelectWithLabel()
             .addReferenceClass("cf-dropdown-question")
             .setLabelText("Name suffix")
             .setFieldName(nameQuestion.getNameSuffixPath().toString())
             .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
-              Stream.of(nameSuffixEnum.values())
-              .map(
-                option -> SelectWithLabel.OptionValue.builder()
-                          .setLabel(option.toString())
-                          .setValue(option.toString())
-                          .build())
-              .collect(ImmutableList.toImmutableList())
-            );
+                Stream.of(ApplicantData.nameSuffixEnum.values())
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.toString())
+                                .setValue(option.toString())
+                                .build())
+                    .collect(ImmutableList.toImmutableList()));
 
     if (!alreadyAutofocused
         && params.autofocusFirstError()

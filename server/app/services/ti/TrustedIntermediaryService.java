@@ -212,6 +212,7 @@ public final class TrustedIntermediaryService {
         /* firstName= */ currentForm.getFirstName(),
         /* middleName= */ currentForm.getMiddleName(),
         /* lastName= */ currentForm.getLastName(),
+        /* nameSuffix= */ currentForm.getFirstName(),
         /* phoneNumber= */ currentForm.getPhoneNumber(),
         /* tiNote= */ currentForm.getTiNote(),
         /* email= */ currentForm.getEmailAddress(),
