@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import java.util.OptionalLong;
+import services.CiviFormError;
 
 /** Defines a number question. */
 public final class NumberQuestionDefinition extends QuestionDefinition {
@@ -74,6 +77,17 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return NumberValidationPredicates.create();
+  }
+
+  @Override
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+    OptionalLong min = getMin();
+    OptionalLong max = getMax();
+    if (min.isPresent() && max.isPresent() && min.getAsLong() > max.getAsLong()) {
+      errors.add(CiviFormError.of("Minimum value must be less than or equal to the maximum value"));
+    }
+    return errors.build();
   }
 
   public OptionalLong getMin() {
