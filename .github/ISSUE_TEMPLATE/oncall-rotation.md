@@ -43,7 +43,7 @@ Resources:
 - [ ] Check Security lists daily
 - [ ] Check #ci Slack channel daily to monitor failed pushes
 - [ ] Check [needs triage bugs](https://github.com/civiform/civiform/issues?q=is%3Aopen+is%3Aissue+label%3Aneeds-triage) daily to ensure there aren't any P0s
-- [ ] Check for dependency updates 
+- [ ] Check for dependency updates
   - For any problematic dependency updates that break tests, add the "needs-triage" label so Exygy can prioritize fixing these issues.
   - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
