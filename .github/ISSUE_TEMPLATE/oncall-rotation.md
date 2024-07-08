@@ -43,6 +43,8 @@ Resources:
 - [ ] Check Security lists daily
 - [ ] Check #ci Slack channel daily to monitor failed pushes
 - [ ] Check [needs triage bugs](https://github.com/civiform/civiform/issues?q=is%3Aopen+is%3Aissue+label%3Aneeds-triage) daily to ensure there aren't any P0s
-- [ ] Check [Dependency Dashboard](https://github.com/civiform/civiform/issues/2124) once
-  - This issue is one that Renovate creates and updates with what it is currently tracking. Check this for any rate-limited dependencies and check the box to create them.
+- [ ] Check for dependency updates
   - For any problematic dependency updates that break tests, add the "needs-triage" label so Exygy can prioritize fixing these issues.
+  - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
+  - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
+  - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)
