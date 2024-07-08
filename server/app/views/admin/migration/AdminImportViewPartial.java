@@ -5,7 +5,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
-import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
 import static j2html.TagCreator.ul;
 
