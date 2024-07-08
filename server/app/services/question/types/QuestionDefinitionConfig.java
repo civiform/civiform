@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -13,6 +14,7 @@ import services.question.PrimaryApplicantInfoTag;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public abstract class QuestionDefinitionConfig {
 
   @JsonProperty("name")
