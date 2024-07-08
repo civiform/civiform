@@ -25,22 +25,22 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
+import services.AlertType;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageUploadRequest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
-import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** A helper class for rendering the file upload question for applicants. */
@@ -114,11 +114,11 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
-        ViewUtils.makeAlertSlim(
+        AlertComponent.renderSlimAlert(
+                AlertType.ERROR,
                 fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
                 // file_upload.ts will un-hide this error if needed.
                 /* hidden= */ true,
-                /* classes...= */ BaseStyles.ALERT_ERROR,
                 "mb-2")
             .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
     result.with(

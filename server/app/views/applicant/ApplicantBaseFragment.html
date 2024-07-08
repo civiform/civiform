@@ -8,10 +8,10 @@
   <script th:src="${uswdsJsInit}" type="text/javascript"></script>
 </head>
 
-<footer th:fragment="pageFooter">
+<th:block th:fragment="pageFooterScripts">
   <script th:src="${applicantJsBundle}" type="text/javascript"></script>
   <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
-</footer>
+</th:block>
 
 <div th:fragment="requiredFieldsExplanation">
   <!--/* This uses utext because the parameter passed into the message is html,

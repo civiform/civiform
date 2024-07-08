@@ -7,6 +7,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
+import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -18,10 +19,12 @@ import j2html.tags.specialized.FormTag;
 import java.util.Objects;
 import java.util.Optional;
 import play.mvc.Http;
+import services.AlertType;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
@@ -43,11 +46,13 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     return div()
         .withId(PROGRAM_DATA_ID)
         .with(
-            makeAlert(
+            AlertComponent.renderFullAlert(
+                AlertType.ERROR,
                 /* text= */ errorMessage,
-                /* hidden= */ false,
                 /* title= */ Optional.of("Error processing JSON"),
-                /* classes...= */ ALERT_ERROR));
+                /* hidden= */ false
+
+                /* classes...= */ ));
   }
 
   /** Renders the correctly parsed program data. */
