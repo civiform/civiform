@@ -28,10 +28,6 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public EmailValidationPredicates getEmailValidationPredicates() {
-    return (EmailValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.EMAIL;
