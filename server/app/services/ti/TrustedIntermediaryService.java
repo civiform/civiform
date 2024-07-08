@@ -44,6 +44,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_DOB = "dob";
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
+  public static final String FORM_FIELD_NAME_SUFFIX = "nameSuffix";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
 
   @Inject
@@ -212,7 +213,7 @@ public final class TrustedIntermediaryService {
         /* firstName= */ currentForm.getFirstName(),
         /* middleName= */ currentForm.getMiddleName(),
         /* lastName= */ currentForm.getLastName(),
-        /* nameSuffix= */ currentForm.getFirstName(),
+        /* nameSuffix= */ currentForm.getNameSuffix(),
         /* phoneNumber= */ currentForm.getPhoneNumber(),
         /* tiNote= */ currentForm.getTiNote(),
         /* email= */ currentForm.getEmailAddress(),

@@ -265,6 +265,7 @@ public class ApplicantData extends CfJsonDocumentContext {
    * @param firstName First name of applicant
    * @param middleName Middle name of applicant
    * @param lastName Last name of applicant
+   * @param nameSuffix Name suffix of applicant
    * @param overwrite When false, if first name already exists, do not update fields and return
    *     unchanged.
    */
