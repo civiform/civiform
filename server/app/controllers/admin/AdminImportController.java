@@ -25,7 +25,6 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
@@ -147,11 +146,13 @@ public class AdminImportController extends CiviFormController {
         questionsOnJson.stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
+    // We have to update questions without an enumerator id first so that we can update those
+    // questions
+    // with the id of the newly saved enumerator question
     ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isEmpty())
             .collect(ImmutableList.toImmutableList());
-
     ImmutableMap<String, QuestionDefinition> updatedNonEnumeratorQuestionsMap =
         questionRepository.bulkCreateQuestions(nonEnumeratorQuestions).stream()
             .map(question -> question.getQuestionDefinition())
@@ -194,53 +195,13 @@ public class AdminImportController extends CiviFormController {
                                   updateProgramQuestionDefinition(
                                       pqd, questionsOnJsonById, updatedAllQuestionsMap))
                           .collect(ImmutableList.toImmutableList());
+
                   BlockDefinition.Builder blockDefinitionBuilder =
-                      blockDefinition.toBuilder()
-                          .setProgramQuestionDefinitions(updatedProgramQuestionDefinitions);
-                  if (blockDefinition.visibilityPredicate().isPresent()) {
-                    LeafOperationExpressionNode leafNode =
-                        blockDefinition
-                            .visibilityPredicate()
-                            .get()
-                            .rootNode()
-                            .getLeafOperationNode();
-                    Long oldQuestionId = leafNode.questionId();
-                    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
-                    Long newQuestionId = updatedAllQuestionsMap.get(questionAdminName).getId();
-                    LeafOperationExpressionNode newLeafNode =
-                        leafNode.toBuilder().setQuestionId(newQuestionId).build();
-                    PredicateExpressionNode newPredicateExpressionNode =
-                        PredicateExpressionNode.create(newLeafNode);
-                    PredicateAction action = blockDefinition.visibilityPredicate().get().action();
-                    PredicateDefinition newPredicateDefinition =
-                        PredicateDefinition.create(newPredicateExpressionNode, action);
-                    blockDefinitionBuilder.setVisibilityPredicate(newPredicateDefinition);
-                  }
-                  if (blockDefinition.eligibilityDefinition().isPresent()) {
-                    LeafOperationExpressionNode leafNode =
-                        blockDefinition
-                            .eligibilityDefinition()
-                            .get()
-                            .predicate()
-                            .rootNode()
-                            .getLeafOperationNode();
-                    Long oldQuestionId = leafNode.questionId();
-                    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
-                    Long newQuestionId = updatedAllQuestionsMap.get(questionAdminName).getId();
-                    LeafOperationExpressionNode newLeafNode =
-                        leafNode.toBuilder().setQuestionId(newQuestionId).build();
-                    PredicateExpressionNode newPredicateExpressionNode =
-                        PredicateExpressionNode.create(newLeafNode);
-                    PredicateAction action =
-                        blockDefinition.eligibilityDefinition().get().predicate().action();
-                    PredicateDefinition newPredicateDefinition =
-                        PredicateDefinition.create(newPredicateExpressionNode, action);
-                    EligibilityDefinition newEligibilityDefinition =
-                        EligibilityDefinition.builder()
-                            .setPredicate(newPredicateDefinition)
-                            .build();
-                    blockDefinitionBuilder.setEligibilityDefinition(newEligibilityDefinition);
-                  }
+                      maybeUpdatePredicates(
+                          blockDefinition, questionsOnJsonById, updatedAllQuestionsMap);
+                  blockDefinitionBuilder.setProgramQuestionDefinitions(
+                      updatedProgramQuestionDefinitions);
+
                   return blockDefinitionBuilder.build();
                 })
             .collect(ImmutableList.toImmutableList());
@@ -282,5 +243,45 @@ public class AdminImportController extends CiviFormController {
         Optional.empty(),
         programQuestionDefinitionFromJson.optional(),
         programQuestionDefinitionFromJson.addressCorrectionEnabled());
+  }
+
+  private BlockDefinition.Builder maybeUpdatePredicates(
+      BlockDefinition blockDefinition,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    BlockDefinition.Builder blockDefinitionBuilder = blockDefinition.toBuilder();
+
+    if (blockDefinition.visibilityPredicate().isPresent()) {
+      PredicateDefinition visibilityPredicateDefinition =
+          blockDefinition.visibilityPredicate().get();
+      PredicateDefinition newPredicateDefinition =
+          updatePredicateDefinition(
+              visibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
+      blockDefinitionBuilder.setVisibilityPredicate(newPredicateDefinition);
+    }
+    if (blockDefinition.eligibilityDefinition().isPresent()) {
+      PredicateDefinition eligibilityPredicateDefinition =
+          blockDefinition.eligibilityDefinition().get().predicate();
+      PredicateDefinition newPredicateDefinition =
+          updatePredicateDefinition(
+              eligibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
+      EligibilityDefinition newEligibilityDefinition =
+          EligibilityDefinition.builder().setPredicate(newPredicateDefinition).build();
+      blockDefinitionBuilder.setEligibilityDefinition(newEligibilityDefinition);
+    }
+    return blockDefinitionBuilder;
+  }
+
+  private PredicateDefinition updatePredicateDefinition(
+      PredicateDefinition predicateDefinition,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    LeafOperationExpressionNode leafNode = predicateDefinition.rootNode().getLeafOperationNode();
+    Long oldQuestionId = leafNode.questionId();
+    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+    Long newQuestionId = updatedQuestionsMap.get(questionAdminName).getId();
+    PredicateExpressionNode newPredicateExpressionNode =
+        PredicateExpressionNode.create(leafNode.toBuilder().setQuestionId(newQuestionId).build());
+    return PredicateDefinition.create(newPredicateExpressionNode, predicateDefinition.action());
   }
 }
