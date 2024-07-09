@@ -130,7 +130,6 @@ public class AdminImportController extends CiviFormController {
     }
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
-
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
@@ -141,14 +140,39 @@ public class AdminImportController extends CiviFormController {
     ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
     ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
     ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
-
     ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
         questionsOnJson.stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-    // We have to update questions without an enumerator id first so that we can update those
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+        updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+    ImmutableList<BlockDefinition> updatedBlockDefinitions =
+        updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
+    ProgramDefinition updatedProgram =
+        programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    programRepository.insertProgramSync(
+        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+    return ok(adminImportView.render(request));
+  }
+
+  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    Form<AdminProgramImportForm> form =
+        formFactory
+            .form(AdminProgramImportForm.class)
+            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+
+    String jsonString = form.get().getProgramJson();
+
+    return programMigrationService.deserialize(jsonString);
+  }
+
+  private ImmutableMap<String, QuestionDefinition> updateEnumeratorQuestionsAndSave(
+      ImmutableList<QuestionDefinition> questionsOnJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
+    // We have to update questions that do not have an enumerator id first so that we can update
     // questions
-    // with the id of the newly saved enumerator question
+    // that reference an enumerator id with the id of the newly saved enumerator question
     ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isEmpty())
@@ -178,51 +202,10 @@ public class AdminImportController extends CiviFormController {
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
-    ImmutableMap<String, QuestionDefinition> updatedAllQuestionsMap =
-        ImmutableMap.<String, QuestionDefinition>builder()
-            .putAll(updatedNonEnumeratorQuestionsMap)
-            .putAll(updatedEnumeratorQuestionsMap)
-            .build();
-
-    ImmutableList<BlockDefinition> updatedBlockDefinitions =
-        programOnJson.blockDefinitions().stream()
-            .map(
-                blockDefinition -> {
-                  ImmutableList<ProgramQuestionDefinition> updatedProgramQuestionDefinitions =
-                      blockDefinition.programQuestionDefinitions().stream()
-                          .map(
-                              pqd ->
-                                  updateProgramQuestionDefinition(
-                                      pqd, questionsOnJsonById, updatedAllQuestionsMap))
-                          .collect(ImmutableList.toImmutableList());
-
-                  BlockDefinition.Builder blockDefinitionBuilder =
-                      maybeUpdatePredicates(
-                          blockDefinition, questionsOnJsonById, updatedAllQuestionsMap);
-                  blockDefinitionBuilder.setProgramQuestionDefinitions(
-                      updatedProgramQuestionDefinitions);
-
-                  return blockDefinitionBuilder.build();
-                })
-            .collect(ImmutableList.toImmutableList());
-
-    ProgramDefinition updatedProgram =
-        programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
-    programRepository.insertProgramSync(
-        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
-
-    return ok(adminImportView.render(request));
-  }
-
-  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
-    Form<AdminProgramImportForm> form =
-        formFactory
-            .form(AdminProgramImportForm.class)
-            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
-
-    String jsonString = form.get().getProgramJson();
-
-    return programMigrationService.deserialize(jsonString);
+    return ImmutableMap.<String, QuestionDefinition>builder()
+        .putAll(updatedNonEnumeratorQuestionsMap)
+        .putAll(updatedEnumeratorQuestionsMap)
+        .build();
   }
 
   private ProgramQuestionDefinition updateProgramQuestionDefinition(
@@ -283,5 +266,30 @@ public class AdminImportController extends CiviFormController {
     PredicateExpressionNode newPredicateExpressionNode =
         PredicateExpressionNode.create(leafNode.toBuilder().setQuestionId(newQuestionId).build());
     return PredicateDefinition.create(newPredicateExpressionNode, predicateDefinition.action());
+  }
+
+  private ImmutableList<BlockDefinition> updateBlockDefinitions(
+      ProgramDefinition programOnJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    return programOnJson.blockDefinitions().stream()
+        .map(
+            blockDefinition -> {
+              ImmutableList<ProgramQuestionDefinition> updatedProgramQuestionDefinitions =
+                  blockDefinition.programQuestionDefinitions().stream()
+                      .map(
+                          pqd ->
+                              updateProgramQuestionDefinition(
+                                  pqd, questionsOnJsonById, updatedQuestionsMap))
+                      .collect(ImmutableList.toImmutableList());
+
+              BlockDefinition.Builder blockDefinitionBuilder =
+                  maybeUpdatePredicates(blockDefinition, questionsOnJsonById, updatedQuestionsMap);
+              blockDefinitionBuilder.setProgramQuestionDefinitions(
+                  updatedProgramQuestionDefinitions);
+
+              return blockDefinitionBuilder.build();
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 }
