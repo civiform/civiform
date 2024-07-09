@@ -50,7 +50,7 @@ public class PageNotProductionBannerTest {
   }
 
   @Test
-  public void whenShowBannerSettingEnabled_returnsEmpty() {
+  public void whenShowBannerSettingEnabled_returnsComponent() {
     String productionUrl = "https://civiform.example.com";
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
     when(settingsManifest.getCivicEntityProductionUrl(request))
@@ -72,7 +72,7 @@ public class PageNotProductionBannerTest {
   }
 
   @Test
-  public void whenShowBannerSettingEnabled_andNoProductionUrlSetting_returnsDivTag() {
+  public void whenShowBannerSettingEnabled_andNoProductionUrlSetting_returnsComponent() {
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
     when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
 
