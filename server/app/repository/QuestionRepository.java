@@ -167,6 +167,7 @@ public final class QuestionRepository {
                           new QuestionModel(
                               new QuestionDefinitionBuilder(questionDefinition)
                                   .setId(null)
+                                  .setPrimaryApplicantInfoTags(ImmutableSet.of())
                                   .build());
                       newDraftQuestion.addVersion(
                           versionRepositoryProvider.get().getDraftVersionOrCreate());
@@ -202,16 +203,21 @@ public final class QuestionRepository {
         // Update to the new enumerator ID.
         .forEach(
             question -> {
-              try {
-                createOrUpdateDraft(
-                    new QuestionDefinitionBuilder(getQuestionDefinition(question))
-                        .setEnumeratorId(Optional.of(newEnumeratorId))
-                        .build());
-              } catch (UnsupportedQuestionTypeException e) {
-                // All question definitions are looked up and should be valid.
-                throw new RuntimeException(e);
-              }
+              createOrUpdateDraft(
+                  updateEnumeratorId(getQuestionDefinition(question), newEnumeratorId));
             });
+  }
+
+  public QuestionDefinition updateEnumeratorId(
+      QuestionDefinition questionDefinition, Long newEnumeratorId) {
+    try {
+      return new QuestionDefinitionBuilder(questionDefinition)
+          .setEnumeratorId(Optional.of(newEnumeratorId))
+          .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // All question definitions are looked up and should be valid.
+      throw new RuntimeException(e);
+    }
   }
 
   /**

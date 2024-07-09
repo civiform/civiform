@@ -4,11 +4,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.p;
-import static views.style.BaseStyles.ALERT_ERROR;
-import static j2html.TagCreator.ul;
 import static j2html.TagCreator.li;
-
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -25,14 +23,14 @@ import services.AlertType;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.types.QuestionDefinition;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.TextFormatter;
-import services.question.QuestionOption;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
@@ -138,8 +136,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     }
 
     questionDiv.with(p("Admin name: " + question.getName()));
-    p("Admin description: " + question.getDescription()),
-    p("Question type: " + question.getQuestionType().name()));
 
     // If a question offers options, show them
     if (question.getQuestionType().isMultiOptionType()) {

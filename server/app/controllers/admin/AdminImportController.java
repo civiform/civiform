@@ -21,8 +21,13 @@ import repository.VersionRepository;
 import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
@@ -142,10 +147,41 @@ public class AdminImportController extends CiviFormController {
         questionsOnJson.stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-        questionRepository.bulkCreateQuestions(questionsOnJson).stream()
+    ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
+        questionsOnJson.stream()
+            .filter(qd -> qd.getEnumeratorId().isEmpty())
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableMap<String, QuestionDefinition> updatedNonEnumeratorQuestionsMap =
+        questionRepository.bulkCreateQuestions(nonEnumeratorQuestions).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    ImmutableList<QuestionDefinition> enumeratorQuestions =
+        questionsOnJson.stream()
+            .filter(qd -> qd.getEnumeratorId().isPresent())
+            .map(
+                qd -> {
+                  Long oldEnumeratorId = qd.getEnumeratorId().get();
+                  QuestionDefinition oldQuestion = questionsOnJsonById.get(oldEnumeratorId);
+                  String oldQuestionAdminName = oldQuestion.getName();
+                  QuestionDefinition newQuestion =
+                      updatedNonEnumeratorQuestionsMap.get(oldQuestionAdminName);
+                  Long newEnumeratorId = newQuestion.getId();
+                  return questionRepository.updateEnumeratorId(qd, newEnumeratorId);
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableMap<String, QuestionDefinition> updatedEnumeratorQuestionsMap =
+        questionRepository.bulkCreateQuestions(enumeratorQuestions).stream()
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    ImmutableMap<String, QuestionDefinition> updatedAllQuestionsMap =
+        ImmutableMap.<String, QuestionDefinition>builder()
+            .putAll(updatedNonEnumeratorQuestionsMap)
+            .putAll(updatedEnumeratorQuestionsMap)
+            .build();
 
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         programOnJson.blockDefinitions().stream()
@@ -156,11 +192,56 @@ public class AdminImportController extends CiviFormController {
                           .map(
                               pqd ->
                                   updateProgramQuestionDefinition(
-                                      pqd, questionsOnJsonById, updatedQuestionsMap))
+                                      pqd, questionsOnJsonById, updatedAllQuestionsMap))
                           .collect(ImmutableList.toImmutableList());
-                  return blockDefinition.toBuilder()
-                      .setProgramQuestionDefinitions(updatedProgramQuestionDefinitions)
-                      .build();
+                  BlockDefinition.Builder blockDefinitionBuilder =
+                      blockDefinition.toBuilder()
+                          .setProgramQuestionDefinitions(updatedProgramQuestionDefinitions);
+                  if (blockDefinition.visibilityPredicate().isPresent()) {
+                    LeafOperationExpressionNode leafNode =
+                        blockDefinition
+                            .visibilityPredicate()
+                            .get()
+                            .rootNode()
+                            .getLeafOperationNode();
+                    Long oldQuestionId = leafNode.questionId();
+                    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+                    Long newQuestionId = updatedAllQuestionsMap.get(questionAdminName).getId();
+                    LeafOperationExpressionNode newLeafNode =
+                        leafNode.toBuilder().setQuestionId(newQuestionId).build();
+                    PredicateExpressionNode newPredicateExpressionNode =
+                        PredicateExpressionNode.create(newLeafNode);
+                    PredicateAction action = blockDefinition.visibilityPredicate().get().action();
+                    PredicateDefinition newPredicateDefinition =
+                        PredicateDefinition.create(newPredicateExpressionNode, action);
+                    blockDefinitionBuilder.setVisibilityPredicate(newPredicateDefinition);
+                  }
+                  if (blockDefinition.eligibilityDefinition().isPresent()) {
+                    LeafOperationExpressionNode leafNode =
+                        blockDefinition
+                            .eligibilityDefinition()
+                            .get()
+                            .predicate()
+                            .rootNode()
+                            .getLeafOperationNode();
+                    Long oldQuestionId = leafNode.questionId();
+                    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+                    Long newQuestionId = updatedAllQuestionsMap.get(questionAdminName).getId();
+                    LeafOperationExpressionNode newLeafNode =
+                        leafNode.toBuilder().setQuestionId(newQuestionId).build();
+                    PredicateExpressionNode newPredicateExpressionNode =
+                        PredicateExpressionNode.create(newLeafNode);
+                    PredicateAction action =
+                        blockDefinition.eligibilityDefinition().get().predicate().action();
+                    PredicateDefinition newPredicateDefinition =
+                        PredicateDefinition.create(newPredicateExpressionNode, action);
+                    EligibilityDefinition newEligibilityDefinition =
+                        EligibilityDefinition.builder()
+                            .setPredicate(newPredicateDefinition)
+                            .build();
+                    blockDefinitionBuilder.setEligibilityDefinition(newEligibilityDefinition);
+                  }
+                  return blockDefinitionBuilder.build();
                 })
             .collect(ImmutableList.toImmutableList());
 
