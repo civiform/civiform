@@ -950,8 +950,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /**
    * Enabling this will add a banner to the site to tell applicants this is not Production and that
    * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
-   * also include a link to your production site. This banner will not show on Production sites even
-   * if this setting is enabled.
+   * also include a link to your production site.
    */
   public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
@@ -1981,8 +1980,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enabling this will add a banner to the site to tell applicants this is not"
                           + " Production and that they shouldn't submit real applications."
                           + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
-                          + " link to your production site. This banner will not show on Production"
-                          + " sites even if this setting is enabled.",
+                          + " link to your production site.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
