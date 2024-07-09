@@ -25,7 +25,7 @@ footer.technicalSupport=For technical support: {0}
 guest=Invitado
 label.languageSr=Elegir un idioma
 # A label on the button that opens the header menu shown on mobile
-header.menu=Menu
+header.menu=Menú
 header.endSession=Finalizar sesión
 toast.sessionEnded=Finalizó la sesión.
 header.guestIndicator=Eres un usuario de invitado
@@ -83,7 +83,7 @@ content.blockProgress={0} de {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} de {1} completadas
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Progreso de la inscripción
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} de {1} cargados
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -337,44 +337,44 @@ toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califi
 banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
 
 # Alert title when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_eligible_title=Es posible que califiques pare este programa
 # Alert text when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+alert.eligibility_applicant_eligible_text=En función de tus respuestas, es posible que califiques para este programa.
 
 # Alert title when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+alert.eligibility_applicant_not_eligible_title=Es posible que no califiques para este programa
 # Alert text when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_applicant_not_eligible_text=En función de tus respuestas, es posible que no califiques para este programa. Si la información cambió, puedes editar tu respuesta y continuar con la inscripción.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_fastforwarded_eligible_title=Es posible que califiques para este programa
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte tus respuestas o tu calificación. Revisa todas las preguntas a continuación.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Es posible que ya no califiques para este programa
 # Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte tus respuestas o tu calificación. Revisa todas las preguntas a continuación.
 
 # Alert title when TI client may be eligible for a program
-alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_eligible_title=Es posible que tu cliente califique para este programa
 # Alert text when TI client may be eligible for a program
-alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+alert.eligibility_ti_eligible_text=En función de tus respuestas, es posible que tu cliente califique para este programa.
 
 # Alert title when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+alert.eligibility_ti_not_eligible_title=Es posible que tu cliente no califique para este programa
 # Alert text when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_ti_not_eligible_text=En función de tus respuestas, es posible que tu cliente no califique para este programa. Si la información de tu cliente cambió, puedes editar tu respuesta y continuar con la inscripción.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_fastforwarded_eligible_title=Es posible que tu cliente califique para este programa
 # Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado y que eso afecte las respuestas o la calificación de tu cliente. Revisa todas las preguntas a continuación.
 
 # Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+alert.eligibility_ti_fastforwarded_not_eligible_title=Es posible que tu cliente ya no califique para este programa
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_not_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte las respuestas o la calificación de tu cliente. Revisa todas las preguntas a continuación.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -555,7 +555,7 @@ validation.numberRequired=Solo debe contener números.
 validation.tooFewSelections=Elige al menos {0} opción.
 validation.tooManySelections=Elige menos de {0} opciones.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=Selecciona hasta {0} opciones.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -625,7 +625,7 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 
 banner.title=Este es un sitio web oficial del gobierno
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=Un sitio web oficial del Gobierno de Estados Unidos
 banner.link=Así es como puedes verificarlo
 banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.
@@ -645,6 +645,6 @@ banner.notForProductionBannerLine2=Para inscribirte en un programa o servicio, v
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+banner.guestBannerText=Te estás inscribiendo como invitado. Cuando termines de inscribirte, {0} para proteger tus datos.
 # A call to action within another message that will be a link to end your guest session.
-banner.endYourSession=end your session
+banner.endYourSession=finaliza la sesión
