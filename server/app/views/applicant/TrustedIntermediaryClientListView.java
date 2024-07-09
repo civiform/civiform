@@ -57,6 +57,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashboardView {
@@ -201,14 +202,9 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
 
   private ATag renderClearSearchLink(Messages messages) {
     return new LinkElement()
+        .setId(ReferenceClasses.TI_CLEAR_SEARCH)
         .setText(messages.at(MessageKey.BUTTON_CLEAR_SEARCH.getKeyName()))
-        .asAnchorText()
-        .attr(
-            "onClick",
-            "document.getElementById('name-query').value = '';"
-                + "document.getElementById('date_of_birth_day').value = '';"
-                + "document.getElementById('date_of_birth_month').value = '';"
-                + "document.getElementById('date_of_birth_year').value = '';");
+        .asAnchorText();
   }
 
   private DivTag renderClientList(
