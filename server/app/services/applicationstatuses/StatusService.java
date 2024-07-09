@@ -173,7 +173,7 @@ public final class StatusService {
    * @param programId the ID of the program to update
    * @param locale the {@link Locale} to update
    * @param localizationUpdate the localization update to apply
-   * @return the {@link ProgramDefinition} that was successfully updated, or a set of errors if the
+   * @return the {@link StatusDefinitions} that was successfully updated, or a set of errors if the
    *     update failed
    * @throws ProgramNotFoundException if the programId does not correspond to a valid program
    * @throws OutOfDateStatusesException if the program's status definitions are out of sync with

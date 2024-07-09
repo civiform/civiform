@@ -48,6 +48,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Http.Request request,
       Locale locale,
       ProgramDefinition program,
+      StatusDefinitions currentStatusDefinitions,
       ProgramTranslationForm translationForm,
       Optional<ToastMessage> message) {
     String formAction =
@@ -55,7 +56,11 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.adminName(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
+        renderTranslationForm(
+            request,
+            locale,
+            formAction,
+            formFields(program, translationForm, currentStatusDefinitions));
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
@@ -83,7 +88,9 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      ProgramDefinition program, ProgramTranslationForm translationForm) {
+      ProgramDefinition program,
+      ProgramTranslationForm translationForm,
+      StatusDefinitions currenStatusDefnitions) {
     ImmutableList<BlockDefinition> blockDefinitions = program.blockDefinitions();
     ImmutableList<Long> blockIds =
         blockDefinitions.stream().map(block -> block.id()).collect(ImmutableList.toImmutableList());
@@ -111,10 +118,10 @@ public final class ProgramTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 
     Preconditions.checkState(
-        updateData.statuses().size() == program.statusDefinitions().getStatuses().size());
+        updateData.statuses().size() == currenStatusDefnitions.getStatuses().size());
     for (int statusIdx = 0; statusIdx < updateData.statuses().size(); statusIdx++) {
       StatusDefinitions.Status configuredStatus =
-          program.statusDefinitions().getStatuses().get(statusIdx);
+          currenStatusDefnitions.getStatuses().get(statusIdx);
       LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
       // Note: While displayed as siblings, fields are logically grouped together by sharing a
       // common index in their field names. These are dynamically generated via helper methods
