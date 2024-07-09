@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Loads the pgadmin gui tool and connects to the dev environment database
+# DOC: Loads the grafana gui tool and connects to the dev environment database
 
 source bin/lib.sh
 docker::set_project_name_dev
