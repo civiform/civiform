@@ -3,6 +3,8 @@ package models;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import io.ebean.annotation.DbEnumType;
+import io.ebean.annotation.DbEnumValue;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -38,6 +40,26 @@ import services.applicant.ApplicantData;
 @Entity
 @Table(name = "applicants")
 public class ApplicantModel extends BaseModel {
+  public enum NameSuffix {
+    JR("Jr."),
+    SR("Sr."),
+    I("I"),
+    II("II"),
+    III("III"),
+    IV("IV"),
+    V("V");
+
+    private final String abbreviation;
+
+    NameSuffix(String abbreviation) {
+      this.abbreviation = abbreviation;
+    }
+
+    @DbEnumValue(storage = DbEnumType.VARCHAR)
+    public String getValue() {
+      return this.abbreviation;
+    }
+  }
 
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
