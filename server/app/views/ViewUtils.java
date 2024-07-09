@@ -81,7 +81,7 @@ public final class ViewUtils {
 
   /**
    * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
-   * at the given asset route.
+   * at the given asset route. TODO(#2349): Start using this.
    */
   public ScriptTag makeWebJarsTag(String assetsRoute) {
     return script().withSrc(assetsFinder.path(assetsRoute));
