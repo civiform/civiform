@@ -248,4 +248,13 @@ public final class StatusService {
       throw new OutOfDateStatusesException();
     }
   }
+
+  /** Get all the statusDefinitions for a given program */
+  public ImmutableList<StatusDefinitions> getAllStatusDefinitions(Long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+    return appStatusesRepo.getAllApplicationStatusModels(programDefinition.adminName()).stream()
+        .map(p -> p.getStatusDefinitions())
+        .collect(ImmutableList.toImmutableList());
+  }
 }

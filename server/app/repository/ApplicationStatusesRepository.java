@@ -1,5 +1,6 @@
 package repository;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -76,5 +77,18 @@ public final class ApplicationStatusesRepository {
       newStatusDefinition.save();
       transaction.commit();
     }
+  }
+
+  public ImmutableList<ApplicationStatusesModel> getAllApplicationStatusModels(String programName) {
+
+    return database
+        .find(ApplicationStatusesModel.class)
+        .setLabel("ApplicationStatusesModel.findList")
+        .where()
+        .in("program_name", programName)
+        .query()
+        .findList()
+        .stream()
+        .collect(ImmutableList.toImmutableList());
   }
 }

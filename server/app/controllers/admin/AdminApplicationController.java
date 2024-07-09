@@ -51,6 +51,7 @@ import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
 import services.applicationstatuses.StatusDefinitions;
 import services.applicationstatuses.StatusNotFoundException;
+import services.applicationstatuses.StatusService;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
@@ -81,6 +82,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final StatusService statusService;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -106,7 +108,8 @@ public final class AdminApplicationController extends CiviFormController {
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicationStatusesRepository applicationStatusesRepository,
+      StatusService statusService) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -121,6 +124,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.statusService = checkNotNull(statusService);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -552,9 +556,10 @@ public final class AdminApplicationController extends CiviFormController {
             selectedApplicationUri));
   }
 
-  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
-    return programService.getAllVersionsFullProgramDefinition(programId).stream()
-        .map(pdef -> pdef.statusDefinitions().getStatuses())
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)
+      throws ProgramNotFoundException {
+    return statusService.getAllStatusDefinitions(programId).stream()
+        .map(stdef -> stdef.getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)
         .distinct()

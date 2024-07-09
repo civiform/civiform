@@ -56,6 +56,7 @@ import services.applications.ProgramAdminApplicationService;
 import services.applicationstatuses.StatusDefinitions;
 import services.applicationstatuses.StatusDefinitions.Status;
 import services.applicationstatuses.StatusNotFoundException;
+import services.applicationstatuses.StatusService;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
@@ -609,7 +610,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
-        instanceOf(ApplicationStatusesRepository.class));
+        instanceOf(ApplicationStatusesRepository.class),
+        instanceOf(StatusService.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
