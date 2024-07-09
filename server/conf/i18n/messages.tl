@@ -83,7 +83,7 @@ content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Pag-usad ng aplikasyon
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -337,44 +337,44 @@ toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang 
 banner.errorSavingApplication=Nagka-error sa pag-save ng application
 
 # Alert title when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_eligible_title=Posibleng kwalipikado ka para sa programang ito
 # Alert text when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+alert.eligibility_applicant_eligible_text=Batay sa mga sagot mo, malamang na kwalipikado ka para sa programang ito.
 
 # Alert title when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+alert.eligibility_applicant_not_eligible_title=Posibleng hindi ka kwalipikado para sa programang ito.
 # Alert text when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_applicant_not_eligible_text=Batay sa mga sagot mo, posibleng hindi ka kwalipikado para sa programang ito. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_fastforwarded_eligible_title=Posibleng kwalipikado ka para sa programang ito
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado mo. Pakisuri ang lahat ng tanong sa ibaba.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Posibleng hindi ka na kwalipikado para sa programang ito
 # Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado mo. Pakisuri ang lahat ng tanong sa ibaba.
 
 # Alert title when TI client may be eligible for a program
-alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may be eligible for a program
-alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+alert.eligibility_ti_eligible_text=Batay sa mga sagot mo, malamang na kwalipikado ang iyong kliyente para sa programang ito.
 
 # Alert title when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+alert.eligibility_ti_not_eligible_title=Posibleng hindi kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_ti_not_eligible_text=Batay sa mga sagot mo, posibleng hindi kwalipikado ang iyong kliyente para sa programang ito. Kung nagbago ang impormasyon ng iyong kliyente, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_fastforwarded_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
 
 # Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+alert.eligibility_ti_fastforwarded_not_eligible_title=Posibleng hindi na kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -555,7 +555,7 @@ validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
 validation.tooFewSelections=Maaari lamang na pumili ng hindi bababa sa {0}.
 validation.tooManySelections=Maaari lamang na pumili ng mas-kaunti sa {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -625,7 +625,7 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=Opisyal na website ng pamahalaan ng United States
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
@@ -645,6 +645,6 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
 # A call to action within another message that will be a link to end your guest session.
-banner.endYourSession=end your session
+banner.endYourSession=tapusin ang session mo
