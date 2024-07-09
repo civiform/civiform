@@ -17,15 +17,18 @@ import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Database;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
 import repository.ProgramRepository;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
@@ -47,7 +50,8 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(ProgramMigrationService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class),
-            instanceOf(ProgramRepository.class));
+            instanceOf(ProgramRepository.class),
+            instanceOf(QuestionRepository.class));
     database = DB.getDefault();
   }
 
@@ -173,7 +177,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_savesTheProgram() {
+  public void saveProgram_savesTheProgramWithQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -188,8 +192,14 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     ProgramModel program =
         database.find(ProgramModel.class).where().eq("name", "import-program-sample").findOne();
-
     ProgramDefinition programDefinition = program.getProgramDefinition();
+    QuestionModel question =
+        database.find(QuestionModel.class).where().eq("name", "Name").findOne();
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+
     assertThat(programDefinition.externalLink()).isEqualTo("https://github.com/civiform/civiform");
+    assertThat(questionDefinition.getQuestionText())
+        .isEqualTo("Please enter your first and last name");
+    assertThat(programDefinition.getQuestionIdsInProgram()).contains(questionDefinition.getId());
   }
 }
