@@ -25,7 +25,7 @@ footer.technicalSupport=For technical support: {0}
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
 # A label on the button that opens the header menu shown on mobile
-header.menu=Menu
+header.menu=Trình đơn
 header.endSession=Kết thúc phiên truy cập
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 header.guestIndicator=Bạn là người dùng khách
@@ -83,7 +83,7 @@ content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Tiến trình đăng ký
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -337,44 +337,44 @@ toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng c�
 banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
 
 # Alert title when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
 # Alert text when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+alert.eligibility_applicant_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia chương trình này.
 
 # Alert title when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+alert.eligibility_applicant_not_eligible_title=Bạn có thể không đủ điều kiện tham gia chương trình này
 # Alert text when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_applicant_not_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi tiếp tục quá trình đăng ký.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_fastforwarded_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Bạn có thể không còn đủ điều kiện tham gia chương trình này nữa
 # Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
 
 # Alert title when TI client may be eligible for a program
-alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
 # Alert text when TI client may be eligible for a program
-alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+alert.eligibility_ti_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ điều kiện tham gia chương trình này.
 
 # Alert title when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+alert.eligibility_ti_not_eligible_title=Khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này
 # Alert text when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_ti_not_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời của mình rồi tiếp tục quá trình đăng ký.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_fastforwarded_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
 # Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
 
 # Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+alert.eligibility_ti_fastforwarded_not_eligible_title=Khách hàng của bạn có thể không còn đủ điều kiện tham gia chương trình này nữa
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -555,7 +555,7 @@ validation.numberRequired=Chỉ được chứa chữ số.
 validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
 validation.tooManySelections=Vui lòng chọn ít hơn {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=Vui lòng chọn không quá {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -625,7 +625,7 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 
 banner.title=Đây là một trang web chính thức của chính phủ.
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=Một trang web chính thức của chính phủ Hoa Kỳ
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
@@ -645,6 +645,6 @@ banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+banner.guestBannerText=Bạn đang đăng ký với tư cách là khách. Sau khi đăng ký xong, hãy {0} để bảo vệ dữ liệu của bạn.
 # A call to action within another message that will be a link to end your guest session.
-banner.endYourSession=end your session
+banner.endYourSession=kết thúc phiên của bạn
