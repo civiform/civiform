@@ -25,7 +25,7 @@ footer.technicalSupport=For technical support: {0}
 guest=게스트
 label.languageSr=언어 선택
 # A label on the button that opens the header menu shown on mobile
-header.menu=Menu
+header.menu=메뉴
 header.endSession=세션 종료
 toast.sessionEnded=세션이 종료되었습니다.
 header.guestIndicator=게스트 사용자
@@ -83,7 +83,7 @@ content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={1}개 중 {0}개 완료됨
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=신청 절차
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -337,44 +337,44 @@ toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
 
 # Alert title when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
 # Alert text when applicant may be eligible for a program
-alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+alert.eligibility_applicant_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 있을 수 있습니다.
 
 # Alert title when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+alert.eligibility_applicant_not_eligible_title=이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when applicant may not be eligible for a program
-alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_applicant_not_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 없을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+alert.eligibility_applicant_fastforwarded_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+alert.eligibility_applicant_fastforwarded_not_eligible_title=더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+alert.eligibility_applicant_fastforwarded_not_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 # Alert title when TI client may be eligible for a program
-alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
 # Alert text when TI client may be eligible for a program
-alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+alert.eligibility_ti_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 있을 수 있습니다.
 
 # Alert title when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+alert.eligibility_ti_not_eligible_title=고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when TI client may not be eligible for a program
-alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+alert.eligibility_ti_not_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다. 고객의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+alert.eligibility_ti_fastforwarded_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
 # Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 # Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+alert.eligibility_ti_fastforwarded_not_eligible_title=고객이 더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -555,7 +555,7 @@ validation.numberRequired=숫자만 포함해야 합니다.
 validation.tooFewSelections={0}개 이상 선택하세요.
 validation.tooManySelections={0}개보다 적게 선택하세요.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=최대 {0}개를 선택해 주세요.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -625,7 +625,7 @@ email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(�
 
 banner.title=공식 정부 웹사이트입니다
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=미국 정부의 공식 웹사이트
 banner.link=파악 방법
 banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
 banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
@@ -645,6 +645,6 @@ banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+banner.guestBannerText=비회원으로 신청 중입니다. 신청을 완료한 후에는 {0}하여 데이터를 보호하세요.
 # A call to action within another message that will be a link to end your guest session.
-banner.endYourSession=end your session
+banner.endYourSession=세션을 종료
