@@ -97,7 +97,7 @@
       class="cf-enumerator-delete-button usa-button--unstyled"
       th:id="${deleteButtonId}"
       th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
-      th:attr="onclick='if(confirm(\'' + #{dialog.confirmDelete(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
+      th:attr="onclick='if(confirm(\'' + #{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
     ></button>
   </div>
 </div>
