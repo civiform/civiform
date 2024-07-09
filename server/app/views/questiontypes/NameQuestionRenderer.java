@@ -8,10 +8,10 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.stream.Stream;
+import models.NameSuffix;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
-import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
@@ -88,11 +88,11 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .setFieldName(nameQuestion.getNameSuffixPath().toString())
             .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
-                Stream.of(ApplicantData.nameSuffixEnum.values())
+                Stream.of(NameSuffix.values())
                     .map(
                         option ->
                             SelectWithLabel.OptionValue.builder()
-                                .setLabel(option.toString())
+                                .setLabel(option.getValue().toString())
                                 .setValue(option.toString())
                                 .build())
                     .collect(ImmutableList.toImmutableList()));

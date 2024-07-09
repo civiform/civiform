@@ -30,13 +30,6 @@ import services.WellKnownPaths;
  * consumes it and prefer higher-level objects over primitives in method signatures.
  */
 public class ApplicantData extends CfJsonDocumentContext {
-  public enum nameSuffixEnum {
-    JUNIOR,
-    SENIOR,
-    II,
-    III
-  }
-
   private static final String APPLICANT = "applicant";
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);
   private static final String EMPTY_APPLICANT_DATA_JSON =
