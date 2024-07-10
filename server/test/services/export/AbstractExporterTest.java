@@ -748,6 +748,40 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller answerCorrectedAddressQuestion(
+        String street,
+        String line2,
+        String city,
+        String state,
+        String zip,
+        String corrected,
+        Double latitude,
+        Double longitude,
+        Long wellKnownId,
+        String serviceArea) {
+      Path answerPath =
+          testQuestionBank
+              .applicantAddress()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerAddressQuestion(
+          applicant.getApplicantData(),
+          answerPath,
+          street,
+          line2,
+          city,
+          state,
+          zip,
+          corrected,
+          latitude,
+          longitude,
+          wellKnownId,
+          serviceArea);
+      applicant.save();
+      return this;
+    }
+
     FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
       Path answerPath =
           testQuestionBank
@@ -808,6 +842,45 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerFileUploadQuestion(String fileKey) {
+      Path answerPath =
+          testQuestionBank
+              .applicantFile()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+      QuestionAnswerer.answerFileQuestion(applicant.getApplicantData(), answerPath, fileKey);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerIdQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantId()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+      QuestionAnswerer.answerIdQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNameQuestion(String firstName, String middleName, String lastName) {
+      Path answerPath =
+          testQuestionBank
+              .applicantName()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNameQuestion(
+          applicant.getApplicantData(), answerPath, firstName, middleName, lastName);
       applicant.save();
       return this;
     }

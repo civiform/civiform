@@ -1,6 +1,7 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -16,6 +17,10 @@ import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.Path;
+import services.geo.CorrectedAddressState;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaInclusionGroup;
+import services.geo.ServiceAreaState;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
@@ -30,6 +35,8 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 public class JsonExporterServiceTest extends AbstractExporterTest {
+
+  private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
 
   // TODO(#5257): Refactor testAllQuestionTypesWithoutEnumerators() and
   // testQuestionTypesWithEnumerators()
@@ -243,12 +250,35 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
+    var serviceAreas =
+        ImmutableList.of(
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("cityville_township")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build(),
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("portland")
+                .setState(ServiceAreaState.NOT_IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build());
+
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
             .withQuestion(testQuestionBank.applicantAddress())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerAddressQuestion("12345 E South St", "Apt 8i", "CityVille Township", "OR", "54321")
+        .answerCorrectedAddressQuestion(
+            "12345 E South St",
+            "Apt 8i",
+            "CityVille Township",
+            "OR",
+            "97403",
+            CorrectedAddressState.CORRECTED.getSerializationFormat(),
+            44.0462,
+            -123.0236,
+            54321L,
+            ServiceAreaInclusionGroup.serialize(serviceAreas))
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -261,12 +291,61 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             Helpers.fakeRequest().build());
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.question_type", "ADDRESS");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.street", "12345 E South St");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.line2", "Apt 8i");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.city", "CityVille Township");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.state", "OR");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.zip", "54321");
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : "CityVille Township",
+          "corrected" : "Corrected",
+          "latitude" : "44.0462",
+          "line2" : "Apt 8i",
+          "longitude" : "-123.0236",
+          "question_type" : "ADDRESS",
+          "service_area" : "cityville_township_InArea_1709069741,portland_NotInArea_1709069741",
+          "state" : "OR",
+          "street" : "12345 E South St",
+          "well_known_id" : "54321",
+          "zip" : "97403"
+        }""");
+  }
+
+  @Test
+  public void export_whenAddressQuestionOnlyRequiredFieldsAreAnswered_unansweredFieldsAreNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantAddress())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerAddressQuestion("12345 E South St", "", "CityVille Township", "OR", "97403")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : "CityVille Township",
+          "corrected" : null,
+          "latitude" : null,
+          "line2" : null,
+          "longitude" : null,
+          "question_type" : "ADDRESS",
+          "service_area" : null,
+          "state" : "OR",
+          "street" : "12345 E South St",
+          "well_known_id" : null,
+          "zip" : "97403"
+        }""");
   }
 
   @Test
@@ -288,12 +367,22 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             Helpers.fakeRequest().build());
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.question_type", "ADDRESS");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.street");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.line2");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.city");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.state");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.zip");
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : null,
+          "corrected" : null,
+          "latitude" : null,
+          "line2" : null,
+          "longitude" : null,
+          "question_type" : "ADDRESS",
+          "service_area" : null,
+          "state" : null,
+          "street" : null,
+          "well_known_id" : null,
+          "zip" : null
+        }""");
   }
 
   @Test
@@ -587,6 +676,211 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenFileUploadQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerFileUploadQuestion("test-file-key")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : "%s/admin/applicant-files/test-file-key",
+          "question_type" : "FILE_UPLOAD"
+        }"""
+            .formatted(BASE_URL));
+  }
+
+  @Test
+  public void export_whenFileUploadQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : null,
+          "question_type" : "FILE_UPLOAD"
+        }""");
+  }
+
+  @Test
+  public void export_whenIdQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withQuestion(testQuestionBank.applicantId()).build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerIdQuestion("011235813").submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_id",
+        """
+        {
+          "id" : "011235813",
+          "question_type" : "ID"
+        }""");
+  }
+
+  @Test
+  public void export_whenIdQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withQuestion(testQuestionBank.applicantId()).build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_id",
+        """
+        {
+          "id" : null,
+          "question_type" : "ID"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerNameQuestion("Taylor", "Allison", "Swift")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : "Taylor",
+          "last_name" : "Swift",
+          "middle_name" : "Allison",
+          "question_type" : "NAME"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionOnlyRequiredFieldsAreAnswered_unansweredFieldIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerNameQuestion("Taylor", "", "Swift")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : "Taylor",
+          "last_name" : "Swift",
+          "middle_name" : null,
+          "question_type" : "NAME"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : null,
+          "last_name" : null,
+          "middle_name" : null,
+          "question_type" : "NAME"
+        }""");
+  }
+
+  @Test
   public void export_whenNumberQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
     var fakeProgram =
@@ -755,6 +1049,62 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : null
+        }""");
+  }
+
+  @Test
+  public void export_whenTextQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerTextQuestion("circle 💖").submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_color",
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : "circle 💖"
+        }""");
+  }
+
+  @Test
+  public void export_whenTextQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_color",
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : null
         }""");
   }
 
