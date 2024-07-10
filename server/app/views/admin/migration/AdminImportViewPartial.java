@@ -135,7 +135,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
           TextFormatter.formatText(question.getQuestionHelpText().getDefault(), false, false));
     }
 
-    questionDiv.with(p("Admin name: " + question.getName()));
+    questionDiv.with(
+        p("Admin name: " + question.getName()),
+        p("Admin description: " + question.getDescription()),
+        p("Question type: " + question.getQuestionType().name()));
 
     // If a question offers options, show them
     if (question.getQuestionType().isMultiOptionType()) {
