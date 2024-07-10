@@ -83,7 +83,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertFalse(
         resultString.contains(
             "enumeratorId")); // the enumeratorId field should only show up if there is an
-                              // enumerator question in the programs
+    // enumerator question in the programs
   }
 
   @Test
