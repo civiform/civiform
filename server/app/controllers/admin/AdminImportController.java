@@ -140,16 +140,22 @@ public class AdminImportController extends CiviFormController {
     ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
     ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
     ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
-    ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
-        questionsOnJson.stream()
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-        updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
-    ImmutableList<BlockDefinition> updatedBlockDefinitions =
-        updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
-    ProgramDefinition updatedProgram =
-        programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    ProgramDefinition updatedProgram = programOnJson;
+
+    if (questionsOnJson != null) {
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+          questionsOnJson.stream()
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+          updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+      ImmutableList<BlockDefinition> updatedBlockDefinitions =
+          updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
+      updatedProgram =
+          programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    }
+
     programRepository.insertProgramSync(
         new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 

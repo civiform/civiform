@@ -1,7 +1,7 @@
 package services.migration;
 
+import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -107,7 +107,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void deserialize_jsonHasAllInfo_returnsResult() {
-    ErrorAnd<ProgramMigrationWrapper, String> result = service.deserialize(EXAMPLE_PROGRAM_JSON);
+    ErrorAnd<ProgramMigrationWrapper, String> result =
+        service.deserialize(PROGRAM_JSON_WITH_ONE_QUESTION);
 
     assertThat(result.isError()).isFalse();
     ProgramMigrationWrapper wrapperResult = result.getResult();
@@ -118,119 +119,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(program.externalLink()).isEqualTo("https://github.com/civiform/civiform");
     assertThat(program.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(program.programType()).isEqualTo(ProgramType.DEFAULT);
+    // add tests here for getQuestions
   }
-
-  /**
-   * This contains the bare minimum needed to parse JSON into a program definition. The
-   * admin_program_migration.test.ts browser test has tests for a program with many blocks and
-   * questions.
-   */
-  public static final String EXAMPLE_PROGRAM_JSON =
-      "{\n"
-          + "  \"program\": {\n"
-          + "    \"id\": 34,\n"
-          + "    \"adminName\": \"import-program-sample\",\n"
-          + "    \"adminDescription\": \"desc\",\n"
-          + "    \"externalLink\": \"https://github.com/civiform/civiform\",\n"
-          + "    \"displayMode\": \"PUBLIC\",\n"
-          + "    \"localizedName\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Import Sample Program\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"A sample program for testing program import\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"programType\": \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\": true,\n"
-          + "    \"acls\": {\n"
-          + "      \"tiProgramViewAcls\": []\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Test summary image description\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\": [\n"
-          + "      {\n"
-          + "        \"id\": 1,\n"
-          + "        \"name\": \"Screen 1\",\n"
-          + "        \"description\": \"block 1\",\n"
-          + "        \"localizedName\": {\n"
-          + "          \"translations\": {\n"
-          + "            \"en_US\": \"Screen 1\"\n"
-          + "          },\n"
-          + "          \"isRequired\": true\n"
-          + "        },\n"
-          + "        \"localizedDescription\": {\n"
-          + "          \"translations\": {\n"
-          + "            \"en_US\": \"block 1\"\n"
-          + "          },\n"
-          + "          \"isRequired\": true\n"
-          + "        },\n"
-          + "        \"repeaterId\": null,\n"
-          + "        \"hidePredicate\": null,\n"
-          + "        \"optionalPredicate\": null,\n"
-          + "        \"questionDefinitions\": [\n"
-          + "          {\n"
-          + "            \"id\": 18,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": false\n"
-          + "          },\n"
-          + "          {\n"
-          + "            \"id\": 5,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": true\n"
-          + "          }\n"
-          + "        ]\n"
-          + "      }\n"
-          + "      ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    }"
-          + "  }\n"
-          + " \"questions\" : [ { \n"
-          + " \"type\" : \"name\",\n"
-          + " \"config\" : { "
-          + " \"name\" : \"Name\",\n"
-          + " \"description\" : \"The applicant's name\",\n"
-          + " \"questionText\" : {\n"
-          + "  \"translations\" : {\n"
-          + "   \"am\" : \"ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)\",\n"
-          + "  \"ko\" : \"성함 (이름 및 성의 경우 이니셜도 괜찮음)\",\n"
-          + " \"lo\" : \"ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)\",\n"
-          + " \"so\" : \"Magaca (magaca koowaad iyo kan dambe okay)\",\n"
-          + "\"tl\" : \"Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)\",\n"
-          + "\"vi\" : \"Tên (tên và họ viết tắt đều được)\",\n"
-          + "\"en_US\" : \"Please enter your first and last name\",\n"
-          + "\"es_US\" : \"Nombre (nombre y la inicial del apellido está bien)\",\n"
-          + "\"zh_TW\" : \"姓名（名字和姓氏第一個字母便可）\"\n"
-          + " },\n"
-          + " \"isRequired\" : true\n"
-          + " },\n"
-          + "\"questionHelpText\" : {\n"
-          + " \"translations\" : { },\n"
-          + "\"isRequired\" : false\n"
-          + " },\n"
-          + "\"validationPredicates\" : {\n"
-          + " \"type\" : \"name\"\n"
-          + " },\n"
-          + "\"id\" : 1,\n"
-          + "\"universal\" : false,\n"
-          + "\"primaryApplicantInfoTags\" : [ ]\n"
-          + " }\n"
-          + " } ]\n"
-          + " }\n"
-          + "}\n";
 }

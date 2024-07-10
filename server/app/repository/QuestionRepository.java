@@ -156,6 +156,8 @@ public final class QuestionRepository {
    */
   public ImmutableList<QuestionModel> bulkCreateQuestions(
       ImmutableList<QuestionDefinition> questionDefinitions) {
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
       ImmutableList<QuestionModel> updatedQuestions =
@@ -169,8 +171,7 @@ public final class QuestionRepository {
                                   .setId(null)
                                   .setPrimaryApplicantInfoTags(ImmutableSet.of())
                                   .build());
-                      newDraftQuestion.addVersion(
-                          versionRepositoryProvider.get().getDraftVersionOrCreate());
+                      newDraftQuestion.addVersion(draftVersion);
                       newDraftQuestion.save();
                       return newDraftQuestion;
                     } catch (UnsupportedQuestionTypeException error) {
