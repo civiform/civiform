@@ -11,11 +11,21 @@
 button.logout=Salir
 label.selectLanguage=Selecciona tu idioma preferido.
 button.untranslatedSubmit=Enviar
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=Invitado
 label.languageSr=Elegir un idioma
 # A label on the button that opens the header menu shown on mobile
-header.menu=Menu
+header.menu=Menú
 header.endSession=Finalizar sesión
 toast.sessionEnded=Finalizó la sesión.
 header.guestIndicator=Eres un usuario de invitado
@@ -73,7 +83,7 @@ content.blockProgress={0} de {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} de {1} completadas
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Progreso de la inscripción
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} de {1} cargados
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -326,6 +336,46 @@ toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}
 toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
 banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=Es posible que califiques pare este programa
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=En función de tus respuestas, es posible que califiques para este programa.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=Es posible que no califiques para este programa
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=En función de tus respuestas, es posible que no califiques para este programa. Si la información cambió, puedes editar tu respuesta y continuar con la inscripción.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=Es posible que califiques para este programa
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte tus respuestas o tu calificación. Revisa todas las preguntas a continuación.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Es posible que ya no califiques para este programa
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte tus respuestas o tu calificación. Revisa todas las preguntas a continuación.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Es posible que tu cliente califique para este programa
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=En función de tus respuestas, es posible que tu cliente califique para este programa.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Es posible que tu cliente no califique para este programa
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=En función de tus respuestas, es posible que tu cliente no califique para este programa. Si la información de tu cliente cambió, puedes editar tu respuesta y continuar con la inscripción.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Es posible que tu cliente califique para este programa
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado y que eso afecte las respuestas o la calificación de tu cliente. Revisa todas las preguntas a continuación.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Es posible que tu cliente ya no califique para este programa
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=Es posible que haya preguntas nuevas o que se hayan actualizado, y que eso afecte las respuestas o la calificación de tu cliente. Revisa todas las preguntas a continuación.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -505,7 +555,7 @@ validation.numberRequired=Solo debe contener números.
 validation.tooFewSelections=Elige al menos {0} opción.
 validation.tooManySelections=Elige menos de {0} opciones.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=Selecciona hasta {0} opciones.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -575,7 +625,7 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 
 banner.title=Este es un sitio web oficial del gobierno
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=Un sitio web oficial del Gobierno de Estados Unidos
 banner.link=Así es como puedes verificarlo
 banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.
@@ -590,3 +640,11 @@ banner.httpsSectionContent=Un candado ( {0} ) o https:// significa que te conect
 banner.notForProductionBannerLine1=Este sitio tiene únicamente fines de prueba. No ingreses información personal.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=Para inscribirte en un programa o servicio, ve a {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=Te estás inscribiendo como invitado. Cuando termines de inscribirte, {0} para proteger tus datos.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=finaliza la sesión
