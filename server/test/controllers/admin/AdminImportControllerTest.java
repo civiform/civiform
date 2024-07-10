@@ -175,7 +175,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Minimal Sample Program");
     assertThat(contentAsString(result)).contains("minimal-sample-program");
     assertThat(contentAsString(result)).contains("Screen 1");
-    // add asserts for questions
+    assertThat(contentAsString(result)).contains("Please enter your first and last name");
   }
 
   @Test

@@ -113,12 +113,18 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     ProgramMigrationWrapper wrapperResult = result.getResult();
     assertThat(wrapperResult.getProgram()).isNotNull();
+
     ProgramDefinition program = wrapperResult.getProgram();
-    assertThat(program.adminName()).isEqualTo("import-program-sample");
+    QuestionDefinition question = wrapperResult.getQuestions().get(0);
+
+    assertThat(program.adminName()).isEqualTo("minimal-sample-program");
     assertThat(program.adminDescription()).isEqualTo("desc");
     assertThat(program.externalLink()).isEqualTo("https://github.com/civiform/civiform");
     assertThat(program.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(program.programType()).isEqualTo(ProgramType.DEFAULT);
-    // add tests here for getQuestions
+    assertThat(question.getName()).isEqualTo("Name");
+    assertThat(question.getDescription()).isEqualTo("The applicant's name");
+    assertThat(question.getQuestionText().getDefault())
+        .isEqualTo("Please enter your first and last name");
   }
 }
