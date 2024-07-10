@@ -446,6 +446,16 @@ export const validateToastMessage = async (page: Page, value: string) => {
   )
 }
 
+export const validateToastHidden = async (page: Page) => {
+  await test.step(
+    'Validate toast hidden',
+    async () => {
+      await expect(page.locator('#toast-container')).toBeHidden()
+    },
+    {box: true},
+  )
+}
+
 type LocalstackSesResponse = {
   messages: LocalstackSesEmail[]
 }
