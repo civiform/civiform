@@ -8,7 +8,6 @@ import {
   validateToastMessage,
   logout,
   AdminQuestions,
-  dismissToast,
   selectApplicantLanguage,
   enableFeatureFlag,
 } from './support'
@@ -867,7 +866,8 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
+
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -877,9 +877,8 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
       await validateScreenshot(page, 'eligible-toast')
-      await dismissToast(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)

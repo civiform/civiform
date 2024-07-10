@@ -1539,7 +1539,7 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickNext()
       await validateScreenshot(page, 'toast-message-may-qualify')
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 2', async () => {
@@ -1552,7 +1552,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 3', async () => {
@@ -1565,7 +1565,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 4', async () => {
@@ -1578,7 +1578,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
 
       await applicantQuestions.clickReview()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
@@ -1598,7 +1598,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 6', async () => {
@@ -1611,7 +1611,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 7', async () => {
@@ -1624,7 +1624,7 @@ test.describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2023-01-01')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
     })
 
     await test.step('Apply screen 8', async () => {
@@ -1675,7 +1675,7 @@ test.describe('create and edit predicates', () => {
 
       await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
 
       await applicantQuestions.editQuestionFromReviewPage(
         'checkbox question text',
