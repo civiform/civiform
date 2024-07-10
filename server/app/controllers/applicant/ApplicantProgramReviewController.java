@@ -318,7 +318,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
-            .submitApplication(applicantId, programId, submittingProfile)
+            .submitApplication(applicantId, programId, submittingProfile, request)
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService

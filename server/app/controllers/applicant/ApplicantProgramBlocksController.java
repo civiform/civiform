@@ -542,7 +542,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(
