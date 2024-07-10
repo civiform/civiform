@@ -62,6 +62,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
+    context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable(
         "smallLogoUrl",

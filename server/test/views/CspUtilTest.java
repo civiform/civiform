@@ -16,6 +16,17 @@ import play.test.Helpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class CspUtilTest {
+
+  @Test
+  public void testGetNonce() {
+    RequestImpl request =
+        Helpers.fakeRequest().attr(RequestAttrKey.CSPNonce().asJava(), "nonce-value").build();
+
+    String result = CspUtil.getNonce(request);
+
+    assertThat(result).isEqualTo("nonce-value");
+  }
+
   /** This covers both overloads of applyCsp because the List one calls the singular one */
   @Test
   public void testApplyCsp() {
