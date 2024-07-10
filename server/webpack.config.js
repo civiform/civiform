@@ -24,8 +24,9 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: ['./node_modules/@uswds/uswds/packages',
-                  './app/assets/stylesheets/north-star'
+                includePaths: [
+                  './app/assets/stylesheets/northstar',
+                  './node_modules/@uswds/uswds/packages'
                 ],
               },
             },
@@ -40,7 +41,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js', '.scss'],
+    extensions: ['.ts', '.js'],
   },
   entry: {
     applicant: './app/assets/javascripts/applicant_entry_point.ts',
@@ -49,11 +50,10 @@ module.exports = {
       './node_modules/@uswds/uswds/dist/js/uswds.min.js',
       './app/assets/stylesheets/uswds/styles.scss',
     ],
-    uswds_northstar: './app/assets/stylesheets/north-star/north-star-styles.scss'
-    // uswds_northstar: [
-    //   './node_modules/@uswds/uswds/dist/js/uswds.min.js',
-    //   './app/assets/stylesheets/north-star-styles.scss'
-    // ]
+    uswds_northstar: [
+      './node_modules/@uswds/uswds/dist/js/uswds.min.js',
+      './app/assets/stylesheets/northstar/styles.scss'
+    ]
   },
   output: {
     filename: `[name].bundle.js`,
