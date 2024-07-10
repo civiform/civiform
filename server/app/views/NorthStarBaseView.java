@@ -58,6 +58,7 @@ public abstract class NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
+    context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));

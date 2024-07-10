@@ -10,6 +10,7 @@
 USWDS THEME CUSTOM STYLES
 ----------------------------------------
 Custom project SASS goes here.
+
 i.e.
 @include u-padding-right('05');
 ----------------------------------------
@@ -67,6 +68,14 @@ See the radio-option below as an example.
 .usa-legend,
 .cf-question-date .usa-memorable-date .usa-form-group {
   margin-top: 0;
+}
+
+.cf-north-star-enumerator-field {
+  @include u-padding-y('105');
+}
+
+.cf-north-star-enumerator-field:last-child {
+  @include u-padding-bottom(0);
 }
 
 /**
