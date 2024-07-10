@@ -2,6 +2,7 @@ package services.migration;
 
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -79,6 +80,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(resultString).contains("What is your address?");
     assertThat(resultString).contains("what is your name?");
     assertThat(resultString).contains("What is your Email?");
+    assertFalse(
+        resultString.contains(
+            "enumeratorId")); // the enumeratorId field should only show up if there is an
+                              // enumerator question in the programs
   }
 
   @Test

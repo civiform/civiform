@@ -177,8 +177,7 @@ public class AdminImportController extends CiviFormController {
       ImmutableList<QuestionDefinition> questionsOnJson,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
     // We have to update questions that do not have an enumerator id first so that we can update
-    // questions
-    // that reference an enumerator id with the id of the newly saved enumerator question
+    // questions that reference an enumerator id with the id of the newly saved enumerator question
     ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isEmpty())
@@ -219,14 +218,14 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
     Long id = programQuestionDefinitionFromJson.id();
-    // This is how we turn the updated question into a ProgramQuestionDefinition
-    // so it can be inserted into the BlockDefinition
-    // The BlockDefinition contains the id of the question from the old environment
-    // so we need to use the unique question name (admin name) to associate
-    // the question from the old environment with the version of that question
-    // that we just saved in the new environment.
-    QuestionDefinition questionOnJson = questionsOnJsonById.get(id);
-    QuestionDefinition updatedQuestion = updatedQuestionsMap.get(questionOnJson.getName());
+    // The ProgramQuestionDefinition from the BlockDefinition in the incoming program contains the
+    // id of the question from the old environment.
+    // We use that id to fetch the admin name of the old question from the questionsOnJsonById map.
+    // Then, we use the admin name to fetch the question we just saved from updatedQuestionsMap and
+    // create a new ProgramQuestionDefinition from that question that we re-insert into the
+    // BlockDefinition.
+    String adminName = questionsOnJsonById.get(id).getName();
+    QuestionDefinition updatedQuestion = updatedQuestionsMap.get(adminName);
     return ProgramQuestionDefinition.create(
         updatedQuestion,
         Optional.empty(),
