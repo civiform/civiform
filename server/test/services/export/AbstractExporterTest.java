@@ -800,6 +800,43 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller answerEmailQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantEmail()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNumberQuestion(long answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantJugglingNumber()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+      Path answerPath =
+          testQuestionBank
+              .applicantPhone()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerPhoneQuestion(
+          applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
+      applicant.save();
+      return this;
+    }
+
     FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
       Path answerPath =
           testQuestionBank
@@ -813,18 +850,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeApplicationFiller answerEmailQuestion(String answer) {
-      Path answerPath =
-          testQuestionBank
-              .applicantEmail()
-              .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
-      applicant.save();
-      return this;
-    }
-
     FakeApplicationFiller answerTextQuestion(String answer) {
       Path answerPath =
           testQuestionBank
@@ -833,6 +858,41 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMembers()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(
+          applicant.getApplicantData(), answerPath, householdMembers);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerNestedEnumeratorQuestion(
+        String parentEntityName, ImmutableList<String> jobNames) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var parentRepeatedEntity =
+          repeatedEntities.stream()
+              .filter(e -> e.entityName().equals(parentEntityName))
+              .findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberJobs()
+              .getQuestionDefinition()
+              .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
       applicant.save();
       return this;
     }
@@ -885,66 +945,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getQuestionDefinition()
               .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
-      applicant.save();
-      return this;
-    }
-
-    FakeApplicationFiller answerNumberQuestion(long answer) {
-      Path answerPath =
-          testQuestionBank
-              .applicantJugglingNumber()
-              .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
-      applicant.save();
-      return this;
-    }
-
-    FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
-      Path answerPath =
-          testQuestionBank
-              .applicantPhone()
-              .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerPhoneQuestion(
-          applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
-      applicant.save();
-      return this;
-    }
-
-    FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
-      Path answerPath =
-          testQuestionBank
-              .applicantHouseholdMembers()
-              .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerEnumeratorQuestion(
-          applicant.getApplicantData(), answerPath, householdMembers);
-      applicant.save();
-      return this;
-    }
-
-    FakeApplicationFiller answerNestedEnumeratorQuestion(
-        String parentEntityName, ImmutableList<String> jobNames) {
-      var repeatedEntities =
-          RepeatedEntity.createRepeatedEntities(
-              (EnumeratorQuestionDefinition)
-                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-              /* visibility= */ Optional.empty(),
-              applicant.getApplicantData());
-      var parentRepeatedEntity =
-          repeatedEntities.stream()
-              .filter(e -> e.entityName().equals(parentEntityName))
-              .findFirst();
-      Path answerPath =
-          testQuestionBank
-              .applicantHouseholdMemberJobs()
-              .getQuestionDefinition()
-              .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
       applicant.save();
       return this;
     }
