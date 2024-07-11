@@ -86,7 +86,7 @@ test.describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -108,7 +108,7 @@ test.describe('Applicant navigation flow', () => {
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await validateScreenshot(
         page,
         'eligible-alert',
@@ -181,7 +181,7 @@ test.describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -437,7 +437,7 @@ test.describe('Applicant navigation flow', () => {
         // Fill out application and without submitting.
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
+        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(
           page,
           'north-star-eligible-alert',
@@ -464,7 +464,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-        await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
+        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       })
     })
   })

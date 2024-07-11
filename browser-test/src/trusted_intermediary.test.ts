@@ -866,7 +866,7 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
-      await applicantQuestions.expectMayNotBeEligibileHeadingToBeVisible()
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
 
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
@@ -877,7 +877,7 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectMayBeEligibileHeadingToBeVisible()
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await validateScreenshot(page, 'eligible-toast')
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnViewApplications()

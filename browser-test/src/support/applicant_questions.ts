@@ -695,7 +695,7 @@ export class ApplicantQuestions {
     await this.page.click('text=End session')
   }
 
-  async expectMayBeEligibileHeadingToBeVisible() {
+  async expectMayBeEligibileAlertToBeVisible() {
     await expect(
       this.page.getByRole('heading', {name: 'may be eligible'}),
     ).toBeVisible()
@@ -704,7 +704,7 @@ export class ApplicantQuestions {
     ).not.toBeAttached()
   }
 
-  async expectMayNotBeEligibileHeadingToBeVisible() {
+  async expectMayNotBeEligibileAlertToBeVisible() {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
     ).toBeVisible()
