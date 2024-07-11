@@ -80,10 +80,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(resultString).contains("What is your address?");
     assertThat(resultString).contains("what is your name?");
     assertThat(resultString).contains("What is your Email?");
-    assertFalse(
-        resultString.contains(
-            "enumeratorId")); // the enumeratorId field should only show up if there is an
-    // enumerator question in the programs
+    // the enumeratorId field should only show up if there is an enumerator question in the programs
+    assertFalse(resultString.contains("enumeratorId"));
   }
 
   @Test

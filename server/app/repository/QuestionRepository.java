@@ -156,6 +156,7 @@ public final class QuestionRepository {
    */
   public ImmutableList<QuestionModel> bulkCreateQuestions(
       ImmutableList<QuestionDefinition> questionDefinitions) {
+
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
 
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
@@ -180,6 +181,7 @@ public final class QuestionRepository {
                   })
               .collect(ImmutableList.toImmutableList());
       transaction.commit();
+
       return updatedQuestions;
     }
   }
