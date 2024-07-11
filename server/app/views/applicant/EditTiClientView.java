@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
@@ -14,7 +15,9 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import java.util.stream.Stream;
 import models.AccountModel;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -32,6 +35,7 @@ import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.SelectWithLabel;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
@@ -242,6 +246,26 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
+
+    SelectWithLabel nameSuffixField =
+        new SelectWithLabel()
+            .addReferenceClass("cf-dropdown-question")
+            .setLabelText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .setFieldName("nameSuffix")
+            .setPlaceholderText(
+                setDefaultNameSuffix(optionalApplicantData).isEmpty()
+                    ? setDefaultNameSuffix(optionalApplicantData).toString()
+                    : messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .setOptions(
+                Stream.of(ApplicantModel.NameSuffix.values())
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.getValue().toString())
+                                .setValue(option.toString())
+                                .build())
+                    .collect(ImmutableList.toImmutableList()));
+
     FieldWithLabel phoneNumberField =
         setStateIfPresent(
             FieldWithLabel.input()
@@ -313,6 +337,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     firstNameField.getUSWDSInputTag(),
                     middleNameField.getUSWDSInputTag(),
                     lastNameField.getUSWDSInputTag(),
+                    nameSuffixField.getUSWDSInputTag(),
                     phoneNumberField.getUSWDSInputTag(),
                     emailField.getUSWDSInputTag(),
                     dateOfBirthField.getUSWDSInputTag(),
@@ -349,6 +374,12 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
 
   private String setDefaultTiNotes(Optional<AccountModel> optionalAccount) {
     return optionalAccount.isPresent() ? optionalAccount.get().getTiNote() : "";
+  }
+
+  private Optional<String> setDefaultNameSuffix(Optional<ApplicantData> optionalApplicantData) {
+    return optionalApplicantData.isPresent()
+        ? optionalApplicantData.get().getApplicantNameSuffix()
+        : Optional.empty();
   }
 
   private Optional<String> setDefaultMiddleName(Optional<ApplicantData> optionalApplicantData) {
@@ -388,6 +419,9 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
         break;
       case TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME:
         field.setValue(form.getMiddleName());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX:
+        field.setValue(form.getNameSuffix());
         break;
       case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
         field.setValue(form.getDob());
