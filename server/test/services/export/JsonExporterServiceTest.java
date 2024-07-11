@@ -9,7 +9,6 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Test;
-import play.test.Helpers;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
