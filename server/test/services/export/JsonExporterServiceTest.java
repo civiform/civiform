@@ -320,8 +320,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -675,8 +674,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -704,8 +702,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -730,8 +727,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -756,8 +752,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -786,8 +781,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -818,8 +812,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -848,8 +841,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1044,8 +1036,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1072,8 +1063,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
