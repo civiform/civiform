@@ -446,6 +446,8 @@ test.describe('Program admin review of submitted applications', () => {
 
       await adminQuestions.addNameQuestion({
         questionName: 'Sample Name Question',
+        universal: true,
+        primaryApplicantInfo: true,
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['Sample Name Question'],
