@@ -197,7 +197,7 @@ public final class StatusService {
       LocalizationUpdate.StatusUpdate statusUpdateData =
           localizationUpdate.statuses().get(statusIdx);
       StatusDefinitions.Status existingStatus =
-          programDefinition.statusDefinitions().getStatuses().get(statusIdx);
+          currentStatusDefinitions.getStatuses().get(statusIdx);
       StatusDefinitions.Status.Builder updateBuilder =
           existingStatus.toBuilder()
               .setLocalizedStatusText(
