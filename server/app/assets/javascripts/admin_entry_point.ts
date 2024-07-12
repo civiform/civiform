@@ -35,7 +35,8 @@ declare global {
   }
 }
 
-window.htmx = require("htmx.org")
+// eslint-disable-next-line  @typescript-eslint/no-unsafe-assignment
+window.htmx = require('htmx.org')
 
 window.addEventListener('load', () => {
   initializeEverything()
