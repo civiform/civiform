@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicationstatuses.StatusDefinitions;
@@ -32,6 +33,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   private ProgramJsonSampler programJsonSampler;
 
   private ProgramDefinition programDefinition;
+  private ApplicationStatusesRepository repo;
 
   @Before
   public void setUp() {
@@ -76,8 +78,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
-            .setStatusDefinitions(possibleProgramStatuses)
             .build();
+    repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }
 
   @Test
