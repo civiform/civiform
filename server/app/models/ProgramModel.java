@@ -245,7 +245,6 @@ public class ProgramModel extends BaseModel {
     orderBlockDefinitionsBeforeUpdate();
   }
 
-
   /** Populates {@link ProgramDefinition} from column values. */
   @PostLoad
   @PostPersist

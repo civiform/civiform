@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-
 import repository.ApplicationStatusesRepository;
 import services.DeploymentType;
 import services.Path;
@@ -32,10 +31,11 @@ public final class ProgramJsonSampler {
 
   @Inject
   ProgramJsonSampler(
-    QuestionJsonSampler.Factory questionJsonSamplerFactory,
-    ApiPayloadWrapper apiPayloadWrapper,
-    JsonExporterService jsonExporterService,
-    DeploymentType deploymentType, ApplicationStatusesRepository applicationStatusesRepository) {
+      QuestionJsonSampler.Factory questionJsonSamplerFactory,
+      ApiPayloadWrapper apiPayloadWrapper,
+      JsonExporterService jsonExporterService,
+      DeploymentType deploymentType,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
     this.apiPayloadWrapper = apiPayloadWrapper;
     this.jsonExporterService = jsonExporterService;
@@ -53,7 +53,10 @@ public final class ProgramJsonSampler {
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
             .setStatus(
-                applicationStatusesRepository.lookupActiveStatusDefinitions(programDefinition.adminName()).getStatuses().stream()
+                applicationStatusesRepository
+                    .lookupActiveStatusDefinitions(programDefinition.adminName())
+                    .getStatuses()
+                    .stream()
                     .findFirst()
                     .map(Status::statusText))
             .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
