@@ -29,7 +29,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;

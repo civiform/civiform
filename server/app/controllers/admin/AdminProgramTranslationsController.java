@@ -22,7 +22,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
 import services.applicationstatuses.OutOfDateStatusesException;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.applicationstatuses.StatusService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;

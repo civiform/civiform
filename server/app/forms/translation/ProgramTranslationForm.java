@@ -13,7 +13,7 @@ import play.i18n.Lang;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;

@@ -38,7 +38,7 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.ApplicantUtils;

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationStatusesModel;
 import models.StatusDefinitionsLifecycleStage;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 
 /** A repository class used to interact with the application_statuses table. */
 public final class ApplicationStatusesRepository {
@@ -83,7 +83,7 @@ public final class ApplicationStatusesRepository {
 
     return database
         .find(ApplicationStatusesModel.class)
-        .setLabel("ApplicationStatusesModel.findList")
+        .setLabel("GetAllApplicationStatusesModel.findList")
         .where()
         .in("program_name", programName)
         .query()

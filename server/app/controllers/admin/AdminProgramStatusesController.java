@@ -21,7 +21,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicationstatuses.DuplicateStatusException;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.applicationstatuses.StatusService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;

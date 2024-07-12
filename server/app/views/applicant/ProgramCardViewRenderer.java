@@ -42,7 +42,7 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;

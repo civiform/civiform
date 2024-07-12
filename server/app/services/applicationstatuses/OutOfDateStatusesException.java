@@ -1,5 +1,7 @@
 package services.applicationstatuses;
 
+import services.program.StatusDefinitions;
+
 /**
  * OutOfDateStatusesException is thrown when a program's list of {@link StatusDefinitions.Status} is
  * inconsistent with the provided set of statuses to update.

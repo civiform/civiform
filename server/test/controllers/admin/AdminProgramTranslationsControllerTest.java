@@ -22,7 +22,7 @@ import play.mvc.Result;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
+import services.program.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
