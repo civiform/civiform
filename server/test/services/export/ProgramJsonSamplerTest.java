@@ -86,6 +86,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   public void samplesFullProgram() {
     String json = programJsonSampler.getSampleJson(programDefinition);
 
+    System.out.println(json);
     String expectedJson =
         """
 {

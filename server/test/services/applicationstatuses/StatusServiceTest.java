@@ -352,6 +352,11 @@ public class StatusServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
+
+    ErrorAnd<StatusDefinitions, CiviFormError> result2 =
+        service.updateLocalization(program.id, Locale.GERMAN, updateData);
+
+    assertThat(result2.isError()).isFalse();
     ImmutableList<StatusDefinitions.Status> expectedStatuses =
         ImmutableList.of(
             StatusDefinitions.Status.builder()

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -48,11 +49,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   private ProgramRepository programRepository;
   private AdminProgramTranslationsController controller;
+  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setup() {
     programRepository = instanceOf(ProgramRepository.class);
     controller = instanceOf(AdminProgramTranslationsController.class);
+    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
@@ -180,7 +183,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program display name");
     assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish program description");
-    assertThat(updatedProgram.statusDefinitions().getStatuses())
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(updatedProgram.adminName())
+                .getStatuses())
         .isEqualTo(
             ImmutableList.of(
                 StatusDefinitions.Status.builder()
@@ -318,8 +324,14 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo(initialProgram.getProgramDefinition().localizedName());
     assertThat(freshProgram.localizedDescription())
         .isEqualTo(initialProgram.getProgramDefinition().localizedDescription());
-    assertThat(freshProgram.statusDefinitions().getStatuses())
-        .isEqualTo(initialProgram.getProgramDefinition().statusDefinitions().getStatuses());
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(freshProgram.adminName())
+                .getStatuses())
+        .isEqualTo(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(initialProgram.getProgramDefinition().adminName())
+                .getStatuses());
   }
 
   private static final ImmutableList<StatusDefinitions.Status> STATUSES_WITH_EMAIL =
@@ -377,6 +389,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .build()
             .toProgram();
     program.update();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(statuses));
     return program;
   }
 }
