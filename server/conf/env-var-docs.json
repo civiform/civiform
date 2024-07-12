@@ -796,7 +796,7 @@
       },
       "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site. This banner will not show on Production sites even if this setting is enabled.",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
       }
     }

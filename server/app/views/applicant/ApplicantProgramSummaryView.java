@@ -21,6 +21,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertSettings;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -29,6 +30,7 @@ import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -157,8 +159,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             params.totalBlockCount(),
             true,
             messages),
-        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
-        ApplicationBaseView.requiredFieldsExplanationContent(messages),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE));
+
+    if (params.eligibilityAlertSettings().show()) {
+      bundle.addMainContent(renderEligibilityAlert(params.eligibilityAlertSettings()));
+    }
+
+    bundle.addMainContent(
+        div(ApplicationBaseView.requiredFieldsExplanationContent(messages)).withClass("mt-4"),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -168,6 +176,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.messages(),
         bundle,
         params.applicantId());
+  }
+
+  private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {
+    return AlertComponent.renderFullAlert(
+        eligibilityAlertSettings.alertType(),
+        eligibilityAlertSettings.text(),
+        eligibilityAlertSettings.title(),
+        false,
+        AlertComponent.HeadingLevel.H3);
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
@@ -337,6 +354,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     abstract int completedBlockCount();
 
     abstract Messages messages();
@@ -365,6 +384,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

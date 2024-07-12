@@ -18,6 +18,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
@@ -69,6 +70,9 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
+
+    // Eligibility Alerts
+    context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());
 
     // Login modal
     Optional<String> redirectedFromProgramSlug =
@@ -154,6 +158,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     abstract Optional<String> notEligibleBannerMessage();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -179,6 +185,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
       public abstract Builder setNotEligibleBannerMessage(
           Optional<String> notEligibleBannerMessage);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Params build();
     }

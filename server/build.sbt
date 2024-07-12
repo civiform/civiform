@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.26.16",
-      "software.amazon.awssdk" % "ses" % "2.26.16",
+      "software.amazon.awssdk" % "s3" % "2.26.19",
+      "software.amazon.awssdk" % "ses" % "2.26.19",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.13.0",
@@ -60,9 +60,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.26.0" % Test,
+      "org.assertj" % "assertj-core" % "3.26.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.26.0" % Test,
+      "org.assertj" % "assertj-core" % "3.26.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.2.1-jre" % Test,
@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.40",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.41",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",

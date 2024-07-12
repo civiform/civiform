@@ -90,38 +90,38 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   final class Factory {
 
-    private final CurrencyJsonPresenter currencyJsonPresenter;
     private final ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter;
+    private final CurrencyJsonPresenter currencyJsonPresenter;
     private final DateJsonPresenter dateJsonPresenter;
-    private final EnumeratorJsonPresenter enumeratorJsonPresenter;
     private final EmptyJsonPresenter emptyJsonPresenter;
+    private final EnumeratorJsonPresenter enumeratorJsonPresenter;
     private final FileUploadJsonPresenter fileUploadJsonPresenter;
+    private final MultiSelectJsonPresenter multiSelectJsonPresenter;
     private final NumberJsonPresenter numberJsonPresenter;
     private final PhoneJsonPresenter phoneJsonPresenter;
-    private final MultiSelectJsonPresenter multiSelectJsonPresenter;
     private final SingleSelectJsonPresenter singleSelectJsonPresenter;
 
     @Inject
     Factory(
-        CurrencyJsonPresenter currencyJsonPresenter,
         ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter,
+        CurrencyJsonPresenter currencyJsonPresenter,
         DateJsonPresenter dateJsonPresenter,
-        PhoneJsonPresenter phoneJsonPresenter,
-        EnumeratorJsonPresenter enumeratorJsonPresenter,
         EmptyJsonPresenter emptyJsonPresenter,
-        SingleSelectJsonPresenter singleSelectJsonPresenter,
-        NumberJsonPresenter numberJsonPresenter,
+        EnumeratorJsonPresenter enumeratorJsonPresenter,
         FileUploadJsonPresenter fileUploadJsonPresenter,
-        MultiSelectJsonPresenter multiSelectJsonPresenter) {
-      this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
+        MultiSelectJsonPresenter multiSelectJsonPresenter,
+        NumberJsonPresenter numberJsonPresenter,
+        PhoneJsonPresenter phoneJsonPresenter,
+        SingleSelectJsonPresenter singleSelectJsonPresenter) {
       this.contextualizedScalarsJsonPresenter = checkNotNull(contextualizedScalarsJsonPresenter);
-      this.enumeratorJsonPresenter = checkNotNull(enumeratorJsonPresenter);
-      this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
+      this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
       this.dateJsonPresenter = checkNotNull(dateJsonPresenter);
+      this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
+      this.enumeratorJsonPresenter = checkNotNull(enumeratorJsonPresenter);
       this.fileUploadJsonPresenter = checkNotNull(fileUploadJsonPresenter);
+      this.multiSelectJsonPresenter = checkNotNull(multiSelectJsonPresenter);
       this.numberJsonPresenter = checkNotNull(numberJsonPresenter);
       this.phoneJsonPresenter = checkNotNull(phoneJsonPresenter);
-      this.multiSelectJsonPresenter = checkNotNull(multiSelectJsonPresenter);
       this.singleSelectJsonPresenter = checkNotNull(singleSelectJsonPresenter);
     }
 
@@ -133,72 +133,31 @@ public interface QuestionJsonPresenter<Q extends Question> {
         case NAME:
         case TEXT:
           return contextualizedScalarsJsonPresenter;
-        case ENUMERATOR:
-          return enumeratorJsonPresenter;
-
-          // Static content questions are not included in API responses because they
-          // do not include an answer from the user.
-        case STATIC:
-          return emptyJsonPresenter;
-
         case CHECKBOX:
           return multiSelectJsonPresenter;
+        case CURRENCY:
+          return currencyJsonPresenter;
+        case DATE:
+          return dateJsonPresenter;
+        case DROPDOWN:
+        case RADIO_BUTTON:
+          return singleSelectJsonPresenter;
+        case ENUMERATOR:
+          return enumeratorJsonPresenter;
         case FILEUPLOAD:
           return fileUploadJsonPresenter;
         case NUMBER:
           return numberJsonPresenter;
         case PHONE:
           return phoneJsonPresenter;
-        case RADIO_BUTTON:
-        case DROPDOWN:
-          return singleSelectJsonPresenter;
-        case CURRENCY:
-          return currencyJsonPresenter;
-        case DATE:
-          return dateJsonPresenter;
+          // Static content questions are not included in API responses because they
+          // do not include an answer from the user.
+        case STATIC:
+          return emptyJsonPresenter;
 
         default:
           throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
       }
-    }
-  }
-
-  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
-
-    private final String baseUrl;
-
-    @Inject
-    FileUploadJsonPresenter(SettingsManifest settingsManifest) {
-      baseUrl = settingsManifest.getBaseUrl().orElse("");
-    }
-
-    @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(FileUploadQuestion question) {
-      return ImmutableMap.of(
-          question.getFileKeyPath().asNestedEntitiesPath(),
-          question
-              .getApplicantQuestion()
-              .createFileUploadQuestion()
-              .getFileKeyValue()
-              .map(
-                  fileKey ->
-                      baseUrl
-                          + controllers.routes.FileController.acledAdminShow(
-                                  URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                              .url()));
-    }
-  }
-
-  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
-
-    @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
-      Path path = question.getSelectionPath().asNestedEntitiesPath();
-
-      ImmutableList<String> selectedOptions =
-          question.getSelectedOptionAdminNames().orElse(ImmutableList.of());
-
-      return ImmutableMap.of(path, Optional.of(selectedOptions));
     }
   }
 
@@ -241,6 +200,13 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
+  class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
+      return ImmutableMap.of();
+    }
+  }
+
   class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EnumeratorQuestion question) {
@@ -268,10 +234,40 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
+  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
+    private final String baseUrl;
+
+    @Inject
+    FileUploadJsonPresenter(SettingsManifest settingsManifest) {
+      baseUrl = settingsManifest.getBaseUrl().orElse("");
+    }
+
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
-      return ImmutableMap.of();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(FileUploadQuestion question) {
+      return ImmutableMap.of(
+          question.getFileKeyPath().asNestedEntitiesPath(),
+          question
+              .getApplicantQuestion()
+              .createFileUploadQuestion()
+              .getFileKeyValue()
+              .map(
+                  fileKey ->
+                      baseUrl
+                          + controllers.routes.FileController.acledAdminShow(
+                                  URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                              .url()));
+    }
+  }
+
+  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
+      Path path = question.getSelectionPath().asNestedEntitiesPath();
+
+      ImmutableList<String> selectedOptions =
+          question.getSelectedOptionAdminNames().orElse(ImmutableList.of());
+
+      return ImmutableMap.of(path, Optional.of(selectedOptions));
     }
   }
 
