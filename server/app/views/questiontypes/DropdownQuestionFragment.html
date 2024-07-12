@@ -26,6 +26,7 @@
     name="options"
     th:id="${inputId}"
     th:name="${singleSelectQuestion.getSelectionPath()}"
+    th:required="${!question.isOptional()} ? 'true' : 'false'"
     th:aria-required="${!question.isOptional()}"
     th:aria-describedby="${questionId} + '-description'"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
