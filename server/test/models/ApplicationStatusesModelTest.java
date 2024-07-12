@@ -10,7 +10,7 @@ import org.junit.Test;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ApplicationStatusesModelTest extends ResetPostgres {

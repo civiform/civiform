@@ -40,7 +40,7 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;

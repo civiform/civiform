@@ -10,7 +10,7 @@ import play.data.validation.Constraints.Validatable;
 import play.data.validation.Constraints.Validate;
 import play.data.validation.ValidationError;
 import services.LocalizedStrings;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 
 /** Form for creating / editing program statuses. */
 @Validate

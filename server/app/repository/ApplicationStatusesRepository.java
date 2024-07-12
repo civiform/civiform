@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationStatusesModel;
 import models.StatusDefinitionsLifecycleStage;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 
 /** A repository class used to interact with the application_statuses table. */
 public final class ApplicationStatusesRepository {

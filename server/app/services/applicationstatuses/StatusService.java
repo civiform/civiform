@@ -19,7 +19,6 @@ import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
 
 public final class StatusService {
 

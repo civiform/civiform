@@ -49,7 +49,7 @@ import services.applications.AccountHasNoEmailException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.applicationstatuses.StatusNotFoundException;
 import services.applicationstatuses.StatusService;
 import services.export.CsvExporterService;

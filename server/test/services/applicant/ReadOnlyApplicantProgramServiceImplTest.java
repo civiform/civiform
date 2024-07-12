@@ -21,7 +21,7 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;

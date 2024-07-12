@@ -15,7 +15,7 @@ import repository.ApplicationStatusesRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;

@@ -1,6 +1,7 @@
-package services.program;
+package services.applicationstatuses;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -59,6 +60,7 @@ public final class StatusDefinitions {
         "The provided set of statuses may not contain empty statusTexts.");
   }
 
+  @JsonIgnore
   public Optional<StatusDefinitions.Status> getDefaultStatus() {
     return statuses.stream().filter(StatusDefinitions.Status::computedDefaultStatus).findFirst();
   }

@@ -1,7 +1,5 @@
 package services.applicationstatuses;
 
-import services.program.StatusDefinitions;
-
 /**
  * DuplicateStatusException is thrown when an {@link StatusDefinitions.Status} with the same
  * statusText already exists in the list of a program's configured statuses for application review.

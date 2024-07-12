@@ -27,7 +27,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -244,11 +244,7 @@ public class ProgramModel extends BaseModel {
 
     orderBlockDefinitionsBeforeUpdate();
   }
-  public Optional<StatusDefinitions.Status> getDefaultStatus() {
-    return this.statusDefinitions.getStatuses().stream()
-      .filter(StatusDefinitions.Status::computedDefaultStatus)
-      .findFirst();
-  }
+
 
   /** Populates {@link ProgramDefinition} from column values. */
   @PostLoad

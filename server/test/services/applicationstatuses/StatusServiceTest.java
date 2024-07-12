@@ -17,7 +17,6 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.ProgramNotFoundException;
-import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class StatusServiceTest extends ResetPostgres {

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import repository.ApplicationStatusesRepository;
 import services.DeploymentType;
 import services.Path;
-import services.program.StatusDefinitions.Status;
+import services.applicationstatuses.StatusDefinitions.Status;
 import services.export.JsonExporterService.ApplicationExportData;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;

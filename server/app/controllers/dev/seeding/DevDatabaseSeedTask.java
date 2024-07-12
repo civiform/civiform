@@ -45,7 +45,7 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.applicationstatuses.DuplicateStatusException;
-import services.program.StatusDefinitions;
+import services.applicationstatuses.StatusDefinitions;
 import services.applicationstatuses.StatusService;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
