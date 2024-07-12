@@ -35,7 +35,7 @@ declare global {
   }
 }
 
-window.htmx = htmx
+window.htmx = require("htmx.org")
 
 window.addEventListener('load', () => {
   initializeEverything()
