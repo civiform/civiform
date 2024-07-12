@@ -253,7 +253,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     var serviceAreas =
         ImmutableList.of(
             ServiceAreaInclusion.builder()
-                .setServiceAreaId("cityville_township")
+                .setServiceAreaId("cityvilleTownship")
                 .setState(ServiceAreaState.IN_AREA)
                 .setTimeStamp(1709069741L)
                 .build(),
@@ -301,7 +301,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "line2" : "Apt 8i",
           "longitude" : "-123.0236",
           "question_type" : "ADDRESS",
-          "service_area" : "cityville_township_InArea_1709069741,portland_NotInArea_1709069741",
+          "service_area" : "cityvilleTownship_InArea_1709069741,portland_NotInArea_1709069741",
           "state" : "OR",
           "street" : "12345 E South St",
           "well_known_id" : "54321",

@@ -104,7 +104,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "line2" : null,
         "longitude" : "-123.0236",
         "question_type" : "ADDRESS",
-        "service_area" : "springfield_county_InArea_1709069741,portland_NotInArea_1709069741",
+        "service_area" : "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741",
         "state" : "OR",
         "street" : "742 Evergreen Terrace",
         "well_known_id" : "4326",

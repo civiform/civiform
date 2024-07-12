@@ -62,7 +62,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 .put(
                     Path.create("applicant.sample_address_question.service_area"),
                     Optional.of(
-                        "springfield_county_InArea_1709069741,portland_NotInArea_1709069741"))
+                        "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741"))
                 .put(Path.create("applicant.sample_address_question.state"), Optional.of("OR"))
                 .put(Path.create("applicant.sample_address_question.line2"), Optional.empty())
                 .put(
