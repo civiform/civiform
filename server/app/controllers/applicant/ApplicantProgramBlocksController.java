@@ -40,7 +40,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
-import services.MessageKey;
+import services.AlertSettings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -97,6 +97,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
+  private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,7 +122,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -136,6 +138,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
     this.northStarApplicantProgramBlockEditView =
@@ -1062,18 +1065,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Map<String, String> flashingMap = new HashMap<>();
-    if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
-        && roApplicantProgramService.isActiveBlockEligible(blockId)) {
-      flashingMap.put(
-          FlashKey.SUCCESS_BANNER,
-          messagesApi
-              .preferred(request)
-              .at(
-                  submittingProfile.isTrustedIntermediary()
-                      ? MessageKey.TOAST_MAY_QUALIFY_TI.getKeyName()
-                      : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
-                  roApplicantProgramService.getProgramTitle()));
-    }
+
     return redirectToRequestedPage(
         profile,
         applicantId,
@@ -1274,6 +1266,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
+
+    AlertSettings eligibilityAlertSettings =
+        eligibilityAlertSettingsCalculator.calculate(
+            request,
+            profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+            !roApplicantProgramService.isApplicationNotEligible(),
+            programId);
+
     return ApplicationBaseViewParams.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -1292,7 +1292,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantSelectedQuestionName(questionName)
         .setApplicantRoutes(applicantRoutes)
         .setProfile(profile)
-        .setBlockList(roApplicantProgramService.getAllActiveBlocks());
+        .setBlockList(roApplicantProgramService.getAllActiveBlocks())
+        .setEligibilityAlertSettings(eligibilityAlertSettings);
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(

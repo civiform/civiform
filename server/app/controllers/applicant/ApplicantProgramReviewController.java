@@ -27,6 +27,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.VersionRepository;
+import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
@@ -72,6 +73,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
+  private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -88,7 +90,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       SettingsManifest settingsManifest,
       ProgramService programService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -103,6 +106,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
   }
 
   @Secure
@@ -115,7 +119,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
     Optional<String> flashBannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
     Optional<String> flashSuccessBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
@@ -134,31 +137,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
-              Optional<ToastMessage> notEligibleBanner = Optional.empty();
-              Optional<String> notEligibleBannerMessage = Optional.empty();
-              try {
-                boolean shouldShowNotEligibleBanner =
-                    shouldShowNotEligibleBanner(roApplicantProgramService, programId);
-                if (shouldShowNotEligibleBanner) {
-                  notEligibleBannerMessage =
-                      Optional.of(
-                          messages.at(
-                              isTrustedIntermediary
-                                  ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                  : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                              roApplicantProgramService.getProgramTitle()));
-                  notEligibleBanner =
-                      Optional.of(ToastMessage.alert(notEligibleBannerMessage.get()));
-                }
-              } catch (ProgramNotFoundException e) {
-                return notFound(e.toString());
-              }
+
+              AlertSettings eligibilityAlertSettings =
+                  eligibilityAlertSettingsCalculator.calculate(
+                      request,
+                      profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+                      !roApplicantProgramService.isApplicationNotEligible(),
+                      programId);
+
               ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
-                      .setBannerMessages(
-                          ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
+                      .setBannerMessages(ImmutableList.of(flashBanner, flashSuccessBanner))
+                      .setEligibilityAlertSettings(eligibilityAlertSettings)
                       .setMessages(messages)
                       .setProgramId(programId)
                       .setRequest(request)
@@ -211,7 +203,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setMessages(messages)
                         .setAlertBannerMessage(flashBannerMessage)
                         .setSuccessBannerMessage(flashSuccessBannerMessage)
-                        .setNotEligibleBannerMessage(notEligibleBannerMessage)
+                        .setEligibilityAlertSettings(eligibilityAlertSettings)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
@@ -303,16 +295,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
         request,
         applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
         programId);
-  }
-
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean shouldShowNotEligibleBanner(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
-      throws ProgramNotFoundException {
-    if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
-      return false;
-    }
-    return roApplicantProgramService.isApplicationNotEligible();
   }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
