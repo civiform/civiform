@@ -42,6 +42,7 @@
       th:name="${currencyQuestion.getCurrencyPath()}"
       th:value="${value}"
       th:aria-describedby="${questionId} + '-description'"
+      th:required="${!question.isOptional()} ? 'true' : 'false'"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"
       th:autofocus="${questionRendererParams.autofocusFirstError()}"

@@ -43,6 +43,7 @@
         th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
         th:checked="${multiSelectQuestion.optionIsSelected(option)}"
         type="checkbox"
+        th:required="${!question.isOptional()} ? 'true' : 'false'"
         th:aria-required="${!question.isOptional()}"
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />

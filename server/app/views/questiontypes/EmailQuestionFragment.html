@@ -30,6 +30,7 @@
     th:id="${inputId}"
     th:name="${emailQuestion.getEmailPath()}"
     th:value="${emailQuestion.getEmailValue().orElse('')}"
+    th:required="${!question.isOptional()} ? 'true' : 'false'"
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"

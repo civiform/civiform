@@ -35,6 +35,7 @@
         th:name="${singleSelectQuestion.getSelectionPath()}"
         th:checked="${singleSelectQuestion.optionIsSelected(option)}"
         type="radio"
+        th:required="${!question.isOptional()} ? 'true' : 'false'"
         th:aria-required="${!question.isOptional()}"
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />

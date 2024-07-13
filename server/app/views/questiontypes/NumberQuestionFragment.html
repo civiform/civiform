@@ -39,9 +39,13 @@
     th:value="${value}"
     th:min="${min}"
     th:max="${max}"
+    required
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>
+
+    <!-- th:required="${!question.isOptional()} ? 'true' : 'false'" -->
+
