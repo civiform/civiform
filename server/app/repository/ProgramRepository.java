@@ -501,12 +501,13 @@ public final class ProgramRepository {
   }
 
   /**
-   * Get the most recent id for the active program
+   * Get the most recent id for the active program. In the case that there are no active versions of
+   * a program, an empty value is returned.
    *
    * @param programId to use when looking for the most recent program
-   * @return The programId of the most recent program
+   * @return The programId of the most recent active program or empty.
    */
-  public long getMostRecentActiveProgramId(long programId) {
+  public Optional<Long> getMostRecentActiveProgramId(long programId) {
     /*
      * We need for this to always get the most recent active program ID, thus we are unable to
      * cache the value without building out a much more complicated caching solution. This will
@@ -541,14 +542,6 @@ public final class ProgramRepository {
             .mapToScalar(Long.class)
             .findOne();
 
-    if (latestProgramId == null) {
-      throw new RuntimeException(
-          String.format(
-              "ProgramRepository.getMostRecentActiveProgramId could not find the latest program id"
-                  + " for programId: %d",
-              programId));
-    }
-
-    return latestProgramId;
+    return Optional.ofNullable(latestProgramId);
   }
 }
