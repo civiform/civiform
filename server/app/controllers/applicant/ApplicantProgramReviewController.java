@@ -191,6 +191,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                 NorthStarApplicantProgramSummaryView.Params northStarParams =
                     NorthStarApplicantProgramSummaryView.Params.builder()
+                        .setProgramTitle(roApplicantProgramService.getProgramTitle())
                         .setBlocks(roApplicantProgramService.getAllActiveBlocks())
                         .setApplicantId(applicantId)
                         .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())

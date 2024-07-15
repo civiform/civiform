@@ -453,7 +453,9 @@ export class ApplicantQuestions {
 
   async expectReviewPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      await expect(this.page.locator('h1')).toContainText("Let's get started")
+      await expect(
+        this.page.locator('[data-testid="programSummary"]'),
+      ).toBeVisible()
     } else {
       await expect(this.page.locator('h2')).toContainText(
         'Program application summary',
