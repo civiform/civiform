@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.pac4j.play.PlayWebContext;
 import services.settings.SettingsManifest;
+import support.FakeRequestBuilder;
 
 public class ClientIpResolverTest {
   private static final SettingsManifest MOCK_SETTINGS_MANIFEST =

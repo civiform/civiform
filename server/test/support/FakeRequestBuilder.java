@@ -1,5 +1,6 @@
-package auth;
+package support;
 
+import auth.ClientIpResolver;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
