@@ -956,6 +956,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
+  /**
+   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * version of a program when a newer version has been published.
+   */
+  public boolean getFastforwardEnabled(RequestHeader request) {
+    return getBool("FASTFORWARD_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1981,6 +1989,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " Production and that they shouldn't submit real applications."
                           + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
                           + " link to your production site.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "FASTFORWARD_ENABLED",
+                      "When enabled, existing draft applications will be automatically be updated"
+                          + " to use the latest version of a program when a newer version has been"
+                          + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
