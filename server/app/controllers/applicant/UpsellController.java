@@ -126,7 +126,7 @@ public final class UpsellController extends CiviFormController {
 
     CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
         applicantService
-            .relevantProgramsForApplicant(applicantId, profile.get())
+            .relevantProgramsForApplicant(applicantId, profile.get(), request)
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -146,7 +146,7 @@ public final class UpsellController extends CiviFormController {
                       // we are already checking if profile is empty
                       v ->
                           applicantService.maybeEligibleProgramsForApplicant(
-                              applicantId, profile.get()),
+                              applicantId, profile.get(), request),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })

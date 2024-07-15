@@ -43,21 +43,25 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
+
     ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
+
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
+
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
     CiviFormController controller = instanceOf(CiviFormController.class);
+
     Result result =
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
+                addCSRFToken(requestBuilderWithSettings("FASTFORWARD_ENABLED", "false")).build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();

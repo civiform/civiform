@@ -9,18 +9,19 @@ import {
   logout,
   closeWarningMessage,
   AdminPredicates,
+  disableFeatureFlag,
 } from '../support'
 import {QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
-test.describe('Application Version Pre Fast-Forward Flow', () => {
+test.describe('Application Version Fast-Forward Flow', () => {
   test.beforeEach(async ({request}) => {
     await test.step('Clear database', async () => {
       await request.post('/dev/seed/clear')
     })
   })
 
-  test('all major steps', async ({browser}) => {
+  test('all major steps - fast forward flag disabled', async ({browser}) => {
     const programName = 'program-fastforward-example'
 
     const civiformAdminActor = await FastForwardCiviformAdminActor.create(
@@ -35,6 +36,13 @@ test.describe('Application Version Pre Fast-Forward Flow', () => {
       programName,
       browser,
     )
+
+    await disableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'FASTFORWARD_ENABLED',
+    )
+    await disableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
+    await disableFeatureFlag(programAdminActor.getPage(), 'FASTFORWARD_ENABLED')
 
     /*
 
@@ -521,6 +529,13 @@ class FastForwardCiviformAdminActor {
   }
 
   /**
+   * Get the playwright page object bound to this actor
+   */
+  getPage(): Page {
+    return this.page
+  }
+
+  /**
    * Log in the civiform admin actor
    */
   async login() {
@@ -726,6 +741,13 @@ class FastForwardApplicantActor {
   ): Promise<FastForwardApplicantActor> {
     const context = await browser.newContext()
     return new FastForwardApplicantActor(programName, await context.newPage())
+  }
+
+  /**
+   * Get the playwright page object bound to this actor
+   */
+  getPage(): Page {
+    return this.page
   }
 
   /**
@@ -950,6 +972,13 @@ class FastForwardProgramAdminActor {
       programName,
       await context.newPage(),
     )
+  }
+
+  /**
+   * Get the playwright page object bound to this actor
+   */
+  getPage(): Page {
+    return this.page
   }
 
   /**
