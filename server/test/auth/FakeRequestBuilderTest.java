@@ -3,6 +3,7 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itextpdf.xmp.impl.Base64;
+import java.util.List;
 import org.junit.Test;
 import play.mvc.Http;
 
@@ -14,14 +15,14 @@ public class FakeRequestBuilderTest {
 
     Http.Request fakeRequest =
         new FakeRequestBuilder()
-            .withRawCredentials(rawCreds)
-            .withRemoteAddress("3.3.3.3")
-            .withXForwardedFor("4.4.4.4, 5.5.5.5")
+            .rawCredentials(rawCreds)
+            .addXForwardedFor("4.4.4.4, 5.5.5.5")
+            .addXForwardedFor("6.6.6.6")
             .build();
 
     assertThat(fakeRequest.header("Authorization").get()).isEqualTo("Basic " + encodedCreds);
-    assertThat(fakeRequest.remoteAddress()).isEqualTo("3.3.3.3");
-    assertThat(fakeRequest.header("X-Forwarded-For").get()).isEqualTo("4.4.4.4, 5.5.5.5");
+    assertThat(fakeRequest.headers().getAll("X-Forwarded-For"))
+        .isEqualTo(List.of("4.4.4.4, 5.5.5.5", "6.6.6.6"));
   }
 
   @Test
@@ -29,8 +30,6 @@ public class FakeRequestBuilderTest {
     Http.Request fakeRequest = new FakeRequestBuilder().build();
 
     assertThat(fakeRequest.header("Authorization")).isEmpty();
-    // Tests that don't care about the IP address assume a remote address of 1.1.1.1
-    assertThat(fakeRequest.remoteAddress()).isEqualTo("1.1.1.1");
     assertThat(fakeRequest.header("X-Forwarded-For")).isEmpty();
   }
 }

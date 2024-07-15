@@ -22,8 +22,8 @@ public class ClientIpResolverTest {
 
     var request =
         new FakeRequestBuilder()
-            .withRemoteAddress("4.4.4.4")
-            .withXForwardedFor("3.3.3.3, 2.2.2.2")
+            .addXForwardedFor("3.3.3.3, 2.2.2.2")
+            .remoteAddress("4.4.4.4")
             .build();
 
     assertThat(clientIpResolver.resolveClientIp(new PlayWebContext(request))).isEqualTo("4.4.4.4");
@@ -35,7 +35,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2").build();
+    var request = new FakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
 
     assertThat(clientIpResolver.resolveClientIp(new PlayWebContext(request))).isEqualTo("2.2.2.2");
   }
@@ -46,7 +46,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withRemoteAddress("3.3.3.3").build();
+    var request = new FakeRequestBuilder().remoteAddress("3.3.3.3").build();
 
     assertThatThrownBy(() -> clientIpResolver.resolveClientIp(new PlayWebContext(request)))
         .isInstanceOf(ConfigurationException.class)
@@ -59,7 +59,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2").build();
+    var request = new FakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
   }
@@ -70,7 +70,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2, 1.1.1.1").build();
+    var request = new FakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2, 1.1.1.1").build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
   }
@@ -83,8 +83,8 @@ public class ClientIpResolverTest {
 
     var request =
         new FakeRequestBuilder()
-            .withXForwardedFor("3.3.3.3, 2.2.2.2")
-            .withXForwardedFor("1.1.1.1")
+            .addXForwardedFor("3.3.3.3, 2.2.2.2")
+            .addXForwardedFor("1.1.1.1")
             .build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
@@ -96,7 +96,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("1.1.1.1").build();
+    var request = new FakeRequestBuilder().addXForwardedFor("1.1.1.1").build();
 
     assertThatThrownBy(() -> clientIpResolver.resolveClientIp(new PlayWebContext(request)))
         .isInstanceOf(ConfigurationException.class)

@@ -1,49 +1,37 @@
 package auth;
 
-import static play.test.Helpers.fakeRequest;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
-import play.mvc.Http;
+import play.mvc.Http.RequestBuilder;
+import play.mvc.Http.RequestImpl;
 
-public final class FakeRequestBuilder {
-  private String remoteAddress = "1.1.1.1";
+public final class FakeRequestBuilder extends RequestBuilder {
   private List<String> xForwardedFor = new ArrayList<>();
-  private Optional<String> rawCredentials = Optional.empty();
 
   public FakeRequestBuilder() {}
 
-  public FakeRequestBuilder withRemoteAddress(String remoteAddress) {
-    this.remoteAddress = remoteAddress;
-    return this;
-  }
-
-  // Add an X-Forwarded-For header.
-  //
-  // Can be called multiple times.
-  public FakeRequestBuilder withXForwardedFor(String xff) {
+  /** Add an X-Forwarded-For header. Can be called multiple times for multiple header lines. */
+  public FakeRequestBuilder addXForwardedFor(String xff) {
     this.xForwardedFor.add(xff);
     return this;
   }
 
-  public FakeRequestBuilder withRawCredentials(String rawCredentials) {
-    this.rawCredentials = Optional.of(rawCredentials);
+  public FakeRequestBuilder rawCredentials(String rawCredentials) {
+    String encodedCreds =
+        Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
+    header("Authorization", "Basic " + encodedCreds);
     return this;
   }
 
-  public Http.Request build() {
-    Http.RequestBuilder fakeRequest = fakeRequest().remoteAddress(this.remoteAddress);
+  @Override
+  public RequestImpl build() {
     if (!xForwardedFor.isEmpty()) {
-      fakeRequest.header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
+      // Each call to header() for a given key will override previous calls, so collect all the
+      // values and set them once at the end
+      header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
     }
-    rawCredentials
-        .map(
-            rawCreds ->
-                Base64.getEncoder().encodeToString(rawCreds.getBytes(StandardCharsets.UTF_8)))
-        .ifPresent(creds -> fakeRequest.header("Authorization", "Basic " + creds));
-    return fakeRequest.build();
+    return super.build();
   }
 }
