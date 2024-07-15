@@ -15,7 +15,6 @@ import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -91,7 +90,7 @@ public final class ProgramAdminApplicationService {
    * @param admin The Account that instigated the change.
    */
   public void setStatus(
-      ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin, Request request)
+      ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
     ProgramModel program = application.getProgram();
     ApplicantModel applicant = application.getApplicant();
@@ -133,7 +132,7 @@ public final class ProgramAdminApplicationService {
       }
       // Notify the applicant.
       ApplicantPersonalInfo applicantPersonalInfo =
-          applicantService.getPersonalInfo(applicant.id, request).toCompletableFuture().join();
+          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
       Optional<ImmutableSet<String>> applicantEmails =
           applicantService.getApplicantEmails(applicantPersonalInfo);
       if (applicantEmails.isPresent()) {

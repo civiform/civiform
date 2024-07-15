@@ -190,13 +190,13 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
-                Path.create("applicant.name.question_type"),
+                Path.create("applicant.sample_name_question.question_type"),
                 Optional.of("NAME"),
-                Path.create("applicant.name.first_name"),
+                Path.create("applicant.sample_name_question.first_name"),
                 Optional.of("Homer"),
-                Path.create("applicant.name.middle_name"),
+                Path.create("applicant.sample_name_question.middle_name"),
                 Optional.of("Jay"),
-                Path.create("applicant.name.last_name"),
+                Path.create("applicant.sample_name_question.last_name"),
                 Optional.of("Simpson")));
   }
 

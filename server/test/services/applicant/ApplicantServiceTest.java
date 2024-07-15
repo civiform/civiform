@@ -1594,9 +1594,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1611,9 +1610,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1626,9 +1624,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1644,9 +1641,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1662,9 +1658,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1679,9 +1674,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1693,9 +1687,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.setEmailAddress("test@example.com");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofGuestUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1711,9 +1704,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setEmailAddress("ticlient@example.com");
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofTiPartiallyCreated(
                 Representation.builder()
@@ -1727,9 +1719,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -1742,16 +1733,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
   }
 
   @Test
   public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThat(subject.getPersonalInfo(9999L, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -3838,6 +3827,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
+
     ApplicationModel ineligibleApplication =
         subject
             .submitApplication(

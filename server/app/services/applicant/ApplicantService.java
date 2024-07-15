@@ -544,7 +544,7 @@ public final class ApplicantService {
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId, request).toCompletableFuture();
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -873,7 +873,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -899,7 +899,7 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
                 }
