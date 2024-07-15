@@ -3,6 +3,7 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -36,7 +37,6 @@ import play.mvc.Http;
 import play.test.Helpers;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
-import support.FakeRequestBuilder;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
@@ -106,7 +106,7 @@ public class ApiAuthenticatorTest {
     apiAuthenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
-            new FakeRequestBuilder()
+            fakeRequestBuilder()
                 .rawCredentials(validRawCredentials)
                 .remoteAddress("1.1.1.1")
                 .build()),
@@ -132,7 +132,7 @@ public class ApiAuthenticatorTest {
     authenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
-            new FakeRequestBuilder()
+            fakeRequestBuilder()
                 .rawCredentials(validRawCredentials)
                 .addXForwardedFor("2.2.2.2, 3.3.3.3")
                 .build()),
@@ -148,7 +148,7 @@ public class ApiAuthenticatorTest {
     String rawCredentials = "wrong" + ":" + secret;
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().rawCredentials(rawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(rawCredentials).build(),
         new UsernamePasswordCredentials("wrong", secret),
         "API key does not exist: wrong");
   }
@@ -159,7 +159,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().rawCredentials(validRawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is retired: " + keyId);
   }
 
@@ -170,7 +170,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().rawCredentials(validRawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is expired: " + keyId);
   }
 
@@ -180,10 +180,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder()
-            .rawCredentials(validRawCredentials)
-            .remoteAddress("4.4.4.4")
-            .build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).remoteAddress("4.4.4.4").build(),
         String.format(
             "Resolved IP 4.4.4.4 is not in allowed range for key ID: %s, which is \"%s\"",
             keyId, "2.2.2.2/30,3.3.3.3/32"));
@@ -204,7 +201,7 @@ public class ApiAuthenticatorTest {
 
     assertBadCredentialsException(
         authenticator,
-        new FakeRequestBuilder()
+        fakeRequestBuilder()
             .addXForwardedFor("5.5.5.5, 6.6.6.6")
             .rawCredentials(validRawCredentials)
             .build(),
@@ -236,7 +233,7 @@ public class ApiAuthenticatorTest {
                 authenticator.validate(
                     new UsernamePasswordCredentials(keyId, secret),
                     new PlayWebContext(
-                        new FakeRequestBuilder()
+                        fakeRequestBuilder()
                             .addXForwardedFor("5.5.5.5, 6.6.6.6")
                             .rawCredentials(validRawCredentials)
                             .remoteAddress("7.7.7.7")
@@ -258,7 +255,7 @@ public class ApiAuthenticatorTest {
     var rawCredentials = keyId + ":" + "notthesecret";
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().rawCredentials(rawCredentials).remoteAddress("1.1.1.1").build(),
+        fakeRequestBuilder().rawCredentials(rawCredentials).remoteAddress("1.1.1.1").build(),
         new UsernamePasswordCredentials(keyId, "notthesecret"),
         "Invalid secret for key ID: " + keyId);
   }
