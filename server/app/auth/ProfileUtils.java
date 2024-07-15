@@ -107,4 +107,19 @@ public class ProfileUtils {
       throw new RuntimeException(e);
     }
   }
+
+  /** Retrieves the applicant id from the user profile, if present. */
+  public Optional<Long> getApplicantId(Http.Request request) {
+    Optional<CiviFormProfile> profile = currentUserProfile(request);
+    if (profile.map(CiviFormProfile::getProfileData).isEmpty()) {
+      return Optional.empty();
+    }
+
+    CiviFormProfileData profileData =
+        profile
+            .orElseThrow(() -> new MissingOptionalException(CiviFormProfileData.class))
+            .getProfileData();
+    return Optional.ofNullable(
+        profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
+  }
 }

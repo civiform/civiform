@@ -57,7 +57,7 @@ public final class TextFormatter {
   }
 
   /** Passes provided text through Markdown formatter, generating an HTML String */
-  private static String formatTextToSanitizedHTML(
+  public static String formatTextToSanitizedHTML(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);

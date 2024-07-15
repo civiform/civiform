@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.LocalizedStrings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 
@@ -34,6 +35,8 @@ public abstract class UpsellParams {
 
   abstract Optional<ImmutableList<ApplicantProgramData>> eligiblePrograms();
 
+  abstract LocalizedStrings customConfirmationMessage();
+
   abstract Messages messages();
 
   @AutoValue.Builder
@@ -55,6 +58,9 @@ public abstract class UpsellParams {
 
     public abstract Builder setEligiblePrograms(
         ImmutableList<ApplicantProgramData> eligiblePrograms);
+
+    public abstract Builder setCustomConfirmationMessage(
+        LocalizedStrings customConfirmationMessage);
 
     public abstract Builder setMessages(Messages messages);
 

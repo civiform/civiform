@@ -18,12 +18,13 @@ import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
+import views.NorthStarBaseView;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
-public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
+public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
   private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
@@ -57,6 +58,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
             applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+
+    // Eligibility Alerts
+    context.setVariable("eligibilityAlertSettings", applicationParams.eligibilityAlertSettings());
+
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     context.setVariable(
@@ -168,6 +173,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   private void addFileUploadParameters(
       ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
         "nextBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
     context.setVariable(

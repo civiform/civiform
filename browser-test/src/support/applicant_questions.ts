@@ -96,7 +96,7 @@ export class ApplicantQuestions {
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
-    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    const filePath = 'file-size-' + mbSize + '-mb.pdf'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)
@@ -693,5 +693,23 @@ export class ApplicantQuestions {
     await this.clickNext()
     await this.submitFromReviewPage()
     await this.page.click('text=End session')
+  }
+
+  async expectMayBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).not.toBeAttached()
+  }
+
+  async expectMayNotBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
   }
 }

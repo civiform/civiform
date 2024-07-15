@@ -926,7 +926,6 @@ test.describe('program creation', () => {
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
@@ -953,7 +952,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
     await loginAsAdmin(page)
 
     const commonIntakeFormProgramName = 'Benefits finder'
@@ -1004,8 +1002,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -1025,8 +1021,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(

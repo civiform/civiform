@@ -11,6 +11,7 @@ import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
+import repository.ApplicationStatusesRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
@@ -39,6 +40,8 @@ public class ProgramBuilder {
           .setId(1)
           .setName("Screen 1")
           .setDescription("Screen 1 description")
+          .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+          .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
           .build();
 
   private static Injector injector;
@@ -324,6 +327,11 @@ public class ProgramBuilder {
   /** Returns the {@link ProgramModel} built from this {@link ProgramBuilder}. */
   public ProgramModel build() {
     ProgramDefinition programDefinition = builder.build();
+    ApplicationStatusesRepository appStatusRepo =
+        injector.instanceOf(ApplicationStatusesRepository.class);
+    appStatusRepo.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), programDefinition.statusDefinitions());
+
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
@@ -359,17 +367,21 @@ public class ProgramBuilder {
               .setId(id)
               .setName(name)
               .setDescription(description)
+              .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+              .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
               .setEnumeratorId(enumeratorId);
       return blockBuilder;
     }
 
     public BlockBuilder withName(String name) {
       blockDefBuilder.setName(name);
+      blockDefBuilder.setLocalizedName(LocalizedStrings.withDefaultValue(name));
       return this;
     }
 
     public BlockBuilder withDescription(String description) {
       blockDefBuilder.setDescription(description);
+      blockDefBuilder.setLocalizedDescription(LocalizedStrings.withDefaultValue(description));
       return this;
     }
 

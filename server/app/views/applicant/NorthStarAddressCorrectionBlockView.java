@@ -12,8 +12,9 @@ import services.DeploymentType;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
+import views.NorthStarBaseView;
 
-public class NorthStarAddressCorrectionBlockView extends NorthStarApplicantBaseView {
+public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
 
   @Inject
   NorthStarAddressCorrectionBlockView(

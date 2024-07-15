@@ -86,7 +86,7 @@ test.describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -108,10 +108,10 @@ test.describe('Applicant navigation flow', () => {
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await validateScreenshot(
         page,
-        'eligible-toast',
+        'eligible-alert',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
@@ -181,7 +181,7 @@ test.describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -428,7 +428,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('Shows may be eligible toast on block edit page with an eligible answer', async ({
+      test('Shows may be eligible alert on block edit page with an eligible answer', async ({
         page,
         applicantQuestions,
       }) => {
@@ -437,17 +437,16 @@ test.describe('Applicant navigation flow', () => {
         // Fill out application and without submitting.
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
-        await validateToastMessage(page, 'may qualify')
+        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(
           page,
-          'north-star-eligible-toast',
+          'north-star-eligible-alert',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
       })
 
-      test('shows not eligible toast on review page with ineligible answer', async ({
-        page,
+      test('shows not eligible alert on review page with ineligible answer', async ({
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
@@ -465,7 +464,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-        await validateToastMessage(page, 'may not qualify')
+        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       })
     })
   })

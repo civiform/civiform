@@ -45,10 +45,6 @@
 
 <!--/* Render the toasts used in the Block Edit page */-->
 <div th:fragment="blockEditToasts">
-  <!--/* Eligibility success toast */-->
-  <div
-    th:replace="~{this :: success(${applicationParams.bannerMessage()})}"
-  ></div>
   <!--/* Locale not supported toast */-->
   <th:block
     th:if="${!applicationParams.preferredLanguageSupported()}"

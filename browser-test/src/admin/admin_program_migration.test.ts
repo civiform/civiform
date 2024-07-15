@@ -1,11 +1,11 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   seedPrograms,
   validateScreenshot,
 } from '../support'
-import {readFileSync} from 'fs'
 
 test.describe('program migration', () => {
   test('export a program', async ({
@@ -18,6 +18,7 @@ test.describe('program migration', () => {
     const dateQuestionText = 'What is your birthday?'
     const emailQuestionText = 'What is your email?'
     const phoneQuestionText = 'What is your phone number?'
+    const idQuestionText = 'What is your id number?'
     const block1Description = 'Birthday block'
     const block2Description = 'Key information block'
     const generateJSONButton = 'Generate JSON'
@@ -37,12 +38,19 @@ test.describe('program migration', () => {
         questionName: 'phone-q',
         questionText: phoneQuestionText,
       })
+      await adminQuestions.addIdQuestion({
+        questionName: 'id-q',
+        questionText: idQuestionText,
+        minNum: 1,
+        maxNum: 5,
+      })
 
       await adminPrograms.addProgram('Program 1')
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, block1Description, [
         'date-q',
+        'id-q',
       ])
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: block2Description,
@@ -81,6 +89,11 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain(dateQuestionText)
       expect(jsonPreview).toContain(emailQuestionText)
       expect(jsonPreview).toContain(phoneQuestionText)
+      expect(jsonPreview).toContain(idQuestionText)
+      expect(jsonPreview).toContain('validationPredicates')
+      expect(jsonPreview).toContain('"type" : "id"')
+      expect(jsonPreview).toContain('"minLength" : 1')
+      expect(jsonPreview).toContain('"maxLength" : 5')
     })
     await test.step('download json for program 2', async () => {
       const downloadedProgram = await adminProgramMigration.downloadJson()
@@ -90,50 +103,14 @@ test.describe('program migration', () => {
       expect(downloadedProgram).toContain(dateQuestionText)
       expect(downloadedProgram).toContain(emailQuestionText)
       expect(downloadedProgram).toContain(phoneQuestionText)
+      expect(downloadedProgram).toContain(idQuestionText)
+      expect(downloadedProgram).toContain('validationPredicates')
+      expect(downloadedProgram).toContain('"type" : "id"')
+      expect(downloadedProgram).toContain('"minLength" : 1')
+      expect(downloadedProgram).toContain('"maxLength" : 5')
     })
 
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
-  })
-
-  test('import a program', async ({
-    page,
-    adminProgramMigration,
-    adminPrograms,
-  }) => {
-    const programName = 'Import Sample Program'
-
-    await test.step('load import page', async () => {
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
-      await adminProgramMigration.goToImportPage()
-      await validateScreenshot(page.locator('main'), 'import-page-no-data')
-    })
-
-    await test.step('import a program', async () => {
-      const sampleJson = readFileSync(
-        'src/assets/import-program-sample.json',
-        'utf8',
-      )
-      await adminProgramMigration.submitProgramJson(sampleJson)
-
-      await adminProgramMigration.expectProgramImported(programName)
-      await expect(
-        page.getByRole('button', {name: 'Save Program'}),
-      ).toBeEnabled()
-      // The import page currently shows question IDs, so this screenshot needs
-      // to be based on data that comes from a pre-created JSON file instead of
-      // a runtime-downloaded JSON file, as the IDs could change at runtime.
-      // Eventually, we likely won't show the question IDs and could take a
-      // screenshot based on runtime-downloaded JSON.
-      await validateScreenshot(
-        page.locator('main'),
-        'import-page-with-data',
-        /* fullPage= */ false,
-      )
-
-      await adminProgramMigration.saveProgram()
-      await adminPrograms.expectProgramExist(programName, 'desc')
-    })
   })
 
   test('import errors', async ({page, adminProgramMigration}) => {
@@ -196,6 +173,10 @@ test.describe('program migration', () => {
     adminProgramMigration,
   }) => {
     await test.step('seed comprehensive program', async () => {
+      // Force this to be disabled for the time being. I think it's causing intermittent issues
+      // because the flag may have been enabled in a different run
+      await disableFeatureFlag(page, 'multiple_file_upload_enabled')
+
       await seedPrograms(page)
       await page.goto('/')
       await loginAsAdmin(page)
@@ -216,6 +197,7 @@ test.describe('program migration', () => {
 
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
+      await validateScreenshot(page.locator('main'), 'import-page-no-data')
 
       // replace the admin name to avoid collision
       downloadedProgram = downloadedProgram.replace(
@@ -260,8 +242,28 @@ test.describe('program migration', () => {
         page.getByRole('heading', {name: 'file upload'}),
       ).toBeVisible()
       // Assert all the questions are shown
-      await expect(page.getByText('Question ID:')).toHaveCount(17)
-      // TODO(#7087): Once we can import the questions, assert that more question information is shown.
+      const allQuestions = page.getByTestId('question-div')
+      await expect(allQuestions).toHaveCount(17)
+      // Check that all the expected fields are shown on at least one question
+      const programDataDiv = page.locator('#program-data')
+      // question text
+      await expect(programDataDiv).toContainText('What is your address?')
+      // question help text
+      await expect(programDataDiv).toContainText('help text')
+      // admin name
+      await expect(programDataDiv).toContainText(
+        'Admin name: Sample Address Question',
+      )
+      // admin description
+      await expect(programDataDiv).toContainText(
+        'Admin description: description',
+      )
+      // question type
+      await expect(programDataDiv).toContainText('Question type: ADDRESS')
+      // question options (for multi-select question)
+      await expect(programDataDiv).toContainText('Toaster')
+      await expect(programDataDiv).toContainText('Pepper Grinder')
+      await expect(programDataDiv).toContainText('Garlic Press')
     })
 
     await test.step('save the imported program', async () => {

@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -30,6 +31,7 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -78,6 +80,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -102,7 +105,8 @@ public final class AdminApplicationController extends CiviFormController {
       MessagesApi messagesApi,
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -116,6 +120,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -158,7 +163,7 @@ public final class AdminApplicationController extends CiviFormController {
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporterService.export(
-            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters, request);
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -196,7 +201,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters, request);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -343,7 +348,7 @@ public final class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            program.statusDefinitions(),
+            applicationStatusesRepository.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));
@@ -424,11 +429,10 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join(),
-        request);
+        profileUtils.currentUserProfile(request).get().getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
-    return redirect(redirectUrl).flashing("success", "Application status updated");
+    return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
   }
 
   /**
@@ -472,7 +476,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
-    return redirect(redirectUrl).flashing("success", "Application note updated");
+    return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application note updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
@@ -523,7 +527,7 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters, request);
+            programId, F.Either.Right(paginationSpec), filters);
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(

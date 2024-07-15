@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -87,7 +88,7 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    return ok(view.render(request, request.flash().get("success")));
+    return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
   }
 
   public Result data(Request request) {
@@ -108,7 +109,7 @@ public class DevDatabaseSeedController extends Controller {
     devDatabaseSeedTask.seedQuestions();
 
     return redirect(routes.DevDatabaseSeedController.index().url())
-        .flashing("success", "Sample questions seeded");
+        .flashing(FlashKey.SUCCESS, "Sample questions seeded");
   }
 
   public Result seedPrograms() {
@@ -122,7 +123,7 @@ public class DevDatabaseSeedController extends Controller {
     devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DevDatabaseSeedController.index().url())
-        .flashing("success", "The database has been seeded");
+        .flashing(FlashKey.SUCCESS, "The database has been seeded");
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
@@ -148,7 +149,7 @@ public class DevDatabaseSeedController extends Controller {
     clearCacheIfEnabled();
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
-        .flashing("success", "The database has been cleared");
+        .flashing(FlashKey.SUCCESS, "The database has been cleared");
   }
 
   /** Remove all content from the cache. */

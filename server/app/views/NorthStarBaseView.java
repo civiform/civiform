@@ -1,4 +1,4 @@
-package views.applicant;
+package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -17,12 +17,13 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DeploymentType;
+import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
 
-public abstract class NorthStarApplicantBaseView {
+public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   protected final AssetsFinder assetsFinder;
@@ -31,7 +32,7 @@ public abstract class NorthStarApplicantBaseView {
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
 
-  NorthStarApplicantBaseView(
+  protected NorthStarBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
@@ -57,6 +58,7 @@ public abstract class NorthStarApplicantBaseView {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
+    context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
@@ -70,7 +72,10 @@ public abstract class NorthStarApplicantBaseView {
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
+    context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
+    context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
+    context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
@@ -84,7 +89,18 @@ public abstract class NorthStarApplicantBaseView {
 
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
-    context.setVariable("logoutLink", org.pac4j.play.routes.LogoutController.logout().url());
+    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
+    context.setVariable("logoutLink", logoutLink);
+    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+    // difficult to add HTML within a message. So we have to manually build the html for a link
+    // that will be embedded in the guest alert in the header.
+    context.setVariable(
+        "endSessionLinkHtml",
+        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+            + logoutLink
+            + "\">"
+            + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
+            + "</a>");
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(

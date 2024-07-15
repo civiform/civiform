@@ -9,6 +9,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.LocalizedStrings;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
@@ -54,6 +55,14 @@ public abstract class BlockDefinition {
    */
   @JsonProperty("description")
   public abstract String description();
+
+  /** Name of a Block used to label it for the user. */
+  @JsonProperty("localizedName")
+  public abstract LocalizedStrings localizedName();
+
+  /** Description of a Block used to label it for the user. */
+  @JsonProperty("localizedDescription")
+  public abstract LocalizedStrings localizedDescription();
 
   /**
    * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
@@ -246,6 +255,12 @@ public abstract class BlockDefinition {
 
     @JsonProperty("description")
     public abstract Builder setDescription(String value);
+
+    @JsonProperty("localizedName")
+    public abstract Builder setLocalizedName(LocalizedStrings localizedName);
+
+    @JsonProperty("localizedDescription")
+    public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);

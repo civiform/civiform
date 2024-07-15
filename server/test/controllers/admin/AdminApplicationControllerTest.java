@@ -16,6 +16,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
+import controllers.FlashKey;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.AccountRepository;
+import repository.ApplicationStatusesRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -347,7 +349,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
-    Request blankRequest = addCSRFToken(Helpers.fakeRequest()).build();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program =
@@ -363,8 +364,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
             .build(),
-        adminAccount,
-        blankRequest);
+        adminAccount);
 
     Request request =
         addCSRFToken(
@@ -386,8 +386,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).contains("application state has changed");
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get()).contains("application state has changed");
   }
 
   @Test
@@ -606,7 +606,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
-        instanceOf(VersionRepository.class));
+        instanceOf(VersionRepository.class),
+        instanceOf(ApplicationStatusesRepository.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

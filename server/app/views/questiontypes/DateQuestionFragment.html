@@ -10,8 +10,7 @@
 >
   <fieldset
     class="usa-fieldset"
-    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             firstPathWithError=${dateQuestion.getFirstPathWithError()}"
+    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   >
     <!--/* Title and Help Text */-->
     <div
@@ -36,11 +35,12 @@
         class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
         th:with="monthId=${'id-' + #strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
       >
-        <label
-          class="usa-label"
-          th:for="${monthId}"
-          th:text="#{label.month}"
-        ></label>
+        <label class="usa-label" th:for="${monthId}">
+          <span th:text="#{label.month}"></span>
+          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+            *</span
+          >
+        </label>
         <select
           class="usa-select"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
@@ -48,7 +48,7 @@
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
           th:aria-describedby="${questionId} + '-description'"
-          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty()}"
+          th:autofocus="${questionRendererParams.autofocusFirstError()}"
         >
           <option value th:text="#{placeholder.memorableDate}"></option>
           <option
@@ -118,11 +118,12 @@
         class="usa-form-group usa-form-group--day cf-date-day"
         th:with="dayId=${'id-' + #strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
       >
-        <label
-          class="usa-label"
-          th:for="${dayId}"
-          th:text="#{label.day}"
-        ></label>
+        <label class="usa-label" th:for="${dayId}">
+          <span th:text="#{label.day}"></span>
+          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+            *</span
+          >
+        </label>
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
@@ -140,11 +141,12 @@
         class="usa-form-group usa-form-group--year cf-date-year"
         th:with="yearId=${'id-' + #strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"
       >
-        <label
-          class="usa-label"
-          th:for="${yearId}"
-          th:text="#{label.year}"
-        ></label>
+        <label class="usa-label" th:for="${yearId}">
+          <span th:text="#{label.year}"></span>
+          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+            *</span
+          >
+        </label>
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"

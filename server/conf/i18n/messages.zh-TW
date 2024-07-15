@@ -11,9 +11,21 @@
 button.logout=登出
 label.selectLanguage=請選取您偏好的語言。
 button.untranslatedSubmit=提交
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=如需技術支援，請洽詢
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=訪客
 label.languageSr=選擇語言
+# A label on the button that opens the header menu shown on mobile
+header.menu=選單
 header.endSession=結束工作階段
 toast.sessionEnded=您的工作階段已結束。
 header.guestIndicator=您是訪客使用者
@@ -24,7 +36,7 @@ validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續�
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
 content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=標有星號 ({0}) 的欄位是必填欄位。
 content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
@@ -63,15 +75,15 @@ button.keepFile=繼續
 button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=返回
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=儲存申請書，之後再填寫
 button.skipFileUpload=略過
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=申請進度
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull=已上傳 {0} 個檔案 (共 {1} 個)
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -324,6 +336,46 @@ toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。
 toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
 banner.errorSavingApplication=儲存申請書時發生錯誤
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=您可能符合這項計畫的資格
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=根據您的回答，您可能符合這項計畫的資格。
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=您可能不符合這項計畫的資格
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=根據您的回答，您可能不符合這項計畫的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=您可能符合這項計畫的資格
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=申請書中新增或更新的問題可能會影響您的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=您可能不再符合這項計畫的資格
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=申請書中新增或更新的問題可能會影響您的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=您的客戶可能符合這項計畫的資格
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=根據您的回答，您的客戶可能符合這項計畫的資格。
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=您的客戶可能不符合這項計畫的資格
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=根據您的回答，您的客戶可能不符合這項計畫的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=您的客戶可能符合這項計畫的資格
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=申請書中新增或更新的問題可能會影響您客戶的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=您的客戶可能不再符合這項計畫的資格
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=申請書中新增或更新的問題可能會影響您客戶的回答或合格狀態。請查看下方所有問題。
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,15 +521,14 @@ validation.impossibleDob=出生日期必須是過去 150 年內的日期
 
 button.addEntity=新增「{0}」
 button.removeEntity=移除「{0}」
-dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=最多只能輸入 {0} 個值。
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=請至少輸入 {0} 個值。
 placeholder.entityName=「{0}」名稱
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +554,8 @@ validation.numberRequired=只能輸入數字。
 
 validation.tooFewSelections=請至少選取 {0} 項。
 validation.tooManySelections=最多只能選取 {0} 項。
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=最多只能選取 {0} 個選項。
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +624,8 @@ email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀�
 #------------------------------------------------------------------------------#
 
 banner.title=這是官方政府網站。
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=美國政府官方網站
 banner.link=以下說明判斷方式
 banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
@@ -585,3 +640,11 @@ banner.httpsSectionContent=如果看到鎖頭圖示 ( {0} ) 或 https://，表�
 banner.notForProductionBannerLine1=這個網站僅供測試使用，請勿在網站中輸入個人資訊。
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往 {0}。
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=您目前是以訪客身分申請。申請完成後，請{0}來保護您的資料。
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=結束訪客工作階段

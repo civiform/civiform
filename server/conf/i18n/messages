@@ -11,9 +11,21 @@
 button.logout=Logout
 label.selectLanguage=Please select your preferred language.
 button.untranslatedSubmit=Submit
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=For technical support, contact
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=Guest
 label.languageSr=Choose a language
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=End session
 toast.sessionEnded=Your session has ended.
 header.guestIndicator=You''re a guest user.
@@ -324,6 +336,46 @@ toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If
 toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client''s information has changed you can edit your answers and then proceed with the application.
 banner.errorSavingApplication=Error saving application
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=You may be eligible for this program
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=Based on your responses, you are likely eligible for this program.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=You may not be eligible for this program anymore
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=There may be new or updated questions that affect your answers or eligibility. Please review all questions below.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Your client may be eligible for this program
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=Based on your responses, your client is likely eligible for this program.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,7 +521,6 @@ validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 button.addEntity=Add {0}
 button.removeEntity=Remove {0}
-dialog.confirmDelete=Are you sure you want to remove this {0}? This change will be saved after you click "Next" and all data associated with this {0} will be lost.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Please enter a value for each line.
@@ -503,6 +554,8 @@ validation.numberRequired=Must contain only numbers.
 
 validation.tooFewSelections=Please select at least {0}.
 validation.tooManySelections=Please select fewer than {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Please select at most {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +624,8 @@ email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has ch
 #------------------------------------------------------------------------------#
 
 banner.title=This is an official government website.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=An official website of the United States government
 banner.link=Here''s how you know
 banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
@@ -585,3 +640,11 @@ banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely conne
 banner.notForProductionBannerLine1=This site is for testing purposes only. Do not enter personal information.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=end your session

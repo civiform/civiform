@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -106,16 +107,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<String> getStoredFileKeys() {
+  public ImmutableList<String> getStoredFileKeys(boolean multipleUploadsEnabled) {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
         .flatMap(block -> block.getQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
-        .map(FileUploadQuestion::getFileKeyValue)
-        .flatMap(Optional::stream)
+        .flatMap(question -> getFileKeyValues(question, multipleUploadsEnabled))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private static Stream<String> getFileKeyValues(
+      FileUploadQuestion question, boolean multipleUploadsEnabled) {
+    return multipleUploadsEnabled
+        ? question.getFileKeyListValue().orElseGet(() -> ImmutableList.<String>of()).stream()
+        : question.getFileKeyValue().stream();
   }
 
   @Override

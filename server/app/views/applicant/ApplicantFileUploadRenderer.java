@@ -25,23 +25,22 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
+import services.AlertType;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageUploadRequest;
-import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
-import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** A helper class for rendering the file upload question for applicants. */
@@ -51,14 +50,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
-  private static final String FILEUPLOAD_SUBMIT_FORM_ID = "cf-block-submit";
   private static final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
   /**
    * A data key that points to a redirect URL that should be used if the user has uploaded a file.
-   * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled.
+   * Should be set on each action button.
    *
    * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
    */
@@ -66,11 +64,11 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   /**
    * A data key that points to a redirect URL that should be used if the user has *not* uploaded a
-   * file. If the SAVE_ON_ALL_ACTIONS flag is enabled, this should be set on any button whose action
-   * should be permitted even if the user hasn't uploaded a file. Right now, we allow users to
-   * navigate to the review page and previous page if they haven't uploaded a file, but we *don't*
-   * allow them to navigate to the next page without uploading a file. (Note that optional file
-   * upload questions have a separate Skip button -- see {@link #maybeRenderSkipOrDeleteButton}.)
+   * file. This should be set on any button whose action should be permitted even if the user hasn't
+   * uploaded a file. Right now, we allow users to navigate to the review page and previous page if
+   * they haven't uploaded a file, but we *don't* allow them to navigate to the next page without
+   * uploading a file. (Note that optional file upload questions have a separate Skip button -- see
+   * {@link #maybeRenderSkipOrDeleteButton}.)
    *
    * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
    */
@@ -79,18 +77,15 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
   private final ApplicantStorageClient applicantStorageClient;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
       FileUploadViewStrategy fileUploadViewStrategy,
       ApplicantRoutes applicantRoutes,
-      ApplicantStorageClient applicantStorageClient,
-      SettingsManifest settingsManifest) {
+      ApplicantStorageClient applicantStorageClient) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.applicantStorageClient = checkNotNull(applicantStorageClient);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -119,11 +114,11 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
-        ViewUtils.makeAlertSlim(
+        AlertComponent.renderSlimAlert(
+                AlertType.ERROR,
                 fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
                 // file_upload.ts will un-hide this error if needed.
                 /* hidden= */ true,
-                /* classes...= */ BaseStyles.ALERT_ERROR,
                 "mb-2")
             .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
     result.with(
@@ -315,17 +310,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  private ButtonTag renderOldNextButton(ApplicationBaseViewParams params) {
-    String styles = ButtonStyles.SOLID_BLUE;
-    if (hasUploadedFile(params)) {
-      styles = ButtonStyles.OUTLINED_TRANSPARENT;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withForm(BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
-  }
-
   private DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
@@ -367,22 +351,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private DomContent renderButton(
       ApplicationBaseViewParams params, ApplicantRequestedAction action) {
-    if (!settingsManifest.getSaveOnAllActions()) {
-      switch (action) {
-        case NEXT_BLOCK:
-          return renderOldNextButton(params);
-        case PREVIOUS_BLOCK:
-          return renderOldPreviousButton(params);
-        case REVIEW_PAGE:
-          return renderOldReviewButton(params);
-        default:
-          throw new IllegalStateException("Action not handled: " + action.name());
-      }
-    }
-
-    // If the SAVE_ON_ALL_ACTIONS flag is on, all buttons should submit the form but
-    // should have different text and different redirects.
-
     MessageKey buttonMessage;
     @Nullable String redirectWithoutFile;
     switch (action) {

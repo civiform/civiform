@@ -11,6 +11,8 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.EnumeratorQuestionDefinition.EnumeratorValidationPredicates;
+import services.question.types.FileUploadQuestionDefinition.FileUploadValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
@@ -208,6 +210,10 @@ public final class QuestionDefinitionBuilder {
         return new EmailQuestionDefinition(builder.build());
 
       case FILEUPLOAD:
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              FileUploadValidationPredicates.parse(validationPredicatesString));
+        }
         return new FileUploadQuestionDefinition(builder.build());
 
       case ID:
@@ -240,6 +246,10 @@ public final class QuestionDefinitionBuilder {
         if (entityType == null || entityType.isEmpty()) {
           entityType =
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+        }
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              EnumeratorValidationPredicates.parse(validationPredicatesString));
         }
         return new EnumeratorQuestionDefinition(builder.build(), entityType);
 

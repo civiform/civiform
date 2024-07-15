@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
-import services.MessageKey;
+import services.AlertSettings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -96,6 +97,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
+  private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -120,7 +122,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -135,6 +138,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
     this.northStarApplicantProgramBlockEditView =
@@ -297,7 +301,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ImmutableList<AddressSuggestion> suggestions,
       ApplicantRequestedAction applicantRequestedAction) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     return CompletableFuture.allOf(
             checkApplicantAuthorization(request, applicantId), applicantStage)
@@ -352,7 +356,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> previousWithApplicantId(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
@@ -447,9 +451,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       Optional<String> questionName) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
-    Optional<String> successBannerMessage = request.flash().get("success-banner");
+    Optional<String> successBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
     Optional<ToastMessage> flashSuccessBanner =
         successBannerMessage.map(m -> ToastMessage.success(m));
 
@@ -516,6 +520,155 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /**
    * Used by the file upload question. We let users directly upload files to S3 bucket from
    * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We add this to the list of uploaded files, or if it's already
+   * present, do nothing.
+   *
+   * <p>After adding the file, the current question block is reloaded, showing the user the uploaded
+   * file.
+   */
+  @Secure
+  public CompletionStage<Result> addFile(
+      Request request, long programId, String blockId, boolean inReview) {
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return addFileWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview);
+  }
+
+  @Secure
+  public CompletionStage<Result> addFileWithApplicantId(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<String> bucket = request.queryString("bucket");
+              Optional<String> key = request.queryString("key");
+
+              if (bucket.isEmpty() || key.isEmpty()) {
+                return failedFuture(
+                    new IllegalArgumentException("missing file key and bucket names"));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+
+                boolean appendValue = true;
+
+                // Write the existing keys so that we don't delete any.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(), keyValue);
+                  // Key already exists in question, no need to append it. But we may want to render
+                  // some kind of error in this case in the future, since it means the user
+                  // essentially "replaced" whatever
+                  // file already existed with that same name. Alternatively, we could prevent this
+                  // on the client-side.
+                  if (keyValue.equals(key.get())) {
+                    appendValue = false;
+                  }
+                }
+
+                if (appendValue) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(keys.size()).toString(),
+                      key.get());
+                }
+              } else {
+                fileUploadQuestionFormData.put(
+                    fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
+              }
+
+              return ensureFileRecord(key.get(), Optional.empty())
+                  .thenComposeAsync(
+                      (StoredFileModel unused) ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(
+                                  request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Re-render the current page, with the updated file info.
+              return supplyAsync(
+                  () -> {
+                    ApplicantPersonalInfo personalInfo =
+                        applicantStage.toCompletableFuture().join();
+                    CiviFormProfile submittingProfile =
+                        profileUtils.currentUserProfileOrThrow(request);
+
+                    ApplicationBaseViewParams applicationParams =
+                        buildApplicationBaseViewParams(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            block.get(),
+                            personalInfo,
+                            DISPLAY_ERRORS,
+                            applicantRoutes,
+                            submittingProfile);
+                    if (settingsManifest.getNorthStarApplicantUi(request)) {
+                      return ok(northStarApplicantProgramBlockEditView.render(
+                              request, applicationParams))
+                          .as(Http.MimeTypes.HTML);
+                    } else {
+                      return ok(editView.render(applicationParams));
+                    }
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
    * file key in the query string. We parse and store them in the database for record and redirect
    * users to the next block or review page.
    */
@@ -528,7 +681,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -667,7 +820,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
         applicantStage
@@ -865,9 +1018,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           });
     }
 
-    // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
-    // requires correction but but then click "Previous", you're still taken forward to the
-    // address correction screen which is unexpected.
+    // TODO(#7893): When you enter an address that requires correction but then click "Previous",
+    // you're still taken forward to the address correction screen which is unexpected.
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
@@ -913,18 +1065,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Map<String, String> flashingMap = new HashMap<>();
-    if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
-        && roApplicantProgramService.isActiveBlockEligible(blockId)) {
-      flashingMap.put(
-          "success-banner",
-          messagesApi
-              .preferred(request)
-              .at(
-                  submittingProfile.isTrustedIntermediary()
-                      ? MessageKey.TOAST_MAY_QUALIFY_TI.getKeyName()
-                      : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
-                  roApplicantProgramService.getProgramTitle()));
-    }
+
     return redirectToRequestedPage(
         profile,
         applicantId,
@@ -1125,6 +1266,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
+
+    AlertSettings eligibilityAlertSettings =
+        eligibilityAlertSettingsCalculator.calculate(
+            request,
+            profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+            !roApplicantProgramService.isApplicationNotEligible(),
+            programId);
+
     return ApplicationBaseViewParams.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -1143,7 +1292,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantSelectedQuestionName(questionName)
         .setApplicantRoutes(applicantRoutes)
         .setProfile(profile)
-        .setBlockList(roApplicantProgramService.getAllActiveBlocks());
+        .setBlockList(roApplicantProgramService.getAllActiveBlocks())
+        .setEligibilityAlertSettings(eligibilityAlertSettings);
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(

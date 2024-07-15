@@ -23,13 +23,13 @@ RUN apt-get update -y && \
     apt-get clean && \
     apt-get autoclean
 
-ENV PROJECT_DIR /usr/src/civiform-browser-tests
+ENV PROJECT_DIR=/usr/src/civiform-browser-tests
 
 # Store playwright browsers within node_modules directory. This way playwright
 # library and browsers placed together and less likely go out of sync if
 # there are manipulations with docker volumes.
 # https://playwright.dev/docs/browsers#managing-browser-binaries-1
-ENV PLAYWRIGHT_BROWSERS_PATH 0
+ENV PLAYWRIGHT_BROWSERS_PATH=0
 
 WORKDIR $PROJECT_DIR
 
@@ -60,7 +60,7 @@ VOLUME ["/usr/src/civiform-browser-tests"]
 # This is to solve https://github.com/civiform/civiform/issues/3225. It forces
 # `fc-match` to pick a font that contains bold styles for the `system-ui`
 # generic font family.
-ENV FONTCONFIG_DIR /root/.config/fontconfig
+ENV FONTCONFIG_DIR=/root/.config/fontconfig
 RUN mkdir -p ${FONTCONFIG_DIR} && \
     ln -s ${PROJECT_DIR}/fonts.conf ${FONTCONFIG_DIR}/fonts.conf
 

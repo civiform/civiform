@@ -32,6 +32,7 @@ import models.ProgramTab;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
@@ -39,9 +40,9 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -53,7 +54,6 @@ import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -168,7 +168,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     publishSingleProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(request, cardData)))));
+                        .map(cardData -> programCardFactory.renderCard(cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -269,12 +269,12 @@ public final class ProgramIndexView extends BaseHtmlView {
               DivTag missingUniversalQuestionsWarning =
                   div()
                       .with(
-                          ViewUtils.makeAlert(
+                          AlertComponent.renderFullAlert(
+                              AlertType.WARNING,
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              /* hidden= */ false,
                               /* title= */ Optional.empty(),
-                              BaseStyles.ALERT_WARNING))
+                              /* hidden= */ false))
                       .with(
                           p("We recommend using all universal questions when possible"
                                   + " to create consistent reuse of data and question"
@@ -353,12 +353,12 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
-                ViewUtils.makeAlert(
+                AlertComponent.renderFullAlert(
+                    AlertType.WARNING,
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
-                    /* hidden= */ false,
                     /* title= */ Optional.of("All draft questions in programs will be published."),
-                    BaseStyles.ALERT_WARNING),
+                    /* hidden= */ false),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
@@ -647,7 +647,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
+          settingsManifest.getIntakeFormEnabled() && activeProgram.isCommonIntakeForm()
               ? "Forms"
               : "Applications";
       ButtonTag button =

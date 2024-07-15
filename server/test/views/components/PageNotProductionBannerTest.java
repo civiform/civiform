@@ -14,7 +14,6 @@ import play.i18n.Langs;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
-import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 
@@ -41,70 +40,25 @@ public class PageNotProductionBannerTest {
   }
 
   @Test
-  public void devEnvironment_withShowBannerSettingSettingDisabled_returnsEmpty() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ true, /* isStaging */ false);
-    assertEnvironmentWithShowBannerSettingDisabledReturnsEmpty(deploymentType);
-  }
-
-  @Test
-  public void stagingEnvironment_withShowBannerSettingSettingDisabled_returnsEmpty() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ false, /* isStaging */ true);
-    assertEnvironmentWithShowBannerSettingDisabledReturnsEmpty(deploymentType);
-  }
-
-  @Test
-  public void productionEnvironment_withShowBannerSettingSettingDisabled_returnsEmpty() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ false, /* isStaging */ false);
-    assertEnvironmentWithShowBannerSettingDisabledReturnsEmpty(deploymentType);
-  }
-
-  private void assertEnvironmentWithShowBannerSettingDisabledReturnsEmpty(
-      DeploymentType deploymentType) {
+  public void whenShowBannerSettingDisabled_returnsEmpty() {
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(false);
 
-    PageNotProductionBanner component =
-        new PageNotProductionBanner(settingsManifest, deploymentType);
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
     var actual = component.render(request, messages);
     assertThat(actual).isEqualTo(Optional.empty());
   }
 
   @Test
-  public void productionEnvironment_withShowBannerSettingEnabled_returnsEmpty() {
-    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ false, /* isStaging */ false);
-
-    PageNotProductionBanner component =
-        new PageNotProductionBanner(settingsManifest, deploymentType);
-
-    var actual = component.render(request, messages);
-    assertThat(actual).isEqualTo(Optional.empty());
-  }
-
-  @Test
-  public void devEnvironment_withShowBannerSettingEnabled_andProductionUrlSetting_returnsDivTag() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ true, /* isStaging */ false);
-    assertEnvironmentShowsFullBanner(deploymentType);
-  }
-
-  @Test
-  public void
-      stagingEnvironment_withShowBannerSettingEnabled_andProductionUrlSetting_returnsDivTag() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ false, /* isStaging */ true);
-    assertEnvironmentShowsFullBanner(deploymentType);
-  }
-
-  private void assertEnvironmentShowsFullBanner(DeploymentType deploymentType) {
-
+  public void whenShowBannerSettingEnabled_returnsComponent() {
     String productionUrl = "https://civiform.example.com";
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
     when(settingsManifest.getCivicEntityProductionUrl(request))
         .thenReturn(Optional.of(productionUrl));
-    when(settingsManifest.getWhitelabelCivicEntityShortName(request))
-        .thenReturn(Optional.of("shortname"));
+    when(settingsManifest.getWhitelabelCivicEntityFullName(request))
+        .thenReturn(Optional.of("civic-entity-name"));
 
-    PageNotProductionBanner component =
-        new PageNotProductionBanner(settingsManifest, deploymentType);
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
     var actual = component.render(request, messages);
     assertThat(actual).isNotEqualTo(Optional.empty());
@@ -118,25 +72,11 @@ public class PageNotProductionBannerTest {
   }
 
   @Test
-  public void
-      devEnvironment_withShowBannerSettingEnabled_andNoProductionUrlSetting_returnsDivTag() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ true, /* isStaging */ false);
-    assertEnvironmentShowsPartialBanner(deploymentType);
-  }
-
-  @Test
-  public void
-      stagingEnvironment_withShowBannerSettingEnabled_andNoProductionUrlSetting_returnsDivTag() {
-    DeploymentType deploymentType = new DeploymentType(/* isDev */ false, /* isStaging */ true);
-    assertEnvironmentShowsPartialBanner(deploymentType);
-  }
-
-  private void assertEnvironmentShowsPartialBanner(DeploymentType deploymentType) {
+  public void whenShowBannerSettingEnabled_andNoProductionUrlSetting_returnsComponent() {
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
     when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
 
-    PageNotProductionBanner component =
-        new PageNotProductionBanner(settingsManifest, deploymentType);
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
     var actual = component.render(request, messages);
     assertThat(actual).isNotEqualTo(Optional.empty());

@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
@@ -9,7 +10,7 @@ import com.google.auto.value.AutoValue;
  */
 public final class StaticContentQuestionDefinition extends QuestionDefinition {
 
-  public StaticContentQuestionDefinition(QuestionDefinitionConfig config) {
+  public StaticContentQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
@@ -29,10 +30,6 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
     public static StaticContentValidationPredicates create() {
       return new AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates();
     }
-  }
-
-  public StaticContentValidationPredicates getStaticContentValidationPredicates() {
-    return (StaticContentValidationPredicates) getValidationPredicates();
   }
 
   @Override

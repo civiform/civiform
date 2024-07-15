@@ -13,6 +13,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -68,10 +69,10 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                                     tiGroup.getTrustedIntermediaries(),
                                     account -> renderTIRow(tiGroup, account, request))))));
 
-    if (request.flash().get("error").isPresent()) {
+    if (request.flash().get(FlashKey.ERROR).isPresent()) {
       LoggerFactory.getLogger(EditTrustedIntermediaryGroupView.class)
-          .info(request.flash().get("error").get());
-      String error = request.flash().get("error").get();
+          .info(request.flash().get(FlashKey.ERROR).get());
+      String error = request.flash().get(FlashKey.ERROR).get();
       htmlBundle.addToastMessages(
           ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
@@ -93,7 +94,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("emailAddress")
             .setLabelText("Member email address")
-            .setValue(request.flash().get("providedEmail").orElse(""));
+            .setValue(request.flash().get(FlashKey.PROVIDED_EMAIL_ADDRESS).orElse(""));
     return div()
         .with(
             formTag.with(

@@ -10,7 +10,6 @@
 USWDS THEME CUSTOM STYLES
 ----------------------------------------
 Custom project SASS goes here.
-
 i.e.
 @include u-padding-right('05');
 ----------------------------------------
@@ -45,22 +44,29 @@ See the radio-option below as an example.
 
 .cf-applicant-question-field,
 .cf-question-header {
-  @include u-padding-left(2)
+  @include u-padding-left(2);
 }
 
 /*
  * Less padding when there is an error, since we add a border and still want the inputs to line up.
  */
  .cf-applicant-question-field.cf-question-field-with-error {
-  @include u-padding-left('105')
+  @include u-padding-left('105');
 }
 
-.cf-north-star-enumerator-field {
-  @include u-padding-y('105')
+/**
+ * Reduce default padding on labels within question to match spacing mocks.
+ */
+.cf-applicant-question-field .usa-label {
+  @include u-margin-top('105')
 }
 
-.cf-north-star-enumerator-field:last-child {
-  @include u-padding-bottom(0)
+/**
+ * Remove top margin because other surrounding elements add this margin.
+ */
+.usa-legend,
+.cf-question-date .usa-memorable-date .usa-form-group {
+  margin-top: 0;
 }
 
 /**
@@ -103,4 +109,41 @@ See the radio-option below as an example.
  */
 h1.usa-step-indicator__heading {
   line-height: inherit;
+}
+
+.cf-program-card-image {
+  height: 162px;
+  align-self: stretch;
+}
+
+/**
+ * USWDS color utils are turned off, so we use the USWDS color manually.
+ * See #7951 for detils
+ */
+.cf-footer-help-links a {
+  @include u-text('base-darkest')
+}
+
+/**
+ * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
+ * extend the full width of the screen.
+ */
+@media (max-width: 640px) {
+  .cf-footer-help-bar {
+    padding: 0;
+  }
+
+  .cf-footer-help-links {
+    width: 100%;
+  }
+
+  .cf-footer-help-links a {
+    @include u-border-bottom('base', 1px);
+    @include u-padding-x(6);
+    width: 100%;
+  }
+
+  .cf-footer-technical-suppport {
+    @include u-padding-x(6);
+  } 
 }

@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -89,10 +90,10 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<String> bannerMessage = request.flash().get("banner");
+    Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -169,7 +170,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -309,7 +310,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> showInfoDisabledProgram(Request request, String programSlug) {
     Optional<Long> applicantId = getApplicantId(request);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId.get(), request);
+        applicantService.getPersonalInfo(applicantId.get());
     return CompletableFuture.completedFuture(
         Results.notFound(
             disabledProgramInfoView.render(

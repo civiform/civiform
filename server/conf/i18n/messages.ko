@@ -11,9 +11,21 @@
 button.logout=로그아웃
 label.selectLanguage=선호하는 언어를 선택해 주세요.
 button.untranslatedSubmit=제출
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=게스트
 label.languageSr=언어 선택
+# A label on the button that opens the header menu shown on mobile
+header.menu=메뉴
 header.endSession=세션 종료
 toast.sessionEnded=세션이 종료되었습니다.
 header.guestIndicator=게스트 사용자
@@ -24,7 +36,7 @@ validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=필수 입력란은 별표({0})로 표시됩니다.
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
@@ -63,15 +75,15 @@ button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=저장하고 나중에 신청 완료
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={1}개 중 {0}개 완료됨
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=신청 절차
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -324,6 +336,46 @@ toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족�
 toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 있을 수 있습니다.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 없을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 있을 수 있습니다.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다. 고객의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=고객이 더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,15 +521,14 @@ validation.impossibleDob=생년월일은 150년 전 미만이어야 합니다.
 
 button.addEntity={0} 추가
 button.removeEntity={0} 삭제
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토', '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=최대 {0}개의 값을 입력하세요.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=최소 {0}개의 값을 입력하세요.
 placeholder.entityName={0} 이름
 
 #---------------------------------------------------------------------------------#
@@ -503,6 +554,8 @@ validation.numberRequired=숫자만 포함해야 합니다.
 
 validation.tooFewSelections={0}개 이상 선택하세요.
 validation.tooManySelections={0}개보다 적게 선택하세요.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=최대 {0}개를 선택해 주세요.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +624,8 @@ email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(�
 #------------------------------------------------------------------------------#
 
 banner.title=공식 정부 웹사이트입니다
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=미국 정부의 공식 웹사이트
 banner.link=파악 방법
 banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
 banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
@@ -585,3 +640,11 @@ banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이�
 banner.notForProductionBannerLine1=이 사이트는 테스트용입니다. 개인 정보를 입력하지 마세요.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려면 {0} 페이지로 이동하세요.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=비회원으로 신청 중입니다. 신청을 완료한 후에는 {0}하여 데이터를 보호하세요.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=세션을 종료

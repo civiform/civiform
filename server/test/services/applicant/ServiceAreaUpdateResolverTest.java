@@ -8,6 +8,7 @@ import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.geo.CorrectedAddressState;
@@ -59,6 +60,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
@@ -145,6 +148,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
@@ -190,6 +195,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();

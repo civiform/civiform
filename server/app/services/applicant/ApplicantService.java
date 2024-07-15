@@ -544,7 +544,7 @@ public final class ApplicantService {
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId, request).toCompletableFuture();
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -624,7 +624,11 @@ public final class ApplicantService {
                       notifyProgramAdminsFuture,
                       notifyApplicantFuture,
                       notifyTiSubmitterFuture,
-                      updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
+                      updateStoredFileAclsForSubmit(
+                              applicantId,
+                              programId,
+                              settingsManifest.getMultipleFileUploadEnabled(request))
+                          .toCompletableFuture())
                   .thenApplyAsync(
                       (ignoreVoid) -> application, classLoaderExecutionContext.current());
             },
@@ -680,14 +684,15 @@ public final class ApplicantService {
    * When an application is submitted, we store the name of its program in the ACLs for each file in
    * the application.
    */
-  private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
+  private CompletionStage<Void> updateStoredFileAclsForSubmit(
+      long applicantId, long programId, boolean multipleFileUploadEnabled) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                ReadOnlyApplicantProgramService::getStoredFileKeys,
+                applicantService -> applicantService.getStoredFileKeys(multipleFileUploadEnabled),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
@@ -868,7 +873,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -894,7 +899,7 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
                 }

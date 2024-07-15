@@ -297,6 +297,59 @@ test.describe('Radio button question for applicant flow', () => {
     },
   )
 
+  test.describe(
+    'single radio question with markdown with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      test('markdown is rendered for questions', async ({
+        page,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
+        const programName = 'Test program for single radio'
+
+        await test.step('Set up program with markdown', async () => {
+          // As admin, create program with single radio question.
+          await loginAsAdmin(page)
+
+          await adminQuestions.addRadioButtonQuestion({
+            questionName: 'radio-color-q',
+            questionText: '**bold question**',
+            helpText: '[link help text](link.com)',
+            markdown: true,
+            options: [
+              {adminName: 'red_admin', text: '**red**'},
+              {adminName: 'green_admin', text: '*green*'},
+              {adminName: 'orange_admin', text: '[Orange](orange.com)'},
+              {adminName: 'blue_admin', text: '* list'},
+            ],
+            minNum: 1,
+            maxNum: 2,
+          })
+          await adminPrograms.addAndPublishProgramWithQuestions(
+            ['radio-color-q'],
+            programName,
+          )
+
+          await logout(page)
+          await enableFeatureFlag(page, 'north_star_applicant_ui')
+        })
+
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot', async () => {
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'radio-button-markdown-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+    },
+  )
+
   async function setUpForSingleQuestion(
     programName: string,
     page: Page,

@@ -12,6 +12,7 @@ import j2html.tags.EmptyTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.OptionalInt;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -64,6 +65,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
     EnumeratorQuestion enumeratorQuestion = applicantQuestion.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
+    OptionalInt minEntities = enumeratorQuestion.getMinEntities();
+    OptionalInt maxEntities = enumeratorQuestion.getMaxEntities();
     boolean hasErrors = !validationErrors.isEmpty();
 
     DivTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
@@ -97,6 +100,12 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .withType("button")
                     .condAttr(params.autofocusSingleField(), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
+                    .withData(
+                        "min-entities",
+                        minEntities.isPresent() ? String.valueOf(minEntities.getAsInt()) : "")
+                    .withData(
+                        "max-entities",
+                        maxEntities.isPresent() ? String.valueOf(maxEntities.getAsInt()) : "")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",
@@ -173,11 +182,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       entityNameInputField.forceAriaInvalid();
       entityNameInputField.focusOnError();
     }
-    // TODO(#6844): Replace this with {@link
-    // MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE_ALL_BUTTONS_SAVE} once the
-    // SAVE_ON_ALL_ACTIONS flag is enabled.
     String confirmationMessage =
-        messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
+        messages.at(
+            MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE_ALL_BUTTONS_SAVE.getKeyName(),
+            localizedEntityType);
     ButtonTag removeEntityButton =
         TagCreator.button()
             .withType("button")

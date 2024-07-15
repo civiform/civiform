@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -151,13 +152,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return redirect(
               routes.AdminProgramBlockPredicatesController.editVisibility(
                   programId, blockDefinitionId))
-          .flashing("error", e.getLocalizedMessage());
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     }
 
     return redirect(
             routes.AdminProgramBlockPredicatesController.editVisibility(
                 programId, blockDefinitionId))
-        .flashing("success", "Saved visibility condition");
+        .flashing(FlashKey.SUCCESS, "Saved visibility condition");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -330,13 +331,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return redirect(
               routes.AdminProgramBlockPredicatesController.editEligibility(
                   programId, blockDefinitionId))
-          .flashing("error", e.getLocalizedMessage());
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     }
 
     return redirect(
             routes.AdminProgramBlockPredicatesController.editEligibility(
                 programId, blockDefinitionId))
-        .flashing("success", "Saved eligibility condition");
+        .flashing(FlashKey.SUCCESS, "Saved eligibility condition");
   }
 
   /** POST endpoint for deleting show-hide configurations. */
@@ -356,7 +357,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     return redirect(
             routes.AdminProgramBlockPredicatesController.editVisibility(
                 programId, blockDefinitionId))
-        .flashing("success", "Removed the visibility condition for this screen.");
+        .flashing(FlashKey.SUCCESS, "Removed the visibility condition for this screen.");
   }
 
   /** POST endpoint for deleting eligibility configurations. */
@@ -376,6 +377,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     return redirect(
             routes.AdminProgramBlockPredicatesController.editEligibility(
                 programId, blockDefinitionId))
-        .flashing("success", "Removed the eligibility condition for this screen.");
+        .flashing(FlashKey.SUCCESS, "Removed the eligibility condition for this screen.");
   }
 }
