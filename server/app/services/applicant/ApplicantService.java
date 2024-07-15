@@ -1158,9 +1158,8 @@ public final class ApplicantService {
             }
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            // When extracting the application status, the definitions associated with the program
-            // version at the time of submission are used. However, when clicking "reapply", we use
-            // the latest program version below.
+            // When extracting the application status, the Statuses present in the current program
+            // versions are used
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
             StatusDefinitions currentStatusDefinitions =

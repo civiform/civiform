@@ -5,9 +5,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationStatusesModel;
 import models.StatusDefinitionsLifecycleStage;
@@ -22,6 +20,11 @@ public final class ApplicationStatusesRepository {
     this.database = DB.getDefault();
   }
 
+  /**
+   * Looks up the active status definitions of a given program
+   *
+   * @return {@link StatusDefinitions}
+   */
   public StatusDefinitions lookupActiveStatusDefinitions(String programName) {
     Optional<ApplicationStatusesModel> optionalApplicationStatusesModel =
         database
@@ -38,24 +41,7 @@ public final class ApplicationStatusesRepository {
     return optionalApplicationStatusesModel.get().getStatusDefinitions();
   }
 
-  public List<StatusDefinitions> lookupListOfObsoleteStatusDefinitions(String programName) {
-    List<ApplicationStatusesModel> optionalApplicationStatusesModelList =
-        database
-            .find(ApplicationStatusesModel.class)
-            .setLabel("ApplicationStatusesModel.findByProgramName")
-            .where()
-            .eq("program_name", programName)
-            .and()
-            .eq("status_definitions_lifecycle_stage", StatusDefinitionsLifecycleStage.OBSOLETE)
-            .findList();
-    if (optionalApplicationStatusesModelList.isEmpty()) {
-      throw new RuntimeException("No obsolete status found for program " + programName);
-    }
-    return optionalApplicationStatusesModelList.stream()
-        .map(ApplicationStatusesModel::getStatusDefinitions)
-        .collect(Collectors.toList());
-  }
-
+  /** Creates or updates the {@link StatusDefinitions} of a given program */
   public void createOrUpdateStatusDefinitions(
       String programName, StatusDefinitions statusDefinitions) {
     // Begin transaction
@@ -79,16 +65,21 @@ public final class ApplicationStatusesRepository {
     }
   }
 
+  /** Finds all {@link ApplicationStatusesModel} associated with the given program */
   public ImmutableList<ApplicationStatusesModel> getAllApplicationStatusModels(String programName) {
-
-    return database
-        .find(ApplicationStatusesModel.class)
-        .setLabel("GetAllApplicationStatusesModel.findList")
-        .where()
-        .in("program_name", programName)
-        .query()
-        .findList()
-        .stream()
-        .collect(ImmutableList.toImmutableList());
+    ImmutableList<ApplicationStatusesModel> allApplicationStatusModels =
+        database
+            .find(ApplicationStatusesModel.class)
+            .setLabel("GetAllApplicationStatusesModel.findList")
+            .where()
+            .in("program_name", programName)
+            .query()
+            .findList()
+            .stream()
+            .collect(ImmutableList.toImmutableList());
+    if (allApplicationStatusModels.isEmpty()) {
+      throw new RuntimeException("No statuses found for the program " + programName);
+    }
+    return allApplicationStatusModels;
   }
 }

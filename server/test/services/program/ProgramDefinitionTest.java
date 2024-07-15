@@ -1394,6 +1394,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), statusDefinitions);
 
     ObjectMapper objectMapper =
         instanceOf(ObjectMapper.class)

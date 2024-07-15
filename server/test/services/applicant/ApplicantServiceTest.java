@@ -2702,7 +2702,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Publish a new program that has an updated set of status configurations that doesn't include
     // the application's status. The displayed status definition configuration should be pulled
-    // from the program version associated with the application.
+    // from the latest program version's status configuration
     StatusDefinitions.Status updatedStatus =
         APPROVED_STATUS.toBuilder()
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Updated email content"))
@@ -2726,7 +2726,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(updatedProgram.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.of(APPROVED_STATUS));
+        .containsExactly(Optional.of(updatedStatus));
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
