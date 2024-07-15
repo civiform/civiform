@@ -38,6 +38,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   @Before
   public void setUp() {
     programJsonSampler = instanceOf(ProgramJsonSampler.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
 
     StatusDefinitions possibleProgramStatuses =
         new StatusDefinitions(
@@ -86,7 +87,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   public void samplesFullProgram() {
     String json = programJsonSampler.getSampleJson(programDefinition);
 
-    System.out.println(json);
     String expectedJson =
         """
 {

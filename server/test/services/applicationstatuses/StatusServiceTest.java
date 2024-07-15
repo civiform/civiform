@@ -379,7 +379,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .localizedStatusText()
                         .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
                 .build());
-    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(result2.getResult().getStatuses()).isEqualTo(expectedStatuses);
     assertThat(
             applicationStatusesRepo
                 .lookupActiveStatusDefinitions(definition.adminName())

@@ -308,8 +308,22 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 .url());
     assertThat(result.flash().get(FlashKey.ERROR).get())
         .isEqualTo("The program's associated statuses are out of date.");
-
-    assertProgramNotChanged(program);
+    // latest program
+    ProgramDefinition freshProgram =
+        programRepository
+            .lookupProgram(program.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getProgramDefinition();
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(freshProgram.adminName())
+                .getStatuses())
+        .isEqualTo(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses());
   }
 
   private void assertProgramNotChanged(ProgramModel initialProgram) {
