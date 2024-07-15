@@ -18,6 +18,7 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.QuestionModel;
 import org.junit.Test;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -38,6 +39,8 @@ import support.TestQuestionBank;
 public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+  private ApplicationStatusesRepository applicationStatusesRepository =
+      instanceOf(ApplicationStatusesRepository.class);
 
   @Test
   public void createProgramDefinition() {
@@ -1427,7 +1430,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 Locale.ITALIAN,
                 "Italian summary image description"));
     assertThat(result.externalLink()).isEqualTo("external.link");
-    assertThat(result.statusDefinitions().getStatuses())
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(result.adminName())
+                .getStatuses())
         .containsExactly(approvedStatus, deniedStatus);
     assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);

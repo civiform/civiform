@@ -1163,10 +1163,13 @@ public final class ApplicantService {
             // the latest program version below.
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
+            StatusDefinitions currentStatusDefinitions =
+                applicationStatusesRepository.lookupActiveStatusDefinitions(
+                    applicationProgramVersion.adminName());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
-                    ? applicationProgramVersion.statusDefinitions().getStatuses().stream()
+                    ? currentStatusDefinitions.getStatuses().stream()
                         .filter(
                             programStatus ->
                                 programStatus.statusText().equals(maybeLatestStatus.get()))

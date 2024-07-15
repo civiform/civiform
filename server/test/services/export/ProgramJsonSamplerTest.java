@@ -79,6 +79,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
+            .setStatusDefinitions(new StatusDefinitions())
             .build();
     repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }
