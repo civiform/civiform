@@ -1,4 +1,4 @@
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()}" data-testid="programSummary">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
@@ -6,7 +6,7 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div role="main">
       <div th:replace="~{components/ToastFragment :: summaryToasts}"></div>
-      <h1 th:text="#{title.getStarted}"></h1>
+      <h1 th:text="${programTitle}"></h1>
       <p th:text="#{content.reviewPageIntro}"></p>
 
       <div

@@ -58,6 +58,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             params.profile(),
             params.applicantPersonalInfo(),
             params.messages());
+    context.setVariable("programTitle", params.programTitle());
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
@@ -136,6 +137,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       return new AutoValue_NorthStarApplicantProgramSummaryView_Params.Builder();
     }
 
+    abstract String programTitle();
+
     abstract long applicantId();
 
     abstract ApplicantPersonalInfo applicantPersonalInfo();
@@ -162,6 +165,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     @AutoValue.Builder
     public abstract static class Builder {
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setApplicantId(long applicantId);
 
