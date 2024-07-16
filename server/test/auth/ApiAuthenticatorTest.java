@@ -105,7 +105,10 @@ public class ApiAuthenticatorTest {
     apiAuthenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
-            new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
+            new FakeRequestBuilder()
+                .rawCredentials(validRawCredentials)
+                .remoteAddress("1.1.1.1")
+                .build()),
         MOCK_SESSION_STORE);
 
     Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
@@ -129,8 +132,8 @@ public class ApiAuthenticatorTest {
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
             new FakeRequestBuilder()
-                .withRawCredentials(validRawCredentials)
-                .withXForwardedFor("2.2.2.2, 3.3.3.3")
+                .rawCredentials(validRawCredentials)
+                .addXForwardedFor("2.2.2.2, 3.3.3.3")
                 .build()),
         MOCK_SESSION_STORE);
 
@@ -144,7 +147,7 @@ public class ApiAuthenticatorTest {
     String rawCredentials = "wrong" + ":" + secret;
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
+        new FakeRequestBuilder().rawCredentials(rawCredentials).build(),
         new UsernamePasswordCredentials("wrong", secret),
         "API key does not exist: wrong");
   }
@@ -155,7 +158,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        new FakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is retired: " + keyId);
   }
 
@@ -166,7 +169,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        new FakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is expired: " + keyId);
   }
 
@@ -177,8 +180,8 @@ public class ApiAuthenticatorTest {
 
     assertBadCredentialsException(
         new FakeRequestBuilder()
-            .withRemoteAddress("4.4.4.4")
-            .withRawCredentials(validRawCredentials)
+            .rawCredentials(validRawCredentials)
+            .remoteAddress("4.4.4.4")
             .build(),
         String.format(
             "Resolved IP 4.4.4.4 is not in allowed range for key ID: %s, which is \"%s\"",
@@ -201,8 +204,8 @@ public class ApiAuthenticatorTest {
     assertBadCredentialsException(
         authenticator,
         new FakeRequestBuilder()
-            .withXForwardedFor("5.5.5.5, 6.6.6.6")
-            .withRawCredentials(validRawCredentials)
+            .addXForwardedFor("5.5.5.5, 6.6.6.6")
+            .rawCredentials(validRawCredentials)
             .build(),
         String.format(
             "Resolved IP 6.6.6.6 is not in allowed range for key ID: %s, which is \"%s\"",
@@ -233,9 +236,9 @@ public class ApiAuthenticatorTest {
                     new UsernamePasswordCredentials(keyId, secret),
                     new PlayWebContext(
                         new FakeRequestBuilder()
-                            .withRemoteAddress("7.7.7.7")
-                            .withXForwardedFor("5.5.5.5, 6.6.6.6")
-                            .withRawCredentials(validRawCredentials)
+                            .addXForwardedFor("5.5.5.5, 6.6.6.6")
+                            .rawCredentials(validRawCredentials)
+                            .remoteAddress("7.7.7.7")
                             .build()),
                     MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class);
@@ -254,7 +257,7 @@ public class ApiAuthenticatorTest {
     var rawCredentials = keyId + ":" + "notthesecret";
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
+        new FakeRequestBuilder().rawCredentials(rawCredentials).remoteAddress("1.1.1.1").build(),
         new UsernamePasswordCredentials(keyId, "notthesecret"),
         "Invalid secret for key ID: " + keyId);
   }
