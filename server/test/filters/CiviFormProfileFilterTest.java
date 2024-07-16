@@ -1,7 +1,6 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
@@ -43,7 +42,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
     CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
 
     // This is not a user-facing request.
-    Http.RequestBuilder request = fakeRequest("GET", "/playIndex");
+    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/playIndex");
 
     CompletionStage<Result> stage =
         filter.apply(
