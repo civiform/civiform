@@ -6,7 +6,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableMap;
@@ -96,7 +96,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   public void update_addsNewLocalesAndRedirects() throws TranslationNotFoundException {
     QuestionModel question = createDraftQuestionEnglishOnly();
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",
@@ -130,7 +130,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
       throws TranslationNotFoundException, UnsupportedQuestionTypeException {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",
@@ -172,7 +172,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
       throws UnsupportedQuestionTypeException {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
-        fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
 
     Result result =
         controller.update(

@@ -9,8 +9,8 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSON;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProfileUtils;
@@ -102,7 +102,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}")))
                 .build());
@@ -119,7 +119,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(
                             ImmutableMap.of(
@@ -141,7 +141,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(
                             ImmutableMap.of(
@@ -162,7 +162,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
                 .build());
@@ -180,7 +180,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.saveProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
                 .build());

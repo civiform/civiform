@@ -9,7 +9,7 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProfileUtils;
@@ -101,7 +101,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result =
         controller.hxExportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programId", String.valueOf(Long.MAX_VALUE))))
                 .build());
@@ -118,7 +118,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result =
         controller.hxExportProgram(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programId", String.valueOf(activeProgram.id))))
                 .build());
@@ -136,7 +136,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result =
         controller.downloadJson(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("programJson", String.valueOf(""))))
                 .build(),

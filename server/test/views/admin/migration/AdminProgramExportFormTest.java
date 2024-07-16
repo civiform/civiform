@@ -2,7 +2,7 @@ package views.admin.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.inject.NewInstanceInjector.instanceOf;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class AdminProgramExportFormTest extends ResetPostgres {
   public void bindFromRequest_hasProgramId() {
     ImmutableMap<String, String> requestData =
         ImmutableMap.of(AdminProgramExportForm.PROGRAM_ID_FIELD, "78");
-    Http.Request request = fakeRequest().bodyForm(requestData).build();
+    Http.Request request = fakeRequestBuilder().bodyForm(requestData).build();
 
     AdminProgramExportForm form =
         formFactory

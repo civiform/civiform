@@ -2,6 +2,7 @@ package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +18,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
     ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
     CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
 
-    Http.RequestBuilder request = fakeRequest();
+    Http.RequestBuilder request = fakeRequestBuilder();
 
     CompletionStage<Result> stage =
         filter.apply(

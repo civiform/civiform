@@ -6,7 +6,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableList;
@@ -139,7 +139,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
@@ -221,7 +221,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "")
@@ -261,7 +261,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")

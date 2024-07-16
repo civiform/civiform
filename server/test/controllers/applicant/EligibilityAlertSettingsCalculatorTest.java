@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProgramAcls;
@@ -91,7 +91,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
   private Http.Request createFakeRequest(boolean isFastForwarded) {
     if (isFastForwarded) {
-      return fakeRequest().flash(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true").build();
+      return fakeRequestBuilder().flash(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true").build();
     }
 
     return fakeRequestNew();

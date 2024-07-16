@@ -6,7 +6,6 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -83,7 +82,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -169,7 +168,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",

@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
@@ -62,7 +63,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Result result =
         controller.index(
-            addCSRFToken(fakeRequest().method("GET")).build(),
+            addCSRFToken(fakeRequestBuilder().method("GET")).build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 
@@ -77,7 +78,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.index(
-                    addCSRFToken(fakeRequest().method("GET")).build(),
+                    addCSRFToken(fakeRequestBuilder().method("GET")).build(),
                     program.id,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
@@ -88,7 +89,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.index(
-                    addCSRFToken(fakeRequest().method("GET")).build(),
+                    addCSRFToken(fakeRequestBuilder().method("GET")).build(),
                     Long.MAX_VALUE,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
@@ -104,7 +105,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Result result =
         controller.index(
-            addCSRFToken(fakeRequest().method("GET")).build(),
+            addCSRFToken(fakeRequestBuilder().method("GET")).build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 
@@ -119,7 +120,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("POST")).build(),
+                    addCSRFToken(fakeRequestBuilder().method("POST")).build(),
                     program.id,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
@@ -130,7 +131,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("POST")).build(),
+                    addCSRFToken(fakeRequestBuilder().method("POST")).build(),
                     Long.MAX_VALUE,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
@@ -144,7 +145,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
@@ -170,7 +171,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "second description")))
                 .build(),
@@ -202,7 +203,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "new US description")))
                 .build(),
@@ -232,7 +233,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
@@ -257,7 +258,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
@@ -284,7 +285,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
                 .build(),
@@ -310,7 +311,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
                 .build(),
@@ -340,7 +341,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
@@ -359,7 +360,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
@@ -381,7 +382,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
@@ -404,7 +405,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
@@ -423,7 +424,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result =
         controller.updateDescription(
             addCSRFToken(
-                    fakeRequest()
+                    fakeRequestBuilder()
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
@@ -443,7 +444,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Http.Request request =
         addCSRFToken(
-                fakeRequest()
+                fakeRequestBuilder()
                     .method("POST")
                     .bodyForm(ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", "fakeFileKey")))
             .build();
@@ -457,7 +458,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void updateFileKey_missingProgram_throws() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest()
+                fakeRequestBuilder()
                     .method("POST")
                     .bodyForm(ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", "fakeFileKey")))
             .build();

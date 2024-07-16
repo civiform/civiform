@@ -5,7 +5,7 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +72,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     account.setEmailAddress(email);
     account.save();
 
-    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", email)).build();
+    Http.Request request =
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", email)).build();
 
     Result result = controller.add(request, program.id);
 
@@ -97,7 +98,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
         .isNotEmpty();
 
     Http.Request request =
-        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
     Result result = controller.delete(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -121,7 +122,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
         .isNotEmpty();
 
     Http.Request request =
-        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
     Result result = controller.delete(request, program.id);
 
     // The controller doesn't return an error in this case.

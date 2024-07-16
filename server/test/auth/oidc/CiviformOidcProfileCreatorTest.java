@@ -3,7 +3,7 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.CiviFormProfile;
@@ -176,7 +176,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Create a web context containing a session id.
     PlayWebContext context =
         new PlayWebContext(
-            fakeRequest().session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID).build());
+            fakeRequestBuilder()
+                .session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID)
+                .build());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
