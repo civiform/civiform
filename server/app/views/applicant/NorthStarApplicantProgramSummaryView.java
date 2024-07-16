@@ -1,8 +1,5 @@
 package views.applicant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -27,7 +24,6 @@ import views.NorthStarBaseView;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
-  private final String authProviderName;
 
   @Inject
   NorthStarApplicantProgramSummaryView(
@@ -36,7 +32,6 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     super(
@@ -47,7 +42,6 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
         settingsManifest,
         languageUtils,
         deploymentType);
-    this.authProviderName = checkNotNull(authProviderName);
   }
 
   public String render(Request request, Params params) {
@@ -88,7 +82,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       context.setVariable(
           "slugLoginUrl",
           controllers.routes.LoginController.applicantLogin(Optional.of(postLoginRedirect)).url());
-      context.setVariable("authProviderName", authProviderName);
+      context.setVariable(
+          "authProviderName",
+          // The applicant portal name should always be set (there is a
+          // default setting as well).
+          settingsManifest.getApplicantPortalName(request).get());
     }
 
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
