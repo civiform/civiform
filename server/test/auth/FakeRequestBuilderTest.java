@@ -6,6 +6,7 @@ import com.itextpdf.xmp.impl.Base64;
 import java.util.List;
 import org.junit.Test;
 import play.mvc.Http;
+import support.FakeRequestBuilder;
 
 public class FakeRequestBuilderTest {
   @Test

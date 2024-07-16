@@ -3,7 +3,6 @@ package services.settings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
-import auth.FakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -12,6 +11,7 @@ import java.util.Optional;
 import org.junit.Test;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
+import support.FakeRequestBuilder;
 
 public class SettingsManifestTest {
 

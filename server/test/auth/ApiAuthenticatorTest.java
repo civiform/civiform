@@ -36,6 +36,7 @@ import play.mvc.Http;
 import play.test.Helpers;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
+import support.FakeRequestBuilder;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
