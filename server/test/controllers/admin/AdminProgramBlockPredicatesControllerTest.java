@@ -2,16 +2,13 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
@@ -58,20 +55,18 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withInvalidBlock_notFound() {
-    Http.Request request = addCSRFToken(fakeRequest()).build();
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(request, program.id, 543L);
+    Result result = controller.editEligibility(fakeRequestNew(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void editEligibility_withInvalidBlock_notFound() {
-    Http.Request request = addCSRFToken(fakeRequest()).build();
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(request, program.id, 543L);
+    Result result = controller.editEligibility(fakeRequestNew(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -96,9 +91,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withFirstBlock_displaysEmptyList() {
-    Http.Request request = addCSRFToken(fakeRequest()).build();
-
-    Result result = controller.editVisibility(request, programWithThreeBlocks.id, 1L);
+    Result result = controller.editVisibility(fakeRequestNew(), programWithThreeBlocks.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -112,9 +105,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void editEligibility_withFirstBlock_displaysFirstBlock() {
-    Http.Request request = addCSRFToken(fakeRequest()).build();
-
-    Result result = controller.editEligibility(request, programWithThreeBlocks.id, 1L);
+    Result result = controller.editEligibility(fakeRequestNew(), programWithThreeBlocks.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -126,9 +117,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withThirdBlock_displaysQuestionsFromFirstAndSecondBlock() {
-    Http.Request request = addCSRFToken(fakeRequest()).build();
-
-    Result result = controller.editVisibility(request, programWithThreeBlocks.id, 3L);
+    Result result = controller.editVisibility(fakeRequestNew(), programWithThreeBlocks.id, 3L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);

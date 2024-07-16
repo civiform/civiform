@@ -8,6 +8,8 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -40,7 +42,6 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
 import repository.DatabaseExecutionContext;
@@ -113,10 +114,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void index_noUser_errors() throws Exception {
     long programId = ProgramBuilder.newActiveProgram().buildDefinition().id();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
         controller.index(
-            request,
+            fakeRequestNew(),
             programId,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -137,10 +137,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     application.refresh();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
         controller.index(
-            request,
+            fakeRequestNew(),
             program.id,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -158,8 +157,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> controller.updateStatus(request, Long.MAX_VALUE, application.id))
+    assertThatThrownBy(
+            () -> controller.updateStatus(fakeRequestNew(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -170,8 +169,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.updateStatus(request, program.id, application.id);
+    Result result = controller.updateStatus(fakeRequestNew(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -190,7 +188,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -223,7 +221,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -258,7 +256,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -291,7 +289,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -324,7 +322,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -368,7 +366,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -407,7 +405,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -452,7 +450,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
+                fakeRequestBuilder()
                     .bodyForm(
                         Map.of(
                             "redirectUri",
@@ -485,8 +483,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> controller.updateNote(request, Long.MAX_VALUE, application.id))
+    assertThatThrownBy(
+            () -> controller.updateNote(fakeRequestNew(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -497,8 +495,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.updateNote(request, program.id, application.id);
+    Result result = controller.updateNote(fakeRequestNew(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -512,9 +509,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     // Execute.
-    Result result = controller.updateNote(request, program.id, application.id);
+    Result result = controller.updateNote(fakeRequestNew(), program.id, application.id);
 
     // Verify.
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
@@ -534,7 +530,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
+        addCSRFToken(fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.
@@ -564,7 +560,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
+        addCSRFToken(fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.

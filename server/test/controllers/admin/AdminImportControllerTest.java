@@ -11,6 +11,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSON;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
@@ -55,7 +56,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void index_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("import is not enabled");
@@ -68,7 +69,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("active-program-2").build();
     ProgramBuilder.newDraftProgram("draft-program").build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Import a program");
@@ -78,7 +79,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void hxImportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxImportProgram(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("import is not enabled");
@@ -88,7 +89,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void hxImportProgram_noRequestBody_redirectsToIndex() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
-    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxImportProgram(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminImportController.index().url());

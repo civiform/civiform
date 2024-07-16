@@ -3,6 +3,7 @@ package actions;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProgramAcls;
@@ -17,7 +18,6 @@ import play.inject.Injector;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import play.test.Helpers;
 import play.test.WithApplication;
 import repository.VersionRepository;
 import services.LocalizedStrings;
@@ -61,7 +61,7 @@ public class ProgramDisabledActionTest extends WithApplication {
 
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledprogram1");
-    Request request = Helpers.fakeRequest().flash(flashData).build();
+    Request request = fakeRequestBuilder().flash(flashData).build();
     ProgramModel program =
         new ProgramModel(
             /* adminName */ "disabledprogram1",
@@ -93,7 +93,7 @@ public class ProgramDisabledActionTest extends WithApplication {
     ProgramDisabledAction action = new ProgramDisabledAction(programService);
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "publicprogram1");
-    Request request = Helpers.fakeRequest().flash(flashData).build();
+    Request request = fakeRequestBuilder().flash(flashData).build();
     ProgramModel program =
         new ProgramModel(
             /* adminName */ "publicprogram1",

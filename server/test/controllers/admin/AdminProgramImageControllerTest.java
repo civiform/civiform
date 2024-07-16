@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
 import auth.ProfileUtils;
@@ -648,9 +649,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.deleteFileKey(
-                    addCSRFToken(fakeRequest()).build(),
-                    program.id,
-                    ProgramEditStatus.CREATION.name()));
+                    fakeRequestNew(), program.id, ProgramEditStatus.CREATION.name()));
   }
 
   @Test
@@ -659,7 +658,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.deleteFileKey(
-                    addCSRFToken(fakeRequest()).build(),
+                    fakeRequestNew(),
                     /* programId= */ Long.MAX_VALUE,
                     ProgramEditStatus.CREATION.name()));
   }
@@ -668,8 +667,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void deleteFileKey_noFileKeyPresent_stillNoKey() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
-    controller.deleteFileKey(
-        addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
+    controller.deleteFileKey(fakeRequestNew(), program.id, ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
@@ -680,8 +678,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
 
-    controller.deleteFileKey(
-        addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
+    controller.deleteFileKey(fakeRequestNew(), program.id, ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
@@ -693,8 +690,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     setValidFileKeyOnProgram(program);
 
     Result result =
-        controller.deleteFileKey(
-            addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
+        controller.deleteFileKey(fakeRequestNew(), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("Image removed");
@@ -705,8 +701,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
-        controller.deleteFileKey(
-            addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
+        controller.deleteFileKey(fakeRequestNew(), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
