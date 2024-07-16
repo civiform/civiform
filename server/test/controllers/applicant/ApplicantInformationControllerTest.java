@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
@@ -35,7 +36,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void setLangFromBrowser_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .setLangFromBrowser(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromBrowser(fakeRequestNew(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -66,7 +67,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void setLangFromSwitcher_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .setLangFromSwitcher(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromSwitcher(fakeRequestNew(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);

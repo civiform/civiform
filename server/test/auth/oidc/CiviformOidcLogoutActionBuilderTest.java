@@ -3,7 +3,7 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
@@ -95,7 +95,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   }
 
   WebContext getWebContext() {
-    return new PlayWebContext(fakeRequest().build());
+    return new PlayWebContext(fakeRequestNew());
   }
 
   @Test

@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import controllers.FlashKey;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class DevDatabaseSeedControllerTest {
   @Test
   public void index_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
-    Result result = controller.index(fakeRequest().build());
+    Result result = controller.index(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -115,7 +116,7 @@ public class DevDatabaseSeedControllerTest {
   public void data_inNonDevMode_returnsNotFound() {
 
     setupControllerInMode(Mode.TEST);
-    Result result = controller.data(fakeRequest().build());
+    Result result = controller.data(fakeRequestNew());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

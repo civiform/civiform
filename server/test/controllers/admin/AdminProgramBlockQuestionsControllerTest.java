@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -69,7 +70,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void create_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThatThrownBy(() -> controller.create(fakeRequest().build(), programId, /* blockId= */ 1))
+    assertThatThrownBy(() -> controller.create(fakeRequestNew(), programId, /* blockId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -89,7 +90,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.setOptional(
-                    fakeRequest().build(),
+                    fakeRequestNew(),
                     programId,
                     /* blockDefinitionId= */ 1,
                     /* questionDefinitionId= */ 1))

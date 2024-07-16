@@ -2,7 +2,7 @@ package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -32,7 +32,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
   public void testLanguageSelectorShown() {
     ApplicantModel applicant = createApplicantWithMockedProfile();
     HomeController controller = instanceOf(HomeController.class);
-    Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
+    Result result = controller.index(fakeRequestNew()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantInformationController.setLangFromBrowser(
@@ -61,7 +61,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             instanceOf(ClassLoaderExecutionContext.class),
             languageUtils,
             new ApplicantRoutes());
-    Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
+    Result result = controller.index(fakeRequestNew()).toCompletableFuture().join();
     assertThat(result.redirectLocation()).isNotEmpty();
     assertThat(
             result.redirectLocation().orElseThrow(() -> new MissingOptionalException(String.class)))

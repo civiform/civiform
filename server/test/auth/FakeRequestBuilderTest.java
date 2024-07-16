@@ -1,8 +1,8 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.itextpdf.xmp.impl.Base64;
 import java.util.List;
@@ -29,7 +29,7 @@ public class FakeRequestBuilderTest {
 
   @Test
   public void hasUsableDefaults() {
-    Request fakeRequest = fakeRequest();
+    Request fakeRequest = fakeRequestNew();
 
     assertThat(fakeRequest.header("Authorization")).isEmpty();
     assertThat(fakeRequest.header("X-Forwarded-For")).isEmpty();

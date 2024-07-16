@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -93,7 +94,7 @@ public class EligibilityAlertSettingsCalculatorTest {
       return fakeRequest().flash(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true").build();
     }
 
-    return fakeRequest().build();
+    return fakeRequestNew();
   }
 
   private record ParamValue(
@@ -159,7 +160,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest().build(), false, true, /* programId */ 1L);
+            fakeRequestNew(), false, true, /* programId */ 1L);
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
   }

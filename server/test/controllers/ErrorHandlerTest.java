@@ -3,7 +3,7 @@ package controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.INTERNAL_SERVER_ERROR;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.NotChangeableException;
@@ -57,24 +57,21 @@ public class ErrorHandlerTest extends ResetPostgres {
   public void onServerError_defaultBehaviorWorks() {
     // A non overriden type is handled by the framework still.
     Throwable exception = new RuntimeException("test exception");
-    Result result =
-        handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
+    Result result = handler.onServerError(fakeRequestNew(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(INTERNAL_SERVER_ERROR);
   }
 
   @Test
   public void onServerError_handlesOverride_NotChangeableException() {
     Throwable exception = new NotChangeableException("test exception");
-    Result result =
-        handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
+    Result result = handler.onServerError(fakeRequestNew(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void onServerError_handlesOverride_ProgramNotFoundException() {
     Throwable exception = new ProgramNotFoundException("test exception");
-    Result result =
-        handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
+    Result result = handler.onServerError(fakeRequestNew(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -83,7 +80,7 @@ public class ErrorHandlerTest extends ResetPostgres {
     Throwable exception = new ProgramNotFoundException("test exception");
     Throwable wrappedException = new CompletionException(exception);
     Result result =
-        handler.onServerError(fakeRequest().build(), wrappedException).toCompletableFuture().join();
+        handler.onServerError(fakeRequestNew(), wrappedException).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -93,15 +90,14 @@ public class ErrorHandlerTest extends ResetPostgres {
     Throwable exception = new RuntimeException("test exception");
     Throwable wrappedException = new CompletionException(exception);
     Result result =
-        handler.onServerError(fakeRequest().build(), wrappedException).toCompletableFuture().join();
+        handler.onServerError(fakeRequestNew(), wrappedException).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(INTERNAL_SERVER_ERROR);
   }
 
   @Test
   public void onServerError_handlesOverride_ApiKeyNotFoundException() {
     Throwable exception = new ApiKeyNotFoundException("test exception");
-    Result result =
-        handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
+    Result result = handler.onServerError(fakeRequestNew(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 }

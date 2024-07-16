@@ -6,6 +6,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import models.ProgramModel;
 import org.junit.Before;
@@ -42,7 +43,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.editVisibility(
-                    fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+                    fakeRequestNew(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -51,7 +52,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.editEligibility(
-                    fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+                    fakeRequestNew(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -80,8 +81,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () ->
-                controller.editVisibility(
-                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+                controller.editVisibility(fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -90,8 +90,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () ->
-                controller.editEligibility(
-                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+                controller.editEligibility(fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -150,7 +149,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateVisibility(
-                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+                    fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -160,7 +159,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateEligibility(
-                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+                    fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 

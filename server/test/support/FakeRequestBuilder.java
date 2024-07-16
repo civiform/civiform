@@ -15,7 +15,7 @@ import play.mvc.Http.RequestImpl;
 public final class FakeRequestBuilder extends RequestBuilder {
   private List<String> xForwardedFor = new ArrayList<>();
 
-  public static Request fakeRequest() {
+  public static Request fakeRequestNew() {
     return new FakeRequestBuilder().build();
   }
 

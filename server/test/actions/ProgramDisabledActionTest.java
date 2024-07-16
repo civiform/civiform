@@ -3,6 +3,7 @@ package actions;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -40,7 +41,7 @@ public class ProgramDisabledActionTest extends WithApplication {
   public void testProgramSlugIsNotAvailable() {
     ProgramService programService = instanceOf(ProgramService.class);
     ProgramDisabledAction action = new ProgramDisabledAction(programService);
-    Request request = Helpers.fakeRequest().build();
+    Request request = fakeRequestNew();
 
     // Set up a mock for the delegate action
     Action.Simple delegateMock = mock(Action.Simple.class);
