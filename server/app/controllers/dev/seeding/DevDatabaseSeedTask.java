@@ -30,15 +30,18 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
+import models.CategoryModel;
 import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -80,20 +83,22 @@ public final class DevDatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
-
   private final QuestionService questionService;
   private final ProgramService programService;
 
   private final VersionRepository versionRepository;
+  private final CategoryRepository categoryRepository;
   private final Database database;
 
   @Inject
   public DevDatabaseSeedTask(
       QuestionService questionService,
       ProgramService programService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      CategoryRepository categoryRepository) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
   }
@@ -343,6 +348,27 @@ public final class DevDatabaseSeedTask {
         | DuplicateStatusException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /** Seeds the predefined program categories from the category translation files. */
+  public List<CategoryModel> seedProgramCategories() {
+    CategoryTranslationFileParser parser = new CategoryTranslationFileParser();
+    List<CategoryModel> categories = parser.createCategoryModelList();
+
+    List<CategoryModel> dbCategories = new ArrayList<>();
+    categories.forEach(
+        category -> {
+          inSerializableTransaction(
+              () -> {
+                CategoryModel inserted = categoryRepository.fetchOrSaveUniqueCategory(category);
+                if (inserted != null) {
+                  dbCategories.add(inserted);
+                }
+              },
+              1);
+        });
+
+    return dbCategories;
   }
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {
