@@ -352,13 +352,8 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    List<CategoryModel> categories = new ArrayList<>();
-
-    CategoryTranslationFileParser.PROGRAM_CATEGORY_NAMES.forEach(
-        categoryName -> {
-          categories.add(
-              CategoryTranslationFileParser.createCategoryModelFromTranslationsMap(categoryName));
-        });
+    CategoryTranslationFileParser parser = new CategoryTranslationFileParser();
+    List<CategoryModel> categories = parser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(

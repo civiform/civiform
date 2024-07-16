@@ -2,16 +2,21 @@ package controllers.dev.seeding;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import models.CategoryModel;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -23,101 +28,101 @@ import play.i18n.Lang;
 public final class CategoryTranslationFileParser {
 
   public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/categories/";
-
-  /** Maps each English category tag to its translation in Amharic. */
-  public static final ImmutableMap<String, String> AM_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.am");
-
-  /** Maps each English category tag to its translation in English. */
-  public static final ImmutableMap<String, String> EN_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.en-US");
-
-  /** Maps each English category tag to its translation in Spanish. */
-  public static final ImmutableMap<String, String> ES_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.es-US");
-
-  /** Maps each English category tag to its translation in Korean. */
-  public static final ImmutableMap<String, String> KO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.ko");
-
-  /** Maps each English category tag to its translation in Lao. */
-  public static final ImmutableMap<String, String> LO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.lo");
-
-  /** Maps each English category tag to its translation in Somali. */
-  public static final ImmutableMap<String, String> SO_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.so");
-
-  /** Maps each English category tag to its translation in Tagalog. */
-  public static final ImmutableMap<String, String> TL_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.tl");
-
-  /** Maps each English category tag to its translation in Vietnamese. */
-  public static final ImmutableMap<String, String> VI_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.vi");
-
-  /** Maps each English category tag to its translation in Chinese. */
-  public static final ImmutableMap<String, String> ZH_CATEGORY_TRANSLATIONS =
-      parseFileForCategoryTranslations(CATEGORY_TRANSLATIONS_DIRECTORY + "messages.zh-TW");
-
-  public static final ImmutableList<String> PROGRAM_CATEGORY_NAMES =
-      getCategoryNamesFromTranslationMap(AM_CATEGORY_TRANSLATIONS);
-
+  private Map<String, String> childcareMap = new HashMap<>();
+  private Map<String, String> economicMap = new HashMap<>();
+  private Map<String, String> educationMap = new HashMap<>();
+  private Map<String, String> foodMap = new HashMap<>();
+  private Map<String, String> generalMap = new HashMap<>();
+  private Map<String, String> healthcareMap = new HashMap<>();
+  private Map<String, String> housingMap = new HashMap<>();
+  private Map<String, String> internetMap = new HashMap<>();
+  private Map<String, String> transportationMap = new HashMap<>();
+  private Map<String, String> utilitiesMap = new HashMap<>();
   private static final Logger logger = LoggerFactory.getLogger(CategoryTranslationFileParser.class);
 
-  public static CategoryModel createCategoryModelFromTranslationsMap(String category) {
-    String key = "tag." + category.toLowerCase(Locale.ROOT);
-    return new CategoryModel(
-        ImmutableMap.of(
-            Lang.forCode("am").toLocale(),
-            AM_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("ko").toLocale(),
-            KO_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("so").toLocale(),
-            SO_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("lo").toLocale(),
-            LO_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("tl").toLocale(),
-            TL_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("vi").toLocale(),
-            VI_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("en-US").toLocale(),
-            EN_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("es-US").toLocale(),
-            ES_CATEGORY_TRANSLATIONS.get(key),
-            Lang.forCode("zh-TW").toLocale(),
-            ZH_CATEGORY_TRANSLATIONS.get(key)));
+  public List<CategoryModel> createCategoryModelList() {
+    parseCategoryTranslationFiles();
+
+    List<CategoryModel> categoryModels = new ArrayList<>();
+    categoryModels.add(createCategoryModelFromCategoryMap(childcareMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(economicMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(educationMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(foodMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(generalMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(healthcareMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(housingMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(internetMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(transportationMap));
+    categoryModels.add(createCategoryModelFromCategoryMap(utilitiesMap));
+    return categoryModels;
   }
 
-  private static ImmutableMap<String, String> parseFileForCategoryTranslations(String fileName) {
-    ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
-
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get(fileName), UTF_8)) {
-
-      Properties prop = new Properties();
-      prop.load(reader);
-
-      prop.entrySet()
-          .forEach(
-              entry -> {
-                mapBuilder.put((String) entry.getKey(), (String) entry.getValue());
-              });
-
-    } catch (FileNotFoundException e) {
-      logger.error("File not found: " + fileName);
-    } catch (IOException e) {
-      logger.error("Error reading file: " + fileName, e);
+  private void parseCategoryTranslationFiles() {
+    File directory = new File(CATEGORY_TRANSLATIONS_DIRECTORY);
+    if (!directory.exists()) {
+      logger.error("Directory does not exist: " + CATEGORY_TRANSLATIONS_DIRECTORY);
+      return;
     }
+    File[] files = directory.listFiles();
+    for (File file : files) {
+      String fileLanguage = FilenameUtils.getExtension(file.getName());
+      try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
 
-    return mapBuilder.build();
+        Properties prop = new Properties();
+        prop.load(reader);
+
+        prop.entrySet()
+            .forEach(
+                entry -> {
+                  switch ((String) entry.getKey()) {
+                    case "tag.childcare":
+                      childcareMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.economic":
+                      economicMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.education":
+                      educationMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.food":
+                      foodMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.general":
+                      generalMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.healthcare":
+                      healthcareMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.housing":
+                      housingMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.internet":
+                      internetMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.transportation":
+                      transportationMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    case "tag.utilities":
+                      utilitiesMap.put(fileLanguage, (String) entry.getValue());
+                      break;
+                    default:
+                      logger.error("Unknown category: " + entry.getKey());
+                  }
+                });
+
+      } catch (FileNotFoundException e) {
+        logger.error("File not found: " + file.getName());
+      } catch (IOException e) {
+        logger.error("Error reading file: " + file.getName(), e);
+      }
+    }
   }
 
-  private static ImmutableList<String> getCategoryNamesFromTranslationMap(
-      ImmutableMap<String, String> translationMap) {
-    ImmutableList.Builder<String> categoryNamesBuilder = ImmutableList.builder();
-    for (String key : translationMap.keySet()) {
-      categoryNamesBuilder.add(key.substring(4)); // Remove "tag." prefix
+  private CategoryModel createCategoryModelFromCategoryMap(Map<String, String> categoryMap) {
+    ImmutableMap.Builder<Locale, String> categoryBuilder = ImmutableMap.builder();
+    for (String key : categoryMap.keySet()) {
+      categoryBuilder.put(Lang.forCode(key).toLocale(), categoryMap.get(key));
     }
-    return categoryNamesBuilder.build();
+    return new CategoryModel(categoryBuilder.build());
   }
 }
