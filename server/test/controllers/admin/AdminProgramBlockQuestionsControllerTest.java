@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.FakeRequestBuilder.fakeRequestNew;
 
 import com.google.common.collect.ImmutableMap;
@@ -53,7 +53,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Execute.
     Request request =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .bodyForm(ImmutableMap.of("question-", activeId.toString()))
@@ -114,7 +115,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Execute. Move "name" question to position 1.
     Request request =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
@@ -146,7 +148,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Missing position value.
     Request requestWithNoPosition =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
@@ -159,7 +162,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Position is not a number.
     Request requestWithInvalidPosition =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
