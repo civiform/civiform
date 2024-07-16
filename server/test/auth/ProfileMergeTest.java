@@ -2,7 +2,7 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.oidc.IdTokensFactory;
 import auth.oidc.InvalidOidcProfileException;
@@ -66,7 +66,7 @@ public class ProfileMergeTest extends ResetPostgres {
             /* client= */ null,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository));
-    context = new PlayWebContext(fakeRequestNew());
+    context = new PlayWebContext(fakeRequest());
   }
 
   private OidcProfile createOidcProfile(String email, String issuer, String subject) {

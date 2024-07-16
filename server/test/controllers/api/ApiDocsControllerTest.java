@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import java.util.Optional;
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
 
   @Test
   public void index_redirectsToArbitraryProgramActiveDocs() {
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     Result result = instanceOf(ApiDocsController.class).index(request);
 
     // SEE_OTHER is the redirect code
@@ -39,7 +39,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
 
   @Test
   public void activeDocsForSlug_programExists() {
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     Result result =
         instanceOf(ApiDocsController.class).activeDocsForSlug(request, "test-program-1");
 
@@ -49,7 +49,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
 
   @Test
   public void activeDocsForSlug_programDoesNotExist() {
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     Result result =
         instanceOf(ApiDocsController.class).activeDocsForSlug(request, "non-existent-program");
 
@@ -59,7 +59,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
 
   @Test
   public void draftDocsForSlug_noDraftAvailable() {
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     Result result = instanceOf(ApiDocsController.class).draftDocsForSlug(request, "test-program-1");
 
     assertThat(result.status()).isEqualTo(OK);
@@ -70,7 +70,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
   public void draftDocsForSlug_draftAvailable() {
     ProgramBuilder.newDraftProgram("Test Program 1").buildDefinition();
 
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     Result result = instanceOf(ApiDocsController.class).draftDocsForSlug(request, "test-program-1");
 
     assertThat(result.status()).isEqualTo(OK);

@@ -1,7 +1,7 @@
 package auth.oidc.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
@@ -71,7 +71,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
         oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
     assertThat(profileData).isNotNull();

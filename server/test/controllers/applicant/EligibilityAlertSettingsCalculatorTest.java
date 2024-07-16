@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
-import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -94,7 +94,7 @@ public class EligibilityAlertSettingsCalculatorTest {
       return fakeRequestBuilder().flash(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true").build();
     }
 
-    return fakeRequestNew();
+    return fakeRequest();
   }
 
   private record ParamValue(
@@ -160,7 +160,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequestNew(), false, true, /* programId */ 1L);
+            fakeRequest(), false, true, /* programId */ 1L);
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
   }

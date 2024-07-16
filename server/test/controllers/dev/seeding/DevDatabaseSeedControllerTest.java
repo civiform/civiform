@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import controllers.FlashKey;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class DevDatabaseSeedControllerTest {
     setupControllerInMode(Mode.DEV);
     controller.clear();
     // Navigate to index before seeding - should not have the fake program.
-    Result result = controller.index(fakeRequestNew());
+    Result result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
@@ -49,12 +49,12 @@ public class DevDatabaseSeedControllerTest {
     result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
-    result = controller.index(fakeRequestNew());
+    result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Go to seed data display page.
-    result = controller.data(fakeRequestNew());
+    result = controller.data(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
@@ -62,7 +62,7 @@ public class DevDatabaseSeedControllerTest {
     result = controller.clear();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been cleared");
-    result = controller.index(fakeRequestNew());
+    result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
   }
@@ -79,7 +79,7 @@ public class DevDatabaseSeedControllerTest {
         .isFalse();
 
     // Navigate to index before seeding - should not have the fake program.
-    Result result = controller.index(fakeRequestNew());
+    Result result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
@@ -87,7 +87,7 @@ public class DevDatabaseSeedControllerTest {
     result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
-    result = controller.index(fakeRequestNew());
+    result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
@@ -105,7 +105,7 @@ public class DevDatabaseSeedControllerTest {
   @Test
   public void index_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
-    Result result = controller.index(fakeRequestNew());
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -114,7 +114,7 @@ public class DevDatabaseSeedControllerTest {
   public void data_inNonDevMode_returnsNotFound() {
 
     setupControllerInMode(Mode.TEST);
-    Result result = controller.data(fakeRequestNew());
+    Result result = controller.data(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

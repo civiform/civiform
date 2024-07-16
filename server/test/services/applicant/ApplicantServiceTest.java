@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static support.CfTestHelpers.requestBuilderWithSettings;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -810,7 +810,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -917,7 +917,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -984,7 +984,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     var storedFile = new StoredFileModel().setName(fileKey);
     storedFile.save();
 
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     subject
         .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
@@ -1018,7 +1018,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     ApplicationModel oldApplication =
         subject
             .submitApplication(
@@ -1069,7 +1069,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1102,7 +1102,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1181,7 +1181,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1255,7 +1255,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1314,7 +1314,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), applicantProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), applicantProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1351,7 +1351,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
     ApplicationModel application =
         subject
             .submitApplication(
@@ -1371,7 +1371,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), fakeRequestNew())
+                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -1406,7 +1406,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        fakeRequestNew())
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1437,7 +1437,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequestNew())
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -1575,7 +1575,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        fakeRequestNew())
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -3855,7 +3855,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    Request request = fakeRequestNew();
+    Request request = fakeRequest();
 
     ApplicationModel ineligibleApplication =
         subject

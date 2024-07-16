@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.contentAsString;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
@@ -52,7 +52,7 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
     HtmlBundle bundle =
-        adminLayout.getBundle(new HtmlBundle(fakeRequestNew(), instanceOf(ViewUtils.class)));
+        adminLayout.getBundle(new HtmlBundle(fakeRequest(), instanceOf(ViewUtils.class)));
 
     Content content = bundle.render();
     assertThat(contentAsString(content)).doesNotContain("Export");
@@ -64,7 +64,7 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     HtmlBundle bundle =
-        adminLayout.getBundle(new HtmlBundle(fakeRequestNew(), instanceOf(ViewUtils.class)));
+        adminLayout.getBundle(new HtmlBundle(fakeRequest(), instanceOf(ViewUtils.class)));
 
     Content content = bundle.render();
     assertThat(contentAsString(content)).contains("Export");

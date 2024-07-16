@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import models.ProgramModel;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.editVisibility(
-                    fakeRequestNew(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+                    fakeRequest(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -49,7 +49,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.editEligibility(
-                    fakeRequestNew(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+                    fakeRequest(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -57,7 +57,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void edit_withInvalidBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(fakeRequestNew(), program.id, 543L);
+    Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -66,7 +66,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void editEligibility_withInvalidBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(fakeRequestNew(), program.id, 543L);
+    Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -75,8 +75,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void edit_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
-            () ->
-                controller.editVisibility(fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
+            () -> controller.editVisibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -84,14 +83,13 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void editEligibility_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
-            () ->
-                controller.editEligibility(fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
+            () -> controller.editEligibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
   public void edit_withFirstBlock_displaysEmptyList() {
-    Result result = controller.editVisibility(fakeRequestNew(), programWithThreeBlocks.id, 1L);
+    Result result = controller.editVisibility(fakeRequest(), programWithThreeBlocks.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -105,7 +103,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void editEligibility_withFirstBlock_displaysFirstBlock() {
-    Result result = controller.editEligibility(fakeRequestNew(), programWithThreeBlocks.id, 1L);
+    Result result = controller.editEligibility(fakeRequest(), programWithThreeBlocks.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -117,7 +115,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withThirdBlock_displaysQuestionsFromFirstAndSecondBlock() {
-    Result result = controller.editVisibility(fakeRequestNew(), programWithThreeBlocks.id, 3L);
+    Result result = controller.editVisibility(fakeRequest(), programWithThreeBlocks.id, 3L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -136,9 +134,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void update_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
-            () ->
-                controller.updateVisibility(
-                    fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
+            () -> controller.updateVisibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -147,8 +143,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () ->
-                controller.updateEligibility(
-                    fakeRequestNew(), programId, /* blockDefinitionId= */ 1))
+                controller.updateEligibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 

@@ -9,8 +9,8 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
-import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
@@ -52,7 +52,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   public void index_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.index(fakeRequestNew());
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");
@@ -70,7 +70,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram(activeProgramB).build();
     ProgramBuilder.newDraftProgram(draftProgramA).build();
 
-    Result result = controller.index(fakeRequestNew());
+    Result result = controller.index(fakeRequest());
     String stringResult = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -88,7 +88,7 @@ public class AdminExportControllerTest extends ResetPostgres {
   public void hxExportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.hxExportProgram(fakeRequestNew());
+    Result result = controller.hxExportProgram(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");

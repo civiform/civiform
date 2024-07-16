@@ -8,8 +8,8 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
-import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -116,7 +116,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     long programId = ProgramBuilder.newActiveProgram().buildDefinition().id();
     Result result =
         controller.index(
-            fakeRequestNew(),
+            fakeRequest(),
             programId,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -139,7 +139,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     application.refresh();
     Result result =
         controller.index(
-            fakeRequestNew(),
+            fakeRequest(),
             program.id,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -157,8 +157,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    assertThatThrownBy(
-            () -> controller.updateStatus(fakeRequestNew(), Long.MAX_VALUE, application.id))
+    assertThatThrownBy(() -> controller.updateStatus(fakeRequest(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -169,7 +168,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Result result = controller.updateStatus(fakeRequestNew(), program.id, application.id);
+    Result result = controller.updateStatus(fakeRequest(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -483,8 +482,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    assertThatThrownBy(
-            () -> controller.updateNote(fakeRequestNew(), Long.MAX_VALUE, application.id))
+    assertThatThrownBy(() -> controller.updateNote(fakeRequest(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -495,7 +493,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Result result = controller.updateNote(fakeRequestNew(), program.id, application.id);
+    Result result = controller.updateNote(fakeRequest(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -510,7 +508,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     // Execute.
-    Result result = controller.updateNote(fakeRequestNew(), program.id, application.id);
+    Result result = controller.updateNote(fakeRequest(), program.id, application.id);
 
     // Verify.
     assertThat(result.status()).isEqualTo(BAD_REQUEST);

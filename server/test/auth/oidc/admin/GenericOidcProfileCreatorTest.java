@@ -1,7 +1,7 @@
 package auth.oidc.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
@@ -62,7 +62,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", "issuer");
     profile.setId("subject");
 
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
         genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
 
@@ -78,7 +78,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", "issuer");
     profile.setId("subject");
 
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
         genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
 
@@ -94,7 +94,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", "issuer");
     profile.setId("subject");
 
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
         genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
 

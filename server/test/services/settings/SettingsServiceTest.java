@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
@@ -143,7 +143,7 @@ public class SettingsServiceTest extends ResetPostgres {
   @Test
   public void applySettingsToRequest_addsTheSettingsToTheRequestAttributes() {
     createTestSettings();
-    Http.Request request = fakeRequestNew();
+    Http.Request request = fakeRequest();
 
     Http.RequestHeader resultRequest =
         settingsService.applySettingsToRequest(request).toCompletableFuture().join();
@@ -155,7 +155,7 @@ public class SettingsServiceTest extends ResetPostgres {
   @Test
   public void applySettingsToRequest_doesNotAlterAttributesIfNoSettingsFound() {
     DB.getDefault().truncate(SettingsGroupModel.class);
-    Http.Request request = fakeRequestNew();
+    Http.Request request = fakeRequest();
 
     settingsService.applySettingsToRequest(request).toCompletableFuture().join();
 

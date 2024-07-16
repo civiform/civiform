@@ -6,7 +6,7 @@ import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
-import static support.FakeRequestBuilder.fakeRequestNew;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   private FileController controller;
   private SettingsManifest mockSettingsManifest;
-  private final Request request = fakeRequestNew();
+  private final Request request = fakeRequest();
 
   @Before
   public void setUp() {

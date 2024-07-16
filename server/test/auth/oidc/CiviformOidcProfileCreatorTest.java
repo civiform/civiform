@@ -3,8 +3,8 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
-import static support.FakeRequestBuilder.fakeRequestNew;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -141,7 +141,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
     // Execute.
     CiviFormProfileData profileData =
@@ -224,7 +224,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    PlayWebContext context = new PlayWebContext(fakeRequestNew());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
     // Execute.
