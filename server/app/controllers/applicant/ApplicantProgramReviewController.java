@@ -5,6 +5,7 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import actions.ProgramDisabledAction;
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -136,6 +137,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              Optional<Result> applicationUpdatedOptional =
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+              if (applicationUpdatedOptional.isPresent()) {
+                return applicationUpdatedOptional.get();
+              }
+
               Messages messages = messagesApi.preferred(request);
 
               AlertSettings eligibilityAlertSettings =
@@ -265,7 +272,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId),
+            v -> {
+              Optional<Result> applicationUpdatedOptional =
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+              if (applicationUpdatedOptional.isPresent()) {
+                return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
+              }
+
+              return submitInternal(request, applicantId, programId);
+            },
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -454,5 +469,36 @@ public class ApplicantProgramReviewController extends CiviFormController {
               applicantId,
               profileUtils.currentUserProfileOrThrow(request)));
     }
+  }
+
+  /**
+   * Check if the application needs to be updated to a newer program version. If it does updated and
+   * return a redirect result back to the review page
+   *
+   * @return {@link Result} if application was updated; empty if not
+   */
+  private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
+      long applicantId, long programId, Request request) {
+    if (settingsManifest.getFastforwardEnabled(request)) {
+      Optional<Long> latestProgramId =
+          applicantService.updateApplicationToLatestProgramVersion(applicantId, programId);
+
+      RouteExtractor routeExtractor = new RouteExtractor(request);
+
+      if (latestProgramId.isPresent()) {
+        Call redirectLocation =
+            routeExtractor.containsKey("applicantId")
+                ? controllers.applicant.routes.ApplicantProgramReviewController
+                    .reviewWithApplicantId(applicantId, latestProgramId.get())
+                : controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    latestProgramId.get());
+
+        return Optional.of(
+            redirect(redirectLocation.url())
+                .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+      }
+    }
+
+    return Optional.empty();
   }
 }

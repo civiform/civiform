@@ -15,6 +15,7 @@ import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,7 +40,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programBySlug_redirectsToPreviousProgramVersionForExistingApplications() {
+  public void
+      programBySlug_redirectsToPreviousProgramVersionForExistingApplications_fastForwardDisabled() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -70,6 +72,42 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
                     programDefinition.id())
+                .url());
+  }
+
+  @Test
+  public void
+      programBySlug_redirectsToActiveProgramVersionForExistingApplications_fastForwardEnabled() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    ProgramModel programModelV2 =
+        resourceCreator().insertDraftProgram(programDefinition.adminName());
+    versionRepository.publishNewSynchronizedVersion();
+
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
+    Result result =
+        instanceOf(ProgramSlugHandler.class)
+            .showProgram(
+                controller,
+                addCSRFToken(requestBuilderWithSettings("FASTFORWARD_ENABLED", "true")).build(),
+                programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(programModelV2.id)
                 .url());
   }
 
