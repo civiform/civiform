@@ -21,7 +21,6 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -34,6 +33,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)

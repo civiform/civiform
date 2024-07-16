@@ -15,7 +15,6 @@ import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -33,6 +32,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
 
 public class ProgramModelTest extends ResetPostgres {
 

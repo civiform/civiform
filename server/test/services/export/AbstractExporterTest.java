@@ -26,8 +26,6 @@ import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusDefinitions.Status;
 import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
@@ -44,6 +42,8 @@ import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusDefinitions.Status;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 

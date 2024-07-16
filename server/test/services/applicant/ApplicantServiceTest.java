@@ -61,7 +61,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.applicationstatuses.StatusDefinitions;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -96,6 +95,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 

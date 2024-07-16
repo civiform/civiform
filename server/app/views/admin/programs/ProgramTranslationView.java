@@ -20,10 +20,10 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
+import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -48,7 +48,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Http.Request request,
       Locale locale,
       ProgramDefinition program,
-      StatusDefinitions currentStatusDefinitions,
+      StatusDefinitions activeStatusDefinitions,
       ProgramTranslationForm translationForm,
       Optional<ToastMessage> message) {
     String formAction =
@@ -60,7 +60,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             request,
             locale,
             formAction,
-            formFields(program, translationForm, currentStatusDefinitions));
+            formFields(program, translationForm, activeStatusDefinitions));
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());

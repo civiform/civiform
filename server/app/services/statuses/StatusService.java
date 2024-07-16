@@ -1,4 +1,4 @@
-package services.applicationstatuses;
+package services.statuses;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -183,21 +183,19 @@ public final class StatusService {
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-    StatusDefinitions currentStatusDefinitions =
+    StatusDefinitions activeStatusDefinitions =
         appStatusesRepo.lookupActiveStatusDefinitions(programDefinition.adminName());
-    validateLocalizationStatuses(localizationUpdate, currentStatusDefinitions);
+    validateLocalizationStatuses(localizationUpdate, activeStatusDefinitions);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
     // to be consistently ordered above.
     ImmutableList.Builder<StatusDefinitions.Status> toUpdateStatusesBuilder =
         ImmutableList.builder();
-    for (int statusIdx = 0;
-        statusIdx < currentStatusDefinitions.getStatuses().size();
-        statusIdx++) {
+    for (int statusIdx = 0; statusIdx < activeStatusDefinitions.getStatuses().size(); statusIdx++) {
       LocalizationUpdate.StatusUpdate statusUpdateData =
           localizationUpdate.statuses().get(statusIdx);
       StatusDefinitions.Status existingStatus =
-          currentStatusDefinitions.getStatuses().get(statusIdx);
+          activeStatusDefinitions.getStatuses().get(statusIdx);
       StatusDefinitions.Status.Builder updateBuilder =
           existingStatus.toBuilder()
               .setLocalizedStatusText(
@@ -250,7 +248,7 @@ public final class StatusService {
   }
 
   /** Get all the statusDefinitions for a given program */
-  public ImmutableList<StatusDefinitions> getAllStatusDefinitions(Long programId)
+  public ImmutableList<StatusDefinitions> getAllPossibleStatusDefinitions(Long programId)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
     return appStatusesRepo.getAllApplicationStatusModels(programDefinition.adminName()).stream()

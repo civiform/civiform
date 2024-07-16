@@ -13,10 +13,10 @@ import play.i18n.Lang;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * Form for updating translations for programs. This isn't a typical Play form in that the number of
@@ -47,7 +47,7 @@ public final class ProgramTranslationForm {
       ProgramDefinition program,
       Locale locale,
       FormFactory formFactory,
-      StatusDefinitions currentStatusDefinitions) {
+      StatusDefinitions activeStatusDefinitions) {
     ImmutableMap.Builder<String, String[]> formValuesBuilder =
         ImmutableMap.<String, String[]>builder()
             .put(
@@ -68,7 +68,7 @@ public final class ProgramTranslationForm {
           });
     }
 
-    ImmutableList<StatusDefinitions.Status> statuses = currentStatusDefinitions.getStatuses();
+    ImmutableList<StatusDefinitions.Status> statuses = activeStatusDefinitions.getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
       StatusDefinitions.Status status = statuses.get(i);
       formValuesBuilder.put(statusKeyToUpdateFieldName(i), new String[] {status.statusText()});
@@ -113,7 +113,7 @@ public final class ProgramTranslationForm {
                 allFieldNames(statuses.size(), hasSummaryImageDescription, blockIds)
                     .toArray(new String[0]));
     return new ProgramTranslationForm(
-        form, currentStatusDefinitions.getStatuses().size(), hasSummaryImageDescription);
+        form, activeStatusDefinitions.getStatuses().size(), hasSummaryImageDescription);
   }
 
   public static ProgramTranslationForm bindFromRequest(

@@ -9,7 +9,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicationStatusesModel;
 import models.StatusDefinitionsLifecycleStage;
-import services.applicationstatuses.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 
 /** A repository class used to interact with the application_statuses table. */
 public final class ApplicationStatusesRepository {

@@ -20,12 +20,12 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.applicationstatuses.DuplicateStatusException;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.statuses.DuplicateStatusException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 import views.admin.programs.ProgramStatusesView;
 
 /**
@@ -88,11 +88,11 @@ public final class AdminProgramStatusesController extends CiviFormController {
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    StatusDefinitions currentStatusDefinitions =
+    StatusDefinitions activeStatusDefinitions =
         applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName());
-    int previousStatusCount = currentStatusDefinitions.getStatuses().size();
+    int previousStatusCount = activeStatusDefinitions.getStatuses().size();
     Optional<StatusDefinitions.Status> previousDefaultStatus =
-        currentStatusDefinitions.getDefaultStatus();
+        activeStatusDefinitions.getDefaultStatus();
 
     Form<ProgramStatusesForm> form =
         formFactory
@@ -103,7 +103,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
-      return ok(statusesView.render(request, program, currentStatusDefinitions, Optional.of(form)));
+      return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     // Because we need to look directly at the value sent (or absent) in the form data
     // itself to determine if a checkbox is checked, we need to calculate this here
@@ -133,7 +133,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // whenever there is are form validation errors, which preserves the
       // form values.
       form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
-      return ok(statusesView.render(request, program, currentStatusDefinitions, Optional.of(form)));
+      return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
     if (mutateResult.isError()) {

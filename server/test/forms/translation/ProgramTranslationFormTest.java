@@ -15,9 +15,9 @@ import play.mvc.Http.Request;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ProgramTranslationFormTest extends ResetPostgres {

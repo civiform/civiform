@@ -17,12 +17,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramJsonSamplerTest extends ResetPostgres {

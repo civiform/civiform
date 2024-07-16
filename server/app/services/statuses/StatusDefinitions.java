@@ -1,4 +1,4 @@
-package services.applicationstatuses;
+package services.statuses;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

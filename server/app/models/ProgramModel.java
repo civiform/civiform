@@ -27,11 +27,11 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.

@@ -44,9 +44,6 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
-import services.applicationstatuses.DuplicateStatusException;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusService;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -64,6 +61,9 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.statuses.DuplicateStatusException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 
 /**
  * Task for seeding the development database for manual and automated testing. Seeding for prod

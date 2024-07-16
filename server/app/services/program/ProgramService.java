@@ -46,12 +46,12 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * The service responsible for accessing the Program resource. Admins create programs to represent

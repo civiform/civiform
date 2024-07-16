@@ -73,7 +73,6 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
-import services.applicationstatuses.StatusDefinitions;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -89,6 +88,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -570,10 +570,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition =
                   programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
-              StatusDefinitions currentStatusDefinitions =
+              StatusDefinitions activeStatusDefinitions =
                   applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
-                  currentStatusDefinitions.getDefaultStatus();
+                  activeStatusDefinitions.getDefaultStatus();
 
               CompletableFuture<ApplicationEventModel> updateStatusFuture =
                   maybeDefaultStatus
@@ -1162,13 +1162,13 @@ public final class ApplicantService {
             // versions are used
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
-            StatusDefinitions currentStatusDefinitions =
+            StatusDefinitions activeStatusDefinitions =
                 applicationStatusesRepository.lookupActiveStatusDefinitions(
                     applicationProgramVersion.adminName());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
-                    ? currentStatusDefinitions.getStatuses().stream()
+                    ? activeStatusDefinitions.getStatuses().stream()
                         .filter(
                             programStatus ->
                                 programStatus.statusText().equals(maybeLatestStatus.get()))

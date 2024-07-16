@@ -49,15 +49,15 @@ import services.applications.AccountHasNoEmailException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusNotFoundException;
-import services.applicationstatuses.StatusService;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusNotFoundException;
+import services.statuses.StatusService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -534,7 +534,7 @@ public final class AdminApplicationController extends CiviFormController {
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters, request);
 
-    StatusDefinitions currentStatusDefinitions =
+    StatusDefinitions activeStatusDefinitions =
         applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = getCiviFormProfile(request);
@@ -543,7 +543,7 @@ public final class AdminApplicationController extends CiviFormController {
             request,
             profile,
             program,
-            currentStatusDefinitions.getDefaultStatus(),
+            activeStatusDefinitions.getDefaultStatus(),
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
@@ -558,7 +558,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)
       throws ProgramNotFoundException {
-    return statusService.getAllStatusDefinitions(programId).stream()
+    return statusService.getAllPossibleStatusDefinitions(programId).stream()
         .map(stdef -> stdef.getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)

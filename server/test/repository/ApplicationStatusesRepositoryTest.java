@@ -10,7 +10,7 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.applicationstatuses.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ApplicationStatusesRepositoryTest extends ResetPostgres {
@@ -62,7 +62,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void canQueryForOboseleteApplicationStatuses() {
+  public void canQueryForAllApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description")

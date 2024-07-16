@@ -25,10 +25,10 @@ import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.style.ReferenceClasses;
 

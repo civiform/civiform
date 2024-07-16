@@ -44,10 +44,10 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusNotFoundException;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusNotFoundException;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)

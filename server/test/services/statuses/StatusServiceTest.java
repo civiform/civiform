@@ -1,4 +1,4 @@
-package services.applicationstatuses;
+package services.statuses;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

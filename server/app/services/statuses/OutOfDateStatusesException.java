@@ -1,4 +1,4 @@
-package services.applicationstatuses;
+package services.statuses;
 
 /**
  * OutOfDateStatusesException is thrown when a program's list of {@link StatusDefinitions.Status} is

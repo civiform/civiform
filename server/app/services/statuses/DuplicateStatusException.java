@@ -1,4 +1,4 @@
-package services.applicationstatuses;
+package services.statuses;
 
 /**
  * DuplicateStatusException is thrown when an {@link StatusDefinitions.Status} with the same

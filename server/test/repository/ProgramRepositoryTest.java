@@ -41,12 +41,12 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.applicationstatuses.StatusDefinitions;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.question.QuestionAnswerer;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 

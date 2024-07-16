@@ -21,12 +21,12 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
-import services.applicationstatuses.OutOfDateStatusesException;
-import services.applicationstatuses.StatusDefinitions;
-import services.applicationstatuses.StatusService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.statuses.OutOfDateStatusesException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 import views.admin.programs.ProgramTranslationView;
 import views.components.ToastMessage;
 
@@ -99,7 +99,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
       return redirect(routes.AdminProgramController.index().url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
-    StatusDefinitions currentStatusDefinitions =
+    StatusDefinitions activeStatusDefinitions =
         applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
@@ -107,9 +107,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             localeToEdit,
             program,
-            currentStatusDefinitions,
+            activeStatusDefinitions,
             ProgramTranslationForm.fromProgram(
-                program, localeToEdit, formFactory, currentStatusDefinitions),
+                program, localeToEdit, formFactory, activeStatusDefinitions),
             errorMessage));
   }
 
