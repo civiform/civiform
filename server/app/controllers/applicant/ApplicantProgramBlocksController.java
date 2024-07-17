@@ -1389,7 +1389,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Check if the application needs to be updated to a newer program version. If it does updated and
+   * Check if the application needs to be updated to a newer program version. If it does, update and
    * return a redirect result back to the review page
    *
    * @return {@link Result} if application was updated; empty if not
