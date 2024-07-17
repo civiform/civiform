@@ -8,19 +8,11 @@
     <div role="main">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
-      <!-- TODO(#8071): Create reusable fragment -->
-      <div class="grid-container padding-bottom-3">
-        <div class="grid-row">
-          <div class="grid-col">
-            <h1 th:text="${applicationParams.programTitle()}"></h1>
-            <span th:text="${applicationParams.programDescription}"></span>
-          </div>
-        </div>
-      </div>
-      <!-- Separator -->
-      <div class="padding-y-2 border-t border-base-lighter"></div>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${applicationParams.programTitle()}, ${applicationParams.programDescription()})}"
+      ></div>
 
-      <div class="grid-container">
+      <div class="grid-container section">
         <div class="grid-row">
           <div class="grid-col">
             <form
