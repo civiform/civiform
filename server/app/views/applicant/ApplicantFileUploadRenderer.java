@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -16,6 +17,7 @@ import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -32,6 +34,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageUploadRequest;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
@@ -77,12 +80,14 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
   private final ApplicantStorageClient applicantStorageClient;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
       FileUploadViewStrategy fileUploadViewStrategy,
       ApplicantRoutes applicantRoutes,
-      ApplicantStorageClient applicantStorageClient) {
+      ApplicantStorageClient applicantStorageClient,
+      SettingsManifest settingsManifest) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.applicantStorageClient = checkNotNull(applicantStorageClient);
@@ -352,25 +357,50 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  // Renders the save and next button for uploading multiple files. Since the upload and save
+  // Returns the "save and next" button for uploading multiple files. Since the upload and save
   // happens as soon as the applicant chooses the file, this instead just "submits" a no-op form
   // and moves to the next page.
-  private ButtonTag renderMultipleFileSaveAndNextButton(ApplicationBaseViewParams params) {
+  private ButtonTag renderSaveAndNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
-        .withClasses(ButtonStyles.SOLID_BLUE)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+        .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
-  private ButtonTag renderOldNextButton(ApplicationBaseViewParams params) {
-    String styles = ButtonStyles.SOLID_BLUE;
-    if (hasUploadedFile(params)) {
-      styles = ButtonStyles.OUTLINED_TRANSPARENT;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withForm(BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+  // Returns a "Previous" button that will navigate the applicant to the previous page without
+  // attempting to save anything. (Since for multiple file uploads, the save is already done
+  // when the user chooses a file.)
+  @Override
+  protected ATag renderPreviousButton(ApplicationBaseViewParams params) {
+    String redirectUrl =
+        params
+            .applicantRoutes()
+            .blockPreviousOrReview(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                /* currentBlockIndex= */ params.blockIndex(),
+                params.inReview())
+            .url();
+    return a().withHref(redirectUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+        .withId("cf-block-previous");
+  }
+
+  // Returns a "Review" button that will redirect the applicant to the review page without
+  // attempting to save anything. (Since for multiple file uploads, the save is already done
+  // when the user chooses a file.)
+  @Override
+  protected ATag renderReviewButton(ApplicationBaseViewParams params) {
+    String reviewUrl =
+        params
+            .applicantRoutes()
+            .review(params.profile(), params.applicantId(), params.programId())
+            .url();
+    return a().withHref(reviewUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withId("review-application-button")
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
   private DivTag renderFileKeyField(
@@ -404,13 +434,10 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
     if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
 
-      // Render "old" style buttons for multi-upload, since they don't attempt to upload files. We
-      // do the upload as soon as the applicant chooses a file for multi-file uploads. Once we
-      // remove
-      // the feature flag, we can rename these methods since they're not "old" anymore.
-      ret.with(renderOldReviewButton(params))
-          .with(renderOldPreviousButton(params))
-          .with(renderMultipleFileSaveAndNextButton(params));
+      //
+      ret.with(renderReviewButton(params))
+          .with(renderPreviousButton(params))
+          .with(renderSaveAndNextButton(params));
     } else {
       Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
       Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
