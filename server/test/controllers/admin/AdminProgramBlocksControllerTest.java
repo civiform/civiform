@@ -7,7 +7,8 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
@@ -71,14 +72,14 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void create_withInvalidProgram_notFound() {
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     assertThatThrownBy(() -> controller.create(request, /* programId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
   public void create_withProgram_addsBlock() {
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Result result = controller.create(request, program.id);
 
@@ -101,8 +102,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
-    Request request =
-        requestBuilderWithSettings().bodyForm(ImmutableMap.of("enumeratorId", "1")).build();
+    Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of("enumeratorId", "1")).build();
     Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -119,7 +119,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
     assertThatThrownBy(() -> controller.show(request, program.id, /* blockId= */ 1L))
@@ -128,7 +128,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void show_withInvalidProgram_notFound() {
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     assertThatThrownBy(() -> controller.show(request, /* programId= */ 1L, /* blockId= */ 1L))
         .isInstanceOf(NotViewableException.class);
   }
@@ -136,7 +136,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void show_withInvalidBlock_notFound() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     Result result = controller.show(request, program.id, /* blockId= */ 2L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -153,7 +153,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
     QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     Result result = controller.show(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -171,7 +171,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withInvalidProgram_notFound() {
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     assertThatThrownBy(() -> controller.edit(request, /* programId= */ 1L, /* blockId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
@@ -179,7 +179,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void edit_withInvalidBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
     Result result = controller.edit(request, program.id, /* blockId= */ 2L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -196,7 +196,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
     QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     Result result = controller.edit(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -218,7 +218,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
 
     questionService.update(otherQuestionDef);
-    request = addCSRFToken(requestBuilderWithSettings()).build();
+    request = addCSRFToken(fakeRequestBuilder()).build();
     result = controller.edit(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -231,7 +231,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void update_withInvalidProgram_notFound() {
     Request request =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
@@ -243,7 +243,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   public void update_withInvalidBlockId_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Request request =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
@@ -256,7 +256,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   public void update_overwritesExistingBlock() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     Request request =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(ImmutableMap.of("name", "updated name", "description", "updated description"))
             .build();
 
@@ -275,7 +275,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     Result redirectResult =
         controller.edit(
-            addCSRFToken(requestBuilderWithSettings()).build(),
+            addCSRFToken(fakeRequestBuilder()).build(),
             program.id(),
             program.getBlockDefinitionByIndex(/* blockIndex= */ 0).get().id());
     assertThat(contentAsString(redirectResult)).contains("updated name");

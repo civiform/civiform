@@ -7,7 +7,8 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
@@ -65,7 +66,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void index_withNoPrograms() {
-    Result result = controller.index(requestBuilderWithSettings().build());
+    Result result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -77,7 +78,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newDraftProgram("one").build();
     ProgramBuilder.newDraftProgram("two").build();
 
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     Result result = controller.index(request);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -87,7 +88,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsExpectedForm() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
 
     Result result = controller.newOne(request);
 
@@ -99,7 +100,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void create_returnsFormWithErrorMessage() {
     RequestBuilder requestBuilder =
-        requestBuilderWithSettings().bodyForm(ImmutableMap.of("name", "", "description", ""));
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("name", "", "description", ""));
     Request request = addCSRFToken(requestBuilder).build();
 
     Result result = controller.create(request);
@@ -114,7 +115,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_showsNewProgramInList() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -132,8 +133,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller.create(requestBuilder.build());
 
-    Result programDashboardResult =
-        controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result programDashboardResult = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
     assertThat(contentAsString(programDashboardResult)).contains("External program description");
   }
@@ -142,7 +142,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_redirectsToProgramImage() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -178,7 +178,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_returnsNewProgramWithAcls() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -214,7 +214,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
-    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result programDashboard = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
         .contains("External program description with acls");
@@ -224,7 +224,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_eligibilityIsGating_false() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -260,7 +260,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_eligibilityIsGating_true() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -297,7 +297,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Existing One").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -328,7 +328,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result programDashboard = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
@@ -339,7 +339,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -371,7 +371,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -401,7 +401,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -436,7 +436,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result programDashboard = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
   }
@@ -450,7 +450,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     String programDescription = "External program description";
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -480,14 +480,14 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
 
-    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result programDashboard = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(programDashboard)).contains(programName);
     assertThat(contentAsString(programDashboard)).contains(programDescription);
   }
 
   @Test
   public void edit_withInvalidProgram_throwsProgramNotFoundException() {
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
 
     assertThatThrownBy(() -> controller.edit(request, 1L, ProgramEditStatus.EDIT.name()))
         .isInstanceOf(ProgramNotFoundException.class);
@@ -495,7 +495,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsExpectedForm() throws Exception {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
     Result result = controller.edit(request, program.id, ProgramEditStatus.EDIT.name());
@@ -509,7 +509,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withNonDraftProgram_throwsNotChangeableException() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     ProgramModel program = ProgramBuilder.newActiveProgram("test program").build();
 
     assertThatThrownBy(() -> controller.edit(request, program.id, ProgramEditStatus.EDIT.name()))
@@ -520,7 +520,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_onlyActive_editActiveReturnsNewDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
 
@@ -545,7 +545,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_withDraft_editActiveReturnsDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = addCSRFToken(fakeRequestBuilder()).build();
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
     ProgramModel draftProgram =
@@ -568,7 +568,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_invalidProgram_returnsNotFound() {
     Request request =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
@@ -582,7 +582,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram("fakeName", "active description").build();
 
-    Request request = requestBuilderWithSettings().build();
+    Request request = fakeRequest();
 
     assertThatThrownBy(
             () ->
@@ -595,7 +595,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_invalidInput_returnsFormWithErrors() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
-        addCSRFToken(requestBuilderWithSettings())
+        addCSRFToken(fakeRequestBuilder())
             .bodyForm(ImmutableMap.of("name", "", "description", ""))
             .build();
 
@@ -611,7 +611,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -631,7 +631,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     controller.update(
         addCSRFToken(requestBuilder).build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Result indexResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result indexResult = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(indexResult))
         .contains(
             "Create new program", "New external program name", "New external program description");
@@ -642,7 +642,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusEdit_redirectsToProgramEditBlocks() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -673,7 +673,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusCreation_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -706,7 +706,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusCreationEdit_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -746,7 +746,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -781,7 +781,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -814,7 +814,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -847,7 +847,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result redirectResult = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(redirectResult)).contains("New external program name");
   }
 
@@ -861,7 +861,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     String newProgramDescription = "External program description";
     RequestBuilder requestBuilder =
         addCSRFToken(
-            requestBuilderWithSettings()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -891,7 +891,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    Result redirectResult = controller.index(addCSRFToken(fakeRequestBuilder()).build());
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }
@@ -902,7 +902,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
-        requestBuilderWithSettings()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -933,7 +933,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
     Result result =
-        controller.publishProgram(addCSRFToken(requestBuilderWithSettings()).build(), program.id);
+        controller.publishProgram(addCSRFToken(fakeRequestBuilder()).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
@@ -945,9 +945,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram_nonDraftProgram_throwsException() throws Exception {
     ProgramModel program = ProgramBuilder.newActiveProgram("active").build();
     assertThatThrownBy(
-            () ->
-                controller.publishProgram(
-                    addCSRFToken(requestBuilderWithSettings()).build(), program.id))
+            () -> controller.publishProgram(addCSRFToken(fakeRequestBuilder()).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 }

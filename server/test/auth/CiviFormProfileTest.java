@@ -3,6 +3,7 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import models.AccountModel;
@@ -77,11 +78,7 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewProgramAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
-    assertThatThrownBy(
-            () ->
-                profile
-                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
-                    .join())
+    assertThatThrownBy(() -> profile.checkProgramAuthorization("program1", fakeRequest()).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -92,11 +89,7 @@ public class CiviFormProfileTest extends ResetPostgres {
     ProgramDefinition programOne = ProgramBuilder.newActiveProgram("program1").buildDefinition();
     profile.getAccount().join().addAdministeredProgram(programOne);
 
-    assertThatThrownBy(
-            () ->
-                profile
-                    .checkProgramAuthorization("program2", requestBuilderWithSettings().build())
-                    .join())
+    assertThatThrownBy(() -> profile.checkProgramAuthorization("program2", fakeRequest()).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -115,22 +108,14 @@ public class CiviFormProfileTest extends ResetPostgres {
         .join();
 
     profile.getAccount().join().addAdministeredProgram(programOne);
-    assertThat(
-            profile
-                .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
-                .join())
-        .isEqualTo(null);
+    assertThat(profile.checkProgramAuthorization("program1", fakeRequest()).join()).isEqualTo(null);
   }
 
   @Test
   public void checkProgramAuthorization_CiviformAdmin_fail() {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
-    assertThatThrownBy(
-            () ->
-                profile
-                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
-                    .join())
+    assertThatThrownBy(() -> profile.checkProgramAuthorization("program1", fakeRequest()).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 

@@ -6,7 +6,6 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static support.CfTestHelpers.requestBuilderWithSettings;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
@@ -213,7 +212,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testShowEditClientFormCall() {
     AccountModel account = setupForEditClient("test33@test.com");
-    Http.Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Http.Request request = addCSRFToken(fakeRequestBuilder()).build();
     Result result = tiController.showEditClientForm(account.id, request);
     assertThat(result.status()).isEqualTo(OK);
   }

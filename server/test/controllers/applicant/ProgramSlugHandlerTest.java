@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -90,9 +91,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(
-                        requestBuilderWithSettings()
-                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
+                addCSRFToken(fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
                     .build(),
                 programDefinition.slug())
             .toCompletableFuture()
@@ -113,9 +112,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(
-                        requestBuilderWithSettings()
-                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
+                addCSRFToken(fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
                     .build(),
                 "non-existing-program-slug")
             .toCompletableFuture()
@@ -136,9 +133,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     Result result =
         handler
             .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -177,9 +172,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     Result result =
         handler
             .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -217,9 +210,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     Result result =
         handler
             .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
