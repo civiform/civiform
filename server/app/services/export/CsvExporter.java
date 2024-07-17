@@ -60,6 +60,7 @@ public final class CsvExporter implements AutoCloseable {
       ApplicationModel application,
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus,
+      String adminProgramName,
       String adminNote)
       throws IOException {
     ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
@@ -118,7 +119,7 @@ public final class CsvExporter implements AutoCloseable {
                   : SubmitterType.APPLICANT.toString());
           break;
         case PROGRAM:
-          printer.print(application.getProgram().getProgramDefinition().adminName());
+          printer.print(adminProgramName);
           break;
         case TI_ORGANIZATION:
           printer.print(

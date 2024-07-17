@@ -194,6 +194,7 @@ public final class CsvExporterService {
               application,
               roApplicantService,
               optionalEligibilityStatus,
+              programDefinition.adminName(),
               programDefinition.adminDescription());
         }
       }
