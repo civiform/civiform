@@ -191,11 +191,7 @@ public final class CsvExporterService {
                   : Optional.empty();
 
           csvExporter.exportRecord(
-              application,
-              roApplicantService,
-              optionalEligibilityStatus,
-              programDefinition.adminName(),
-              programDefinition.adminDescription());
+              application, roApplicantService, optionalEligibilityStatus, programDefinition);
         }
       }
     } catch (IOException e) {

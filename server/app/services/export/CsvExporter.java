@@ -20,6 +20,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
 import services.program.Column;
+import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
 
@@ -60,8 +61,7 @@ public final class CsvExporter implements AutoCloseable {
       ApplicationModel application,
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus,
-      String adminProgramName,
-      String adminNote)
+      ProgramDefinition programDefinition)
       throws IOException {
     ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
@@ -119,7 +119,7 @@ public final class CsvExporter implements AutoCloseable {
                   : SubmitterType.APPLICANT.toString());
           break;
         case PROGRAM:
-          printer.print(adminProgramName);
+          printer.print(programDefinition.adminName());
           break;
         case TI_ORGANIZATION:
           printer.print(
@@ -156,7 +156,7 @@ public final class CsvExporter implements AutoCloseable {
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
           break;
         case ADMIN_NOTE:
-          printer.print(adminNote);
+          printer.print(programDefinition.adminDescription());
           break;
       }
     }
