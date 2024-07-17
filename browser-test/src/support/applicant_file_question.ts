@@ -41,11 +41,12 @@ export class ApplicantFileQuestion {
   }
 
   async expectFileNameCount(fileName: string, count: number) {
-    expect(
-      (await this.page.locator(this.uploadedFilesLocator).innerHTML()).split(
-        fileName,
-      ).length - 1,
-    ).toEqual(count)
+    await expect(
+      this.page
+        .getByRole('list', {name: 'Uploaded files'})
+        .locator('li')
+        .filter({hasText: fileName}),
+    ).toHaveCount(count)
   }
 
   async expectHasSkipButton() {

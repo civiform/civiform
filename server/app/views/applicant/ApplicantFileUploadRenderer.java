@@ -9,6 +9,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ul;
 import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
@@ -22,6 +24,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -95,17 +98,17 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   /**
-   * Method to generate div which contains a list of all uploaded files.
+   * Method to generate ul which contains a list of all uploaded files.
    *
    * @param fileUploadQuestion The question which files were uploaded for
-   * @return div containing list of all uploaded files
+   * @return ul containing list of all uploaded files
    */
-  public DivTag uploadedFiles(FileUploadQuestion fileUploadQuestion) {
-    DivTag result = div().withId(ReferenceClasses.FILEUPLOAD_UPLOADED_FILES_ID);
+  public UlTag uploadedFiles(FileUploadQuestion fileUploadQuestion) {
+    UlTag result = ul().attr("aria-label", "Uploaded files");
 
     if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
       for (String fileKey : fileUploadQuestion.getFileKeyListValue().get()) {
-        result.with(div().withText(FileUploadQuestion.getFileName(fileKey)));
+        result.with(li().withText(FileUploadQuestion.getFileName(fileKey)));
       }
     }
 
