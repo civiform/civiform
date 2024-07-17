@@ -65,7 +65,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
    *
    * @param request The associated request.
    * @param program The program to render program statuses for.
-   * @param currentStatusDefnitions StatusDefinitions which needs to be rendered
+   * @param activeStatusDefinitions StatusDefinitions which needs to be rendered
    * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
    *     edit a program status. Note that while the view itself may render multiple program
    *     statuses, the provided form will correspond to creating / editing a single program status.
@@ -73,7 +73,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
-      StatusDefinitions currentStatusDefnitions,
+      StatusDefinitions activeStatusDefinitions,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     final boolean displayOnLoad;
     final Form<ProgramStatusesForm> createStatusForm;
@@ -89,7 +89,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         makeStatusUpdateModal(
             request,
             program,
-            currentStatusDefnitions.getDefaultStatus(),
+            activeStatusDefinitions.getDefaultStatus(),
             createStatusForm,
             displayOnLoad,
             /* showEmailDeletionWarning= */ false);
@@ -99,7 +99,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderProgramStatusesContainer(request, program, currentStatusDefnitions, maybeStatusForm);
+        renderProgramStatusesContainer(request, program, activeStatusDefinitions, maybeStatusForm);
 
     DivTag topBarDiv =
         div()
@@ -158,11 +158,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Pair<DivTag, ImmutableList<Modal>> renderProgramStatusesContainer(
       Http.Request request,
       ProgramDefinition program,
-      StatusDefinitions currentStatusDefnitions,
+      StatusDefinitions activeStatusDefinitions,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
-    ImmutableList<StatusDefinitions.Status> statuses = currentStatusDefnitions.getStatuses();
+    ImmutableList<StatusDefinitions.Status> statuses = activeStatusDefinitions.getStatuses();
     Optional<StatusDefinitions.Status> currentDefaultStatus =
-        currentStatusDefnitions.getDefaultStatus();
+        activeStatusDefinitions.getDefaultStatus();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
