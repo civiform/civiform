@@ -1425,7 +1425,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
-
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
@@ -1433,7 +1432,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             !roApplicantProgramService.isApplicationNotEligible(),
             settingsManifest.getNorthStarApplicantUi(request),
             false,
-            programId);
+            programId,
+            roApplicantProgramService.getIneligibleQuestions());
 
     return ApplicationBaseViewParams.builder()
         .setRequest(request)

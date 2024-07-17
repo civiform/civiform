@@ -25,6 +25,7 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
+import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -32,6 +33,9 @@ import services.program.ProgramType;
 
 @RunWith(JUnitParamsRunner.class)
 public class EligibilityAlertSettingsCalculatorTest {
+
+  static String QUESTION_TEXT = "Question text";
+
   private MessagesApi getMessagesApiMock() {
     Langs langs = new Langs(new play.api.i18n.DefaultLangs());
 
@@ -270,12 +274,39 @@ public class EligibilityAlertSettingsCalculatorTest {
             value.isApplicationEligible,
             value.isNorthStarEnabled, /* programId */
             value.pageHasSupplementalInformation,
-            1L);
+            1L,
+            ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
     assertThat(result.alertType()).isEqualTo(value.expectedAlertType);
     assertThat(result.title().get()).isEqualTo(value.expectedTitle);
     assertThat(result.text()).isEqualTo(value.expectedText);
+  }
+
+  @Test
+  public void formats_questions() throws ProgramNotFoundException {
+    boolean isEligibilityGating = true;
+
+    MessagesApi messagesApiMock = getMessagesApiMock();
+    ProgramService programServiceMock = mock(ProgramService.class);
+    when(programServiceMock.getFullProgramDefinition(any(Long.class)))
+        .thenReturn(createProgramDefinition(isEligibilityGating));
+
+    EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
+        new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
+
+    Http.Request request = createFakeRequest(false);
+
+    ApplicantQuestion question = mock(ApplicantQuestion.class);
+    when(question.getQuestionText()).thenReturn(QUESTION_TEXT);
+    ImmutableList<ApplicantQuestion> questions = ImmutableList.of(question);
+
+    AlertSettings result =
+        eligibilityAlertSettingsCalculator.calculate(
+            request, false, false, true, true, 1L, questions);
+
+    assertThat(result.additionalText().size()).isEqualTo(1);
+    assertThat(result.additionalText().get(0)).isEqualTo(QUESTION_TEXT);
   }
 
   @Test
@@ -293,7 +324,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, false, false, /* programId */ 1L);
+            fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
   }
