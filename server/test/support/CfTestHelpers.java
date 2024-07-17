@@ -2,7 +2,6 @@ package support;
 
 import static org.mockito.Mockito.mockStatic;
 import static play.test.Helpers.route;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
@@ -92,8 +91,6 @@ public class CfTestHelpers {
     LocalDate localDate = LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     return PredicateValue.of(localDate);
   }
-
-  public static final Http.Request EMPTY_REQUEST = fakeRequest();
 
   /** Class to hold a Result as well as the final request URI after internal redirects. */
   public static class ResultWithFinalRequestUri {
