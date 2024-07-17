@@ -1,6 +1,5 @@
 package support;
 
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import auth.ClientIpResolver;
@@ -27,12 +26,17 @@ public final class FakeRequestBuilder extends RequestBuilder {
   }
 
   private FakeRequestBuilder() {
-    addCSRFToken(this);
+    addCSRFToken();
   }
 
   public FakeRequestBuilder call(Call call) {
     method(call.method());
     uri(call.url());
+    return this;
+  }
+
+  public FakeRequestBuilder addCSRFToken() {
+    play.api.test.CSRFTokenHelper.addCSRFToken(this);
     return this;
   }
 

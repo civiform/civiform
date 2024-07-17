@@ -1,7 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -413,12 +412,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result review(long applicantId, long programId) {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .call(
-                        routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                            applicantId, programId))
-                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                    applicantId, programId))
+            .header(skipUserProfile, shouldSkipUserProfile.toString())
             .build();
     return subject
         .reviewWithApplicantId(request, applicantId, programId)
@@ -429,12 +427,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result submit(long applicantId, long programId) {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .call(
-                        routes.ApplicantProgramReviewController.submitWithApplicantId(
-                            applicantId, programId))
-                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramReviewController.submitWithApplicantId(
+                    applicantId, programId))
+            .header(skipUserProfile, shouldSkipUserProfile.toString())
             .build();
     return subject
         .submitWithApplicantId(request, applicantId, programId)

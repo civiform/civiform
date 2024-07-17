@@ -1,7 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -50,7 +49,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                addCSRFToken(fakeRequestBuilder()).build(),
+                fakeRequestBuilder().build(),
                 applicant.id,
                 programDefinition.id(),
                 application.id,
@@ -106,7 +105,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                addCSRFToken(fakeRequestBuilder()).build(),
+                fakeRequestBuilder().build(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -164,7 +163,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                addCSRFToken(fakeRequestBuilder()).build(),
+                fakeRequestBuilder().build(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -189,7 +188,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(addCSRFToken(fakeRequestBuilder()).build(), application.id, applicant.id)
+              .download(fakeRequestBuilder().build(), application.id, applicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -213,8 +212,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(
-                  addCSRFToken(fakeRequestBuilder()).build(), application.id, managedApplicant.id)
+              .download(fakeRequestBuilder().build(), application.id, managedApplicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -239,8 +237,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(
-                  addCSRFToken(fakeRequestBuilder()).build(), application.id, unmanagedApplicant.id)
+              .download(fakeRequestBuilder().build(), application.id, unmanagedApplicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -261,7 +258,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(addCSRFToken(fakeRequestBuilder()).build(), application.id, 0)
+              .download(fakeRequestBuilder().build(), application.id, 0)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -281,7 +278,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(addCSRFToken(fakeRequestBuilder()).build(), 0, applicant.id)
+              .download(fakeRequestBuilder().build(), 0, applicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {

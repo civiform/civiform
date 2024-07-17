@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -100,10 +99,9 @@ public class AdminExportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxExportProgram(
-            addCSRFToken(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programId", String.valueOf(Long.MAX_VALUE))))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programId", String.valueOf(Long.MAX_VALUE)))
                 .build());
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
@@ -117,10 +115,9 @@ public class AdminExportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxExportProgram(
-            addCSRFToken(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programId", String.valueOf(activeProgram.id))))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programId", String.valueOf(activeProgram.id)))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -135,10 +132,9 @@ public class AdminExportControllerTest extends ResetPostgres {
 
     Result result =
         controller.downloadJson(
-            addCSRFToken(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", String.valueOf(""))))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", String.valueOf("")))
                 .build(),
             adminName);
 

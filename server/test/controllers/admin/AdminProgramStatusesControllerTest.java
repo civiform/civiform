@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -85,8 +84,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   public void index_ok_get() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
-    Result result =
-        controller.index(addCSRFToken(fakeRequestBuilder().method("GET")).build(), program.id);
+    Result result = controller.index(fakeRequestBuilder().method("GET").build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("No statuses have been created yet");
@@ -107,8 +105,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                             .build())))
             .build();
 
-    Result result =
-        controller.index(addCSRFToken(fakeRequestBuilder().method("GET")).build(), program.id);
+    Result result = controller.index(fakeRequestBuilder().method("GET").build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Status with no email");
@@ -533,9 +530,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Parameters({"GET", "POST"})
   public void index_missingProgram(String httpMethod) {
     assertThatThrownBy(
-            () ->
-                controller.index(
-                    addCSRFToken(fakeRequestBuilder().method(httpMethod)).build(), Long.MAX_VALUE))
+            () -> controller.index(fakeRequestBuilder().method(httpMethod).build(), Long.MAX_VALUE))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -545,9 +540,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
 
     assertThatThrownBy(
-            () ->
-                controller.index(
-                    addCSRFToken(fakeRequestBuilder().method(httpMethod)).build(), program.id))
+            () -> controller.index(fakeRequestBuilder().method(httpMethod).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -626,12 +619,12 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   private Result makeCreateOrUpdateRequest(Long programId, ImmutableMap<String, String> formData)
       throws ProgramNotFoundException {
     return controller.createOrUpdate(
-        addCSRFToken(fakeRequestBuilder().method("POST").bodyForm(formData)).build(), programId);
+        fakeRequestBuilder().method("POST").bodyForm(formData).build(), programId);
   }
 
   private Result makeDeleteRequest(Long programId, ImmutableMap<String, String> formData)
       throws ProgramNotFoundException {
     return controller.delete(
-        addCSRFToken(fakeRequestBuilder().method("POST").bodyForm(formData)).build(), programId);
+        fakeRequestBuilder().method("POST").bodyForm(formData).build(), programId);
   }
 }
