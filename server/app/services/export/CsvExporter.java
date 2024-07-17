@@ -59,7 +59,8 @@ public final class CsvExporter implements AutoCloseable {
   public void exportRecord(
       ApplicationModel application,
       ReadOnlyApplicantProgramService roApplicantService,
-      Optional<Boolean> optionalEligibilityStatus)
+      Optional<Boolean> optionalEligibilityStatus,
+      String adminNote)
       throws IOException {
     ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
@@ -67,7 +68,6 @@ public final class CsvExporter implements AutoCloseable {
         answerMapBuilder.put(p, answerData);
       }
     }
-    String adminNote = application.getProgram().getProgramDefinition().adminDescription();
     ImmutableMap<Path, AnswerData> answerMap = answerMapBuilder.build();
 
     for (Column column : columns) {

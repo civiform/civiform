@@ -190,7 +190,11 @@ public final class CsvExporterService {
                   ? applicantService.getApplicationEligibilityStatus(application, programDefinition)
                   : Optional.empty();
 
-          csvExporter.exportRecord(application, roApplicantService, optionalEligibilityStatus);
+          csvExporter.exportRecord(
+              application,
+              roApplicantService,
+              optionalEligibilityStatus,
+              programDefinition.adminDescription());
         }
       }
     } catch (IOException e) {
