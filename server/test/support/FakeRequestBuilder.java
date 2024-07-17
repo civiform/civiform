@@ -62,7 +62,10 @@ public final class FakeRequestBuilder extends RequestBuilder {
       // values and set them once at the end
       header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
     }
-    attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
+    ImmutableMap<String, String> settings = settingsMap.build();
+    if (!settings.isEmpty()) {
+      attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settings);
+    }
     return super.build();
   }
 }
