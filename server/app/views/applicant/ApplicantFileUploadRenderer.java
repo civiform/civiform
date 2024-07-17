@@ -97,7 +97,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   /**
    * Method to generate div which contains a list of all uploaded files.
    *
-   * @param fileUploadQuestion The question which files were uploade for
+   * @param fileUploadQuestion The question which files were uploaded for
    * @return div containing list of all uploaded files
    */
   public DivTag uploadedFiles(FileUploadQuestion fileUploadQuestion) {
