@@ -1,17 +1,37 @@
 package support;
 
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
+
 import auth.ClientIpResolver;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import play.mvc.Call;
+import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Http.RequestImpl;
 
 public final class FakeRequestBuilder extends RequestBuilder {
   private List<String> xForwardedFor = new ArrayList<>();
 
-  public FakeRequestBuilder() {}
+  public static Request fakeRequest() {
+    return new FakeRequestBuilder().build();
+  }
+
+  public static FakeRequestBuilder fakeRequestBuilder() {
+    return new FakeRequestBuilder();
+  }
+
+  private FakeRequestBuilder() {
+    addCSRFToken(this);
+  }
+
+  public FakeRequestBuilder call(Call call) {
+    method(call.method());
+    uri(call.url());
+    return this;
+  }
 
   /** Add an X-Forwarded-For header. Can be called multiple times for multiple header lines. */
   public FakeRequestBuilder addXForwardedFor(String xff) {
