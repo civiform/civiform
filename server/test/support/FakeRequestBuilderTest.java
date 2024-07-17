@@ -1,4 +1,4 @@
-package auth;
+package support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.FakeRequestBuilder.fakeRequest;
