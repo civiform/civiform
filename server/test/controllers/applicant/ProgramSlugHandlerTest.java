@@ -3,6 +3,7 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
@@ -166,7 +167,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         handler
-            .showProgram(controller, fakeRequestBuilder().build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -204,7 +205,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(controller, fakeRequestBuilder().build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -241,7 +242,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(controller, fakeRequestBuilder().build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())

@@ -54,10 +54,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void indexWithApplicantId_differentApplicant_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .indexWithApplicantId(request, currentApplicant.id + 1)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -66,10 +65,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void indexWithApplicantId_applicantWithoutProfile_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .indexWithApplicantId(request, applicantWithoutProfile.id)
+            .indexWithApplicantId(fakeRequest(), applicantWithoutProfile.id)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -78,9 +76,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void indexWithApplicantId_withNoPrograms_returnsEmptyResult() {
-    Request request = fakeRequestBuilder().build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -94,9 +94,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resourceCreator().insertActiveProgram("two");
     resourceCreator().insertDraftProgram("three");
 
-    Request request = fakeRequestBuilder().build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -124,9 +126,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programName);
     this.versionRepository.publishNewSynchronizedVersion();
 
-    Request request = fakeRequestBuilder().build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     // A program's name appears in the index view page content 3 times:
@@ -150,9 +154,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_withProgram_includesApplyButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    Request request = fakeRequestBuilder().build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -163,9 +169,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
-    Request request = fakeRequestBuilder().build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -206,10 +214,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void showWithApplicantId_includesApplyButton() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .showWithApplicantId(request, currentApplicant.id, program.id)
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
             .toCompletableFuture()
             .join();
 
@@ -240,10 +247,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
     currentApplicant.save();
 
-    Request request = fakeRequestBuilder().build();
-
     String alphaNumProgramParam = program.getSlug();
-    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
+    Result result =
+        controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -265,10 +271,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_differentApplicant_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id + 1, 1L)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id + 1, 1L)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -277,10 +282,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_applicantWithoutProfile_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, applicantWithoutProfile.id, 1L)
+            .editWithApplicantId(fakeRequest(), applicantWithoutProfile.id, 1L)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -290,10 +294,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_applicantAccessToDraftProgram_redirectsToHome() {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id, draftProgram.id)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id, draftProgram.id)
             .toCompletableFuture()
             .join();
 
@@ -306,10 +309,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, adminApplicantId, draftProgram.id)
+            .editWithApplicantId(fakeRequest(), adminApplicantId, draftProgram.id)
             .toCompletableFuture()
             .join();
 
@@ -330,10 +332,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_applicantAccessToObsoleteProgram_isOk() {
     ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id, obsoleteProgram.id)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id, obsoleteProgram.id)
             .toCompletableFuture()
             .join();
 
@@ -348,10 +349,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
             .toCompletableFuture()
             .join();
 
@@ -381,10 +381,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     QuestionAnswerer.addMetadata(currentApplicant.getApplicantData(), colorPath, 456L, 12345L);
     currentApplicant.save();
 
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
             .toCompletableFuture()
             .join();
 
@@ -402,10 +401,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
     ProgramModel program = resourceCreator().insertActiveProgram("My Program");
 
-    Request request = fakeRequestBuilder().build();
     Result result =
         controller
-            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
             .toCompletableFuture()
             .join();
 

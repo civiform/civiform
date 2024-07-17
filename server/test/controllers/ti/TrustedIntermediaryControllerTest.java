@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
@@ -206,8 +207,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testShowEditClientFormCall() {
     AccountModel account = setupForEditClient("test33@test.com");
-    Http.Request request = fakeRequestBuilder().build();
-    Result result = tiController.showEditClientForm(account.id, request);
+    Result result = tiController.showEditClientForm(account.id, fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
   }
 

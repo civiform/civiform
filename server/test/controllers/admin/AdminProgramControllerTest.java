@@ -77,8 +77,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newDraftProgram("one").build();
     ProgramBuilder.newDraftProgram("two").build();
 
-    Request request = fakeRequestBuilder().build();
-    Result result = controller.index(request);
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -133,7 +132,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller.create(requestBuilder.build());
 
-    Result programDashboardResult = controller.index(fakeRequestBuilder().build());
+    Result programDashboardResult = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
     assertThat(contentAsString(programDashboardResult)).contains("External program description");
   }
@@ -212,7 +211,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
-    Result programDashboard = controller.index(fakeRequestBuilder().build());
+    Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
         .contains("External program description with acls");
@@ -323,7 +322,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequestBuilder().build());
+    Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
@@ -428,7 +427,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequestBuilder().build());
+    Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
   }
@@ -471,7 +470,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
 
-    Result programDashboard = controller.index(fakeRequestBuilder().build());
+    Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(programName);
     assertThat(contentAsString(programDashboard)).contains(programDescription);
   }
@@ -500,10 +499,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withNonDraftProgram_throwsNotChangeableException() {
-    Request request = fakeRequestBuilder().build();
     ProgramModel program = ProgramBuilder.newActiveProgram("test program").build();
 
-    assertThatThrownBy(() -> controller.edit(request, program.id, ProgramEditStatus.EDIT.name()))
+    assertThatThrownBy(
+            () -> controller.edit(fakeRequest(), program.id, ProgramEditStatus.EDIT.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -511,11 +510,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_onlyActive_editActiveReturnsNewDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = fakeRequestBuilder().build();
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
 
-    Result result = controller.newVersionFrom(request, activeProgram.id);
+    Result result = controller.newVersionFrom(fakeRequest(), activeProgram.id);
     Optional<ProgramModel> newDraft =
         versionRepository.getProgramByNameForVersion(
             programName, versionRepository.getDraftVersionOrCreate());
@@ -536,13 +534,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_withDraft_editActiveReturnsDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = fakeRequestBuilder().build();
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram(programName, "draft description").build();
 
-    Result result = controller.newVersionFrom(request, activeProgram.id);
+    Result result = controller.newVersionFrom(fakeRequest(), activeProgram.id);
 
     // Redirect is to the blocks edit page.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -622,7 +619,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "1"));
     controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Result indexResult = controller.index(fakeRequestBuilder().build());
+    Result indexResult = controller.index(fakeRequest());
     assertThat(contentAsString(indexResult))
         .contains(
             "Create new program", "New external program name", "New external program description");
@@ -828,7 +825,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(fakeRequestBuilder().build());
+    Result redirectResult = controller.index(fakeRequest());
     assertThat(contentAsString(redirectResult)).contains("New external program name");
   }
 
@@ -870,7 +867,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(fakeRequestBuilder().build());
+    Result redirectResult = controller.index(fakeRequest());
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }
@@ -910,7 +907,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void publishProgram() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
-    Result result = controller.publishProgram(fakeRequestBuilder().build(), program.id);
+    Result result = controller.publishProgram(fakeRequest(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
@@ -921,7 +918,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void publishProgram_nonDraftProgram_throwsException() throws Exception {
     ProgramModel program = ProgramBuilder.newActiveProgram("active").build();
-    assertThatThrownBy(() -> controller.publishProgram(fakeRequestBuilder().build(), program.id))
+    assertThatThrownBy(() -> controller.publishProgram(fakeRequest(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 }

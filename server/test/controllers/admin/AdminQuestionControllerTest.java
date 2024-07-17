@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -179,8 +180,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_invalidIDReturnsBadRequest() {
-    Request request = fakeRequestBuilder().build();
-    Result result = controller.edit(request, 9999L).toCompletableFuture().join();
+    Result result = controller.edit(fakeRequest(), 9999L).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -194,8 +194,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // sanity check that the new question has different id.
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
-    Request request = fakeRequestBuilder().build();
-    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest(), publishedQuestion.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -234,7 +234,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     QuestionDefinition updatedQuestion =
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
-    Request request = fakeRequestBuilder().build();
+    Request request = fakeRequest();
     Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -264,8 +264,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_withNoQuestions() {
-    Request request = fakeRequestBuilder().build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(fakeRequest()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -297,15 +296,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
-    Request request = fakeRequestBuilder().build();
-    Result result = controller.newOne(request, "nope", "/some/redirect/url");
+    Result result = controller.newOne(fakeRequest(), "nope", "/some/redirect/url");
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void newOne_absoluteRedirectUrl_throws() {
-    Request request = fakeRequestBuilder().build();
-    assertThatThrownBy(() -> controller.newOne(request, "text", "https://www.example.com"))
+    assertThatThrownBy(() -> controller.newOne(fakeRequest(), "text", "https://www.example.com"))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContainingAll("Invalid absolute URL.");
   }
