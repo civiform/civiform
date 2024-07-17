@@ -3,8 +3,8 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static support.CfTestHelpers.requestBuilderWithSettings;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -1747,7 +1747,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   private Request createRequestWithFastForwardDisabled() {
-    return requestBuilderWithSettings("FASTFORWARD_ENABLED", "false").build();
+    return fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build();
   }
 
   @Test

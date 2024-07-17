@@ -2,8 +2,8 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static support.CfTestHelpers.requestBuilderWithSettings;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import models.AccountModel;
@@ -124,7 +124,9 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
     Request civiformAdminAllowedRequest =
-        requestBuilderWithSettings("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true").build();
+        fakeRequestBuilder()
+            .addCiviFormSetting("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true")
+            .build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())
         .isEqualTo(null);

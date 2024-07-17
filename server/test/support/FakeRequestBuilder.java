@@ -1,8 +1,10 @@
 package support;
 
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import auth.ClientIpResolver;
+import com.google.common.collect.ImmutableMap;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -14,6 +16,7 @@ import play.mvc.Http.RequestImpl;
 
 public final class FakeRequestBuilder extends RequestBuilder {
   private List<String> xForwardedFor = new ArrayList<>();
+  private ImmutableMap.Builder<String, String> settingsMap = ImmutableMap.builder();
 
   public static Request fakeRequest() {
     return new FakeRequestBuilder().build();
@@ -30,6 +33,12 @@ public final class FakeRequestBuilder extends RequestBuilder {
   public FakeRequestBuilder call(Call call) {
     method(call.method());
     uri(call.url());
+    return this;
+  }
+
+  /** Add an entry in the CiviForm settings map. Can be called multiple times. */
+  public FakeRequestBuilder addCiviFormSetting(String key, String value) {
+    settingsMap.put(key, value);
     return this;
   }
 
@@ -53,6 +62,7 @@ public final class FakeRequestBuilder extends RequestBuilder {
       // values and set them once at the end
       header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
     }
+    attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
     return super.build();
   }
 }

@@ -4,7 +4,6 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static support.CfTestHelpers.requestBuilderWithSettings;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
@@ -62,7 +61,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(requestBuilderWithSettings("FASTFORWARD_ENABLED", "false")).build(),
+                addCSRFToken(
+                        fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false"))
+                    .build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();

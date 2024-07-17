@@ -103,11 +103,7 @@ public class CfTestHelpers {
     return CfTestHelpers.requestBuilderWithSettings(fakeRequestBuilder().call(call), settings);
   }
 
-  public static Http.RequestBuilder requestBuilderWithSettings(String... settings) {
-    return CfTestHelpers.requestBuilderWithSettings(fakeRequestBuilder(), settings);
-  }
-
-  public static Http.RequestBuilder requestBuilderWithSettings(
+  private static Http.RequestBuilder requestBuilderWithSettings(
       Http.RequestBuilder requestBuilder, String... settings) {
     if (settings.length % 2 != 0) {
       throw new IllegalArgumentException(
