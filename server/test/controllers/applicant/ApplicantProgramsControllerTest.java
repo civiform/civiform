@@ -11,6 +11,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
 import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
@@ -30,7 +31,6 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -108,7 +108,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void indexWithApplicantId_clearsRedirectToSessionKey() {
     Request request =
-        addCSRFToken(Helpers.fakeRequest().session(REDIRECT_TO_SESSION_KEY, "redirect")).build();
+        addCSRFToken(fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect")).build();
     Result result =
         controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();

@@ -6,8 +6,8 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.AccountRepository;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -47,7 +46,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
       throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -83,7 +82,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -114,7 +113,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     account.save();
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -136,7 +135,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void testEditClient_AllFieldsUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -169,7 +168,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -225,7 +224,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     createTIWithMockedProfile(managedApplicant);
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -257,7 +256,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void addClient_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -290,7 +289,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   private AccountModel setupForEditClient(String email) {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",

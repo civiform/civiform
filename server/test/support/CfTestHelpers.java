@@ -3,6 +3,8 @@ package support;
 import static org.mockito.Mockito.mockStatic;
 import static play.test.Helpers.route;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
@@ -95,14 +97,14 @@ public class CfTestHelpers {
     return PredicateValue.of(localDate);
   }
 
-  public static final Http.Request EMPTY_REQUEST = play.test.Helpers.fakeRequest().build();
+  public static final Http.Request EMPTY_REQUEST = fakeRequest();
 
   public static Http.RequestBuilder requestBuilderWithSettings(Call call, String... settings) {
-    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(call), settings);
+    return CfTestHelpers.requestBuilderWithSettings(fakeRequestBuilder().call(call), settings);
   }
 
   public static Http.RequestBuilder requestBuilderWithSettings(String... settings) {
-    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(), settings);
+    return CfTestHelpers.requestBuilderWithSettings(fakeRequestBuilder(), settings);
   }
 
   public static Http.RequestBuilder requestBuilderWithSettings(

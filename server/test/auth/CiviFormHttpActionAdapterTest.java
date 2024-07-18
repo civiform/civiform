@@ -1,7 +1,7 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -15,7 +15,8 @@ public class CiviFormHttpActionAdapterTest {
   @Test
   public void testApiUnauthorizedAction() {
     CiviFormHttpActionAdapter adapter = new CiviFormHttpActionAdapter();
-    PlayWebContext context = new PlayWebContext(fakeRequest("GET", "/api/v1/checkAuth").build());
+    PlayWebContext context =
+        new PlayWebContext(fakeRequestBuilder().method("GET").uri("/api/v1/checkAuth").build());
 
     Result result = adapter.adapt(new StatusAction(HttpConstants.UNAUTHORIZED), context);
 
@@ -26,7 +27,8 @@ public class CiviFormHttpActionAdapterTest {
   @Test
   public void testNonApiForbiddenAction() {
     CiviFormHttpActionAdapter adapter = new CiviFormHttpActionAdapter();
-    PlayWebContext context = new PlayWebContext(fakeRequest("GET", "/non-api").build());
+    PlayWebContext context =
+        new PlayWebContext(fakeRequestBuilder().method("GET").uri("/non-api").build());
 
     Result result = adapter.adapt(new StatusAction(HttpConstants.FORBIDDEN), context);
 
@@ -39,7 +41,8 @@ public class CiviFormHttpActionAdapterTest {
   @Test
   public void testNonApiUnauthorizedAction() {
     CiviFormHttpActionAdapter adapter = new CiviFormHttpActionAdapter();
-    PlayWebContext context = new PlayWebContext(fakeRequest("GET", "/non-api").build());
+    PlayWebContext context =
+        new PlayWebContext(fakeRequestBuilder().method("GET").uri("/non-api").build());
 
     Result result = adapter.adapt(new StatusAction(HttpConstants.UNAUTHORIZED), context);
 
@@ -52,7 +55,8 @@ public class CiviFormHttpActionAdapterTest {
   @Test
   public void testOkAction() {
     CiviFormHttpActionAdapter adapter = new CiviFormHttpActionAdapter();
-    PlayWebContext context = new PlayWebContext(fakeRequest("GET", "/arbitrary").build());
+    PlayWebContext context =
+        new PlayWebContext(fakeRequestBuilder().method("GET").uri("/arbitrary").build());
 
     Result result = adapter.adapt(new StatusAction(HttpConstants.OK), context);
 

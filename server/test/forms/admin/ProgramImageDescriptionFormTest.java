@@ -1,7 +1,7 @@
 package forms.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class ProgramImageDescriptionFormTest extends ResetPostgres {
   public void bindFromRequest_hasDescription() {
     ImmutableMap<String, String> requestData =
         ImmutableMap.of(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION, "fake description");
-    Http.Request request = fakeRequest().bodyForm(requestData).build();
+    Http.Request request = fakeRequestBuilder().bodyForm(requestData).build();
 
     ProgramImageDescriptionForm form =
         formFactory

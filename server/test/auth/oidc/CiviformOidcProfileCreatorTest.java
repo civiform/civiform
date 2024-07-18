@@ -3,7 +3,8 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -140,7 +141,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
-    PlayWebContext context = new PlayWebContext(fakeRequest().build());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
     // Execute.
     CiviFormProfileData profileData =
@@ -175,7 +176,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Create a web context containing a session id.
     PlayWebContext context =
         new PlayWebContext(
-            fakeRequest().session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID).build());
+            fakeRequestBuilder()
+                .session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID)
+                .build());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
@@ -221,7 +224,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    PlayWebContext context = new PlayWebContext(fakeRequest().build());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
     // Execute.

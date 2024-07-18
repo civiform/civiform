@@ -3,7 +3,7 @@ package services.ti;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
@@ -80,7 +80,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_withMissingDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -110,7 +110,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_withInvalidDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -141,7 +141,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_withUnformattedDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -172,7 +172,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_withInvalidLastName() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -202,7 +202,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_WithInvalidFirstName() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -232,7 +232,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_WithEmailAddressExistsError() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -271,7 +271,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_WithEmptyEmailAddress() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -312,7 +312,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void addClient_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -465,7 +465,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -509,7 +509,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_PhoneLengthValidationFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -540,7 +540,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
       throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -570,7 +570,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_PhoneNumberValidationFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -600,7 +600,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_EmptyPhoneNumberDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -629,7 +629,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_EmptyEmailDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -658,7 +658,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_EmptyTiNotesDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -689,7 +689,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -722,7 +722,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -754,7 +754,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
@@ -784,7 +784,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_throwsException() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
-            fakeRequest()
+            fakeRequestBuilder()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
