@@ -2,7 +2,7 @@ package services.apikey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
@@ -523,7 +523,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
-    return formFactory.form().bindFromRequest(fakeRequest().bodyForm(formContents).build());
+    return formFactory.form().bindFromRequest(fakeRequestBuilder().bodyForm(formContents).build());
   }
 
   private static String getApiKeyExpirationDate(Instant expiration) {

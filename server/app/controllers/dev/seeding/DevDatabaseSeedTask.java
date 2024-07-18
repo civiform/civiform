@@ -41,6 +41,7 @@ import models.CategoryModel;
 import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -85,7 +86,7 @@ public final class DevDatabaseSeedTask {
   private static final int MAX_RETRIES = 10;
   private final QuestionService questionService;
   private final ProgramService programService;
-
+  private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
@@ -95,12 +96,14 @@ public final class DevDatabaseSeedTask {
       QuestionService questionService,
       ProgramService programService,
       VersionRepository versionRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      Environment environment) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
+    this.environment = checkNotNull(environment);
   }
 
   /**
@@ -352,7 +355,7 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    CategoryTranslationFileParser parser = new CategoryTranslationFileParser();
+    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
     List<CategoryModel> categories = parser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();

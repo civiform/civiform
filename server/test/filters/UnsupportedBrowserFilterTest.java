@@ -1,7 +1,7 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
@@ -42,7 +42,7 @@ public class UnsupportedBrowserFilterTest {
 
   @Test
   public void testMissingUserAgentDoesNotTriggerRedirect() throws Exception {
-    Result res = runFilter(fakeRequest(), Results.ok(""));
+    Result res = runFilter(fakeRequestBuilder(), Results.ok(""));
     assertThat(res.status()).isEqualTo(200);
   }
 
@@ -50,7 +50,8 @@ public class UnsupportedBrowserFilterTest {
   @Parameters(method = "getUnsupportedBrowsers")
   public void testOldIETriggerRedirect(String userAgent) throws Exception {
     Result res =
-        runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
+        runFilter(
+            fakeRequestBuilder().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
     assertThat(res.status()).isEqualTo(303);
     assertThat(res.headers()).containsEntry(Http.HeaderNames.LOCATION, unsupportedBrowserPath);
   }
@@ -63,7 +64,8 @@ public class UnsupportedBrowserFilterTest {
   @Parameters(method = "getSupportedBrowsers")
   public void testModernBrowsersPassThrough(String userAgent) throws Exception {
     Result res =
-        runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
+        runFilter(
+            fakeRequestBuilder().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
     assertThat(res.status()).isEqualTo(200);
   }
 
@@ -75,7 +77,9 @@ public class UnsupportedBrowserFilterTest {
   public void testRequestToUnsupportedBrowserPageIsNotRedirected() throws Exception {
     Result res =
         runFilter(
-            fakeRequest().header(Http.HeaderNames.USER_AGENT, IE11).path(unsupportedBrowserPath),
+            fakeRequestBuilder()
+                .header(Http.HeaderNames.USER_AGENT, IE11)
+                .path(unsupportedBrowserPath),
             Results.ok(""));
     assertThat(res.status()).isEqualTo(200);
   }
@@ -84,7 +88,7 @@ public class UnsupportedBrowserFilterTest {
   public void testAssertsAreNotRedirected() throws Exception {
     Result res =
         runFilter(
-            fakeRequest().header(Http.HeaderNames.USER_AGENT, IE11).path("/assets/foo.js"),
+            fakeRequestBuilder().header(Http.HeaderNames.USER_AGENT, IE11).path("/assets/foo.js"),
             Results.ok(""));
     assertThat(res.status()).isEqualTo(200);
   }

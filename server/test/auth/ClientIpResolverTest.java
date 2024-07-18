@@ -3,12 +3,14 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import java.util.Optional;
 import modules.ConfigurationException;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pac4j.play.PlayWebContext;
+import play.mvc.Http.Request;
 import services.settings.SettingsManifest;
 
 public class ClientIpResolverTest {
@@ -20,11 +22,8 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("DIRECT"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request =
-        new FakeRequestBuilder()
-            .withRemoteAddress("4.4.4.4")
-            .withXForwardedFor("3.3.3.3, 2.2.2.2")
-            .build();
+    Request request =
+        fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").remoteAddress("4.4.4.4").build();
 
     assertThat(clientIpResolver.resolveClientIp(new PlayWebContext(request))).isEqualTo("4.4.4.4");
   }
@@ -35,7 +34,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2").build();
+    Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
 
     assertThat(clientIpResolver.resolveClientIp(new PlayWebContext(request))).isEqualTo("2.2.2.2");
   }
@@ -46,7 +45,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withRemoteAddress("3.3.3.3").build();
+    Request request = fakeRequestBuilder().remoteAddress("3.3.3.3").build();
 
     assertThatThrownBy(() -> clientIpResolver.resolveClientIp(new PlayWebContext(request)))
         .isInstanceOf(ConfigurationException.class)
@@ -59,7 +58,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2").build();
+    Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
   }
@@ -70,7 +69,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("3.3.3.3, 2.2.2.2, 1.1.1.1").build();
+    Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2, 1.1.1.1").build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
   }
@@ -81,10 +80,10 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request =
-        new FakeRequestBuilder()
-            .withXForwardedFor("3.3.3.3, 2.2.2.2")
-            .withXForwardedFor("1.1.1.1")
+    Request request =
+        fakeRequestBuilder()
+            .addXForwardedFor("3.3.3.3, 2.2.2.2")
+            .addXForwardedFor("1.1.1.1")
             .build();
 
     assertThat(clientIpResolver.resolveClientIp(request)).isEqualTo("2.2.2.2");
@@ -96,7 +95,7 @@ public class ClientIpResolverTest {
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
-    var request = new FakeRequestBuilder().withXForwardedFor("1.1.1.1").build();
+    Request request = fakeRequestBuilder().addXForwardedFor("1.1.1.1").build();
 
     assertThatThrownBy(() -> clientIpResolver.resolveClientIp(new PlayWebContext(request)))
         .isInstanceOf(ConfigurationException.class)

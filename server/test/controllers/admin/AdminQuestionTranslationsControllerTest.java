@@ -6,7 +6,8 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
@@ -55,10 +56,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
-        controller.edit(
-            addCSRFToken(fakeRequest()).build(),
-            question.getQuestionDefinition().getName(),
-            "en-US");
+        controller.edit(fakeRequest(), question.getQuestionDefinition().getName(), "en-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
@@ -72,10 +70,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
-        controller.edit(
-            addCSRFToken(fakeRequest()).build(),
-            question.getQuestionDefinition().getName(),
-            "es-US");
+        controller.edit(fakeRequest(), question.getQuestionDefinition().getName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -91,10 +86,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_questionNotFound_returnsNotFound() {
-    assertThatThrownBy(
-            () ->
-                controller.edit(
-                    addCSRFToken(fakeRequest()).build(), "non-existent question name", "es-US"))
+    assertThatThrownBy(() -> controller.edit(fakeRequest(), "non-existent question name", "es-US"))
         .hasMessage("No draft found for question: \"non-existent question name\"")
         .isInstanceOf(BadRequestException.class);
   }
@@ -103,7 +95,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   public void update_addsNewLocalesAndRedirects() throws TranslationNotFoundException {
     QuestionModel question = createDraftQuestionEnglishOnly();
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",
@@ -137,7 +129,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
       throws TranslationNotFoundException, UnsupportedQuestionTypeException {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",
@@ -169,9 +161,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_questionNotFound_returnsNotFound() {
     assertThatThrownBy(
-            () ->
-                controller.update(
-                    addCSRFToken(fakeRequest()).build(), "non-existent question name", "es-US"))
+            () -> controller.update(fakeRequest(), "non-existent question name", "es-US"))
         .hasMessage("No draft found for question: \"non-existent question name\"")
         .isInstanceOf(BadRequestException.class);
   }
@@ -181,7 +171,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
       throws UnsupportedQuestionTypeException {
     QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
-        fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
 
     Result result =
         controller.update(
