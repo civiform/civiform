@@ -89,6 +89,8 @@ services:
     restart: unless-stopped
     ports:
       - 8013:3000
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: true
     volumes:
       - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
