@@ -16,5 +16,3 @@ docker::compose_dev \
   -d
 
 echo "Running grafana at http://localhost:8013"
-echo "Default username: admin"
-echo "Default password: admin"

@@ -1299,6 +1299,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setMessages(messagesApi.preferred(request))
         .setApplicantId(applicantId)
         .setProgramTitle(roApplicantProgramService.getProgramTitle())
+        .setProgramDescription(roApplicantProgramService.getProgramDescription())
         .setProgramId(programId)
         .setBlock(block)
         .setInReview(inReview)

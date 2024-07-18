@@ -102,7 +102,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(requestBuilderWithSettings("FASTFORWARD_ENABLED", "true")).build(),
+                addCSRFToken(fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true"))
+                    .build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
