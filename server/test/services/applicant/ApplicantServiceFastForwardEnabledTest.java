@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -1753,7 +1753,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   private Request createRequestWithFastForwardEnabled() {
-    return requestBuilderWithSettings("FASTFORWARD_ENABLED", "true").build();
+    return fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build();
   }
 
   @Test

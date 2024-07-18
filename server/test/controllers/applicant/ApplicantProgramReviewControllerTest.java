@@ -389,15 +389,15 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             CollectionConverters.asScala(Collections.<String>emptyList()).toSeq());
 
     Request request =
-        requestBuilderWithSettings(
+        fakeRequestBuilder()
+            .call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     programId,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()),
-                "FASTFORWARD_ENABLED",
-                "true")
+                    new ApplicantRequestedActionWrapper()))
+            .addCiviFormSetting("FASTFORWARD_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
