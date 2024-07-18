@@ -156,6 +156,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           + "    \"acls\": {\n"
           + "      \"tiProgramViewAcls\": []\n"
           + "    },\n"
+          + "    \"categories\": [\n"
+          + "    ],\n"
           + "    \"localizedSummaryImageDescription\": {\n"
           + "      \"translations\": {\n"
           + "        \"en_US\": \"Test summary image description\"\n"

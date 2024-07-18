@@ -992,6 +992,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
                 .setAcls(new ProgramAcls())
+                .setCategories(ImmutableList.of())
                 .build(),
             FAKE_BASE_URL);
 
