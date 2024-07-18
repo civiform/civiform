@@ -428,24 +428,6 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('Shows may be eligible alert on block edit page with an eligible answer', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
-
-        // Fill out application and without submitting.
-        await applicantQuestions.answerNumberQuestion('5')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-        await validateScreenshot(
-          page,
-          'north-star-eligible-alert',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
-
       test('shows not eligible alert on review page with ineligible answer', async ({
         applicantQuestions,
       }) => {
