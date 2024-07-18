@@ -1,5 +1,6 @@
 package controllers.dev.seeding;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableMap;
@@ -43,7 +44,7 @@ public final class CategoryTranslationFileParser {
   private static final Logger logger = LoggerFactory.getLogger(CategoryTranslationFileParser.class);
 
   public CategoryTranslationFileParser(Environment environment) {
-    this.environment = environment;
+    this.environment = checkNotNull(environment);
   }
 
   public List<CategoryModel> createCategoryModelList() {
@@ -67,6 +68,10 @@ public final class CategoryTranslationFileParser {
     File directory = environment.getFile(CATEGORY_TRANSLATIONS_DIRECTORY);
     if (!directory.exists()) {
       logger.error("Directory does not exist: " + CATEGORY_TRANSLATIONS_DIRECTORY);
+      return;
+    }
+    if (!directory.isDirectory()) {
+      logger.error("File is not a directory: " + CATEGORY_TRANSLATIONS_DIRECTORY);
       return;
     }
     File[] files = directory.listFiles();
