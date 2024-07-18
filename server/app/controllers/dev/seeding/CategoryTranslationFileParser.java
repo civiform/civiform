@@ -19,6 +19,7 @@ import models.CategoryModel;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.i18n.Lang;
 
 /**
@@ -28,6 +29,7 @@ import play.i18n.Lang;
 public final class CategoryTranslationFileParser {
 
   public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/categories/";
+  private final Environment environment;
   private Map<String, String> childcareMap = new HashMap<>();
   private Map<String, String> economicMap = new HashMap<>();
   private Map<String, String> educationMap = new HashMap<>();
@@ -39,6 +41,10 @@ public final class CategoryTranslationFileParser {
   private Map<String, String> transportationMap = new HashMap<>();
   private Map<String, String> utilitiesMap = new HashMap<>();
   private static final Logger logger = LoggerFactory.getLogger(CategoryTranslationFileParser.class);
+
+  public CategoryTranslationFileParser(Environment environment) {
+    this.environment = environment;
+  }
 
   public List<CategoryModel> createCategoryModelList() {
     parseCategoryTranslationFiles();
@@ -58,7 +64,7 @@ public final class CategoryTranslationFileParser {
   }
 
   private void parseCategoryTranslationFiles() {
-    File directory = new File(CATEGORY_TRANSLATIONS_DIRECTORY);
+    File directory = environment.getFile(CATEGORY_TRANSLATIONS_DIRECTORY);
     if (!directory.exists()) {
       logger.error("Directory does not exist: " + CATEGORY_TRANSLATIONS_DIRECTORY);
       return;
