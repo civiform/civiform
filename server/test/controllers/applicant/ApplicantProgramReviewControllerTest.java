@@ -6,7 +6,7 @@ import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -279,7 +279,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
-                requestBuilderWithSettings(
+                fakeRequestBuilder()
+                    .call(
                         routes.ApplicantProgramReviewController.reviewWithApplicantId(
                             applicantId, programId))
                     .header(skipUserProfile, shouldSkipUserProfile.toString()))
@@ -294,7 +295,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
-                requestBuilderWithSettings(
+                fakeRequestBuilder()
+                    .call(
                         routes.ApplicantProgramReviewController.submitWithApplicantId(
                             applicantId, programId))
                     .header(skipUserProfile, shouldSkipUserProfile.toString()))
@@ -307,7 +309,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private void answer(long programId) {
     Request request =
-        requestBuilderWithSettings(
+        fakeRequestBuilder()
+            .call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     programId,
