@@ -2,7 +2,6 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
 import auth.ProfileFactory;
@@ -55,19 +54,6 @@ public class MainModule extends AbstractModule {
   @Provides
   public ZoneId provideZoneId(Config config) {
     return ZoneId.of(checkNotNull(config).getString("civiform_time_zone_id"));
-  }
-
-  @Provides
-  @ApplicantAuthProviderName
-  public String provideApplicantAuthProviderName(Config config) {
-    checkNotNull(config);
-
-    if (config.hasPath("applicant_portal_name")
-        && !config.getString("applicant_portal_name").isBlank()) {
-      return config.getString("applicant_portal_name");
-    }
-
-    return config.getString("whitelabel_civic_entity_full_name");
   }
 
   @Provides

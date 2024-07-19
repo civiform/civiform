@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSON;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
@@ -55,7 +55,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void index_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("import is not enabled");
@@ -68,7 +68,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("active-program-2").build();
     ProgramBuilder.newDraftProgram("draft-program").build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Import a program");
@@ -78,7 +78,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void hxImportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxImportProgram(fakeRequest());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("import is not enabled");
@@ -88,7 +88,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public void hxImportProgram_noRequestBody_redirectsToIndex() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
-    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxImportProgram(fakeRequest());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminImportController.index().url());
@@ -100,10 +100,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxImportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}")))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}"))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -117,14 +116,13 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxImportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(
-                            ImmutableMap.of(
-                                "programJson",
-                                "{ \"id\" : 32, \"adminName\" : \"admin-name\","
-                                    + " \"adminDescription\" : \"description\"}")))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        "{ \"id\" : 32, \"adminName\" : \"admin-name\","
+                            + " \"adminDescription\" : \"description\"}"))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -139,14 +137,13 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxImportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(
-                            ImmutableMap.of(
-                                "programJson",
-                                "{ \"program\": { \"adminName\" : \"admin-name\","
-                                    + " \"adminDescription\" : \"description\"}}")))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        "{ \"program\": { \"adminName\" : \"admin-name\","
+                            + " \"adminDescription\" : \"description\"}}"))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -160,10 +157,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxImportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -178,10 +174,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);

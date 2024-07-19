@@ -915,8 +915,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables setting a universal question as a question representing information about the
    * applicant. The system can then take certain actions based on the answer to this question.
    */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled(RequestHeader request) {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", request);
+  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
+    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
   }
 
   /**
@@ -954,6 +954,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  }
+
+  /**
+   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * version of a program when a newer version has been published.
+   */
+  public boolean getFastforwardEnabled(RequestHeader request) {
+    return getBool("FASTFORWARD_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1940,7 +1948,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " on the answer to this question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
@@ -1981,6 +1989,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " Production and that they shouldn't submit real applications."
                           + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
                           + " link to your production site.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "FASTFORWARD_ENABLED",
+                      "When enabled, existing draft applications will be automatically be updated"
+                          + " to use the latest version of a program when a newer version has been"
+                          + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

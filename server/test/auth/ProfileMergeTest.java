@@ -2,7 +2,7 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.oidc.IdTokensFactory;
 import auth.oidc.InvalidOidcProfileException;
@@ -62,11 +62,11 @@ public class ProfileMergeTest extends ResetPostgres {
                 CfTestHelpers.userRepositoryProvider(accountRepository)));
     samlProfileCreator =
         new SamlProfileCreator(
-            /* configuration = */ null,
-            /* client = */ null,
+            /* configuration= */ null,
+            /* client= */ null,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository));
-    context = new PlayWebContext(fakeRequest().build());
+    context = new PlayWebContext(fakeRequest());
   }
 
   private OidcProfile createOidcProfile(String email, String issuer, String subject) {
@@ -91,7 +91,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -108,7 +108,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData existingProfileWithoutAuthority =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
     AccountModel account =
         database.find(AccountModel.class).where().eq("email_address", "foo@example.com").findOne();
     account.setAuthorityId(null);
@@ -134,7 +134,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThat(
             idcsApplicantProfileCreator
@@ -154,7 +154,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -173,7 +173,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -192,7 +192,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -208,7 +208,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -227,7 +227,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -246,7 +246,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
 
     assertThatThrownBy(
             () ->
@@ -263,7 +263,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -277,7 +277,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThat(
             samlProfileCreator
@@ -294,7 +294,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -313,7 +313,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -332,7 +332,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -349,7 +349,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -366,7 +366,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
     CiviFormProfileData profileData =
         samlProfileCreator.mergeCiviFormProfile(
-            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
+            /* maybeCiviFormProfile= */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->

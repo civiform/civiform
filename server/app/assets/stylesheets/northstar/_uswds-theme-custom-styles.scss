@@ -43,11 +43,6 @@ See the radio-option below as an example.
   @include u-border-left('05', 'secondary-dark');
 }
 
-.cf-applicant-question-field,
-.cf-question-header {
-  @include u-padding-left(2);
-}
-
 /*
  * Less padding when there is an error, since we add a border and still want the inputs to line up.
  */
@@ -78,10 +73,21 @@ See the radio-option below as an example.
   @include u-padding-bottom(0);
 }
 
-/**
- * The USWDS header doesn't give enough space for the logo and title, so we add some.
- */
+.section {
+  @include u-padding-y(3);
+}
+
+.cf-h1-title {
+  @include u-margin-y(0);
+}
+
+.text-medium {
+  @include u-height(1);
+}
+
+// Styles for desktop
 @media (min-width: 64em) {
+  // The USWDS header doesn't give enough space for the logo and title, so we add some.
   .usa-header--basic .usa-navbar {
     width: 50%;
   }
@@ -90,12 +96,35 @@ See the radio-option below as an example.
     @include u-padding-top(4);
     @include u-padding-bottom(2);
   }
+
+  // Put form content in the middle column
+  .grid-col {
+    grid-column: span 1;
+  }
 }
 
+// Styles common to tablet and mobile
 @media (max-width: 63.9em) {
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
+  }
+}
+
+// Styles for mobile
+@media (max-width: 47.9em) {
+  // Hide the logo on mobile
+  .cf-header-logo {
+    display:none;
+  }
+
+  // Use a single column on mobile
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-col {
+    grid-column: 1 / -1;
   }
 }
 
@@ -155,4 +184,17 @@ h1.usa-step-indicator__heading {
   .cf-footer-technical-suppport {
     @include u-padding-x(6);
   } 
+}
+
+.cf-block-form {
+  width: 100%;
+  max-width: 100%;
+}
+
+.cf-block-form .cf-input-large {
+  max-width: 380px;
+}
+
+.cf-applicant-question-help-text {
+  max-width: 480px;
 }

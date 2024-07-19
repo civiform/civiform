@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,8 +28,6 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
-import play.test.Helpers;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -213,8 +210,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    service.setStatus(application, event, account, request);
+    service.setStatus(application, event, account);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -279,8 +275,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_MULTI_LANGUAGE_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    service.setStatus(application, event, account, request);
+    service.setStatus(application, event, account);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(userLocale.toLanguageTag())));
@@ -332,8 +327,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    service.setStatus(application, event, account, request);
+    service.setStatus(application, event, account);
 
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -398,8 +392,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    service.setStatus(application, event, account, request);
+    service.setStatus(application, event, account);
 
     Messages enMessages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
@@ -443,8 +436,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     StatusEvent event =
         StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
         .isInstanceOf(StatusNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
@@ -470,8 +462,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
         .isInstanceOf(StatusEmailNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
@@ -496,8 +487,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> service.setStatus(application, event, account, request))
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
         .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
@@ -535,8 +525,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     // Do not request an email to be sent.
     StatusEvent event = StatusEvent.builder().setEmailSent(false).setStatusText(status).build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    service.setStatus(application, event, account, request);
+    service.setStatus(application, event, account);
 
     verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
 

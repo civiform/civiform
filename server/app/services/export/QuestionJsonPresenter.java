@@ -9,22 +9,31 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.Path;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
+import services.applicant.question.EmailQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.applicant.question.IdQuestion;
 import services.applicant.question.MultiSelectQuestion;
+import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Question;
 import services.applicant.question.Scalar;
 import services.applicant.question.SingleSelectQuestion;
+import services.applicant.question.TextQuestion;
 import services.export.enums.ApiPathSegment;
 import services.export.enums.QuestionTypeExternal;
+import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
@@ -90,49 +99,57 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   final class Factory {
 
-    private final ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter;
+    private final AddressJsonPresenter addressJsonPresenter;
     private final CurrencyJsonPresenter currencyJsonPresenter;
     private final DateJsonPresenter dateJsonPresenter;
+    private final EmailJsonPresenter emailJsonPresenter;
     private final EmptyJsonPresenter emptyJsonPresenter;
     private final EnumeratorJsonPresenter enumeratorJsonPresenter;
     private final FileUploadJsonPresenter fileUploadJsonPresenter;
+    private final IdJsonPresenter idJsonPresenter;
     private final MultiSelectJsonPresenter multiSelectJsonPresenter;
+    private final NameJsonPresenter nameJsonPresenter;
     private final NumberJsonPresenter numberJsonPresenter;
     private final PhoneJsonPresenter phoneJsonPresenter;
     private final SingleSelectJsonPresenter singleSelectJsonPresenter;
+    private final TextJsonPresenter textJsonPresenter;
 
     @Inject
     Factory(
-        ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter,
+        AddressJsonPresenter addressJsonPresenter,
         CurrencyJsonPresenter currencyJsonPresenter,
         DateJsonPresenter dateJsonPresenter,
+        EmailJsonPresenter emailJsonPresenter,
         EmptyJsonPresenter emptyJsonPresenter,
         EnumeratorJsonPresenter enumeratorJsonPresenter,
         FileUploadJsonPresenter fileUploadJsonPresenter,
+        IdJsonPresenter idJsonPresenter,
         MultiSelectJsonPresenter multiSelectJsonPresenter,
+        NameJsonPresenter nameJsonPresenter,
         NumberJsonPresenter numberJsonPresenter,
         PhoneJsonPresenter phoneJsonPresenter,
-        SingleSelectJsonPresenter singleSelectJsonPresenter) {
-      this.contextualizedScalarsJsonPresenter = checkNotNull(contextualizedScalarsJsonPresenter);
+        SingleSelectJsonPresenter singleSelectJsonPresenter,
+        TextJsonPresenter textJsonPresenter) {
+      this.addressJsonPresenter = checkNotNull(addressJsonPresenter);
       this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
       this.dateJsonPresenter = checkNotNull(dateJsonPresenter);
+      this.emailJsonPresenter = checkNotNull(emailJsonPresenter);
       this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
       this.enumeratorJsonPresenter = checkNotNull(enumeratorJsonPresenter);
       this.fileUploadJsonPresenter = checkNotNull(fileUploadJsonPresenter);
+      this.idJsonPresenter = checkNotNull(idJsonPresenter);
       this.multiSelectJsonPresenter = checkNotNull(multiSelectJsonPresenter);
+      this.nameJsonPresenter = checkNotNull(nameJsonPresenter);
       this.numberJsonPresenter = checkNotNull(numberJsonPresenter);
       this.phoneJsonPresenter = checkNotNull(phoneJsonPresenter);
       this.singleSelectJsonPresenter = checkNotNull(singleSelectJsonPresenter);
+      this.textJsonPresenter = checkNotNull(textJsonPresenter);
     }
 
     public QuestionJsonPresenter create(QuestionType questionType) {
       switch (questionType) {
         case ADDRESS:
-        case EMAIL:
-        case ID:
-        case NAME:
-        case TEXT:
-          return contextualizedScalarsJsonPresenter;
+          return addressJsonPresenter;
         case CHECKBOX:
           return multiSelectJsonPresenter;
         case CURRENCY:
@@ -142,10 +159,16 @@ public interface QuestionJsonPresenter<Q extends Question> {
         case DROPDOWN:
         case RADIO_BUTTON:
           return singleSelectJsonPresenter;
+        case EMAIL:
+          return emailJsonPresenter;
         case ENUMERATOR:
           return enumeratorJsonPresenter;
         case FILEUPLOAD:
           return fileUploadJsonPresenter;
+        case ID:
+          return idJsonPresenter;
+        case NAME:
+          return nameJsonPresenter;
         case NUMBER:
           return numberJsonPresenter;
         case PHONE:
@@ -154,6 +177,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
           // do not include an answer from the user.
         case STATIC:
           return emptyJsonPresenter;
+        case TEXT:
+          return textJsonPresenter;
 
         default:
           throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
@@ -161,20 +186,38 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question> {
+  class AddressJsonPresenter implements QuestionJsonPresenter<AddressQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
-      ImmutableMap.Builder<Path, Optional<?>> jsonEntries = new ImmutableMap.Builder<>();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(AddressQuestion question) {
+      // lat/long past 8 decimal places isn't likely or useful, so we round at 8 and always use a
+      // period as the decimal seperator.
+      DecimalFormat latLongFormat =
+          new DecimalFormat("#.########", new DecimalFormatSymbols(Locale.US));
 
-      question.getApplicantQuestion().getContextualizedScalars().keySet().stream()
-          .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-          .forEachOrdered(
-              path -> {
-                jsonEntries.put(
-                    path.asNestedEntitiesPath(),
-                    question.getApplicantQuestion().getApplicantData().readAsString(path));
-              });
-      return jsonEntries.build();
+      // We could be clever and loop through question.getAllPaths(), but we want
+      // to explicitly set which scalars are exposed to the API.
+      // These values are all exposed as strings for backwards compatibility.
+      return ImmutableMap.of(
+          /* k1= */ question.getStreetPath().asNestedEntitiesPath(),
+          /* v1= */ question.getStreetValue(),
+          /* k2= */ question.getLine2Path().asNestedEntitiesPath(),
+          /* v2= */ question.getLine2Value(),
+          /* k3= */ question.getCityPath().asNestedEntitiesPath(),
+          /* v3= */ question.getCityValue(),
+          /* k4= */ question.getStatePath().asNestedEntitiesPath(),
+          /* v4= */ question.getStateValue(),
+          /* k5= */ question.getZipPath().asNestedEntitiesPath(),
+          /* v5= */ question.getZipValue(),
+          /* k6= */ question.getCorrectedPath().asNestedEntitiesPath(),
+          /* v6= */ question.getCorrectedValue(),
+          /* k7= */ question.getLatitudePath().asNestedEntitiesPath(),
+          /* v7= */ question.getLatitudeValue().map(l -> latLongFormat.format(l)),
+          /* k8= */ question.getLongitudePath().asNestedEntitiesPath(),
+          /* v8= */ question.getLongitudeValue().map(l -> latLongFormat.format(l)),
+          /* k9= */ question.getWellKnownIdPath().asNestedEntitiesPath(),
+          /* v9= */ question.getWellKnownIdValue().map(w -> Long.toString(w)),
+          /* k10= */ question.getServiceAreaPath().asNestedEntitiesPath(),
+          /* v10= */ question.getServiceAreaValue().map(ServiceAreaInclusionGroup::serialize));
     }
   }
 
@@ -197,6 +240,15 @@ public interface QuestionJsonPresenter<Q extends Question> {
       Path path = question.getDatePath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getDateValue().map(DateTimeFormatter.ISO_DATE::format));
+    }
+  }
+
+  class EmailJsonPresenter implements QuestionJsonPresenter<EmailQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EmailQuestion question) {
+      Path path = question.getEmailPath().asNestedEntitiesPath();
+
+      return ImmutableMap.of(path, question.getEmailValue());
     }
   }
 
@@ -259,6 +311,15 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
+  class IdJsonPresenter implements QuestionJsonPresenter<IdQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(IdQuestion question) {
+      Path path = question.getIdPath().asNestedEntitiesPath();
+
+      return ImmutableMap.of(path, question.getIdValue());
+    }
+  }
+
   class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
@@ -268,6 +329,21 @@ public interface QuestionJsonPresenter<Q extends Question> {
           question.getSelectedOptionAdminNames().orElse(ImmutableList.of());
 
       return ImmutableMap.of(path, Optional.of(selectedOptions));
+    }
+  }
+
+  class NameJsonPresenter implements QuestionJsonPresenter<NameQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NameQuestion question) {
+      // We could be clever and loop through question.getAllPaths(), but we want
+      // to explicitly set which scalars are exposed to the API.
+      return ImmutableMap.of(
+          /* k1= */ question.getFirstNamePath().asNestedEntitiesPath(),
+          /* v1= */ question.getFirstNameValue(),
+          /* k2= */ question.getMiddleNamePath().asNestedEntitiesPath(),
+          /* v2= */ question.getMiddleNameValue(),
+          /* k3= */ question.getLastNamePath().asNestedEntitiesPath(),
+          /* v3= */ question.getLastNameValue());
     }
   }
 
@@ -322,6 +398,15 @@ public interface QuestionJsonPresenter<Q extends Question> {
               .getApplicantQuestion()
               .createSingleSelectQuestion()
               .getSelectedOptionAdminName());
+    }
+  }
+
+  class TextJsonPresenter implements QuestionJsonPresenter<TextQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(TextQuestion question) {
+      Path path = question.getTextPath().asNestedEntitiesPath();
+
+      return ImmutableMap.of(path, question.getTextValue());
     }
   }
 }

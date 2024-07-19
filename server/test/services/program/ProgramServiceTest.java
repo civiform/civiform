@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -72,7 +72,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private SettingsManifest mockSettingsManifest;
-  private final Request request = fakeRequest().build();
+  private final Request request = fakeRequest();
   private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before

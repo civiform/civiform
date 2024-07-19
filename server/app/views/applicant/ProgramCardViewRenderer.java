@@ -240,7 +240,8 @@ public final class ProgramCardViewRenderer {
               messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
     }
 
-    String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+    String actionUrl =
+        applicantRoutes.review(profile, applicantId, cardData.currentApplicationProgramId()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(

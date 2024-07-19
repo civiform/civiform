@@ -3,6 +3,7 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -105,7 +106,10 @@ public class ApiAuthenticatorTest {
     apiAuthenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
-            new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
+            fakeRequestBuilder()
+                .rawCredentials(validRawCredentials)
+                .remoteAddress("1.1.1.1")
+                .build()),
         MOCK_SESSION_STORE);
 
     Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
@@ -128,9 +132,9 @@ public class ApiAuthenticatorTest {
     authenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
         new PlayWebContext(
-            new FakeRequestBuilder()
-                .withRawCredentials(validRawCredentials)
-                .withXForwardedFor("2.2.2.2, 3.3.3.3")
+            fakeRequestBuilder()
+                .rawCredentials(validRawCredentials)
+                .addXForwardedFor("2.2.2.2, 3.3.3.3")
                 .build()),
         MOCK_SESSION_STORE);
 
@@ -144,7 +148,7 @@ public class ApiAuthenticatorTest {
     String rawCredentials = "wrong" + ":" + secret;
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(rawCredentials).build(),
         new UsernamePasswordCredentials("wrong", secret),
         "API key does not exist: wrong");
   }
@@ -155,7 +159,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is retired: " + keyId);
   }
 
@@ -166,7 +170,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(validRawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).build(),
         "API key is expired: " + keyId);
   }
 
@@ -176,10 +180,7 @@ public class ApiAuthenticatorTest {
     apiKey.save();
 
     assertBadCredentialsException(
-        new FakeRequestBuilder()
-            .withRemoteAddress("4.4.4.4")
-            .withRawCredentials(validRawCredentials)
-            .build(),
+        fakeRequestBuilder().rawCredentials(validRawCredentials).remoteAddress("4.4.4.4").build(),
         String.format(
             "Resolved IP 4.4.4.4 is not in allowed range for key ID: %s, which is \"%s\"",
             keyId, "2.2.2.2/30,3.3.3.3/32"));
@@ -200,9 +201,9 @@ public class ApiAuthenticatorTest {
 
     assertBadCredentialsException(
         authenticator,
-        new FakeRequestBuilder()
-            .withXForwardedFor("5.5.5.5, 6.6.6.6")
-            .withRawCredentials(validRawCredentials)
+        fakeRequestBuilder()
+            .addXForwardedFor("5.5.5.5, 6.6.6.6")
+            .rawCredentials(validRawCredentials)
             .build(),
         String.format(
             "Resolved IP 6.6.6.6 is not in allowed range for key ID: %s, which is \"%s\"",
@@ -232,10 +233,10 @@ public class ApiAuthenticatorTest {
                 authenticator.validate(
                     new UsernamePasswordCredentials(keyId, secret),
                     new PlayWebContext(
-                        new FakeRequestBuilder()
-                            .withRemoteAddress("7.7.7.7")
-                            .withXForwardedFor("5.5.5.5, 6.6.6.6")
-                            .withRawCredentials(validRawCredentials)
+                        fakeRequestBuilder()
+                            .addXForwardedFor("5.5.5.5, 6.6.6.6")
+                            .rawCredentials(validRawCredentials)
+                            .remoteAddress("7.7.7.7")
                             .build()),
                     MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class);
@@ -254,7 +255,7 @@ public class ApiAuthenticatorTest {
     var rawCredentials = keyId + ":" + "notthesecret";
 
     assertBadCredentialsException(
-        new FakeRequestBuilder().withRawCredentials(rawCredentials).build(),
+        fakeRequestBuilder().rawCredentials(rawCredentials).remoteAddress("1.1.1.1").build(),
         new UsernamePasswordCredentials(keyId, "notthesecret"),
         "Invalid secret for key ID: " + keyId);
   }

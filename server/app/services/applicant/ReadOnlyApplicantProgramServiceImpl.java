@@ -92,6 +92,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public String getProgramDescription() {
+    return programDefinition.localizedDescription().getOrDefault(applicantData.preferredLocale());
+  }
+
+  @Override
   public Long getProgramId() {
     return this.programDefinition.id();
   }

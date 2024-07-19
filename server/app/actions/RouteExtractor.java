@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import play.mvc.Http;
+import play.routing.Router;
 
 /**
  * RouteExtractor interrogates the current request URI path and route pattern allowing for a simple
@@ -37,10 +39,16 @@ public final class RouteExtractor {
    *     <p>Get it from an instance of {@link play.mvc.Http.Request} {@code request.path()}
    */
   public RouteExtractor(String routePattern, String path) {
-
     this.routePattern = checkNotNull(routePattern);
     this.path = checkNotNull(path);
     this.routeParameters = extract();
+  }
+
+  /**
+   * @param request Current Play {@link play.mvc.Http.Request}
+   */
+  public RouteExtractor(Http.Request request) {
+    this(request.attrs().get(Router.Attrs.HANDLER_DEF).path(), request.path());
   }
 
   /** Create a map containing all the matching path parameters and associated values */
@@ -91,6 +99,16 @@ public final class RouteExtractor {
       throw new RuntimeException(
           String.format("Could not parse value from '%s' in route '%s'", key, path), ex);
     }
+  }
+
+  /**
+   * Returns {@code true} if this contains a mapping for the specified key.
+   *
+   * @param key Path parameter key name as defined in the routes file.
+   * @return {@code true} if this map contains a mapping for the specified key
+   */
+  public boolean containsKey(String key) {
+    return routeParameters.containsKey(key);
   }
 
   /** The number of parameters found */

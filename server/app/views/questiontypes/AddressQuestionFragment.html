@@ -41,7 +41,7 @@
         >
       </label>
       <input
-        class="usa-input"
+        class="usa-input cf-input-large"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${streetPath}"
@@ -71,7 +71,7 @@
         th:text="#{label.addressLine2}"
       ></label>
       <input
-        class="usa-input"
+        class="usa-input cf-input-large"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${line2Path}"
@@ -101,7 +101,7 @@
         >
       </label>
       <input
-        class="usa-input"
+        class="usa-input cf-input-large"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${cityPath}"
@@ -132,7 +132,7 @@
         >
       </label>
       <select
-        class="usa-select"
+        class="usa-select usa-input--medium"
         th:classappend="${hasErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${statePath}"

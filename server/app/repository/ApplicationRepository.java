@@ -353,7 +353,13 @@ public final class ApplicationRepository {
                   queryProfileLocationBuilder.create("updateDraftApplicationProgram"))
               .findOne();
 
-      // Update the existing draft
+      if (existingDraft == null) {
+        throw new RuntimeException(
+            String.format(
+                "Did not find expected draft application for applicantId=%d, programId=%d.",
+                applicantId, programId));
+      }
+
       existingDraft.setProgram(program);
       existingDraft.save();
 

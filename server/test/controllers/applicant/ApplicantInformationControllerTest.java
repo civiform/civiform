@@ -1,11 +1,11 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
@@ -35,7 +35,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void setLangFromBrowser_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .setLangFromBrowser(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromBrowser(fakeRequest(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -44,11 +44,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromBrowser_updatesLanguageCode_usingRequestHeaders() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantInformationController.setLangFromBrowser(
-                            currentApplicant.id))
-                    .header("Accept-Language", "es-US"))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromBrowser(currentApplicant.id))
+            .header("Accept-Language", "es-US")
             .build();
 
     Result result =
@@ -66,7 +64,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void setLangFromSwitcher_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .setLangFromSwitcher(fakeRequest().build(), currentApplicant.id + 1)
+            .setLangFromSwitcher(fakeRequest(), currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -75,11 +73,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromSwitcher_redirectsToProgramIndex_withNonEnglishLocale() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantInformationController.setLangFromSwitcher(
-                            currentApplicant.id))
-                    .bodyForm(ImmutableMap.of("locale", "es-US")))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcher(currentApplicant.id))
+            .bodyForm(ImmutableMap.of("locale", "es-US"))
             .build();
 
     Result result =
@@ -96,11 +92,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromSwitcher_ignoresExistingLangCookie() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantInformationController.setLangFromSwitcher(
-                            currentApplicant.id))
-                    .bodyForm(ImmutableMap.of("locale", "es-US")))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcher(currentApplicant.id))
+            .bodyForm(ImmutableMap.of("locale", "es-US"))
             .langCookie(Locale.US, stubMessagesApi())
             .build();
 

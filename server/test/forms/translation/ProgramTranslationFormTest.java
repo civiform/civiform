@@ -1,7 +1,7 @@
 package forms.translation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -53,7 +53,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void bindFromRequest() throws Exception {
-    Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
+    Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
 
@@ -88,7 +88,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void bindFromRequest_extraStatusesInFormBodyBeyondSpecifiedAreIgnored() throws Exception {
-    Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
+    Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
 
@@ -118,7 +118,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void bindFromRequest_missingStatusesInFormBodyAreOmmitted() throws Exception {
-    Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
+    Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
 
@@ -156,7 +156,8 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void bindFromRequest_includesScreenNameAndDescription() throws Exception {
-    Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_BLOCKS_TRANSLATED).build();
+    Request request =
+        fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_BLOCKS_TRANSLATED).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of(0l, 1l);
 
@@ -192,7 +193,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   @Test
   public void bindFromRequest_emptyStatusOrEmailIsConsideredNotProvided() throws Exception {
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
@@ -243,7 +244,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   @Test
   public void bindFromRequest_hasSummaryImageDescriptionFalse_notIncluded() {
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
@@ -268,7 +269,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   @Test
   public void bindFromRequest_hasSummaryImageDescriptionFalse_formContentDropped() {
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
@@ -300,7 +301,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   @Test
   public void bindFromRequest_hasSummaryImageDescriptionTrue_included() {
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
@@ -331,7 +332,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   public void bindFromRequest_missingSummaryImageDescriptionIsOmitted() {
     // When the request doesn't have an image description set...
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
@@ -360,7 +361,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   @Test
   public void bindFromRequest_emptyImageDescriptionUsed() {
     Request request =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")

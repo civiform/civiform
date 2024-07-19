@@ -2,8 +2,8 @@ package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -32,7 +32,10 @@ public class ApiAuthenticationTest extends ResetPostgres {
   @Test
   public void nonApiRoutes_doNotRequireApiAuth() {
     Result result =
-        doGetRequest(fakeRequest("GET", controllers.routes.HomeController.index().url()));
+        doGetRequest(
+            fakeRequestBuilder()
+                .method("GET")
+                .uri(controllers.routes.HomeController.index().url()));
     // The HomeController index page redirects to the programs page.
     assertThat(result.status()).isEqualTo(HttpConstants.SEE_OTHER);
   }
@@ -45,7 +48,9 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest("GET", API_CHECK_URL)
+            fakeRequestBuilder()
+                .method("GET")
+                .uri(API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 
@@ -60,7 +65,9 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest("GET", API_CHECK_URL)
+            fakeRequestBuilder()
+                .method("GET")
+                .uri(API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 

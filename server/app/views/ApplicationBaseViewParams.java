@@ -36,6 +36,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract String programTitle();
 
+  public abstract String programDescription();
+
   public abstract long programId();
 
   public abstract Block block();
@@ -79,6 +81,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setApplicantId(long applicantId);
 
     public abstract Builder setProgramTitle(String programTitle);
+
+    public abstract Builder setProgramDescription(String programDescription);
 
     public abstract Builder setProgramId(long programId);
 

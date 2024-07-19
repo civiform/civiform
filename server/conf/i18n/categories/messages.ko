@@ -1,0 +1,29 @@
+# A tag used to filter the list of programs down to those that are related to childcare.
+tag.childcare=육아
+
+# A tag used to filter the list of programs down to those that are related to economy.
+tag.economic=경제
+
+# A tag used to filter the list of programs down to those that are related to education.
+tag.education=교육
+
+# A tag used to filter the list of programs down to those that are related to food.
+tag.food=음식
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+tag.general=일반
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+tag.healthcare=의료
+
+# A tag used to filter the list of programs down to those that are related to housing.
+tag.housing=주택
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+tag.internet=인터넷
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+tag.transportation=교통
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+tag.utilities=유틸리티
