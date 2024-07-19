@@ -1,7 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.stubMessagesApi;
@@ -45,12 +44,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromBrowser_updatesLanguageCode_usingRequestHeaders() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .call(
-                        routes.ApplicantInformationController.setLangFromBrowser(
-                            currentApplicant.id))
-                    .header("Accept-Language", "es-US"))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromBrowser(currentApplicant.id))
+            .header("Accept-Language", "es-US")
             .build();
 
     Result result =
@@ -77,12 +73,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromSwitcher_redirectsToProgramIndex_withNonEnglishLocale() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .call(
-                        routes.ApplicantInformationController.setLangFromSwitcher(
-                            currentApplicant.id))
-                    .bodyForm(ImmutableMap.of("locale", "es-US")))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcher(currentApplicant.id))
+            .bodyForm(ImmutableMap.of("locale", "es-US"))
             .build();
 
     Result result =
@@ -99,12 +92,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   @Test
   public void setLangFromSwitcher_ignoresExistingLangCookie() {
     Http.Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .call(
-                        routes.ApplicantInformationController.setLangFromSwitcher(
-                            currentApplicant.id))
-                    .bodyForm(ImmutableMap.of("locale", "es-US")))
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcher(currentApplicant.id))
+            .bodyForm(ImmutableMap.of("locale", "es-US"))
             .langCookie(Locale.US, stubMessagesApi())
             .build();
 

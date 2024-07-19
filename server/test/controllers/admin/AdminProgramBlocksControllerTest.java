@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -119,7 +118,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
-    Request request = addCSRFToken(fakeRequestBuilder()).build();
+    Request request = fakeRequestBuilder().build();
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
     assertThatThrownBy(() -> controller.show(request, program.id, /* blockId= */ 1L))
@@ -153,7 +152,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
     QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
-    Request request = addCSRFToken(fakeRequestBuilder()).build();
+    Request request = fakeRequestBuilder().build();
     Result result = controller.show(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -196,7 +195,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
     QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
-    Request request = addCSRFToken(fakeRequestBuilder()).build();
+    Request request = fakeRequestBuilder().build();
     Result result = controller.edit(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -218,7 +217,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
 
     questionService.update(otherQuestionDef);
-    request = addCSRFToken(fakeRequestBuilder()).build();
+    request = fakeRequestBuilder().build();
     result = controller.edit(request, program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -275,7 +274,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     Result redirectResult =
         controller.edit(
-            addCSRFToken(fakeRequestBuilder()).build(),
+            fakeRequestBuilder().build(),
             program.id(),
             program.getBlockDefinitionByIndex(/* blockIndex= */ 0).get().id());
     assertThat(contentAsString(redirectResult)).contains("updated name");

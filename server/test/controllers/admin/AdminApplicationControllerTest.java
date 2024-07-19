@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -186,18 +185,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            "NOT A REAL STATUS")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    "NOT A REAL STATUS"))
             .build();
 
     // Execute
@@ -219,18 +217,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            "unset shouldn't have a value",
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    "unset shouldn't have a value",
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -254,16 +251,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT)))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of("redirectUri", "/", "sendEmail", "", "currentStatus", UNSET_STATUS_TEXT))
             .build();
 
     // Execute
@@ -287,16 +277,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri", "/", "sendEmail", "", "newStatus", APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -320,19 +304,18 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText(),
-                            // Only "on" is a valid checkbox state.
-                            "sendEmail",
-                            "false")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText(),
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "false"))
             .build();
 
     // Execute
@@ -364,18 +347,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         adminAccount);
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -403,18 +385,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText(),
-                            "sendEmail",
-                            "on")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText(),
+                    "sendEmail",
+                    "on"))
             .build();
 
     // Execute
@@ -448,19 +429,18 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                fakeRequestBuilder()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            // Only "on" is a valid checkbox state.
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -528,8 +508,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
-            .build();
+        fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)).build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);
@@ -558,8 +537,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
-            .build();
+        fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)).build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);

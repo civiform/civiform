@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -153,9 +152,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
     assertThat(result.status()).isEqualTo(OK);
 
     ProgramDefinition updatedProgram =
@@ -236,9 +233,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -276,9 +271,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation().orElse(""))
