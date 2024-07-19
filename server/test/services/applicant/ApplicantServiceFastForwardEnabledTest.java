@@ -2737,7 +2737,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .containsExactly(updatedProgram.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.of(APPROVED_STATUS));
+        .containsExactly(Optional.of(updatedStatus));
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }

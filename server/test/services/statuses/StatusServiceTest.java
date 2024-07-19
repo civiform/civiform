@@ -100,7 +100,7 @@ public class StatusServiceTest extends ResetPostgres {
   public void appendStatus_programNotFound_throws() throws Exception {
     assertThatThrownBy(() -> service.appendStatus("random_program", APPROVED_STATUS))
         .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID:");
+        .hasMessageContaining("No active status found for program random_program");
   }
 
   @Test
@@ -238,7 +238,7 @@ public class StatusServiceTest extends ResetPostgres {
   public void deleteStatus_programNotFound_throws() throws Exception {
     assertThatThrownBy(() -> service.deleteStatus("random", APPROVED_STATUS.statusText()))
         .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID:");
+        .hasMessageContaining("No active status found for program random");
   }
 
   @Test
