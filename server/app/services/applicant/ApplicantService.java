@@ -1162,10 +1162,11 @@ public final class ApplicantService {
             }
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            // When extracting the application status, the Statuses present in the current program
-            // versions are used
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
+
+            // Set the current application status by looking at the active statusDefinitions of the
+            // program
             StatusDefinitions activeStatusDefinitions =
                 applicationStatusesRepository.lookupActiveStatusDefinitions(
                     applicationProgramVersion.adminName());

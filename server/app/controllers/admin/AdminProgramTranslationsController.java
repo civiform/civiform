@@ -156,6 +156,10 @@ public class AdminProgramTranslationsController extends CiviFormController {
             currentStatuDefnitions.getStatuses().size(),
             program.localizedSummaryImageDescription().isPresent(),
             blockIds);
+    // There are two updateLocalization() now, one in ProgramService (which doesn't throw
+    // OutOfDateStatusException) and
+    // the other one in StatusService which throws it.
+    // Hence, one is in try-catch block and the other isn't.
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         service.updateLocalization(
@@ -175,7 +179,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     try {
       statusUpdate =
           statusService.updateLocalization(
-              program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
+              program.adminName(), localeToUpdate, translationForm.getUpdateData(blockIds));
     } catch (OutOfDateStatusesException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing(FlashKey.ERROR, e.userFacingMessage());

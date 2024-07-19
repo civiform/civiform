@@ -35,18 +35,16 @@ public final class StatusService {
   /**
    * Appends a new status available for application reviews.
    *
-   * @param programId The program to update.
+   * @param programName The program to update.
    * @param status The status that should be appended.
    * @throws ProgramNotFoundException If the specified Program could not be found.
    * @throws DuplicateStatusException If the provided status to already exists in the list of
    *     available statuses for application review.
    */
   public ErrorAnd<StatusDefinitions, CiviFormError> appendStatus(
-      long programId, StatusDefinitions.Status status)
+      String programName, StatusDefinitions.Status status)
       throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    StatusDefinitions currentStatus =
-        appStatusesRepo.lookupActiveStatusDefinitions(program.adminName());
+    StatusDefinitions currentStatus = appStatusesRepo.lookupActiveStatusDefinitions(programName);
     if (currentStatus.getStatuses().stream()
         .filter(s -> s.statusText().equals(status.statusText()))
         .findAny()
@@ -60,14 +58,14 @@ public final class StatusService {
             : currentStatus.getStatuses();
 
     appStatusesRepo.createOrUpdateStatusDefinitions(
-        program.adminName(),
+        programName,
         new StatusDefinitions()
             .setStatuses(
                 ImmutableList.<StatusDefinitions.Status>builder()
                     .addAll(updatedStatuses)
                     .add(status)
                     .build()));
-    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(program.adminName()));
+    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(programName));
   }
 
   private ImmutableList<StatusDefinitions.Status> unsetDefaultStatus(
@@ -84,23 +82,20 @@ public final class StatusService {
   /**
    * Updates an existing status this is available for application reviews.
    *
-   * @param programId The program to update.
+   * @param programName The program to update.
    * @param toReplaceStatusName The name of the status that should be updated.
    * @param statusReplacer A single argument function that maps the existing status to the value it
    *     should be updated to. The existing status is provided in case the caller might want to
    *     preserve values from the previous status (e.g. localized text).
-   * @throws ProgramNotFoundException If the specified Program could not be found.
    * @throws DuplicateStatusException If the updated status already exists in the list of available
    *     statuses for application review.
    */
   public ErrorAnd<StatusDefinitions, CiviFormError> editStatus(
-      long programId,
+      String programName,
       String toReplaceStatusName,
       Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
-      throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    StatusDefinitions currentStatus =
-        appStatusesRepo.lookupActiveStatusDefinitions(program.adminName());
+      throws DuplicateStatusException {
+    StatusDefinitions currentStatus = appStatusesRepo.lookupActiveStatusDefinitions(programName);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(currentStatus.getStatuses());
     if (!statusNameToIndex.containsKey(toReplaceStatusName)) {
@@ -125,23 +120,20 @@ public final class StatusService {
             ? unsetDefaultStatus(statusesCopy, Optional.of(editedStatus.statusText()))
             : ImmutableList.copyOf(statusesCopy);
     appStatusesRepo.createOrUpdateStatusDefinitions(
-        program.adminName(), new StatusDefinitions().setStatuses(updatedStatuses));
+        programName, new StatusDefinitions().setStatuses(updatedStatuses));
 
-    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(program.adminName()));
+    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(programName));
   }
 
   /**
    * Removes an existing status from the list of available statuses for application reviews.
    *
-   * @param programId The program to update.
+   * @param programName The program to update.
    * @param toRemoveStatusName The name of the status that should be removed.
-   * @throws ProgramNotFoundException If the specified Program could not be found.
    */
   public ErrorAnd<StatusDefinitions, CiviFormError> deleteStatus(
-      long programId, String toRemoveStatusName) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    StatusDefinitions currentStatus =
-        appStatusesRepo.lookupActiveStatusDefinitions(program.adminName());
+      String programName, String toRemoveStatusName) {
+    StatusDefinitions currentStatus = appStatusesRepo.lookupActiveStatusDefinitions(programName);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(currentStatus.getStatuses());
     if (!statusNameToIndex.containsKey(toRemoveStatusName)) {
@@ -154,10 +146,9 @@ public final class StatusService {
     List<StatusDefinitions.Status> statusesCopy = Lists.newArrayList(currentStatus.getStatuses());
     statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     appStatusesRepo.createOrUpdateStatusDefinitions(
-        program.adminName(),
-        new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
+        programName, new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
 
-    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(program.adminName()));
+    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(programName));
   }
 
   private static ImmutableMap<String, Integer> statusNameToIndexMap(
@@ -170,21 +161,19 @@ public final class StatusService {
   /**
    * Add or update a localization of the program's publicly-visible display name and description.
    *
-   * @param programId the ID of the program to update
+   * @param programName the ID of the program to update
    * @param locale the {@link Locale} to update
    * @param localizationUpdate the localization update to apply
    * @return the {@link StatusDefinitions} that was successfully updated, or a set of errors if the
    *     update failed
-   * @throws ProgramNotFoundException if the programId does not correspond to a valid program
    * @throws OutOfDateStatusesException if the program's status definitions are out of sync with
    *     those in the provided update
    */
   public ErrorAnd<StatusDefinitions, CiviFormError> updateLocalization(
-      long programId, Locale locale, LocalizationUpdate localizationUpdate)
-      throws ProgramNotFoundException, OutOfDateStatusesException {
-    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      String programName, Locale locale, LocalizationUpdate localizationUpdate)
+      throws OutOfDateStatusesException {
     StatusDefinitions activeStatusDefinitions =
-        appStatusesRepo.lookupActiveStatusDefinitions(programDefinition.adminName());
+        appStatusesRepo.lookupActiveStatusDefinitions(programName);
     validateLocalizationStatuses(localizationUpdate, activeStatusDefinitions);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
@@ -218,11 +207,9 @@ public final class StatusService {
       toUpdateStatusesBuilder.add(updateBuilder.build());
     }
     appStatusesRepo.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(),
-        new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+        programName, new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
 
-    return ErrorAnd.of(
-        appStatusesRepo.lookupActiveStatusDefinitions(programDefinition.adminName()));
+    return ErrorAnd.of(appStatusesRepo.lookupActiveStatusDefinitions(programName));
   }
 
   /**

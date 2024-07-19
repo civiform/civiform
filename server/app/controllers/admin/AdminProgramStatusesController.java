@@ -157,6 +157,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       throws ProgramNotFoundException, DuplicateStatusException {
     // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
+    String programName = programService.getFullProgramDefinition(programId).adminName();
     if (formData.getConfiguredStatusText().isEmpty()) {
       StatusDefinitions.Status.Builder newStatusBuilder =
           StatusDefinitions.Status.builder()
@@ -168,11 +169,11 @@ public final class AdminProgramStatusesController extends CiviFormController {
             newStatusBuilder.setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
       }
-      return service.appendStatus(programId, newStatusBuilder.build());
-    }
 
+      return service.appendStatus(programName, newStatusBuilder.build());
+    }
     return service.editStatus(
-        programId,
+        programName,
         formData.getConfiguredStatusText(),
         (existingStatus) -> {
           StatusDefinitions.Status.Builder builder =
@@ -221,7 +222,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
     ErrorAnd<StatusDefinitions, CiviFormError> deleteStatusResult =
-        service.deleteStatus(programId, deleteStatusText);
+        service.deleteStatus(
+            programService.getFullProgramDefinition(programId).adminName(), deleteStatusText);
     if (deleteStatusResult.isError()) {
       return redirect(indexUrl)
           .flashing(FlashKey.ERROR, joinErrors(deleteStatusResult.getErrors()));

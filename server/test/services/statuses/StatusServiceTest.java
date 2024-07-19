@@ -17,7 +17,6 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.LocalizationUpdate;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
@@ -79,7 +78,7 @@ public class StatusServiceTest extends ResetPostgres {
         .isEmpty();
 
     final ErrorAnd<StatusDefinitions, CiviFormError> firstResult =
-        service.appendStatus(program.id, APPROVED_DEFAULT_STATUS);
+        service.appendStatus(programName, APPROVED_DEFAULT_STATUS);
 
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().getStatuses()).containsExactly(APPROVED_DEFAULT_STATUS);
@@ -88,7 +87,7 @@ public class StatusServiceTest extends ResetPostgres {
 
     // Ensure that appending to a non-empty list actually appends.
     ErrorAnd<StatusDefinitions, CiviFormError> secondResult =
-        service.appendStatus(program.id, REJECTED_DEFAULT_STATUS);
+        service.appendStatus(programName, REJECTED_DEFAULT_STATUS);
 
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().getStatuses())
@@ -99,7 +98,7 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void appendStatus_programNotFound_throws() throws Exception {
-    assertThatThrownBy(() -> service.appendStatus(Long.MAX_VALUE, APPROVED_STATUS))
+    assertThatThrownBy(() -> service.appendStatus("random_program", APPROVED_STATUS))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID:");
   }
@@ -123,7 +122,7 @@ public class StatusServiceTest extends ResetPostgres {
         Assertions.catchThrowableOfType(
             DuplicateStatusException.class,
             () -> {
-              service.appendStatus(program.id, newApprovedStatus);
+              service.appendStatus(program.getProgramDefinition().adminName(), newApprovedStatus);
             });
 
     assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
@@ -135,10 +134,8 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    assertThat(
-            applicationStatusesRepo
-                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
-                .getStatuses())
+    String programName = program.getProgramDefinition().adminName();
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS);
 
     var editedStatus =
@@ -151,7 +148,7 @@ public class StatusServiceTest extends ResetPostgres {
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.editStatus(
-            program.id,
+            programName,
             APPROVED_STATUS.statusText(),
             (existing) -> {
               assertThat(existing).isEqualTo(APPROVED_STATUS);
@@ -159,26 +156,8 @@ public class StatusServiceTest extends ResetPostgres {
             });
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().getStatuses()).containsExactly(editedStatus);
-    assertThat(
-            applicationStatusesRepo
-                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
-                .getStatuses())
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(editedStatus);
-  }
-
-  @Test
-  public void editStatus_programNotFound_throws() throws Exception {
-    assertThatThrownBy(
-            () ->
-                service.editStatus(
-                    Long.MAX_VALUE,
-                    APPROVED_STATUS.statusText(),
-                    (existing) -> {
-                      fail("unexpected edit entry found");
-                      throw new RuntimeException("unexpected edit entry found");
-                    }))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID:");
   }
 
   @Test
@@ -196,7 +175,7 @@ public class StatusServiceTest extends ResetPostgres {
             DuplicateStatusException.class,
             () ->
                 service.editStatus(
-                    program.id,
+                    program.getProgramDefinition().adminName(),
                     REJECTED_STATUS.statusText(),
                     (existingStatus) -> {
                       return StatusDefinitions.Status.builder()
@@ -219,7 +198,7 @@ public class StatusServiceTest extends ResetPostgres {
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.editStatus(
-            program.id,
+            program.getProgramDefinition().adminName(),
             REJECTED_STATUS.statusText(),
             (existingStatus) -> {
               fail("unexpected edit entry found");
@@ -244,7 +223,8 @@ public class StatusServiceTest extends ResetPostgres {
             .build();
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
-        service.deleteStatus(program.id, APPROVED_STATUS.statusText());
+        service.deleteStatus(
+            program.getProgramDefinition().adminName(), APPROVED_STATUS.statusText());
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().getStatuses()).isEqualTo(ImmutableList.of(REJECTED_STATUS));
     assertThat(
@@ -256,7 +236,7 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void deleteStatus_programNotFound_throws() throws Exception {
-    assertThatThrownBy(() -> service.deleteStatus(Long.MAX_VALUE, APPROVED_STATUS.statusText()))
+    assertThatThrownBy(() -> service.deleteStatus("random", APPROVED_STATUS.statusText()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID:");
   }
@@ -268,7 +248,8 @@ public class StatusServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
     ErrorAnd<StatusDefinitions, CiviFormError> result =
-        service.deleteStatus(program.id, REJECTED_STATUS.statusText());
+        service.deleteStatus(
+            program.getProgramDefinition().adminName(), REJECTED_STATUS.statusText());
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors()).hasSize(1);
@@ -341,22 +322,12 @@ public class StatusServiceTest extends ResetPostgres {
                         .build()))
             .setScreens(ImmutableList.of())
             .build();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.GERMAN, updateData);
+
+    ErrorAnd<StatusDefinitions, CiviFormError> result =
+        service.updateLocalization(
+            program.getProgramDefinition().adminName(), Locale.GERMAN, updateData);
 
     assertThat(result.isError()).isFalse();
-    ProgramDefinition definition = result.getResult();
-    assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
-    assertThat(definition.localizedDescription().get(Locale.GERMAN))
-        .isEqualTo("German Description");
-    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
-    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
-        .isEqualTo("German Image Description");
-
-    ErrorAnd<StatusDefinitions, CiviFormError> result2 =
-        service.updateLocalization(program.id, Locale.GERMAN, updateData);
-
-    assertThat(result2.isError()).isFalse();
     ImmutableList<StatusDefinitions.Status> expectedStatuses =
         ImmutableList.of(
             StatusDefinitions.Status.builder()
@@ -379,10 +350,10 @@ public class StatusServiceTest extends ResetPostgres {
                         .localizedStatusText()
                         .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
                 .build());
-    assertThat(result2.getResult().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(result.getResult().getStatuses()).isEqualTo(expectedStatuses);
     assertThat(
             applicationStatusesRepo
-                .lookupActiveStatusDefinitions(definition.adminName())
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .isEqualTo(expectedStatuses);
   }
@@ -431,22 +402,11 @@ public class StatusServiceTest extends ResetPostgres {
                         .build()))
             .setScreens(ImmutableList.of())
             .build();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+    ErrorAnd<StatusDefinitions, CiviFormError> result =
+        service.updateLocalization(
+            program.getProgramDefinition().adminName(), Locale.FRENCH, updateData);
 
     assertThat(result.isError()).isFalse();
-    ProgramDefinition definition = result.getResult();
-    assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
-    assertThat(definition.localizedDescription().get(Locale.FRENCH))
-        .isEqualTo("new French description");
-    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
-    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
-        .isEqualTo("new French image description");
-
-    ErrorAnd<StatusDefinitions, CiviFormError> result2 =
-        service.updateLocalization(program.id, Locale.FRENCH, updateData);
-
-    assertThat(result2.isError()).isFalse();
     ImmutableList<StatusDefinitions.Status> expectedStatuses =
         ImmutableList.of(
             StatusDefinitions.Status.builder()
@@ -474,7 +434,7 @@ public class StatusServiceTest extends ResetPostgres {
                 .build());
     assertThat(
             applicationStatusesRepo
-                .lookupActiveStatusDefinitions(definition.adminName())
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .isEqualTo(expectedStatuses);
   }
@@ -513,7 +473,10 @@ public class StatusServiceTest extends ResetPostgres {
             .setScreens(ImmutableList.of())
             .build();
 
-    assertThatThrownBy(() -> service.updateLocalization(program.id, Locale.FRENCH, updateData))
+    assertThatThrownBy(
+            () ->
+                service.updateLocalization(
+                    program.getProgramDefinition().adminName(), Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
     // no updates to ApplicationStatus table
     StatusDefinitions currentStatus =
@@ -553,23 +516,16 @@ public class StatusServiceTest extends ResetPostgres {
                         .build()))
             .setScreens(ImmutableList.of())
             .build();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    ErrorAnd<StatusDefinitions, CiviFormError> result =
+        service.updateLocalization(
+            program.getProgramDefinition().adminName(), Locale.FRENCH, updateData);
 
     assertThat(result.isError()).isFalse();
-    ProgramDefinition definition = result.getResult();
-    assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
-    assertThat(definition.localizedDescription().get(Locale.FRENCH))
-        .isEqualTo("new French description");
-
-    ErrorAnd<StatusDefinitions, CiviFormError> result2 =
-        service.updateLocalization(program.id, Locale.FRENCH, updateData);
-
-    assertThat(result2.isError()).isFalse();
 
     assertThat(
             applicationStatusesRepo
-                .lookupActiveStatusDefinitions(definition.adminName())
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
                 .getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -627,7 +583,10 @@ public class StatusServiceTest extends ResetPostgres {
             .setScreens(ImmutableList.of())
             .build();
 
-    assertThatThrownBy(() -> service.updateLocalization(program.id, Locale.FRENCH, updateData))
+    assertThatThrownBy(
+            () ->
+                service.updateLocalization(
+                    program.getProgramDefinition().adminName(), Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
     assertThat(
             applicationStatusesRepo
@@ -659,7 +618,10 @@ public class StatusServiceTest extends ResetPostgres {
             .setScreens(ImmutableList.of())
             .build();
 
-    assertThatThrownBy(() -> service.updateLocalization(program.id, Locale.FRENCH, updateData))
+    assertThatThrownBy(
+            () ->
+                service.updateLocalization(
+                    program.getProgramDefinition().adminName(), Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
     // no updates to ApplicationStatus table
     StatusDefinitions currentStatus =

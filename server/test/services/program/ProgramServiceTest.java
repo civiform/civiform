@@ -60,6 +60,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -2378,6 +2379,74 @@ public class ProgramServiceTest extends ResetPostgres {
     // Verify we didn't save the French image description because we don't have any image
     // description.
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void updateLocalizations_addsNewLocale() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.withDefaultValue("default image description"))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationMessage("")
+            .setLocalizedSummaryImageDescription("German Image Description")
+            .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.GERMAN, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
+    assertThat(definition.localizedDescription().get(Locale.GERMAN))
+        .isEqualTo("German Description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
+        .isEqualTo("German Image Description");
+  }
+
+  @Test
+  public void updateLocalizations_updatesExistingLocale() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of()))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
+    assertThat(definition.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("new French description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
+        .isEqualTo("new French image description");
   }
 
   @Test

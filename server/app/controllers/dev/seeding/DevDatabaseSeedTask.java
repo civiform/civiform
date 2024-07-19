@@ -224,11 +224,11 @@ public final class DevDatabaseSeedTask {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
+      String programName = programDefinition.adminName();
 
       ErrorAnd<StatusDefinitions, CiviFormError> appendStatusResult =
           statusService.appendStatus(
-              programId,
+              programName,
               StatusDefinitions.Status.builder()
                   .setStatusText("Pending Review")
                   .setDefaultStatus(Optional.of(true))
@@ -238,7 +238,7 @@ public final class DevDatabaseSeedTask {
       if (appendStatusResult.isError()) {
         throw new RuntimeException(appendStatusResult.getErrors().toString());
       }
-
+      long programId = programDefinition.id();
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
       blockForm.setName("Screen 1");
