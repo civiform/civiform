@@ -932,6 +932,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
   public boolean getProgramMigrationEnabled(RequestHeader request) {
     return getBool("PROGRAM_MIGRATION_ENABLED", request);
@@ -1960,6 +1964,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",
                       /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NAME_SUFFIX_DROPDOWN_ENABLED",
+                      "Enabled name suffix field in name question",
+                      false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
