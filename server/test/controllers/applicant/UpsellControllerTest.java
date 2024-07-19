@@ -5,7 +5,7 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
-import static support.FakeRequestBuilder.fakeRequestBuilder;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
@@ -49,7 +49,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequestBuilder().build(),
+                fakeRequest(),
                 applicant.id,
                 programDefinition.id(),
                 application.id,
@@ -105,7 +105,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequestBuilder().build(),
+                fakeRequest(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -163,7 +163,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequestBuilder().build(),
+                fakeRequest(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -188,7 +188,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(fakeRequestBuilder().build(), application.id, applicant.id)
+              .download(fakeRequest(), application.id, applicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -212,7 +212,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(fakeRequestBuilder().build(), application.id, managedApplicant.id)
+              .download(fakeRequest(), application.id, managedApplicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -237,7 +237,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(fakeRequestBuilder().build(), application.id, unmanagedApplicant.id)
+              .download(fakeRequest(), application.id, unmanagedApplicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -258,7 +258,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(fakeRequestBuilder().build(), application.id, 0)
+              .download(fakeRequest(), application.id, 0)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
@@ -278,7 +278,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     try {
       result =
           instanceOf(UpsellController.class)
-              .download(fakeRequestBuilder().build(), 0, applicant.id)
+              .download(fakeRequest(), 0, applicant.id)
               .toCompletableFuture()
               .join();
     } catch (ProgramNotFoundException e) {
