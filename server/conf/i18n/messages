@@ -553,7 +553,6 @@ validation.numberRequired=Must contain only numbers.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Please select at least {0}.
-validation.tooManySelections=Please select fewer than {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=Please select at most {0}.
 
