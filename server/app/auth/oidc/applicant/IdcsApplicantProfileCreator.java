@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   public static final Logger logger = LoggerFactory.getLogger(IdcsApplicantProfileCreator.class);
 
-  private static final String EMAIL_ATTRIBUTE_NAME = "user_emailid";
+  private static final String EMAIL_ATTRIBUTE_NAME = "email";
   private static final String LOCALE_ATTRIBUTE_NAME = "user_locale";
   private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
 
