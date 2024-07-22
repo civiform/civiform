@@ -144,7 +144,7 @@ public final class ProgramSlugHandler {
     // redirect to the newest program version with a DRAFT application.
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantService
-        .relevantProgramsForApplicant(applicantId, requesterProfile)
+        .relevantProgramsForApplicant(applicantId, requesterProfile, request)
         .thenApplyAsync(
             (ApplicationPrograms relevantPrograms) ->
                 relevantPrograms.inProgress().stream()

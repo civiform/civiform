@@ -16,6 +16,10 @@ import support.cloud.FakePublicStorageClient;
 public class ProgramImageUtilsTest extends ResetPostgres {
   private final PublicStorageClient publicStorageClient = new FakePublicStorageClient();
   private final ProgramImageUtils programImageUtils = new ProgramImageUtils(publicStorageClient);
+  private final String englishDescription = "Program description in English";
+  private final String chineseDescription = "程序中文說明";
+  private final String englishProgramName = "Program Name in English";
+  private final String chineseProgramName = "程式的中文名稱";
 
   @Test
   public void createProgramImage_noImageFileKey_returnsEmpty() {
@@ -116,5 +120,32 @@ public class ProgramImageUtilsTest extends ResetPostgres {
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
     assertThat(renderedImage).contains("alt=\"Chinese description\"");
+  }
+
+  @Test
+  public void getProgramImageAltText_picksTranslation() {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram(englishProgramName)
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.ENGLISH, englishDescription, Locale.CHINESE, chineseDescription))
+            .build()
+            .getProgramDefinition();
+
+    String actual = ProgramImageUtils.getProgramImageAltText(program, Locale.CHINESE);
+    assertThat(actual).isEqualTo(chineseDescription);
+  }
+
+  @Test
+  public void getProgramImageAltText_fallsBackToDefault() {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram(englishProgramName)
+            .withLocalizedName(Locale.CHINESE, chineseProgramName)
+            .build()
+            .getProgramDefinition();
+
+    // Chinese description is not available, so expect the Chinese program name
+    String actual = ProgramImageUtils.getProgramImageAltText(program, Locale.CHINESE);
+    assertThat(actual).isEqualTo(chineseProgramName);
   }
 }

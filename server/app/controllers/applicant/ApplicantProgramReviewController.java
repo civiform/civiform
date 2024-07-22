@@ -5,6 +5,7 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import actions.ProgramDisabledAction;
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -27,6 +28,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.VersionRepository;
+import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
@@ -45,6 +47,7 @@ import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
+import views.applicant.NorthStarPreventDuplicateSubmissionView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -67,9 +70,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
+  private final NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
+  private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -81,11 +86,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
+      NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -95,9 +102,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
+    this.northStarPreventDuplicateSubmissionView =
+        checkNotNull(northStarPreventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
   }
 
   @Secure
@@ -110,7 +120,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
     Optional<String> flashBannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> flashBanner = flashBannerMessage.map(m -> ToastMessage.alert(m));
     Optional<String> flashSuccessBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
@@ -118,7 +127,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -128,32 +137,27 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              Messages messages = messagesApi.preferred(request);
-              Optional<ToastMessage> notEligibleBanner = Optional.empty();
-              Optional<String> notEligibleBannerMessage = Optional.empty();
-              try {
-                boolean shouldShowNotEligibleBanner =
-                    shouldShowNotEligibleBanner(roApplicantProgramService, programId);
-                if (shouldShowNotEligibleBanner) {
-                  notEligibleBannerMessage =
-                      Optional.of(
-                          messages.at(
-                              isTrustedIntermediary
-                                  ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                  : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                              roApplicantProgramService.getProgramTitle()));
-                  notEligibleBanner =
-                      Optional.of(ToastMessage.alert(notEligibleBannerMessage.get()));
-                }
-              } catch (ProgramNotFoundException e) {
-                return notFound(e.toString());
+              Optional<Result> applicationUpdatedOptional =
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+              if (applicationUpdatedOptional.isPresent()) {
+                return applicationUpdatedOptional.get();
               }
+
+              Messages messages = messagesApi.preferred(request);
+
+              AlertSettings eligibilityAlertSettings =
+                  eligibilityAlertSettingsCalculator.calculate(
+                      request,
+                      profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+                      !roApplicantProgramService.isApplicationNotEligible(),
+                      programId);
+
               ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
-                      .setBannerMessages(
-                          ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
+                      .setBannerMessages(ImmutableList.of(flashBanner, flashSuccessBanner))
+                      .setEligibilityAlertSettings(eligibilityAlertSettings)
                       .setMessages(messages)
                       .setProgramId(programId)
                       .setRequest(request)
@@ -194,6 +198,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                 NorthStarApplicantProgramSummaryView.Params northStarParams =
                     NorthStarApplicantProgramSummaryView.Params.builder()
+                        .setProgramTitle(roApplicantProgramService.getProgramTitle())
                         .setBlocks(roApplicantProgramService.getAllActiveBlocks())
                         .setApplicantId(applicantId)
                         .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
@@ -206,7 +211,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setMessages(messages)
                         .setAlertBannerMessage(flashBannerMessage)
                         .setSuccessBannerMessage(flashSuccessBannerMessage)
-                        .setNotEligibleBannerMessage(notEligibleBannerMessage)
+                        .setEligibilityAlertSettings(eligibilityAlertSettings)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
@@ -267,7 +272,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId),
+            v -> {
+              Optional<Result> applicationUpdatedOptional =
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+              if (applicationUpdatedOptional.isPresent()) {
+                return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
+              }
+
+              return submitInternal(request, applicantId, programId);
+            },
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -300,16 +313,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
         programId);
   }
 
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean shouldShowNotEligibleBanner(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
-      throws ProgramNotFoundException {
-    if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
-      return false;
-    }
-    return roApplicantProgramService.isApplicationNotEligible();
-  }
-
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryDataOnlyActive();
@@ -338,7 +341,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
     return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
             (v) -> {
@@ -394,15 +397,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   }
                 }
                 if (cause instanceof DuplicateApplicationException) {
-                  ReadOnlyApplicantProgramService roApplicantProgramService =
-                      readOnlyApplicantProgramServiceFuture.join();
-                  return ok(
-                      preventDuplicateSubmissionView.render(
-                          request,
-                          roApplicantProgramService,
-                          messagesApi.preferred(request),
-                          applicantId,
-                          profileUtils.currentUserProfileOrThrow(request)));
+                  return renderPreventDuplicateSubmissionPage(
+                      request,
+                      profileUtils.currentUserProfileOrThrow(request),
+                      applicantId,
+                      applicantPersonalInfo.join(),
+                      readOnlyApplicantProgramServiceFuture.join());
                 }
                 throw new RuntimeException(cause);
               }
@@ -410,6 +410,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  // TODO(#7266): Delete the old codepath and inline the North Star path
   private Result renderIneligiblePage(
       Request request,
       CiviFormProfile profile,
@@ -439,5 +440,65 @@ public class ApplicantProgramReviewController extends CiviFormController {
               applicantId,
               programDefinition));
     }
+  }
+
+  // TODO(#7266): Delete the old codepath and inline the North Star path
+  private Result renderPreventDuplicateSubmissionPage(
+      Request request,
+      CiviFormProfile profile,
+      long applicantId,
+      ApplicantPersonalInfo applicantPersonalInfo,
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      NorthStarPreventDuplicateSubmissionView.Params params =
+          NorthStarPreventDuplicateSubmissionView.Params.builder()
+              .setRequest(request)
+              .setApplicantId(applicantId)
+              .setApplicantPersonalInfo(applicantPersonalInfo)
+              .setProfile(profile)
+              .setRoApplicantProgramService(roApplicantProgramService)
+              .setMessages(messagesApi.preferred(request))
+              .build();
+      return ok(northStarPreventDuplicateSubmissionView.render(params)).as(Http.MimeTypes.HTML);
+    } else {
+      return ok(
+          preventDuplicateSubmissionView.render(
+              request,
+              roApplicantProgramService,
+              messagesApi.preferred(request),
+              applicantId,
+              profileUtils.currentUserProfileOrThrow(request)));
+    }
+  }
+
+  /**
+   * Check if the application needs to be updated to a newer program version. If it does, update and
+   * return a redirect result back to the review page
+   *
+   * @return {@link Result} if application was updated; empty if not
+   */
+  private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
+      long applicantId, long programId, Request request) {
+    if (settingsManifest.getFastforwardEnabled(request)) {
+      Optional<Long> latestProgramId =
+          applicantService.updateApplicationToLatestProgramVersion(applicantId, programId);
+
+      RouteExtractor routeExtractor = new RouteExtractor(request);
+
+      if (latestProgramId.isPresent()) {
+        Call redirectLocation =
+            routeExtractor.containsKey("applicantId")
+                ? controllers.applicant.routes.ApplicantProgramReviewController
+                    .reviewWithApplicantId(applicantId, latestProgramId.get())
+                : controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    latestProgramId.get());
+
+        return Optional.of(
+            redirect(redirectLocation.url())
+                .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+      }
+    }
+
+    return Optional.empty();
   }
 }

@@ -1,7 +1,7 @@
 ---
 name: Translations rotation
 about: Translations Checklist
-title: 'Translations Batch: 2023-XX-XX'
+title: 'Translations Batch: 2024-XX-XX'
 labels: 'google.org-swe'
 assignees: ''
 ---

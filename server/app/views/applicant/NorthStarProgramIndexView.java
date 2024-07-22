@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
-import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +29,6 @@ import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class NorthStarProgramIndexView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
-  private final String authProviderName;
 
   @Inject
   NorthStarProgramIndexView(
@@ -40,7 +38,6 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     super(
@@ -52,7 +49,6 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         languageUtils,
         deploymentType);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
-    this.authProviderName = checkNotNull(authProviderName);
   }
 
   public String render(
@@ -131,10 +127,13 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         applicationPrograms.inProgress().size()
             + applicationPrograms.submitted().size()
             + applicationPrograms.unapplied().size());
-    context.setVariable(
-        "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
+
     context.setVariable("sections", sectionParamsBuilder.build());
-    context.setVariable("authProviderName", authProviderName);
+    context.setVariable(
+        "authProviderName",
+        // The applicant portal name should always be set (there is a
+        // default setting as well).
+        settingsManifest.getApplicantPortalName(request).get());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     ImmutableMap<Long, String> programIdsToLoginBypassUrls =

@@ -32,12 +32,14 @@ import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -209,11 +211,11 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  ViewUtils.makeAlertSlim(
+                  AlertComponent.renderSlimAlert(
+                      AlertType.INFO,
                       "We recommend using Universal questions in your program for all personal and"
                           + " contact information questions.",
-                      /* hidden= */ false,
-                      /* classes...= */ BaseStyles.ALERT_INFO))
+                      /* hidden= */ false))
               .with(universalQuestionContent));
     }
     questionContent.with(

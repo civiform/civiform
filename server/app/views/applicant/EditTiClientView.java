@@ -24,14 +24,15 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.AccountRepository;
+import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -170,8 +171,8 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     if (!isSuccessfulSave) {
       return div();
     }
-    return ViewUtils.makeAlert(
-        successToast, false, optionalSuccessMessage, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
+    return AlertComponent.renderFullAlert(
+        AlertType.SUCCESS, successToast, optionalSuccessMessage, false, "mb-4", "w-3/5");
   }
 
   private ATag renderBackLink(String linkText) {

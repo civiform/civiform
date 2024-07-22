@@ -5,9 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Set;
+import models.CategoryModel;
+import models.LifecycleStage;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Lang;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
@@ -18,12 +22,14 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
 
   private QuestionRepository questionRepository;
   private ProgramRepository programRepository;
+  private CategoryRepository categoryRepository;
   private DevDatabaseSeedTask devDatabaseSeedTask;
 
   @Before
   public void setUp() {
     questionRepository = instanceOf(QuestionRepository.class);
     programRepository = instanceOf(ProgramRepository.class);
+    categoryRepository = instanceOf(CategoryRepository.class);
     devDatabaseSeedTask = instanceOf(DevDatabaseSeedTask.class);
   }
 
@@ -59,6 +65,29 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
 
     assertThat(programRepository.getAllProgramNames())
         .containsExactlyInAnyOrder("comprehensive-sample-program", "minimal-sample-program");
+  }
+
+  @Test
+  public void seedProgramCategories_insertsCategories() {
+    devDatabaseSeedTask.seedProgramCategories();
+    ImmutableList<CategoryModel> allCategories = categoryRepository.listCategories();
+    ImmutableList<String> supportedLanguages =
+        ImmutableList.of("am", "en-US", "es-US", "ko", "lo", "so", "tl", "vi", "zh-TW");
+
+    assertThat(allCategories.size()).isEqualTo(10);
+    allCategories.forEach(
+        category -> {
+          assertThat(category.getLocalizedName().getDefault()).isNotEmpty();
+          assertThat(category.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+          supportedLanguages.forEach(
+              lang -> {
+                assertThat(
+                        category
+                            .getLocalizedName()
+                            .hasTranslationFor(Lang.forCode(lang).toLocale()))
+                    .isTrue();
+              });
+        });
   }
 
   private Set<QuestionModel> getAllQuestions() {

@@ -21,9 +21,11 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
@@ -93,15 +95,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     if (maybeBackToAdminViewButton.isPresent()) {
       bundle.addMainContent(maybeBackToAdminViewButton.get());
     }
+    bundle.addMainContent(
+        layout.renderProgramApplicationTitleAndProgressIndicator(
+            params.programTitle(),
+            params.blockIndex(),
+            params.totalBlockCount(),
+            false,
+            params.messages()));
+
+    if (params.eligibilityAlertSettings().show()) {
+      bundle.addMainContent(renderEligibilityAlert(params.eligibilityAlertSettings()));
+    }
+
     bundle
-        .addMainContent(
-            layout.renderProgramApplicationTitleAndProgressIndicator(
-                params.programTitle(),
-                params.blockIndex(),
-                params.totalBlockCount(),
-                false,
-                params.messages()),
-            blockDiv)
+        .addMainContent(blockDiv)
         .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -118,6 +125,15 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         params.messages(),
         bundle,
         params.applicantId());
+  }
+
+  private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {
+    return AlertComponent.renderFullAlert(
+        eligibilityAlertSettings.alertType(),
+        eligibilityAlertSettings.text(),
+        eligibilityAlertSettings.title(),
+        false,
+        AlertComponent.HeadingLevel.H2);
   }
 
   /**

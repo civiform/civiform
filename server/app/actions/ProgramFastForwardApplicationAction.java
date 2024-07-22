@@ -43,15 +43,15 @@ public class ProgramFastForwardApplicationAction extends Action.Simple {
     long programId = routeExtractor.getParamLongValue("programId");
     long applicantId = getApplicantId(request, routeExtractor);
 
-    long latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
-    if (latestProgramId > programId) {
-      applicationRepository.updateDraftApplicationProgram(applicantId, latestProgramId);
+    if (latestProgramId.isPresent() && latestProgramId.get() > programId) {
+      applicationRepository.updateDraftApplicationProgram(applicantId, latestProgramId.get());
 
       return CompletableFuture.completedFuture(
           redirect(
                   controllers.applicant.routes.ApplicantProgramReviewController.review(
-                          latestProgramId)
+                          latestProgramId.get())
                       .url())
               .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
     }

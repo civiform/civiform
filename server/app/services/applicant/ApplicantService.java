@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -60,7 +61,6 @@ import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.Representation;
-import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -548,7 +548,7 @@ public final class ApplicantService {
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId, request).toCompletableFuture();
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -877,7 +877,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -903,7 +903,7 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
                 }
@@ -978,7 +978,7 @@ public final class ApplicantService {
    * </ul>
    */
   public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
-      long applicantId, CiviFormProfile requesterProfile) {
+      long applicantId, CiviFormProfile requesterProfile, Request request) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<ApplicationModel>> applicationsFuture =
         applicationRepository
@@ -1020,7 +1020,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms);
+                  activeProgramDefinitions, applications, allPrograms, request);
             },
             classLoaderExecutionContext.current());
   }
@@ -1039,8 +1039,8 @@ public final class ApplicantService {
    *     auth.CiviFormProfile)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
-      long applicantId, CiviFormProfile requesterProfile) {
-    return relevantProgramsForApplicant(applicantId, requesterProfile)
+      long applicantId, CiviFormProfile requesterProfile, Request request) {
+    return relevantProgramsForApplicant(applicantId, requesterProfile, request)
         .thenApplyAsync(
             relevantPrograms ->
                 Stream.of(
@@ -1086,7 +1086,8 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms) {
+      ImmutableList<ProgramDefinition> allPrograms,
+      Request request) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1139,17 +1140,19 @@ public final class ApplicantService {
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             ApplicationModel draftApp = maybeDraftApp.get();
-            // Get the program definition from the all programs list, since that has the
-            // associated question data.
             ProgramDefinition programDefinition =
-                findProgramWithId(allPrograms, draftApp.getProgram().id);
+                getProgramDefinitionForDraftApplication(
+                    allPrograms, draftApp.getProgram().id, request);
+
             ApplicantProgramData.Builder applicantProgramDataBuilder =
-                ApplicantProgramData.builder()
-                    .setProgram(programDefinition)
+                ApplicantProgramData.builder(programDefinition)
+                    .setCurrentApplicationProgramId(draftApp.getProgram().id)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.DRAFT));
+
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
+
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
             } else {
@@ -1176,9 +1179,9 @@ public final class ApplicantService {
             // associated question data.
             ProgramDefinition programDefinition =
                 findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+
             ApplicantProgramData.Builder applicantProgramDataBuilder =
-                ApplicantProgramData.builder()
-                    .setProgram(programDefinition)
+                ApplicantProgramData.builder(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
@@ -1196,7 +1199,8 @@ public final class ApplicantService {
     unappliedActivePrograms.forEach(
         programName -> {
           ApplicantProgramData.Builder applicantProgramDataBuilder =
-              ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
+              ApplicantProgramData.builder(activeProgramNames.get(programName));
+
           ProgramDefinition program =
               findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
@@ -1220,9 +1224,52 @@ public final class ApplicantService {
         .build();
   }
 
+  /**
+   * Returns the {@link ProgramDefinition} Most current active version of a program for the given
+   * programId.
+   */
+  private ProgramDefinition getProgramDefinitionForDraftApplication(
+      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+
+    if (settingsManifest.getFastforwardEnabled(request)) {
+      // Check if the draft application is using the latest version of the program. If it
+      // is not, load the latest version of the program instead since we want to base this
+      // list off of current programs.
+      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+
+      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+        Optional<ProgramDefinition> programDefinitionOptional =
+            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+
+        if (programDefinitionOptional.isPresent()) {
+          return programDefinitionOptional.get();
+        }
+
+        try {
+          // Didn't find it in the list we already had, so go fetch it
+          return programService.getFullProgramDefinition(latestProgramId.get());
+        } catch (ProgramNotFoundException e) {
+          throw new RuntimeException(
+              String.format("Can't find program id: %s", latestProgramId.get()), e);
+        }
+      }
+    }
+
+    // Get the program definition from the all programs list, since that has the
+    // associated question data.
+    return findProgramWithId(programList, programId);
+  }
+
   private ProgramDefinition findProgramWithId(
       ImmutableList<ProgramDefinition> programList, long id) {
-    return programList.stream().filter(p -> p.id() == id).findFirst().get();
+    return programList.stream()
+        .filter(p -> p.id() == id)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    String.format(
+                        "Expected to find program id %s in this list, but it was not found.", id)));
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -1287,6 +1334,8 @@ public final class ApplicantService {
       return program().id();
     }
 
+    public abstract Long currentApplicationProgramId();
+
     public abstract ProgramDefinition program();
 
     /**
@@ -1308,13 +1357,17 @@ public final class ApplicantService {
      */
     public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
 
-    public static Builder builder() {
-      return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
+    public static Builder builder(ProgramDefinition programDefinition) {
+      return new AutoValue_ApplicantService_ApplicantProgramData.Builder()
+          .setProgram(programDefinition)
+          .setCurrentApplicationProgramId(programDefinition.id());
     }
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setProgram(ProgramDefinition v);
+      protected abstract Builder setProgram(ProgramDefinition v);
+
+      public abstract Builder setCurrentApplicationProgramId(Long programId);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1904,5 +1957,22 @@ public final class ApplicantService {
 
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
+  }
+
+  /**
+   * Update the applicant's application to use the latest active version of a program if there is a
+   * newer one
+   *
+   * @return The new programId or empty if no change
+   */
+  public Optional<Long> updateApplicationToLatestProgramVersion(long applicantId, long programId) {
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+
+    if (latestProgramId.isPresent() && latestProgramId.get() > programId) {
+      applicationRepository.updateDraftApplicationProgram(applicantId, latestProgramId.get());
+      return latestProgramId;
+    }
+
+    return Optional.empty();
   }
 }

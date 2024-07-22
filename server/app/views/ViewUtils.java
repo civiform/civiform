@@ -6,7 +6,6 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
@@ -40,7 +39,6 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
-import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
 import services.question.types.QuestionDefinition;
@@ -83,7 +81,7 @@ public final class ViewUtils {
 
   /**
    * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
-   * at the given asset route.
+   * at the given asset route. TODO(#2349): Start using this.
    */
   public ScriptTag makeWebJarsTag(String assetsRoute) {
     return script().withSrc(assetsFinder.path(assetsRoute));
@@ -368,78 +366,6 @@ public final class ViewUtils {
             "Universal %s question",
             questionDefinition.getQuestionType().getLabel().toLowerCase(Locale.getDefault())),
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
-  }
-
-  /**
-   * Makes a USWDS Alert component with the given text and optional title. Alert variant is
-   * determined by the classes passed in. https://designsystem.digital.gov/components/alert/
-   *
-   * @param text The text to include in the alert.
-   * @param hidden Whether or not to set the hidden property on the component.
-   * @param title An optional title to be included in the alert.
-   * @param classes One or more additional classes to apply to the USWDS Alert component.
-   * @return DivTag containing the alert.
-   */
-  public static DivTag makeAlert(
-      String text, boolean hidden, Optional<String> title, String... classes) {
-    return div()
-        .withCondHidden(hidden)
-        .withClasses("usa-alert", String.join(" ", classes))
-        // Notify screen readers to read the new text when the element changes
-        .attr("aria-live", "polite")
-        .attr("role", "alert")
-        .with(
-            div()
-                .withClasses("usa-alert__body")
-                .condWith(
-                    title.isPresent(),
-                    h4().withClass("usa-alert__heading").withText(title.orElse("")))
-                .with(p().withClass("usa-alert__text").withText(text)));
-  }
-
-  /**
-   * Makes a USWDS Alert component with the given text and optional title. Alert variant is
-   * determined by the {@link AlertType} passed in.
-   * https://designsystem.digital.gov/components/alert/
-   *
-   * @param text The text to include in the alert.
-   * @param hidden Whether or not to set the hidden property on the component.
-   * @param title An optional title to be included in the alert.
-   * @param alertType The type of {@link AlertType} alert to show
-   * @param classes One or more additional classes to apply to the USWDS Alert component.
-   * @return DivTag containing the alert.
-   */
-  public static DivTag makeAlert(
-      String text, boolean hidden, Optional<String> title, AlertType alertType, String... classes) {
-    String alertTypeStyle =
-        switch (alertType) {
-          case INFO -> BaseStyles.ALERT_INFO;
-          case ERROR -> BaseStyles.ALERT_ERROR;
-          case SUCCESS -> BaseStyles.ALERT_SUCCESS;
-          case WARNING -> BaseStyles.ALERT_WARNING;
-          default -> "";
-        };
-
-    return makeAlert(
-        text, hidden, title, Lists.asList(alertTypeStyle, classes).toArray(new String[0]));
-  }
-
-  /**
-   * Makes a slim version of a USWDS Alert component with the given text. Note that the slim version
-   * has no title. Alert variant is determined by the classes passed in.
-   * https://designsystem.digital.gov/components/alert/
-   *
-   * @param text The text to include in the alert.
-   * @param hidden Whether or not to set the hidden property on the component.
-   * @param classes One or more additional classes to apply to the USWDS Alert component.
-   * @return DivTag containing the alert.
-   */
-  public static DivTag makeAlertSlim(String text, boolean hidden, String... classes) {
-    return makeAlert(
-        text,
-        hidden,
-        /* title= */ Optional.empty(),
-        Lists.asList(BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
   }
 
   /**

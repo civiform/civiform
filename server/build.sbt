@@ -28,10 +28,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.1",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -42,16 +42,16 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.26.13",
-      "software.amazon.awssdk" % "ses" % "2.26.13",
+      "software.amazon.awssdk" % "s3" % "2.26.21",
+      "software.amazon.awssdk" % "ses" % "2.26.21",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.13.0",
-      "com.azure" % "azure-storage-blob" % "12.26.1",
+      "com.azure" % "azure-identity" % "1.13.1",
+      "com.azure" % "azure-storage-blob" % "12.27.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.3",
-      "com.h2database" % "h2" % "2.2.224" % Test,
+      "com.h2database" % "h2" % "2.3.230" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -60,9 +60,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.26.0" % Test,
+      "org.assertj" % "assertj-core" % "3.26.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.26.0" % Test,
+      "org.assertj" % "assertj-core" % "3.26.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.2.1-jre" % Test,
@@ -91,7 +91,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.28.0",
+      "com.google.errorprone" % "error_prone_core" % "2.29.2",
       "org.checkerframework" % "dataflow-errorprone" % "3.45.0",
 
       // Apache libraries for export
@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.40",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.41",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -247,9 +247,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.2"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

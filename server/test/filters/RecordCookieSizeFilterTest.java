@@ -1,7 +1,7 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
@@ -27,7 +27,7 @@ public class RecordCookieSizeFilterTest {
       throws Exception {
     Http.Cookie playSessionCookie =
         Http.Cookie.builder("PLAY_SESSION", "*".repeat(cookieSize)).build();
-    Http.Request request = fakeRequest().cookie(playSessionCookie).build();
+    Http.Request request = fakeRequestBuilder().cookie(playSessionCookie).build();
     return filter
         .apply(EssentialAction.of(r -> Accumulator.done(Results.ok("OK"))))
         .apply(request)

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ApiKeyGrants;
 import auth.UnauthorizedApiRequestException;
@@ -153,7 +153,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   private Result doRequest(String requestUrl) {
     return route(
         app,
-        fakeRequest("GET", requestUrl)
+        fakeRequestBuilder()
+            .method("GET")
+            .uri(requestUrl)
             .remoteAddress("1.1.1.1")
             .header("Authorization", "Basic " + serializedApiKey)
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort()));

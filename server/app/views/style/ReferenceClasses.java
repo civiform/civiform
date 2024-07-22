@@ -97,6 +97,8 @@ public final class ReferenceClasses {
   public static final String CONTINUE_BUTTON = "cf-continue-button";
   public static final String SUBMIT_BUTTON = "cf-submit-button";
 
+  public static final String TI_CLEAR_SEARCH = "cf-ti-clear-search";
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Question reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////

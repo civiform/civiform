@@ -1,7 +1,8 @@
 package services.migration;
 
+import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -79,6 +80,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(resultString).contains("What is your address?");
     assertThat(resultString).contains("what is your name?");
     assertThat(resultString).contains("What is your Email?");
+    // the enumeratorId field should only show up if there is an enumerator question in the programs
+    assertFalse(resultString.contains("enumeratorId"));
   }
 
   @Test
@@ -107,98 +110,24 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void deserialize_jsonHasAllInfo_returnsResult() {
-    ErrorAnd<ProgramMigrationWrapper, String> result = service.deserialize(EXAMPLE_PROGRAM_JSON);
+    ErrorAnd<ProgramMigrationWrapper, String> result =
+        service.deserialize(PROGRAM_JSON_WITH_ONE_QUESTION);
 
     assertThat(result.isError()).isFalse();
     ProgramMigrationWrapper wrapperResult = result.getResult();
     assertThat(wrapperResult.getProgram()).isNotNull();
+
     ProgramDefinition program = wrapperResult.getProgram();
-    assertThat(program.adminName()).isEqualTo("import-program-sample");
+    QuestionDefinition question = wrapperResult.getQuestions().get(0);
+
+    assertThat(program.adminName()).isEqualTo("minimal-sample-program");
     assertThat(program.adminDescription()).isEqualTo("desc");
     assertThat(program.externalLink()).isEqualTo("https://github.com/civiform/civiform");
     assertThat(program.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(program.programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(question.getName()).isEqualTo("Name");
+    assertThat(question.getDescription()).isEqualTo("The applicant's name");
+    assertThat(question.getQuestionText().getDefault())
+        .isEqualTo("Please enter your first and last name");
   }
-
-  /**
-   * This contains the bare minimum needed to parse JSON into a program definition. The
-   * admin_program_migration.test.ts browser test has tests for a program with many blocks and
-   * questions.
-   */
-  public static final String EXAMPLE_PROGRAM_JSON =
-      "{\n"
-          + "  \"program\": {\n"
-          + "    \"id\": 34,\n"
-          + "    \"adminName\": \"import-program-sample\",\n"
-          + "    \"adminDescription\": \"desc\",\n"
-          + "    \"externalLink\": \"https://github.com/civiform/civiform\",\n"
-          + "    \"displayMode\": \"PUBLIC\",\n"
-          + "    \"localizedName\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Import Sample Program\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"A sample program for testing program import\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"programType\": \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\": true,\n"
-          + "    \"acls\": {\n"
-          + "      \"tiProgramViewAcls\": []\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Test summary image description\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\": [\n"
-          + "      {\n"
-          + "        \"id\": 1,\n"
-          + "        \"name\": \"Screen 1\",\n"
-          + "        \"description\": \"block 1\",\n"
-          + "        \"localizedName\": {\n"
-          + "          \"translations\": {\n"
-          + "            \"en_US\": \"Screen 1\"\n"
-          + "          },\n"
-          + "          \"isRequired\": true\n"
-          + "        },\n"
-          + "        \"localizedDescription\": {\n"
-          + "          \"translations\": {\n"
-          + "            \"en_US\": \"block 1\"\n"
-          + "          },\n"
-          + "          \"isRequired\": true\n"
-          + "        },\n"
-          + "        \"repeaterId\": null,\n"
-          + "        \"hidePredicate\": null,\n"
-          + "        \"optionalPredicate\": null,\n"
-          + "        \"questionDefinitions\": [\n"
-          + "          {\n"
-          + "            \"id\": 18,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": false\n"
-          + "          },\n"
-          + "          {\n"
-          + "            \"id\": 5,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": true\n"
-          + "          }\n"
-          + "        ]\n"
-          + "      }\n"
-          + "      ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    }"
-          + "  }\n"
-          + "}\n";
 }

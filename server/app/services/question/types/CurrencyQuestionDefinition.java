@@ -28,10 +28,6 @@ public final class CurrencyQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public CurrencyValidationPredicates getCurrencyValidationPredicates() {
-    return (CurrencyValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.CURRENCY;

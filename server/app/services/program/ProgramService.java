@@ -36,8 +36,8 @@ import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
@@ -86,6 +86,7 @@ public final class ProgramService {
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   public ProgramService(
@@ -94,13 +95,15 @@ public final class ProgramService {
       AccountRepository accountRepository,
       VersionRepository versionRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
-      ProgramBlockValidationFactory programBlockValidationFactory) {
+      ProgramBlockValidationFactory programBlockValidationFactory,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   /** Get the names for all programs. */
@@ -379,9 +382,19 @@ public final class ProgramService {
             eligibilityIsGating,
             programAcls);
 
-    return ErrorAnd.of(
-        programRepository.getShallowProgramDefinition(
-            programRepository.insertProgramSync(program)));
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            programRepository.getShallowProgramDefinition(
+                programRepository.insertProgramSync(program)));
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the new program
+      // Remove these hooks when we have created service class for creating and updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          adminName, new StatusDefinitions());
+    }
+    return result;
   }
 
   /**
@@ -750,12 +763,24 @@ public final class ProgramService {
         localizationUpdate.localizedSummaryImageDescription(),
         locale);
 
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(newProgram.build().toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(newProgram.build().toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing active status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          programDefinition.adminName(),
+          new StatusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+    }
+    return result;
   }
 
   private void validateProgramText(
@@ -867,12 +892,29 @@ public final class ProgramService {
                 .add(status)
                 .build());
 
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing active status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(),
+          new StatusDefinitions()
+              .setStatuses(
+                  ImmutableList.<StatusDefinitions.Status>builder()
+                      .addAll(updatedStatuses)
+                      .add(status)
+                      .build()));
+    }
+    return result;
   }
 
   private ImmutableList<StatusDefinitions.Status> unsetDefaultStatus(
@@ -930,13 +972,23 @@ public final class ProgramService {
             : ImmutableList.copyOf(statusesCopy);
 
     program.statusDefinitions().setStatuses(updatedStatuses);
-
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing active status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(), new StatusDefinitions().setStatuses(updatedStatuses));
+    }
+    return result;
   }
 
   /**
@@ -962,13 +1014,24 @@ public final class ProgramService {
         Lists.newArrayList(program.statusDefinitions().getStatuses());
     statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
-
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(
-                    programRepository.updateProgramSync(program.toProgram())))
-            .toCompletableFuture()
-            .join());
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ErrorAnd.of(
+            syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(
+                        programRepository.updateProgramSync(program.toProgram())))
+                .toCompletableFuture()
+                .join());
+    if (!result.isError()) {
+      // Temporary hook to create a new row in ApplicationStatuses table for the status change
+      // and update the existing active status as obsolete.
+      // Remove these hooks when we have created service class for creating and updating
+      // statuses from program controllers.
+      // github issue- https://github.com/civiform/civiform/issues/7040
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          program.adminName(),
+          new StatusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy)));
+    }
+    return result;
   }
 
   private static ImmutableMap<String, Integer> statusNameToIndexMap(
@@ -1757,10 +1820,9 @@ public final class ProgramService {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      SubmittedApplicationFilter filters,
-      Request request) {
+      SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, filters, request);
+        programId, paginationSpecEither, filters);
   }
 
   private static ImmutableSet<CiviFormError> validateBlockDefinition(

@@ -277,6 +277,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
         .findFirst();
   }
 
+  @JsonIgnore
   public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {
     return (MultiOptionValidationPredicates) getValidationPredicates();
   }

@@ -4,6 +4,7 @@ import {
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
+  validateToastHidden,
 } from '../support'
 
 test.describe('Admin can manage program image', () => {
@@ -94,7 +95,6 @@ test.describe('Admin can manage program image', () => {
       await adminProgramImage.expectProgramImagePage()
 
       await adminProgramImage.expectHasContinueButton()
-      await validateScreenshot(page, 'program-image-with-continue')
     })
 
     test('continue button redirects to program blocks page', async ({
@@ -142,10 +142,6 @@ test.describe('Admin can manage program image', () => {
 
     test('sets new description', async ({page, adminProgramImage}) => {
       await adminProgramImage.setImageDescription('Fake image description')
-      await validateScreenshot(
-        page,
-        'program-image-with-description-before-save',
-      )
 
       await adminProgramImage.submitImageDescription()
       await adminProgramImage.expectProgramImagePage()
@@ -158,7 +154,7 @@ test.describe('Admin can manage program image', () => {
       )
 
       await dismissToast(page)
-      await validateScreenshot(page, 'program-image-with-description')
+      await validateToastHidden(page)
     })
 
     test('updates existing description', async ({page, adminProgramImage}) => {
@@ -481,7 +477,9 @@ test.describe('Admin can manage program image', () => {
       )
 
       await adminProgramImage.expectTooLargeErrorShown()
-      await validateScreenshot(page, 'program-image-with-too-large-error')
+      expect(await page.textContent('html')).toContain(
+        'Error: Your file is too large.',
+      )
     })
 
     test('hides error when too large image replaced with smaller image', async ({

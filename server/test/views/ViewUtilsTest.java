@@ -9,10 +9,8 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
-import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,9 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
-import services.AlertType;
 import services.DateConverter;
-import views.style.BaseStyles;
 
 @RunWith(JUnitParamsRunner.class)
 public class ViewUtilsTest {
@@ -57,42 +53,6 @@ public class ViewUtilsTest {
 
     assertThat(result.render())
         .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
-  }
-
-  @Test
-  public void makeAlert_createsAlertComponentWithTheCorrectClasses() {
-    DivTag alertComponent =
-        ViewUtils.makeAlert(
-            "some text", false, Optional.of("title"), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
-    assertThat(alertComponent.render())
-        .isEqualTo(
-            "<div class=\"usa-alert usa-alert--info usa-alert--slim\" aria-live=\"polite\""
-                + " role=\"alert\"><div class=\"usa-alert__body\"><h4"
-                + " class=\"usa-alert__heading\">title</h4><p class=\"usa-alert__text\">some"
-                + " text</p></div></div>");
-  }
-
-  @Test
-  public void makeAlert_doesNotIncludeTitleIfNoneIsPresent() {
-    DivTag alertComponent =
-        ViewUtils.makeAlert("some text", false, Optional.empty(), BaseStyles.ALERT_WARNING);
-    assertThat(alertComponent.render())
-        .isEqualTo(
-            "<div class=\"usa-alert usa-alert--warning\" aria-live=\"polite\" role=\"alert\"><div"
-                + " class=\"usa-alert__body\"><p class=\"usa-alert__text\">some"
-                + " text</p></div></div>");
-  }
-
-  private Object[] alertTypeTestParameters() {
-    return new Object[] {AlertType.ERROR, AlertType.INFO, AlertType.SUCCESS, AlertType.WARNING};
-  }
-
-  @Test
-  @Parameters(method = "alertTypeTestParameters")
-  public void makeAlert_withAlertType(AlertType alertType) {
-    DivTag alertComponent = ViewUtils.makeAlert("some text", false, Optional.empty(), alertType);
-    assertThat(alertComponent.render())
-        .contains(String.format("usa-alert--%s", alertType.toString().toLowerCase(Locale.ROOT)));
   }
 
   @Test

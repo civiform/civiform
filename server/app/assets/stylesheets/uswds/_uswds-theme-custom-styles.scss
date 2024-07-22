@@ -10,7 +10,6 @@
 USWDS THEME CUSTOM STYLES
 ----------------------------------------
 Custom project SASS goes here.
-
 i.e.
 @include u-padding-right('05');
 ----------------------------------------
@@ -70,14 +69,6 @@ See the radio-option below as an example.
   margin-top: 0;
 }
 
-.cf-north-star-enumerator-field {
-  @include u-padding-y('105');
-}
-
-.cf-north-star-enumerator-field:last-child {
-  @include u-padding-bottom(0);
-}
-
 /**
  * The USWDS header doesn't give enough space for the logo and title, so we add some.
  */
@@ -118,4 +109,41 @@ See the radio-option below as an example.
  */
 h1.usa-step-indicator__heading {
   line-height: inherit;
+}
+
+.cf-program-card-image {
+  height: 162px;
+  align-self: stretch;
+}
+
+/**
+ * USWDS color utils are turned off, so we use the USWDS color manually.
+ * See #7951 for detils
+ */
+.cf-footer-help-links a {
+  @include u-text('base-darkest')
+}
+
+/**
+ * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
+ * extend the full width of the screen.
+ */
+@media (max-width: 640px) {
+  .cf-footer-help-bar {
+    padding: 0;
+  }
+
+  .cf-footer-help-links {
+    width: 100%;
+  }
+
+  .cf-footer-help-links a {
+    @include u-border-bottom('base', 1px);
+    @include u-padding-x(6);
+    width: 100%;
+  }
+
+  .cf-footer-technical-suppport {
+    @include u-padding-x(6);
+  } 
 }

@@ -3,8 +3,8 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -15,6 +15,7 @@ import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,25 +40,30 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programBySlug_redirectsToPreviousProgramVersionForExistingApplications() {
+  public void
+      programBySlug_redirectsToPreviousProgramVersionForExistingApplications_fastForwardDisabled() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
+
     ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
+
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
+
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
     CiviFormController controller = instanceOf(CiviFormController.class);
+
     Result result =
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
+                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
@@ -66,6 +72,42 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
                     programDefinition.id())
+                .url());
+  }
+
+  @Test
+  public void
+      programBySlug_redirectsToActiveProgramVersionForExistingApplications_fastForwardEnabled() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    ProgramModel programModelV2 =
+        resourceCreator().insertDraftProgram(programDefinition.adminName());
+    versionRepository.publishNewSynchronizedVersion();
+
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
+    Result result =
+        instanceOf(ProgramSlugHandler.class)
+            .showProgram(
+                controller,
+                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build(),
+                programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(programModelV2.id)
                 .url());
   }
 
@@ -86,10 +128,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(
-                        requestBuilderWithSettings()
-                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
-                    .build(),
+                fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url").build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
@@ -109,10 +148,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(
-                        requestBuilderWithSettings()
-                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
-                    .build(),
+                fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url").build(),
                 "non-existing-program-slug")
             .toCompletableFuture()
             .join();
@@ -131,10 +167,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         handler
-            .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -172,10 +205,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -212,10 +242,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(
-                controller,
-                addCSRFToken(requestBuilderWithSettings()).build(),
-                programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())

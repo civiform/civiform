@@ -143,7 +143,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 4))));
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3))));
   }
 
   @Test

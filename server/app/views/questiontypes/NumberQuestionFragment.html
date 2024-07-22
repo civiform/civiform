@@ -31,7 +31,7 @@
                     min=${numberQuestion.getQuestionDefinition().getMin().isPresent() ? numberQuestion.getQuestionDefinition().getMin().getAsLong() : null},
                     max=${numberQuestion.getQuestionDefinition().getMax().isPresent() ? numberQuestion.getQuestionDefinition().getMax().getAsLong() : null}"
     type="number"
-    class="usa-input"
+    class="usa-input cf-input-large"
     th:classappend="${hasErrors ? 'usa-input--error' : ''}"
     inputmode="decimal"
     th:id="${inputId}"

@@ -11,7 +11,6 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
-import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -39,17 +38,13 @@ import views.style.ReferenceClasses;
 public final class ApplicantCommonIntakeUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final String authProviderName;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantCommonIntakeUpsellCreateAccountView(
-      ApplicantLayout layout,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      SettingsManifest settingsManifest) {
+      ApplicantLayout layout, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.authProviderName = checkNotNull(authProviderName);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -114,7 +109,9 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
-            authProviderName,
+            // The applicant portal name should always be set (there is a
+            // default setting as well).
+            settingsManifest.getApplicantPortalName(request).get(),
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,

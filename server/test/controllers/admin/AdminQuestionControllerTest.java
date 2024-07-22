@@ -2,12 +2,12 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -63,7 +63,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionType", "TEXT")
         .put("questionText", "Hi mom!")
         .put("questionHelpText", ":-)");
-    RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
@@ -94,7 +94,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionText", "Hi mom!")
         .put("questionHelpText", ":-)")
         .put("questionExportState", "DEMOGRAPHIC_PII");
-    RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
@@ -126,7 +126,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionType", "TEXT")
         .put("questionText", "$this is required")
         .put("questionHelpText", "$this is also required");
-    RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
@@ -152,7 +152,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void create_failsWithErrorMessageAndPopulatedFields() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name");
-    Request request = addCSRFToken(requestBuilderWithSettings().bodyForm(formData.build())).build();
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData.build()).build();
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(request, "text");
@@ -169,7 +169,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void create_failsWithInvalidQuestionType() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionType", "INVALID_TYPE");
-    RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "invalid_type");
@@ -180,8 +180,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_invalidIDReturnsBadRequest() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, 9999L).toCompletableFuture().join();
+    Result result = controller.edit(fakeRequest(), 9999L).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -195,8 +194,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // sanity check that the new question has different id.
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest(), publishedQuestion.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -206,7 +205,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.applicantName();
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
@@ -217,7 +216,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
@@ -235,7 +234,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     QuestionDefinition updatedQuestion =
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = fakeRequest();
     Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -265,8 +264,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_withNoQuestions() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(fakeRequest()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -276,8 +274,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_showsMessageFlash() {
-    Request request =
-        addCSRFToken(requestBuilderWithSettings().flash("success", "has message")).build();
+    Request request = fakeRequestBuilder().flash("success", "has message").build();
     Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -287,7 +284,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsExpectedForm() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
@@ -299,15 +296,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.newOne(request, "nope", "/some/redirect/url");
+    Result result = controller.newOne(fakeRequest(), "nope", "/some/redirect/url");
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void newOne_absoluteRedirectUrl_throws() {
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    assertThatThrownBy(() -> controller.newOne(request, "text", "https://www.example.com"))
+    assertThatThrownBy(() -> controller.newOne(fakeRequest(), "text", "https://www.example.com"))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContainingAll("Invalid absolute URL.");
   }
@@ -329,8 +324,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionText", "question text updated")
         .put("questionHelpText", "a new help text")
         .put("questionExportState", "DEMOGRAPHIC_PII");
-    RequestBuilder requestBuilder =
-        addCSRFToken(requestBuilderWithSettings().bodyForm(formData.build()));
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     Result result =
         controller.update(
@@ -461,7 +455,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
             .build();
-    RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     Result result =
         controller.update(
@@ -551,7 +545,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
-    RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
     QuestionModel found =
@@ -618,7 +612,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
-    RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
     QuestionModel found =
@@ -686,7 +680,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptionAdminNames[0]", "lavender_admin")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
-    RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
     QuestionModel found =
@@ -716,7 +710,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionName", "favorite_color")
         .put("questionDescription", "")
         .put("questionText", "question text updated!");
-    Request request = addCSRFToken(requestBuilderWithSettings().bodyForm(formData.build())).build();
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData.build()).build();
 
     Result result = controller.update(request, question.id, "text");
 
@@ -731,7 +725,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
-    RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 

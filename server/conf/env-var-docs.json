@@ -765,7 +765,7 @@
         "type": "bool"
       },
       "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
@@ -796,7 +796,12 @@
       },
       "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site. This banner will not show on Production sites even if this setting is enabled.",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
+        "type": "bool"
+      },
+      "FASTFORWARD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       }
     }

@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -13,6 +14,10 @@ import services.question.PrimaryApplicantInfoTag;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
+// The JsonInclude.Include.NON_ABSENT annotation tells Jackson to only include optional fields if
+// they are not Optional.empty. This is required so that Jackson does not deserialize empty
+// enumeratorId fields to the number 0 which our code reads as an actual enumerator id.
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public abstract class QuestionDefinitionConfig {
 
   @JsonProperty("name")
@@ -39,7 +44,7 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("questionHelpText")
   abstract Optional<LocalizedStrings> questionHelpTextInternal();
 
-  @JsonIgnore
+  @JsonProperty("validationPredicates")
   abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
 
   @JsonProperty("id")
@@ -107,7 +112,7 @@ public abstract class QuestionDefinitionConfig {
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
 
-    @JsonIgnore
+    @JsonProperty("validationPredicates")
     public abstract Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates);
 

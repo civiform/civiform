@@ -17,7 +17,6 @@ import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.F;
-import play.mvc.Http.Request;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.DateConverter;
@@ -66,11 +65,10 @@ public final class JsonExporterService {
   public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      SubmittedApplicationFilter filters,
-      Request request) {
+      SubmittedApplicationFilter filters) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programDefinition.id(), F.Either.Left(paginationSpec), filters, request);
+            programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
     return exportPage(programDefinition, paginationResult);
   }
