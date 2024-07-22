@@ -927,13 +927,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
+  /** Enables suffix dropdown field in name question. */
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  }
+
   /** Enables showing new UI with an updated user experience in Applicant flows */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
-  }
-
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
@@ -1961,15 +1962,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      "NAME_SUFFIX_DROPDOWN_ENABLED",
+                      "Enables suffix dropdown field in name question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NAME_SUFFIX_DROPDOWN_ENABLED",
-                      "Enabled name suffix field in name question",
-                      false,
+                      "NORTH_STAR_APPLICANT_UI",
+                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
