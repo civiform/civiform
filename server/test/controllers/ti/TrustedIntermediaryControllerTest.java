@@ -239,7 +239,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    System.out.println(contentAsString(result));
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Date of birth required");
   }
