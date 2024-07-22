@@ -13,7 +13,6 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
-import forms.translation.ProgramTranslationForm;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -826,6 +825,9 @@ public final class ProgramService {
                 errorsBuilder.add(
                     CiviFormError.of("Found invalid block id " + screenUpdate.blockIdToUpdate()));
               }
+
+              /*
+              //  TODO: Issue 8109, re-enabled after transition period
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
@@ -834,6 +836,7 @@ public final class ProgramService {
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
                   screenUpdate.localizedDescription());
+               */
             });
   }
 
