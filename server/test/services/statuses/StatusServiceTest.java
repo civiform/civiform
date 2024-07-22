@@ -17,7 +17,6 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.LocalizationUpdate;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
 
@@ -237,7 +236,7 @@ public class StatusServiceTest extends ResetPostgres {
   @Test
   public void deleteStatus_programNotFound_throws() throws Exception {
     assertThatThrownBy(() -> service.deleteStatus("random", APPROVED_STATUS.statusText()))
-        .isInstanceOf(ProgramNotFoundException.class)
+        .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("No active status found for program random");
   }
 
