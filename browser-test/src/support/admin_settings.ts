@@ -34,6 +34,22 @@ export class AdminSettings {
     ).toBeChecked()
   }
 
+  async setStringSetting(settingName: string, value: string) {
+    await this.page
+      .getByTestId(`string-${settingName}`)
+      .locator('input')
+      .fill(value)
+  }
+
+  async expectStringSetting(settingName: string, value: string) {
+    expect(
+      await this.page
+        .getByTestId(`string-${settingName}`)
+        .locator('input')
+        .inputValue(),
+    ).toBe(value)
+  }
+
   async saveChanges(expectUpdated = true) {
     await this.page.click('button:text("Save changes")')
 
