@@ -14,6 +14,9 @@ import services.question.PrimaryApplicantInfoTag;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
+// The JsonInclude.Include.NON_ABSENT annotation tells Jackson to only include optional fields if
+// they are not Optional.empty. This is required so that Jackson does not deserialize empty
+// enumeratorId fields to the number 0 which our code reads as an actual enumerator id.
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public abstract class QuestionDefinitionConfig {
 
