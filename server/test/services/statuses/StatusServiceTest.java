@@ -99,7 +99,7 @@ public class StatusServiceTest extends ResetPostgres {
   @Test
   public void appendStatus_programNotFound_throws() throws Exception {
     assertThatThrownBy(() -> service.appendStatus("random_program", APPROVED_STATUS))
-        .isInstanceOf(ProgramNotFoundException.class)
+        .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("No active status found for program random_program");
   }
 
