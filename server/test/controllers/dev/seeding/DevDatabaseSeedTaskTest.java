@@ -70,7 +70,7 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
   @Test
   public void seedProgramCategories_insertsCategories() {
     devDatabaseSeedTask.seedProgramCategories();
-    ImmutableList<CategoryModel> allCategories = categoryRepository.listCategories();
+    ImmutableList<CategoryModel> allCategories = categoryRepository.listCategories(); 
     ImmutableList<String> supportedLanguages =
         ImmutableList.of("am", "en-US", "es-US", "ko", "lo", "so", "tl", "vi", "zh-TW");
 
