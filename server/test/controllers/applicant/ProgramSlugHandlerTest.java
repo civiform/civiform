@@ -3,7 +3,7 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
@@ -63,9 +63,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(
-                        fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false"))
-                    .build(),
+                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
@@ -102,8 +100,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true"))
-                    .build(),
+                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
@@ -131,8 +128,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
-                    .build(),
+                fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url").build(),
                 programDefinition.slug())
             .toCompletableFuture()
             .join();
@@ -152,8 +148,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         instanceOf(ProgramSlugHandler.class)
             .showProgram(
                 controller,
-                addCSRFToken(fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
-                    .build(),
+                fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect-url").build(),
                 "non-existing-program-slug")
             .toCompletableFuture()
             .join();
@@ -172,8 +167,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         handler
-            .showProgram(
-                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -211,8 +205,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(
-                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -249,8 +242,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             applicantRoutes);
     Result result =
         handler
-            .showProgram(
-                controller, addCSRFToken(fakeRequestBuilder()).build(), programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())

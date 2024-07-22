@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -105,9 +104,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            question.getQuestionDefinition().getName(),
-            "es-US");
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
 
@@ -139,9 +136,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            question.getQuestionDefinition().getName(),
-            "es-US");
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
 
@@ -175,9 +170,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            question.getQuestionDefinition().getName(),
-            "es-US");
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))

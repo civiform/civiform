@@ -553,7 +553,6 @@ validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Maaari lamang na pumili ng hindi bababa sa {0}.
-validation.tooManySelections=Maaari lamang na pumili ng mas-kaunti sa {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 

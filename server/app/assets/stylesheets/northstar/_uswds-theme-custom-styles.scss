@@ -73,6 +73,17 @@ See the radio-option below as an example.
   @include u-padding-bottom(0);
 }
 
+.section {
+  @include u-padding-y(3);
+}
+
+.cf-h1-title {
+  @include u-margin-y(0);
+}
+
+.text-medium {
+  @include u-height(1);
+}
 
 // Styles for desktop
 @media (min-width: 64em) {

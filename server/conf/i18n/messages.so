@@ -553,7 +553,6 @@ validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Fadlan dooro ugu yaraan {0}.
-validation.tooManySelections=Fadlan dooro wax ka yar {0}
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=Fadlan dooro {0} ugu badnaan.
 

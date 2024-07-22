@@ -553,7 +553,6 @@ validation.numberRequired=Chỉ được chứa chữ số.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
-validation.tooManySelections=Vui lòng chọn ít hơn {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=Vui lòng chọn không quá {0}.
 

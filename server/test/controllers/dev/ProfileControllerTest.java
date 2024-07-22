@@ -1,7 +1,6 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -26,8 +25,7 @@ public class ProfileControllerTest extends WithMockedProfiles {
 
   @Test
   public void testIndexWithNoProfile() {
-    Http.Request request =
-        addCSRFToken(fakeRequestBuilder().header(skipUserProfile, "true")).build();
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
     Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).isEqualTo("No profile present");
@@ -35,8 +33,7 @@ public class ProfileControllerTest extends WithMockedProfiles {
 
   @Test
   public void testIndexWithProfile() {
-    Http.Request request =
-        addCSRFToken(fakeRequestBuilder().header(skipUserProfile, "false")).build();
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
     Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
