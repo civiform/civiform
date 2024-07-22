@@ -2,7 +2,7 @@ package views;
 
 import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
-import static support.CfTestHelpers.EMPTY_REQUEST;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
     bundle.setTitle("My title").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -29,7 +29,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFavicon() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
     bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -38,7 +38,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testNoFavicon() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
@@ -47,7 +47,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
@@ -64,7 +64,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
     bundle.addMainContent(div("One")).addMainContent(div("Two")).setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();

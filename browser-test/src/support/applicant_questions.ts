@@ -453,7 +453,9 @@ export class ApplicantQuestions {
 
   async expectReviewPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      await expect(this.page.locator('h1')).toContainText("Let's get started")
+      await expect(
+        this.page.locator('[data-testid="programSummary"]'),
+      ).toBeVisible()
     } else {
       await expect(this.page.locator('h2')).toContainText(
         'Program application summary',
@@ -693,5 +695,23 @@ export class ApplicantQuestions {
     await this.clickNext()
     await this.submitFromReviewPage()
     await this.page.click('text=End session')
+  }
+
+  async expectMayBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).not.toBeAttached()
+  }
+
+  async expectMayNotBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
   }
 }

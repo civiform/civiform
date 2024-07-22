@@ -91,12 +91,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   "payload" : [ {
     "applicant_id" : 123,
     "application" : {
-      "name" : {
-        "first_name" : "Homer",
-        "last_name" : "Simpson",
-        "middle_name" : "Jay",
-        "question_type" : "NAME"
-      },
       "sample_address_question" : {
         "city" : "Springfield",
         "corrected" : "Corrected",
@@ -104,7 +98,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "line2" : null,
         "longitude" : "-123.0236",
         "question_type" : "ADDRESS",
-        "service_area" : "springfield_county_InArea_1709069741,portland_NotInArea_1709069741",
+        "service_area" : "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741",
         "state" : "OR",
         "street" : "742 Evergreen Terrace",
         "well_known_id" : "4326",
@@ -137,6 +131,12 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
       "sample_id_question" : {
         "id" : "12345",
         "question_type" : "ID"
+      },
+      "sample_name_question" : {
+        "first_name" : "Homer",
+        "last_name" : "Simpson",
+        "middle_name" : "Jay",
+        "question_type" : "NAME"
       },
       "sample_number_question" : {
         "number" : 12321,

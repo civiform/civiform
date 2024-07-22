@@ -47,7 +47,47 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // Set up mocked return values
     when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.of(applicantId));
     when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
-        .thenReturn(currentProgramId);
+        .thenReturn(Optional.of(currentProgramId));
+
+    // The action to test
+    ProgramFastForwardApplicationAction action =
+        new ProgramFastForwardApplicationAction(
+            profileUtilsMock, programRepositoryMock, applicationRepositoryMock);
+
+    // Configure a fake secondary action to serve as a stand in for the last action in the chain
+    // (i.e. controller)
+    when(nextActionInChainMock.call(request)).thenReturn(CompletableFuture.completedFuture(null));
+    action.delegate = nextActionInChainMock;
+
+    // Result from running the action
+    Result result = action.call(request).toCompletableFuture().join();
+
+    // All the assertions and verifications
+    assertThat(result).isNull();
+
+    // This is the main reason for this action and must not have run given the inputs for this test
+    verify(applicationRepositoryMock, Mockito.times(0))
+        .updateDraftApplicationProgram(any(Long.class), any(Long.class));
+  }
+
+  @Test
+  public void continue_to_next_action_when_program_only_has_draft_version() {
+    // Setup mocks
+    ProfileUtils profileUtilsMock = mock(ProfileUtils.class);
+    ProgramRepository programRepositoryMock = mock(ProgramRepository.class);
+    ApplicationRepository applicationRepositoryMock = mock(ApplicationRepository.class);
+    Action.Simple nextActionInChainMock = mock(Action.Simple.class);
+
+    // Setup fakeRequest and configure it to use the specified route pattern
+    Request request =
+        createFakeRequest(
+            "/programs/$programId<[^/]+>/blocks/$blockId<[^/]+>/edit",
+            String.format("/programs/%d/blocks/2/edit", currentProgramId));
+
+    // Set up mocked return values
+    when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.of(applicantId));
+    when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
+        .thenReturn(Optional.empty());
 
     // The action to test
     ProgramFastForwardApplicationAction action =
@@ -86,7 +126,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // Set up mocked return values
     when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.of(applicantId));
     when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
-        .thenReturn(latestProgramId);
+        .thenReturn(Optional.of(latestProgramId));
 
     // The action to test
     ProgramFastForwardApplicationAction action =
@@ -124,7 +164,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // Set up mocked return values
     when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.empty());
     when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
-        .thenReturn(latestProgramId);
+        .thenReturn(Optional.of(latestProgramId));
 
     // The action to test
     ProgramFastForwardApplicationAction action =
@@ -159,7 +199,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // Set up mocked return values
     when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.empty());
     when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
-        .thenReturn(latestProgramId);
+        .thenReturn(Optional.of(latestProgramId));
 
     // The action to test
     ProgramFastForwardApplicationAction action =
@@ -188,7 +228,7 @@ public class ProgramFastForwardApplicationActionTest extends WithApplication {
     // Set up mocked return values
     when(profileUtilsMock.getApplicantId(request)).thenReturn(Optional.empty());
     when(programRepositoryMock.getMostRecentActiveProgramId(any(Long.class)))
-        .thenReturn(latestProgramId);
+        .thenReturn(Optional.of(latestProgramId));
 
     // The action to test
     ProgramFastForwardApplicationAction action =

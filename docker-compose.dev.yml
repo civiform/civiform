@@ -73,14 +73,44 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
 
+  prometheus:
+    profiles: ['monitoring']
+    image: prom/prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+  grafana:  
+    profiles: ['monitoring']
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    ports:
+      - 8013:3000
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: true
+    volumes:
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    links:
+      - prometheus
+
 volumes:
   db-data:
+    driver: local
+  grafana-data:
     driver: local
   node_modules-data:
     driver: local
   project-data:
     driver: local
   project-target-data:
+    driver: local
+  prometheus-data:
     driver: local
   target:
     driver: local

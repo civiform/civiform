@@ -1,0 +1,36 @@
+<div
+  th:fragment="alert(alertSettings, headingLevel)"
+  th:class="${'usa-alert usa-alert--' + alertSettings.alertType.name().toLowerCase()}"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body margin-y-4">
+    <h2
+      class="usa-alert__heading"
+      th:if="${alertSettings.title.isPresent() && headingLevel == 'H2'}"
+      th:text="${alertSettings.title.get()}"
+    ></h2>
+    <h3
+      class="usa-alert__heading"
+      th:if="${alertSettings.title.isPresent() && headingLevel == 'H3'}"
+      th:text="${alertSettings.title.get()}"
+    ></h3>
+    <h4
+      class="usa-alert__heading"
+      th:if="${alertSettings.title.isPresent() && headingLevel == 'H4'}"
+      th:text="${alertSettings.title.get()}"
+    ></h4>
+    <h5
+      class="usa-alert__heading"
+      th:if="${alertSettings.title.isPresent() && headingLevel == 'H5'}"
+      th:text="${alertSettings.title.get()}"
+    ></h5>
+    <h6
+      class="usa-alert__heading"
+      th:if="${alertSettings.title.isPresent() && headingLevel == 'H6'}"
+      th:text="${alertSettings.title.get()}"
+    ></h6>
+
+    <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
+  </div>
+</div>

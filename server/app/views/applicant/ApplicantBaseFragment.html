@@ -4,7 +4,7 @@
   <title>Title</title>
 
   <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
-  <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet" />
+  <link th:href="${northStarStylesheet}" type="text/css" rel="stylesheet" />
   <script th:src="${uswdsJsInit}" type="text/javascript"></script>
 </head>
 
@@ -19,7 +19,7 @@
     raw text to recreate the red style */-->
   <p
     th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
-    class="margin-x-2 font-sans-xs"
+    class="font-sans-xs"
   ></p>
 </div>
 
@@ -29,7 +29,7 @@
 
 <div
   th:fragment="progressBar"
-  class="usa-step-indicator usa-step-indicator--center margin-x-2 maxw-tablet"
+  class="usa-step-indicator usa-step-indicator--center maxw-tablet"
   th:aria-label="#{content.blockProgressLabel}"
 >
   <!--/* The progress bar itself */-->

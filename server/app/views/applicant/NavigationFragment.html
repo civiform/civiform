@@ -11,7 +11,7 @@
         >
           <img
             th:src="${smallLogoUrl}"
-            class="width-8 padding-right-2"
+            class="width-8 padding-right-2 cf-header-logo"
             th:attr="alt=${civicEntityFullName + ' Logo'}"
           />
           <em class="usa-logo__text">
@@ -26,7 +26,11 @@
         ></button>
       </div>
       <nav aria-label="Primary navigation" class="usa-nav" role="navigation">
-        <button type="button" class="usa-nav__close">
+        <button
+          type="button"
+          class="usa-nav__close"
+          th:aria-label="#{button.close}"
+        >
           <svg
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>

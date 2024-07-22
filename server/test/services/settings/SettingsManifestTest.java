@@ -2,8 +2,8 @@ package services.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
+import static support.FakeRequestBuilder.fakeRequest;
 
-import auth.FakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -74,8 +74,7 @@ public class SettingsManifestTest {
               "foo"));
 
   private static Http.Request REQUEST =
-      new FakeRequestBuilder()
-          .build()
+      fakeRequest()
           .withAttrs(
               TypedMap.empty()
                   .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("BOOL_VARIABLE", "true")));
@@ -124,6 +123,6 @@ public class SettingsManifestTest {
 
   @Test
   public void getBool_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getBool("BOOL_VARIABLE", new FakeRequestBuilder().build())).isFalse();
+    assertThat(testManifest.getBool("BOOL_VARIABLE", fakeRequest())).isFalse();
   }
 }

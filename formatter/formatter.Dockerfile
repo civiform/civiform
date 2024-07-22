@@ -3,12 +3,12 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:17.0.11_9-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:17.0.11-10 as arm64
+FROM eclipse-temurin:17.0.11_9-jdk-alpine AS amd64
+FROM bellsoft/liberica-openjdk-alpine:17.0.11-10 AS arm64
 
 FROM ${TARGETARCH}
 
-ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/v1.22.0/google-java-format-1.22.0-all-deps.jar"
+ENV JAVA_FORMATTER_URL="https://github.com/google/google-java-format/releases/download/v1.22.0/google-java-format-1.22.0-all-deps.jar"
 
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \
@@ -20,9 +20,9 @@ RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
 # run type-based checks with eslint. For each directory that
 # contains package.json we run npm install and save resulted `node_modules`
 # directory as volume.
-ENV FORMATTER_DIR /code/formatter
-ENV BROWSER_TEST_DIR /code/browser-test
-ENV SERVER_DIR /code/server
+ENV FORMATTER_DIR=/code/formatter
+ENV BROWSER_TEST_DIR=/code/browser-test
+ENV SERVER_DIR=/code/server
 
 COPY .prettier* .editorconfig* /
 COPY formatter/package.json formatter/package-lock.json $FORMATTER_DIR/

@@ -58,6 +58,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+
     context.setVariable(
         "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     context.setVariable(

@@ -5,51 +5,64 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main" class="margin-left-2 margin-right-4 margin-y-4">
+    <div role="main">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      <form
-        id="cf-block-form"
-        th:action="${submitFormAction}"
-        method="POST"
-        class="usa-form usa-form--large"
-      >
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-        ></div>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${applicationParams.programTitle()}, ${applicationParams.programDescription()})}"
+      ></div>
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
-        ></div>
+      <div class="grid-container section">
+        <div class="grid-row">
+          <div class="grid-col">
+            <form
+              id="cf-block-form"
+              th:action="${submitFormAction}"
+              method="POST"
+              class="usa-form usa-form--large cf-block-form"
+            >
+              <input hidden th:value="${csrfToken}" name="csrfToken" />
 
-        <div th:each="question: ${applicationParams.block().getQuestions()}">
-          <div
-            th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
-          ></div>
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+              ></div>
+
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+              ></div>
+
+              <div
+                th:each="question: ${applicationParams.block().getQuestions()}"
+              >
+                <div
+                  th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
+                ></div>
+              </div>
+
+              <div class="margin-bottom-2">
+                <button
+                  type="submit"
+                  th:formaction="${previousFormAction}"
+                  class="usa-button usa-button--outline margin-bottom-1"
+                  th:text="#{button.back}"
+                ></button>
+                <button
+                  type="submit"
+                  class="usa-button margin-bottom-1"
+                  th:text="#{button.continue}"
+                ></button>
+              </div>
+              <button
+                type="submit"
+                th:formaction="${reviewFormAction}"
+                id="review-application-button"
+                class="usa-button usa-button--unstyled margin-bottom-4"
+                th:text="#{button.saveAndExit}"
+              ></button>
+            </form>
+          </div>
         </div>
-
-        <div class="margin-bottom-2 margin-left-2">
-          <button
-            type="submit"
-            th:formaction="${previousFormAction}"
-            class="usa-button usa-button--outline margin-bottom-1"
-            th:text="#{button.back}"
-          ></button>
-          <button
-            type="submit"
-            class="usa-button margin-bottom-1"
-            th:text="#{button.continue}"
-          ></button>
-        </div>
-        <button
-          type="submit"
-          th:formaction="${reviewFormAction}"
-          id="review-application-button"
-          class="usa-button usa-button--unstyled margin-right-1 margin-left-2"
-          th:text="#{button.saveAndExit}"
-        ></button>
-      </form>
+      </div>
     </div>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,

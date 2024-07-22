@@ -20,6 +20,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
 import services.program.Column;
+import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
 
@@ -59,7 +60,8 @@ public final class CsvExporter implements AutoCloseable {
   public void exportRecord(
       ApplicationModel application,
       ReadOnlyApplicantProgramService roApplicantService,
-      Optional<Boolean> optionalEligibilityStatus)
+      Optional<Boolean> optionalEligibilityStatus,
+      ProgramDefinition programDefinition)
       throws IOException {
     ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
@@ -67,7 +69,6 @@ public final class CsvExporter implements AutoCloseable {
         answerMapBuilder.put(p, answerData);
       }
     }
-    String adminNote = application.getProgram().getProgramDefinition().adminDescription();
     ImmutableMap<Path, AnswerData> answerMap = answerMapBuilder.build();
 
     for (Column column : columns) {
@@ -118,7 +119,7 @@ public final class CsvExporter implements AutoCloseable {
                   : SubmitterType.APPLICANT.toString());
           break;
         case PROGRAM:
-          printer.print(application.getProgram().getProgramDefinition().adminName());
+          printer.print(programDefinition.adminName());
           break;
         case TI_ORGANIZATION:
           printer.print(
@@ -155,7 +156,7 @@ public final class CsvExporter implements AutoCloseable {
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
           break;
         case ADMIN_NOTE:
-          printer.print(adminNote);
+          printer.print(programDefinition.adminDescription());
           break;
       }
     }

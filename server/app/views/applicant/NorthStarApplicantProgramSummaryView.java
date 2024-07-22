@@ -1,8 +1,5 @@
 package views.applicant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -18,6 +15,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
@@ -26,7 +24,6 @@ import views.NorthStarBaseView;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
-  private final String authProviderName;
 
   @Inject
   NorthStarApplicantProgramSummaryView(
@@ -35,7 +32,6 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     super(
@@ -46,7 +42,6 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
         settingsManifest,
         languageUtils,
         deploymentType);
-    this.authProviderName = checkNotNull(authProviderName);
   }
 
   public String render(Request request, Params params) {
@@ -57,6 +52,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             params.profile(),
             params.applicantPersonalInfo(),
             params.messages());
+    context.setVariable("programTitle", params.programTitle());
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
@@ -69,6 +65,9 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
+
+    // Eligibility Alerts
+    context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());
 
     // Login modal
     Optional<String> redirectedFromProgramSlug =
@@ -83,7 +82,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       context.setVariable(
           "slugLoginUrl",
           controllers.routes.LoginController.applicantLogin(Optional.of(postLoginRedirect)).url());
-      context.setVariable("authProviderName", authProviderName);
+      context.setVariable(
+          "authProviderName",
+          // The applicant portal name should always be set (there is a
+          // default setting as well).
+          settingsManifest.getApplicantPortalName(request).get());
     }
 
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
@@ -132,6 +135,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       return new AutoValue_NorthStarApplicantProgramSummaryView_Params.Builder();
     }
 
+    abstract String programTitle();
+
     abstract long applicantId();
 
     abstract ApplicantPersonalInfo applicantPersonalInfo();
@@ -154,8 +159,12 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     abstract Optional<String> notEligibleBannerMessage();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     @AutoValue.Builder
     public abstract static class Builder {
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setApplicantId(long applicantId);
 
@@ -179,6 +188,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
       public abstract Builder setNotEligibleBannerMessage(
           Optional<String> notEligibleBannerMessage);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Params build();
     }

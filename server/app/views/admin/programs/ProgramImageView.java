@@ -325,7 +325,7 @@ public final class ProgramImageView extends BaseHtmlView {
     // We don't need to fill in any applicant data besides the program information since this is
     // just for a card preview.
     ApplicantService.ApplicantProgramData card =
-        ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
+        ApplicantService.ApplicantProgramData.builder(program).build();
 
     LiTag programCard =
         programCardViewRenderer.createProgramCard(

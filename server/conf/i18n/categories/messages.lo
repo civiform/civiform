@@ -1,0 +1,29 @@
+# A tag used to filter the list of programs down to those that are related to childcare.
+tag.childcare=ການເບິ່ງແຍງເດັກນ້ອຍ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+tag.economic=ເສດຖະກິດ
+
+# A tag used to filter the list of programs down to those that are related to education.
+tag.education=ການສຶກສາ
+
+# A tag used to filter the list of programs down to those that are related to food.
+tag.food=ອາຫານ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+tag.general=ທົ່ວໄປ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+tag.healthcare=ການເບິ່ງແຍງສຸຂະພາບ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+tag.housing=ທີ່ຢູ່ອາໄສ
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+tag.internet=ອິນເຕີເນັດ
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+tag.transportation=ການຂົນສົ່ງ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+tag.utilities=ສາທາລະນູປະໂພກ

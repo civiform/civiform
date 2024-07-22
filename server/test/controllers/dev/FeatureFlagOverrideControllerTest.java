@@ -3,7 +3,7 @@ package controllers.dev;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   @Test
   public void disable_nonDevMode_fails() {
     // Execute
-    var result = controller.disable(requestBuilderWithSettings().build(), FLAG_NAME);
+    var result = controller.disable(fakeRequest(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -43,7 +43,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
             new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
 
     // Execute
-    var result = controller.disable(requestBuilderWithSettings().build(), FLAG_NAME);
+    var result = controller.disable(fakeRequest(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -53,7 +53,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   @Test
   public void enable_nonDevMode_fails() {
     // Execute
-    var result = controller.enable(requestBuilderWithSettings().build(), FLAG_NAME);
+    var result = controller.enable(fakeRequest(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -68,7 +68,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
             new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
 
     // Execute
-    var result = controller.enable(requestBuilderWithSettings().build(), FLAG_NAME);
+    var result = controller.enable(fakeRequest(), FLAG_NAME);
 
     // Verify
     assertThat(result.status()).isEqualTo(SEE_OTHER);

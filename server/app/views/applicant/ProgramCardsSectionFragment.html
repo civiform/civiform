@@ -26,6 +26,12 @@
 >
   <div class="usa-card__container">
     <div class="usa-card__header">
+      <img
+        th:if="${card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
+        th:src="${card.imageSourceUrl().get()}"
+        th:alt="${card.altText().orElse('')}"
+        class="cf-program-card-image"
+      />
       <h2
         class="usa-card__heading cf-application-card-title"
         th:text="${card.title()}"

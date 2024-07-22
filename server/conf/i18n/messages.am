@@ -11,11 +11,21 @@
 button.logout=ውጣ
 label.selectLanguage=እባክዎ የእርስዎን ተመራጭ ቋንቋ ይምረጡ።
 button.untranslatedSubmit=ያስገቡ
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=እንግዳ
 label.languageSr=ቋንቋ ይምረጡ
 # A label on the button that opens the header menu shown on mobile
-header.menu=Menu
+header.menu=ምናሌ
 header.endSession=ክፍለ-ጊዜን አብቃ
 toast.sessionEnded=የእርስዎ ክፍለ-ጊዜ አብቅቷል።
 header.guestIndicator=እንግዳ ተጠቃሚ ነዎት
@@ -73,7 +83,7 @@ content.blockProgress={0} ከ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -326,6 +336,46 @@ toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ �
 toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
 banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=በምላሾችዎ ላይ በመመሥረት ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=መልሶችዎ ወይም ብቁነትዎ ላይ ተጽዕኖ የሚያደርጉ አዲስ ወይም የተዘመኑ ጥያቄዎች ሊኖሩ ይችላሉ። እባክዎ ከዚህ በታች ሁሉንም ጥያቄዎች ይከልሱ።
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=ከአሁን በኋላ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=በእርስዎ መልሶች ወይም ብቁነት ላይ ተጽዕኖ የሚያሳርፉ አዲስ ወይም የተዘመኑ ጥያቄዎች ሊኖሩ ይችላሉ። እባክዎ ከዚህ በታች ሁሉንም ጥያቄዎች ይከልሱ።
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=በምላሾችዎ ላይ በመመሥረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=በደንበኛዎ መልሶች ወይም ብቁነት ላይ ተጽዕኖ የሚያሳርፉ አዲስ ወይም የተዘመኑ ጥያቄዎች ሊኖሩ ይችላሉ። እባክዎ ከዚህ በታች ሁሉንም ጥያቄዎች ይከልሱ።
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=ደንበኛዎ ከአሁን በኋላ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=በደንበኛዎ መልሶች ወይም ብቁነት ላይ ተጽዕኖ የሚያሳርፉ አዲስ ወይም የተዘመኑ ጥያቄዎች ሊኖሩ ይችላሉ። እባክዎ ከዚህ በታች ሁሉንም ጥያቄዎች ይከልሱ።
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -503,9 +553,8 @@ validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
-validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
 # Error message that indicates the applicant has selected too many choices on the multi-select question
-validation.tooManySelections.v2=Please select at most {0}.
+validation.tooManySelections.v2=እባክዎ ቢበዛ {0} ይምረጡ።
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -575,7 +624,7 @@ email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {
 
 banner.title=ይህ ይፋዊ የመንግስት ድረ-ገጽ ነው።
 # Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
+banner.northStarTitle=ኦፊሴላዊ የአሜሪካ መንግሥት ድር ጣቢያ
 banner.link=እንዴት እንደሚያውቁት እነሆ
 banner.govWebsiteSectionHeader=ኦፊሴላዊ ድረ-ገጾች .govን ይጠቀማሉ
 banner.govWebsiteSectionContent=በ .gov የሚያልቁ የድርጣቢያ አድራሻዎች በአሜሪካ ውስጥ ያሉ ኦፊሴላዊ የመንግስት ድርጅቶች ናቸው።
@@ -590,3 +639,11 @@ banner.httpsSectionContent=ቁልፍ ( {0} ) ወይም ኤችቲቲፒኤስ:// 
 banner.notForProductionBannerLine1=ይህ ጣቢያ ለሙከራ ዓላማዎች ብቻ ነው። የግል መረጃ አያስገቡ።
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገልግሎት ለማመልከት ወደ {0} ይሂዱ።
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=እንደ እንግዳ እያመለከቱ ነው። ማመልከቻውን ከጨረሱ በኋላ ውሂብዎን ለመጠበቅ {0}።
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
