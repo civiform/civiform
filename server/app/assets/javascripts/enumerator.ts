@@ -99,9 +99,14 @@ function addNewEnumeratorField() {
  * @param {Event} event The event that triggered this action.
  */
 function removeEnumeratorField(event: Event) {
+  const removeButton = event.currentTarget as HTMLElement
+  if (!confirm(removeButton.dataset.confirmationMessage)) {
+    return false
+  }
+
   // Get the parent div, which contains the input field and remove button, and remove it.
   const enumeratorFieldDiv = assertNotNull(
-    (event.currentTarget as HTMLElement).parentNode,
+    removeButton.parentNode,
   ) as HTMLElement
   enumeratorFieldDiv.remove()
 
@@ -119,6 +124,10 @@ function removeEnumeratorField(event: Event) {
 function removeExistingEnumeratorField(event: Event) {
   // Get the button that was clicked
   const removeButton = event.currentTarget as HTMLElement
+
+  if (!confirm(removeButton.dataset.confirmationMessage)) {
+    return false
+  }
 
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
