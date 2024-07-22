@@ -40,7 +40,7 @@ public class AdminImportView extends BaseHtmlView {
 
   @Inject
   public AdminImportView(AdminLayoutFactory layoutFactory) {
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.IMPORT);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
   }
 
   /**

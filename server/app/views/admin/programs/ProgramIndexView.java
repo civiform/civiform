@@ -483,6 +483,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
+
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
@@ -504,6 +505,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      if (settingsManifest.getProgramMigrationEnabled(request)) {
+        draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
+      }
+
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -529,6 +534,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
+      if (settingsManifest.getProgramMigrationEnabled(request)) {
+        activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
+      }
+
       activeRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -662,6 +671,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+    return asRedirectElement(button, adminLink);
+  }
+
+  private ButtonTag renderExportProgramLink(ProgramDefinition program) {
+    String adminLink = routes.AdminExportController.index(program.id()).url();
+    ButtonTag button =
+        makeSvgTextButton("Export program", Icons.DOWNLOAD)
+            // maybe don't need this id?
+            .withId("export-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
   }
