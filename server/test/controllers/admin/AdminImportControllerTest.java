@@ -204,9 +204,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -238,9 +238,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -271,9 +271,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -321,9 +321,9 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -345,11 +345,11 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     Result result =
         controller.saveProgram(
-                    fakeRequestBuilder()
-                        .method("POST")
-                        // Questions must be marked as "universal" before being tagged with a PAI
-                        // tag, so we can reuse the PROGRAM_JSON_WITH_PAI_TAGS json
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
+            fakeRequestBuilder()
+                .method("POST")
+                // Questions must be marked as "universal" before being tagged with a PAI
+                // tag, so we can reuse the PROGRAM_JSON_WITH_PAI_TAGS json
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
