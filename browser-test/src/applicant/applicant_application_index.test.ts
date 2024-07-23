@@ -51,6 +51,30 @@ test.describe('applicant program index page', () => {
     await logout(page)
   })
 
+  test('shows value of APPLICANT_PORTAL_NAME in welcome text', async ({
+    page,
+    adminSettings,
+  }) => {
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+    await adminSettings.setStringSetting(
+      'APPLICANT_PORTAL_NAME',
+      'Awesome Sauce',
+    )
+    await adminSettings.expectStringSetting(
+      'APPLICANT_PORTAL_NAME',
+      'Awesome Sauce',
+    )
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    expect(
+      await page
+        .getByText(/Log in to your (\w|\s)+ account or create/)
+        .textContent(),
+    ).toContain('Awesome Sauce')
+  })
+
   test('shows log in button for guest users', async ({
     page,
     applicantQuestions,

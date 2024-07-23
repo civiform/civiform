@@ -4,6 +4,7 @@
  */
 
 import * as main from './main'
+import * as languageSelector from './language_selector'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
@@ -18,6 +19,7 @@ import * as trustedIntermediary from './trusted_intermediary'
 
 window.addEventListener('load', () => {
   main.init()
+  languageSelector.init()
   enumerator.init()
   radio.init()
   toast.init()

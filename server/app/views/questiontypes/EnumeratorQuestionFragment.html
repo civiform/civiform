@@ -95,9 +95,9 @@
     <button
       type="button"
       class="cf-enumerator-delete-button usa-button--unstyled"
+      th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
       th:id="${deleteButtonId}"
       th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
-      th:attr="onclick='if(confirm(\'' + #{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
     ></button>
   </div>
 </div>
