@@ -1085,6 +1085,8 @@ test.describe('program creation', () => {
   })
 
   test('create program with categories', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+
     await test.step('seed categories', async () => {
       await adminPrograms.seedProgramsAndCategories(page)
     })
