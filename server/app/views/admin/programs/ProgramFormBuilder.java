@@ -141,6 +141,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setMarkdownSupported(true)
             .setValue(displayDescription)
             .getTextareaTag(),
+        label("Tag this program with 1 or more categories to make it easier to find")
+            .withFor("category-checkboxes")
+            .withClass("text-gray-600"),
         showCategoryCheckboxes(categoryOptions, categories),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
@@ -286,18 +289,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private FieldsetTag showCategoryCheckboxes(
       List<CategoryModel> categoryOptions, List<Long> categories) {
     return fieldset(
-        each(
-            categoryOptions,
-            category ->
-                div(
-                    input()
-                        .withId("check-category-" + category.getDefaultName())
-                        .withType("checkbox")
-                        .withName("categories" + Path.ARRAY_SUFFIX)
-                        .withValue(String.valueOf(category.getId()))
-                        .withCondChecked(categories.contains(category.getId())),
-                    label(category.getDefaultName())
-                        .withFor("check-category-" + category.getDefaultName()))));
+            each(
+                categoryOptions,
+                category ->
+                    div(
+                        input()
+                            .withId("check-category-" + category.getDefaultName())
+                            .withType("checkbox")
+                            .withName("categories" + Path.ARRAY_SUFFIX)
+                            .withValue(String.valueOf(category.getId()))
+                            .withCondChecked(categories.contains(category.getId())),
+                        label(category.getDefaultName())
+                            .withFor("check-category-" + category.getDefaultName()))))
+        .withId("category-checkboxes");
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
