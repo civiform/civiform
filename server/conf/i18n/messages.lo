@@ -13,15 +13,15 @@ label.selectLanguage=ກະລຸນາເລືອກພາສາທີ່ທ�
 button.untranslatedSubmit=ສົ່ງ
 # Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
 # not be translated.
-footer.aboutCiviform=About CiviForm
+footer.aboutCiviform=ກ່ຽວກັບ CiviForm
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
 # Text in the footer telling users that this is an official website of the specified Civic entity.
-footer.officialWebsiteOf=An official website of the {0}
+footer.officialWebsiteOf=ເວັບໄຊຢ່າງເປັນທາງການຂອງ {0}
 # Text on a link that will scroll to the top of the page
-footer.returnToTop=Return to top
+footer.returnToTop=ກັບຄືນໄປຫາເທິງສຸດ
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
-footer.technicalSupport=For technical support: {0}
+footer.technicalSupport=ສຳລັບການຊ່ວຍເຫຼືອທາງເທັກນິກ ໃຫ້ປະຕິບັດດັ່ງນີ້: {0}
 guest=ແຂກ
 label.languageSr=ເລືອກພາສາ
 # A label on the button that opens the header menu shown on mobile
