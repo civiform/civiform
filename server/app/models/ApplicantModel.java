@@ -49,15 +49,15 @@ public class ApplicantModel extends BaseModel {
     IV("IV"),
     V("V");
 
-    private final String abbreviation;
+    private final String displayName;
 
-    NameSuffix(String abbreviation) {
-      this.abbreviation = abbreviation;
+    NameSuffix(String displayName) {
+      this.displayName = displayName;
     }
 
     @DbEnumValue(storage = DbEnumType.VARCHAR)
     public String getValue() {
-      return this.abbreviation;
+      return this.displayName;
     }
   }
 
@@ -153,7 +153,10 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setNameSuffix(String nameSuffix) {
-    this.nameSuffix = nameSuffix.isEmpty() || nameSuffix.isBlank() ? null : nameSuffix;
+    this.nameSuffix =
+        nameSuffix.isEmpty() || nameSuffix.isBlank()
+            ? null
+            : NameSuffix.valueOf(nameSuffix).toString();
     return this;
   }
 
