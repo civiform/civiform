@@ -290,12 +290,13 @@ public class PdfExporterTest extends AbstractExporterTest {
       pdfText =
           assertContainsThenCrop(
               pdfText,
-              "isOptional: "
-                  + block.programQuestionDefinitions().stream()
+              block.programQuestionDefinitions().stream()
                       .filter(pqd -> pqd.id() == questionDefinition.getId())
                       .findFirst()
                       .get()
-                      .optional());
+                      .optional()
+                  ? "Optional Question"
+                  : "Required Question");
       pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
       pdfText =
           assertContainsThenCrop(

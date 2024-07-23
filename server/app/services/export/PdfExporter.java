@@ -379,7 +379,9 @@ public final class PdfExporter {
       if (programQuestionDefinition.isPresent()) {
         document.add(
             text(
-                "isOptional: " + programQuestionDefinition.get().optional(),
+                programQuestionDefinition.get().optional()
+                    ? "Optional Question"
+                    : "Required Question",
                 PARAGRAPH_FONT,
                 indentationLevel));
       }
