@@ -86,7 +86,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .addReferenceClass("cf-dropdown-question")
             .setLabelText("Name suffix")
             .setFieldName(nameQuestion.getNameSuffixPath().toString())
-            .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .setPlaceholderText("")
             .setOptions(
                 Stream.of(ApplicantModel.NameSuffix.values())
                     .map(

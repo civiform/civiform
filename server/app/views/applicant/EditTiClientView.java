@@ -251,12 +251,12 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     SelectWithLabel nameSuffixField =
         new SelectWithLabel()
             .addReferenceClass("cf-dropdown-question")
-            .setLabelText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .setLabelText("")
             .setFieldName("nameSuffix")
             .setPlaceholderText(
                 setDefaultNameSuffix(optionalApplicantData).isEmpty()
                     ? setDefaultNameSuffix(optionalApplicantData).toString()
-                    : messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+                    : "")
             .setOptions(
                 Stream.of(ApplicantModel.NameSuffix.values())
                     .map(
