@@ -563,10 +563,21 @@ validation.tooManySelections.v2=Please select at most {0}.
 label.firstName=First name
 label.lastName=Last name
 label.middleName=Middle name
+label.suffix=Suffix
 
 placeholder.firstName=First name
 placeholder.lastName=Last name
 placeholder.middleName=Middle name
+placeholder.suffix=Suffix
+
+# options for suffix dropdown
+option.junior=Jr.
+option.senior=Sr.
+option.first=I
+option.second=II
+option.third=III
+option.forth=IV
+option.fifth=V
 
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.
