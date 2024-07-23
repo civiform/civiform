@@ -139,7 +139,7 @@ GET /admin/export                                   controllers.admin.AdminExpor
 POST /admin/export/download/:adminName              controllers.admin.AdminExportController.downloadJson(request: Request, adminName: String)
 GET /admin/import                                   controllers.admin.AdminImportController.index(request: Request)
 POST /admin/import/hx/program                       controllers.admin.AdminImportController.hxImportProgram(request: Request)
-POST /admin/import/saveProgram                      controllers.admin.AdminImportController.saveProgram(request: Request)
+POST /admin/import/hx/saveProgram                   controllers.admin.AdminImportController.hxSaveProgram(request: Request)
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)

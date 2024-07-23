@@ -128,7 +128,7 @@ public class AdminImportController extends CiviFormController {
    * neccessary question updates before saving the program
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result saveProgram(Http.Request request) {
+  public Result hxSaveProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
@@ -165,7 +165,7 @@ public class AdminImportController extends CiviFormController {
     programRepository.insertProgramSync(
         new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-    return ok(adminImportView.render(request));
+    return ok(adminImportViewPartial.renderProgramSaved(updatedProgram.adminName()).render());
   }
 
   private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {

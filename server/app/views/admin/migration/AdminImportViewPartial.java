@@ -89,7 +89,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
     FormTag hiddenForm =
         form()
-            .withMethod("POST")
+            .attr("hx-encoding", "multipart/form-data")
+            .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
+            .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
+            .attr("hx-swap", "outerHTML")
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
@@ -107,9 +110,33 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                                 routes.AdminImportController.index().url())
                             .withClasses("usa-button", "usa-button--outline"))
                     .withClasses("flex", "my-5"))
-            .withAction(routes.AdminImportController.saveProgram().url());
+            .withAction(routes.AdminImportController.hxSaveProgram().url());
 
     return programDiv.with(hiddenForm);
+  }
+
+  /** Renders a message saying the program was successfully saved. */
+  public DomContent renderProgramSaved(String programName) {
+    return div()
+        .with(
+            AlertComponent.renderFullAlert(
+                AlertType.SUCCESS,
+                /* text= */ programName
+                    + " and its questions have been imported to your program dashboard. To view it,"
+                    + " visit the program dashboard.",
+                /* title= */ Optional.of("Your program has been successfully imported"),
+                /* hidden= */ false,
+                /* classes...= */ "mb-2"),
+            div()
+                .with(
+                    asRedirectElement(
+                            button("View program"), routes.AdminProgramController.index().url())
+                        .withClasses("usa-button", "mr-2"),
+                    asRedirectElement(
+                            button("Import another program"),
+                            routes.AdminImportController.index().url())
+                        .withClasses("usa-button", "usa-button--outline"))
+                .withClasses("flex", "my-5"));
   }
 
   private DomContent renderProgramBlock(
