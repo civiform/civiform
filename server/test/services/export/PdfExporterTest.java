@@ -16,6 +16,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import services.applications.PdfExporterService;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -278,6 +279,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     // question): Verify the PDF has the block name, question text, question help text, admin name,
     // admin description, and question type.
     for (int i = 0; i < fakeQuestions.size(); i++) {
+      BlockDefinition block = programDef.blockDefinitions().get(i);
       QuestionDefinition questionDefinition = fakeQuestions.get(i).getQuestionDefinition();
       pdfText = assertContainsThenCrop(pdfText, "Screen " + (i + 1));
       pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionText().getDefault());
@@ -285,6 +287,15 @@ public class PdfExporterTest extends AbstractExporterTest {
         pdfText =
             assertContainsThenCrop(pdfText, questionDefinition.getQuestionHelpText().getDefault());
       }
+      pdfText =
+          assertContainsThenCrop(
+              pdfText,
+              "isOptional: "
+                  + block.programQuestionDefinitions().stream()
+                      .filter(pqd -> pqd.id() == questionDefinition.getId())
+                      .findFirst()
+                      .get()
+                      .optional());
       pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
       pdfText =
           assertContainsThenCrop(
