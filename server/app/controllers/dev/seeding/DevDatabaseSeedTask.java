@@ -49,7 +49,6 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.CantAddQuestionToBlockException;
-import services.program.DuplicateStatusException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -57,7 +56,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -67,6 +65,9 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.statuses.DuplicateStatusException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 
 /**
  * Task for seeding the development database for manual and automated testing. Seeding for prod
@@ -86,6 +87,7 @@ public final class DevDatabaseSeedTask {
   private static final int MAX_RETRIES = 10;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final StatusService statusService;
   private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
@@ -95,10 +97,12 @@ public final class DevDatabaseSeedTask {
   public DevDatabaseSeedTask(
       QuestionService questionService,
       ProgramService programService,
+      StatusService statusService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
       Environment environment) {
     this.questionService = checkNotNull(questionService);
+    this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
@@ -220,11 +224,11 @@ public final class DevDatabaseSeedTask {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
+      String programName = programDefinition.adminName();
 
-      ErrorAnd<ProgramDefinition, CiviFormError> appendStatusResult =
-          programService.appendStatus(
-              programId,
+      ErrorAnd<StatusDefinitions, CiviFormError> appendStatusResult =
+          statusService.appendStatus(
+              programName,
               StatusDefinitions.Status.builder()
                   .setStatusText("Pending Review")
                   .setDefaultStatus(Optional.of(true))
@@ -234,7 +238,7 @@ public final class DevDatabaseSeedTask {
       if (appendStatusResult.isError()) {
         throw new RuntimeException(appendStatusResult.getErrors().toString());
       }
-
+      long programId = programDefinition.id();
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
       blockForm.setName("Screen 1");

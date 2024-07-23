@@ -20,10 +20,10 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * The ProgramBuilder can only be used by tests that have a database available because the programs

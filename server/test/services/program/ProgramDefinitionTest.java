@@ -18,6 +18,7 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.QuestionModel;
 import org.junit.Test;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -30,6 +31,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
@@ -37,6 +39,8 @@ import support.TestQuestionBank;
 public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+  private ApplicationStatusesRepository applicationStatusesRepository =
+      instanceOf(ApplicationStatusesRepository.class);
 
   @Test
   public void createProgramDefinition() {
@@ -1390,6 +1394,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), statusDefinitions);
 
     ObjectMapper objectMapper =
         instanceOf(ObjectMapper.class)
@@ -1426,7 +1432,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 Locale.ITALIAN,
                 "Italian summary image description"));
     assertThat(result.externalLink()).isEqualTo("external.link");
-    assertThat(result.statusDefinitions().getStatuses())
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(result.adminName())
+                .getStatuses())
         .containsExactly(approvedStatus, deniedStatus);
     assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);

@@ -32,6 +32,7 @@ import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
 
 /**
  * An immutable configuration of a program.
