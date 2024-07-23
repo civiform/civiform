@@ -10,24 +10,10 @@ export class AdminProgramMigration {
     this.page = page
   }
 
-  async goToExportPage() {
-    await this.page.getByRole('link', {name: 'Export'}).click()
-    await waitForPageJsLoad(this.page)
-    await this.expectExportPage()
-  }
-
   async expectExportPage() {
     await expect(
       this.page.getByRole('heading', {name: 'Export a program'}),
     ).toBeVisible()
-  }
-
-  async selectProgramToExport(adminName: string) {
-    await this.page.check(`text=${adminName}`)
-  }
-
-  async generateJson() {
-    await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }
 
   async expectJsonPreview() {
@@ -62,8 +48,14 @@ export class AdminProgramMigration {
     return readFileSync(path, 'utf8')
   }
 
+  async clickBackButton() {
+    const backButton = this.page.getByText('Back to all programs')
+    await backButton.click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async goToImportPage() {
-    await this.page.getByRole('link', {name: 'Import'}).click()
+    await this.page.getByRole('link', {name: 'Import existing program'}).click()
     await waitForPageJsLoad(this.page)
     await this.expectImportPage()
   }

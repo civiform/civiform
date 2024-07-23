@@ -14,16 +14,15 @@ test.describe('program migration', () => {
     adminProgramMigration,
     adminQuestions,
   }) => {
-    const programName = 'Program 2'
+    const programName = 'Program 1'
     const dateQuestionText = 'What is your birthday?'
     const emailQuestionText = 'What is your email?'
     const phoneQuestionText = 'What is your phone number?'
     const idQuestionText = 'What is your id number?'
     const block1Description = 'Birthday block'
     const block2Description = 'Key information block'
-    const generateJSONButton = 'Generate JSON'
 
-    await test.step('add two active programs', async () => {
+    await test.step('add active program', async () => {
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({
@@ -45,8 +44,6 @@ test.describe('program migration', () => {
         maxNum: 5,
       })
 
-      await adminPrograms.addProgram('Program 1')
-
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, block1Description, [
         'date-q',
@@ -65,23 +62,10 @@ test.describe('program migration', () => {
 
     await test.step('load export page', async () => {
       await enableFeatureFlag(page, 'program_migration_enabled')
-      await adminProgramMigration.goToExportPage()
 
-      // The "Generate JSON" button is disabled by default
-      await expect(
-        page.getByRole('button', {name: generateJSONButton}),
-      ).toBeDisabled()
+      await adminPrograms.gotoExportProgramPage(programName, 'ACTIVE')
       await validateScreenshot(page.locator('main'), 'export-page')
-    })
 
-    await test.step('generate json for program 2', async () => {
-      await adminProgramMigration.selectProgramToExport('program-2')
-      // Selecting a program enables the "Generate JSON" button
-      await expect(
-        page.getByRole('button', {name: generateJSONButton}),
-      ).toBeEnabled()
-
-      await adminProgramMigration.generateJson()
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
       expect(jsonPreview).toContain(block1Description)
@@ -108,6 +92,10 @@ test.describe('program migration', () => {
       expect(downloadedProgram).toContain('"type" : "id"')
       expect(downloadedProgram).toContain('"minLength" : 1')
       expect(downloadedProgram).toContain('"maxLength" : 5')
+    })
+    await test.step('click back button to return to programs index page', async () => {
+      await adminProgramMigration.clickBackButton()
+      await adminPrograms.expectAdminProgramsPage()
     })
 
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
@@ -186,16 +174,16 @@ test.describe('program migration', () => {
 
     let downloadedProgram: string
     await test.step('export comprehensive program', async () => {
-      await adminProgramMigration.goToExportPage()
-      await adminProgramMigration.selectProgramToExport(
-        'comprehensive-sample-program',
+      await adminPrograms.gotoExportProgramPage(
+        'Comprehensive Sample Program',
+        'ACTIVE',
       )
-      await adminProgramMigration.generateJson()
       downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain('comprehensive-sample-program')
     })
 
     await test.step('import comprehensive program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
       await validateScreenshot(page.locator('main'), 'import-page-no-data')
 

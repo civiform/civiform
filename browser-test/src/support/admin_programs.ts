@@ -367,6 +367,25 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
+  async gotoExportProgramPage(programName: string, lifecycle: string) {
+    await this.gotoAdminProgramsPage()
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        lifecycle,
+        '.cf-with-dropdown',
+      ),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        lifecycle,
+        ':text("Export program")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
+  }
+
   async setProgramEligibility(programName: string, eligibility: Eligibility) {
     await this.goToProgramDescriptionPage(programName)
     await this.chooseEligibility(eligibility)

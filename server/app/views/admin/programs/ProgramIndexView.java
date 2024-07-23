@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -127,11 +128,21 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(
                         h1(pageTitle),
                         div().withClass("flex-grow"),
-                        demographicsCsvModal
-                            .getButton()
-                            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
-                        renderNewProgramButton(),
-                        maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
+                        div()
+                            .with(
+                                div()
+                                    .with(
+                                        demographicsCsvModal
+                                            .getButton()
+                                            .withClasses(
+                                                ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                                        renderNewProgramButton(),
+                                        maybePublishModal.isPresent()
+                                            ? maybePublishModal.get().getButton()
+                                            : null)
+                                    .withClasses("flex", "flex-row", "space-x-4"),
+                                renderImportProgramLink())
+                            .withClasses("flex", "flex-col", "items-end")),
                 div()
                     .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(h2(pageExplanation)),
@@ -472,6 +483,12 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("new-program-button")
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2");
     return asRedirectElement(button, link);
+  }
+
+  private ATag renderImportProgramLink() {
+    return a("Import existing program")
+        .withHref(routes.AdminImportController.index().url())
+        .withClass("usa-link");
   }
 
   private ProgramCardFactory.ProgramCardData buildProgramCardData(
