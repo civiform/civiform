@@ -40,6 +40,20 @@ public class EnumeratorQuestionTest extends ResetPostgres {
               .build(),
           LocalizedStrings.empty());
 
+  private static final EnumeratorQuestionDefinition enumeratorQuestionDefinitionWithLimits =
+      new EnumeratorQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("household members")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .setValidationPredicates(
+                  EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create(2, 3))
+              .build(),
+          LocalizedStrings.empty());
+
   private ApplicantModel applicant;
   private ApplicantData applicantData;
 
@@ -60,7 +74,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -76,7 +90,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
-    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -91,14 +105,13 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        enumeratorQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(
-            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED))));
   }
 
   @Test
@@ -114,14 +127,75 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        enumeratorQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(
-            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME))));
+  }
+
+  @Test
+  public void withTooManyEntities_hasValidationError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("one", "two", "three", "four"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly("one", "two", "three", "four");
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, 3))));
+  }
+
+  @Test
+  public void withTooFewEntities_hasValidationError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("one"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly("one");
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_TOO_FEW_ENTITIES, 2))));
+  }
+
+  @Test
+  public void withOkayNumberOfEntities_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("one", "two", "three"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly("one", "two", "three");
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
+    assertThat(enumeratorQuestion.getValidationErrors());
   }
 
   @Test

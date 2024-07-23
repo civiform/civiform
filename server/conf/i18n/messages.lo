@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -11,9 +11,21 @@
 button.logout=ອອກຈາກລະບົບ
 label.selectLanguage=ກະລຸນາເລືອກພາສາທີ່ທ່ານຕ້ອງການ.
 button.untranslatedSubmit=ສົ່ງ
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=ແຂກ
 label.languageSr=ເລືອກພາສາ
+# A label on the button that opens the header menu shown on mobile
+header.menu=ເມນູ
 header.endSession=ສິ້ນສຸດເຊດຊັນ
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
@@ -23,6 +35,8 @@ validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ�
 validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=ຊ່ອງຂໍ້ມູນທີ່ຈຳເປັນແມ່ນໝາຍດ້ວຍເຄື່ອງໝາຍດອກຈັນ ({0}).
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
@@ -60,12 +74,18 @@ button.deleteFile=ລຶບ
 button.keepFile=ສືບຕໍ່
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=ກັບຄືນ
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=ບັນທຶກ ແລະ ສຳເລັດແອັບພລິເຄຊັນພາຍຫຼັງ
 button.skipFileUpload=ຂ້າມ
 content.blockProgress={0} ຈາກທັງໝົດ {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={0} ຈາກທັງໝົດ {1} ຄຳຖາມ
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=ຄວາມຄືບໜ້າຂອງການສະໝັກ
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={0} ຈາກທັງໝົດ {1} ໄຟລ໌
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງການນີ້ບໍ່ໄດ້ແປເປັນພາສາທີ່ທ່ານຕ້ອງການຢ່າງສົມບູນຄົບຖ້ວນ.
@@ -101,6 +121,8 @@ button.continueToApplication=ສືບຕໍ່ສະໝັກ
 button.startHereCommonIntakeSr=ເລີ່ມຕົ້ນບ່ອນນີ້ໂດຍການຕື່ມຂໍ້ມູນ {0}
 button.editCommonIntakeSr=ແກ້ໄຂຂໍ້ມູນທີ່ສົ່ງສຳລັບ {0}
 button.continueCommonIntakeSr=ສືບຕໍ່ຕື່ມຂໍ້ມູນ {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=ເບິ່ງລາຍລະອຽດ
 content.submittedDate=ສົ່ງ {0} ແລ້ວ
 content.findPrograms=ຊອກຫາໂຄງການ
 content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາໂຄງການທີ່ທ່ານອາດມີສິດຮັບໃນ {0}. ເລີ່ມຕົ້ນໂດຍເລືອກໃບສະໝັກທາງລຸ່ມ.
@@ -114,8 +136,18 @@ title.allProgramsSection=ໂຄງການທັງໝົດ ({0})
 title.status=ສະຖານະ
 title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=ໂຄງການອື່ນໆ ({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=ໂຄງການ ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=ແນະນຳ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=ພາກສ່ວນທີ່ສຳເລັດແລ້ວ
 title.submittedPrograms=ສົ່ງແລ້ວ
 toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດແລ້ວ: ລະຫັດໃບສະໝັກ {0}
 toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
@@ -208,11 +240,15 @@ label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸວັນເດືອນປີເກີດ
+label.errorDOB=ຕ້ອງລະບຸວັນເດືອນປີເກີດ
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸຊື່
+label.errorFirstName=ຕ້ອງລະບຸຊື່
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸນາມສະກຸນ
+label.errorLastName=ຕ້ອງລະບຸນາມສະກຸນ
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດສ້າງຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດອັບເດດຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +287,9 @@ title.displayingAllClients=ກຳລັງສະແດງລູກຂ່າຍ�
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=ສະມາຊິກຂອງອົງກອນ
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ຈັດການລູກຂ່າຍ - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ເບິ່ງການຕັ້ງຄ່າບັນຊີ - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +298,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=ສົ່ງ
 button.continue=ສືບຕໍ່
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=ເລີ່ມ
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
 link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
@@ -276,7 +312,7 @@ ariaLabel.answer=ຕອບ {0}
 ariaLabel.edit=ແກ້ໄຂ {0}
 title.commonIntakeSummary=ສະຫຼຸບສິດທິປະໂຫຍດກວດສອບລ່ວງໜ້າ
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=ມາເລີ່ມກັນເລີຍ.
 title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
 
 #------------------------------------------------------------------------#
@@ -299,6 +335,46 @@ toast.mayNotQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່າ
 
 toast.mayNotQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
 banner.errorSavingApplication=ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກໃບສະໝັກ
+
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=ທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=ທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ອີກຕໍ່ໄປ
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=ລູກຄ້າຂອງທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=ລູກຄ້າຂອງທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງລູກຄ້າຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ອີກຕໍ່ໄປ
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງລູກຄ້າຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -331,6 +407,19 @@ title.noChangesToSave=ບໍ່ມີການປ່ຽນແປງທີ່ຈ�
 content.noChanges=ທ່ານຍັງບໍ່ໄດ້ດຳເນີນການປ່ຽນແປງໃດໆຕໍ່ກັບໃບສະໝັກເທື່ອ. ທ່ານຕ້ອງການສືບຕໍ່ແກ້ໄຂບໍ?
 button.continueEditing=ສືບຕໍ່ແກ້ໄຂ
 button.exitApplication=ອອກຈາກໃບສະໝັກ
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=ບໍ່ສາມາດເຂົ້າເຖິງໂຄງການນີ້ໄດ້ອີກຕໍ່ໄປ
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=ຂໍອະໄພ, ໂຄງການທີ່ທ່ານພະຍາຍາມເຂົ້າເຖິງໄດ້ຖືກປິດການນຳໃຊ້ແລ້ວ. ເພື່ອຊອກຫາໂຄງການເພີ່ມເຕີມ, ກະລຸນາກັບຄືນໄປຫາໜ້າຫຼັກ.
+# Button text on a button that takes the user back to the home page.
+button.homePage=ກັບຄືນໄປຫາໜ້າຫຼັກ
+
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -394,37 +483,37 @@ validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ�
 
 validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບທີ່ຖືກຕ້ອງ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - ມັງກອນ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - ກຸມພາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - ມີນາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - ເມສາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - ພຶດສະພາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - ມິຖຸນາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - ກໍລະກົດ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - ສິງຫາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - ກັນຍາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - ຕຸລາ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - ພະຈິກ
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - ທັນວາ
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=ເລືອກ
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=ຂໍ້ຜິດພາດ: ກະລຸນາລະບຸເດືອນ, ວັນທີ ແລະ ປີ.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=ວັນເດືອນປີເກີດຕ້ອງແມ່ນວັນທີໃນອະດີດ
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=ວັນເດືອນປີເກີດຕ້ອງໜ້ອຍກວ່າ 150 ປີທີ່ຜ່ານມາ
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -432,11 +521,14 @@ validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 button.addEntity=ເພີ່ມ {0}
 button.removeEntity=ລຶບ {0} ອອກ
-dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນຫາຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=ກະລຸນາໃສ່ສູງສຸດ {0} ຄ່າ.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=ກະລຸນາໃສ່ຢ່າງໜ້ອຍ {0} ຄ່າ.
 placeholder.entityName=ຊື່ {0}
 
 #---------------------------------------------------------------------------------#
@@ -461,7 +553,8 @@ validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=ກະລຸນາເລືອກຢ່າງໜ້ອຍ {0} ຂໍ້.
-validation.tooManySelections=ກະລຸນາເລືອກໜ້ອຍກວ່າ {0} ຂໍ້.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=ກະລຸນາເລືອກບໍ່ເກີນ {0} ຕົວເລືອກ.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -530,8 +623,27 @@ email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັ�
 #------------------------------------------------------------------------------#
 
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=ເວັບໄຊຢ່າງເປັນທາງການຂອງລັດຖະບານສະຫະລັດອາເມລິກາ
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.
 banner.httpsSectionHeader=ເວັບໄຊ .gov ທີ່ປອດໄພຈະໃຊ້ HTTPS
 banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:// ໝາຍຄວາມວ່າທ່ານໄດ້ເຊື່ອມຕໍ່ກັບເວັບໄຊ .gov ຢ່າງປອດໄພ. ກະລຸນາແບ່ງປັນຂໍ້ມູນລະອຽດອ່ອນຢູ່ເວັບໄຊຢ່າງເປັນທາງການທີ່ປອດໄພເທົ່ານັ້ນ.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=ເວັບໄຊນີ້ມີຈຸດປະສົງເພື່ອການທົດສອບເທົ່ານັ້ນ. ກະລຸນາຢ່າລະບຸຂໍ້ມູນສ່ວນຕົວ.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າຮ່ວມໂຄງການ ຫຼື ບໍລິການ, ໃຫ້ເຂົ້າໄປ {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=ທ່ານກຳລັງສະໝັກໃນຖານະຜູ້ເຂົ້າຮ່ວມ. ຫຼັງຈາກທີ່ທ່ານສະໝັກສຳເລັດແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ

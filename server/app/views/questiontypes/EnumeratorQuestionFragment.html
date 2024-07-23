@@ -2,9 +2,13 @@
 <div
   th:fragment="enumerator(question)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
-             questionId=${'id-' + #strings.randomAlphanumeric(8)}"
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
+             hasErrors=${questionRendererParams.shouldShowErrors() && !enumeratorQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-question-enumerator"
+  class="cf-question-enumerator cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
 >
   <fieldset
     class="usa-fieldset"
@@ -17,7 +21,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
     ></div>
 
     <div
@@ -54,6 +58,7 @@
         th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
         id="enumerator-field-add-button"
         type="button"
+        class="usa-button usa-button--outline margin-top-105"
       ></button>
     </div>
   </fieldset>
@@ -62,7 +67,7 @@
 <!--/* Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  */-->
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
-  class="cf-enumerator-field"
+  class="cf-enumerator-field cf-north-star-enumerator-field maxw-mobile-lg"
   th:classappend="${hidden ? 'hidden' : ''}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
@@ -75,7 +80,7 @@
     </label>
     <input
       type="text"
-      class="usa-input"
+      class="usa-input margin-y-1"
       maxlength="10000"
       th:id="${inputId}"
       th:value="${existingEntity}"
@@ -86,13 +91,15 @@
     <div th:id="${inputId + '-errors'}"></div>
   </div>
   <!--/* Delete entity button */-->
-  <button
-    type="button"
-    class="cf-enumerator-delete-button"
-    th:id="${deleteButtonId}"
-    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
-    th:attr="onclick='if(confirm(\'' + #{dialog.confirmDelete(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
-  ></button>
+  <div class="display-flex flex-justify-end">
+    <button
+      type="button"
+      class="cf-enumerator-delete-button usa-button--unstyled"
+      th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
+      th:id="${deleteButtonId}"
+      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    ></button>
+  </div>
 </div>
 
 <!--/* Enumerator delete template, used in TS to remove an existing enumerator field */-->

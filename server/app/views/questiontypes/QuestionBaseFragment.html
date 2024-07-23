@@ -1,46 +1,51 @@
-<th:block th:fragment="validationErrors(validationErrors)">
+<th:block
+  th:fragment="validationErrors(validationErrors, questionRendererParams)"
+>
   <div
     th:each="error: ${validationErrors}"
-    th:text="#{${error.key.getKeyName()}(${error.args})}"
+    th:if="${questionRendererParams.shouldShowErrors()}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+    class="cf-question-error-message"
   ></div>
 </th:block>
 
-<th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
+<div
+  th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
+  class="margin-bottom-105"
+>
   <!--/* Question title */-->
-  <legend class="usa-legend">
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
-    ></div>
+  <legend class="usa-legend display-flex">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </legend>
 
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:text="${question.getQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText()}"
+    class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
   ></div>
-</th:block>
+</div>
 
-<th:block
+<div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
+  class="margin-bottom-105"
 >
   <!--/* Question title */-->
-  <label class="usa-label" th:for="${inputId}">
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"
-    ></div>
+  <label class="usa-label display-flex" th:for="${inputId}">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:text="${question.getQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText()}"
+    class="cf-applicant-question-help-text"
   ></div>
-</th:block>
+</div>
 
 <th:block th:fragment="titleContent(question)">
-  <span th:text="${question.getQuestionText()}"></span>
-  <!--/* Required asterisk */-->
-  <th:block th:if="${!question.isOptional()}">
-    <span class="usa-hint--required"> *</span>
-  </th:block>
+  <span
+    th:utext="${question.getFormattedQuestionText()}"
+    class="font-sans-lg cf-applicant-question-text"
+  ></span>
 </th:block>

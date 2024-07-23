@@ -32,12 +32,14 @@ import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -52,6 +54,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -124,8 +127,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
-    // The total question count should be equivalent to the number of rows in the displayed table,
-    // where we have a single entry for a question that is active and has a draft.
+    // The total question count should be equivalent to the number of rows in the
+    // displayed table, where we have a single entry for a question that is active
+    // and has a draft.
     return div(String.format(
             "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
         .withClasses("float-right", "text-base", "px-4", "my-2");
@@ -207,11 +211,11 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  ViewUtils.makeAlertSlim(
+                  AlertComponent.renderSlimAlert(
+                      AlertType.INFO,
                       "We recommend using Universal questions in your program for all personal and"
                           + " contact information questions.",
-                      /* hidden= */ false,
-                      /* classes...= */ BaseStyles.ALERT_INFO))
+                      /* hidden= */ false))
               .with(universalQuestionContent));
     }
     questionContent.with(
@@ -394,14 +398,15 @@ public final class QuestionsListView extends BaseHtmlView {
                 Icons.questionTypeSvg(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
-                div(definition.getQuestionText().getDefault())
+                div()
+                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
+    String questionDescriptionString =
+        definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
     DivTag questionDescription =
-        div(
-            div(definition.getQuestionHelpText().isEmpty()
-                    ? ""
-                    : definition.getQuestionHelpText().getDefault())
-                .withClasses("pl-10"));
+        div(div().with(TextFormatter.formatText(questionDescriptionString)).withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
@@ -634,8 +639,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private DivTag referencingProgramList(
       String title, ImmutableList<ProgramDefinition> referencingPrograms) {
-    // TODO(#3162): Add ability to view a published program. Then add
-    // links to the specific block that references the question.
+    // TODO(#3162): Add ability to view a published program. Then add links to the
+    // specific block that references the question.
     return div()
         .with(p(title).withClass("font-semibold"))
         .with(
@@ -684,9 +689,11 @@ public final class QuestionsListView extends BaseHtmlView {
         isActive ? cardData.activeQuestion().get() : cardData.draftQuestion().get();
     ImmutableList.Builder<DomContent> extraActions = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    // some actions such as "edit" or "archive" need to be rendered only on one of two rows.
+    // some actions such as "edit" or "archive" need to be rendered only on one of
+    // two rows.
     // If there is only "draft" or only "active" rows - render these actions.
-    // If there are both "draft" and "active" versions - render edit actions only on "draft".
+    // If there are both "draft" and "active" versions - render edit actions only on
+    // "draft".
     boolean isEditable =
         !isActive
             || activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isEmpty();
@@ -701,8 +708,8 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
-    // Add Archive option only if current question is draft or it's active, but there is no
-    // draft version of the question.
+    // Add Archive option only if current question is draft or it's active, but
+    // there is no draft version of the question.
     if (isEditable) {
       Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
           renderArchiveOptions(cardData, question, activeAndDraftQuestions, request);

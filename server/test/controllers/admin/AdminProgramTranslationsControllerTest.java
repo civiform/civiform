@@ -2,15 +2,16 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
+import controllers.FlashKey;
 import java.util.Locale;
 import java.util.Optional;
 import models.ProgramModel;
@@ -59,15 +60,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result =
-        controller.edit(
-            addCSRFToken(fakeRequest()).build(),
-            program.getProgramDefinition().adminName(),
-            "en-US");
+        controller.edit(fakeRequest(), program.getProgramDefinition().adminName(), "en-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).isEqualTo("The en-US locale is not supported");
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get())
+        .isEqualTo("The en-US locale is not supported");
   }
 
   @Test
@@ -75,10 +74,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result =
-        controller.edit(
-            addCSRFToken(fakeRequest()).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+        controller.edit(fakeRequest(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -108,10 +104,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
 
     Result result =
-        controller.edit(
-            addCSRFToken(fakeRequest()).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+        controller.edit(fakeRequest(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -134,10 +127,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_programNotFound_returnsNotFound() {
-    assertThatThrownBy(
-            () ->
-                controller.edit(
-                    addCSRFToken(fakeRequest()).build(), "non-existent program name", "es-US"))
+    assertThatThrownBy(() -> controller.edit(fakeRequest(), "non-existent program name", "es-US"))
         .hasMessage("No draft found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
   }
@@ -147,7 +137,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
@@ -162,9 +152,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
     assertThat(result.status()).isEqualTo(OK);
 
     ProgramDefinition updatedProgram =
@@ -217,10 +205,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_programNotFound() {
-    assertThatThrownBy(
-            () ->
-                controller.update(
-                    addCSRFToken(fakeRequest()).build(), "non-existent program name", "es-US"))
+    assertThatThrownBy(() -> controller.update(fakeRequest(), "non-existent program name", "es-US"))
         .hasMessage("No draft found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
   }
@@ -231,7 +216,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "")
@@ -248,9 +233,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -271,7 +254,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest()
+        fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
@@ -288,9 +271,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.getProgramDefinition().adminName(),
-            "es-US");
+            requestBuilder.build(), program.getProgramDefinition().adminName(), "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation().orElse(""))
@@ -298,7 +279,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             controllers.admin.routes.AdminProgramTranslationsController.edit(
                     program.getProgramDefinition().adminName(), "es-US")
                 .url());
-    assertThat(result.flash().get("error").get())
+    assertThat(result.flash().get(FlashKey.ERROR).get())
         .isEqualTo("The program's associated statuses are out of date.");
 
     assertProgramNotChanged(program);

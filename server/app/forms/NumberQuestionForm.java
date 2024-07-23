@@ -38,11 +38,8 @@ public class NumberQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMin(String minAsString) {
-    if (minAsString.isEmpty()) {
-      this.min = OptionalLong.empty();
-    } else {
-      this.min = OptionalLong.of(Long.parseLong(minAsString));
-    }
+    this.min =
+        minAsString.isEmpty() ? OptionalLong.empty() : OptionalLong.of(Long.parseLong(minAsString));
   }
 
   public OptionalLong getMax() {
@@ -56,11 +53,8 @@ public class NumberQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMax(String maxAsString) {
-    if (maxAsString.isEmpty()) {
-      this.max = OptionalLong.empty();
-    } else {
-      this.max = OptionalLong.of(Long.parseLong(maxAsString));
-    }
+    this.max =
+        maxAsString.isEmpty() ? OptionalLong.empty() : OptionalLong.of(Long.parseLong(maxAsString));
   }
 
   @Override

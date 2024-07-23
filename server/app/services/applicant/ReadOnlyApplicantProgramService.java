@@ -15,6 +15,9 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns the program title, localized to the applicant's preferred locale. */
   String getProgramTitle();
 
+  /** Returns the program description, localized to the applicant's preferred locale. */
+  public String getProgramDescription();
+
   /** Returns the ID of the program. */
   Long getProgramId();
 
@@ -122,7 +125,7 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<AnswerData> getSummaryDataOnlyHidden();
 
   /** Get the string identifiers for all stored files for this application. */
-  ImmutableList<String> getStoredFileKeys();
+  ImmutableList<String> getStoredFileKeys(boolean multipleUploadsEnabled);
 
   /**
    * Returns if all Program eligibility criteria are met. This will return false in some cases where

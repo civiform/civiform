@@ -2,8 +2,7 @@ package services.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
@@ -79,54 +78,52 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_withMissingDob() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm =
         service
             .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
             .getForm();
-    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of Birth required");
+    assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of birth required");
   }
 
   @Test
   public void addClient_withInvalidDob() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "1850-07-07",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "1850-07-07",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm =
@@ -140,24 +137,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_withUnformattedDob() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "20-20-20",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "20-20-20",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm =
@@ -171,24 +167,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_withInvalidLastName() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm =
@@ -201,24 +196,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_WithInvalidFirstName() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm =
@@ -231,24 +225,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_WithEmailAddressExistsError() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "sample@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "sample@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnedForm1 =
@@ -270,24 +263,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_WithEmptyEmailAddress() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "No",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "Email",
-                        "dob",
-                        "2011-11-11",
-                        "emailAddress",
-                        "",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "No",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "Email",
+                    "dob",
+                    "2011-11-11",
+                    "emailAddress",
+                    "",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     AddNewApplicantReturnObject returnObject =
@@ -311,24 +303,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void addClient_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "add1@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "add1@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     AddNewApplicantReturnObject returnObject =
@@ -358,8 +349,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email3");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getEmailAddress()).isEqualTo("email3");
   }
 
   @Test
@@ -371,8 +362,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         SearchParameters.builder().setNameQuery(Optional.of("Emily")).build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email20");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getEmailAddress()).isEqualTo("email20");
   }
 
   @Test
@@ -388,7 +379,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     // The size is 3 because two other accounts are added to the tiGroup in setup()
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+    assertThat(tiResult.accounts().size()).isEqualTo(3);
   }
 
   @Test
@@ -404,7 +395,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     // The size is 3 because two other accounts are added to the tiGroup in setup()
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+    assertThat(tiResult.accounts().size()).isEqualTo(3);
   }
 
   @Test
@@ -421,7 +412,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(0);
+    assertThat(tiResult.accounts().size()).isEqualTo(0);
   }
 
   @Test
@@ -437,8 +428,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
-    assertThat(tiResult.getAccounts().get().get(0).getApplicantName()).contains("Bobo");
+    assertThat(tiResult.accounts().size()).isEqualTo(1);
+    assertThat(tiResult.accounts().get(0).getApplicantName()).contains("Bobo");
   }
 
   @Test
@@ -455,8 +446,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
-    assertThat(tiResult.getErrorMessage().get()).isEqualTo("Please enter a valid birth date.");
+    assertThat(tiResult.accounts().size()).isEqualTo(tiGroup.getManagedAccounts().size());
+    assertThat(tiResult.errorMessage().get()).isEqualTo("Please enter a valid birth date.");
   }
 
   @Test
@@ -464,24 +455,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     AccountModel account = setupTiClientAccount("emailOld", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "emailAllPassEditClient",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "emailAllPassEditClient",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -508,24 +498,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_PhoneLengthValidationFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "42598790")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "42598790"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -539,24 +528,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_PhoneNumberNonDigitValidationFail()
       throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "42598790UI")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "42598790UI"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -569,24 +557,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_PhoneNumberValidationFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "0000000000")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "0000000000"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -599,24 +586,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_EmptyPhoneNumberDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    ""));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -628,24 +614,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_EmptyEmailDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259870989")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259870989"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -657,24 +642,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_EmptyTiNotesDoesNotFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "checkEmail",
-                        "tiNote",
-                        "",
-                        "phoneNumber",
-                        "4259870989")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "checkEmail",
+                    "tiNote",
+                    "",
+                    "phoneNumber",
+                    "4259870989"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -688,24 +672,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     AccountModel account = setupTiClientAccount("email1123", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2040-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "42598790")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2040-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "42598790"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -721,24 +704,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     AccountModel account = setupTiClientAccount("email121", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2040-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "42598790")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2040-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "42598790"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -753,24 +735,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     AccountModel account = setupTiClientAccount("email121", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "first",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "",
-                        "dob",
-                        "2040-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "42598790")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "first",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "",
+                    "dob",
+                    "2040-07-07",
+                    "emailAddress",
+                    "email2123",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "42598790"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<TiClientInfoForm> returnForm =
@@ -783,24 +764,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void editTiClientInfo_throwsException() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email21",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "email21",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Form<TiClientInfoForm> form =
         formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     assertThatThrownBy(

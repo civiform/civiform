@@ -13,7 +13,6 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
@@ -68,7 +67,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -81,13 +80,12 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        multiSelectQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
+    assertThat(multiSelectQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2))));
   }
 
   @Test
@@ -101,7 +99,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -115,13 +113,12 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        multiSelectQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
+    assertThat(multiSelectQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2))));
   }
 
   @Test
@@ -140,14 +137,13 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        multiSelectQuestion.getValidationErrors();
-    assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(
-            validationErrors.getOrDefault(
-                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(
-            ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 4));
+    assertThat(multiSelectQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3))));
   }
 
   @Test
@@ -161,7 +157,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test

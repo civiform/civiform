@@ -102,11 +102,10 @@ public final class TrustedIntermediaryController {
     TrustedIntermediarySearchResult trustedIntermediarySearchResult =
         tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     if (!trustedIntermediarySearchResult.isSuccessful()) {
-      throw new BadRequestException(trustedIntermediarySearchResult.getErrorMessage().get());
+      throw new BadRequestException(trustedIntermediarySearchResult.errorMessage().get());
     }
     PaginationInfo<AccountModel> pageInfo =
-        PaginationInfo.paginate(
-            trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
+        PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
 
     Optional<String> applicantName =
         civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();

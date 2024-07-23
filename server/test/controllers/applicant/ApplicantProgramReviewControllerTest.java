@@ -1,16 +1,17 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.FlashKey;
 import controllers.WithMockedProfiles;
+import java.util.Collections;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -18,10 +19,12 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.api.routing.HandlerDef;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
 import repository.VersionRepository;
+import scala.jdk.javaapi.CollectionConverters;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
@@ -174,7 +177,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_obsoleteProgram_isSuccessful() {
+  public void submit_obsoleteProgram_isSuccessful_whenFastForwardDisabled() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
@@ -198,6 +201,102 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .join();
     assertThat(applications).hasSize(1);
     assertThat(applications.asList().get(0).getProgram().id).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void submit_obsoleteProgram_redirectsToReviewPageForTi_whenFastForwardEnabled() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    ProgramModel newProgramModel =
+        resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    versionRepository.publishNewSynchronizedVersion();
+
+    answer(programDefinition.id());
+
+    var programId = programDefinition.id();
+
+    Request request =
+        createFakeRequestWithFastForwardFeatureEnabled(
+            programId, "/applicants/$applicantId<[^/]+>/programs/$programId<[^/]+>/");
+
+    Result result =
+        blockController
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().isPresent()).isTrue();
+    assertThat(result.redirectLocation().get())
+        .isEqualTo(
+            routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                    applicant.id, newProgramModel.id)
+                .url());
+
+    // An application was not submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).isEmpty();
+  }
+
+  @Test
+  public void submit_obsoleteProgram_redirectsToReviewPage_whenFastForwardEnabled() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    ProgramModel newProgramModel =
+        resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    versionRepository.publishNewSynchronizedVersion();
+
+    answer(programDefinition.id());
+
+    var programId = programDefinition.id();
+
+    Request request =
+        createFakeRequestWithFastForwardFeatureEnabled(programId, "/programs/$programId<[^/]+>/");
+
+    Result result =
+        blockController
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().isPresent()).isTrue();
+    assertThat(result.redirectLocation().get())
+        .isEqualTo(routes.ApplicantProgramReviewController.review(newProgramModel.id).url());
+
+    // An application was not submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).isEmpty();
   }
 
   @Test
@@ -235,8 +334,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     // The questions haven't been answered.
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get())
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get())
         .contains("There's been an update to the application");
   }
 
@@ -274,14 +373,50 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
+  private Request createFakeRequestWithFastForwardFeatureEnabled(
+      long programId, String routePattern) {
+    HandlerDef handlerDef =
+        new HandlerDef(
+            getClass().getClassLoader(),
+            "router",
+            "controllers.MyFakeController",
+            "index",
+            CollectionConverters.asScala(Collections.<Class<?>>emptyList()).toSeq(),
+            "GET",
+            routePattern,
+            "",
+            CollectionConverters.asScala(Collections.<String>emptyList()).toSeq());
+
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    programId,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
+            .addCiviFormSetting("FASTFORWARD_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .attr(play.routing.Router.Attrs.HANDLER_DEF, handlerDef)
+            .build();
+
+    return request;
+  }
+
   public Result review(long applicantId, long programId) {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
-        addCSRFToken(
-                requestBuilderWithSettings(
-                        routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                            applicantId, programId))
-                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                    applicantId, programId))
+            .header(skipUserProfile, shouldSkipUserProfile.toString())
             .build();
     return subject
         .reviewWithApplicantId(request, applicantId, programId)
@@ -292,11 +427,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result submit(long applicantId, long programId) {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
-        addCSRFToken(
-                requestBuilderWithSettings(
-                        routes.ApplicantProgramReviewController.submitWithApplicantId(
-                            applicantId, programId))
-                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramReviewController.submitWithApplicantId(
+                    applicantId, programId))
+            .header(skipUserProfile, shouldSkipUserProfile.toString())
             .build();
     return subject
         .submitWithApplicantId(request, applicantId, programId)
@@ -306,7 +441,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private void answer(long programId) {
     Request request =
-        requestBuilderWithSettings(
+        fakeRequestBuilder()
+            .call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     programId,

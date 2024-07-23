@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -52,7 +53,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Execute.
     Request request =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .bodyForm(ImmutableMap.of("question-", activeId.toString()))
@@ -69,7 +71,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void create_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThatThrownBy(() -> controller.create(fakeRequest().build(), programId, /* blockId= */ 1))
+    assertThatThrownBy(() -> controller.create(fakeRequest(), programId, /* blockId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -89,7 +91,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.setOptional(
-                    fakeRequest().build(),
+                    fakeRequest(),
                     programId,
                     /* blockDefinitionId= */ 1,
                     /* questionDefinitionId= */ 1))
@@ -113,7 +115,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Execute. Move "name" question to position 1.
     Request request =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
@@ -145,7 +148,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Missing position value.
     Request requestWithNoPosition =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
@@ -158,7 +162,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Position is not a number.
     Request requestWithInvalidPosition =
-        fakeRequest(
+        fakeRequestBuilder()
+            .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())

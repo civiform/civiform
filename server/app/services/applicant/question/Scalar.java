@@ -22,6 +22,7 @@ public enum Scalar {
   CURRENCY_CENTS("currency", ScalarType.CURRENCY_CENTS),
   DATE("date", ScalarType.DATE),
   EMAIL("email", ScalarType.STRING),
+  FILE_KEY_LIST("file keys", ScalarType.LIST_OF_STRINGS),
   FILE_KEY("file key", ScalarType.STRING),
   FIRST_NAME("first name", ScalarType.STRING),
   ID("id", ScalarType.STRING),
@@ -52,7 +53,8 @@ public enum Scalar {
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
   COUNTRY_CODE("country_code", ScalarType.STRING),
 
-  // Scalars for Date Question using memorable date (3 different inputs)
+  // Scalars for Date Question using memorable date (3 different inputs). They are not used
+  // for storage or predicates, so they are not included in getScalars.
   DAY("day", ScalarType.LONG),
   MONTH("month", ScalarType.LONG),
   YEAR("year", ScalarType.LONG),
@@ -110,11 +112,11 @@ public enum Scalar {
       case CURRENCY:
         return ImmutableSet.of(CURRENCY_CENTS);
       case DATE:
-        return ImmutableSet.of(DATE, YEAR, MONTH, DAY);
+        return ImmutableSet.of(DATE);
       case EMAIL:
         return ImmutableSet.of(EMAIL);
       case FILEUPLOAD:
-        return ImmutableSet.of(FILE_KEY, ORIGINAL_FILE_NAME);
+        return ImmutableSet.of(FILE_KEY, FILE_KEY_LIST, ORIGINAL_FILE_NAME);
       case ID:
         return ImmutableSet.of(ID);
       case NAME:

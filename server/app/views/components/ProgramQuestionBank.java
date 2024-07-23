@@ -26,15 +26,16 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.AlertType;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import views.AlertComponent;
 import views.ViewUtils;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
@@ -171,11 +172,11 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  ViewUtils.makeAlertSlim(
+                  AlertComponent.renderSlimAlert(
+                      AlertType.INFO,
                       "We recommend using all universal questions in your program for personal and"
                           + " contact information questions.",
-                      /* hidden= */ false,
-                      /* classes...= */ BaseStyles.ALERT_INFO))
+                      /* hidden= */ false))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd))));
     }
     contentDiv.with(
@@ -237,14 +238,18 @@ public final class ProgramQuestionBank {
             ? p()
             : p(String.format("Admin note: %s", definition.getDescription()))
                 .withClasses("mt-1", "text-sm");
+
     DivTag content =
         div()
             .withClasses("ml-4", "grow")
             .with(
-                p(definition.getQuestionText().getDefault())
+                div()
+                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
                     .withClasses(
                         ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5", "break-all"),
-                p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
+                div()
+                    .with(TextFormatter.formatText(questionHelpText))
+                    .withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),
                 adminNote);

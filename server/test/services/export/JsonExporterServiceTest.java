@@ -1,6 +1,7 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -8,7 +9,6 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Test;
-import play.test.Helpers;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
@@ -16,6 +16,10 @@ import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.Path;
+import services.geo.CorrectedAddressState;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaInclusionGroup;
+import services.geo.ServiceAreaState;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
@@ -30,6 +34,8 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 public class JsonExporterServiceTest extends AbstractExporterTest {
+
+  private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
 
   // TODO(#5257): Refactor testAllQuestionTypesWithoutEnumerators() and
   // testQuestionTypesWithEnumerators()
@@ -50,8 +56,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertLengthOf(3);
@@ -131,8 +136,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].create_time", "2022-04-09T03:07:02-07:00");
@@ -148,8 +152,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgramWithEnumerator.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
@@ -211,8 +214,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].submitter_type", "TRUSTED_INTERMEDIARY");
@@ -231,8 +233,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].submitter_type", "APPLICANT");
@@ -243,12 +244,35 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
+    var serviceAreas =
+        ImmutableList.of(
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("cityvilleTownship")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build(),
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("portland")
+                .setState(ServiceAreaState.NOT_IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build());
+
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
             .withQuestion(testQuestionBank.applicantAddress())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerAddressQuestion("12345 E South St", "Apt 8i", "CityVille Township", "OR", "54321")
+        .answerCorrectedAddressQuestion(
+            "12345 E South St",
+            "Apt 8i",
+            "CityVille Township",
+            "OR",
+            "97403",
+            CorrectedAddressState.CORRECTED.getSerializationFormat(),
+            44.0462,
+            -123.0236,
+            54321L,
+            ServiceAreaInclusionGroup.serialize(serviceAreas))
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -257,16 +281,63 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.question_type", "ADDRESS");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.street", "12345 E South St");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.line2", "Apt 8i");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.city", "CityVille Township");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.state", "OR");
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.zip", "54321");
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : "CityVille Township",
+          "corrected" : "Corrected",
+          "latitude" : "44.0462",
+          "line2" : "Apt 8i",
+          "longitude" : "-123.0236",
+          "question_type" : "ADDRESS",
+          "service_area" : "cityvilleTownship_InArea_1709069741,portland_NotInArea_1709069741",
+          "state" : "OR",
+          "street" : "12345 E South St",
+          "well_known_id" : "54321",
+          "zip" : "97403"
+        }""");
+  }
+
+  @Test
+  public void export_whenAddressQuestionOnlyRequiredFieldsAreAnswered_unansweredFieldsAreNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantAddress())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerAddressQuestion("12345 E South St", "", "CityVille Township", "OR", "97403")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : "CityVille Township",
+          "corrected" : null,
+          "latitude" : null,
+          "line2" : null,
+          "longitude" : null,
+          "question_type" : "ADDRESS",
+          "service_area" : null,
+          "state" : "OR",
+          "street" : "12345 E South St",
+          "well_known_id" : null,
+          "zip" : "97403"
+        }""");
   }
 
   @Test
@@ -284,16 +355,25 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtApplicationPath(".applicant_address.question_type", "ADDRESS");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.street");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.line2");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.city");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.state");
-    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.zip");
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_address",
+        """
+        {
+          "city" : null,
+          "corrected" : null,
+          "latitude" : null,
+          "line2" : null,
+          "longitude" : null,
+          "question_type" : "ADDRESS",
+          "service_area" : null,
+          "state" : null,
+          "street" : null,
+          "well_known_id" : null,
+          "zip" : null
+        }""");
   }
 
   @Test
@@ -317,16 +397,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".kitchen_tools",
-        "{\n"
-            + "  \"question_type\" : \"MULTI_SELECT\",\n"
-            + "  \"selections\" : [ \"pepper_grinder\", \"garlic_press\" ]\n"
-            + "}");
+        """
+        {
+          "question_type" : "MULTI_SELECT",
+          "selections" : [ "pepper_grinder", "garlic_press" ]
+        }""");
   }
 
   @Test
@@ -344,16 +424,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".kitchen_tools",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"MULTI_SELECT\",\n"
-            + "  \"selections\" : [ ]\n"
-            + "}");
+        """
+        {
+          "question_type" : "MULTI_SELECT",
+          "selections" : [ ]
+        }""");
   }
 
   @Test
@@ -371,16 +451,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_monthly_income",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"currency_dollars\" : 5444.33,\n"
-            + "  \"question_type\" : \"CURRENCY\"\n"
-            + "}");
+        """
+        {
+          "currency_dollars" : 5444.33,
+          "question_type" : "CURRENCY"
+        }""");
   }
 
   @Test
@@ -398,16 +478,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_monthly_income",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"currency_dollars\" : null,\n"
-            + "  \"question_type\" : \"CURRENCY\"\n"
-            + "}");
+        """
+        {
+          "currency_dollars" : null,
+          "question_type" : "CURRENCY"
+        }""");
   }
 
   @Test
@@ -425,16 +505,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : \"2015-10-21\",\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : "2015-10-21",
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -452,16 +532,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : null,\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : null,
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -481,16 +561,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"strawberry\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "strawberry"
+        }""");
   }
 
   @Test
@@ -508,16 +588,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : null\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : null
+        }""");
   }
 
   @Test
@@ -537,16 +617,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n"
-            + "  \"email\" : \"chell@aperturescience.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "chell@aperturescience.com",
+          "question_type" : "EMAIL"
+        }""");
   }
 
   @Test
@@ -564,16 +644,214 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
+  }
+
+  @Test
+  public void export_whenFileUploadQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerFileUploadQuestion("test-file-key")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : "%s/admin/applicant-files/test-file-key",
+          "question_type" : "FILE_UPLOAD"
+        }"""
+            .formatted(BASE_URL));
+  }
+
+  @Test
+  public void export_whenFileUploadQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : null,
+          "question_type" : "FILE_UPLOAD"
+        }""");
+  }
+
+  @Test
+  public void export_whenIdQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withQuestion(testQuestionBank.applicantId()).build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerIdQuestion("011235813").submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_id",
+        """
+        {
+          "id" : "011235813",
+          "question_type" : "ID"
+        }""");
+  }
+
+  @Test
+  public void export_whenIdQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withQuestion(testQuestionBank.applicantId()).build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_id",
+        """
+        {
+          "id" : null,
+          "question_type" : "ID"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerNameQuestion("Taylor", "Allison", "Swift")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : "Taylor",
+          "last_name" : "Swift",
+          "middle_name" : "Allison",
+          "question_type" : "NAME"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionOnlyRequiredFieldsAreAnswered_unansweredFieldIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerNameQuestion("Taylor", "", "Swift")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : "Taylor",
+          "last_name" : "Swift",
+          "middle_name" : null,
+          "question_type" : "NAME"
+        }""");
+  }
+
+  @Test
+  public void export_whenNameQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_name",
+        """
+        {
+          "first_name" : null,
+          "last_name" : null,
+          "middle_name" : null,
+          "question_type" : "NAME"
+        }""");
   }
 
   @Test
@@ -591,16 +869,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 42,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 42,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -618,16 +896,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : null,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : null,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -647,16 +925,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_phone",
-        "{\n"
-            + "  \"phone_number\" : \"+15558675309\",\n"
-            + "  \"question_type\" : \"PHONE\"\n"
-            + "}");
+        """
+        {
+          "phone_number" : "+15558675309",
+          "question_type" : "PHONE"
+        }""");
   }
 
   @Test
@@ -674,16 +952,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_phone",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"phone_number\" : null,\n"
-            + "  \"question_type\" : \"PHONE\"\n"
-            + "}");
+        """
+        {
+          "phone_number" : null,
+          "question_type" : "PHONE"
+        }""");
   }
 
   @Test
@@ -703,16 +981,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_season",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"summer\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "summer"
+        }""");
   }
 
   @Test
@@ -730,16 +1008,70 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_season",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : null\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : null
+        }""");
+  }
+
+  @Test
+  public void export_whenTextQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerTextQuestion("circle 💖").submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_color",
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : "circle 💖"
+        }""");
+  }
+
+  @Test
+  public void export_whenTextQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_color",
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : null
+        }""");
   }
 
   @Test
@@ -757,16 +1089,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"entities\" : [ ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -787,28 +1119,28 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : \"stars\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : \"hearts\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : "stars"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : "hearts"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -827,28 +1159,28 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -869,36 +1201,36 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -922,60 +1254,60 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"singer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"songwriter\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"performer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"composer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : null,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "singer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "songwriter",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "performer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "composer",
+                "household_members_days_worked" : {
+                  "number" : null,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -1003,60 +1335,60 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        "{\n"
-            + "  \"entities\" : [ {\n"
-            + "    \"entity_name\" : \"carly rae\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"singer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 34,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"songwriter\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 35,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  }, {\n"
-            + "    \"entity_name\" : \"tswift\",\n"
-            + "    \"household_member_favorite_shape\" : {\n"
-            + "      \"question_type\" : \"TEXT\",\n"
-            + "      \"text\" : null\n"
-            + "    },\n"
-            + "    \"household_members_jobs\" : {\n"
-            + "      \"entities\" : [ {\n"
-            + "        \"entity_name\" : \"performer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 13,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      }, {\n"
-            + "        \"entity_name\" : \"composer\",\n"
-            + "        \"household_members_days_worked\" : {\n"
-            + "          \"number\" : 14,\n"
-            + "          \"question_type\" : \"NUMBER\"\n"
-            + "        }\n"
-            + "      } ],\n"
-            + "      \"question_type\" : \"ENUMERATOR\"\n"
-            + "    }\n"
-            + "  } ],\n"
-            + "  \"question_type\" : \"ENUMERATOR\"\n"
-            + "}");
+        """
+        {
+          "entities" : [ {
+            "entity_name" : "carly rae",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "singer",
+                "household_members_days_worked" : {
+                  "number" : 34,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "songwriter",
+                "household_members_days_worked" : {
+                  "number" : 35,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          }, {
+            "entity_name" : "tswift",
+            "household_member_favorite_shape" : {
+              "question_type" : "TEXT",
+              "text" : null
+            },
+            "household_members_jobs" : {
+              "entities" : [ {
+                "entity_name" : "performer",
+                "household_members_days_worked" : {
+                  "number" : 13,
+                  "question_type" : "NUMBER"
+                }
+              }, {
+                "entity_name" : "composer",
+                "household_members_days_worked" : {
+                  "number" : 14,
+                  "question_type" : "NUMBER"
+                }
+              } ],
+              "question_type" : "ENUMERATOR"
+            }
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
   }
 
   @Test
@@ -1074,24 +1406,26 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     // assert answered question
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_favorite_color",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"TEXT\",\n"
-            + "  \"text\" : \"red\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : "red"
+        }""");
+
     // assert hidden question is still in export
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_birth_date",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"date\" : null,\n"
-            + "  \"question_type\" : \"DATE\"\n"
-            + "}");
+        """
+        {
+          "date" : null,
+          "question_type" : "DATE"
+        }""");
   }
 
   @Test
@@ -1105,8 +1439,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].revision_state", "CURRENT");
@@ -1123,8 +1456,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].revision_state", "OBSOLETE");
@@ -1155,41 +1487,44 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             updatedFakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     // first application
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 3,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 3,
+          "question_type" : "NUMBER"
+        }""");
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 4,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 4,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -1220,41 +1555,44 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             updatedProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     // first application
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 3,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 3,
+          "question_type" : "NUMBER"
+        }""");
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : null,\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : null,
+          "question_type" : "EMAIL"
+        }""");
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : 4,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : 4,
+          "question_type" : "NUMBER"
+        }""");
 
     ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(fakeProgram.id);
@@ -1293,17 +1631,17 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgramB.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter programBResultAsserter = new ResultAsserter(programBResultJson);
 
     // Assert application only includes 1 question
     programBResultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     programBResultAsserter.assertJsonDoesNotContainApplicationPath(
         ".number_of_items_applicant_can_juggle");
 
@@ -1318,24 +1656,25 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             updatedFakeProgramB.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter updatedProgramBResultAsserter = new ResultAsserter(updatedProgramBResultJson);
 
     // Assert question from program A is not answered, even though there is an
     // answer in the applicant data.
     updatedProgramBResultAsserter.assertJsonAtApplicationPath(
         ".applicant_email_address",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"email\" : \"test@test.com\",\n"
-            + "  \"question_type\" : \"EMAIL\"\n"
-            + "}");
+        """
+        {
+          "email" : "test@test.com",
+          "question_type" : "EMAIL"
+        }""");
     updatedProgramBResultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"number\" : null,\n"
-            + "  \"question_type\" : \"NUMBER\"\n"
-            + "}");
+        """
+        {
+          "number" : null,
+          "question_type" : "NUMBER"
+        }""");
   }
 
   @Test
@@ -1381,16 +1720,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             updatedFakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            Helpers.fakeRequest().build());
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_ice_cream",
-        "{\n" // comment to prevent fmt wrapping
-            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
-            + "  \"selection\" : \"mint\"\n"
-            + "}");
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "mint"
+        }""");
   }
 
   private static class ResultAsserter {

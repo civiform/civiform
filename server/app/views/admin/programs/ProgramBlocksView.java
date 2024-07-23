@@ -56,6 +56,7 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.ProgramQuestionBank;
 import views.components.SvgTag;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -200,7 +201,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    settingsManifest.getIntakeFormEnabled(request),
+                                    settingsManifest.getIntakeFormEnabled(),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -434,8 +435,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag blockDeleteModalButton,
       boolean isIntakeFormFeatureEnabled,
       Request request) {
-    // A block can only be deleted when it has no repeated blocks. Same is true for removing the
-    // enumerator question from the block.
+    // A block can only be deleted when it has no repeated blocks. Same is true for
+    // removing the enumerator question from the block.
     final boolean canDelete =
         !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockDefinition.id());
 
@@ -566,8 +567,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
 
-    // TODO: Maybe add alpha variants to button color on hover over so we do not have
-    //  to hard-code what the color will be when button is in hover state?
+    // TODO: Maybe add alpha variants to button color on hover over so we do not
+    // have to hard-code what the color will be when button is in hover state?
 
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
@@ -692,6 +693,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request) {
     DivTag ret =
         div()
+            .withData("testid", "question-admin-name-" + questionDefinition.getName())
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
                 "my-2",
@@ -726,8 +728,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iff(
                     malformedQuestionDefinition,
                     p("Edit the program and try republishing").withClass("text-red-500")),
-                p(questionDefinition.getQuestionText().getDefault()),
-                p(questionHelpText).withClasses("mt-1", "text-sm"),
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            questionDefinition.getQuestionText().getDefault())),
+                div()
+                    .with(TextFormatter.formatText(questionHelpText))
+                    .withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));
 
@@ -997,8 +1004,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
             .attr("hx-post", toggleAddressCorrectionAction)
-            // Replace entire Questions section so that the tooltips for all address questions get
-            // updated.
+            // Replace entire Questions section so that the tooltips for all address
+            // questions get updated.
             .attr("hx-select-oob", String.format("#%s", QUESTIONS_SECTION_ID))
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
@@ -1124,8 +1131,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       itemsInBlock.add("visibility conditions");
     }
 
-    // If there are no questions, eligibilty conditions, or visibility conditions on this screen,
-    // just print "Are you sure you want to delete this screen?"
+    // If there are no questions, eligibilty conditions, or visibility conditions on
+    // this screen, just print "Are you sure you want to delete this screen?"
     if (itemsInBlock.size() == 0) {
       deleteBlockForm
           .withId("block-delete-form")
@@ -1137,7 +1144,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withId("delete-block-button")
                   .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     } else {
-      // If there are questions, eligibility conditions, or visibility conditions on this screen,
+      // If there are questions, eligibility conditions, or visibility conditions on
+      // this screen,
       // print the appropriate message.
       String listItemsInBlock = "";
       if (itemsInBlock.size() == 1) {
@@ -1189,7 +1197,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("block-edit-form")
         .with(
             div(
-                    h1("The following fields will only be visible to administrators")
+                    h1("The screen name and description will help a user understand which part of"
+                            + " an application they are on.")
                         .withClasses("text-base", "mb-2"),
                     FieldWithLabel.input()
                         .setId("block-name-input")

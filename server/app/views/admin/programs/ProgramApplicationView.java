@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -113,8 +114,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status,
-                        request))
+                        status))
             .collect(ImmutableList.toImmutableList());
     Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
@@ -151,7 +151,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     blocks,
                     block ->
                         renderApplicationBlock(
-                            programId, block, blockToAnswers.get(block), hasEligibilityEnabled)))
+                            block, blockToAnswers.get(block), hasEligibilityEnabled)))
             .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
     HtmlBundle htmlBundle =
@@ -166,7 +166,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
-    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
@@ -184,7 +184,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationBlock(
-      long programId, Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
+      Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
     DivTag topContent =
         div()
             .withClasses("flex")
@@ -203,7 +203,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     answers,
                     answer ->
                         renderAnswer(
-                            programId,
                             answer,
                             // If an eligibility predicate is defined for the block, check if
                             // the question is part of the predicate to determine whether to
@@ -227,13 +226,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(long programId, AnswerData answerData, boolean showEligibilityText) {
+  private DivTag renderAnswer(AnswerData answerData, boolean showEligibilityText) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
-      String fileLink =
-          controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
+      String fileLink = controllers.routes.FileController.acledAdminShow(encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
       answerContent = div(answerData.answerText().replace("\n", "; "));
@@ -345,8 +343,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status,
-      Request request) {
+      StatusDefinitions.Status status) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -394,7 +391,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
-                            applicantNameWithApplicationId, application, status, request)),
+                            applicantNameWithApplicationId, application, status)),
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
@@ -420,8 +417,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private DomContent renderStatusUpdateConfirmationModalEmailSection(
       String applicantNameWithApplicationId,
       ApplicationModel application,
-      StatusDefinitions.Status status,
-      Request request) {
+      StatusDefinitions.Status status) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
 
@@ -430,7 +426,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
     boolean emptyEmails = optionalAccountEmail.isEmpty();
 
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
       emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
     }
 
@@ -457,7 +453,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
 
     String emailString = "";
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
       emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
     } else {
       emailString = optionalAccountEmail.orElse("");

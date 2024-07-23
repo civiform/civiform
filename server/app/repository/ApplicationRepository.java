@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import io.ebean.Transaction;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -319,5 +320,50 @@ public final class ApplicationRepository {
               .collect(ImmutableSet.toImmutableSet());
         },
         executionContext.current());
+  }
+
+  /**
+   * Updates an application to point to a new program
+   *
+   * @param applicantId the applicant ID
+   * @param programId the program ID
+   */
+  public void updateDraftApplicationProgram(long applicantId, long programId) {
+    Optional<ProgramModel> programOptional =
+        programRepository.lookupProgram(programId).toCompletableFuture().join();
+
+    if (programOptional.isEmpty()) {
+      throw new RuntimeException(new ProgramNotFoundException(programId));
+    }
+
+    ProgramModel program = programOptional.get();
+
+    try (Transaction transaction = database.beginTransaction()) {
+      ApplicationModel existingDraft =
+          database
+              .createQuery(ApplicationModel.class)
+              .where()
+              .eq("applicant.id", applicantId)
+              .eq(
+                  "program.name",
+                  programRepository.getShallowProgramDefinition(program).adminName())
+              .eq("lifecycle_stage", LifecycleStage.DRAFT)
+              .setLabel("ApplicationModel.findById")
+              .setProfileLocation(
+                  queryProfileLocationBuilder.create("updateDraftApplicationProgram"))
+              .findOne();
+
+      if (existingDraft == null) {
+        throw new RuntimeException(
+            String.format(
+                "Did not find expected draft application for applicantId=%d, programId=%d.",
+                applicantId, programId));
+      }
+
+      existingDraft.setProgram(program);
+      existingDraft.save();
+
+      transaction.commit();
+    }
   }
 }

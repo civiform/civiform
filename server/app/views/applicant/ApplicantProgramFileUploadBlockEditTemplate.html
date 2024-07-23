@@ -1,13 +1,17 @@
 <!doctype html>
-<html>
-  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
-  <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
-  <body data-load-modal="true">
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <div
+      role="main"
       th:with="question=${applicationParams.block().getQuestions().get(0)},
-               questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
-               fileUploadQuestion=${question.createFileUploadQuestion()}"
+      questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
+      fileUploadQuestion=${question.createFileUploadQuestion()}"
     >
+      <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
       <form
         enctype="multipart/form-data"
         method="POST"
@@ -95,9 +99,11 @@
         ></button>
       </div>
     </div>
-    <div id="modal-container"></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->false,
+                                                             <!--/* showUpsellLogin= */-->false)}"
+    ></div>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

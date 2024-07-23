@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,6 +75,14 @@ public final class Block {
 
   public String getDescription() {
     return blockDefinition.description();
+  }
+
+  public String getLocalizedName(Locale preferredLocale) {
+    return blockDefinition.localizedName().getOrDefault(preferredLocale);
+  }
+
+  public String getLocalizedDescription(Locale preferredLocale) {
+    return blockDefinition.localizedDescription().getOrDefault(preferredLocale);
   }
 
   public Optional<EligibilityDefinition> getEligibilityDefinition() {
@@ -243,6 +252,29 @@ public final class Block {
 
   public int answeredQuestionsCount() {
     return (int) getQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
+  }
+
+  /**
+   * The number of questions answered by the applicant (excluding static content questions because
+   * they have no fields for a user to answer)
+   */
+  public int answeredByUserQuestionsCount() {
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .filter(ApplicantQuestion::isAnswered)
+            .count();
+  }
+
+  /**
+   * The number of questions that can be answered by the applicant (excludes static content
+   * questions).
+   */
+  public int answerableQuestionsCount() {
+    return (int)
+        getQuestions().stream()
+            .filter(question -> !question.getType().equals(QuestionType.STATIC))
+            .count();
   }
 
   /**

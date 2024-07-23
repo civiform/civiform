@@ -21,6 +21,7 @@ type QuestionParams = {
   exportOption?: string
   universal?: boolean
   primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
+  markdown?: boolean
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -214,12 +215,18 @@ export class AdminQuestions {
     return this.selectQuestionTableRow(questionName) + ' ' + selector
   }
 
-  async expectDraftQuestionExist(questionName: string, questionText = '') {
+  async expectDraftQuestionExist(
+    questionName: string,
+    questionText = '',
+    markdown = false,
+  ) {
     await this.gotoAdminQuestionsPage()
     const questionRowText = await this.page.innerText(
       this.selectQuestionTableRow(questionName),
     )
-    expect(questionRowText).toContain(questionText)
+    if (!markdown) {
+      expect(questionRowText).toContain(questionText)
+    }
     expect(questionRowText).toContain('Draft')
   }
 
@@ -725,6 +732,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false,
   }: QuestionParams) {
     await this.createCheckboxQuestion({
       questionName,
@@ -741,7 +749,7 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
   }
 
   /** Fills out the form for a checkbox question and optionally clicks submit.  */
@@ -911,6 +919,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -927,7 +936,7 @@ export class AdminQuestions {
     })
     await this.clickSubmitButtonAndNavigate('Create')
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
-    await this.expectDraftQuestionExist(questionName, questionText)
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
   }
 
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
@@ -1120,6 +1129,7 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
   }: QuestionParams) {
     await this.createRadioButtonQuestion({
       questionName,
@@ -1133,7 +1143,7 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
   }
 
   async createRadioButtonQuestion(
@@ -1181,13 +1191,13 @@ export class AdminQuestions {
     questionName,
     description = 'text description',
     questionText = 'text question text',
-    expectedQuestionText = null,
     helpText = 'text question help text',
     minNum = null,
     maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    markdown = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1213,12 +1223,10 @@ export class AdminQuestions {
     }
 
     await this.clickSubmitButtonAndNavigate('Create')
-
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
-
-    expectedQuestionText = expectedQuestionText ?? questionText
-
-    await this.expectDraftQuestionExist(questionName, expectedQuestionText)
+    if (!markdown) {
+      await this.expectDraftQuestionExist(questionName, questionText)
+    }
   }
 
   async clickUniversalToggle() {
@@ -1428,6 +1436,8 @@ export class AdminQuestions {
    */
   async addEnumeratorQuestion({
     questionName,
+    minNum = null,
+    maxNum = null,
     description = 'enumerator description',
     questionText = 'enumerator question text',
     helpText = 'enumerator question help text',
@@ -1452,6 +1462,13 @@ export class AdminQuestions {
     })
 
     await this.page.fill('text=Repeated entity type', 'Entity')
+    if (minNum != null) {
+      await this.page.fill('text=Minimum entity count', String(minNum))
+    }
+
+    if (maxNum != null) {
+      await this.page.fill('text=Maximum entity count', String(maxNum))
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 

@@ -56,6 +56,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
+  /** The URL to the civic entity's production CiviForm site. */
+  public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
+    return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
+  }
+
   /**
    * The URL of a 32x32 or 16x16 pixel
    * [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO
@@ -854,8 +859,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled(RequestHeader request) {
-    return getBool("INTAKE_FORM_ENABLED", request);
+  public boolean getIntakeFormEnabled() {
+    return getBool("INTAKE_FORM_ENABLED");
   }
 
   /**
@@ -910,8 +915,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables setting a universal question as a question representing information about the
    * applicant. The system can then take certain actions based on the answer to this question.
    */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled(RequestHeader request) {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", request);
+  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
+    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
   }
 
   /**
@@ -922,12 +927,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /**
-   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
-   * instead of only saving on 'Save and next'.
-   */
-  public boolean getSaveOnAllActions() {
-    return getBool("SAVE_ON_ALL_ACTIONS");
+  /** Enables suffix dropdown field in name question. */
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
@@ -938,6 +940,33 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
   public boolean getProgramMigrationEnabled(RequestHeader request) {
     return getBool("PROGRAM_MIGRATION_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage */
+  public boolean getProgramFilteringEnabled(RequestHeader request) {
+    return getBool("PROGRAM_FILTERING_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions. */
+  public boolean getMultipleFileUploadEnabled(RequestHeader request) {
+    return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
+  }
+
+  /**
+   * Enabling this will add a banner to the site to tell applicants this is not Production and that
+   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
+   * also include a link to your production site.
+   */
+  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
+    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  }
+
+  /**
+   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * version of a program when a newer version has been published.
+   */
+  public boolean getFastforwardEnabled(RequestHeader request) {
+    return getBool("FASTFORWARD_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -965,6 +994,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
                       /* isRequired= */ true,
+                      SettingType.STRING,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "CIVIC_ENTITY_PRODUCTION_URL",
+                      "The URL to the civic entity's production CiviForm site.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1264,7 +1299,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "Active Directory Federation Services",
                               "Configuration options for the"
-                                  + " [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc)"
+                                  + " [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1318,7 +1353,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "OpenID Connect",
                               "Configuration options for the"
-                                  + " [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc)"
+                                  + " [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1856,7 +1891,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the Common Intake Form feature.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"
@@ -1918,7 +1953,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " on the answer to this question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
@@ -1927,13 +1962,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "SAVE_ON_ALL_ACTIONS",
-                      "Save an applicant's answers when they take any action"
-                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
-                          + " and next'.",
+                      "NAME_SUFFIX_DROPDOWN_ENABLED",
+                      "Enables suffix dropdown field in name question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",
@@ -1944,6 +1977,37 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_MIGRATION_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
                           + " environments",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_FILTERING_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the"
+                          + " homepage",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "MULTIPLE_FILE_UPLOAD_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload"
+                          + " questions.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
+                      "Enabling this will add a banner to the site to tell applicants this is not"
+                          + " Production and that they shouldn't submit real applications."
+                          + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
+                          + " link to your production site.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "FASTFORWARD_ENABLED",
+                      "When enabled, existing draft applications will be automatically be updated"
+                          + " to use the latest version of a program when a newer version has been"
+                          + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

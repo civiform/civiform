@@ -1,15 +1,21 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import java.util.OptionalInt;
 
 /** Defines a file upload question. */
 public final class FileUploadQuestionDefinition extends QuestionDefinition {
 
-  public FileUploadQuestionDefinition(QuestionDefinitionConfig config) {
+  public FileUploadQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
+  @JsonDeserialize(
+      builder = AutoValue_FileUploadQuestionDefinition_FileUploadValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class FileUploadValidationPredicates extends ValidationPredicates {
 
@@ -23,13 +29,30 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
       }
     }
 
+    @JsonProperty("maxFiles")
+    public abstract OptionalInt maxFiles();
+
     public static FileUploadValidationPredicates create() {
-      return new AutoValue_FileUploadQuestionDefinition_FileUploadValidationPredicates();
+      return builder().setMaxFiles(OptionalInt.empty()).build();
+    }
+
+    public static Builder builder() {
+      return new AutoValue_FileUploadQuestionDefinition_FileUploadValidationPredicates.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      @JsonProperty("maxFiles")
+      public abstract Builder setMaxFiles(OptionalInt allowMultipleUpload);
+
+      public abstract FileUploadValidationPredicates build();
     }
   }
 
-  public FileUploadValidationPredicates getFileUploadValidationPredicates() {
-    return (FileUploadValidationPredicates) getValidationPredicates();
+  @JsonIgnore
+  public OptionalInt getMaxFiles() {
+    return getFileUploadValidationPredicates().maxFiles();
   }
 
   @Override
@@ -40,5 +63,10 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return FileUploadValidationPredicates.create();
+  }
+
+  @JsonIgnore
+  private FileUploadValidationPredicates getFileUploadValidationPredicates() {
+    return (FileUploadValidationPredicates) getValidationPredicates();
   }
 }

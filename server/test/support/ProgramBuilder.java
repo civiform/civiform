@@ -11,6 +11,7 @@ import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
+import repository.ApplicationStatusesRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
@@ -39,6 +40,8 @@ public class ProgramBuilder {
           .setId(1)
           .setName("Screen 1")
           .setDescription("Screen 1 description")
+          .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+          .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
           .build();
 
   private static Injector injector;
@@ -69,11 +72,24 @@ public class ProgramBuilder {
    * draft state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
-    return newDraftProgram(name, "");
+    return newDraftProgram(name, "", DisplayMode.PUBLIC);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
+   * draft state, with disabled visibility.
+   */
+  public static ProgramBuilder newDisabledDraftProgram(String name) {
+    return newDraftProgram(name, "", DisplayMode.DISABLED);
+  }
+
+  public static ProgramBuilder newDraftProgram(String name, String description) {
+    return newDraftProgram(name, description, DisplayMode.PUBLIC);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
-  public static ProgramBuilder newDraftProgram(String name, String description) {
+  public static ProgramBuilder newDraftProgram(
+      String name, String description, DisplayMode displayMode) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     ProgramModel program =
         new ProgramModel(
@@ -83,7 +99,7 @@ public class ProgramBuilder {
             description,
             "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
+            displayMode.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
@@ -133,6 +149,19 @@ public class ProgramBuilder {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
   }
 
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
+   * blank description and disabled.
+   */
+  public static ProgramBuilder newDisabledActiveProgram(String name) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        DisplayMode.DISABLED,
+        ProgramType.DEFAULT);
+  }
+
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, description);
@@ -156,33 +185,39 @@ public class ProgramBuilder {
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
+        /* displayMode= */ DisplayMode.PUBLIC,
         ProgramType.COMMON_INTAKE_FORM);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
-    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
+    return newActiveProgram(
+        adminName, displayName, description, DisplayMode.PUBLIC, ProgramType.DEFAULT);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
-      String adminName, String displayName, String description, ProgramType programType) {
+      String adminName,
+      String displayName,
+      String description,
+      DisplayMode displayMode,
+      ProgramType programType) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     ProgramModel program =
         new ProgramModel(
-            adminName,
-            description,
-            displayName,
-            description,
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getActiveVersion(),
-            programType,
+            /* adminName */ adminName,
+            /* adminDescription */ description,
+            /* defaultDisplayName */ displayName,
+            /* defaultDisplayDescription */ description,
+            /* defaultConfirmationMessage */ "",
+            /* externalLink */ "",
+            /* displayMode */ displayMode.getValue(),
+            /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
+            /* associatedVersion */ versionRepository.getActiveVersion(),
+            /* programType */ programType,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -292,6 +327,11 @@ public class ProgramBuilder {
   /** Returns the {@link ProgramModel} built from this {@link ProgramBuilder}. */
   public ProgramModel build() {
     ProgramDefinition programDefinition = builder.build();
+    ApplicationStatusesRepository appStatusRepo =
+        injector.instanceOf(ApplicationStatusesRepository.class);
+    appStatusRepo.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), programDefinition.statusDefinitions());
+
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
@@ -327,17 +367,21 @@ public class ProgramBuilder {
               .setId(id)
               .setName(name)
               .setDescription(description)
+              .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+              .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
               .setEnumeratorId(enumeratorId);
       return blockBuilder;
     }
 
     public BlockBuilder withName(String name) {
       blockDefBuilder.setName(name);
+      blockDefBuilder.setLocalizedName(LocalizedStrings.withDefaultValue(name));
       return this;
     }
 
     public BlockBuilder withDescription(String description) {
       blockDefBuilder.setDescription(description);
+      blockDefBuilder.setLocalizedDescription(LocalizedStrings.withDefaultValue(description));
       return this;
     }
 

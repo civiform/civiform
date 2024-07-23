@@ -4,16 +4,30 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Optional;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ProgramRepository;
+import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
+import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
+import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
@@ -37,6 +51,8 @@ public class AdminImportController extends CiviFormController {
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final SettingsManifest settingsManifest;
+  private final ProgramRepository programRepository;
+  private final QuestionRepository questionRepository;
 
   @Inject
   public AdminImportController(
@@ -46,13 +62,17 @@ public class AdminImportController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       SettingsManifest settingsManifest,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ProgramRepository programRepository,
+      QuestionRepository questionRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.programRepository = checkNotNull(programRepository);
+    this.questionRepository = checkNotNull(questionRepository);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -97,6 +117,213 @@ public class AdminImportController extends CiviFormController {
               .renderError("JSON did not have a top-level \"program\" field")
               .render());
     }
-    return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
+    return ok(
+        adminImportViewPartial
+            .renderProgramData(request, programMigrationWrapper, jsonString)
+            .render());
+  }
+
+  /**
+   * Saves the imported program to the db. If there are questions on the program, perform the
+   * neccessary question updates before saving the program
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result saveProgram(Http.Request request) {
+    if (!settingsManifest.getProgramMigrationEnabled(request)) {
+      return notFound("Program import is not enabled");
+    }
+
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
+    if (deserializeResult.isError()) {
+      return ok(
+          adminImportViewPartial
+              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
+              .render());
+    }
+
+    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+    ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
+    ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+
+    ProgramDefinition updatedProgram = programOnJson;
+
+    if (questionsOnJson != null) {
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+          questionsOnJson.stream()
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+          updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+
+      ImmutableList<BlockDefinition> updatedBlockDefinitions =
+          updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
+
+      updatedProgram =
+          programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    }
+
+    programRepository.insertProgramSync(
+        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+    return ok(adminImportView.render(request));
+  }
+
+  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    Form<AdminProgramImportForm> form =
+        formFactory
+            .form(AdminProgramImportForm.class)
+            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+
+    String jsonString = form.get().getProgramJson();
+
+    return programMigrationService.deserialize(jsonString);
+  }
+
+  /**
+   * Update enumerator type questions (and other questions that do not have the `enumeratorId` field
+   * set) first so that we can update questions that reference the id of the enumerator question
+   * with the id of the newly saved enumerator question.
+   */
+  private ImmutableMap<String, QuestionDefinition> updateEnumeratorQuestionsAndSave(
+      ImmutableList<QuestionDefinition> questionsOnJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
+
+    ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
+        questionsOnJson.stream()
+            .filter(qd -> qd.getEnumeratorId().isEmpty())
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableMap<String, QuestionDefinition> updatedNonEnumeratorQuestionsMap =
+        questionRepository.bulkCreateQuestions(nonEnumeratorQuestions).stream()
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    ImmutableList<QuestionDefinition> enumeratorQuestions =
+        questionsOnJson.stream()
+            .filter(qd -> qd.getEnumeratorId().isPresent())
+            .map(
+                qd -> {
+                  Long oldEnumeratorId = qd.getEnumeratorId().get();
+                  QuestionDefinition oldQuestion = questionsOnJsonById.get(oldEnumeratorId);
+                  String oldQuestionAdminName = oldQuestion.getName();
+                  QuestionDefinition newQuestion =
+                      updatedNonEnumeratorQuestionsMap.get(oldQuestionAdminName);
+                  // update the enumeratorId on the child question before saving
+                  Long newEnumeratorId = newQuestion.getId();
+                  return questionRepository.updateEnumeratorId(qd, newEnumeratorId);
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableMap<String, QuestionDefinition> updatedEnumeratorQuestionsMap =
+        questionRepository.bulkCreateQuestions(enumeratorQuestions).stream()
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    return ImmutableMap.<String, QuestionDefinition>builder()
+        .putAll(updatedNonEnumeratorQuestionsMap)
+        .putAll(updatedEnumeratorQuestionsMap)
+        .build();
+  }
+
+  /**
+   * Update the block definitions on the program with the newly saved questions before saving the
+   * program.
+   */
+  private ImmutableList<BlockDefinition> updateBlockDefinitions(
+      ProgramDefinition programOnJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    return programOnJson.blockDefinitions().stream()
+        .map(
+            blockDefinition -> {
+              ImmutableList<ProgramQuestionDefinition> updatedProgramQuestionDefinitions =
+                  blockDefinition.programQuestionDefinitions().stream()
+                      .map(
+                          pqd ->
+                              updateProgramQuestionDefinition(
+                                  pqd, questionsOnJsonById, updatedQuestionsMap))
+                      .collect(ImmutableList.toImmutableList());
+
+              BlockDefinition.Builder blockDefinitionBuilder =
+                  maybeUpdatePredicates(blockDefinition, questionsOnJsonById, updatedQuestionsMap);
+              blockDefinitionBuilder.setProgramQuestionDefinitions(
+                  updatedProgramQuestionDefinitions);
+
+              return blockDefinitionBuilder.build();
+            })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Map through each imported question and create a new ProgramQuestionDefinition to save on the
+   * program. We use the old question id from the json to fetch the question admin name and match it
+   * to the newly saved question so we can create a ProgramQuestionDefinition with the updated
+   * question.
+   */
+  private ProgramQuestionDefinition updateProgramQuestionDefinition(
+      ProgramQuestionDefinition programQuestionDefinitionFromJson,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    Long id = programQuestionDefinitionFromJson.id();
+    String adminName = questionsOnJsonById.get(id).getName();
+    QuestionDefinition updatedQuestion = updatedQuestionsMap.get(adminName);
+    return ProgramQuestionDefinition.create(
+        updatedQuestion,
+        Optional.empty(),
+        programQuestionDefinitionFromJson.optional(),
+        programQuestionDefinitionFromJson.addressCorrectionEnabled());
+  }
+
+  /**
+   * If there are eligibility and/or visibility predicates on the questions, update those with the
+   * id of the newly saved question.
+   */
+  private BlockDefinition.Builder maybeUpdatePredicates(
+      BlockDefinition blockDefinition,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    BlockDefinition.Builder blockDefinitionBuilder = blockDefinition.toBuilder();
+
+    if (blockDefinition.visibilityPredicate().isPresent()) {
+      PredicateDefinition visibilityPredicateDefinition =
+          blockDefinition.visibilityPredicate().get();
+      PredicateDefinition newPredicateDefinition =
+          updatePredicateDefinition(
+              visibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
+      blockDefinitionBuilder.setVisibilityPredicate(newPredicateDefinition);
+    }
+    if (blockDefinition.eligibilityDefinition().isPresent()) {
+      PredicateDefinition eligibilityPredicateDefinition =
+          blockDefinition.eligibilityDefinition().get().predicate();
+      PredicateDefinition newPredicateDefinition =
+          updatePredicateDefinition(
+              eligibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
+      EligibilityDefinition newEligibilityDefinition =
+          EligibilityDefinition.builder().setPredicate(newPredicateDefinition).build();
+      blockDefinitionBuilder.setEligibilityDefinition(newEligibilityDefinition);
+    }
+    return blockDefinitionBuilder;
+  }
+
+  /**
+   * Update the eligibility or visibility predicate with the id from the newly saved question. We
+   * use the old question id from the json to fetch the question admin name and match it to the
+   * newly saved question so we can set the new question id on the predicate definition.
+   */
+  private PredicateDefinition updatePredicateDefinition(
+      PredicateDefinition predicateDefinition,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+
+    LeafOperationExpressionNode leafNode = predicateDefinition.rootNode().getLeafOperationNode();
+
+    Long oldQuestionId = leafNode.questionId();
+    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+    Long newQuestionId = updatedQuestionsMap.get(questionAdminName).getId();
+
+    PredicateExpressionNode newPredicateExpressionNode =
+        PredicateExpressionNode.create(leafNode.toBuilder().setQuestionId(newQuestionId).build());
+
+    return PredicateDefinition.create(newPredicateExpressionNode, predicateDefinition.action());
   }
 }

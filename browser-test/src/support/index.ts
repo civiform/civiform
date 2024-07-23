@@ -1,15 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect, Frame, Page, Locator} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
-import {
-  Browser,
-  BrowserContext,
-  chromium,
-  Frame,
-  Page,
-  Locator,
-  devices,
-  BrowserContextOptions,
-} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 import {
@@ -20,19 +10,7 @@ import {
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
-  DISABLE_BROWSER_ERROR_WATCHER,
 } from './config'
-import {AdminQuestions} from './admin_questions'
-import {AdminPrograms} from './admin_programs'
-import {AdminProgramStatuses} from './admin_program_statuses'
-import {ApplicantFileQuestion} from './applicant_file_question'
-import {ApplicantQuestions} from './applicant_questions'
-import {AdminPredicates} from './admin_predicates'
-import {AdminTranslations} from './admin_translations'
-import {AdminProgramImage} from './admin_program_image'
-import {TIDashboard} from './ti_dashboard'
-import {AdminTIGroups} from './admin_ti_groups'
-import {BrowserErrorWatcher} from './browser_error_watcher'
 
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
@@ -67,216 +45,6 @@ export enum AuthStrategy {
 /** True when the test environment is hermetic i.e. not a durable staging deployment. */
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
-
-function makeBrowserContext(
-  browser: Browser,
-  useMobile = false,
-): Promise<BrowserContext> {
-  const contextOptions: BrowserContextOptions = {
-    ...(useMobile ? devices['Pixel 5'] : {}),
-    acceptDownloads: true,
-  }
-
-  if (process.env.RECORD_VIDEO) {
-    // https://playwright.dev/docs/videos
-    // Docs state that videos are only saved upon
-    // closing the returned context. In practice,
-    // this doesn't appear to be true. Restructuring
-    // to ensure that we always close the returned
-    // context is possible, but likely not necessary
-    // until it causes a problem. In practice, this
-    // will only be used when debugging failures.
-    const dirs = ['tmp/videos']
-    if ('expect' in global && expect.getState() != null) {
-      const testPath = test.info().file
-
-      if (testPath == null) {
-        throw new Error('testPath cannot be null')
-      }
-
-      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
-      dirs.push(testFile)
-
-      // Some test initialize context in beforeAll at which point test name is
-      // not set.
-
-      const testName = test.info().title
-
-      if (testName) {
-        // remove special characters
-        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
-      }
-    }
-
-    contextOptions.recordVideo = {
-      dir: path.join(...dirs),
-    }
-  }
-
-  return browser.newContext(contextOptions)
-}
-
-export const startSession = async (
-  browser: Browser | null = null,
-): Promise<{
-  browser: Browser
-  context: BrowserContext
-  page: Page
-}> => {
-  if (browser == null) {
-    browser = await chromium.launch()
-  }
-  const context = await makeBrowserContext(browser)
-  const page = await context.newPage()
-
-  await page.goto(BASE_URL)
-  await closeWarningMessage(page)
-
-  return {browser, context, page}
-}
-
-/**
- * Object containing properties and methods for interacting with browser and
- * app. See docs for createTestContext() method for more info.
- */
-export interface TestContext {
-  /**
-   * Playwright Page object. Provides functionality to directly interact with
-   * the browser .
-   * Methods: https://playwright.dev/docs/api/class-page
-   */
-  page: Page
-  browser: Browser
-  browserContext: BrowserContext
-  browserErrorWatcher: BrowserErrorWatcher
-  useMobile: boolean
-
-  adminQuestions: AdminQuestions
-  adminPrograms: AdminPrograms
-  adminProgramStatuses: AdminProgramStatuses
-  applicantFileQuestion: ApplicantFileQuestion
-  applicantQuestions: ApplicantQuestions
-  adminPredicates: AdminPredicates
-  adminTranslations: AdminTranslations
-  adminProgramImage: AdminProgramImage
-  tiDashboard: TIDashboard
-  adminTiGroups: AdminTIGroups
-}
-
-/**
- * Launches a browser and returns context that contains objects needed to
- * interact with the browser. It should be called at the very beginning of the
- * top-most describe() and reused across all other describe/it functions.
- * Example usage:
- *
- * ```
- * describe('some test', () => {
- *   const ctx = createTestContext()
- *
- *   test('should do foo', async () => {
- *     await ctx.page.click('#some-button')
- *   })
- * })
- * ```
- *
- * Browser session is reset between tests and database is cleared by default.
- * Each test starts on the login page.
- *
- * Context object should be accessed only from within it(), before/afterEach(),
- * before/afterAll() functions.
- *
- * @param clearDb Whether database is cleared between tests. True by default.
- *     It's recommended that database is cleared between tests to keep tests
- *     hermetic.
- * @return object containing browser page. Context object is reset between tests
- *     so none of its properties should be cached and reused between tests.
- */
-export const createTestContext = (clearDb = true): TestContext => {
-  // TestContext properties are set in resetContext() later. For now we just
-  // need an object that we can return to caller. Caller is expected to access
-  // it only from before/afterX functions or tests.
-  const ctx: TestContext = {} as unknown as TestContext
-
-  test.beforeAll(async () => {
-    ctx.browser = await chromium.launch()
-    await resetContext(ctx)
-    // clear DB at beginning of each test suite. While data can leak/share
-    // between test cases within a test file, data should not be shared
-    // between test files.
-    await dropTables(ctx.page)
-    await ctx.page.goto(BASE_URL)
-  })
-
-  test.beforeEach(async () => {
-    await resetContext(ctx)
-  })
-
-  test.afterEach(async () => {
-    if (clearDb) {
-      await dropTables(ctx.page)
-    }
-    // resetting context here so that afterAll() functions of current describe()
-    // block and beforeAll() functions of the next describe() block have fresh
-    // result.page object.
-    await resetContext(ctx)
-  })
-
-  test.afterAll(async () => {
-    await endSession(ctx.browser)
-  })
-
-  return ctx
-}
-
-// We create new browser context and session before each test. It's
-// important to get fresh browser context so that each test gets its own
-// video file. If we reuse same browser context across multiple test cases -
-// we'll get one huge video for all tests.
-export async function resetContext(ctx: TestContext) {
-  if (ctx.browserContext != null) {
-    try {
-      if (!DISABLE_BROWSER_ERROR_WATCHER) {
-        ctx.browserErrorWatcher.failIfContainsErrors()
-      }
-    } finally {
-      // browserErrorWatcher might throw an error that should bubble up all
-      // the way to the developer. Regardless whether the error is thrown or
-      // not we need to close the browser context. Without that some processes
-      // won't be finished, like saving videos.
-      await ctx.browserContext.close()
-    }
-  }
-  ctx.browserContext = await makeBrowserContext(ctx.browser, ctx.useMobile)
-  ctx.page = await ctx.browserContext.newPage()
-  ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
-  // Default timeout is 30s. It's too long given that civiform is not JS
-  // heavy and all elements render quite quickly. Setting it to 5 sec so that
-  // tests fail fast.
-  ctx.page.setDefaultTimeout(8000)
-  ctx.adminQuestions = new AdminQuestions(ctx.page)
-  ctx.adminPrograms = new AdminPrograms(ctx.page)
-  ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
-  ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
-  ctx.adminPredicates = new AdminPredicates(ctx.page)
-  ctx.adminTranslations = new AdminTranslations(ctx.page)
-  ctx.adminProgramImage = new AdminProgramImage(ctx.page)
-  ctx.applicantFileQuestion = new ApplicantFileQuestion(ctx.page)
-  ctx.tiDashboard = new TIDashboard(ctx.page)
-  ctx.adminTiGroups = new AdminTIGroups(ctx.page)
-  await ctx.page.goto(BASE_URL)
-  await closeWarningMessage(ctx.page)
-}
-
-export const endSession = async (browser: Browser) => {
-  await browser.close()
-}
-
-/**
- * @deprecated Just use `page.goto()`
- */
-export const gotoEndpoint = async (page: Page, endpoint = '') => {
-  return await page.goto(BASE_URL + endpoint)
-}
 
 export const dismissToast = async (page: Page) => {
   await page.locator('#toast-container div:text("x")').click()
@@ -506,32 +274,33 @@ export const enableFeatureFlag = async (page: Page, flag: string) => {
   })
 }
 
+/**
+ * Close the warning toast message if it is showing, otherwise the element may be in
+ * the way when trying to click on various top nav elements.
+ * @param {Page} page Playwright page to operate against
+ */
 export const closeWarningMessage = async (page: Page) => {
-  // The warning message may be in the way of this link
-  const element = await page.$('#warning-message-dismiss')
+  const warningMessageLocator = page.locator('#warning-message-dismiss')
 
-  if (element !== null) {
-    await element
-      .click()
-      .catch(() =>
-        console.log(
-          "Didn't find a warning toast message to dismiss, which is fine.",
-        ),
-      )
+  if (await warningMessageLocator.isVisible()) {
+    await warningMessageLocator.click()
   }
 }
 
+/**
+ * Run accessibility tests using axe accessibility testing engine
+ * @param {Page} page Playwright page to operate against
+ */
 export const validateAccessibility = async (page: Page) => {
-  await test.step('Validate accessiblity', async () => {
-    const results = await new AxeBuilder({page}).analyze()
-    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-      results.violations,
-      null,
-      2,
-    )}`
-
-    expect(results.violations, errorMessage).toEqual([])
-  })
+  await test.step(
+    'Validate accessiblity',
+    async () => {
+      const results = await new AxeBuilder({page}).analyze()
+      const errorMessage = `Found ${results.violations.length} axe accessibility violations\nOn page: ${page.url()}`
+      expect(results.violations, errorMessage).toEqual([])
+    },
+    {box: true},
+  )
 }
 
 /**
@@ -539,11 +308,11 @@ export const validateAccessibility = async (page: Page) => {
  * browser-test/image_snapshots/test_file_name/{screenshotFileName}-snap.png.
  * If the screenshot already exists, compare the new screenshot with the
  * existing screenshot, and save a pixel diff instead if the two don't match.
- * @param screenshotFileName Must use dash-separated-case for consistency.
+ * @param fileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
   element: Page | Locator,
-  screenshotFileName: string,
+  fileName: string,
   fullPage?: boolean,
   mobileScreenshot?: boolean,
 ) => {
@@ -552,68 +321,76 @@ export const validateScreenshot = async (
     return
   }
 
-  await test.step('Validate screenshot', async () => {
-    if (fullPage === undefined) {
-      fullPage = true
-    }
+  await test.step(
+    'Validate screenshot',
+    async () => {
+      if (fullPage === undefined) {
+        fullPage = true
+      }
 
-    const page = 'page' in element ? element.page() : element
-    // Normalize all variable content so that the screenshot is stable.
-    await normalizeElements(page)
-    // Also process any sub frames.
-    for (const frame of page.frames()) {
-      await normalizeElements(frame)
-    }
+      const page = 'page' in element ? element.page() : element
+      // Normalize all variable content so that the screenshot is stable.
+      await normalizeElements(page)
+      // Also process any sub frames.
+      for (const frame of page.frames()) {
+        await normalizeElements(frame)
+      }
 
-    if (fullPage) {
-      // Some tests take screenshots while scroll position in the middle. That
-      // affects header which is position fixed and on final full-page screenshots
-      // overlaps part of the page.
-      await page.evaluate(() => {
-        window.scrollTo(0, 0)
-      })
-    }
+      if (fullPage) {
+        // Some tests take screenshots while scroll position in the middle. That
+        // affects header which is position fixed and on final full-page screenshots
+        // overlaps part of the page.
+        await page.evaluate(() => {
+          window.scrollTo(0, 0)
+        })
+      }
 
-    expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+      expect(fileName).toMatch(/^[a-z0-9-]+$/)
 
-    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+      // Full/desktop width
+      await softAssertScreenshot(element, `${fileName}`, fullPage)
 
-    const existingWidth = page.viewportSize()?.width || 1280
+      // If we add additional breakpoints the browser-test/src/reporters/file_placement_reporter.ts
+      // needs to be updated to handle the additional options.
+      if (mobileScreenshot) {
+        const existingWidth = page.viewportSize()?.width || 1280
+        const height = page.viewportSize()?.height || 720
+        // Mobile width
+        await page.setViewportSize({width: 320, height})
+        await softAssertScreenshot(element, `${fileName}-mobile`, fullPage)
 
-    if (mobileScreenshot) {
-      const height = page.viewportSize()?.height || 720
-      // Update the viewport size to different screen widths so we can test on a
-      // variety of sizes
-      await page.setViewportSize({width: 320, height})
+        // Medium width
+        await page.setViewportSize({width: 800, height})
+        await softAssertScreenshot(element, `${fileName}-medium`, fullPage)
 
-      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+        // Reset back to original width
+        await page.setViewportSize({width: existingWidth, height})
+      }
 
-      // Medium width
-      await page.setViewportSize({width: 800, height})
-
-      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
-
-      // Reset back to original width
-      await page.setViewportSize({width: existingWidth, height})
-    }
-  })
+      // Do a hard assert that we have no errors. This allows us to do soft asserts on the
+      // different sized images.
+      expect(test.info().errors).toHaveLength(0)
+    },
+    {
+      box: true,
+    },
+  )
 }
 
-const takeScreenshot = async (
+const softAssertScreenshot = async (
   element: Page | Locator,
-  fullScreenshotFileName: string,
+  fileName: string,
   fullPage?: boolean,
 ) => {
   const testFileName = path
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  expect(
-    await element.screenshot({
+  await expect
+    .soft(element)
+    .toHaveScreenshot([testFileName, fileName + '.png'], {
       fullPage: fullPage,
-      animations: 'disabled',
-    }),
-  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
+    })
 }
 
 /*
@@ -653,9 +430,30 @@ const normalizeElements = async (page: Frame | Page) => {
   })
 }
 
+/**
+ * Check if the toast message contains the expected value
+ * @param {Page} page Playwright page to operate against
+ * @param {string} value Text to look for within the toast message
+ */
 export const validateToastMessage = async (page: Page, value: string) => {
-  const toastMessages = await page.innerText('#toast-container')
-  expect(toastMessages).toContain(value)
+  await test.step(
+    'Validate toast message',
+    async () => {
+      const toastMessages = await page.innerText('#toast-container')
+      expect(toastMessages).toContain(value)
+    },
+    {box: true},
+  )
+}
+
+export const validateToastHidden = async (page: Page) => {
+  await test.step(
+    'Validate toast hidden',
+    async () => {
+      await expect(page.locator('#toast-container')).toBeHidden()
+    },
+    {box: true},
+  )
 }
 
 type LocalstackSesResponse = {
@@ -708,4 +506,22 @@ export const expectEnabled = async (page: Page, locator: string) => {
 
 export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
+}
+
+/**
+ * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
+ * committed into the codebase as a permanent fix to anything.
+ *
+ * This works by modifying the network requests of routes and adding a timeout to help extend the load
+ * time of pages. Place this at the beginning of a specific test or a beforeEach call. Playwright currently
+ * does not have any builtin throttling capabilities and this is the least invasive option.
+ *
+ * @param page Playwright page
+ * @param {number} timeout in milliseconds
+ */
+export const throttle = async (page: Page, timeout: number = 100) => {
+  await page.route('**/*', async (route) => {
+    await new Promise((f) => setTimeout(f, timeout))
+    await route.continue()
+  })
 }

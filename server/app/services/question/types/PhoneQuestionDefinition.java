@@ -1,11 +1,12 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 public final class PhoneQuestionDefinition extends QuestionDefinition {
 
-  public PhoneQuestionDefinition(QuestionDefinitionConfig config) {
+  public PhoneQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
@@ -24,10 +25,6 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
     public static PhoneValidationPredicates create() {
       return new AutoValue_PhoneQuestionDefinition_PhoneValidationPredicates();
     }
-  }
-
-  public PhoneValidationPredicates getPhoneValidationPredicates() {
-    return (PhoneValidationPredicates) getValidationPredicates();
   }
 
   @Override

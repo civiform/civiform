@@ -1,12 +1,12 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import models.AccountModel;
@@ -35,7 +35,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   public void edit_rendersForm() {
     ProgramModel program = ProgramBuilder.newDraftProgram("Success").build();
 
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id);
+    Result result = controller.edit(fakeRequest(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Manage admins for program: Success");
@@ -49,7 +49,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     existingAdmin.addAdministeredProgram(program);
     existingAdmin.save();
 
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id());
+    Result result = controller.edit(fakeRequest(), program.id());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("test@test.com");
@@ -57,7 +57,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
   @Test
   public void edit_programNotFound() {
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), 1234L);
+    Result result = controller.edit(fakeRequest(), 1234L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -72,7 +72,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     account.setEmailAddress(email);
     account.save();
 
-    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", email)).build();
+    Http.Request request =
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", email)).build();
 
     Result result = controller.add(request, program.id);
 
@@ -97,7 +98,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
         .isNotEmpty();
 
     Http.Request request =
-        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
     Result result = controller.delete(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -121,7 +122,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
         .isNotEmpty();
 
     Http.Request request =
-        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
     Result result = controller.delete(request, program.id);
 
     // The controller doesn't return an error in this case.

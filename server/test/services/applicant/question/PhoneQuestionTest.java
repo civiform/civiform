@@ -58,7 +58,7 @@ public class PhoneQuestionTest extends ResetPostgres {
 
     PhoneQuestion phoneQuestion = new PhoneQuestion(applicantQuestion);
 
-    assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(phoneQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -69,7 +69,7 @@ public class PhoneQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), "US", "(615) 717-1234");
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
-    assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(phoneQuestion.getValidationErrors()).isEmpty();
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("6157171234");
     assertThat(phoneQuestion.getCountryCodeValue().get()).isEqualTo("US");
   }
@@ -143,7 +143,7 @@ public class PhoneQuestionTest extends ResetPostgres {
 
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
-    assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(phoneQuestion.getValidationErrors()).isEmpty();
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("2505550199");
     assertThat(phoneQuestion.getCountryCodeValue().get()).isEqualTo("CA");
     ;

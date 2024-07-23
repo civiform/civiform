@@ -2,7 +2,7 @@ package services.apikey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
@@ -322,7 +322,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
             ImmutableMap.of(
                 "keyName", "test key",
                 "expiration", "2020-01-30",
-                "subnet", "0.0.0.1/32,1.1.1.0/32",
+                "subnet", "0.0.0.1/32,1.1.1.0/32,1.1.1.0/20",
                 "grant-program-read[test-program]", "true"));
 
     ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
@@ -336,8 +336,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
     ApiKeyModel apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
 
     assertThat(apiKey.getName()).isEqualTo("test key");
-    assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
-    assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
+    assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32,1.1.1.0/20");
+    assertThat(apiKey.getSubnetSet())
+        .isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32", "1.1.1.0/20"));
     assertThat(apiKey.getExpiration())
         .isEqualTo(dateConverter.parseIso8601DateToStartOfLocalDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
@@ -522,7 +523,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
-    return formFactory.form().bindFromRequest(fakeRequest().bodyForm(formContents).build());
+    return formFactory.form().bindFromRequest(fakeRequestBuilder().bodyForm(formContents).build());
   }
 
   private static String getApiKeyExpirationDate(Instant expiration) {

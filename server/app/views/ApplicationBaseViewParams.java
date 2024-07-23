@@ -7,6 +7,7 @@ import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
+import services.AlertSettings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
@@ -35,6 +36,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract String programTitle();
 
+  public abstract String programDescription();
+
   public abstract long programId();
 
   public abstract Block block();
@@ -61,6 +64,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract ImmutableList<Block> blockList();
 
+  public abstract AlertSettings eligibilityAlertSettings();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setRequest(Http.Request request);
@@ -76,6 +81,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setApplicantId(long applicantId);
 
     public abstract Builder setProgramTitle(String programTitle);
+
+    public abstract Builder setProgramDescription(String programDescription);
 
     public abstract Builder setProgramId(long programId);
 
@@ -104,6 +111,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setProfile(CiviFormProfile profile);
 
     public abstract Builder setBlockList(ImmutableList<Block> blockList);
+
+    public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
     public abstract ApplicationBaseViewParams build();
   }

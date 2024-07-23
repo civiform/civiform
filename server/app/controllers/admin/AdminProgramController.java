@@ -8,10 +8,12 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ProgramModel;
+import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -78,9 +80,26 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
-            programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
+            ProgramTab.IN_USE,
+            profileMaybe));
+  }
+
+  /**
+   * Returns an HTML page displaying all disabled programs of the current live version and all
+   * disabled programs of the current draft version if any.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexDisabled(Request request) {
+    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    return ok(
+        listView.render(
+            programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
+            questionService.getReadOnlyQuestionServiceSync(),
+            request,
+            ProgramTab.DISABLED,
             profileMaybe));
   }
 
@@ -115,7 +134,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (settingsManifest.getIntakeFormEnabled(request)
+    if (settingsManifest.getIntakeFormEnabled()
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -139,7 +158,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            settingsManifest.getIntakeFormEnabled(request),
+            settingsManifest.getIntakeFormEnabled(),
             ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
@@ -184,7 +203,7 @@ public final class AdminProgramController extends CiviFormController {
       return redirect(routes.AdminProgramController.index());
     } catch (CantPublishProgramWithSharedQuestionsException e) {
       return redirect(routes.AdminProgramController.index())
-          .flashing("error", e.userFacingMessage());
+          .flashing(FlashKey.ERROR, e.userFacingMessage());
     }
   }
 
@@ -249,7 +268,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (settingsManifest.getIntakeFormEnabled(request)
+    if (settingsManifest.getIntakeFormEnabled()
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -276,7 +295,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        settingsManifest.getIntakeFormEnabled(request),
+        settingsManifest.getIntakeFormEnabled(),
         ImmutableList.copyOf(programData.getTiGroups()));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }

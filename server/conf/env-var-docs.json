@@ -20,6 +20,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_PRODUCTION_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The URL to the civic entity's production CiviForm site.",
+        "type": "string",
+        "required": false
+      },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
@@ -235,7 +241,7 @@
             "required": false
           },
           "Active Directory Federation Services": {
-            "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",
+            "group_description": "Configuration options for the [ADFS](https://github.com/civiform/civiform/wiki/Authentication-Providers#azure-ad-and-adfs-oidc) provider.",
             "members": {
               "ADFS_CLIENT_ID": {
                 "mode": "HIDDEN",
@@ -270,7 +276,7 @@
             }
           },
           "OpenID Connect": {
-            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "group_description": "Configuration options for the [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc) provider.",
             "members": {
               "ADMIN_OIDC_PROVIDER_NAME": {
                 "mode": "HIDDEN",
@@ -714,7 +720,7 @@
         "type": "bool"
       },
       "INTAKE_FORM_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables the Common Intake Form feature.",
         "type": "bool"
       },
@@ -759,7 +765,7 @@
         "type": "bool"
       },
       "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
@@ -768,9 +774,9 @@
         "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
       },
-      "SAVE_ON_ALL_ACTIONS": {
-        "mode": "ADMIN_READABLE",
-        "description": "Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+      "NAME_SUFFIX_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables suffix dropdown field in name question.",
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
@@ -781,6 +787,26 @@
       "PROGRAM_MIGRATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
+        "type": "bool"
+      },
+      "PROGRAM_FILTERING_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
+        "type": "bool"
+      },
+      "MULTIPLE_FILE_UPLOAD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
+        "type": "bool"
+      },
+      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
+        "type": "bool"
+      },
+      "FASTFORWARD_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       }
     }

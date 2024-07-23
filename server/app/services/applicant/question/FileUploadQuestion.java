@@ -37,12 +37,7 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath());
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
+    return ImmutableList.of(getFileKeyPath(), getFileKeyListPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
@@ -58,6 +53,10 @@ public final class FileUploadQuestion extends Question {
         Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
 
     return fileKeyValueCache.get();
+  }
+
+  public Optional<ImmutableList<String>> getFileKeyListValue() {
+    return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
   }
 
   public Optional<String> getOriginalFileName() {
@@ -79,6 +78,18 @@ public final class FileUploadQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 
+  public Path getFileKeyListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY_LIST);
+  }
+
+  public Path getFileKeyListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.FILE_KEY_LIST)
+        .asArrayElement()
+        .atIndex(index);
+  }
+
   public Path getOriginalFileNamePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
   }
@@ -87,7 +98,12 @@ public final class FileUploadQuestion extends Question {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
     }
-    return getFileKeyValue().map(key -> key.split("/", 4)).map(arr -> arr[arr.length - 1]);
+    return getFileKeyValue().map(FileUploadQuestion::getFileName);
+  }
+
+  public static String getFileName(String fileKey) {
+    String[] parts = fileKey.split("/", 4);
+    return parts[parts.length - 1];
   }
 
   @Override

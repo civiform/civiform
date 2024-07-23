@@ -96,7 +96,7 @@ export class ApplicantQuestions {
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
-    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    const filePath = 'file-size-' + mbSize + '-mb.pdf'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)
@@ -251,7 +251,7 @@ export class ApplicantQuestions {
   }
 
   async clickApplyToAnotherProgramButton() {
-    await this.page.click('button:has-text("Apply to another program")')
+    await this.page.click('text="Apply to another program"')
   }
 
   async expectProgramPublic(programName: string, description: string) {
@@ -391,6 +391,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  /**
+   * Remove the enumerator answer specified by entityName.
+   * Note: only works if the value is in the DOM, i.e. was set at page load. Does not work if the
+   * value has been filled after the page loaded. Explanation: https://stackoverflow.com/q/10645552
+   */
   async deleteEnumeratorEntity(entityName: string) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
@@ -400,6 +405,7 @@ export class ApplicantQuestions {
     )
   }
 
+  /** Remove the enumerator entity at entityIndex (1-based) */
   async deleteEnumeratorEntityByIndex(entityIndex: number) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
@@ -447,7 +453,9 @@ export class ApplicantQuestions {
 
   async expectReviewPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      await expect(this.page.locator('h1')).toContainText("Let's get started")
+      await expect(
+        this.page.locator('[data-testid="programSummary"]'),
+      ).toBeVisible()
     } else {
       await expect(this.page.locator('h2')).toContainText(
         'Program application summary',
@@ -504,7 +512,7 @@ export class ApplicantQuestions {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('h2')).toContain('you may not qualify')
+    expect(await this.page.innerText('html')).toContain('you may not qualify')
   }
 
   async clickGoBackAndEditOnIneligiblePage() {
@@ -561,7 +569,7 @@ export class ApplicantQuestions {
   }
 
   async selectAddressSuggestion(addressName: string) {
-    await this.page.check(`label:has-text("${addressName}")`)
+    await this.page.click(`label:has-text("${addressName}")`)
   }
 
   async expectQuestionAnsweredOnReviewPage(
@@ -687,5 +695,23 @@ export class ApplicantQuestions {
     await this.clickNext()
     await this.submitFromReviewPage()
     await this.page.click('text=End session')
+  }
+
+  async expectMayBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).not.toBeAttached()
+  }
+
+  async expectMayNotBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
   }
 }

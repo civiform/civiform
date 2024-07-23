@@ -1,6 +1,5 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -9,6 +8,12 @@ type PredicateSpec = {
   operator: string
   value?: string
   values?: string[]
+  complexValues?: PredicateValue[]
+}
+
+type PredicateValue = {
+  value: string
+  secondValue?: string
 }
 
 export class AdminPredicates {
@@ -18,13 +23,9 @@ export class AdminPredicates {
     this.page = page
   }
 
-  async addValueRows(predicateSpec: PredicateSpec) {
-    const values = predicateSpec.values
-
-    if (values && values.length > 1) {
-      for (let i = 1; i < values.length; i++) {
-        await this.page.click('#predicate-add-value-row')
-      }
+  async addValueRows(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.page.click('#predicate-add-value-row')
     }
   }
 
@@ -42,13 +43,14 @@ export class AdminPredicates {
     )
   }
 
-  async addPredicates(predicateSpecs: PredicateSpec[]) {
+  async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
     }
 
     await this.clickAddConditionButton()
-    await this.addValueRows(predicateSpecs[0])
+    const totalRowsNeeded = predicateSpecs[0]?.values?.length ?? 0
+    await this.addValueRows(Math.max(totalRowsNeeded - 1, 0))
 
     for (const predicateSpec of predicateSpecs) {
       await this.configurePredicate(predicateSpec)
@@ -84,6 +86,12 @@ export class AdminPredicates {
     return questionId as string
   }
 
+  /**
+   * Configures a predicate with the given inputs. For the values, it uses the first defined parameter in this order:
+   * 1. complexValues
+   * 2. values
+   * 3. value
+   */
   async configurePredicate({
     questionName,
     action,
@@ -91,9 +99,8 @@ export class AdminPredicates {
     operator,
     value,
     values,
+    complexValues,
   }: PredicateSpec) {
-    values = values ? values : value ? [value] : []
-
     const questionId = await this.getQuestionId(questionName)
 
     if (action != null) {
@@ -114,64 +121,73 @@ export class AdminPredicates {
       },
     )
 
+    const valuesToSet = this.coalesceValueOptions(complexValues, values, value)
     let groupNum = 1
-    for (const valueToSet of values) {
-      // Service areas are the only value input that use a select
-      if (scalar === 'service_area') {
-        const valueSelect = await this.page.$(
-          `select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
-        )
-
-        if (valueSelect == null) {
-          throw new Error(
-            `Unable to find select for service area: select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
-          )
-        }
-
-        await valueSelect.selectOption({label: valueToSet})
-        continue
-      }
-
-      const valueInput = await this.page.$(
-        `input[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
-      )
-
-      if (valueInput) {
-        await valueInput.fill(valueToSet || '')
-      } else {
-        // We have a checkbox for the value.
-        const valueArray = valueToSet.split(',')
-        for (const value of valueArray) {
-          await this.page.check(`label:has-text("${value}")`)
-        }
-      }
+    for (const valueToSet of valuesToSet) {
+      await this.fillValue(scalar, valueToSet, groupNum++, questionId)
     }
   }
 
-  // For multi-option questions where the value is a checkbox of options, provide a comma-separated
-  // list of the options you would like to check as the value. Ex: blue,red,green
-  //
-  // If action is null the action selector will not be set.
-  async addPredicate(
-    questionName: string,
-    action: string | null,
+  coalesceValueOptions(
+    complexValues?: PredicateValue[],
+    values?: string[],
+    value?: string,
+  ): PredicateValue[] {
+    if (complexValues) {
+      return complexValues
+    }
+    if (values) {
+      return values.map((v) => ({value: v}))
+    }
+    if (value) {
+      return [{value: value}]
+    }
+    return []
+  }
+
+  async fillValue(
     scalar: string,
-    operator: string,
-    value: string,
+    valueToSet: PredicateValue,
+    groupNum: number,
+    questionId: string,
   ) {
-    await this.selectQuestionForPredicate(questionName)
-    await this.clickAddConditionButton()
+    // Service areas are the only value input that use a select
+    if (scalar === 'service_area') {
+      const valueSelect = await this.page.$(
+        `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
+      )
 
-    await this.configurePredicate({
-      questionName,
-      action,
-      scalar,
-      operator,
-      value,
-    })
+      if (valueSelect == null) {
+        throw new Error(
+          `Unable to find select for service area: select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
+        )
+      }
 
-    await this.clickSaveConditionButton()
-    await waitForPageJsLoad(this.page)
+      await valueSelect.selectOption({label: valueToSet.value})
+      return
+    }
+
+    const valueInput = await this.page.$(
+      `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
+    )
+
+    if (valueInput) {
+      await valueInput.fill(valueToSet.value || '')
+    } else {
+      // We have a checkbox for the value.
+      const valueArray = valueToSet.value.split(',')
+      for (const value of valueArray) {
+        await this.page.check(`label:has-text("${value}")`)
+      }
+    }
+
+    const secondValueInput = await this.page.$(
+      `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
+    )
+    if (secondValueInput) {
+      // second value inputs are always a single input box
+      await secondValueInput.fill(valueToSet.secondValue || '')
+    }
   }
 
   async expectPredicateDisplayTextContains(condition: string) {

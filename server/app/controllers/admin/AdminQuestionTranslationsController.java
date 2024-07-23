@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
@@ -63,7 +64,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public Result redirectToFirstLocale(Http.Request request, String questionName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminQuestionController.index().url())
-          .flashing("error", "Translations are not enabled for this configuration");
+          .flashing(FlashKey.ERROR, "Translations are not enabled for this configuration");
     }
 
     return redirect(
@@ -86,7 +87,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminQuestionController.index().url())
-          .flashing("error", String.format("The %s locale is not supported", locale));
+          .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
 
@@ -107,7 +108,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminQuestionController.index().url())
-          .flashing("error", String.format("The %s locale is not supported", locale));
+          .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
 
     Locale localeToUpdate = maybeLocaleToUpdate.get();

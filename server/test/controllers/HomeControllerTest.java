@@ -2,8 +2,8 @@ package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -20,7 +20,8 @@ public class HomeControllerTest extends ResetPostgres {
     // The test ensures that the requester gets a pac4j profile so that it can access
     // the resource.
     Http.RequestBuilder request =
-        fakeRequest(routes.HomeController.securePlayIndex())
+        fakeRequestBuilder()
+            .call(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
         CfTestHelpers.doRequestWithInternalRedirects(app, request);
@@ -33,7 +34,8 @@ public class HomeControllerTest extends ResetPostgres {
   @Test
   public void testFavicon() {
     Http.RequestBuilder request =
-        fakeRequest(routes.HomeController.favicon())
+        fakeRequestBuilder()
+            .call(routes.HomeController.favicon())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
         CfTestHelpers.doRequestWithInternalRedirects(app, request);
@@ -45,7 +47,8 @@ public class HomeControllerTest extends ResetPostgres {
   @Test
   public void testPlayIndex() {
     Http.RequestBuilder request =
-        fakeRequest(routes.HomeController.playIndex())
+        fakeRequestBuilder()
+            .call(routes.HomeController.playIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isEqualTo(200);

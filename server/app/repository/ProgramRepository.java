@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
-import play.mvc.Http.Request;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -338,8 +337,7 @@ public final class ProgramRepository {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      SubmittedApplicationFilter filters,
-      Request request) {
+      SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
@@ -364,7 +362,7 @@ public final class ProgramRepository {
 
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
-      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
         query = searchUsingPrimaryApplicantInfo(search, query);
       } else {
         query = searchUsingWellKnownPaths(search, query);
@@ -498,5 +496,50 @@ public final class ProgramRepository {
     result.append("')");
 
     return result.toString();
+  }
+
+  /**
+   * Get the most recent id for the active program. In the case that there are no active versions of
+   * a program, an empty value is returned.
+   *
+   * @param programId to use when looking for the most recent program
+   * @return The programId of the most recent active program or empty.
+   */
+  public Optional<Long> getMostRecentActiveProgramId(long programId) {
+    /*
+     * We need for this to always get the most recent active program ID, thus we are unable to
+     * cache the value without building out a much more complicated caching solution. This will
+     * be called frequently enough that I'm electing to go with a native sql query.  Attempts to
+     * have ebeans build the sql resulted in slower queries and much more difficult to follow
+     * queries. This is taking less than 1ms.
+     */
+    final String sql =
+        """
+        select max(programs.id)
+        from programs
+        inner join versions_programs
+          on versions_programs.programs_id = programs.id
+        inner join versions
+          on versions_programs.versions_id = versions.id
+        where versions.lifecycle_stage = 'active'
+        and programs.name =
+        (
+          select name
+          from programs
+          where id = :programId
+          limit 1
+        )
+        limit 1
+        """;
+
+    Long latestProgramId =
+        database
+            .sqlQuery(sql)
+            .setLabel("ProgramRepository.getMostRecentActiveProgramId")
+            .setParameter("programId", programId)
+            .mapToScalar(Long.class)
+            .findOne();
+
+    return Optional.ofNullable(latestProgramId);
   }
 }

@@ -125,6 +125,10 @@ public class ResourceCreator {
     return ProgramBuilder.newActiveProgram(name, "description").build();
   }
 
+  public ProgramModel insertActiveDisabledProgram(String name) {
+    return ProgramBuilder.newDisabledActiveProgram(name).build();
+  }
+
   public ProgramModel insertActiveProgram(Locale locale, String name) {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }

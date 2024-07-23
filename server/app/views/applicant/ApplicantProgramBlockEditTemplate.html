@@ -1,54 +1,74 @@
 <!doctype html>
-<html>
-  <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
-  <!--/* TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs */-->
-  <body data-load-modal="true">
-    <div>
-      <header>
-        <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      </header>
-      <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          type="submit"
-          th:formaction="${previousFormAction}"
-          id="cf-block-previous"
-          class="usa-button usa-button--outline"
-          th:text="#{button.previousScreen}"
-        ></button>
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div role="main">
+      <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-        ></div>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${applicationParams.programTitle()}, ${applicationParams.programDescription()})}"
+      ></div>
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
-        ></div>
+      <div class="grid-container section">
+        <div class="grid-row">
+          <div class="grid-col">
+            <form
+              id="cf-block-form"
+              th:action="${submitFormAction}"
+              method="POST"
+              class="usa-form usa-form--large cf-block-form"
+            >
+              <input hidden th:value="${csrfToken}" name="csrfToken" />
 
-        <div th:each="question: ${applicationParams.block().getQuestions()}">
-          <div
-            th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
-          ></div>
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+              ></div>
+
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+              ></div>
+
+              <div
+                th:each="question: ${applicationParams.block().getQuestions()}"
+              >
+                <div
+                  th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
+                ></div>
+              </div>
+
+              <div class="margin-bottom-2">
+                <button
+                  type="submit"
+                  th:formaction="${previousFormAction}"
+                  class="usa-button usa-button--outline margin-bottom-1"
+                  th:text="#{button.back}"
+                ></button>
+                <button
+                  type="submit"
+                  class="usa-button margin-bottom-1"
+                  th:text="#{button.continue}"
+                ></button>
+              </div>
+              <button
+                type="submit"
+                th:formaction="${reviewFormAction}"
+                id="review-application-button"
+                class="usa-button usa-button--unstyled margin-bottom-4"
+                th:text="#{button.saveAndExit}"
+              ></button>
+            </form>
+          </div>
         </div>
-
-        <button
-          type="submit"
-          id="cf-block-submit"
-          class="usa-button"
-          th:text="#{button.continue}"
-        ></button>
-        <button
-          type="submit"
-          th:formaction="${reviewFormAction}"
-          id="review-application-button"
-          class="usa-button usa-button--outline"
-          th:text="#{button.review}"
-        ></button>
-      </form>
+      </div>
     </div>
-    <div id="modal-container"></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->false,
+                                                             <!--/* showUpsellLogin= */-->false)}"
+    ></div>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

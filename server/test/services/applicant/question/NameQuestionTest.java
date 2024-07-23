@@ -57,7 +57,7 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
@@ -71,7 +71,7 @@ public class NameQuestionTest extends ResetPostgres {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors()).isEmpty();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
     if (nameQuestion.getMiddleNameValue().isPresent()) {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);

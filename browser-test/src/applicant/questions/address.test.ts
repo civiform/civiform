@@ -10,7 +10,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('address applicant flow', {tag: ['@uses-fixtures']}, () => {
+test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
@@ -367,9 +367,9 @@ test.describe('address applicant flow', {tag: ['@uses-fixtures']}, () => {
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'address-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -377,12 +377,21 @@ test.describe('address applicant flow', {tag: ['@uses-fixtures']}, () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'address-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
       })
     },
   )

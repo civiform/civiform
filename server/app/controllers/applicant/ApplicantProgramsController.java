@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -20,6 +21,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.Results;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -28,6 +30,7 @@ import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantDisabledProgramView;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
@@ -44,6 +47,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ApplicantDisabledProgramView disabledProgramInfoView;
   private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
@@ -56,6 +60,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
+      ApplicantDisabledProgramView disabledProgramInfoView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
@@ -67,6 +72,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
+    this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
@@ -84,14 +90,17 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
+    Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
+    Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId, request);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
+            v ->
+                applicantService.relevantProgramsForApplicant(
+                    applicantId, requesterProfile.get(), request),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
@@ -104,6 +113,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             applicantId,
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
+                            bannerMessage,
                             requesterProfile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class))))
                         .as(Http.MimeTypes.HTML);
@@ -162,12 +172,14 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId, request);
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
+            v ->
+                applicantService.relevantProgramsForApplicant(
+                    applicantId, requesterProfile.get(), request),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
@@ -296,5 +308,19 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return editWithApplicantId(request, applicantId.orElseThrow(), programId);
+  }
+
+  @Secure
+  public CompletionStage<Result> showInfoDisabledProgram(Request request, String programSlug) {
+    Optional<Long> applicantId = getApplicantId(request);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId.get());
+    return CompletableFuture.completedFuture(
+        Results.notFound(
+            disabledProgramInfoView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId.orElseThrow(),
+                applicantStage.toCompletableFuture().join())));
   }
 }

@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -34,6 +35,9 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
+import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.UpsellParams;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
@@ -45,6 +49,8 @@ public final class UpsellController extends CiviFormController {
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
+  private final NorthStarApplicantUpsellView northStarUpsellView;
+  private final NorthStarApplicantCommonIntakeUpsellView northStarCommonIntakeUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -59,6 +65,8 @@ public final class UpsellController extends CiviFormController {
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
+      NorthStarApplicantUpsellView northStarApplicantUpsellView,
+      NorthStarApplicantCommonIntakeUpsellView northStarApplicantCommonIntakeUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
@@ -71,6 +79,8 @@ public final class UpsellController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
+    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
+    this.northStarCommonIntakeUpsellView = checkNotNull(northStarApplicantCommonIntakeUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -98,7 +108,7 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
@@ -116,7 +126,7 @@ public final class UpsellController extends CiviFormController {
 
     CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
         applicantService
-            .relevantProgramsForApplicant(applicantId, profile.get())
+            .relevantProgramsForApplicant(applicantId, profile.get(), request)
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -136,16 +146,46 @@ public final class UpsellController extends CiviFormController {
                       // we are already checking if profile is empty
                       v ->
                           applicantService.maybeEligibleProgramsForApplicant(
-                              applicantId, profile.get()),
+                              applicantId, profile.get(), request),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })
         .thenApplyAsync(
             maybeEligiblePrograms -> {
+              Optional<String> toastMessageValue = request.flash().get(FlashKey.BANNER);
               Optional<ToastMessage> toastMessage =
-                  request.flash().get("banner").map(m -> ToastMessage.alert(m));
+                  toastMessageValue.map(m -> ToastMessage.alert(m));
 
-              if (isCommonIntake.join()) {
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                UpsellParams.Builder paramsBuilder =
+                    UpsellParams.builder()
+                        .setRequest(request)
+                        .setProfile(
+                            profile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                        .setApplicationId(applicationId)
+                        .setMessages(messagesApi.preferred(request))
+                        .setBannerMessage(toastMessageValue)
+                        .setCustomConfirmationMessage(
+                            roApplicantProgramService.join().getCustomConfirmationMessage())
+                        .setApplicantId(applicantId);
+
+                if (isCommonIntake.join()) {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                          .build();
+                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                      .as(Http.MimeTypes.HTML);
+                } else {
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                          .build();
+                  return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+                }
+              } else if (isCommonIntake.join()) {
                 return ok(
                     cifUpsellView.render(
                         request,
@@ -211,9 +251,7 @@ public final class UpsellController extends CiviFormController {
             check -> {
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
-                      applicationMaybe.join().get(),
-                      /* showEligibilityText= */ false,
-                      /* includeHiddenBlocks= */ false);
+                      applicationMaybe.join().get(), /* isAdmin= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

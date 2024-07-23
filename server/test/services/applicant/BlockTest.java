@@ -55,7 +55,13 @@ public class BlockTest {
   @Test
   public void createNewBlock() {
     BlockDefinition definition =
-        BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("name")
+            .setDescription("description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+            .build();
     Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
@@ -68,7 +74,13 @@ public class BlockTest {
   @Test
   public void equalsAndHashCode() {
     BlockDefinition definition =
-        BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("name")
+            .setDescription("description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+            .build();
     QuestionDefinition question = NAME_QUESTION;
     ApplicantData applicant = new ApplicantData();
     applicant.putString(Path.create("applicant.hello"), "world");
@@ -210,7 +222,13 @@ public class BlockTest {
   @Test
   public void hasErrors_returnsFalseIfBlockHasNoQuestions() {
     BlockDefinition definition =
-        BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("name")
+            .setDescription("description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+            .build();
     Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
 
     assertThat(block.hasErrors()).isFalse();
@@ -245,7 +263,13 @@ public class BlockTest {
   @Test
   public void isAnswered_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
-        BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("name")
+            .setDescription("description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+            .build();
     Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
@@ -300,6 +324,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
             .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
             .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
@@ -322,6 +348,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
             .build();
 
@@ -344,6 +372,29 @@ public class BlockTest {
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void answeredByUserQuestionsCount_excludesStatic() {
+    ApplicantData applicantData = new ApplicantData();
+    // Fill in one questions.
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    BlockDefinition definition =
+        BlockDefinition.builder()
+            .setId(20L)
+            .setName("")
+            .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.answeredByUserQuestionsCount()).isEqualTo(1);
+    assertThat(block.answerableQuestionsCount()).isEqualTo(2);
   }
 
   @Test
@@ -412,6 +463,8 @@ public class BlockTest {
             .setId(1L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
@@ -443,6 +496,8 @@ public class BlockTest {
             .setId(1L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(enumeratorQuestionDefinition, Optional.empty()))
             .build();
@@ -461,6 +516,8 @@ public class BlockTest {
             .setId(1L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
@@ -489,6 +546,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
@@ -528,6 +587,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
@@ -568,6 +629,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd)
             .build();
 
@@ -584,6 +647,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                         testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
@@ -609,6 +674,8 @@ public class BlockTest {
             .setId(20L)
             .setName("")
             .setDescription("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
@@ -651,6 +718,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd)
             .build();
 
@@ -679,6 +748,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd)
             .build();
 
@@ -705,6 +776,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd1)
             .addQuestion(pqd2)
             .build();
@@ -732,6 +805,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd1)
             .addQuestion(pqd2)
             .build();
@@ -759,6 +834,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd1)
             .addQuestion(pqd2)
             .build();
@@ -792,6 +869,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .setEligibilityDefinition(eligibilityDef)
             .addQuestion(pqd)
             .build();
@@ -817,6 +896,8 @@ public class BlockTest {
             .setId(1L)
             .setName("name")
             .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
             .addQuestion(pqd)
             .build();
 
@@ -831,6 +912,8 @@ public class BlockTest {
         .setId(20L)
         .setName("")
         .setDescription("")
+        .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+        .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
         .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
         .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
         .build();

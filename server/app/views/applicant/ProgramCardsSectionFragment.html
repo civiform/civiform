@@ -3,16 +3,16 @@
 <div
   th:fragment="cardsSection (section)"
   class="cf-application-program-section grid grid-cols-1 gap-4 justify-between place-items-center items-start"
-  th:attr="${section.getId().isPresent()}?aria-labelledby=${section.getId().get()}"
+  th:attrappend="aria-labelledby=${section.id().isPresent()}?${section.id().get()}"
 >
   <h3
-    th:if="${section.getTitle().isPresent()}"
-    th:id="${section.getId().get()}"
-    th:text="${section.getTitle().get()}"
+    th:if="${section.title().isPresent()}"
+    th:id="${section.id().get()}"
+    th:text="${section.title().get()}"
     class="my-4 text-lg px-4"
   ></h3>
   <ul class="usa-card-group">
-    <th:block th:each="card : ${section.getCards()}">
+    <th:block th:each="card : ${section.cards()}">
       <li
         th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card})}"
       ></li>
@@ -26,19 +26,45 @@
 >
   <div class="usa-card__container">
     <div class="usa-card__header">
+      <img
+        th:if="${card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
+        th:src="${card.imageSourceUrl().get()}"
+        th:alt="${card.altText().orElse('')}"
+        class="cf-program-card-image"
+      />
       <h2
         class="usa-card__heading cf-application-card-title"
-        th:text="${card.getTitle()}"
+        th:text="${card.title()}"
       ></h2>
     </div>
     <div class="usa-card__body">
-      <p th:text="${card.getBody()}"></p>
+      <p
+        th:if="${card.applicationStatus().isPresent()}"
+        class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"
+      >
+        <span th:text="#{title.status}"></span>:
+        <span th:text="${card.applicationStatus().get()}"></span>
+      </p>
+      <p
+        th:if="${card.eligible().isPresent()}"
+        class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-gray-200"
+      >
+        <span
+          th:text="${card.eligibilityMessage().get()}"
+          class="p-2 text-xs font-medium text-black"
+          th:classappend="${card.eligible().get()} ? cf-eligible-tag : cf-not-eligible-tag"
+        ></span>
+      </p>
+      <p th:text="${card.body()}"></p>
     </div>
     <div class="usa-card__footer">
+      <!--/* TODO(#6902): Check local storage to avoid always showing login dialogs.  */-->
       <a
-        th:href="${card.getActionUrl()}"
+        th:href="${card.isGuest() ? '#' + card.loginModalId().get() : card.actionUrl()}"
         class="usa-button cf-apply-button"
-        th:text="${card.getActionText()}"
+        th:text="${card.actionText()}"
+        th:data-open-modal="${card.isGuest()}"
+        th:aria-controls="${card.isGuest() ? card.loginModalId().get() : null}"
       ></a>
     </div>
   </div>

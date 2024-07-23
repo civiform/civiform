@@ -21,6 +21,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertSettings;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -29,6 +30,7 @@ import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -39,6 +41,7 @@ import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -139,7 +142,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        settingsManifest.getIntakeFormEnabled(params.request())
+        settingsManifest.getIntakeFormEnabled()
                 && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
@@ -156,8 +159,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             params.totalBlockCount(),
             true,
             messages),
-        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
-        ApplicationBaseView.requiredFieldsExplanationContent(messages),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE));
+
+    if (params.eligibilityAlertSettings().show()) {
+      bundle.addMainContent(renderEligibilityAlert(params.eligibilityAlertSettings()));
+    }
+
+    bundle.addMainContent(
+        div(ApplicationBaseView.requiredFieldsExplanationContent(messages)).withClass("mt-4"),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -167,6 +176,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.messages(),
         bundle,
         params.applicantId());
+  }
+
+  private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {
+    return AlertComponent.renderFullAlert(
+        eligibilityAlertSettings.alertType(),
+        eligibilityAlertSettings.text(),
+        eligibilityAlertSettings.title(),
+        false,
+        AlertComponent.HeadingLevel.H3);
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
@@ -196,11 +214,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink);
+        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
+        answerContent.withClasses("font-light", "text-sm");
       }
-      answerContent.withClasses("font-light", "text-sm");
       // Add answer text, converting newlines to <br/> tags.
       String[] texts = data.answerText().split("\n");
       texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
@@ -245,7 +263,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-
     QuestionDefinition questionDefinition = data.questionDefinition();
     Optional<String> questionName = Optional.of(questionDefinition.getName());
     if (data.isAnswered() || haveAnswerText) {
@@ -337,6 +354,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     abstract int completedBlockCount();
 
     abstract Messages messages();
@@ -365,6 +384,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

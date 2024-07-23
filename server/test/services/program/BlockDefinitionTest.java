@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -26,6 +27,8 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .build();
 
     assertThat(block.id()).isEqualTo(123L);
@@ -59,6 +62,8 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
@@ -83,6 +88,8 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
@@ -164,6 +171,8 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(firstQuestion)
             .addQuestion(secondQuestion)
             .build();
@@ -187,6 +196,8 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(ProgramQuestionDefinition.create(nameQuestion, Optional.empty()))
             .addQuestion(ProgramQuestionDefinition.create(addressQuestion, Optional.empty()))
             .addQuestion(ProgramQuestionDefinition.create(colorQuestion, Optional.empty()))
@@ -203,6 +214,8 @@ public class BlockDefinitionTest {
             .setId(9999L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
             .build();
 
@@ -218,6 +231,8 @@ public class BlockDefinitionTest {
             .setId(9999L)
             .setName("Block Name")
             .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
             .build();
 

@@ -2,7 +2,7 @@
 #
 # ALWAYS add context strings to the Transifex dashboard immediately after
 # merging changes to this file. See
-# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -11,9 +11,21 @@
 button.logout=로그아웃
 label.selectLanguage=선호하는 언어를 선택해 주세요.
 button.untranslatedSubmit=제출
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=About CiviForm
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=An official website of the {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Return to top
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=For technical support: {0}
 guest=게스트
 label.languageSr=언어 선택
+# A label on the button that opens the header menu shown on mobile
+header.menu=메뉴
 header.endSession=세션 종료
 toast.sessionEnded=세션이 종료되었습니다.
 header.guestIndicator=게스트 사용자
@@ -23,6 +35,8 @@ validation.invalidInput=유효한 내용을 입력하세요.
 validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=필수 입력란은 별표({0})로 표시됩니다.
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
@@ -60,12 +74,18 @@ button.deleteFile=삭제
 button.keepFile=계속
 button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=뒤로
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=저장하고 나중에 신청 완료
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} of {1} completed
+content.blockProgressFull={1}개 중 {0}개 완료됨
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=신청 절차
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
@@ -101,6 +121,8 @@ button.continueToApplication=애플리케이션으로 계속하기
 button.startHereCommonIntakeSr={0} 작성
 button.editCommonIntakeSr={0}에 대해 제출한 정보 수정
 button.continueCommonIntakeSr={0} 계속 작성
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=세부정보 보기
 content.submittedDate=제출 날짜: {0}
 content.findPrograms=프로그램 찾기
 content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 해당될 수 있는 프로그램을 확인할 수 있습니다. 먼저 아래에서 신청서를 선택하세요.
@@ -114,8 +136,18 @@ title.allProgramsSection=모든 프로그램({0})
 title.status=상태
 title.inProgressProgramsUpdated=진행 중
 title.activeProgramsUpdated=시작 안 함
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection=유용한 서비스 찾기
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=내 신청 프로그램({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters.
+title.otherProgramsSection=다른 프로그램({0})
+# Title of the section on the home page that shows all programs when no filter is selected.
+title.programsSection=프로그램({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection=추천 프로그램({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section completed
+title.programSectionCompleted=섹션 완료됨
 title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
@@ -208,11 +240,15 @@ label.dobExample=예: 1986년 1월 28일
 # Label above the "Email" column of the community-based organization members table.
 label.email=이메일
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=오류: 생년월일은 필수 항목입니다.
+label.errorDOB=생년월일은 필수 항목입니다.
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=오류: 이름은 필수 항목입니다.
+label.errorFirstName=이름은 필수 항목입니다.
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=오류: 성은 필수 항목입니다.
+label.errorLastName=성은 필수 항목입니다.
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=사용 중인 이메일 주소입니다. 계정이 이미 존재하는 경우 신청자 계정을 생성할 수 없습니다.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=사용 중인 이메일 주소입니다. 계정이 이미 존재하는 경우 신청자 계정을 업데이트할 수 없습니다.
 # The label above the dropdown select field for the month of the client birth date.
 label.month=월
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -251,9 +287,9 @@ title.displayingAllClients=모든 클라이언트 표시
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=조직 구성원
 # HTML document title for the trusted intermediary dashboard page
-title.tiDashboard=Trusted Intermediary - Manage Clients - CiviForm
+title.tiDashboard=신뢰할 수 있는 중개자 - 클라이언트 관리 - CiviForm
 # HTML document title for the trusted intermediary account settings page
-title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
+title.tiAccountSettings=신뢰할 수 있는 중개자 - 계정 설정 보기 - CiviForm
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -262,11 +298,11 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 button.submit=제출
 button.continue=계속
 # Button text on a button that will allow the user to start filling out a section of questions.
-button.start=Start
+button.start=시작
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+content.reviewPageIntro=신청을 시작하려면 아래 단계를 선택하세요. 언제든지 저장하고 다시 돌아올 수 있습니다.
 content.doesNotQualify=자격요건을 충족하지 않음
 link.edit=편집
 link.answer=답변
@@ -276,7 +312,7 @@ ariaLabel.answer={0}에 답변
 ariaLabel.edit={0} 편집
 title.commonIntakeSummary=혜택 사전 선별 요약
 # Heading content at the top of the review page, where applicants can start answering questions.
-title.getStarted=Let''s get started.
+title.getStarted=시작하기
 title.programSummary=프로그램 신청 요약
 
 #------------------------------------------------------------------------#
@@ -299,6 +335,46 @@ toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족�
 
 toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
+
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 있을 수 있습니다.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 없을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=귀하의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 있을 수 있습니다.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다. 고객의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=고객이 더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -331,6 +407,19 @@ title.noChangesToSave={0}에 저장할 변경사항이 없습니다.
 content.noChanges=아직 신청서를 변경하지 않으셨습니다. 계속해서 수정하시겠습니까?
 button.continueEditing=계속 수정
 button.exitApplication=신청서 닫기
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=더 이상 제공되지 않는 프로그램입니다.
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=죄송합니다. 이용하려는 프로그램은 중지되었습니다. 다른 프로그램을 확인하려면 홈페이지로 돌아가세요.
+# Button text on a button that takes the user back to the home page.
+button.homePage=홈페이지로 돌아가기
+
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -394,37 +483,37 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 
 validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.January=January
+option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.February=February
+option.memorableDate.February=02 - 2월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.March=March
+option.memorableDate.March=03 - 3월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.April=April
+option.memorableDate.April=04 - 4월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.May=May
+option.memorableDate.May=05 - 5월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.June=June
+option.memorableDate.June=06 - 6월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.July=July
+option.memorableDate.July=07 - 7월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.August=August
+option.memorableDate.August=08 - 8월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.September=September
+option.memorableDate.September=09 - 9월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.October=October
+option.memorableDate.October=10 - 10월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.November=November
+option.memorableDate.November=11 - 11월
 # A month option when selecting a specific date from a dropdown menu.
-option.memorableDate.December=December
+option.memorableDate.December=12 - 12월
 # A placeholder for the month dropdown menu when selecting a specific date.
-placeholder.memorableDate=Select
+placeholder.memorableDate=선택
 # An error message that appears when the user tries to search by date without completing all the fields.
-error.incompleteDate=Error: Please enter month, day and year.
+error.incompleteDate=오류: 월, 일, 연도를 입력하세요.
 # An error message that appears when the user tries to enter a date of birth that is in the future.
-validation.dobNotInPast=Date of Birth should be in the past
+validation.dobNotInPast=생년월일은 과거여야 합니다.
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
-validation.impossibleDob=Date of Birth should be less than 150 years ago
+validation.impossibleDob=생년월일은 150년 전 미만이어야 합니다.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -432,11 +521,14 @@ validation.impossibleDob=Date of Birth should be less than 150 years ago
 
 button.addEntity={0} 추가
 button.removeEntity={0} 삭제
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토', '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=최대 {0}개의 값을 입력하세요.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=최소 {0}개의 값을 입력하세요.
 placeholder.entityName={0} 이름
 
 #---------------------------------------------------------------------------------#
@@ -461,7 +553,8 @@ validation.numberRequired=숫자만 포함해야 합니다.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections={0}개 이상 선택하세요.
-validation.tooManySelections={0}개보다 적게 선택하세요.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=최대 {0}개를 선택해 주세요.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -530,8 +623,27 @@ email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(�
 #------------------------------------------------------------------------------#
 
 banner.title=공식 정부 웹사이트입니다
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=미국 정부의 공식 웹사이트
 banner.link=파악 방법
 banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
 banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
 banner.httpsSectionHeader=안전한 .gov 웹사이트는 HTTPS를 사용합니다
 banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이트에 안전하게 연결되었음을 의미합니다. 민감한 정보는 안전한 공식 웹사이트에서만 공유하세요.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=이 사이트는 테스트용입니다. 개인 정보를 입력하지 마세요.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려면 {0} 페이지로 이동하세요.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=비회원으로 신청 중입니다. 신청을 완료한 후에는 {0}하여 데이터를 보호하세요.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=세션을 종료

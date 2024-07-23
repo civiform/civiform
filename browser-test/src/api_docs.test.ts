@@ -5,9 +5,10 @@ import {
   logout,
   seedPrograms,
   validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 
-test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
+test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page}) => {
     await seedPrograms(page)
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
@@ -36,6 +37,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
     })
 
     await page.getByRole('link', {name: 'API docs'}).click()
+    await waitForPageJsLoad(page)
 
     await test.step('Verify default comprehensive sample program', async () => {
       await expect(
@@ -49,6 +51,8 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
       await page
         .getByRole('combobox', {name: 'Select a program'})
         .selectOption('minimal-sample-program')
+
+      await waitForPageJsLoad(page)
 
       await expect(
         page.getByRole('complementary').getByRole('code'),
@@ -76,6 +80,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
         await context.clearCookies()
         const freshPage = await context.newPage()
         await freshPage.goto(apiDocsUrl!)
+        await waitForPageJsLoad(freshPage)
         return freshPage
       })
 
@@ -94,6 +99,9 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
       await freshPage.selectOption('#select-slug', {
         value: 'minimal-sample-program',
       })
+
+      await waitForPageJsLoad(freshPage)
+
       expect(await freshPage.textContent('html')).toContain(
         '"program_name" : "minimal-sample-program"',
       )
@@ -109,15 +117,20 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
     await loginAsAdmin(page)
 
     await page.getByRole('link', {name: 'API docs'}).click()
+    await waitForPageJsLoad(page)
 
     await test.step('Select a different program and verify minimal sample program', async () => {
       await page
         .getByRole('combobox', {name: 'Select a program'})
         .selectOption('minimal-sample-program')
 
+      await waitForPageJsLoad(page)
+
       await page
         .getByRole('combobox', {name: 'Select version'})
         .selectOption('draft')
+
+      await waitForPageJsLoad(page)
 
       await expect(
         page.getByRole('complementary').getByRole('code'),
@@ -137,15 +150,20 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
     await adminPrograms.publishAllDrafts()
 
     await page.getByRole('link', {name: 'API docs'}).click()
+    await waitForPageJsLoad(page)
 
     await test.step('Select a different program and verify minimal sample program', async () => {
       await page
         .getByRole('combobox', {name: 'Select a program'})
         .selectOption('minimal-sample-program')
 
+      await waitForPageJsLoad(page)
+
       await page
         .getByRole('combobox', {name: 'Select version'})
         .selectOption('draft')
+
+      await waitForPageJsLoad(page)
 
       await expect(
         page.getByRole('heading', {name: 'Program and version not found'}),
@@ -162,12 +180,14 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
 
     await page.getByRole('link', {name: 'API docs'}).click()
 
-    // Select minimal sample program so the screenshot will be smaller.
-    await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+    await waitForPageJsLoad(page)
 
     // Opening the accordion
-    await page.click('text=How does this work?')
+    await page.getByRole('button', {name: 'How does this work?'}).click()
 
-    await validateScreenshot(page, 'api-docs-page-accordion-open')
+    await validateScreenshot(
+      page.locator('.cf-accordion'),
+      'api-docs-page-accordion-open',
+    )
   })
 })

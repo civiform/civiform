@@ -8,12 +8,10 @@ import {
   validateToastMessage,
   logout,
   AdminQuestions,
-  dismissToast,
   selectApplicantLanguage,
-  enableFeatureFlag,
 } from './support'
 
-test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,
@@ -48,6 +46,33 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
     await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+  test('expect client info to be updated with empty emails', async ({
+    page,
+    tiDashboard,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: '',
+      firstName: 'Tony',
+      middleName: '',
+      lastName: 'Stark',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientTiNoteAndPhone(
+      client,
+      'Technology',
+      '4259746122',
+    )
+    await tiDashboard.expectSuccessAlertOnUpdate()
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client)
   })
 
   test('verify success toast screenshot on adding new client', async ({
@@ -629,10 +654,73 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
     await adminTiGroups.expectGroupExist('group name', 'group description')
     await validateScreenshot(page, 'ti-groups-page')
 
+    // validate error message if empty name
+    await adminTiGroups.editGroup('group name')
+    await page.click('text="Add"')
+    await validateToastMessage(page, 'Must provide email address.')
+
+    // validate adding valid email address works
     await adminTiGroups.editGroup('group name')
     await adminTiGroups.addGroupMember('foo@bar.com')
     await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
     await validateScreenshot(page, 'manage-ti-group-members-page')
+  })
+
+  test('sort trusted intermediaries based on selection', async ({
+    page,
+    adminTiGroups,
+  }) => {
+    await loginAsAdmin(page)
+    await test.step('set up group aaa with 3 memebers', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
+      await adminTiGroups.editGroup('aaa')
+      await adminTiGroups.addGroupMember('foo@bar.com')
+      await adminTiGroups.addGroupMember('foo2@bar.com')
+      await adminTiGroups.addGroupMember('foo3@bar.com')
+    })
+
+    await test.step('set up group bbb with 0 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
+    })
+
+    await test.step('set up group ccc with 1 members', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
+      await adminTiGroups.editGroup('ccc')
+      await adminTiGroups.addGroupMember('foo4@bar.com')
+    })
+
+    await adminTiGroups.gotoAdminTIPage()
+    await page.locator('#cf-ti-list').selectOption('tiname-asc')
+    const tiNamesAsc = await page.getByTestId('ti-info').allInnerTexts()
+    console.log(page.getByTestId('ti-info'))
+    expect(tiNamesAsc).toEqual(['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
+
+    await page.locator('#cf-ti-list').selectOption('tiname-desc')
+    const tiNamesDesc = await page.getByTestId('ti-info').allInnerTexts()
+    expect(tiNamesDesc).toEqual(['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
+
+    await page.locator('#cf-ti-list').selectOption('nummember-desc')
+    const tiMemberDesc = await page.getByTestId('ti-member').allInnerTexts()
+    expect(tiMemberDesc).toEqual([
+      'Members: 3\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 0\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
+
+    await page.locator('#cf-ti-list').selectOption('nummember-asc')
+    const tiMemberAsc = await page.getByTestId('ti-member').allInnerTexts()
+    expect(tiMemberAsc).toEqual([
+      'Members: 0\nClients: 0',
+      'Members: 1\nClients: 0',
+      'Members: 3\nClients: 0',
+    ])
+    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-asc')
   })
 
   test('logging in as a trusted intermediary', async ({page}) => {
@@ -719,13 +807,12 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
           fullProgramName,
           'Screen 1',
         )
-        await adminPredicates.addPredicate(
-          eligibilityQuestionId,
-          /* action= */ null,
-          'number',
-          'is equal to',
-          '5',
-        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
 
         await adminPrograms.addProgramBlock(
           fullProgramName,
@@ -778,7 +865,8 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -788,9 +876,8 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await validateScreenshot(page, 'eligible-toast')
-      await dismissToast(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)
@@ -1033,8 +1120,6 @@ test.describe('Trusted intermediaries', {tag: ['@uses-fixtures']}, () => {
     }
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
       await test.step('create a program with PAI questions', async () => {
         await loginAsAdmin(page)
         await adminQuestions.addDateQuestion({

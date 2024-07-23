@@ -1,12 +1,16 @@
 <div
   th:fragment="checkbox(question, questionRendererParams)"
-  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+           multiSelectQuestion=${question.createMultiSelectQuestion()},
+           hasErrors=${questionRendererParams.shouldShowErrors() && !multiSelectQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
+  class="cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
 >
   <fieldset
     class="usa-fieldset"
     th:aria-describedby="${questionId} + '-description'"
-    th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}"
   >
     <!--/* Title and Help Text */-->
     <div
@@ -15,7 +19,7 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
     ></div>
 
     <!--/* Hidden input that we have checked to allow clearing data from a multi-select question */-->
@@ -28,7 +32,7 @@
     />
     <!--/* Render each checkbox option */-->
     <div
-      class="usa-checkbox"
+      class="usa-checkbox cf-multi-option-question-option"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
       th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
     >
@@ -43,9 +47,9 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />
       <label
-        class="usa-checkbox__label"
+        class="usa-checkbox__label maxw-mobile-lg cf-radio-option cf-multi-option-value"
         th:for="${inputId}"
-        th:text="${option.optionText()}"
+        th:utext="${option.formattedOptionText()}"
       ></label>
     </div>
   </fieldset>

@@ -39,6 +39,14 @@ public final class TextFormatter {
   }
 
   /**
+   * Passes provided text through Markdown formatter with preserveEmptyLines and
+   * addRequiredIndicator set to false
+   */
+  public static ImmutableList<DomContent> formatText(String text) {
+    return formatText(text, false, false);
+  }
+
+  /**
    * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
    * This is used by Thymeleaf to render Static Text questions.
    */
@@ -49,7 +57,7 @@ public final class TextFormatter {
   }
 
   /** Passes provided text through Markdown formatter, generating an HTML String */
-  private static String formatTextToSanitizedHTML(
+  public static String formatTextToSanitizedHTML(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
@@ -98,15 +106,16 @@ public final class TextFormatter {
   }
 
   private static String addRequiredIndicator(String markdownText) {
-    // If the question ends with a list (UL or OL tag), we need to handle the required indicator
-    // differently
+    // If the question ends with a list (UL or OL tag), we need to handle the
+    // required indicator differently
     if (endsWithListTag(markdownText, "</ul>\n")) {
       return handleRequiredQuestionsThatEndInAList(markdownText, "<ul");
     } else if (endsWithListTag(markdownText, "</ol>\n")) {
       return handleRequiredQuestionsThatEndInAList(markdownText, "<ol");
     }
 
-    // If the question doesn't end with a list, add the required indicator on to the end
+    // If the question doesn't end with a list, add the required indicator on to the
+    // end
     int indexOfClosingTag = markdownText.lastIndexOf("</");
     return buildStringWithRequiredIndicator(markdownText, indexOfClosingTag);
   }
@@ -120,9 +129,9 @@ public final class TextFormatter {
   private static String handleRequiredQuestionsThatEndInAList(
       String markdownText, String openingListTag) {
     int indexOfOpeningListTag = markdownText.indexOf(openingListTag);
-    // If the question has no text before the list, add the required indicator to the end
-    // of the list before the closing LI tag
-    // Otherwise, add the required indicator to the paragraph that precedes the list
+    // If the question has no text before the list, add the required indicator to
+    // the end of the list before the closing LI tag. Otherwise, add the required
+    // indicator to the paragraph that precedes the list
     return indexOfOpeningListTag == 0
         ? addRequiredIndicatorAfterList(markdownText)
         : addRequiredIndicatorBeforeList(markdownText, indexOfOpeningListTag);
@@ -157,8 +166,8 @@ public final class TextFormatter {
             // Per accessibility best practices, we want to disallow adding h1 headers to
             // ensure the page does not have more than one h1 header
             // https://www.a11yproject.com/posts/how-to-accessible-heading-structure/
-            // This logic changes h1 headers to h2 headers which are still larger than the default
-            // text
+            // This logic changes h1 headers to h2 headers which are still larger than the
+            // default text
             .allowElements(
                 (String elementName, List<String> attrs) -> {
                   return "h2";

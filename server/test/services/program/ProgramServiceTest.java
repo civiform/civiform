@@ -3,9 +3,10 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -31,12 +32,16 @@ import models.AccountModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
+import play.mvc.Http.Request;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -56,6 +61,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -67,6 +73,9 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
+  private SettingsManifest mockSettingsManifest;
+  private final Request request = fakeRequest();
+  private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before
   public void setProgramServiceImpl() {
@@ -75,6 +84,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
+    applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Before
@@ -83,6 +93,8 @@ public class ProgramServiceTest extends ResetPostgres {
     secondaryAddressQuestion = testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
   }
 
   @Test
@@ -144,6 +156,73 @@ public class ProgramServiceTest extends ResetPostgres {
         ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
         ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
+    ProgramDefinition activeProgramDef = activePrograms.get(0);
+    assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
+
+    ProgramBuilder.newDisabledDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionThree)
+        .buildDefinition();
+    ProgramBuilder.newDisabledActiveProgram("program2")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .buildDefinition();
+
+    ImmutableList<ProgramDefinition> draftPrograms =
+        ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms =
+        ps.getDisabledActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+
+    ProgramDefinition activeProgramDef = activePrograms.get(0);
+    assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
+  }
+
+  @Test
+  public void getInUseActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
+
+    ProgramBuilder.newDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionThree)
+        .buildDefinition();
+    ProgramBuilder.newActiveProgram("program2")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .buildDefinition();
+
+    ImmutableList<ProgramDefinition> draftPrograms =
+        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms =
+        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
@@ -2163,6 +2242,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.GERMAN, updateData);
@@ -2175,29 +2255,34 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_EMAIL.statusText())
-                    .setLocalizedStatusText(
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-email"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
                         STATUS_WITH_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(Locale.GERMAN, "german-status-with-email"))
-                    .setLocalizedEmailBodyText(
-                        Optional.of(
-                            STATUS_WITH_EMAIL
-                                .localizedEmailBodyText()
-                                .get()
-                                .updateTranslation(Locale.GERMAN, "german email body")))
-                    .build(),
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-                    .setLocalizedStatusText(
-                        STATUS_WITH_NO_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
-                    .build()));
+                            .localizedEmailBodyText()
+                            .get()
+                            .updateTranslation(Locale.GERMAN, "german email body")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
 
   @Test
@@ -2216,6 +2301,11 @@ public class ProgramServiceTest extends ResetPostgres {
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -2237,6 +2327,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2249,33 +2340,171 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
-    assertThat(definition.statusDefinitions().getStatuses())
-        .isEqualTo(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_EMAIL.statusText())
-                    .setLocalizedStatusText(
+    ImmutableList<StatusDefinitions.Status> expectedStatuses =
+        ImmutableList.of(
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                .setLocalizedEmailBodyText(
+                    Optional.of(
                         STATUS_WITH_EMAIL
-                            .localizedStatusText()
+                            .localizedEmailBodyText()
+                            .get()
                             .updateTranslation(
-                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
-                    .setLocalizedEmailBodyText(
-                        Optional.of(
-                            STATUS_WITH_EMAIL
-                                .localizedEmailBodyText()
-                                .get()
-                                .updateTranslation(
-                                    Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
-                    .build(),
-                StatusDefinitions.Status.builder()
-                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
-                    .setLocalizedStatusText(
-                        STATUS_WITH_NO_EMAIL
-                            .localizedStatusText()
-                            .updateTranslation(
-                                Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
-                    .build()));
+                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
+                .build(),
+            StatusDefinitions.Status.builder()
+                .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                .setLocalizedStatusText(
+                    STATUS_WITH_NO_EMAIL
+                        .localizedStatusText()
+                        .updateTranslation(
+                            Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                .build());
+    assertThat(definition.statusDefinitions().getStatuses()).isEqualTo(expectedStatuses);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(definition.adminName())
+                .getStatuses())
+        .isEqualTo(expectedStatuses);
   }
+
+  @Test
+  public void updateLocalizations_blockTranslationsProvided() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .withBlock("second block", "another description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("a french screen name")
+                        .setLocalizedDescription("a french description")
+                        .build(),
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(2L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    BlockDefinition firstBlock = definition.getBlockDefinition(1L);
+    assertThat(firstBlock.localizedName().get(Locale.FRENCH)).isEqualTo("a french screen name");
+    assertThat(firstBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("a french description");
+    BlockDefinition secondBlock = definition.getBlockDefinition(2L);
+    assertThat(secondBlock.localizedName().get(Locale.FRENCH))
+        .isEqualTo("a second french screen name");
+    assertThat(secondBlock.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("another french description");
+  }
+
+  @Test
+  public void updateLocalizations_blockTranslationsForNonexistantBlock() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(3L)
+                        .setLocalizedName("a second french screen name")
+                        .setLocalizedDescription("another french description")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).containsExactly(CiviFormError.of("Found invalid block id 3"));
+  }
+
+  //  TODO: Issue 8109, re-enabled after transition period
+  //  @Test
+  //  public void updateLocalizations_blockTranslationsEmpty() throws Exception {
+  //    ProgramModel program =
+  //        ProgramBuilder.newDraftProgram("English name", "English description")
+  //            .withLocalizedName(Locale.FRENCH, "existing French name")
+  //            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+  //            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+  //            .setLocalizedSummaryImageDescription(
+  //                LocalizedStrings.of(
+  //                    Locale.US,
+  //                    "English image description",
+  //                    Locale.FRENCH,
+  //                    "existing French image description"))
+  //            .withBlock("first block", "a description")
+  //            .build();
+  //
+  //    LocalizationUpdate updateData =
+  //        LocalizationUpdate.builder()
+  //            .setLocalizedDisplayName("new French name")
+  //            .setLocalizedDisplayDescription("new French description")
+  //            .setLocalizedSummaryImageDescription("new French image description")
+  //            .setLocalizedConfirmationMessage("")
+  //            .setStatuses(ImmutableList.of())
+  //            .setScreens(
+  //                ImmutableList.of(
+  //                    LocalizationUpdate.ScreenUpdate.builder()
+  //                        .setBlockIdToUpdate(1L)
+  //                        .setLocalizedName("")
+  //                        .setLocalizedDescription("")
+  //                        .build()))
+  //            .build();
+  //    ErrorAnd<ProgramDefinition, CiviFormError> result =
+  //        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+  //
+  //    assertThat(result.isError()).isTrue();
+  //    assertThat(result.getErrors())
+  //        .containsExactly(
+  //            CiviFormError.of("program screen-name-1 cannot be blank"),
+  //            CiviFormError.of("program screen-description-1 cannot be blank"));
+  //  }
 
   @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
@@ -2287,6 +2516,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2306,6 +2536,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayDescription("a description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -2336,6 +2567,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     LocalizationUpdate.StatusUpdate.builder()
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateLocalization(program.id, Locale.FRENCH, updateData);
@@ -2399,10 +2631,16 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .isNotEmpty();
   }
 
   @Test
@@ -2425,10 +2663,21 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    // no updates to ApplicationStatus table
+    StatusDefinitions currentStatus =
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
+    assertThat(currentStatus.getStatuses()).isNotEmpty();
+    assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2462,10 +2711,21 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))
                         .build()))
+            .setScreens(ImmutableList.of())
             .build();
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+    // no updates to ApplicationStatus table
+    StatusDefinitions currentStatus =
+        applicationStatusesRepo.lookupActiveStatusDefinitions(
+            program.getProgramDefinition().adminName());
+    assertThat(currentStatus.getStatuses()).isNotEmpty();
+    assertThat(currentStatus.getStatuses().size()).isEqualTo(2);
+    assertThat(currentStatus.getStatuses().get(0).statusText())
+        .isEqualTo(STATUS_WITH_EMAIL_ENGLISH_NAME);
+    assertThat(currentStatus.getStatuses().get(1).statusText())
+        .isEqualTo(STATUS_WITH_NO_EMAIL_ENGLISH_NAME);
   }
 
   @Test
@@ -2481,6 +2741,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
+            .setScreens(ImmutableList.of())
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2531,6 +2792,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(1L)
                     .setName("enumerator")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("enumerator"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
@@ -2541,6 +2804,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(2L)
                     .setName("top level")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("top level"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantEmail().getQuestionDefinition(),
@@ -2551,6 +2816,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(3L)
                     .setName("nested enumerator")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("nested enumerator"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2562,6 +2829,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(4L)
                     .setName("repeated")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("repeated"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2573,6 +2842,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(5L)
                     .setName("nested repeated")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("nested repeated"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .setEnumeratorId(Optional.of(3L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
@@ -2586,6 +2857,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setId(6L)
                     .setName("top level 2")
                     .setDescription("description")
+                    .setLocalizedName(LocalizedStrings.withDefaultValue("top level 2"))
+                    .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantName().getQuestionDefinition(),
@@ -2649,13 +2922,18 @@ public class ProgramServiceTest extends ResetPostgres {
     // Also tests unsetDefaultStatus
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    String programName = program.getProgramDefinition().adminName();
     assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
+        .isEmpty();
 
     final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
         ps.appendStatus(program.id, APPROVED_DEFAULT_STATUS);
 
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_DEFAULT_STATUS);
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_DEFAULT_STATUS);
 
     // Ensure that appending to a non-empty list actually appends.
@@ -2664,6 +2942,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
+    assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
   }
 
@@ -2690,8 +2970,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     DuplicateStatusException exc =
-        catchThrowableOfType(
-            () -> ps.appendStatus(program.id, newApprovedStatus), DuplicateStatusException.class);
+        Assertions.catchThrowableOfType(
+            DuplicateStatusException.class,
+            () -> {
+              ps.appendStatus(program.id, newApprovedStatus);
+            });
+
     assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
   }
 
@@ -2701,6 +2985,11 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(APPROVED_STATUS);
 
     var editedStatus =
         StatusDefinitions.Status.builder()
@@ -2720,6 +3009,11 @@ public class ProgramServiceTest extends ResetPostgres {
             });
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().statusDefinitions().getStatuses()).containsExactly(editedStatus);
+    assertThat(
+            applicationStatusesRepo
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses())
+        .containsExactly(editedStatus);
   }
 
   @Test
@@ -2748,7 +3042,8 @@ public class ProgramServiceTest extends ResetPostgres {
     // We update the "rejected" status entry so that it's text is the same as the
     // "approved" status entry.
     DuplicateStatusException exc =
-        catchThrowableOfType(
+        Assertions.catchThrowableOfType(
+            DuplicateStatusException.class,
             () ->
                 ps.editStatus(
                     program.id,
@@ -2761,8 +3056,7 @@ public class ProgramServiceTest extends ResetPostgres {
                           .setLocalizedEmailBodyText(
                               Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
                           .build();
-                    }),
-            DuplicateStatusException.class);
+                    }));
     assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
   }
 

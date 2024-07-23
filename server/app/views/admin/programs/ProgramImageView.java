@@ -30,6 +30,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -38,6 +39,7 @@ import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -51,7 +53,6 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
@@ -211,10 +212,10 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
-            ViewUtils.makeAlertSlim(
+            AlertComponent.renderSlimAlert(
+                AlertType.INFO,
                 "Note: Image description is required before uploading an image.",
                 /* hidden= */ false,
-                /* classes=... */ BaseStyles.ALERT_INFO,
                 "mb-2"))
         .with(
             form()
@@ -324,7 +325,7 @@ public final class ProgramImageView extends BaseHtmlView {
     // We don't need to fill in any applicant data besides the program information since this is
     // just for a card preview.
     ApplicantService.ApplicantProgramData card =
-        ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
+        ApplicantService.ApplicantProgramData.builder(program).build();
 
     LiTag programCard =
         programCardViewRenderer.createProgramCard(

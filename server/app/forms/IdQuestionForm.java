@@ -38,11 +38,10 @@ public class IdQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMinLength(String minLengthAsString) {
-    if (minLengthAsString.isEmpty()) {
-      this.minLength = OptionalInt.empty();
-    } else {
-      this.minLength = OptionalInt.of(Integer.parseInt(minLengthAsString));
-    }
+    this.minLength =
+        minLengthAsString.isEmpty()
+            ? OptionalInt.empty()
+            : OptionalInt.of(Integer.parseInt(minLengthAsString));
   }
 
   public OptionalInt getMaxLength() {
@@ -56,11 +55,10 @@ public class IdQuestionForm extends QuestionForm {
    * error when binding the empty value in the form.
    */
   public void setMaxLength(String maxLengthAsString) {
-    if (maxLengthAsString.isEmpty()) {
-      this.maxLength = OptionalInt.empty();
-    } else {
-      this.maxLength = OptionalInt.of(Integer.parseInt(maxLengthAsString));
-    }
+    this.maxLength =
+        maxLengthAsString.isEmpty()
+            ? OptionalInt.empty()
+            : OptionalInt.of(Integer.parseInt(maxLengthAsString));
   }
 
   @Override

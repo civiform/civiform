@@ -4,21 +4,21 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.23_9-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.22-12 as arm64
+FROM eclipse-temurin:17.0.11_9-jdk-alpine AS amd64
+FROM bellsoft/liberica-openjdk-alpine:17.0.11-10 AS arm64
 
 FROM ${TARGETARCH}
 
 ARG SBT_VERSION
-ENV SBT_VERSION "${SBT_VERSION}"
-ENV INSTALL_DIR /usr/local
-ENV SBT_HOME /usr/local/sbt
-ENV PATH "${PATH}:${SBT_HOME}/bin"
-ENV SBT_URL "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz"
+ENV SBT_VERSION="${SBT_VERSION}"
+ENV INSTALL_DIR=/usr/local
+ENV SBT_HOME=/usr/local/sbt
+ENV PATH="${PATH}:${SBT_HOME}/bin"
+ENV SBT_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz"
 
-ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME server
-ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
+ENV PROJECT_HOME=/usr/src
+ENV PROJECT_NAME=server
+ENV PROJECT_LOC="${PROJECT_HOME}/${PROJECT_NAME}"
 
 
 ########################################################

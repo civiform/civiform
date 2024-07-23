@@ -11,7 +11,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
+test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -314,12 +314,30 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
         await applicantQuestions.clickNext()
       })
 
-      await test.step('Add button is enabled with a non-blank entity', async () => {
+      await test.step('Add button is disabled when the maximum number of entities is entered', async () => {
         await applicantQuestions.addEnumeratorAnswer('Bugs')
+        await applicantQuestions.addEnumeratorAnswer('Daffy')
+        await applicantQuestions.addEnumeratorAnswer('Donald')
+        await applicantQuestions.addEnumeratorAnswer('Tweety')
 
         await expect(
           page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is still disabled after navigating away and back', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickPrevious()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
+
+      await test.step('Add button is enabled with less than the maximum entities', async () => {
+        await applicantQuestions.deleteEnumeratorEntity('Tweety')
+
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is disabled if an entity is blank', async () => {
@@ -327,32 +345,41 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
 
         await expect(
           page.locator('#enumerator-field-add-button'),
-        ).toHaveAttribute('disabled')
+        ).toBeDisabled()
       })
 
-      await test.step('Add button is re-enabled when the blank item is removed', async () => {
-        await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+      await test.step('Add button is re-enabled when the blank entity is removed', async () => {
+        await applicantQuestions.deleteEnumeratorEntity('')
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.clickPrevious()
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).not.toHaveAttribute('disabled')
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
-      await test.step('Add button is disabled when an existing item is blanked', async () => {
+      await test.step('Add button is disabled when an existing entity is blanked', async () => {
         await applicantQuestions.editEnumeratorAnswer('Bugs', '')
 
         await expect(
           page.locator('#enumerator-field-add-button'),
-        ).toHaveAttribute('disabled')
+        ).toBeDisabled()
+      })
+
+      await test.step('Add button is still disabled after trying to save', async () => {
+        await applicantQuestions.clickNext()
+
+        // Error shows because of the empty entity
+        await expect(
+          page.locator('.cf-applicant-question-errors'),
+        ).toBeVisible()
+
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeDisabled()
       })
     })
 
@@ -468,9 +495,9 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'enumerator-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -478,12 +505,21 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
         await test.step('Screenshot with errors', async () => {
           await applicantQuestions.clickContinue()
           await validateScreenshot(
-            page,
+            page.getByTestId('questionRoot'),
             'enumerator-errors-north-star',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
       })
     },
   )
@@ -505,6 +541,7 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
         description: 'desc',
         questionText: 'Household members',
         helpText: 'list household members',
+        maxNum: 4,
       })
       await adminQuestions.addNameQuestion({
         questionName: 'enumerator-ete-repeated-name',
@@ -595,7 +632,7 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
         page.locator(
           '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
         ),
-      ).toHaveAttribute('disabled')
+      ).toBeDisabled()
     })
 
     await test.step('Create the rest of the program.', async () => {

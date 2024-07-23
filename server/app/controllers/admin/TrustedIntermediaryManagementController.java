@@ -3,6 +3,7 @@ package controllers.admin;
 import auth.Authorizers;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import controllers.FlashKey;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
 import forms.RemoveTrustedIntermediaryForm;
@@ -73,10 +74,11 @@ public class TrustedIntermediaryManagementController extends Controller {
   private Result flashCreateTIFieldValuesWithError(
       String error, Form<CreateTrustedIntermediaryGroupForm> form) {
     Result result =
-        redirect(routes.TrustedIntermediaryManagementController.index()).flashing("error", error);
+        redirect(routes.TrustedIntermediaryManagementController.index())
+            .flashing(FlashKey.ERROR, error);
     if (form.value().isPresent()) {
-      result = result.flashing("providedName", form.value().get().getName());
-      result = result.flashing("providedDescription", form.value().get().getDescription());
+      result = result.flashing(FlashKey.PROVIDED_NAME, form.value().get().getName());
+      result = result.flashing(FlashKey.PROVIDED_DESCRIPTION, form.value().get().getDescription());
     }
     return result;
   }
@@ -84,9 +86,11 @@ public class TrustedIntermediaryManagementController extends Controller {
   private Result flashAddTIFieldValuesWithError(
       String error, Form<AddTrustedIntermediaryForm> form, long id) {
     Result result =
-        redirect(routes.TrustedIntermediaryManagementController.edit(id)).flashing("error", error);
+        redirect(routes.TrustedIntermediaryManagementController.edit(id))
+            .flashing(FlashKey.ERROR, error);
     if (form.value().isPresent()) {
-      result = result.flashing("providedEmailAddress", form.value().get().getEmailAddress());
+      result =
+          result.flashing(FlashKey.PROVIDED_EMAIL_ADDRESS, form.value().get().getEmailAddress());
     }
     return result;
   }
@@ -121,6 +125,9 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (form.hasErrors()) {
       return flashAddTIFieldValuesWithError(form.errors().get(0).toString(), form, id);
     }
+    if (Strings.isNullOrEmpty(form.get().getEmailAddress())) {
+      return flashAddTIFieldValuesWithError("Must provide email address.", form, id);
+    }
     try {
       accountRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
@@ -142,10 +149,10 @@ public class TrustedIntermediaryManagementController extends Controller {
       accountRepository.removeTrustedIntermediaryFromGroup(id, form.get().getAccountId());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return redirect(routes.TrustedIntermediaryManagementController.edit(id))
-          .flashing("error", "No such TI group.");
+          .flashing(FlashKey.ERROR, "No such TI group.");
     } catch (NoSuchTrustedIntermediaryError e) {
       return redirect(routes.TrustedIntermediaryManagementController.edit(id))
-          .flashing("error", "No such TI.");
+          .flashing(FlashKey.ERROR, "No such TI.");
     }
 
     return redirect(routes.TrustedIntermediaryManagementController.edit(id));

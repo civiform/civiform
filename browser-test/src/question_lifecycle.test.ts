@@ -9,7 +9,7 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-test.describe('normal question lifecycle', {tag: ['@uses-fixtures']}, () => {
+test.describe('normal question lifecycle', () => {
   test('sample question seeding works', async ({page, adminQuestions}) => {
     await seedQuestions(page)
 
@@ -19,7 +19,7 @@ test.describe('normal question lifecycle', {tag: ['@uses-fixtures']}, () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Sample Address Question')
     await adminQuestions.expectDraftQuestionExist('Sample Number Question')
-    await adminQuestions.expectDraftQuestionExist('Name')
+    await adminQuestions.expectDraftQuestionExist('Sample Name Question')
   })
 
   // Run create-update-publish test for each question type individually to keep

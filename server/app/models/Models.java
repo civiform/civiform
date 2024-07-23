@@ -14,13 +14,15 @@ public final class Models {
           ApplicantModel.class,
           ApplicationModel.class,
           ApplicationEventModel.class,
+          CategoryModel.class,
           PersistedDurableJobModel.class,
           ProgramModel.class,
           QuestionModel.class,
           StoredFileModel.class,
           TrustedIntermediaryGroupModel.class,
           VersionModel.class,
-          SettingsGroupModel.class);
+          SettingsGroupModel.class,
+          ApplicationStatusesModel.class);
 
   /** Get the complete list of ebean models to truncate. */
   public static void truncate(Database database) {

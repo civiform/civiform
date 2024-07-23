@@ -4,8 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Locale;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -17,8 +19,12 @@ import services.migration.ProgramMigrationService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
+import views.admin.migration.AdminExportViewPartial;
 import views.admin.migration.AdminProgramExportForm;
 
 /**
@@ -33,25 +39,31 @@ import views.admin.migration.AdminProgramExportForm;
  */
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
+  private final AdminExportViewPartial adminExportViewPartial;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminExportController(
       AdminExportView adminExportView,
+      AdminExportViewPartial adminExportViewPartial,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       ProgramService programService,
+      QuestionService questionService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
+    this.adminExportViewPartial = checkNotNull(adminExportViewPartial);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -60,16 +72,23 @@ public class AdminExportController extends CiviFormController {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
-    return ok(
-        adminExportView.render(
-            request,
-            // TODO(#7087): Should we allow admins to export only active programs, only
-            // draft programs, or both?
-            programService.getActiveAndDraftPrograms().getActivePrograms()));
+
+    // Show the most recent version of programs (eg. draft version if there is one) sorted
+    // alphabetically by display name
+    ImmutableList<ProgramDefinition> sortedPrograms =
+        programService.getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+            .sorted(
+                (p1, p2) ->
+                    p1.localizedName()
+                        .getOrDefault(Locale.getDefault())
+                        .compareTo(p2.localizedName().getOrDefault(Locale.getDefault())))
+            .collect(ImmutableList.toImmutableList());
+
+    return ok(adminExportView.render(request, sortedPrograms));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result exportProgram(Http.Request request) {
+  public Result hxExportProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
@@ -79,13 +98,7 @@ public class AdminExportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
 
     Long programId = form.get().getProgramId();
-    if (programId == null) {
-      // If they didn't select anything, just re-render the main export page.
-      return redirect(routes.AdminExportController.index().url());
-    }
 
-    // TODO(#7087): The export UI only shows active programs. Should we not download the program
-    // JSON here if the programId is actually for a draft program?
     ProgramDefinition program;
     try {
       program = programService.getFullProgramDefinition(programId);
@@ -93,13 +106,45 @@ public class AdminExportController extends CiviFormController {
       return badRequest(String.format("Program with ID %s could not be found", programId));
     }
 
-    ErrorAnd<String, String> serializeResult = programMigrationService.serialize(program);
+    ImmutableList<QuestionDefinition> questionsUsedByProgram =
+        program.getQuestionIdsInProgram().stream()
+            .map(
+                questionId -> {
+                  try {
+                    return questionService
+                        .getReadOnlyQuestionServiceSync()
+                        .getQuestionDefinition(questionId);
+                  } catch (QuestionNotFoundException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    ErrorAnd<String, String> serializeResult =
+        programMigrationService.serialize(program, questionsUsedByProgram);
+
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    String filename = program.adminName() + "-exported.json";
-    return ok(serializeResult.getResult())
+    return ok(
+        adminExportViewPartial
+            .renderJsonPreview(request, serializeResult.getResult(), program.adminName())
+            .render());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result downloadJson(Http.Request request, String adminName) {
+
+    Form<AdminProgramExportForm> form =
+        formFactory
+            .form(AdminProgramExportForm.class)
+            .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
+
+    String json = form.get().getProgramJson();
+    String filename = adminName + "-exported.json";
+
+    return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }

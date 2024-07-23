@@ -24,6 +24,7 @@ import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -119,8 +120,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     program,
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
-                    filterParams,
-                    request),
+                    filterParams),
                 div(
                     div(renderApplicationsTable(
                             paginatedApplications.getPageContents(),
@@ -137,6 +137,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                       paginationSpec.getCurrentPage(),
                       paginatedApplications.getNumPages(),
                       pageNumber ->
+
                         routes.AdminApplicationController.index(
                           program.id(),
                           filterParams.search(),
@@ -169,11 +170,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addMainStyles("flex")
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
 
-    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
-    Optional<String> maybeErrorMessage = request.flash().get("error");
+    Optional<String> maybeErrorMessage = request.flash().get(FlashKey.ERROR);
     if (maybeErrorMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(maybeErrorMessage.get()));
     }
@@ -184,8 +185,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
-      RenderFilterParams filterParams,
-      Http.Request request) {
+      RenderFilterParams filterParams) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -197,7 +197,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
     String labelText =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
             ? "Search by name, email, phone number, or application ID"
             : "Search by name, email, or application ID";
     return form()

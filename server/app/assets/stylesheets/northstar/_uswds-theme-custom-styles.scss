@@ -1,0 +1,200 @@
+/*
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+========================================
+========================================
+========================================
+----------------------------------------
+USWDS THEME CUSTOM STYLES
+----------------------------------------
+Custom project SASS goes here.
+
+i.e.
+@include u-padding-right('05');
+----------------------------------------
+To use a USWDS mixin with a USWDS design token,
+do this:  @include <mixin name>('<design-token>')
+See the radio-option below as an example.
+*/
+
+@use 'uswds-core' as *;
+
+.cf-radio-option:focus-within {
+  @include u-border('blue-40v');
+}
+
+/*
+ * Make the file input element for program image upload fill the area it's given.
+ * (This overrides the default USWDS style of a max-width of 30rem.)
+ */
+#program-image-upload-file-input .usa-file-input {
+  max-width: none;
+}
+
+.cf-question-error-message {
+  @include u-text('secondary-dark', 'bold');
+  @include u-font('sans', 'xs');
+  @include u-padding-top('05');
+}
+
+.cf-question-field-with-error {
+  @include u-border-left('05', 'secondary-dark');
+}
+
+/*
+ * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ */
+ .cf-applicant-question-field.cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/**
+ * Reduce default padding on labels within question to match spacing mocks.
+ */
+.cf-applicant-question-field .usa-label {
+  @include u-margin-top('105')
+}
+
+/**
+ * Remove top margin because other surrounding elements add this margin.
+ */
+.usa-legend,
+.cf-question-date .usa-memorable-date .usa-form-group {
+  margin-top: 0;
+}
+
+.cf-north-star-enumerator-field {
+  @include u-padding-y('105');
+}
+
+.cf-north-star-enumerator-field:last-child {
+  @include u-padding-bottom(0);
+}
+
+.section {
+  @include u-padding-y(3);
+}
+
+.cf-h1-title {
+  @include u-margin-y(0);
+}
+
+.text-medium {
+  @include u-height(1);
+}
+
+// Styles for desktop
+@media (min-width: 64em) {
+  // The USWDS header doesn't give enough space for the logo and title, so we add some.
+  .usa-header--basic .usa-navbar {
+    width: 50%;
+  }
+
+  .usa-header--basic .usa-nav {
+    @include u-padding-top(4);
+    @include u-padding-bottom(2);
+  }
+
+  // Put form content in the middle column
+  .grid-col {
+    grid-column: span 1;
+  }
+}
+
+// Styles common to tablet and mobile
+@media (max-width: 63.9em) {
+  .usa-nav .usa-button,
+  .usa-nav span {
+    margin-top: 8px;
+  }
+}
+
+// Styles for mobile
+@media (max-width: 47.9em) {
+  // Hide the logo on mobile
+  .cf-header-logo {
+    display:none;
+  }
+
+  // Use a single column on mobile
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-col {
+    grid-column: 1 / -1;
+  }
+}
+
+.usa-header--basic .usa-button {
+  @include u-line-height('sans', 2); 
+}
+
+/**
+ * Default form styles add a bottom margin to forms, but we don't want that for the language
+ * selector as it would mess with header styles.
+ */
+
+.usa-header--basic form {
+  @include u-margin-bottom(0);
+}
+
+/**
+ * We use h1 instead of h4 as a progress bar heading for a11y reasons, but we want to keep the
+ * USWDS styles, so we ignore the default line height of h1 elements.
+ */
+h1.usa-step-indicator__heading {
+  line-height: inherit;
+}
+
+.cf-program-card-image {
+  height: 162px;
+  align-self: stretch;
+}
+
+/**
+ * USWDS color utils are turned off, so we use the USWDS color manually.
+ * See #7951 for detils
+ */
+.cf-footer-help-links a {
+  @include u-text('base-darkest')
+}
+
+/**
+ * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
+ * extend the full width of the screen.
+ */
+@media (max-width: 640px) {
+  .cf-footer-help-bar {
+    padding: 0;
+  }
+
+  .cf-footer-help-links {
+    width: 100%;
+  }
+
+  .cf-footer-help-links a {
+    @include u-border-bottom('base', 1px);
+    @include u-padding-x(6);
+    width: 100%;
+  }
+
+  .cf-footer-technical-suppport {
+    @include u-padding-x(6);
+  } 
+}
+
+.cf-block-form {
+  width: 100%;
+  max-width: 100%;
+}
+
+.cf-block-form .cf-input-large {
+  max-width: 380px;
+}
+
+.cf-applicant-question-help-text {
+  max-width: 480px;
+}

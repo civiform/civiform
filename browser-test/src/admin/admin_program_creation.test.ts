@@ -10,7 +10,7 @@ import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
-test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
+test.describe('program creation', () => {
   test('create program page', async ({
     page,
     adminPrograms,
@@ -510,6 +510,56 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
     await expect(addressCorrectionInput).toHaveValue('false')
   })
 
+  test('create program with markdown questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'a',
+      questionText: '*italics*',
+      helpText: '*italic help text*',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'b',
+      questionText: '**bold**',
+      helpText: '**bold help text**',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'c',
+      questionText: '[link](example.com)',
+      helpText: '[linked help text](example.com)',
+      markdown: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'd',
+      questionText: '[questionBank](example.com)',
+      helpText: '[questionBank help text](e.com)',
+      markdown: true,
+    })
+
+    const programName = 'Acd program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'acd program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('a')
+    await adminPrograms.addQuestionFromQuestionBank('b')
+    await adminPrograms.addQuestionFromQuestionBank('c')
+
+    await validateScreenshot(page, 'program-detail-markdown')
+
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.openQuestionBank()
+    await validateScreenshot(
+      page,
+      'question-bank-markdown',
+      /* fullPage= */ false,
+    )
+  })
+
   test('change questions order within block', async ({
     page,
     adminQuestions,
@@ -662,86 +712,86 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
 
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question', 'first question'])
+    ).toEqual(['second question\n', 'first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question', 'universal first question'])
+    ).toEqual(['universal second question\n', 'universal first question\n'])
 
     // Filter questions based on text
     await page.locator('#question-bank-filter').fill('fi')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('se')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     await page.locator('#question-bank-filter').fill('')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question', 'first question'])
+    ).toEqual(['second question\n', 'first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question', 'universal first question'])
+    ).toEqual(['universal second question\n', 'universal first question\n'])
 
     // Filter questions based on name
     await page.locator('#question-bank-filter').fill('q-f')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('q-s')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // Filter questions based on help text
     await page.locator('#question-bank-filter').fill('qf-help')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('qs-help')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // Filter questions based on description
     await page.locator('#question-bank-filter').fill('qf-desc')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['first question'])
+    ).toEqual(['first question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal first question'])
+    ).toEqual(['universal first question\n'])
 
     await page.locator('#question-bank-filter').fill('qs-desc')
     expect(
       await adminPrograms.questionBankNames(/* universal= */ false),
-    ).toEqual(['second question'])
+    ).toEqual(['second question\n'])
     expect(
       await adminPrograms.questionBankNames(/* universal= */ true),
-    ).toEqual(['universal second question'])
+    ).toEqual(['universal second question\n'])
 
     // All question UIs will have an "Add" button, so ensure filtering to "Add" doesn't just show
     // every question
@@ -812,7 +862,10 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.launchDeleteScreenModal()
+    const programName = 'Test program 7'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.launchRemoveProgramBlockModal(programName, 'Screen 1')
     await validateScreenshot(
       page,
       'delete-screen-confirmation-modal',
@@ -873,7 +926,6 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
@@ -900,7 +952,6 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
     await loginAsAdmin(page)
 
     const commonIntakeFormProgramName = 'Benefits finder'
@@ -951,8 +1002,6 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -972,8 +1021,6 @@ test.describe('program creation', {tag: ['@uses-fixtures']}, () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(

@@ -2,12 +2,13 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -16,6 +17,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
+import controllers.FlashKey;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -39,8 +41,8 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.AccountRepository;
+import repository.ApplicationStatusesRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -111,10 +113,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void index_noUser_errors() throws Exception {
     long programId = ProgramBuilder.newActiveProgram().buildDefinition().id();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
         controller.index(
-            request,
+            fakeRequest(),
             programId,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -135,10 +136,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     application.refresh();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
         controller.index(
-            request,
+            fakeRequest(),
             program.id,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -156,8 +156,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> controller.updateStatus(request, Long.MAX_VALUE, application.id))
+    assertThatThrownBy(() -> controller.updateStatus(fakeRequest(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -168,8 +167,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.updateStatus(request, program.id, application.id);
+    Result result = controller.updateStatus(fakeRequest(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -187,18 +185,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            "NOT A REAL STATUS")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    "NOT A REAL STATUS"))
             .build();
 
     // Execute
@@ -220,18 +217,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            "unset shouldn't have a value",
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    "unset shouldn't have a value",
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -255,16 +251,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT)))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of("redirectUri", "/", "sendEmail", "", "currentStatus", UNSET_STATUS_TEXT))
             .build();
 
     // Execute
@@ -288,16 +277,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri", "/", "sendEmail", "", "newStatus", APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -321,19 +304,18 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText(),
-                            // Only "on" is a valid checkbox state.
-                            "sendEmail",
-                            "false")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText(),
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "false"))
             .build();
 
     // Execute
@@ -347,7 +329,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
-    Request blankRequest = addCSRFToken(Helpers.fakeRequest()).build();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program =
@@ -363,22 +344,20 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
             .build(),
-        adminAccount,
-        blankRequest);
+        adminAccount);
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -386,8 +365,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).contains("application state has changed");
+    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
+    assertThat(result.flash().get(FlashKey.ERROR).get()).contains("application state has changed");
   }
 
   @Test
@@ -406,18 +385,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText(),
-                            "sendEmail",
-                            "on")))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText(),
+                    "sendEmail",
+                    "on"))
             .build();
 
     // Execute
@@ -451,19 +429,18 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of(
-                            "redirectUri",
-                            "/",
-                            // Only "on" is a valid checkbox state.
-                            "sendEmail",
-                            "",
-                            "currentStatus",
-                            UNSET_STATUS_TEXT,
-                            "newStatus",
-                            APPROVED_STATUS.statusText())))
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
             .build();
 
     // Execute
@@ -485,8 +462,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> controller.updateNote(request, Long.MAX_VALUE, application.id))
+    assertThatThrownBy(() -> controller.updateNote(fakeRequest(), Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -497,8 +473,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.updateNote(request, program.id, application.id);
+    Result result = controller.updateNote(fakeRequest(), program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -512,9 +487,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     // Execute.
-    Result result = controller.updateNote(request, program.id, application.id);
+    Result result = controller.updateNote(fakeRequest(), program.id, application.id);
 
     // Verify.
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
@@ -534,8 +508,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
-            .build();
+        fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)).build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);
@@ -564,8 +537,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
-            .build();
+        fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", noteText)).build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);
@@ -606,7 +578,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
-        instanceOf(VersionRepository.class));
+        instanceOf(VersionRepository.class),
+        instanceOf(ApplicationStatusesRepository.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

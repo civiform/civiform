@@ -1,13 +1,15 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
-test.describe('navigating to a deep link', {tag: ['@uses-fixtures']}, () => {
+test.describe('navigating to a deep link', () => {
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -129,5 +131,60 @@ test.describe('navigating to a deep link', {tag: ['@uses-fixtures']}, () => {
         name: 'Save time applying for programs and services',
       }),
     ).toBeAttached()
+  })
+
+  test('redirects the applicant to an error info page if the program is disabled', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await test.step(`log in as admin and publish a disabled program`, async () => {
+      await loginAsAdmin(page)
+
+      const programName = 'dis1'
+      await adminPrograms.addDisabledProgram(programName)
+
+      await adminPrograms.gotoAdminProgramsPage(/* isProgramDisabled*/ true)
+      await adminPrograms.expectDraftProgram(programName)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step(`opens the deep link of the disabled program and gets redirected to an error info page`, async () => {
+      await page.goto('/programs/dis1')
+      expect(page.url()).toContain('/disabled')
+      await validateScreenshot(page, 'disabled-program-error-info-page')
+    })
+
+    await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
+      await page.click('#visit-home-page-button')
+      expect(page.url()).toContain('/programs')
+      await validateScreenshot(page, 'home-page')
+    })
+  })
+
+  test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('shows a login prompt for guest users', async ({page}) => {
+      await page.goto('/programs/test-deep-link')
+      await expect(page.getByTestId('login')).toContainText(
+        'Create an account or sign in',
+      )
+      await validateScreenshot(
+        page,
+        'login-prompt-for-guest-users-using-program-slug-north-star',
+      )
+
+      await validateAccessibility(page)
+    })
+
+    test('does not show login prompt for logged in users', async ({page}) => {
+      await loginAsTestUser(page)
+      await page.goto('/programs/test-deep-link')
+      await expect(page.locator('[data-testId="login"]')).toHaveCount(0)
+    })
   })
 })

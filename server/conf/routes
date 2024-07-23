@@ -18,6 +18,7 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
+GET     /admin/programs/disabled                                controllers.admin.AdminProgramController.indexDisabled(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit/:editStatus                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
@@ -85,6 +86,8 @@ POST    /admin/questions             controllers.admin.AdminQuestionController.c
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+# For rendering North Star question previews on the admin question page
+GET     /admin/preview/:questionType controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
 
 # Routes for editing question localizations
 GET     /admin/questions/:questionName/translations/edit          controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)
@@ -133,10 +136,12 @@ POST    /admin/apiKeys                              controllers.admin.AdminApiKe
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
 # Admin program migration
-GET /admin/export            controllers.admin.AdminExportController.index(request: Request)
-GET /admin/export/program    controllers.admin.AdminExportController.exportProgram(request: Request)
-GET /admin/import            controllers.admin.AdminImportController.index(request: Request)
-POST /admin/import/hx/program   controllers.admin.AdminImportController.hxImportProgram(request: Request)
+GET /admin/export                                   controllers.admin.AdminExportController.index(request: Request)
+POST /admin/export/hx/program                       controllers.admin.AdminExportController.hxExportProgram(request: Request)
+POST /admin/export/download/:adminName              controllers.admin.AdminExportController.downloadJson(request: Request, adminName: String)
+GET /admin/import                                   controllers.admin.AdminImportController.index(request: Request)
+POST /admin/import/hx/program                       controllers.admin.AdminImportController.hxImportProgram(request: Request)
+POST /admin/import/saveProgram                      controllers.admin.AdminImportController.saveProgram(request: Request)
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
@@ -170,6 +175,7 @@ GET     /programs/:programId/blocks/:blockId/review                    controlle
 POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper  controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programId: Long, previousBlockIndex: Int, inReview: Boolean)
 GET     /programs/:programId/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /programs/:programId/blocks/:blockId/addFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # This route is special. It may specify a program by id or by program
@@ -177,6 +183,8 @@ POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedAction
 # the path parameter as a string and decide how to handle it in the
 # controller.
 GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.show(request: Request, programParam: String)
+# Display error page if the program that the user is trying to access is disabled.
+GET     /programs/:programSlug/disabled          controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programSlug: String)
 
 # Program methods for TI actions on behalf of applicants.
 #
@@ -194,6 +202,7 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review     
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper  controllers.applicant.ApplicantProgramBlocksController.confirmAddressWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /applicants/:applicantId/programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programId: Long, previousBlockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper      controllers.applicant.ApplicantProgramBlocksController.updateFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/addFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                 controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # API
