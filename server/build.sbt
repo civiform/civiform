@@ -179,6 +179,10 @@ lazy val root = (project in file("."))
     // since running in non-forked mode causes javaOptions to not be propagated, which
     // causes the configuration override above not to have an effect.
     // Test / fork := false,
+
+    // Add the code-coverage folder to the list of things that will be cleaned when running `sbt clean`
+    cleanFiles += baseDirectory.value / "code-coverage",
+
     // Turn off scaladoc link warnings
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc
