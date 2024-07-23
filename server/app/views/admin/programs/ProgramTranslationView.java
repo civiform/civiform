@@ -90,7 +90,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
-      StatusDefinitions currenStatusDefnitions) {
+      StatusDefinitions currentStatusDefinitions) {
     ImmutableList<BlockDefinition> blockDefinitions = program.blockDefinitions();
     ImmutableList<Long> blockIds =
         blockDefinitions.stream().map(block -> block.id()).collect(ImmutableList.toImmutableList());
@@ -118,10 +118,10 @@ public final class ProgramTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 
     Preconditions.checkState(
-        updateData.statuses().size() == currenStatusDefnitions.getStatuses().size());
+        updateData.statuses().size() == currentStatusDefinitions.getStatuses().size());
     for (int statusIdx = 0; statusIdx < updateData.statuses().size(); statusIdx++) {
       StatusDefinitions.Status configuredStatus =
-          currenStatusDefnitions.getStatuses().get(statusIdx);
+          currentStatusDefinitions.getStatuses().get(statusIdx);
       LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
       // Note: While displayed as siblings, fields are logically grouped together by sharing a
       // common index in their field names. These are dynamically generated via helper methods
