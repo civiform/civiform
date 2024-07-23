@@ -190,12 +190,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
         TagCreator.button()
             .withType("button")
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
-            .attr(
-                "onclick",
-                String.format(
-                    "if(confirm('%s')){ return true; } else { var e = arguments[0] ||"
-                        + " window.event; e.stopImmediatePropagation(); return false; }",
-                    confirmationMessage))
+            .withData("confirmation-message", confirmationMessage)
             .withClasses(
                 ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
                 StyleUtils.removeStyles(ButtonStyles.OUTLINED_TRANSPARENT, "px-8"),

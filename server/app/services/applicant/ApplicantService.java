@@ -49,6 +49,7 @@ import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
@@ -84,11 +85,11 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -108,6 +109,7 @@ public final class ApplicantService {
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
   private final ProgramRepository programRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -132,6 +134,7 @@ public final class ApplicantService {
       ProgramRepository programRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -149,6 +152,7 @@ public final class ApplicantService {
     this.programRepository = checkNotNull(programRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -567,8 +571,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition =
                   programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
+              StatusDefinitions activeStatusDefinitions =
+                  applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
-                  applicationProgram.getDefaultStatus();
+                  activeStatusDefinitions.getDefaultStatus();
 
               CompletableFuture<ApplicationEventModel> updateStatusFuture =
                   maybeDefaultStatus
@@ -1156,15 +1162,18 @@ public final class ApplicantService {
             }
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            // When extracting the application status, the definitions associated with the program
-            // version at the time of submission are used. However, when clicking "reapply", we use
-            // the latest program version below.
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
+
+            // Set the current application status by looking at the active statusDefinitions of the
+            // program
+            StatusDefinitions activeStatusDefinitions =
+                applicationStatusesRepository.lookupActiveStatusDefinitions(
+                    applicationProgramVersion.adminName());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
-                    ? applicationProgramVersion.statusDefinitions().getStatuses().stream()
+                    ? activeStatusDefinitions.getStatuses().stream()
                         .filter(
                             programStatus ->
                                 programStatus.statusText().equals(maybeLatestStatus.get()))

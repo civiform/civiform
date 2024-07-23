@@ -20,10 +20,12 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
-import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.statuses.OutOfDateStatusesException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 import views.admin.programs.ProgramTranslationView;
 import views.components.ToastMessage;
 
@@ -35,6 +37,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstTranslatableLocale;
+  private final StatusService statusService;
 
   @Inject
   public AdminProgramTranslationsController(
@@ -43,12 +46,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
       ProgramService service,
       ProgramTranslationView translationView,
       FormFactory formFactory,
-      TranslationLocales translationLocales) {
+      TranslationLocales translationLocales,
+      StatusService statusService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
+    this.statusService = checkNotNull(statusService);
     this.maybeFirstTranslatableLocale =
         this.translationLocales.translatableLocales().stream().findFirst();
   }
@@ -90,13 +95,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
       return redirect(routes.AdminProgramController.index().url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
+    StatusDefinitions activeStatusDefinitions =
+        statusService.lookupActiveStatusDefinitions(programName);
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
         translationView.render(
             request,
             localeToEdit,
             program,
-            ProgramTranslationForm.fromProgram(program, localeToEdit, formFactory),
+            activeStatusDefinitions,
+            ProgramTranslationForm.fromProgram(
+                program, localeToEdit, formFactory, activeStatusDefinitions),
             errorMessage));
   }
 
@@ -123,6 +132,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
+    StatusDefinitions currentStatusDefinitions =
+        statusService.lookupActiveStatusDefinitions(programName);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
@@ -138,27 +149,57 @@ public class AdminProgramTranslationsController extends CiviFormController {
         ProgramTranslationForm.bindFromRequest(
             request,
             formFactory,
-            program.statusDefinitions().getStatuses().size(),
+            currentStatusDefinitions.getStatuses().size(),
             program.localizedSummaryImageDescription().isPresent(),
             blockIds);
+    // There are two updateLocalization() now, one in ProgramService (which doesn't throw
+    // OutOfDateStatusException) and
+    // the other one in StatusService which throws it.
+    // Hence, one is in try-catch block and the other isn't.
 
-    final ErrorAnd<ProgramDefinition, CiviFormError> result;
-    try {
-      result =
-          service.updateLocalization(
-              program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
-    } catch (OutOfDateStatusesException e) {
-      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
-          .flashing(FlashKey.ERROR, e.userFacingMessage());
-    }
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        service.updateLocalization(
+            program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
-              request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
+              request,
+              localeToUpdate,
+              program,
+              currentStatusDefinitions,
+              translationForm,
+              Optional.of(errorMessage)));
     }
+    final ErrorAnd<StatusDefinitions, CiviFormError> statusUpdate;
+    try {
+      statusUpdate =
+          statusService.updateLocalization(
+              program.adminName(), localeToUpdate, translationForm.getUpdateData(blockIds));
+    } catch (OutOfDateStatusesException e) {
+      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
+          .flashing(FlashKey.ERROR, e.userFacingMessage());
+    }
+    if (statusUpdate.isError()) {
+      ToastMessage errorMessage =
+          ToastMessage.errorNonLocalized(joinErrors(statusUpdate.getErrors()));
+      return ok(
+          translationView.render(
+              request,
+              localeToUpdate,
+              program,
+              currentStatusDefinitions,
+              translationForm,
+              Optional.of(errorMessage)));
+    }
+
     return ok(
         translationView.render(
-            request, localeToUpdate, program, translationForm, /* message= */ Optional.empty()));
+            request,
+            localeToUpdate,
+            program,
+            statusUpdate.getResult(),
+            translationForm,
+            /* message= */ Optional.empty()));
   }
 }

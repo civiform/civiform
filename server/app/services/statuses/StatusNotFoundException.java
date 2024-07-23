@@ -1,4 +1,4 @@
-package services.program;
+package services.statuses;
 
 /**
  * Represents when a program status string is used but not actually part of the program's

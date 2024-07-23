@@ -30,8 +30,8 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
@@ -152,12 +152,6 @@ public class ProgramModel extends BaseModel {
 
   public StatusDefinitions getStatusDefinitions() {
     return checkNotNull(this.statusDefinitions);
-  }
-
-  public Optional<StatusDefinitions.Status> getDefaultStatus() {
-    return this.statusDefinitions.getStatuses().stream()
-        .filter(StatusDefinitions.Status::computedDefaultStatus)
-        .findFirst();
   }
 
   public ProgramModel(ProgramDefinition definition) {

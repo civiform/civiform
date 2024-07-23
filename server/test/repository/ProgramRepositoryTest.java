@@ -41,9 +41,9 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.QuestionAnswerer;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 
