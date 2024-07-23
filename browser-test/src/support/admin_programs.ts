@@ -1337,16 +1337,4 @@ export class AdminPrograms {
     )
     expect(sentEmail.Body.text_part).toContain(emailBody)
   }
-
-  async seedProgramsAndCategories() {
-    await this.page.getByText('DevTools').click()
-    await this.page.getByText('Additional tools').click()
-    await waitForPageJsLoad(this.page)
-    await this.page.getByText('Seed sample programs and categories').click()
-
-    await expect(
-      this.page.getByText('The database has been seeded'),
-    ).toBeVisible()
-    await this.page.getByText('Home page').click()
-  }
 }
