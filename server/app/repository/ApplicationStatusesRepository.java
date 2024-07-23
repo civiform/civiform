@@ -66,7 +66,8 @@ public final class ApplicationStatusesRepository {
   }
 
   /** Finds all {@link ApplicationStatusesModel} associated with the given program */
-  public ImmutableList<ApplicationStatusesModel> getAllApplicationStatusModels(String programName) {
+  public ImmutableList<ApplicationStatusesModel> lookupAllApplicationStatusesModels(
+      String programName) {
     ImmutableList<ApplicationStatusesModel> allApplicationStatusModels =
         database
             .find(ApplicationStatusesModel.class)

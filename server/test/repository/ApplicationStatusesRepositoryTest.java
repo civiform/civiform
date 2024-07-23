@@ -57,7 +57,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   @Test
   public void lookupListOfObsoleteStatusDefinitions_throwsException() {
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> repo.getAllApplicationStatusModels("random"))
+        .isThrownBy(() -> repo.lookupAllApplicationStatusesModels("random"))
         .withMessage("No statuses found for the program random");
   }
 
@@ -75,7 +75,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
     ImmutableList<ApplicationStatusesModel> statusDefinitionsModelResults =
-        repo.getAllApplicationStatusModels(programName);
+        repo.lookupAllApplicationStatusesModels(programName);
 
     assertThat(statusDefinitionsModelResults).isNotEmpty();
     // one status is added as part of the program creation and one status as obsolete status

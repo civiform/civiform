@@ -15,7 +15,6 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -38,7 +37,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
   private final ProgramStatusesView statusesView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
-  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
 
   @Inject
@@ -49,14 +47,12 @@ public final class AdminProgramStatusesController extends CiviFormController {
       FormFactory formFactory,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
-    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
   }
 
@@ -69,7 +65,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
         statusesView.render(
             request,
             program,
-            applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName()),
+            service.lookupActiveStatusDefinitions(program.adminName()),
             /* maybeStatusForm= */ Optional.empty()));
   }
 
@@ -89,7 +85,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     StatusDefinitions activeStatusDefinitions =
-        applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName());
+        service.lookupActiveStatusDefinitions(program.adminName());
     int previousStatusCount = activeStatusDefinitions.getStatuses().size();
     Optional<StatusDefinitions.Status> previousDefaultStatus =
         activeStatusDefinitions.getDefaultStatus();

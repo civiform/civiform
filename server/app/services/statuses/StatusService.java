@@ -238,8 +238,15 @@ public final class StatusService {
   public ImmutableList<StatusDefinitions> getAllPossibleStatusDefinitions(Long programId)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-    return appStatusesRepo.getAllApplicationStatusModels(programDefinition.adminName()).stream()
+    return appStatusesRepo
+        .lookupAllApplicationStatusesModels(programDefinition.adminName())
+        .stream()
         .map(p -> p.getStatusDefinitions())
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Gets the ACTIVE statusDefinitions for a given program */
+  public StatusDefinitions lookupActiveStatusDefinitions(String programName) {
+    return appStatusesRepo.lookupActiveStatusDefinitions(programName);
   }
 }

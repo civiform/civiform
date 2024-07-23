@@ -31,7 +31,6 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -81,7 +80,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final StatusService statusService;
 
   public enum RelativeTimeOfDay {
@@ -108,7 +106,6 @@ public final class AdminApplicationController extends CiviFormController {
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository,
       StatusService statusService) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
@@ -123,7 +120,6 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
-    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.statusService = checkNotNull(statusService);
   }
 
@@ -352,7 +348,7 @@ public final class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            applicationStatusesRepository.lookupActiveStatusDefinitions(programName),
+            statusService.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));
@@ -534,7 +530,7 @@ public final class AdminApplicationController extends CiviFormController {
             programId, F.Either.Right(paginationSpec), filters);
 
     StatusDefinitions activeStatusDefinitions =
-        applicationStatusesRepository.lookupActiveStatusDefinitions(program.adminName());
+        statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(

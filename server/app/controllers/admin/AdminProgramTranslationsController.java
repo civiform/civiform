@@ -16,7 +16,6 @@ import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -38,7 +37,6 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstTranslatableLocale;
-  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final StatusService statusService;
 
   @Inject
@@ -49,14 +47,12 @@ public class AdminProgramTranslationsController extends CiviFormController {
       ProgramTranslationView translationView,
       FormFactory formFactory,
       TranslationLocales translationLocales,
-      ApplicationStatusesRepository applicationStatusesRepository,
       StatusService statusService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
-    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.statusService = checkNotNull(statusService);
     this.maybeFirstTranslatableLocale =
         this.translationLocales.translatableLocales().stream().findFirst();
@@ -100,7 +96,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     StatusDefinitions activeStatusDefinitions =
-        applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
+        statusService.lookupActiveStatusDefinitions(programName);
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
         translationView.render(
@@ -137,7 +133,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     StatusDefinitions currentStatuDefnitions =
-        applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
+        statusService.lookupActiveStatusDefinitions(programName);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
