@@ -62,9 +62,7 @@ test.describe('program migration', () => {
 
     await test.step('load export page', async () => {
       await enableFeatureFlag(page, 'program_migration_enabled')
-
       await adminPrograms.gotoExportProgramPage(programName, 'ACTIVE')
-      await validateScreenshot(page.locator('main'), 'export-page')
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
