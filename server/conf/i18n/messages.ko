@@ -13,15 +13,15 @@ label.selectLanguage=선호하는 언어를 선택해 주세요.
 button.untranslatedSubmit=제출
 # Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
 # not be translated.
-footer.aboutCiviform=About CiviForm
+footer.aboutCiviform=CiviForm 정보
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 # Text in the footer telling users that this is an official website of the specified Civic entity.
-footer.officialWebsiteOf=An official website of the {0}
+footer.officialWebsiteOf={0}의 공식 웹사이트
 # Text on a link that will scroll to the top of the page
-footer.returnToTop=Return to top
+footer.returnToTop=상단으로 돌아가기
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
-footer.technicalSupport=For technical support: {0}
+footer.technicalSupport=기술 지원: {0}
 guest=게스트
 label.languageSr=언어 선택
 # A label on the button that opens the header menu shown on mobile
