@@ -132,7 +132,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
-    StatusDefinitions currentStatuDefnitions =
+    StatusDefinitions currentStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(programName);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
@@ -149,7 +149,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
         ProgramTranslationForm.bindFromRequest(
             request,
             formFactory,
-            currentStatuDefnitions.getStatuses().size(),
+            currentStatusDefinitions.getStatuses().size(),
             program.localizedSummaryImageDescription().isPresent(),
             blockIds);
     // There are two updateLocalization() now, one in ProgramService (which doesn't throw
@@ -167,7 +167,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
               request,
               localeToUpdate,
               program,
-              currentStatuDefnitions,
+              currentStatusDefinitions,
               translationForm,
               Optional.of(errorMessage)));
     }
@@ -188,7 +188,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
               request,
               localeToUpdate,
               program,
-              currentStatuDefnitions,
+              currentStatusDefinitions,
               translationForm,
               Optional.of(errorMessage)));
     }
