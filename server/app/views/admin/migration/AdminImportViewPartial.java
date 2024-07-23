@@ -28,7 +28,6 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.AlertComponent;
 import views.BaseHtmlView;
-import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.TextFormatter;
 
@@ -52,9 +51,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 AlertType.ERROR,
                 /* text= */ errorMessage,
                 /* title= */ Optional.of("Error processing JSON"),
-                /* hidden= */ false
-
-                /* classes...= */ ));
+                /* hidden= */ false));
   }
 
   /** Renders the correctly parsed program data. */
@@ -65,8 +62,15 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         div()
             .withId(PROGRAM_DATA_ID)
             .with(
-                h3("Program name: " + program.localizedName().getDefault()),
-                h4("Admin name: " + program.adminName()));
+                h3("Program preview"),
+                AlertComponent.renderFullAlert(
+                    AlertType.INFO,
+                    /* text= */ "Please review the program name and details before saving.",
+                    /* title= */ Optional.empty(),
+                    /* hidden= */ false,
+                    /* classes...= */ "mb-2"),
+                h4("Program name: " + program.localizedName().getDefault()).withClass("mb-2"),
+                h4("Admin name: " + program.adminName()).withClass("mb-2"));
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
@@ -95,8 +99,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .withClass("hidden"))
             .with(
                 div()
-                    .with(submitButton("Save Program").withClass(ButtonStyles.SOLID_BLUE))
-                    .withClasses("flex"))
+                    .with(
+                        submitButton("Save").withClasses("usa-button", "mr-2"),
+                        // click "Save" should show you the partial with the save component
+                        asRedirectElement(
+                                button("Delete and start over"),
+                                routes.AdminImportController.index().url())
+                            .withClasses("usa-button", "usa-button--outline"))
+                    .withClasses("flex", "my-5"))
             .withAction(routes.AdminImportController.saveProgram().url());
 
     return programDiv.with(hiddenForm);
