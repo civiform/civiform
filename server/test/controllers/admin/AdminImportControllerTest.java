@@ -179,7 +179,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITHOUT_QUESTIONS))
@@ -203,7 +203,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
@@ -237,7 +237,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
@@ -270,7 +270,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
@@ -320,7 +320,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
@@ -344,7 +344,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.saveProgram(
+        controller.hxSaveProgram(
             fakeRequestBuilder()
                 .method("POST")
                 // Questions must be marked as "universal" before being tagged with a PAI
