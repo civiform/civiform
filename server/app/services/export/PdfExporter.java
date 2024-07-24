@@ -40,6 +40,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -369,6 +370,22 @@ public final class PdfExporter {
         document.add(
             text(question.getQuestionHelpText().getDefault(), PARAGRAPH_FONT, indentationLevel));
       }
+
+      // Adds a line describing whether the question is optional or not
+      Optional<ProgramQuestionDefinition> programQuestionDefinition =
+          block.programQuestionDefinitions().stream()
+              .filter(pqd -> pqd.id() == question.getId())
+              .findFirst();
+      if (programQuestionDefinition.isPresent()) {
+        document.add(
+            text(
+                programQuestionDefinition.get().optional()
+                    ? "Optional Question"
+                    : "Required Question",
+                SMALL_GRAY_FONT,
+                indentationLevel));
+      }
+
       document.add(text("Admin name: " + question.getName(), SMALL_GRAY_FONT, indentationLevel));
       document.add(
           text(
