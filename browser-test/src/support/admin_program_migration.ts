@@ -68,17 +68,12 @@ export class AdminProgramMigration {
 
   async submitProgramJson(content: string) {
     await this.page.getByRole('textbox').fill(content)
-    await this.page
-      .getByRole('button', {name: 'Display program information'})
-      .click()
-    await waitForPageJsLoad(this.page)
+    await this.clickButton('Preview program')
   }
 
-  async expectImportError() {
+  async expectAlert(alertText: string) {
     await expect(
-      this.page
-        .getByRole('alert')
-        .getByRole('heading', {name: 'Error processing JSON'}),
+      this.page.getByRole('alert').getByRole('heading', {name: alertText}),
     ).toBeVisible()
   }
 
@@ -88,8 +83,8 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async saveProgram() {
-    await this.page.getByRole('button', {name: 'Save Program'}).click()
+  async clickButton(buttonText: string) {
+    await this.page.getByRole('button', {name: buttonText}).click()
     await waitForPageJsLoad(this.page)
   }
 }
