@@ -769,7 +769,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
                     /* isIntakeFormFeatureEnabled= */ false,
-                    ImmutableList.copyOf(new ArrayList<>())))
+                    ImmutableList.copyOf(new ArrayList<>()),
+                    /* categories= */ ImmutableList.of()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -791,7 +792,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
@@ -826,7 +828,8 @@ public class ProgramServiceTest extends ResetPostgres {
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 /* isIntakeFormFeatureEnabled= */ false,
-                ImmutableList.copyOf(new ArrayList<>()))
+                ImmutableList.copyOf(new ArrayList<>()),
+                /* categories= */ ImmutableList.of())
             .getResult();
 
     QuestionDefinition foundQuestion =
@@ -851,7 +854,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -878,7 +882,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     // check that the confirmation screen message saved
     LocalizedStrings expectedUsString =
@@ -900,7 +905,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
     assertThat(secondProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(
@@ -921,7 +927,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
     assertThat(thirdProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
@@ -952,7 +959,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ false,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -993,7 +1001,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1037,7 +1046,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1073,7 +1083,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ true,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1117,7 +1128,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1163,7 +1175,8 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ true,
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.copyOf(new ArrayList<>()),
+            /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
