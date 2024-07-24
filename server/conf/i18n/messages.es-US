@@ -92,6 +92,8 @@ toast.localeNotSupported=Lo sentimos, este programa no está traducido por compl
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
 link.createAccountOrSignIn=Crear una cuenta o acceder
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y comenzar la revisión de todas formas?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
