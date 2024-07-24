@@ -92,6 +92,8 @@ toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好�
 link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
 link.createAccountOrSignIn=建立或登入帳戶
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
