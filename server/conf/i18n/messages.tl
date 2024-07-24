@@ -92,6 +92,8 @@ toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na it
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
