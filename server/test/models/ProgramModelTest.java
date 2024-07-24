@@ -92,6 +92,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
             .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -181,6 +182,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -243,6 +245,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -358,6 +361,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

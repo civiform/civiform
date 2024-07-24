@@ -30,16 +30,17 @@ public class CategoryRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void listCategories_fetchesAllCategories() {
+  public void listCategories_fetchesAllCategoriesInAlphabeticalOrder() {
     CategoryModel category1 = createEnglishSpanishCategory("Health", "Salud");
     repo.fetchOrSaveUniqueCategory(category1);
 
-    CategoryModel category2 = createEnglishSpanishCategory("Education", "Educación");
+    CategoryModel category2 = createEnglishSpanishCategory("education", "educación");
     repo.fetchOrSaveUniqueCategory(category2);
 
     ImmutableList<CategoryModel> allCategories = repo.listCategories();
 
     assertThat(allCategories).hasSize(2);
+    assertThat(allCategories.get(0).getDefaultName()).isEqualTo("education");
   }
 
   @Test

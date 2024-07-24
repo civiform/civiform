@@ -219,7 +219,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     draftOne.save();
 
     var draftTwo =
@@ -235,7 +236,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
 
     var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
     throwableAssert.hasMessageContaining("Program test-program already has a draft!");
@@ -257,7 +259,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     ProgramModel withId = repo.insertProgramSync(program);
 
     ProgramModel found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();

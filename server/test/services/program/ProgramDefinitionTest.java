@@ -68,6 +68,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -97,6 +98,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -117,6 +119,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -245,6 +248,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
@@ -269,6 +273,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -304,6 +309,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(tiGroups))
+            .setCategories(ImmutableList.of())
             .build();
 
     program =
@@ -339,6 +345,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -392,6 +399,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -462,6 +470,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     // block1
@@ -551,6 +560,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     // block1
@@ -663,6 +673,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     // blockA (applicantName)
@@ -1085,6 +1096,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -1104,6 +1116,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -1125,6 +1138,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -1144,6 +1158,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
@@ -1164,6 +1179,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .setLocalizedSummaryImageDescription(Optional.of(description))
             .build();
 
@@ -1186,6 +1202,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(def.localizedSummaryImageDescription().isPresent()).isFalse();
@@ -1207,6 +1224,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "first image description")))
             .build();
@@ -1239,6 +1257,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1262,6 +1281,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(def.summaryImageFileKey().isPresent()).isFalse();
@@ -1282,6 +1302,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1387,6 +1408,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
+            .setCategories(ImmutableList.of())
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             // The following fields should *not* be included in the serialization
@@ -1559,6 +1581,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     ObjectMapper objectMapper =

@@ -33,6 +33,7 @@ import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
@@ -81,6 +82,7 @@ public final class ProgramService {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
+  private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final ApplicationStatusesRepository applicationStatusesRepository;
 
@@ -90,6 +92,7 @@ public final class ProgramService {
       QuestionService questionService,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
+      CategoryRepository categoryRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory,
       ApplicationStatusesRepository applicationStatusesRepository) {
@@ -98,6 +101,7 @@ public final class ProgramService {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
@@ -335,7 +339,8 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      ImmutableList<Long> tiGroups) {
+      ImmutableList<Long> tiGroups,
+      ImmutableList<Long> categoryIds) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -376,7 +381,8 @@ public final class ProgramService {
             versionRepository.getDraftVersionOrCreate(),
             programType,
             eligibilityIsGating,
-            programAcls);
+            programAcls,
+            categoryRepository.findCategoriesByIds(categoryIds));
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ErrorAnd.of(

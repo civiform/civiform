@@ -86,6 +86,7 @@ public class EligibilityAlertSettingsCalculatorTest {
         .setProgramType(ProgramType.DEFAULT)
         .setEligibilityIsGating(isEligibilityGating)
         .setAcls(new ProgramAcls())
+        .setCategories(ImmutableList.of())
         .build();
   }
 

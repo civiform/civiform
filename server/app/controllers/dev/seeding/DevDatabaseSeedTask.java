@@ -177,7 +177,8 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.copyOf(new ArrayList<>()),
+              /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -219,7 +220,8 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.copyOf(new ArrayList<>()),
+              /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }

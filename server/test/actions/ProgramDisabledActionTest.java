@@ -75,7 +75,8 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            /* ProgramAcls */ new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls(),
+            /* categories */ ImmutableList.of());
     program.save();
 
     Result result = action.call(request).toCompletableFuture().join();
@@ -107,7 +108,8 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            /* ProgramAcls */ new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls(),
+            /* categories */ ImmutableList.of());
     program.save();
 
     Action.Simple delegateMock = mock(Action.Simple.class);

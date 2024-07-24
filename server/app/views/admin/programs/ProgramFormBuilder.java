@@ -2,9 +2,11 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
@@ -21,11 +23,14 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -51,14 +56,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final AccountRepository accountRepository;
+  private final CategoryRepository categoryRepository;
 
   ProgramFormBuilder(
       Config configuration,
       SettingsManifest settingsManifest,
-      AccountRepository accountRepository) {
+      AccountRepository accountRepository,
+      CategoryRepository categoryRepository) {
     this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
   }
 
   /** Builds the form using program form data. */
@@ -76,7 +84,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getEligibilityIsGating(),
         program.getIsCommonIntakeForm(),
         programEditStatus,
-        program.getTiGroups());
+        program.getTiGroups(),
+        program.getCategories());
   }
 
   /** Builds the form using program definition data. */
@@ -94,7 +103,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.eligibilityIsGating(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
-        new ArrayList<>(program.acls().getTiProgramViewAcls()));
+        new ArrayList<>(program.acls().getTiProgramViewAcls()),
+        program.categories().stream().map(CategoryModel::getId).collect(Collectors.toList()));
   }
 
   private FormTag buildProgramForm(
@@ -109,7 +119,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       boolean eligibilityIsGating,
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
-      List<Long> selectedTi) {
+      List<Long> selectedTi,
+      List<Long> categories) {
+    List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
@@ -129,6 +141,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setMarkdownSupported(true)
             .setValue(displayDescription)
             .getTextareaTag(),
+        iff(
+            settingsManifest.getProgramFilteringEnabled(request),
+            showCategoryCheckboxes(categoryOptions, categories)),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
@@ -268,6 +283,28 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
     formTag.with(createSubmitButton(programEditStatus));
     return formTag;
+  }
+
+  private DivTag showCategoryCheckboxes(
+      List<CategoryModel> categoryOptions, List<Long> categories) {
+    return div(
+        label("Tag this program with 1 or more categories to make it easier to find")
+            .withFor("category-checkboxes")
+            .withClass("text-gray-600"),
+        fieldset(
+                each(
+                    categoryOptions,
+                    category ->
+                        div(
+                            input()
+                                .withId("check-category-" + category.getDefaultName())
+                                .withType("checkbox")
+                                .withName("categories" + Path.ARRAY_SUFFIX)
+                                .withValue(String.valueOf(category.getId()))
+                                .withCondChecked(categories.contains(category.getId())),
+                            label(category.getDefaultName())
+                                .withFor("check-category-" + category.getDefaultName()))))
+            .withId("category-checkboxes"));
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {

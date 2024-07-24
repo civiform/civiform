@@ -104,7 +104,8 @@ public class ProgramBuilder {
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -217,7 +218,8 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
-            /* ProgramAcls */ new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -244,7 +246,8 @@ public class ProgramBuilder {
             obsoleteVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
