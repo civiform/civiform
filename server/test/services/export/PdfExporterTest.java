@@ -295,8 +295,8 @@ public class PdfExporterTest extends AbstractExporterTest {
                       .findFirst()
                       .get()
                       .optional()
-                  ? "Optional Question"
-                  : "Required Question");
+                  ? "Required Question"
+                  : "Optional Question");
       pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
       pdfText =
           assertContainsThenCrop(
