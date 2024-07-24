@@ -43,15 +43,17 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   public static final String PROGRAM_DATA_ID = "program-data";
 
   /** Renders an error that occurred while trying to parse the program data. */
-  public DomContent renderError(String errorMessage) {
+  public DomContent renderError(String title, String errorMessage) {
     return div()
         .withId(PROGRAM_DATA_ID)
         .with(
             AlertComponent.renderFullAlert(
                 AlertType.ERROR,
                 /* text= */ errorMessage,
-                /* title= */ Optional.of("Error processing JSON"),
-                /* hidden= */ false));
+                /* title= */ Optional.of(title),
+                /* hidden= */ false),
+            asRedirectElement(button("Try again"), routes.AdminImportController.index().url())
+                .withClasses("my-5", "usa-button", "usa-button--outline"));
   }
 
   /** Renders the correctly parsed program data. */
