@@ -37,9 +37,11 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.Address;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
+import services.question.QuestionAnswerer;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -47,6 +49,7 @@ import views.applicant.AddressCorrectionBlockView;
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   private static final String SUGGESTED_ADDRESS = "456 Suggested Ave, Seattle, Washington, 99999";
   private static final String SUGGESTED_ADDRESS_STREET = "456 Suggested Ave";
+
   private ApplicantProgramBlocksController subject;
   private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
@@ -2210,6 +2213,407 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join()
             .size();
     assertThat(storedFileCount).isEqualTo(1);
+  }
+
+  @Test
+  public void removeFile_invalidApplicant_returnsUnauthorized() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    long badApplicantId = applicant.id + 1000;
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
+                    badApplicantId,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request.build(),
+                badApplicantId,
+                program.id,
+                /* blockId= */ "1",
+                /* fakeKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void removeFile_applicantAccessToDraftProgram_returnsUnauthorized() {
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    draftProgram.id,
+                    /* blockId= */ "2",
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false))
+            .build();
+    Result result =
+        subject
+            .removeFile(
+                request,
+                draftProgram.id,
+                /* blockId= */ "2",
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void removeFile_civiformAdminAccessToDraftProgram_isOk() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
+                    applicant.id,
+                    draftProgram.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false))
+            .build();
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void removeFile_obsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    obsoleteProgram.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false))
+            .build();
+    Result result =
+        subject
+            .removeFile(
+                request,
+                obsoleteProgram.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void removeFile_invalidProgram_returnsBadRequest() {
+    long badProgramId = program.id + 1000;
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    badProgramId,
+                    /* blockId= */ "2",
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                badProgramId,
+                /* blockId= */ "2",
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void removeFile_invalidBlock_returnsBadRequest() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    String badBlockId = "1000";
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id, badBlockId, /* fileKey= */ "fake-key", /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                badBlockId,
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void removeFile_notFileUploadBlock_returnsBadRequest() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantDate())
+            .build();
+
+    String dateQuestionBlockId = "1";
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    dateQuestionBlockId,
+                    /* fileKey= */ "fake-key",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                dateQuestionBlockId,
+                /* fileKey= */ "fake-key",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void removeFile_withoutUserProfileRedirectsHome() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "key-to-remove",
+                    /* inReview= */ false))
+            .header(skipUserProfile, "true");
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "key-to-remove",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(controllers.routes.HomeController.index().url());
+  }
+
+  @Test
+  public void removeFile_removesFileAndRerenders() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        0,
+        "file-key-1");
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        1,
+        "key-to-remove");
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        2,
+        "file-key-2");
+    applicant.save();
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "key-to-remove",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "key-to-remove",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    applicant.refresh();
+    String applicantDataString = applicant.getApplicantData().asJsonString();
+    assertThat(applicantDataString).contains("file-key-1", "file-key-2");
+    assertThat(applicantDataString).doesNotContain("key-to-remove");
+  }
+
+  @Test
+  public void removeFile_removesLastFileWithRequiredQuestion() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        1,
+        "key-to-remove");
+    applicant.save();
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "key-to-remove",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "key-to-remove",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("key-to-remove");
+  }
+
+  @Test
+  public void removeFile_removingNonExistantFileDoesNothing() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        0,
+        "file-key-1");
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+        2,
+        "file-key-2");
+
+    applicant.save();
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "does-not-exist",
+                    /* inReview= */ false));
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "does-not-exist",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    applicant.refresh();
+    String applicantDataString = applicant.getApplicantData().asJsonString();
+    assertThat(applicantDataString).contains("file-key-1", "file-key-2");
+    assertThat(applicantDataString).doesNotContain("does-not-exist");
   }
 
   @Test
