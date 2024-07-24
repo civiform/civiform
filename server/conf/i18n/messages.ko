@@ -92,6 +92,8 @@ toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선�
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
 link.createAccountOrSignIn=계정 만들기 또는 로그인
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
