@@ -104,7 +104,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 div()
                     .with(
                         submitButton("Save").withClasses("usa-button", "mr-2"),
-                        // click "Save" should show you the partial with the save component
                         asRedirectElement(
                                 button("Delete and start over"),
                                 routes.AdminImportController.index().url())
@@ -116,7 +115,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   /** Renders a message saying the program was successfully saved. */
-  public DomContent renderProgramSaved(String programName) {
+  public DomContent renderProgramSaved(String programName, Long programId) {
     return div()
         .with(
             AlertComponent.renderFullAlert(
@@ -130,7 +129,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             div()
                 .with(
                     asRedirectElement(
-                            button("View program"), routes.AdminProgramController.index().url())
+                            button("View program"),
+                            routes.AdminProgramBlocksController.edit(programId, 1).url())
                         .withClasses("usa-button", "mr-2"),
                     asRedirectElement(
                             button("Import another program"),

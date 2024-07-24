@@ -56,7 +56,7 @@ public class AdminImportView extends BaseHtmlView {
     String title = "Import an existing program";
     DivTag contentDiv =
         div()
-            .withClasses("pt-10", "px-20")
+            .withClasses("pt-10", "px-20", "font-family-sans", "grid-col-8")
             .with(renderBackButton())
             .with(h1(title))
             .with(

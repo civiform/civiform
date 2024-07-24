@@ -162,10 +162,14 @@ public class AdminImportController extends CiviFormController {
           programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
     }
 
-    programRepository.insertProgramSync(
-        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+    ProgramModel savedProgram =
+        programRepository.insertProgramSync(
+            new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-    return ok(adminImportViewPartial.renderProgramSaved(updatedProgram.adminName()).render());
+    return ok(
+        adminImportViewPartial
+            .renderProgramSaved(updatedProgram.adminName(), savedProgram.id)
+            .render());
   }
 
   private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
