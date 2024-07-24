@@ -1085,8 +1085,12 @@ test.describe('program creation', () => {
     )
   })
 
-  test('create program with categories', async ({page, adminPrograms}) => {
+  test('create and update program with categories', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
+    const programName = 'program with categories'
 
     await test.step('seed categories', async () => {
       await seedProgramsAndCategories(page)
@@ -1095,7 +1099,6 @@ test.describe('program creation', () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      const programName = 'program with categories'
       await adminPrograms.addProgram(
         programName,
         'description',
@@ -1125,8 +1128,37 @@ test.describe('program creation', () => {
     await expect(page.getByRole('checkbox', {name: 'Education'})).toBeChecked()
     await expect(page.getByRole('checkbox', {name: 'Healthcare'})).toBeChecked()
 
-    await test.step('submit program', async () => {
+    await test.step('submit and publish program', async () => {
       await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishProgram(programName)
+    })
+
+    await test.step('go to program edit form and check that categories are still pre-selected', async () => {
+      await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+      await waitForPageJsLoad(page)
+      await expect(
+        page.getByRole('checkbox', {name: 'Education'}),
+      ).toBeChecked()
+      await expect(
+        page.getByRole('checkbox', {name: 'Healthcare'}),
+      ).toBeChecked()
+    })
+
+    await test.step('add another category', async () => {
+      await page.getByRole('checkbox', {name: 'Internet'}).check()
+    })
+
+    await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await expect(
+        page.getByRole('checkbox', {name: 'Education'}),
+      ).toBeChecked()
+      await expect(
+        page.getByRole('checkbox', {name: 'Healthcare'}),
+      ).toBeChecked()
+      await expect(page.getByRole('checkbox', {name: 'Internet'})).toBeChecked()
     })
   })
 })

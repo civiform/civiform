@@ -479,7 +479,8 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      ImmutableList<Long> tiGroups)
+      ImmutableList<Long> tiGroups,
+      ImmutableList<Long> categoryIds)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
@@ -523,6 +524,7 @@ public final class ProgramService {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
+            .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .build()
             .toProgram();
 

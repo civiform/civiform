@@ -177,6 +177,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
+    this.categories = definition.categories();
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
