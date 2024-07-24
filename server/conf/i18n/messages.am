@@ -92,6 +92,8 @@ toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግ�
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
 link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ግምገማ መጀመር ይፈልጋሉ?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
