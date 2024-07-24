@@ -291,8 +291,7 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileTooLargeErrorHidden()
     })
 
-    test('can upload file', async ({
-      page,
+    test('can remove last file of a required question and show error', async ({
       applicantQuestions,
       applicantFileQuestion,
     }) => {
@@ -300,7 +299,40 @@ test.describe('file upload applicant flow', () => {
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+
+      await applicantFileQuestion.removeFileUpload('file.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file.txt', 0)
+
+      await applicantFileQuestion.removeFileUpload('file2.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file2.txt', 0)
+
+      await applicantQuestions.expectRequiredQuestionError(
+        '.cf-question-fileupload',
+      )
+    })
+
+    test('can upload multiple files', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
       await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+      await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+
       await validateScreenshot(page, 'file-uploaded-multiple-files')
     })
 
@@ -321,6 +353,28 @@ test.describe('file upload applicant flow', () => {
         'file1.txt',
       )
       await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+    })
+
+    test('can remove files', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+
+      await applicantFileQuestion.removeFileUpload('file.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file.txt', 0)
+
+      await applicantFileQuestion.removeFileUpload('file2.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file2.txt', 0)
     })
 
     test('too large file error', async ({

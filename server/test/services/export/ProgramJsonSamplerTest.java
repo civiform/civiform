@@ -14,14 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramJsonSamplerTest extends ResetPostgres {
@@ -32,10 +33,12 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   private ProgramJsonSampler programJsonSampler;
 
   private ProgramDefinition programDefinition;
+  private ApplicationStatusesRepository repo;
 
   @Before
   public void setUp() {
     programJsonSampler = instanceOf(ProgramJsonSampler.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
 
     StatusDefinitions possibleProgramStatuses =
         new StatusDefinitions(
@@ -75,9 +78,11 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .setBlockDefinitions(blockDefinitions)
-            .setStatusDefinitions(possibleProgramStatuses)
+            .setStatusDefinitions(new StatusDefinitions())
             .build();
+    repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }
 
   @Test

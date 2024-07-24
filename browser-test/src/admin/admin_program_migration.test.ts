@@ -3,7 +3,7 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
-  seedPrograms,
+  seedProgramsAndCategories,
   validateScreenshot,
 } from '../support'
 
@@ -177,7 +177,7 @@ test.describe('program migration', () => {
       // because the flag may have been enabled in a different run
       await disableFeatureFlag(page, 'multiple_file_upload_enabled')
 
-      await seedPrograms(page)
+      await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()

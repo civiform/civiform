@@ -24,7 +24,6 @@ import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -34,6 +33,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -992,6 +992,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
                 .setAcls(new ProgramAcls())
+                .setCategories(ImmutableList.of())
                 .build(),
             FAKE_BASE_URL);
 

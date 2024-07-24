@@ -428,7 +428,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             version,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
+    ;
     program.save();
     return program;
   }

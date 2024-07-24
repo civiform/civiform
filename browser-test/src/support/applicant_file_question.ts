@@ -88,4 +88,13 @@ export class ApplicantFileQuestion {
   async clickDelete() {
     await this.page.locator(this.deleteButtonLocator).click()
   }
+
+  async removeFileUpload(fileName: string) {
+    await this.page
+      .getByRole('list', {name: 'Uploaded files'})
+      .locator('li')
+      .filter({hasText: fileName})
+      .getByText('Remove File')
+      .click()
+  }
 }
