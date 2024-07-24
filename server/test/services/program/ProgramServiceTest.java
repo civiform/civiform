@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -37,9 +38,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
+import play.i18n.Lang;
 import play.inject.BindingKey;
 import play.mvc.Http.Request;
 import repository.ApplicationStatusesRepository;
+import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -73,6 +76,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private SettingsManifest mockSettingsManifest;
+  private CategoryRepository categoryRepository;
   private final Request request = fakeRequest();
   private ApplicationStatusesRepository applicationStatusesRepo;
 
@@ -94,6 +98,7 @@ public class ProgramServiceTest extends ResetPostgres {
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
+    categoryRepository = instanceOf(CategoryRepository.class);
   }
 
   @Test
@@ -591,13 +596,60 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.copyOf(new ArrayList<>()));
+            "",
+            "",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program URL is required"));
+  }
+
+  @Test
+  public void validateProgramDataForCreate_withInvalidCategory_returnsError() {
+    ImmutableMap<Locale, String> categoryTranslations =
+        ImmutableMap.of(
+            Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
+    CategoryModel category = new CategoryModel(categoryTranslations);
+    Long validCategoryId = categoryRepository.fetchOrSaveUniqueCategory(category).getId();
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result)
+        .containsExactlyInAnyOrder(CiviFormError.of("Only existing category ids are allowed"));
+  }
+
+  @Test
+  public void validateProgramDataForCreate_withValidCategory_returnsNoErrors() {
+    ImmutableMap<Locale, String> categoryTranslations =
+        ImmutableMap.of(
+            Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
+    CategoryModel category = new CategoryModel(categoryTranslations);
+    Long validCategoryId = categoryRepository.fetchOrSaveUniqueCategory(category).getId();
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(validCategoryId),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -610,6 +662,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
@@ -629,6 +682,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
@@ -646,6 +700,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result).isEmpty();
@@ -660,6 +715,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
@@ -675,6 +731,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display name",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
@@ -717,6 +774,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
@@ -731,6 +789,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display description",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result).isEmpty();
@@ -748,6 +807,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display description",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.of(),
             ImmutableList.copyOf(tiGroups));
 
     assertThat(result).isEmpty();
