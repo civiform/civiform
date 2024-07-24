@@ -380,8 +380,8 @@ public final class PdfExporter {
         document.add(
             text(
                 programQuestionDefinition.get().optional()
-                    ? "Required Question"
-                    : "Optional Question",
+                    ? "Optional Question"
+                    : "Required Question",
                 SMALL_GRAY_FONT,
                 indentationLevel));
       }
