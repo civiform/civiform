@@ -108,7 +108,8 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(createDurableJobsSection(request))
                     .with(createCachingSection(request))
                     .with(createIconsSection())
-                    .condWith(deploymentType.isDev(), createEmailSection()));
+                    .condWith(deploymentType.isDev(), createEmailSection())
+                    .with(createAddressToolsSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
@@ -221,6 +222,17 @@ public class DatabaseSeedView extends BaseHtmlView {
                     "\uD83D\uDCC1 S3 Public Bucket",
                     "http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public")
                 .withTarget("_blank"));
+  }
+
+  private SectionTag createAddressToolsSection() {
+    return section()
+        .with(h2("Address Tools").withClass("text-2xl"))
+        .with(p("View address lookup and eligibility results"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(
+            createLink(
+                "\uD83D\uDDFA\uFE0F Go to address tools",
+                controllers.dev.routes.AddressCheckerController.index().url()));
   }
 
   private FormTag createForm(Request request, String buttonId, String buttonText, String url) {
