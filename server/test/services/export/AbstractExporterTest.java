@@ -28,8 +28,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
-import services.program.StatusDefinitions.Status;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -40,6 +38,8 @@ import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusDefinitions.Status;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 

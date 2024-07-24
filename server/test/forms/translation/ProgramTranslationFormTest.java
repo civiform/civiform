@@ -8,16 +8,25 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.ProgramModel;
+import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.LocalizationUpdate;
-import services.program.StatusDefinitions;
+import services.program.ProgramDefinition;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ProgramTranslationFormTest extends ResetPostgres {
+  private ApplicationStatusesRepository repo;
+
+  @Before
+  public void setup() {
+    repo = instanceOf(ApplicationStatusesRepository.class);
+  }
 
   private static final ImmutableMap<String, String> REQUEST_DATA_WITH_TWO_TRANSLATIONS =
       ImmutableMap.<String, String>builder()
@@ -385,31 +394,35 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(Locale.US, "us-image-desc", Locale.FRENCH, "french-image-desc"))
-            .withStatusDefinitions(
-                new StatusDefinitions(
-                    ImmutableList.of(
-                        StatusDefinitions.Status.builder()
-                            .setStatusText("first-status-english")
-                            .setLocalizedStatusText(
-                                LocalizedStrings.withDefaultValue("first-status-english"))
-                            .setLocalizedEmailBodyText(
-                                Optional.of(
-                                    LocalizedStrings.withDefaultValue("first-status-email-english")
-                                        .updateTranslation(
-                                            Locale.FRENCH, "first-status-email-french")))
-                            .build(),
-                        StatusDefinitions.Status.builder()
-                            .setStatusText("second-status-english")
-                            .setLocalizedStatusText(
-                                LocalizedStrings.withDefaultValue("second-status-english")
-                                    .updateTranslation(Locale.FRENCH, "second-status-french"))
-                            .build())))
             .build();
+    StatusDefinitions statusDefinitions =
+        new StatusDefinitions(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText("first-status-english")
+                    .setLocalizedStatusText(
+                        LocalizedStrings.withDefaultValue("first-status-english"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            LocalizedStrings.withDefaultValue("first-status-email-english")
+                                .updateTranslation(Locale.FRENCH, "first-status-email-french")))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText("second-status-english")
+                    .setLocalizedStatusText(
+                        LocalizedStrings.withDefaultValue("second-status-english")
+                            .updateTranslation(Locale.FRENCH, "second-status-french"))
+                    .build()));
+    ProgramDefinition programDef = program.getProgramDefinition();
+    repo.createOrUpdateStatusDefinitions(programDef.adminName(), statusDefinitions);
     ImmutableList<Long> blockIds = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.fromProgram(
-            program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
+            program.getProgramDefinition(),
+            Locale.FRENCH,
+            instanceOf(FormFactory.class),
+            repo.lookupActiveStatusDefinitions(programDef.adminName()));
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -417,6 +430,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setLocalizedDisplayDescription("french-description")
                 .setLocalizedConfirmationMessage("")
                 .setLocalizedSummaryImageDescription("french-image-desc")
+                .setScreens(ImmutableList.of())
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -427,7 +441,6 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setStatusKeyToUpdate("second-status-english")
                             .setLocalizedStatusText(Optional.of("second-status-french"))
                             .build()))
-                .setScreens(ImmutableList.of())
                 .build());
   }
 
@@ -436,10 +449,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("english-name", "english-description").build();
     ImmutableList<Long> blockIds = ImmutableList.of();
-
+    StatusDefinitions currentStatusDef =
+        repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
     ProgramTranslationForm form =
         ProgramTranslationForm.fromProgram(
-            program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
+            program.getProgramDefinition(),
+            Locale.FRENCH,
+            instanceOf(FormFactory.class),
+            currentStatusDef);
 
     assertThat(form.getUpdateData(blockIds).localizedSummaryImageDescription().isPresent())
         .isFalse();

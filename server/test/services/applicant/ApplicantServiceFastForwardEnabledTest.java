@@ -43,6 +43,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.Address;
@@ -76,7 +77,6 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -96,6 +96,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -115,6 +116,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
+  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -126,6 +128,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     accountRepository = instanceOf(AccountRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
+    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     createQuestions();
     createProgram();
 
@@ -2734,7 +2737,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .containsExactly(updatedProgram.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.of(APPROVED_STATUS));
+        .containsExactly(Optional.of(updatedStatus));
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -2939,6 +2942,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3015,6 +3019,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3305,6 +3310,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))

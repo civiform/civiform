@@ -30,7 +30,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 
 @RunWith(JUnitParamsRunner.class)
 public class EligibilityAlertSettingsCalculatorTest {
@@ -86,6 +86,7 @@ public class EligibilityAlertSettingsCalculatorTest {
         .setProgramType(ProgramType.DEFAULT)
         .setEligibilityIsGating(isEligibilityGating)
         .setAcls(new ProgramAcls())
+        .setCategories(ImmutableList.of())
         .build();
   }
 

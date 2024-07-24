@@ -13,15 +13,15 @@ label.selectLanguage=Vui lòng chọn ngôn ngữ bạn ưa dùng.
 button.untranslatedSubmit=Gửi
 # Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
 # not be translated.
-footer.aboutCiviform=About CiviForm
+footer.aboutCiviform=Giới thiệu về CiviForm
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 # Text in the footer telling users that this is an official website of the specified Civic entity.
-footer.officialWebsiteOf=An official website of the {0}
+footer.officialWebsiteOf=Một trang web chính thức của {0}
 # Text on a link that will scroll to the top of the page
-footer.returnToTop=Return to top
+footer.returnToTop=Quay lại đầu trang
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
-footer.technicalSupport=For technical support: {0}
+footer.technicalSupport=Để được hỗ trợ kỹ thuật: {0}
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
 # A label on the button that opens the header menu shown on mobile

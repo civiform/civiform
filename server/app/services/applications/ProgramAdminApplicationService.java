@@ -32,8 +32,8 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.StatusDefinitions.Status;
-import services.program.StatusNotFoundException;
+import services.statuses.StatusDefinitions.Status;
+import services.statuses.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {

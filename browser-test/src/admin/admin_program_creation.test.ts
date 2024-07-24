@@ -3,6 +3,7 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
+  seedProgramsAndCategories,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
@@ -1082,5 +1083,50 @@ test.describe('program creation', () => {
       'universal-phone',
       true,
     )
+  })
+
+  test('create program with categories', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+
+    await test.step('seed categories', async () => {
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+    })
+
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      const programName = 'program with categories'
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ false,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ false,
+      )
+    })
+
+    await test.step('add categories to program', async () => {
+      await page.getByRole('checkbox', {name: 'Education'}).check()
+      await page.getByRole('checkbox', {name: 'Healthcare'}).check()
+    })
+
+    await test.step('validate screenshot', async () => {
+      await validateScreenshot(
+        page.locator('#program-details-form'),
+        'program-creation-with-categories',
+      )
+    })
+
+    await expect(page.getByRole('checkbox', {name: 'Education'})).toBeChecked()
+    await expect(page.getByRole('checkbox', {name: 'Healthcare'})).toBeChecked()
+
+    await test.step('submit program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+    })
   })
 })

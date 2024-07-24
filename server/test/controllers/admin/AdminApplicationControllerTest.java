@@ -42,7 +42,6 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
-import repository.ApplicationStatusesRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -57,10 +56,11 @@ import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
-import services.program.StatusDefinitions.Status;
-import services.program.StatusNotFoundException;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusDefinitions.Status;
+import services.statuses.StatusNotFoundException;
+import services.statuses.StatusService;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -579,7 +579,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
-        instanceOf(ApplicationStatusesRepository.class));
+        instanceOf(StatusService.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

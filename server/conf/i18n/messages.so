@@ -13,15 +13,15 @@ label.selectLanguage=Fadlan dooro luqadda aad doorbidayso.
 button.untranslatedSubmit=Gudbi
 # Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
 # not be translated.
-footer.aboutCiviform=About CiviForm
+footer.aboutCiviform=Ku saabsan CiviForm
 footer.supportLinkDescription=Taageero farsamo, la xidhiidh
 # Text in the footer telling users that this is an official website of the specified Civic entity.
-footer.officialWebsiteOf=An official website of the {0}
+footer.officialWebsiteOf=Websaydka rasmiga ah ee {0}
 # Text on a link that will scroll to the top of the page
-footer.returnToTop=Return to top
+footer.returnToTop=Kor ku noqo
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
-footer.technicalSupport=For technical support: {0}
+footer.technicalSupport=Wixii taageero farsamo ah: {0}
 guest=Marti
 label.languageSr=Dooro luqad
 # A label on the button that opens the header menu shown on mobile
