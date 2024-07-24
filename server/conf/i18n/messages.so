@@ -92,6 +92,8 @@ toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjum
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
 link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aadna bilawdo inaad dib u eegto?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
