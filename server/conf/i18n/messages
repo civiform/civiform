@@ -574,19 +574,19 @@ placeholder.middleName=Middle name
 # Placeholder for name suffix field in name question
 placeholder.nameSuffix=Suffix
 
-# option Junior for the name suffix dropdown
+# Option Junior for the name suffix dropdown
 option.junior=Jr.
-# option Senior for the name suffix dropdown
+# Option Senior for the name suffix dropdown
 option.senior=Sr.
-# option the first for the name suffix dropdown
+# Option the first for the name suffix dropdown
 option.first=I
-# option the second for the name suffix dropdown
+# Option the second for the name suffix dropdown
 option.second=II
-# option the third for the name suffix dropdown
+# Option the third for the name suffix dropdown
 option.third=III
-# option the forth for the name suffix dropdown
+# Option the forth for the name suffix dropdown
 option.forth=IV
-# option the fifth for the name suffix dropdown
+# Option the fifth for the name suffix dropdown
 option.fifth=V
 
 validation.firstNameRequired=Please enter your first name.
