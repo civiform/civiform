@@ -92,6 +92,8 @@ toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịc
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
 link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và bắt đầu đánh giá?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
