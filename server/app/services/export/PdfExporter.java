@@ -382,7 +382,7 @@ public final class PdfExporter {
                 programQuestionDefinition.get().optional()
                     ? "Required Question"
                     : "Optional Question",
-                PARAGRAPH_FONT,
+                SMALL_GRAY_FONT,
                 indentationLevel));
       }
 
