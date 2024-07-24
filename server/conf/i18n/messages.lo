@@ -92,6 +92,8 @@ toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງກ�
 link.allDone=ຂ້ອຍແລ້ວໆ
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
 link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເລີ່ມກວດສອບຫຼືບໍ່?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
