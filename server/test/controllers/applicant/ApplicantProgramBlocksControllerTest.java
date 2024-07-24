@@ -49,6 +49,7 @@ import views.applicant.AddressCorrectionBlockView;
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   private static final String SUGGESTED_ADDRESS = "456 Suggested Ave, Seattle, Washington, 99999";
   private static final String SUGGESTED_ADDRESS_STREET = "456 Suggested Ave";
+
   private ApplicantProgramBlocksController subject;
   private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
@@ -2216,6 +2217,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void removeFile_invalidApplicant_returnsUnauthorized() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
     long badApplicantId = applicant.id + 1000;
     RequestBuilder request =
         fakeRequestBuilder()
@@ -2223,7 +2230,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
                     badApplicantId,
                     program.id,
-                    /* blockId= */ "2",
+                    /* blockId= */ "1",
                     /* fileKey= */ "fake-key",
                     /* inReview= */ false));
 
@@ -2233,7 +2240,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 request.build(),
                 badApplicantId,
                 program.id,
-                /* blockId= */ "2",
+                /* blockId= */ "1",
                 /* fakeKey= */ "fake-key",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2253,8 +2260,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     draftProgram.id,
                     /* blockId= */ "2",
                     /* fileKey= */ "fake-key",
@@ -2262,9 +2268,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request,
-                applicant.id,
                 draftProgram.id,
                 /* blockId= */ "2",
                 /* fileKey= */ "fake-key",
@@ -2321,8 +2326,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     obsoleteProgram.id,
                     /* blockId= */ "1",
                     /* fileKey= */ "fake-key",
@@ -2330,9 +2334,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request,
-                applicant.id,
                 obsoleteProgram.id,
                 /* blockId= */ "1",
                 /* fileKey= */ "fake-key",
@@ -2349,8 +2352,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     badProgramId,
                     /* blockId= */ "2",
                     /* fileKey= */ "fake-key",
@@ -2358,9 +2360,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 badProgramId,
                 /* blockId= */ "2",
                 /* fileKey= */ "fake-key",
@@ -2373,22 +2374,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void removeFile_invalidBlock_returnsBadRequest() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
     String badBlockId = "1000";
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    badBlockId,
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false));
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id, badBlockId, /* fileKey= */ "fake-key", /* inReview= */ false));
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 program.id,
                 badBlockId,
                 /* fileKey= */ "fake-key",
@@ -2401,30 +2403,68 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void removeFile_notFileUploadBlock_returnsBadRequest() {
-    String badBlockId = "1";
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantDate())
+            .build();
+
+    String dateQuestionBlockId = "1";
+
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     program.id,
-                    badBlockId,
+                    dateQuestionBlockId,
                     /* fileKey= */ "fake-key",
                     /* inReview= */ false));
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 program.id,
-                badBlockId,
+                dateQuestionBlockId,
                 /* fileKey= */ "fake-key",
                 /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void removeFile_withoutUserProfileRedirectsHome() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "key-to-remove",
+                    /* inReview= */ false))
+            .header(skipUserProfile, "true");
+
+    Result result =
+        subject
+            .removeFile(
+                request.build(),
+                program.id,
+                /* blockId= */ "1",
+                /* fileKey= */ "key-to-remove",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(controllers.routes.HomeController.index().url());
   }
 
   @Test
@@ -2458,8 +2498,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     program.id,
                     /* blockId= */ "1",
                     /* fileKey= */ "key-to-remove",
@@ -2467,9 +2506,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 program.id,
                 /* blockId= */ "1",
                 /* fileKey= */ "key-to-remove",
@@ -2504,8 +2542,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     program.id,
                     /* blockId= */ "1",
                     /* fileKey= */ "key-to-remove",
@@ -2513,9 +2550,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 program.id,
                 /* blockId= */ "1",
                 /* fileKey= */ "key-to-remove",
@@ -2555,8 +2591,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequestBuilder()
             .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
+                routes.ApplicantProgramBlocksController.removeFile(
                     program.id,
                     /* blockId= */ "1",
                     /* fileKey= */ "does-not-exist",
@@ -2564,9 +2599,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .removeFileWithApplicantId(
+            .removeFile(
                 request.build(),
-                applicant.id,
                 program.id,
                 /* blockId= */ "1",
                 /* fileKey= */ "does-not-exist",
