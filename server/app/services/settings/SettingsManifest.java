@@ -858,11 +858,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
-  /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled() {
-    return getBool("INTAKE_FORM_ENABLED");
-  }
-
   /**
    * If this is a staging deployment and this variable is set to true, a [robots
    * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
@@ -1886,12 +1881,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "INTAKE_FORM_ENABLED",
-                      "Enables the Common Intake Form feature.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"

@@ -19,7 +19,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -28,17 +27,13 @@ import views.style.StyleUtils;
 
 /** Responsible for generating a program card for view by CiviForm admins / program admins. */
 public final class ProgramCardFactory {
-
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(
-      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
-    this.settingsManifest = settingsManifest;
   }
 
   public DivTag renderCard(ProgramCardData cardData) {
@@ -192,8 +187,7 @@ public final class ProgramCardFactory {
   }
 
   private boolean shouldShowCommonIntakeFormIndicator(ProgramDefinition displayProgram) {
-    return settingsManifest.getIntakeFormEnabled()
-        && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
+    return displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 
   private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {

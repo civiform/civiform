@@ -176,7 +176,6 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()),
               /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
@@ -219,7 +218,6 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()),
               /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {

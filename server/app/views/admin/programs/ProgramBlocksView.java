@@ -201,7 +201,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    settingsManifest.getIntakeFormEnabled(),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -433,7 +432,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
-      boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for
     // removing the enumerator question from the block.
@@ -457,8 +455,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (!(isIntakeFormFeatureEnabled
-        && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
+    if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(

@@ -719,11 +719,6 @@
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
-      "INTAKE_FORM_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables the Common Intake Form feature.",
-        "type": "bool"
-      },
       "STAGING_ADD_NOINDEX_META_TAG": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment and this variable is set to true, a [robots noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata tag is added to the CiviForm pages. This causes the staging site to not be listed on search engines.",

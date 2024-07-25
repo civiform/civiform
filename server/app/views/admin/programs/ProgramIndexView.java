@@ -646,10 +646,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* selectedApplicationUri= */ Optional.empty())
               .url();
 
-      String buttonText =
-          settingsManifest.getIntakeFormEnabled() && activeProgram.isCommonIntakeForm()
-              ? "Forms"
-              : "Applications";
+      String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
       ButtonTag button =
           makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
       return Optional.of(asRedirectElement(button, editLink));
