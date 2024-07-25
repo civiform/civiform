@@ -81,7 +81,6 @@ import views.style.StyleUtils;
 public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
-  private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
@@ -100,8 +99,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       SettingsManifest settingsManifest) {
+    super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.programDisplayType = programViewType;
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
