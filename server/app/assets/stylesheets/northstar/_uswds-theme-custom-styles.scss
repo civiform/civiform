@@ -77,6 +77,10 @@ See the radio-option below as an example.
   @include u-padding-y(3);
 }
 
+.section-spacing {
+  @include u-height(3);
+}
+
 .cf-h1-title {
   @include u-margin-y(0);
 }
