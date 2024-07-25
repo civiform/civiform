@@ -565,10 +565,29 @@ validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 label.firstName=Pangalan
 label.lastName=Apelyido
 label.middleName=Gitnang pangalan
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=Pangalan
 placeholder.lastName=Apelyido
 placeholder.middleName=Gitnang pangalan
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Maaari lamang na ilagay ang inyong pangalan.
 validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.
