@@ -252,7 +252,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -272,7 +272,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -296,7 +296,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
@@ -321,7 +321,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* tiGroup */ ImmutableList.copyOf(new ArrayList<>()),
+            /* tiGroup */ ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
@@ -342,7 +342,7 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.DEFAULT,
-        ImmutableList.copyOf(new ArrayList<>()),
+        ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -356,7 +356,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
@@ -379,7 +379,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
@@ -406,7 +406,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                ImmutableList.copyOf(new ArrayList<>()),
+                ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();
     // Program name here is missing the extra space
@@ -428,7 +428,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -449,7 +449,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -470,7 +470,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ false,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -490,7 +490,7 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        ImmutableList.copyOf(new ArrayList<>()),
+        ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of());
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -503,7 +503,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -523,7 +523,7 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        ImmutableList.copyOf(new ArrayList<>()),
+        ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of());
 
     Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
@@ -541,7 +541,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -560,13 +560,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "",
-            "",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.of(), ImmutableList.of());
 
     assertThat(result)
         .containsExactlyInAnyOrder(
@@ -590,7 +584,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactlyInAnyOrder(CiviFormError.of("Only existing category ids are allowed"));
@@ -611,7 +605,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(validCategoryId),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result).isEmpty();
   }
@@ -627,7 +621,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactly(
@@ -647,7 +641,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
@@ -665,7 +659,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result).isEmpty();
   }
@@ -680,7 +674,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactly(
@@ -696,7 +690,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactly(
@@ -719,7 +713,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                ImmutableList.copyOf(new ArrayList<>()),
+                ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();
     // Program name here is missing the extra space
@@ -738,7 +732,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
   }
@@ -753,7 +747,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            ImmutableList.of());
 
     assertThat(result).isEmpty();
   }
@@ -791,7 +785,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     DisplayMode.PUBLIC.getValue(),
                     /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
-                    ImmutableList.copyOf(new ArrayList<>()),
+                    ImmutableList.of(),
                     /* categories= */ ImmutableList.of()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
@@ -813,7 +807,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -848,7 +842,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                ImmutableList.copyOf(new ArrayList<>()),
+                ImmutableList.of(),
                 /* categories= */ ImmutableList.of())
             .getResult();
 
@@ -873,7 +867,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
@@ -900,7 +894,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     // check that the confirmation screen message saved
@@ -922,7 +916,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
     assertThat(secondProgramUpdate.localizedConfirmationMessage())
@@ -943,7 +937,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
     assertThat(thirdProgramUpdate.localizedConfirmationMessage())
@@ -970,7 +964,7 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        ImmutableList.copyOf(new ArrayList<>()),
+        ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of());
 
     Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
@@ -990,7 +984,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -1018,7 +1012,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1033,7 +1027,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -1053,7 +1047,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1068,7 +1062,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -1112,7 +1106,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -1158,7 +1152,7 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            ImmutableList.copyOf(new ArrayList<>()),
+            ImmutableList.of(),
             /* categories= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
@@ -1578,7 +1572,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                ImmutableList.copyOf(new ArrayList<>()),
+                ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))

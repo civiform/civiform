@@ -176,7 +176,7 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              ImmutableList.copyOf(new ArrayList<>()),
+              ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
@@ -218,7 +218,7 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              ImmutableList.copyOf(new ArrayList<>()),
+              ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
