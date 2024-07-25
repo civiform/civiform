@@ -565,10 +565,29 @@ validation.tooManySelections.v2=最多只能選取 {0} 個選項。
 label.firstName=名字
 label.lastName=姓氏
 label.middleName=中間名
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=名字
 placeholder.lastName=姓氏
 placeholder.middleName=中間名
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=請輸入名字。
 validation.lastNameRequired=請輸入姓氏。
