@@ -73,16 +73,35 @@ See the radio-option below as an example.
   @include u-padding-bottom(0);
 }
 
+.content-spacing {
+  @include u-height('105');
+}
+
 .section {
   @include u-padding-y(3);
 }
 
-.cf-h1-title {
-  @include u-margin-y(0);
+.section-spacing {
+  @include u-height(3);
 }
 
 .text-medium {
   @include u-height(1);
+}
+
+.cf-prose-h1 {
+  @include u-margin-y(0);
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 162%; /* 64.8px */
+}
+
+.cf-prose-intro {
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 162%; /* 35.64px */
 }
 
 // Styles for desktop
