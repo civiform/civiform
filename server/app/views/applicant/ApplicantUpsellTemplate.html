@@ -5,42 +5,51 @@
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main role="main">
-      <div
-        th:replace="~{components/ToastFragment :: upsellToasts}"
-        class="margin-1"
-      ></div>
-      <h1 th:text="#{title.applicationConfirmation}" class="margin-1"></h1>
-      <p
-        th:text="#{content.confirmed(${programName}, ${applicationId})}"
-        class="cf-application-id margin-1"
-      ></p>
+      <div class="grid-container section">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <div
+              th:replace="~{components/ToastFragment :: upsellToasts}"
+              class="margin-1"
+            ></div>
+            <h1
+              th:text="#{title.applicationConfirmation}"
+              class="margin-1"
+            ></h1>
+            <p
+              th:text="#{content.confirmed(${programName}, ${applicationId})}"
+              class="cf-application-id margin-1"
+            ></p>
 
-      <div class="margin-1">
-        <span th:text="${customConfirmationMessage}"></span>
-      </div>
+            <div class="margin-1">
+              <span th:text="${customConfirmationMessage}"></span>
+            </div>
 
-      <div class="margin-1">
-        <a
-          th:if="${!isGuest}"
-          href="/"
-          class="usa-button margin-y-2"
-          id="another-program"
-          th:text="#{link.applyToAnotherProgram}"
-        ></a>
-        <a
-          th:if="${isGuest}"
-          href="#login-dialog-upsell"
-          aria-controls="login-dialog-upsell"
-          class="usa-button margin-y-2"
-          id="another-program"
-          th:text="#{link.applyToAnotherProgram}"
-          data-open-modal
-        ></a>
-        <a
-          th:href="${downloadHref}"
-          class="usa-button margin-y-2"
-          th:text="#{button.downloadPdf}"
-        ></a>
+            <div class="margin-1">
+              <a
+                th:if="${!isGuest}"
+                href="/"
+                class="usa-button margin-y-2"
+                id="another-program"
+                th:text="#{link.applyToAnotherProgram}"
+              ></a>
+              <a
+                th:if="${isGuest}"
+                href="#login-dialog-upsell"
+                aria-controls="login-dialog-upsell"
+                class="usa-button margin-y-2"
+                id="another-program"
+                th:text="#{link.applyToAnotherProgram}"
+                data-open-modal
+              ></a>
+              <a
+                th:href="${downloadHref}"
+                class="usa-button margin-y-2"
+                th:text="#{button.downloadPdf}"
+              ></a>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
     <div
