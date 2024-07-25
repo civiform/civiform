@@ -247,7 +247,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -268,7 +267,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -293,7 +291,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -319,7 +316,6 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             /* tiGroup */ ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -341,7 +337,6 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.DEFAULT,
-        /* isIntakeFormFeatureEnabled= */ false,
         ImmutableList.copyOf(new ArrayList<>()),
         /* categoryIds= */ ImmutableList.of());
 
@@ -356,7 +351,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -380,7 +374,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -408,7 +401,6 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();
@@ -431,7 +423,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
     assertThat(result.hasResult()).isFalse();
@@ -453,7 +444,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -475,34 +465,12 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ false,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().eligibilityIsGating()).isFalse();
-  }
-
-  @Test
-  public void createProgram_intakeFormDisabled() {
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition(
-            "name-one",
-            "description",
-            "display name",
-            "display description",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            /* eligibilityIsGating= */ true,
-            ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false,
-            ImmutableList.copyOf(new ArrayList<>()),
-            /* categoryIds= */ ImmutableList.of());
-    assertThat(result.hasResult()).isTrue();
-    assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
@@ -517,7 +485,6 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()),
         /* categoryIds= */ ImmutableList.of());
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -531,7 +498,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -552,7 +518,6 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()),
         /* categoryIds= */ ImmutableList.of());
 
@@ -571,7 +536,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
     assertThat(result.hasResult()).isTrue();
@@ -698,7 +662,6 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();
@@ -768,7 +731,6 @@ public class ProgramServiceTest extends ResetPostgres {
                     DisplayMode.PUBLIC.getValue(),
                     /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
-                    /* isIntakeFormFeatureEnabled= */ false,
                     ImmutableList.copyOf(new ArrayList<>()),
                     /* categories= */ ImmutableList.of()))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -791,7 +753,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -827,7 +788,6 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()),
                 /* categories= */ ImmutableList.of())
             .getResult();
@@ -853,7 +813,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -881,7 +840,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -904,7 +862,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
@@ -926,7 +883,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            false,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
@@ -943,31 +899,6 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_intakeFormDisabled() throws Exception {
-    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateProgramDefinition(
-            program.id(),
-            Locale.US,
-            "a",
-            "a",
-            "a",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            /* eligibilityIsGating= */ true,
-            ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false,
-            ImmutableList.copyOf(new ArrayList<>()),
-            /* categories= */ ImmutableList.of());
-
-    assertThat(result.hasResult()).isTrue();
-    assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
-  }
-
-  @Test
   public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
     ps.createProgramDefinition(
         "name-one",
@@ -979,7 +910,6 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()),
         /* categoryIds= */ ImmutableList.of());
 
@@ -1000,7 +930,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -1029,7 +958,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -1045,7 +973,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -1066,7 +993,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categoryIds= */ ImmutableList.of());
 
@@ -1082,7 +1008,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -1127,7 +1052,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -1174,7 +1098,6 @@ public class ProgramServiceTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()),
             /* categories= */ ImmutableList.of());
 
@@ -1595,7 +1518,6 @@ public class ProgramServiceTest extends ResetPostgres {
                 DisplayMode.PUBLIC.getValue(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
-                false,
                 ImmutableList.copyOf(new ArrayList<>()),
                 /* categoryIds= */ ImmutableList.of())
             .getResult();

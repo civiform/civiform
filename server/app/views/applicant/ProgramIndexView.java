@@ -192,8 +192,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (settingsManifest.getIntakeFormEnabled()
-        && relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
               request,

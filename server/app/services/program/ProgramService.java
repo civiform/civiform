@@ -315,15 +315,14 @@ public final class ProgramService {
    *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
+   *     submit an application, and false if an application can submit an application even if they
+   *     don't meet some/all of the eligibility criteria.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link
    *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
    *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
    *     necessary.
-   * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
-   * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
-   *     submit an application, and false if an application can submit an application even if they
-   *     don't meet some/all of the eligibility criteria.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -338,7 +337,6 @@ public final class ProgramService {
       String displayMode,
       boolean eligibilityIsGating,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds) {
     ImmutableSet<CiviFormError> errors =
@@ -360,9 +358,6 @@ public final class ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
 
-    if (!isIntakeFormFeatureEnabled) {
-      programType = ProgramType.DEFAULT;
-    }
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
       clearCommonIntakeForm();
     }
@@ -461,7 +456,6 @@ public final class ProgramService {
    *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
    *     draft of it if necessary.
-   * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -478,7 +472,6 @@ public final class ProgramService {
       String displayMode,
       boolean eligibilityIsGating,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds)
       throws ProgramNotFoundException {
@@ -490,9 +483,6 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    if (!isIntakeFormFeatureEnabled) {
-      programType = ProgramType.DEFAULT;
-    }
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()

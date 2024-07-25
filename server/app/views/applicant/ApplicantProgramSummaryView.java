@@ -29,7 +29,6 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
@@ -50,18 +49,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
   private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantLayout layout, DateConverter dateConverter, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
@@ -142,8 +136,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        settingsManifest.getIntakeFormEnabled()
-                && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));

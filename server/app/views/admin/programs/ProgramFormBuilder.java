@@ -222,9 +222,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 legend("Program eligibility gating")
                     .withClass(BaseStyles.INPUT_LABEL)
                     .with(ViewUtils.requiredQuestionIndicator())
-                    .condWith(
-                        settingsManifest.getIntakeFormEnabled(),
-                        p("(Not applicable if this program is the pre-screener)")),
+                    .with(p("(Not applicable if this program is the pre-screener)")),
                 FieldWithLabel.radio()
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
@@ -244,44 +242,41 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setChecked(!eligibilityIsGating)
                     .getRadioTag()));
 
-    formTag.with(
-        FieldWithLabel.textArea()
-            .setId("program-description-textarea")
-            .setFieldName("adminDescription")
-            .setLabelText("Program note for administrative use only")
-            .setValue(adminDescription)
-            .getTextareaTag());
-    if (settingsManifest.getIntakeFormEnabled()) {
-      formTag
-          .with(
-              FieldWithLabel.checkbox()
-                  .setId("common-intake-checkbox")
-                  .setFieldName("isCommonIntakeForm")
-                  .setLabelText("Set program as pre-screener")
-                  .addStyleClass("border-none")
-                  .setValue("true")
-                  .setChecked(isCommonIntakeForm)
-                  .getCheckboxTag()
-                  .with(
-                      span(ViewUtils.makeSvgToolTip(
-                              "You can set one program as the ‘pre-screener’. This will pin the"
-                                  + " program card to the top of the programs and services page"
-                                  + " while moving other program cards below it.",
-                              Icons.INFO))
-                          .withClass("ml-2")))
-          .with(
-              // Hidden checkbox used to signal whether or not the user has confirmed they want to
-              // change which program is marked as the common intake form.
-              FieldWithLabel.checkbox()
-                  .setId("confirmed-change-common-intake-checkbox")
-                  .setFieldName("confirmedChangeCommonIntakeForm")
-                  .setValue("false")
-                  .setChecked(false)
-                  .addStyleClass("hidden")
-                  .getCheckboxTag());
-    }
-
-    formTag.with(createSubmitButton(programEditStatus));
+    formTag
+        .with(
+            FieldWithLabel.textArea()
+                .setId("program-description-textarea")
+                .setFieldName("adminDescription")
+                .setLabelText("Program note for administrative use only")
+                .setValue(adminDescription)
+                .getTextareaTag())
+        .with(
+            FieldWithLabel.checkbox()
+                .setId("common-intake-checkbox")
+                .setFieldName("isCommonIntakeForm")
+                .setLabelText("Set program as pre-screener")
+                .addStyleClass("border-none")
+                .setValue("true")
+                .setChecked(isCommonIntakeForm)
+                .getCheckboxTag()
+                .with(
+                    span(ViewUtils.makeSvgToolTip(
+                            "You can set one program as the ‘pre-screener’. This will pin the"
+                                + " program card to the top of the programs and services page"
+                                + " while moving other program cards below it.",
+                            Icons.INFO))
+                        .withClass("ml-2")))
+        .with(
+            // Hidden checkbox used to signal whether or not the user has confirmed they want to
+            // change which program is marked as the common intake form.
+            FieldWithLabel.checkbox()
+                .setId("confirmed-change-common-intake-checkbox")
+                .setFieldName("confirmedChangeCommonIntakeForm")
+                .setValue("false")
+                .setChecked(false)
+                .addStyleClass("hidden")
+                .getCheckboxTag())
+        .with(createSubmitButton(programEditStatus));
     return formTag;
   }
 

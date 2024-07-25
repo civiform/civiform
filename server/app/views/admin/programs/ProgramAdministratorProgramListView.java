@@ -18,7 +18,6 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -35,18 +34,13 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramAdministratorProgramListView(
-      AdminLayoutFactory layoutFactory,
-      Config config,
-      ProgramCardFactory programCardFactory,
-      SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory, Config config, ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -104,10 +98,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
 
-    String buttonText =
-        settingsManifest.getIntakeFormEnabled() && activeProgram.isCommonIntakeForm()
-            ? "Forms"
-            : "Applications";
+    String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
     ButtonTag button =
         makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewApplicationsLink);
