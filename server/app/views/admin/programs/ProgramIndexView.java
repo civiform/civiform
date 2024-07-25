@@ -119,31 +119,46 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
 
+    DivTag headerContent =
+        div()
+            .withClasses("flex", "items-center", "space-x-4", "mt-12")
+            .with(
+                h1(pageTitle),
+                div().withClass("flex-grow"),
+                demographicsCsvModal
+                    .getButton()
+                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                renderNewProgramButton(),
+                maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null);
+
+    if (settingsManifest.getProgramMigrationEnabled(request)) {
+      headerContent =
+          div()
+              .withClasses("flex", "items-center", "space-x-4", "mt-12")
+              .with(
+                  h1(pageTitle),
+                  div().withClass("flex-grow"),
+                  div()
+                      .with(
+                          div()
+                              .with(
+                                  demographicsCsvModal
+                                      .getButton()
+                                      .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                                  renderNewProgramButton(),
+                                  maybePublishModal.isPresent()
+                                      ? maybePublishModal.get().getButton()
+                                      : null)
+                              .withClasses("flex", "flex-row", "space-x-4"),
+                          renderImportProgramLink())
+                      .withClasses("flex", "flex-col", "items-end"));
+    }
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
             .with(
-                div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
-                    .with(
-                        h1(pageTitle),
-                        div().withClass("flex-grow"),
-                        div()
-                            .with(
-                                div()
-                                    .with(
-                                        demographicsCsvModal
-                                            .getButton()
-                                            .withClasses(
-                                                ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
-                                        renderNewProgramButton(),
-                                        maybePublishModal.isPresent()
-                                            ? maybePublishModal.get().getButton()
-                                            : null)
-                                    .withClasses("flex", "flex-row", "space-x-4"),
-                                // needs to be cond with
-                                renderImportProgramLink())
-                            .withClasses("flex", "flex-col", "items-end")),
+                headerContent,
                 div()
                     .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(h2(pageExplanation)),
@@ -152,6 +167,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
+
     if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
       contentDiv.with(
           renderFilterLink(
