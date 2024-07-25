@@ -126,6 +126,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
@@ -260,6 +261,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));

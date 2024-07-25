@@ -24,6 +24,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicationModel;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
@@ -72,6 +73,7 @@ public final class ProgramService {
       "A program URL may only contain lowercase letters, numbers, and dashes";
   private static final String INVALID_PROGRAM_SLUG_MSG =
       "A program URL must contain at least one letter";
+  private static final String INVALID_CATEGORY_MSG = "Only existing category ids are allowed";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
@@ -348,6 +350,7 @@ public final class ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode,
+            categoryIds,
             tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -414,10 +417,12 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
-        validateProgramData(displayName, displayDescription, externalLink, displayMode, tiGroups));
+        validateProgramData(
+            displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -485,7 +490,7 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            displayName, displayDescription, externalLink, displayMode, tiGroups);
+            displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -606,9 +611,10 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
-        displayName, displayDescription, externalLink, displayMode, tiGroups);
+        displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -625,6 +631,7 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      List<Long> categoryIds,
       List<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
@@ -642,6 +649,11 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
     }
 
+    List<Long> validCategoryIds = getValidCategoryIds();
+    if (categoryIds.stream().anyMatch(id -> !validCategoryIds.contains(id))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
+    }
+
     return errorsBuilder.build();
   }
 
@@ -653,6 +665,12 @@ public final class ProgramService {
   // details page if a link isn't provided.
   private boolean isValidAbsoluteLink(String url) {
     return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
+  }
+
+  private List<Long> getValidCategoryIds() {
+    return categoryRepository.listCategories().stream()
+        .map(CategoryModel::getId)
+        .collect(Collectors.toList());
   }
 
   /**
