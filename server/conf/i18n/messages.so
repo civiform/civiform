@@ -565,10 +565,29 @@ validation.tooManySelections.v2=Fadlan dooro {0} ugu badnaan.
 label.firstName=Magaca hore
 label.lastName=Magaca dambe
 label.middleName=Magaca dhexe
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=Magaca hore
 placeholder.lastName=Magaca dambe
 placeholder.middleName=Magaca dhexe
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Fadlan gali magacaga koowaad.
 validation.lastNameRequired=Fadlan geli magacaaga dambe.
