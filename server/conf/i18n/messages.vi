@@ -565,10 +565,29 @@ validation.tooManySelections.v2=Vui lòng chọn không quá {0}.
 label.firstName=Tên
 label.lastName=Họ
 label.middleName=Tên đệm
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=Tên
 placeholder.lastName=Họ
 placeholder.middleName=Tên đệm
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Vui lòng nhập tên của bạn.
 validation.lastNameRequired=Vui lòng nhập họ của bạn.
