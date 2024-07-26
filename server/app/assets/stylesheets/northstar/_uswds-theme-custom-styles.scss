@@ -100,11 +100,6 @@ See the radio-option below as an example.
     @include u-padding-top(4);
     @include u-padding-bottom(2);
   }
-
-  // Put form content in the middle column
-  .grid-col {
-    grid-column: span 1;
-  }
 }
 
 // Styles common to tablet and mobile
@@ -125,10 +120,6 @@ See the radio-option below as an example.
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;
-  }
-
-  .grid-col {
-    grid-column: 1 / -1;
   }
 }
 
