@@ -32,6 +32,7 @@ public final class AddressQuestion extends Question {
   private Optional<String> stateValue;
   private Optional<String> zipValue;
   private Optional<String> correctedValue;
+  private Optional<String> correctionSourceValue;
   private Optional<Double> latitudeValue;
   private Optional<Double> longitudeValue;
   private Optional<Long> wellKnownIdValue;
@@ -178,6 +179,16 @@ public final class AddressQuestion extends Question {
     return correctedValue;
   }
 
+  public Optional<String> getCorrectionSourceValue() {
+    if (correctionSourceValue != null) {
+      return correctionSourceValue;
+    }
+
+    correctionSourceValue =
+        applicantQuestion.getApplicantData().readString(getCorrectionSourcePath());
+    return correctionSourceValue;
+  }
+
   public Optional<Double> getLatitudeValue() {
     if (latitudeValue != null) {
       return latitudeValue;
@@ -245,6 +256,10 @@ public final class AddressQuestion extends Question {
 
   public Path getCorrectedPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.CORRECTED);
+  }
+
+  public Path getCorrectionSourcePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.CORRECTION_SOURCE);
   }
 
   public Path getLatitudePath() {

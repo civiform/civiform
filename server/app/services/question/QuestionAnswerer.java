@@ -37,6 +37,7 @@ public final class QuestionAnswerer {
       String state,
       String zip,
       String corrected,
+      String correction_source,
       Double latitude,
       Double longitude,
       Long wellKnownId,
@@ -47,6 +48,7 @@ public final class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.STATE), state);
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
     applicantData.putString(contextualizedPath.join(Scalar.CORRECTED), corrected);
+    applicantData.putString(contextualizedPath.join(Scalar.CORRECTION_SOURCE), correction_source);
     applicantData.putDouble(contextualizedPath.join(Scalar.LATITUDE), latitude);
     applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
     applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);

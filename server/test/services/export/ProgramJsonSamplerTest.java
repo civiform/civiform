@@ -99,6 +99,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
       "sample_address_question" : {
         "city" : "Springfield",
         "corrected" : "Corrected",
+        "correction_source": "https://some-fake-value",
         "latitude" : "44.0462",
         "line2" : null,
         "longitude" : "-123.0236",

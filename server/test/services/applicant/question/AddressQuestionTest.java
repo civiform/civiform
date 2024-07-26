@@ -110,6 +110,7 @@ public class AddressQuestionTest {
         "WA",
         "98101",
         "true",
+        "https://some-fake-value",
         10.1,
         -20.1,
         1000L,
@@ -124,6 +125,8 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
     assertThat(addressQuestion.getCorrectedValue().get()).isEqualTo("true");
+    assertThat(addressQuestion.getCorrectionSourceValue().get())
+        .isEqualTo("https://some-fake-value");
     assertThat(addressQuestion.getLatitudeValue().get()).isEqualTo(10.1);
     assertThat(addressQuestion.getLongitudeValue().get()).isEqualTo(-20.1);
     assertThat(addressQuestion.getWellKnownIdValue().get()).isEqualTo(1000L);
@@ -290,6 +293,7 @@ public class AddressQuestionTest {
         "WA",
         "98101",
         "true",
+        "https://some-fake-value",
         10.1,
         -20.1,
         1000L,
@@ -322,6 +326,7 @@ public class AddressQuestionTest {
         "WA",
         "98101",
         "true",
+        "https://some-fake-value",
         10.1,
         -20.1,
         1000L,
