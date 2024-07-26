@@ -555,7 +555,7 @@ test.describe('file upload applicant flow', () => {
         await validateScreenshot(
           page,
           'file-uploaded-north-star',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
       })

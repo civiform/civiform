@@ -186,7 +186,7 @@ test.describe('Date question for applicant flow', () => {
         await validateScreenshot(
           page,
           'date-filled-in-north-star',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
       })

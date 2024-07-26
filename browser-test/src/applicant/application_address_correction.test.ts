@@ -288,7 +288,7 @@ test.describe('address correction', () => {
       await validateScreenshot(
         page,
         'verify-address-no-suggestions',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
 
@@ -322,7 +322,7 @@ test.describe('address correction', () => {
       await validateScreenshot(
         page,
         'verify-address-esri-service-error',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         // Since this page is currently the same as the no-suggestions page,
         // don't get extra mobile screenshots of the same page.
         /* mobileScreenshot= */ false,
@@ -459,7 +459,7 @@ test.describe('address correction', () => {
         await validateScreenshot(
           page,
           'north-star-verify-address-no-suggestions',
-          /* fullPage= */ true,
+          /* fullPage= */ false,
           /* mobileScreenshot= */ true,
         )
       })

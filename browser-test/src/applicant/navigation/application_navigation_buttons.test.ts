@@ -217,7 +217,7 @@ test.describe('Applicant navigation flow', () => {
           await validateScreenshot(
             page,
             'program-review',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })

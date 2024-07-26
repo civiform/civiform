@@ -325,7 +325,7 @@ test.describe('applicant program index page', () => {
           await validateScreenshot(
             page,
             'apply-program-login-prompt-northstar',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })

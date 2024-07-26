@@ -188,7 +188,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'application-ineligible-preexisting-data',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
@@ -301,7 +301,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'ineligible-page-with-markdown',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
@@ -422,7 +422,7 @@ test.describe('Applicant navigation flow', () => {
           await validateScreenshot(
             page,
             'eligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })

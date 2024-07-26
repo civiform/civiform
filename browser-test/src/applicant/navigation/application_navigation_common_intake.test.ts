@@ -90,7 +90,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-ineligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
@@ -117,7 +117,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-eligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
@@ -178,7 +178,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-submission-guest-login-prompt-modal',
-        /* fullPage= */ false,
+        /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
     })
@@ -205,7 +205,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-shows-submitted',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
@@ -246,7 +246,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-ineligible-ti-confirmation-page',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
@@ -286,7 +286,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-eligible-ti-confirmation-page',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
