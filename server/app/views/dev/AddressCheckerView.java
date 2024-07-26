@@ -28,6 +28,10 @@ import views.dev.hx.CorrectAddressFormPartial;
 import views.dev.hx.ServiceAreaFormPartial;
 import views.style.BaseStyles;
 
+/**
+ * Primary page of the address checker tool. Will render address checker form and/or validation
+ * checker form if address features are enabled.
+ */
 public class AddressCheckerView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final SettingsManifest settingsManifest;

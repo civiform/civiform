@@ -231,7 +231,7 @@ public class DatabaseSeedView extends BaseHtmlView {
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
             createLink(
-                "\uD83D\uDDFA\uFE0F Go to address tools",
+                "\uD83D\uDDFA\uFE0F Go to address tools", // <-- Unicode is a map emoji
                 controllers.dev.routes.AddressCheckerController.index().url()));
   }
 

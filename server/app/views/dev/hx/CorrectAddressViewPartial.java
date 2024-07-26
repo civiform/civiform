@@ -26,6 +26,7 @@ import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 
+/** Address checker, create address results. Called via HTMX. */
 public class CorrectAddressViewPartial extends BaseHtmlView {
   private EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 

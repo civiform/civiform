@@ -19,6 +19,7 @@ import play.mvc.Http;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import views.BaseHtmlView;
 
+/** Address checker, search service area results HTML form. Called via HTMX. */
 public class ServiceAreaFormPartial extends BaseHtmlView {
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 

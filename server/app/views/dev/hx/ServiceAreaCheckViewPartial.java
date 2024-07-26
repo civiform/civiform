@@ -16,6 +16,7 @@ import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 import views.BaseHtmlView;
 
+/** Address checker, search service area results. Called via HTMX. */
 public class ServiceAreaCheckViewPartial extends BaseHtmlView {
   public DivTag render(
       String validationOption, ImmutableList<ServiceAreaInclusion> addressSuggestionGroup) {

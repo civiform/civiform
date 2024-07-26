@@ -13,6 +13,7 @@ import j2html.tags.specialized.DivTag;
 import play.mvc.Http;
 import views.BaseHtmlView;
 
+/** Address checker, create address HTML form. Used on load and via HTMX calls. */
 public class CorrectAddressFormPartial extends BaseHtmlView {
 
   @Inject
