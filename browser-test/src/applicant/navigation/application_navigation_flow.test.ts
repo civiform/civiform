@@ -302,7 +302,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-submission-logged-in',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
@@ -383,7 +383,7 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-out-of-date',
-        /* fullPage= */ true,
+        /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
     })
