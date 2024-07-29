@@ -21,6 +21,11 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+.cf-alert {
+  @include u-maxw('desktop');
+  margin: 0 auto;
+}
+
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
 }
