@@ -2771,6 +2771,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
@@ -2779,7 +2780,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .orElseThrow()
         .addQuestion(testQuestionBank.applicantFavoriteColor())
         .save();
-applicationStatusesRepository.createOrUpdateStatusDefinitions(originalProgram.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
@@ -2799,10 +2800,11 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(originalProgram.ge
     assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(updatedProgram.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(updatedStatus)));
+
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(
@@ -3291,10 +3293,10 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(originalProgram.ge
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
+            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(programDefinition.adminName(),statuses);
     versionRepository.publishNewSynchronizedVersion();
   }
 

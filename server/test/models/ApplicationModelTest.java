@@ -4,10 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-
-import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.application.ApplicationEventDetails;
@@ -16,11 +13,6 @@ import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ApplicationModelTest extends ResetPostgres {
-  private ApplicationStatusesRepository applicationStatusesRepository;
-  @Before
-  public void setUp() {
-    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
-  }
 
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
@@ -35,8 +27,9 @@ public class ApplicationModelTest extends ResetPostgres {
     // Application is persisted.
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
@@ -69,8 +62,9 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgram
   public void latestStatusIsNotPersistedEvenWithNoApplicationEvents() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -86,8 +80,8 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgram
   public void isAdmin_applicant_isFalse() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
@@ -99,8 +93,9 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgram
   public void isAdmin_globalAdmin_isTrue() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().setGlobalAdmin(true);
 
@@ -112,8 +107,9 @@ applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgram
   public void isAdmin_programAdmin_isTrue() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
 

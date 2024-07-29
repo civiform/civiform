@@ -43,7 +43,6 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
-import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.Address;
@@ -116,7 +115,6 @@ public class ApplicantServiceTest extends ResetPostgres {
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
-  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -128,7 +126,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     accountRepository = instanceOf(AccountRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
-    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     createQuestions();
     createProgram();
 
@@ -3297,10 +3294,10 @@ public class ApplicantServiceTest extends ResetPostgres {
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
+            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(programDefinition.adminName(),statuses);
     versionRepository.publishNewSynchronizedVersion();
   }
 

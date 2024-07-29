@@ -72,7 +72,7 @@ public class StatusServiceTest extends ResetPostgres {
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     String programName = program.getProgramDefinition().adminName();
-
+    assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
     assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .isEmpty();
 
@@ -106,8 +106,9 @@ public class StatusServiceTest extends ResetPostgres {
   public void appendStatus_duplicateStatus_throws() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
     var newApprovedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText(APPROVED_STATUS.statusText())
@@ -130,8 +131,8 @@ applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefini
   public void editStatus() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     String programName = program.getProgramDefinition().adminName();
     assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS);
@@ -162,8 +163,9 @@ applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefini
   public void editStatus_updatedStatusIsDuplicate_throws() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
             .build();
-    applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)));
 
     // We update the "rejected" status entry so that it's text is the same as the
     // "approved" status entry.
@@ -190,8 +192,8 @@ applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefini
   public void editStatus_missingStatus_returnsError() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
-    applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.editStatus(
@@ -218,7 +220,6 @@ applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefini
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
             .build();
-    applicationStatusesRepo.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.deleteStatus(

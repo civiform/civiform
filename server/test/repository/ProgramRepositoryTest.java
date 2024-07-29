@@ -56,7 +56,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
-  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setup() {
@@ -64,7 +63,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
-    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
@@ -186,6 +184,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             .get();
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
+    assertThat(found.getStatusDefinitions().getStatuses()).isEmpty();
   }
 
   @Test
@@ -580,8 +579,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(program.getProgramDefinition().adminName(), new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS))));
+
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
     ApplicationModel firstStatusApplication =
