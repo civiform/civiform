@@ -211,30 +211,41 @@
 </div>
 
 <footer th:fragment="pageFooter" id="page-footer">
-  <div
-    class="padding-x-4 padding-y-2 usa-footer__return-to-top border-t border-base-lighter"
-  >
-    <a href="#" th:text="#{footer.returnToTop}"></a>
-  </div>
-  <div
-    class="display-flex flex-justify flex-wrap bg-base-lightest padding-x-4 cf-footer-help-bar"
-  >
-    <div class="display-flex flex-wrap cf-footer-help-links">
-      <a
-        th:href="${adminLoginUrl}"
-        th:text="#{link.adminLogin}"
-        class="padding-2"
-      ></a>
-      <a
-        href="https://civiform.us/"
-        th:text="#{footer.aboutCiviform}"
-        class="padding-2"
-      ></a>
+  <div class="grid-container usa-footer__return-to-top">
+    <div class="grid-row">
+      <div class="tablet:grid-col-8">
+        <a
+          href="#"
+          th:text="#{footer.returnToTop}"
+          class="cf-return-to-top-link"
+        ></a>
+      </div>
     </div>
-    <div
-      class="padding-2 cf-footer-technical-suppport"
-      th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
-    ></div>
+  </div>
+  <div class="bg-base-lightest cf-footer-help-bar">
+    <div class="grid-container-footer">
+      <div class="grid-row">
+        <!-- Intentionally NOT using grid-col-8 to allow the technical support link to be positioned on the right -->
+        <div class="tablet:grid-col">
+          <div class="display-flex flex-wrap cf-footer-help-links">
+            <a
+              th:href="${adminLoginUrl}"
+              th:text="#{link.adminLogin}"
+              class="padding-2 cf-footer-primary-link"
+            ></a>
+            <a
+              href="https://civiform.us/"
+              th:text="#{footer.aboutCiviform}"
+              class="padding-2 cf-footer-primary-link"
+            ></a>
+            <div
+              class="padding-2 cf-footer-technical-suppport expanding-div"
+              th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="usa-identifier">
     <section
