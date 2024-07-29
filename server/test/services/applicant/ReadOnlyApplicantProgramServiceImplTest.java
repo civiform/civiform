@@ -33,7 +33,6 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
-import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)

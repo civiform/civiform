@@ -30,7 +30,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.statuses.StatusDefinitions;
 
 @RunWith(JUnitParamsRunner.class)
 public class EligibilityAlertSettingsCalculatorTest {

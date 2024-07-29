@@ -72,7 +72,6 @@ public class StatusServiceTest extends ResetPostgres {
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     String programName = program.getProgramDefinition().adminName();
-    assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
     assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .isEmpty();
 

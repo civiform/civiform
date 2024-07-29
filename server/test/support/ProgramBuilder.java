@@ -54,6 +54,7 @@ public class ProgramBuilder {
     this.programDefinitionId = programDefinitionId;
     this.builder = builder;
   }
+
   StatusDefinitions statusDefinitions = new StatusDefinitions();
 
   public static void setInjector(Injector i) {
@@ -333,8 +334,7 @@ public class ProgramBuilder {
     ProgramDefinition programDefinition = builder.build();
     ApplicationStatusesRepository appStatusRepo =
         injector.instanceOf(ApplicationStatusesRepository.class);
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), statusDefinitions);
+    appStatusRepo.createOrUpdateStatusDefinitions(programDefinition.adminName(), statusDefinitions);
 
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();

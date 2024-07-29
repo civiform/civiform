@@ -184,7 +184,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
             .get();
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
-    assertThat(found.getStatusDefinitions().getStatuses()).isEmpty();
   }
 
   @Test
