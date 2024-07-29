@@ -82,7 +82,7 @@
 
   /* USWDS defaults to 1rem, which ends up looking weird and unbalanced on some pages. */
   .usa-alert-remove-top-margin {
-    margin-top: 0
+    margin-top: 0;
   }
 
   /**

@@ -46,7 +46,7 @@ See the radio-option below as an example.
 /*
  * Less padding when there is an error, since we add a border and still want the inputs to line up.
  */
- .cf-applicant-question-field.cf-question-field-with-error {
+.cf-applicant-question-field.cf-question-field-with-error {
   @include u-padding-left('105');
 }
 
@@ -54,7 +54,7 @@ See the radio-option below as an example.
  * Reduce default padding on labels within question to match spacing mocks.
  */
 .cf-applicant-question-field .usa-label {
-  @include u-margin-top('105')
+  @include u-margin-top('105');
 }
 
 /**
@@ -114,7 +114,7 @@ See the radio-option below as an example.
 @media (max-width: 47.9em) {
   // Hide the logo on mobile
   .cf-header-logo {
-    display:none;
+    display: none;
   }
 
   // Use a single column on mobile
@@ -124,7 +124,7 @@ See the radio-option below as an example.
 }
 
 .usa-header--basic .usa-button {
-  @include u-line-height('sans', 2); 
+  @include u-line-height('sans', 2);
 }
 
 /**
@@ -154,7 +154,7 @@ h1.usa-step-indicator__heading {
  * See #7951 for detils
  */
 .cf-footer-help-links a {
-  @include u-text('base-darkest')
+  @include u-text('base-darkest');
 }
 
 /**
@@ -178,7 +178,7 @@ h1.usa-step-indicator__heading {
 
   .cf-footer-technical-suppport {
     @include u-padding-x(6);
-  } 
+  }
 }
 
 .cf-block-form {
