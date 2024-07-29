@@ -2771,7 +2771,6 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
@@ -2780,7 +2779,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .orElseThrow()
         .addQuestion(testQuestionBank.applicantFavoriteColor())
         .save();
-
+applicationStatusesRepository.createOrUpdateStatusDefinitions(originalProgram.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
@@ -2800,11 +2799,10 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
-
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(updatedProgram.getProgramDefinition().adminName(),new StatusDefinitions(ImmutableList.of(updatedStatus)));
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(
@@ -3020,7 +3018,6 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .build())
@@ -3097,7 +3094,6 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .build())
@@ -3295,10 +3291,10 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
-            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(programDefinition.adminName(),statuses);
     versionRepository.publishNewSynchronizedVersion();
   }
 
@@ -3389,7 +3385,6 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .build())

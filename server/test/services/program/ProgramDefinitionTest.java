@@ -18,7 +18,6 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.QuestionModel;
 import org.junit.Test;
-import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -31,7 +30,6 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
-import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
@@ -39,8 +37,6 @@ import support.TestQuestionBank;
 public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
-  private ApplicationStatusesRepository applicationStatusesRepository =
-      instanceOf(ApplicationStatusesRepository.class);
 
   @Test
   public void createProgramDefinition() {
@@ -60,7 +56,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -92,7 +87,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
@@ -114,7 +108,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -241,7 +234,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
@@ -268,7 +260,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -304,7 +295,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -340,7 +331,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -392,7 +383,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
@@ -465,7 +456,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -555,7 +546,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -663,7 +654,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockBEnum)
@@ -1090,7 +1081,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
             .setProgramType(ProgramType.DEFAULT)
@@ -1111,7 +1102,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1132,7 +1123,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
             .setProgramType(ProgramType.DEFAULT)
@@ -1153,7 +1144,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1174,7 +1165,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1197,7 +1188,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1219,7 +1210,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1252,7 +1243,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1276,7 +1267,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1297,7 +1288,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1359,22 +1350,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                     /* addressCorrectionEnabled= */ false))
             .build();
 
-    StatusDefinitions.Status approvedStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Approved")
-            .setLocalizedStatusText(
-                LocalizedStrings.of(
-                    Locale.US, "US approved status", Locale.GERMAN, "German approved status"))
-            .build();
-    StatusDefinitions.Status deniedStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Denied")
-            .setLocalizedStatusText(
-                LocalizedStrings.of(
-                    Locale.US, "US denied status", Locale.GERMAN, "German denied status"))
-            .build();
-    StatusDefinitions statusDefinitions =
-        new StatusDefinitions(ImmutableList.of(approvedStatus, deniedStatus));
 
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
@@ -1403,7 +1378,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                         Locale.ITALIAN,
                         "Italian summary image description")))
             .setExternalLink("external.link")
-            .setStatusDefinitions(statusDefinitions)
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(true)
@@ -1416,8 +1390,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), statusDefinitions);
 
     ObjectMapper objectMapper =
         instanceOf(ObjectMapper.class)
@@ -1454,11 +1426,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 Locale.ITALIAN,
                 "Italian summary image description"));
     assertThat(result.externalLink()).isEqualTo("external.link");
-    assertThat(
-            applicationStatusesRepository
-                .lookupActiveStatusDefinitions(result.adminName())
-                .getStatuses())
-        .containsExactly(approvedStatus, deniedStatus);
     assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
     assertThat(result.eligibilityIsGating()).isTrue();
@@ -1572,7 +1539,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
+            
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)

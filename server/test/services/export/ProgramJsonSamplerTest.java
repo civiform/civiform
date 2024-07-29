@@ -80,7 +80,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setBlockDefinitions(blockDefinitions)
-            .setStatusDefinitions(new StatusDefinitions())
             .build();
     repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }

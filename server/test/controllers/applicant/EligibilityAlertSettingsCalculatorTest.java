@@ -82,7 +82,6 @@ public class EligibilityAlertSettingsCalculatorTest {
         .setAdminDescription("")
         .setExternalLink("")
         .setDisplayMode(DisplayMode.PUBLIC)
-        .setStatusDefinitions(new StatusDefinitions())
         .setProgramType(ProgramType.DEFAULT)
         .setEligibilityIsGating(isEligibilityGating)
         .setAcls(new ProgramAcls())
