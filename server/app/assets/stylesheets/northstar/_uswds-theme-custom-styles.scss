@@ -154,36 +154,12 @@ h1.usa-step-indicator__heading {
   align-self: stretch;
 }
 
-/**
- * USWDS color utils are turned off, so we use the USWDS color manually.
- * See #7951 for detils
- */
-.cf-footer-help-links a {
-  @include u-text('base-darkest');
+.usa-footer__primary-content .usa-footer__primary-link {
+  text-decoration: underline;
 }
 
-/**
- * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
- * extend the full width of the screen.
- */
-@media (max-width: 640px) {
-  .cf-footer-help-bar {
-    padding: 0;
-  }
-
-  .cf-footer-help-links {
-    width: 100%;
-  }
-
-  .cf-footer-help-links a {
-    @include u-border-bottom('base', 1px);
-    @include u-padding-x(6);
-    width: 100%;
-  }
-
-  .cf-footer-technical-suppport {
-    @include u-padding-x(6);
-  }
+.expanding-div {
+  flex-grow: 1;
 }
 
 .cf-block-form {

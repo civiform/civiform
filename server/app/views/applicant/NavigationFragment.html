@@ -214,32 +214,50 @@
   </form>
 </div>
 
-<footer th:fragment="pageFooter" id="page-footer">
-  <div
-    class="padding-x-4 padding-y-2 usa-footer__return-to-top border-t border-base-lighter"
-  >
+<footer
+  th:fragment="pageFooter"
+  id="page-footer"
+  class="usa-footer usa-footer--slim"
+>
+  <div class="grid-container usa-footer__return-to-top">
     <a href="#" th:text="#{footer.returnToTop}"></a>
   </div>
-  <div
-    class="display-flex flex-justify flex-wrap bg-base-lightest padding-x-4 cf-footer-help-bar"
-  >
-    <div class="display-flex flex-wrap cf-footer-help-links">
-      <a
-        th:href="${adminLoginUrl}"
-        th:text="#{link.adminLogin}"
-        class="padding-2"
-      ></a>
-      <a
-        href="https://civiform.us/"
-        th:text="#{footer.aboutCiviform}"
-        class="padding-2"
-      ></a>
+
+  <div class="usa-footer__primary-section">
+    <div class="usa-footer__primary-container grid-row">
+      <div class="mobile-lg:grid-col-8">
+        <nav class="usa-footer__nav" aria-label="Footer navigation,">
+          <ul class="grid-row grid-gap">
+            <li
+              class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content"
+            >
+              <a
+                class="usa-footer__primary-link"
+                th:href="${adminLoginUrl}"
+                th:text="#{link.adminLogin}"
+              ></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="mobile-lg:grid-col-4">
+        <address class="usa-footer__address">
+          <div class="grid-row grid-gap">
+            <div
+              class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto"
+            >
+              <div
+                class="usa-footer__contact-info expanding-div"
+                th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
+              ></div>
+            </div>
+          </div>
+        </address>
+      </div>
     </div>
-    <div
-      class="padding-2 cf-footer-technical-suppport"
-      th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
-    ></div>
   </div>
+
   <div class="usa-identifier">
     <section
       class="usa-identifier__section usa-identifier__section--masthead"
