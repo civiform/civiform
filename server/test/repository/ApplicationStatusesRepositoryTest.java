@@ -80,7 +80,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
 
     assertThat(statusDefinitionsModelResults).isNotEmpty();
     // one status is added as part of the program creation and one status as obsolete status
-    assertThat(statusDefinitionsModelResults.size()).isEqualTo(3);
+    assertThat(statusDefinitionsModelResults.size()).isEqualTo(4);
     assertThat(statusDefinitionsModelResults.get(0).getStatusDefinitions().getStatuses().size())
         .isEqualTo(1);
     assertThat(

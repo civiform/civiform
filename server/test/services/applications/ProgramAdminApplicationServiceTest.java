@@ -183,6 +183,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
+    ApplicationStatusesRepository repo = instanceOf(ApplicationStatusesRepository.class);
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
@@ -194,11 +195,12 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+          repo);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions(ImmutableList.of(STATUS_WITH_ONLY_ENGLISH_EMAIL)));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     ApplicationModel application =

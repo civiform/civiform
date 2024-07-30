@@ -177,7 +177,6 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(annots).isNull();
     pdfReader.close();
     assertThat(textFromPDF).isNotNull();
-    System.out.println(textFromPDF);
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
     assertThat(textFromPDF).isNotNull();
     String programName = applicationSix.getProgram().getProgramDefinition().adminName();

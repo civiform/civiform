@@ -2781,7 +2781,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
     repo.createOrUpdateStatusDefinitions(
-        program.getProgramDefinition().adminName(),
+        originalProgram.getProgramDefinition().adminName(),
         new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     originalProgram.getVersions().stream()
         .findAny()

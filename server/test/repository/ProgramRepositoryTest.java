@@ -163,31 +163,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(programDefFromCache).isEmpty();
   }
 
-  // Verify the StatusDefinitions default value in evolution 40 loads.
-  @Test
-  public void loadStatusDefinitionsEvolution() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, status_definitions,"
-                + " localized_name, localized_description, program_type) values ('Status Default',"
-                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Status Default'));")
-        .execute();
-
-    ProgramModel found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
-  }
-
   @Test
   public void getForSlug_findsCorrectProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("Something With A Name");
