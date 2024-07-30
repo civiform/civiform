@@ -430,6 +430,23 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
+  async downloadFileFromReviewPage(fileName: string) {
+    // Assert that we're on the review page.
+    expect(await this.page.innerText('h2')).toContain(
+      'Program application summary',
+    )
+
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText(fileName).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
     await this.expectConfirmationPage()
