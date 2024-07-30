@@ -17,7 +17,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -120,7 +119,7 @@ public final class ProgramCardFactory {
                     iffElse(
                         programCategoryNames.isEmpty(),
                         span("None"),
-                        span(programCategoryNames.stream().collect(Collectors.joining(", ")))))
+                        span(String.join(", ", programCategoryNames))))
                 .withClasses("w-3/4", "mb-8", "text-gray-700", "text-base"));
   }
 
