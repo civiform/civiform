@@ -298,19 +298,23 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'saved-program-success')
     })
 
-    await test.step('import another program and go directly to program edit page', async () => {
+    await test.step('return to import page', async () => {
       await adminProgramMigration.clickButton('Import another program')
       await adminProgramMigration.expectImportPage()
       await expect(page.getByRole('textbox')).toHaveValue('')
-      // replace the question admin name to avoid draft collision
+    })
+
+    await test.step('replace admin name to avoid draft collision and save the program', async () => {
       downloadedMinimalProgram = downloadedMinimalProgram.replace(
         'Sample Name Question',
         'Sample Name Question 2',
       )
       await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
       await adminProgramMigration.clickButton('Save')
+    })
+
+    await test.step('navigate to the program edit page', async () => {
       await adminProgramMigration.clickButton('View program')
-      // confirm we are on the page to edit the program
       await expect(page.locator('#program-title')).toContainText(
         'Minimal Sample Program',
       )
