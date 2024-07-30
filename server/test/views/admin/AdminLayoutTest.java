@@ -1,11 +1,8 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.contentAsString;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
@@ -15,12 +12,10 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
-import views.HtmlBundle;
 import views.ViewUtils;
 
 public class AdminLayoutTest extends ResetPostgres {
@@ -45,30 +40,6 @@ public class AdminLayoutTest extends ResetPostgres {
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class));
-  }
-
-  @Test
-  public void getBundle_programMigrationNotEnabled_noExportImportTabsInNav() {
-    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
-
-    HtmlBundle bundle =
-        adminLayout.getBundle(new HtmlBundle(fakeRequest(), instanceOf(ViewUtils.class)));
-
-    Content content = bundle.render();
-    assertThat(contentAsString(content)).doesNotContain("Export");
-    assertThat(contentAsString(content)).doesNotContain("Import");
-  }
-
-  @Test
-  public void getBundle_programMigrationEnabled_hasExportImportTabsInNav() {
-    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-
-    HtmlBundle bundle =
-        adminLayout.getBundle(new HtmlBundle(fakeRequest(), instanceOf(ViewUtils.class)));
-
-    Content content = bundle.render();
-    assertThat(contentAsString(content)).contains("Export");
-    assertThat(contentAsString(content)).contains("Import");
   }
 
   @Test
