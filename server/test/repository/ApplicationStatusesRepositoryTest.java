@@ -37,8 +37,10 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("Active status tests" + uniqueProgramId, "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     StatusDefinitions statusDefinitionsResult =
         repo.lookupActiveStatusDefinitions(program.getProgramDefinition().adminName());
@@ -65,12 +67,11 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
   public void canQueryForAllApplicationStatuses() {
     Long uniqueProgramId = new Random().nextLong();
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)))
-            .build();
+        ProgramBuilder.newActiveProgram("test program" + uniqueProgramId, "description").build();
 
     String programName = program.getProgramDefinition().adminName();
-
+    repo.createOrUpdateStatusDefinitions(
+        programName, new StatusDefinitions(ImmutableList.of(REAPPLY_STATUS)));
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
@@ -105,10 +106,9 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     Long uniqueProgramId = new Random().nextLong();
     StatusDefinitions statusDefinitions = new StatusDefinitions(ImmutableList.of(APPROVED_STATUS));
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description")
-            .withStatusDefinitions(statusDefinitions)
-            .build();
+        ProgramBuilder.newActiveProgram("Updateprogram" + uniqueProgramId, "description").build();
     String programName = program.getProgramDefinition().adminName();
+    repo.createOrUpdateStatusDefinitions(programName, statusDefinitions);
 
     StatusDefinitions statusDefinitionsResult = repo.lookupActiveStatusDefinitions(programName);
     assertThat(statusDefinitionsResult.getStatuses().size()).isEqualTo(1);

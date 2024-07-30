@@ -85,10 +85,12 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
       ImmutableList.of(
           STATUS_WITH_ONLY_ENGLISH_EMAIL, STATUS_WITH_NO_EMAIL, STATUS_WITH_MULTI_LANGUAGE_EMAIL);
   private ProgramAdminApplicationService service;
+  private ApplicationStatusesRepository repo;
 
   @Before
   public void setProgramServiceImpl() {
     service = instanceOf(ProgramAdminApplicationService.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
@@ -196,7 +198,6 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
@@ -258,8 +259,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     // Set the user to Korean.
@@ -312,8 +314,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     ApplicationModel application =
@@ -374,8 +377,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     ApplicantModel tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
@@ -423,10 +427,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void setStatus_invalidStatus_throws() throws Exception {
     String userEmail = "user@email.com";
 
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     ApplicationModel application =
@@ -444,10 +447,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
   @Test
   public void setStatus_sendEmailWithNoStatusEmail_throws() throws Exception {
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
@@ -470,10 +472,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
   @Test
   public void setStatus_sendEmailWithNoUserEmail_throws() throws Exception {
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
     ApplicationModel application =
@@ -511,10 +512,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationStatusesRepository.class));
 
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));

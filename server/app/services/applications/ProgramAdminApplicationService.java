@@ -99,6 +99,16 @@ public final class ProgramAdminApplicationService {
     // and reality.
     boolean sendEmail = newStatusEvent.emailSent();
     ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
+    System.out.println(
+        "---------------------"
+            + applicationStatusesRepository
+                .lookupActiveStatusDefinitions(programDef.adminName())
+                .toString());
+    applicationStatusesRepository
+        .lookupActiveStatusDefinitions(programDef.adminName())
+        .getStatuses()
+        .stream()
+        .forEach(e -> System.out.println("*************************" + e.statusText()));
 
     Optional<Status> statusDefMaybe =
         applicationStatusesRepository
