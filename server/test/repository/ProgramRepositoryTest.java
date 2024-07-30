@@ -7,7 +7,6 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.util.Providers;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;

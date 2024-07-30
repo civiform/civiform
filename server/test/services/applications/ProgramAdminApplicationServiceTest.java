@@ -195,12 +195,14 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
-          repo);
+            repo);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .buildDefinition();
-    repo.createOrUpdateStatusDefinitions(program.adminName(),new StatusDefinitions(ImmutableList.of(STATUS_WITH_ONLY_ENGLISH_EMAIL)));
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_ONLY_ENGLISH_EMAIL)));
     AccountModel account = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     ApplicationModel application =
