@@ -431,10 +431,9 @@ export class ApplicantQuestions {
   }
 
   async downloadFileFromReviewPage(fileName: string) {
-    // Assert that we're on the review page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+    await expect(
+      this.page.getByRole('heading', {name: 'Program application summary'}),
+    ).toBeVisible()
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),

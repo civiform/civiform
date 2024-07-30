@@ -76,7 +76,12 @@ public abstract class AnswerData {
   /** The identifier of the applicant's uploaded file after its UTF-8 encoded if applicable */
   public abstract Optional<String> encodedFileKey();
 
-  /** Identifier for the applicant's uploaded file, UTF-8 encoded. */
+  /**
+   * Identifiers for the applicant's uploaded files, UTF-8 encoded.
+   *
+   * <p>Only set for questions answered when the "MULTIPLE_FILE_UPLOAD_ENABLED" feature flag is
+   * enabled.
+   */
   public abstract ImmutableList<String> encodedFileKeys();
 
   /**

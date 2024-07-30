@@ -6,6 +6,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -206,16 +208,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       final ContainerTag answerContent;
 
       if (!data.encodedFileKeys().isEmpty()) {
-        answerContent = div();
+        answerContent = ol();
         for (int i = 0; i < data.encodedFileKeys().size(); i++) {
-          if (i > 0) {
-            answerContent.with(br());
-          }
           String encodedFileKey = data.encodedFileKeys().get(i);
           String fileName = data.fileNames().get(i);
           String fileLink =
               controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-          answerContent.with(a(fileName).withHref(fileLink).withClass(BaseStyles.LINK_TEXT));
+          answerContent.with(li(a(fileName).withHref(fileLink).withClass(BaseStyles.LINK_TEXT)));
         }
       } else if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();

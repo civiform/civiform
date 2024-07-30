@@ -361,7 +361,7 @@ test.describe('file upload applicant flow', () => {
         fileUploadQuestionText,
         'file2.txt',
       )
-      await validateScreenshot(page, 'file-uploaded-review')
+      await validateScreenshot(page.locator('main'), 'file-uploaded-review')
     })
 
     test('can download file content', async ({applicantQuestions}) => {
