@@ -26,6 +26,10 @@ See the radio-option below as an example.
   margin: 0 auto;
 }
 
+.usa-alert .usa-alert__heading {
+  font-weight: font-weight('bold');
+}
+
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
 }
