@@ -43,6 +43,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.Address;
@@ -115,6 +116,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
+  private ApplicationStatusesRepository repo;
 
   @Before
   public void setUp() throws Exception {
@@ -126,6 +128,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     accountRepository = instanceOf(AccountRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
     createQuestions();
     createProgram();
 
@@ -2737,10 +2740,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
@@ -2772,10 +2777,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     originalProgram.getVersions().stream()
         .findAny()
         .orElseThrow()
@@ -2801,11 +2808,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
-
+    repo.createOrUpdateStatusDefinitions(
+        updatedProgram.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(updatedStatus)));
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(
@@ -3294,11 +3302,11 @@ public class ApplicantServiceTest extends ResetPostgres {
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
-            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
     versionRepository.publishNewSynchronizedVersion();
+    repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), statuses);
   }
 
   private void createProgramWithOptionalQuestion(QuestionDefinition question) {
@@ -3418,10 +3426,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3528,10 +3538,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3620,10 +3632,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3726,10 +3740,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3763,10 +3779,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3798,10 +3816,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();

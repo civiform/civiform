@@ -2736,10 +2736,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
@@ -2771,10 +2773,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        originalProgram.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     originalProgram.getVersions().stream()
         .findAny()
         .orElseThrow()
@@ -2800,10 +2804,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        updatedProgram.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(updatedStatus)));
 
     ApplicantService.ApplicationPrograms result =
         subject
@@ -3293,10 +3299,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
-            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), statuses);
     versionRepository.publishNewSynchronizedVersion();
   }
 
@@ -3417,10 +3424,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3527,10 +3536,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3619,10 +3630,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3725,10 +3738,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3762,10 +3777,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3797,10 +3814,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
