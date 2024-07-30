@@ -57,6 +57,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -98,7 +99,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   @Inject
   public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      SettingsManifest settingsManifest) {
+    super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }

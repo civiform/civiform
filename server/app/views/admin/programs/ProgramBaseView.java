@@ -1,6 +1,9 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -15,10 +18,13 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
 import java.util.List;
+import java.util.stream.Collectors;
+import models.CategoryModel;
 import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -45,6 +51,12 @@ abstract class ProgramBaseView extends BaseHtmlView {
      * Downloads a PDF preview of the current program version, with all of its blocks and questions.
      */
     DOWNLOAD_PDF_PREVIEW,
+  }
+
+  protected final SettingsManifest settingsManifest;
+
+  public ProgramBaseView(SettingsManifest settingsManifest) {
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -74,10 +86,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
                     programDefinition.localizedDescription().getDefault(),
                     /* preserveEmptyLines= */ false,
                     /* addRequiredIndicator= */ false))
-            .withClasses("text-sm");
+            .withClasses("text-sm", "mb-2");
     DivTag adminNote =
         div()
-            .withClasses("text-sm")
+            .withClasses("text-sm", "mb-2")
             .with(span("Admin note: ").withClasses("font-semibold"))
             .with(span(programDefinition.adminDescription()));
     DivTag headerButtonsDiv =
@@ -88,11 +100,25 @@ abstract class ProgramBaseView extends BaseHtmlView {
                     .map(
                         headerButton ->
                             renderHeaderButton(headerButton, programDefinition, request)));
+
+    DivTag categoriesDiv =
+        div(
+                span("Categories: ").withClasses("font-semibold"),
+                iffElse(
+                    programDefinition.categories().isEmpty(),
+                    span("None"),
+                    span(
+                        programDefinition.categories().stream()
+                            .map(CategoryModel::getDefaultName)
+                            .collect(Collectors.joining(", ")))))
+            .withClasses("text-sm");
+
     return div(
             ViewUtils.makeLifecycleBadge(getProgramDisplayStatus()),
             title,
             description,
             adminNote,
+            iff(settingsManifest.getProgramFilteringEnabled(request), categoriesDiv),
             headerButtonsDiv)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }

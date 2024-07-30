@@ -141,14 +141,18 @@
 </span>
 
 <nav th:fragment="guestSessionAlert" th:if="${isGuest}">
-  <div class="usa-alert usa-alert--info usa-alert--slim">
-    <div class="usa-alert__body">
-      <p
-        class="usa-alert__text"
-        th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
-      ></p>
+  <section
+    class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <p
+          class="usa-alert__text"
+          th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
+        ></p>
+      </div>
     </div>
-  </div>
+  </section>
 </nav>
 
 <a
