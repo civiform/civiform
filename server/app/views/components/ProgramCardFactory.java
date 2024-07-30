@@ -2,6 +2,7 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -36,12 +38,16 @@ public final class ProgramCardFactory {
     this.programImageUtils = checkNotNull(programImageUtils);
   }
 
-  public DivTag renderCard(ProgramCardData cardData) {
+  public DivTag renderCard(ProgramCardData cardData, boolean showCategories) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
     String programDescriptionText = displayProgram.localizedDescription().getDefault();
     String adminNoteText = displayProgram.adminDescription();
+    ImmutableList<String> programCategoryNames =
+        displayProgram.categories().stream()
+            .map(category -> category.getDefaultName())
+            .collect(ImmutableList.toImmutableList());
 
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
@@ -106,7 +112,16 @@ public final class ProgramCardFactory {
         .condWith(
             !adminNoteText.isBlank(),
             p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
-                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
+                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)))
+        .condWith(
+            showCategories,
+            p(
+                    span("Categories:  ").withClasses("font-semibold"),
+                    iffElse(
+                        programCategoryNames.isEmpty(),
+                        span("None"),
+                        span(programCategoryNames.stream().collect(Collectors.joining(", ")))))
+                .withClasses("w-3/4", "mb-8", "text-gray-700", "text-base"));
   }
 
   private DivTag renderProgramRow(

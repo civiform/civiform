@@ -168,7 +168,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     publishSingleProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(cardData)))));
+                        .map(
+                            cardData ->
+                                programCardFactory.renderCard(
+                                    cardData,
+                                    settingsManifest.getProgramFilteringEnabled(request))))));
 
     HtmlBundle htmlBundle =
         layout
