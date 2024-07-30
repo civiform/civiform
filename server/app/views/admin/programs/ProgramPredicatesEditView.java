@@ -27,6 +27,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -52,7 +53,9 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
   }
 
   @Inject
-  public ProgramPredicatesEditView(AdminLayoutFactory layoutFactory) {
+  public ProgramPredicatesEditView(
+      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
+    super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
