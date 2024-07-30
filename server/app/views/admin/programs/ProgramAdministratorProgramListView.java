@@ -63,7 +63,10 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
                         .map(p -> buildCardData(p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(cardData))));
+                        .map(
+                            cardData ->
+                                programCardFactory.renderCard(
+                                    cardData, /* showCategories= */ false))));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);

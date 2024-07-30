@@ -3,6 +3,7 @@ import {
   AdminPrograms,
   enableFeatureFlag,
   isLocalDevEnvironment,
+  seedProgramsAndCategories,
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
@@ -42,6 +43,51 @@ test.describe('Program list page.', () => {
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.gotoAdminProgramsPage()
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
+  })
+
+  test('view program with categories', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+    const programName = 'Program with Categories'
+
+    await test.step('seed categories', async () => {
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+    })
+
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+    })
+
+    await test.step('check that categories show as "None"', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const firstProgram = page.locator('.cf-admin-program-card').first()
+      await expect(firstProgram.getByText('Categories: None')).toBeVisible()
+    })
+
+    await test.step('add two categories', async () => {
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+
+      await page.getByRole('checkbox', {name: 'Internet'}).check()
+      await page.getByRole('checkbox', {name: 'Education'}).check()
+      await adminPrograms.submitProgramDetailsEdits()
+    })
+
+    await test.step('check that selected categories show on program card', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const programCard = page.locator(
+        '.cf-admin-program-card:has-text("Program with Categories")',
+      )
+      await expect(
+        programCard.getByText('Categories: Education, Internet'),
+      ).toBeVisible()
+      await validateScreenshot(
+        programCard,
+        'program-list-with-categories',
+        false,
+      )
+    })
   })
 
   test('view programs under two tabs - in use and disabled', async ({
@@ -379,5 +425,18 @@ test.describe('Program list page.', () => {
       page,
       'program-list-with-same-active-and-draft-image',
     )
+  })
+
+  test('program list with program migration flag on shows Import existing program link', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+
+    await enableFeatureFlag(page, 'program_migration_enabled')
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoAdminProgramsPage()
+    await page.getByText('Import existing program').isVisible()
   })
 })

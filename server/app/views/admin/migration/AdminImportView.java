@@ -1,10 +1,15 @@
 package views.admin.migration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h4;
+import static j2html.TagCreator.hr;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
@@ -17,8 +22,8 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
-import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 
 /**
  * A view allowing admins to import a JSON representation of a program and add that program to their
@@ -40,7 +45,7 @@ public class AdminImportView extends BaseHtmlView {
 
   @Inject
   public AdminImportView(AdminLayoutFactory layoutFactory) {
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.IMPORT);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
   }
 
   /**
@@ -48,30 +53,62 @@ public class AdminImportView extends BaseHtmlView {
    * programData} is present, then the program data will also be displayed.
    */
   public Content render(Http.Request request) {
-    String title = "Import a program";
+    String title = "Import an existing program";
     DivTag contentDiv =
         div()
-            .withClasses("pt-10", "px-20")
+            .withClasses("pt-10", "px-20", "font-family-sans", "grid-col-8")
+            .with(renderBackButton())
             .with(h1(title))
             .with(
-                p("This page allows you to import a program that exists in another environment"
-                        + " (like staging) and easily add the program to this environment.")
+                p("Import a program that exists in another environment into this environment.")
                     .withClass("my-2"))
-            .with(
-                p("First, open the other environment and use the \"Export\" tab to download a JSON"
-                        + " file that represents the existing program.")
-                    .withClass("my-2"))
-            .with(
-                p("Then, copy the JSON file contents and paste them into the box below. The program"
-                        + " information will be displayed below, and you can verify all the"
-                        + " information before adding the program.")
-                    .withClass("my-2"));
+            .with(hr().withClasses("usa-hr", "my-5"));
 
-    contentDiv.with(createUploadProgramJsonForm(request));
-    contentDiv.with(renderProgramDataRegion());
+    contentDiv.with(createInstructionsSection());
+    contentDiv.with(renderProgramDataRegion(request));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
+  }
+
+  private DomContent createInstructionsSection() {
+    return div()
+        .with(
+            h2("How to import a program"),
+            ol().withClass("usa-process-list")
+                .with(
+                    createInstructionStep(
+                        "Export your program from your other environment",
+                        "Find your program and choose the “Export program” option from the overflow"
+                            + " menu. Then either copy or download the JSON code."),
+                    createInstructionStep(
+                        "Paste the JSON code in the field below",
+                        "Locate the JSON code in your browser or on your local device. Copy and"
+                            + " paste the code into the field below."),
+                    createInstructionStep(
+                        "Preview program before saving",
+                        "Review your program information, name and questions, for any errors. If"
+                            + " something looks out of paste, you can delete and start the process"
+                            + " over."),
+                    createInstructionStep(
+                        "Save your program",
+                        "Click Save to save the program to this environment. You should now be able"
+                            + " to view the program in your program list.")));
+  }
+
+  private DomContent createInstructionStep(String headerText, String paragraphText) {
+    return li().withClass("usa-process-list__item")
+        .with(
+            h4(headerText).withClass("usa-process-list__heading"),
+            p(paragraphText).withClass("margin-top-05"));
+  }
+
+  private DomContent renderProgramDataRegion(Http.Request request) {
+    return div()
+        .with(h2("Program import").withClass("mb-4"))
+        .with(
+            div(createUploadProgramJsonForm(request))
+                .withId(AdminImportViewPartial.PROGRAM_DATA_ID));
   }
 
   private DomContent createUploadProgramJsonForm(Http.Request request) {
@@ -83,10 +120,13 @@ public class AdminImportView extends BaseHtmlView {
             // whitespace. If we find that admins are regularly going over the length limit, we
             // could stop pretty-printing the JSON.
             .setMaxLength(MAX_TEXT_LENGTH)
+            .setAttribute("rows", "5")
             .getTextareaTag();
 
     return div()
         .with(
+            p("To import a program, copy the JSON file content and paste into the box below")
+                .withClass("py-2"),
             form()
                 .attr("hx-encoding", "multipart/form-data")
                 .attr("hx-post", routes.AdminImportController.hxImportProgram().url())
@@ -94,17 +134,17 @@ public class AdminImportView extends BaseHtmlView {
                 .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request), jsonInputElement)
                 .with(
-                    submitButton("Display program information")
-                        .withClasses(ButtonStyles.SOLID_BLUE, "mt-4")));
+                    submitButton("Preview program")
+                        .withClasses("usa-button", "usa-button--outline", "mb-5")));
   }
 
-  private DomContent renderProgramDataRegion() {
+  private DivTag renderBackButton() {
     return div()
-        .withClass("mt-10")
-        .with(h2("Uploaded program data").withClass("mb-4"))
+        .withClasses("flex", "items-center", "mb-5")
+        .with(Icons.svg(Icons.ARROW_LEFT).withClasses("mr-2", "w-5", "h-5"))
         .with(
-            div()
-                .withId(AdminImportViewPartial.PROGRAM_DATA_ID)
-                .with(p("No data has been uploaded yet.")));
+            a("Back to all programs")
+                .withHref(routes.AdminProgramController.index().url())
+                .withClass("usa-link"));
   }
 }
