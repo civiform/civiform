@@ -713,8 +713,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     String adminLink = routes.AdminExportController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Export program", Icons.DOWNLOAD)
-            // maybe don't need this id?
-            .withId("export-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
   }

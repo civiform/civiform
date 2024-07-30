@@ -1,4 +1,3 @@
-// import {assertNotNull} from './util'
 import {attachRedirectToPageListeners} from './main'
 
 class AdminImportView {
