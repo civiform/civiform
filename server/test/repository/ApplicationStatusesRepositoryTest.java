@@ -83,7 +83,7 @@ public class ApplicationStatusesRepositoryTest extends ResetPostgres {
     assertThat(statusDefinitionsModelResults.size()).isEqualTo(4);
     assertThat(statusDefinitionsModelResults.get(0).getStatusDefinitions().getStatuses().size())
         .isEqualTo(0);
-    assertThat(statusDefinitionsModelResults.get(1).getStatusDefinitions().getStatuses().size())
+    assertThat(statusDefinitionsModelResults.get(2).getStatusDefinitions().getStatuses().size())
         .isEqualTo(1);
     assertThat(
             statusDefinitionsModelResults
