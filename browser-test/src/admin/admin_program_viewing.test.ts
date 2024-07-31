@@ -50,8 +50,8 @@ test.describe('admin program view page', () => {
       await page.getByRole('button', {name: 'Edit program'}).click()
       await page.getByRole('button', {name: 'Edit program details'}).click()
 
-      await page.getByRole('checkbox', {name: 'Internet'}).check()
-      await page.getByRole('checkbox', {name: 'Education'}).check()
+      await page.getByText('Internet').check()
+      await page.getByText('Education').check()
       await adminPrograms.submitProgramDetailsEdits()
     })
 
