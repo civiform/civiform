@@ -31,7 +31,7 @@ public class TrustedIntermediaryGroupModelTest extends ResetPostgres {
     tiGroup.refresh();
     assertThat(tiGroup.getTrustedIntermediaries()).contains(ti);
     assertThat(tiGroup.getManagedAccounts()).contains(applicant);
-    assertThat(tiGroup.getTrustedIntermediariesSize()).isEqualTo(1);
-    assertThat(tiGroup.getManagedAccountsSize()).isEqualTo(1);
+    assertThat(tiGroup.getMembersCount()).isEqualTo(1);
+    assertThat(tiGroup.getManagedAccountsCount()).isEqualTo(1);
   }
 }

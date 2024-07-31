@@ -36,7 +36,8 @@ public class TrustedIntermediaryGroupModel extends BaseModel {
     return ImmutableList.copyOf(tiAccounts);
   }
 
-  public int getTrustedIntermediariesSize() {
+  /** Gets the count of TrustedIntermediaries */
+  public int getMembersCount() {
     return tiAccounts.size();
   }
 
@@ -47,8 +48,8 @@ public class TrustedIntermediaryGroupModel extends BaseModel {
         .collect(ImmutableList.toImmutableList());
   }
 
-  /** Gets the size of Managed Accounts */
-  public int getManagedAccountsSize() {
+  /** Gets the count of Managed Accounts */
+  public int getManagedAccountsCount() {
     return managedAccounts.size();
   }
 

@@ -154,7 +154,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
         .withData(
             QuestionSortOption.TI_NUM_MEMBERS.getDataAttribute(),
-            Integer.toString(ti.getTrustedIntermediariesSize()))
+            Integer.toString(ti.getMembersCount()))
         .with(renderActionsCell(ti, request));
   }
 
@@ -169,7 +169,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
-        .with(div("Clients: " + tiGroup.getManagedAccountsSize()).withClasses("text-sm"))
+        .with(div("Clients: " + tiGroup.getManagedAccountsCount()).withClasses("text-sm"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
         .attr("data-testid", "ti-member");
   }
