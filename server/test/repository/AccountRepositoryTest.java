@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
 import play.libs.F;
 import services.CiviFormError;
-import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.WellKnownPaths;
@@ -445,22 +444,22 @@ public class AccountRepositoryTest extends ResetPostgres {
     repo.createNewTrustedIntermediaryGroup("Kelly", "gatherer");
     repo.createNewTrustedIntermediaryGroup("Moe", "gatherer");
 
+    var paginationSpec = new PageNumberBasedPaginationSpec(10, 1);
     // Test the pagination result
     PaginationResult<TrustedIntermediaryGroupModel> paginationResult =
-        repo.getAllTiGroupsWithinPageSpec(
-            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG));
+        repo.getAllTiGroupsWithinPageSpec(F.Either.Right(paginationSpec));
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
-    assertThat(paginationResult.getPageContents()).isEqualTo(10);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(10);
     assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo("Apple");
     assertThat(paginationResult.getPageContents().get(9).getName()).isEqualTo("Jay");
 
     // testing the second page result
-    var paginationSpec = new PageNumberBasedPaginationSpec(10, 2);
+    paginationSpec = new PageNumberBasedPaginationSpec(10, 2);
 
     paginationResult = repo.getAllTiGroupsWithinPageSpec(F.Either.Right(paginationSpec));
 
-    assertThat(paginationResult.getPageContents()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo("Kelly");
     assertThat(paginationResult.getPageContents().get(1).getName()).isEqualTo("Moe");
   }

@@ -47,7 +47,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     this.editView = Preconditions.checkNotNull(editView);
   }
 
-  /** Return a HTML page displaying all trusted intermediary groups. */
+  /** Return a HTML page displaying the current page's trusted intermediary groups. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, Optional<Integer> page) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
