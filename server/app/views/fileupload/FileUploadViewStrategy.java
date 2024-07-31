@@ -19,11 +19,13 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 import services.AlertType;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.cloud.StorageUploadRequest;
 import views.AlertComponent;
+import views.CspUtil;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.style.ReferenceClasses;
 
@@ -64,8 +66,11 @@ public abstract class FileUploadViewStrategy {
       Optional<StorageUploadRequest> request);
 
   /** Creates a list of footer tags needed on a page rendering a file upload form. */
-  public ImmutableList<FooterTag> footerTags() {
-    return extraScriptTags().stream().map(TagCreator::footer).collect(toImmutableList());
+  public ImmutableList<FooterTag> footerTags(RequestHeader request) {
+    return extraScriptTags().stream()
+        .map(scriptTag -> CspUtil.applyCsp(request, scriptTag))
+        .map(TagCreator::footer)
+        .collect(toImmutableList());
   }
 
   /**
