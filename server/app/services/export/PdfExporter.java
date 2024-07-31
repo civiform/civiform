@@ -66,7 +66,7 @@ public final class PdfExporter {
       FontFactory.getFont(FontFactory.HELVETICA, 11, BaseColor.BLUE);
   private static final Font LINK_FONT =
       FontFactory.getFont(FontFactory.HELVETICA, 11, Font.UNDERLINE, new BaseColor(0, 94, 162));
-      
+
   /**
    * Similar to {@link views.admin.programs.ProgramBlocksView#INDENTATION_FACTOR_INCREASE_ON_LEVEL}:
    * For each level of enumerator question, add another layer of indentation so it's easier to
@@ -184,10 +184,10 @@ public final class PdfExporter {
             String encodedFileKey = encodedFileKeys.get(i);
             String fileName = answerData.fileNames().get(i);
             String fileLink =
-            (isAdmin
-                    ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
-                    : controllers.routes.FileController.show(applicantId, encodedFileKey))
-                .url();
+                (isAdmin
+                        ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                        : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                    .url();
             Anchor anchor = new Anchor(fileName, LINK_FONT);
             anchor.setReference(baseUrl + fileLink);
             Paragraph fileParagraph = new Paragraph();
