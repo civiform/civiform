@@ -36,11 +36,20 @@ public class TrustedIntermediaryGroupModel extends BaseModel {
     return ImmutableList.copyOf(tiAccounts);
   }
 
+  public int getTrustedIntermediariesSize() {
+    return tiAccounts.size();
+  }
+
   /** Get all the accounts, sorted by applicant name. */
   public ImmutableList<AccountModel> getManagedAccounts() {
     return managedAccounts.stream()
         .sorted(Comparator.comparing(AccountModel::getApplicantName))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Gets the size of Managed Accounts */
+  public int getManagedAccountsSize() {
+    return managedAccounts.size();
   }
 
   public String getName() {

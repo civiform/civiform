@@ -185,9 +185,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   private TdTag renderMemberCountCell(TrustedIntermediaryGroupModel tiGroup) {
     return td().with(
-            div("Members: " + tiGroup.getTrustedIntermediaries().size())
-                .withClasses("font-semibold"))
-        .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
+            div("Members: " + tiGroup.getTrustedIntermediariesSize()).withClasses("font-semibold"))
+        .with(div("Clients: " + tiGroup.getManagedAccountsSize()).withClasses("text-sm"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
         .attr("data-testid", "ti-member");
   }

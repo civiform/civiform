@@ -259,10 +259,10 @@ public final class AccountRepository {
     var query =
         database
             .find(TrustedIntermediaryGroupModel.class)
-            .setLabel("TrustedIntermediaryGroup.findList")
+            .setLabel("TrustedIntermediaryGroupByPage.findListByPage")
             .orderBy("name asc")
             .setProfileLocation(
-                queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"));
+                queryProfileLocationBuilder.create("listTrustedIntermediaryGroupsByPage"));
 
     PagedList<TrustedIntermediaryGroupModel> pagedQuery;
 
