@@ -18,10 +18,15 @@ import java.util.Set;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
+import play.libs.F;
 import services.CiviFormError;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
+import services.PaginationResult;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -423,6 +428,41 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Valid token
     assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
         .isEqualTo(validJwt.serialize());
+  }
+
+  @Test
+  public void testTiGroupsWithinPageSpec() {
+    repo.createNewTrustedIntermediaryGroup("Apple", "hunter");
+    repo.createNewTrustedIntermediaryGroup("Ben", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Cat", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Doe", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Elle", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Fan", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Guy", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Hu", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Ice", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Jay", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Kelly", "gatherer");
+    repo.createNewTrustedIntermediaryGroup("Moe", "gatherer");
+
+    // Test the pagination result
+    PaginationResult<TrustedIntermediaryGroupModel> paginationResult =
+        repo.getAllTiGroupsWithinPageSpec(
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG));
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents()).isEqualTo(10);
+    assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo("Apple");
+    assertThat(paginationResult.getPageContents().get(9).getName()).isEqualTo("Jay");
+
+    // testing the second page result
+    var paginationSpec = new PageNumberBasedPaginationSpec(10, 2);
+
+    paginationResult = repo.getAllTiGroupsWithinPageSpec(F.Either.Right(paginationSpec));
+
+    assertThat(paginationResult.getPageContents()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo("Kelly");
+    assertThat(paginationResult.getPageContents().get(1).getName()).isEqualTo("Moe");
   }
 
   private JWT getJwtWithExpirationTime(Instant expirationTime) {

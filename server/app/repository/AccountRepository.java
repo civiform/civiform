@@ -264,9 +264,6 @@ public final class AccountRepository {
             .setProfileLocation(
                 queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"));
 
-    //    if(sortOrder.isPresent()){
-    //      query.orderBy(sortOrder.get());
-    //    }
     PagedList<TrustedIntermediaryGroupModel> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
