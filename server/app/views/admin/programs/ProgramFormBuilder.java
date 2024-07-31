@@ -304,8 +304,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                         label(category.getDefaultName())
                                             .withClasses("usa-checkbox__label")
                                             .withFor("check-category-" + category.getDefaultName()))
-                                    .withClasses("usa-checkbox", "grid-col-6")))
-                        .withClass("grid-row"))
+                                    .withClasses(
+                                        "usa-checkbox", "grid-col-12", "tablet:grid-col-6")))
+                        .withClasses("grid-row", "grid-gap-md"))
                 .withId("category-checkboxes")
                 .withClasses("usa-fieldset"))
         .withClasses("mb-2");
