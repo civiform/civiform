@@ -1416,6 +1416,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
+            settingsManifest.getNorthStarApplicantUi(request),
+            false,
             programId);
 
     return ApplicationBaseViewParams.builder()

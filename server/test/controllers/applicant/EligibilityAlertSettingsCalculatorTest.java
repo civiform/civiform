@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.FlashKey;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.DisplayMode;
@@ -41,32 +40,55 @@ public class EligibilityAlertSettingsCalculatorTest {
         ImmutableMap.<String, String>builder()
             .put(
                 MessageKey.ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE.getKeyName(),
-                "A11")
+                "APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE")
             .put(
                 MessageKey.ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT.getKeyName(),
-                "A12")
+                "APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT")
             .put(
                 MessageKey.ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TITLE
                     .getKeyName(),
-                "A21")
+                "APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TITLE")
             .put(
                 MessageKey.ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TEXT.getKeyName(),
-                "A22")
-            .put(MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE.getKeyName(), "A31")
-            .put(MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT.getKeyName(), "A32")
-            .put(MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE.getKeyName(), "A41")
-            .put(MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT.getKeyName(), "A42")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE.getKeyName(), "T11")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT.getKeyName(), "T12")
+                "APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TEXT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE.getKeyName(),
+                "APPLICANT_ELIGIBLE_TITLE")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT.getKeyName(),
+                "APPLICANT_ELIGIBLE_TEXT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE.getKeyName(),
+                "APPLICANT_NOT_ELIGIBLE_TITLE")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT.getKeyName(),
+                "APPLICANT_NOT_ELIGIBLE_TEXT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT.getKeyName(),
+                "APPLICANT_NOT_ELIGIBLE_TEXT_SHORT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE.getKeyName(),
+                "TI_FASTFORWARDED_ELIGIBLE_TITLE")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT.getKeyName(),
+                "TI_FASTFORWARDED_ELIGIBLE_TEXT")
             .put(
                 MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE.getKeyName(),
-                "T21")
+                "TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE")
             .put(
-                MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT.getKeyName(), "T22")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TITLE.getKeyName(), "T31")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT.getKeyName(), "T32")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE.getKeyName(), "T41")
-            .put(MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT.getKeyName(), "T42")
+                MessageKey.ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT.getKeyName(),
+                "TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT")
+            .put(MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TITLE.getKeyName(), "TI_ELIGIBLE_TITLE")
+            .put(MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT.getKeyName(), "TI_ELIGIBLE_TEXT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE.getKeyName(),
+                "TI_NOT_ELIGIBLE_TITLE")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT.getKeyName(),
+                "TI_NOT_ELIGIBLE_TEXT")
+            .put(
+                MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT.getKeyName(),
+                "TI_NOT_ELIGIBLE_TEXT_SHORT")
             .build();
 
     Map<String, Map<String, String>> langMap =
@@ -102,22 +124,129 @@ public class EligibilityAlertSettingsCalculatorTest {
       boolean isTi,
       boolean isFastForwarded,
       boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation,
       AlertType expectedAlertType,
+      String expectedTitle,
       String expectedText) {}
 
   public static ImmutableList<ParamValue> getTestData() {
     return ImmutableList.of(
         // Applicant
-        new ParamValue(false, true, true, AlertType.SUCCESS, "A1"),
-        new ParamValue(false, true, false, AlertType.WARNING, "A2"),
-        new ParamValue(false, false, true, AlertType.SUCCESS, "A3"),
-        new ParamValue(false, false, false, AlertType.WARNING, "A4"),
+        new ParamValue(
+            false,
+            true,
+            true,
+            false,
+            false,
+            AlertType.SUCCESS,
+            "APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE",
+            "APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT"),
+        new ParamValue(
+            false,
+            true,
+            false,
+            false,
+            false,
+            AlertType.WARNING,
+            "APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TITLE",
+            "APPLICANT_FASTFORWARDED_NOT_ELIGIBLE_TEXT"),
+        new ParamValue(
+            false,
+            false,
+            true,
+            false,
+            false,
+            AlertType.SUCCESS,
+            "APPLICANT_ELIGIBLE_TITLE",
+            "APPLICANT_ELIGIBLE_TEXT"),
+        new ParamValue(
+            false,
+            false,
+            false,
+            false,
+            false,
+            AlertType.WARNING,
+            "APPLICANT_NOT_ELIGIBLE_TITLE",
+            "APPLICANT_NOT_ELIGIBLE_TEXT"),
 
         // TI
-        new ParamValue(true, true, true, AlertType.SUCCESS, "T1"),
-        new ParamValue(true, true, false, AlertType.WARNING, "T2"),
-        new ParamValue(true, false, true, AlertType.SUCCESS, "T3"),
-        new ParamValue(true, false, false, AlertType.WARNING, "T4"));
+        new ParamValue(
+            true,
+            true,
+            true,
+            false,
+            false,
+            AlertType.SUCCESS,
+            "TI_FASTFORWARDED_ELIGIBLE_TITLE",
+            "TI_FASTFORWARDED_ELIGIBLE_TEXT"),
+        new ParamValue(
+            true,
+            true,
+            false,
+            false,
+            false,
+            AlertType.WARNING,
+            "TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE",
+            "TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT"),
+        new ParamValue(
+            true,
+            false,
+            true,
+            false,
+            false,
+            AlertType.SUCCESS,
+            "TI_ELIGIBLE_TITLE",
+            "TI_ELIGIBLE_TEXT"),
+        new ParamValue(
+            true,
+            false,
+            false,
+            false,
+            false,
+            AlertType.WARNING,
+            "TI_NOT_ELIGIBLE_TITLE",
+            "TI_NOT_ELIGIBLE_TEXT"),
+
+        // North Star, pageHasSupplementalInformation==false
+        new ParamValue(
+            false,
+            false,
+            false,
+            true,
+            false,
+            AlertType.WARNING,
+            "APPLICANT_NOT_ELIGIBLE_TITLE",
+            "APPLICANT_NOT_ELIGIBLE_TEXT"),
+        new ParamValue(
+            true,
+            false,
+            false,
+            true,
+            false,
+            AlertType.WARNING,
+            "TI_NOT_ELIGIBLE_TITLE",
+            "TI_NOT_ELIGIBLE_TEXT"),
+
+        // North Star, , pageHasSupplementalInformation==true
+        new ParamValue(
+            false,
+            false,
+            false,
+            true,
+            true,
+            AlertType.WARNING,
+            "APPLICANT_NOT_ELIGIBLE_TITLE",
+            "APPLICANT_NOT_ELIGIBLE_TEXT_SHORT"),
+        new ParamValue(
+            true,
+            false,
+            false,
+            true,
+            true,
+            AlertType.WARNING,
+            "TI_NOT_ELIGIBLE_TITLE",
+            "TI_NOT_ELIGIBLE_TEXT_SHORT"));
   }
 
   @Test
@@ -138,12 +267,17 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            request, value.isTi, value.isApplicationEligible, /* programId */ 1L);
+            request,
+            value.isTi,
+            value.isApplicationEligible,
+            value.isNorthStarEnabled, /* programId */
+            value.pageHasSupplementalInformation,
+            1L);
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
     assertThat(result.alertType()).isEqualTo(value.expectedAlertType);
-    assertThat(result.title()).isEqualTo(Optional.of(String.format("%s1", value.expectedText)));
-    assertThat(result.text()).isEqualTo(String.format("%s2", value.expectedText));
+    assertThat(result.title().get()).isEqualTo(value.expectedTitle);
+    assertThat(result.text()).isEqualTo(value.expectedText);
   }
 
   @Test
@@ -161,7 +295,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, /* programId */ 1L);
+            fakeRequest(), false, true, false, false, /* programId */ 1L);
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
   }
