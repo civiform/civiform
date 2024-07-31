@@ -43,8 +43,8 @@ public class TrustedIntermediaryGroupModel extends BaseModel {
   /** Get all the accounts, sorted by applicant name. */
   public ImmutableList<AccountModel> getManagedAccounts() {
     return managedAccounts.stream()
-      .sorted(Comparator.comparing(AccountModel::getApplicantName))
-      .collect(ImmutableList.toImmutableList());
+        .sorted(Comparator.comparing(AccountModel::getApplicantName))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Gets the size of Managed Accounts */
