@@ -22,10 +22,13 @@ import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.List;
+import java.util.Optional;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.PageNumberBasedPaginationSpec;
+import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -55,7 +58,10 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
-  public Content render(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
+  public Content render(
+      PaginationResult<TrustedIntermediaryGroupModel> tis,
+      PageNumberBasedPaginationSpec paginationSpec,
+      Http.Request request) {
     String title = "Manage trusted intermediaries";
     HtmlBundle htmlBundle =
         layout
@@ -72,7 +78,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                         renderTiSortSelect(
                             ImmutableList.of(
                                 QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS))),
-                renderTiGroupCards(tis, request));
+                renderTiGroupCards(tis, request, paginationSpec));
 
     if (request.flash().get(FlashKey.ERROR).isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
@@ -107,12 +113,24 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return tISortSelect.getSelectTag().withClass("mb-0");
   }
 
-  private DivTag renderTiGroupCards(List<TrustedIntermediaryGroupModel> tis, Http.Request request) {
+  private DivTag renderTiGroupCards(
+      PaginationResult<TrustedIntermediaryGroupModel> tis,
+      Http.Request request,
+      PageNumberBasedPaginationSpec paginationSpec) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-full", SORT_SELECT_SUBLIST)
             .with(renderGroupTableHeader())
-            .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
+            .with(tbody(each(tis.getPageContents(), ti -> renderGroupRow(ti, request))))
+            .condWith(
+                tis.getNumPages() > 1,
+                renderPagination(
+                    paginationSpec.getCurrentPage(),
+                    tis.getNumPages(),
+                    pageNumber ->
+                        routes.TrustedIntermediaryManagementController.index(
+                            Optional.of(pageNumber)),
+                    Optional.empty())));
   }
 
   private DivTag renderAddNewButton(Http.Request request) {

@@ -14,10 +14,13 @@ import org.pac4j.play.java.Secure;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
+import services.PageNumberBasedPaginationSpec;
+import services.PaginationResult;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
@@ -30,6 +33,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   private final AccountRepository accountRepository;
   private final FormFactory formFactory;
   private final EditTrustedIntermediaryGroupView editView;
+  private static final int PAGE_SIZE = 10;
 
   @Inject
   public TrustedIntermediaryManagementController(
@@ -45,10 +49,13 @@ public class TrustedIntermediaryManagementController extends Controller {
 
   /** Return a HTML page displaying all trusted intermediary groups. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Http.Request request) {
+  public Result index(Http.Request request, Optional<Integer> page) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info(request.flash().data().toString());
-    return ok(listView.render(accountRepository.listTrustedIntermediaryGroups(), request));
+    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
+    PaginationResult<TrustedIntermediaryGroupModel> tiGroups =
+        accountRepository.getAllTiGroupsWithinPageSpec(F.Either.Right(paginationSpec));
+    return ok(listView.render(tiGroups, paginationSpec, request));
   }
 
   /** POST endpoint for creating a new trusted intermediary group. */
@@ -68,13 +75,13 @@ public class TrustedIntermediaryManagementController extends Controller {
     accountRepository.createNewTrustedIntermediaryGroup(
         form.get().getName(), form.get().getDescription());
 
-    return redirect(routes.TrustedIntermediaryManagementController.index());
+    return redirect(routes.TrustedIntermediaryManagementController.index(Optional.of(1)));
   }
 
   private Result flashCreateTIFieldValuesWithError(
       String error, Form<CreateTrustedIntermediaryGroupForm> form) {
     Result result =
-        redirect(routes.TrustedIntermediaryManagementController.index())
+        redirect(routes.TrustedIntermediaryManagementController.index(Optional.of(1)))
             .flashing(FlashKey.ERROR, error);
     if (form.value().isPresent()) {
       result = result.flashing(FlashKey.PROVIDED_NAME, form.value().get().getName());
@@ -114,7 +121,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return notFound("no such group");
     }
-    return redirect(routes.TrustedIntermediaryManagementController.index());
+    return redirect(routes.TrustedIntermediaryManagementController.index(Optional.of(1)));
   }
 
   /** POST endpoint for adding an email to a trusted intermediary group. */

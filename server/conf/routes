@@ -101,7 +101,7 @@ GET /admin/programs/:programId/image/file/:editStatus                     contro
 POST    /admin/programs/:programId/image/file/delete/:editStatus  controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long, editStatus: String)
 
 # Trusted Intermediary routes
-GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
+GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request, page: java.util.Optional[Integer])
 POST    /admin/tiGroups/new                controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
 POST    /admin/tiGroups/:id/delete         controllers.admin.TrustedIntermediaryManagementController.delete(id: Long, request: Request)
 GET     /admin/tiGroups/:id/edit           controllers.admin.TrustedIntermediaryManagementController.edit(id: Long, request: Request)

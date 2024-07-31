@@ -10,11 +10,13 @@ import auth.oidc.IdTokensFactory;
 import auth.oidc.SerializedIdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.PagedList;
 import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
@@ -29,7 +31,11 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.oidc.profile.OidcProfile;
+import play.libs.F;
 import services.CiviFormError;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
+import services.PaginationResult;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
@@ -244,6 +250,48 @@ public final class AccountRepository {
         .setLabel("TrustedIntermediaryGroup.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"))
         .findList();
+  }
+
+  public PaginationResult<TrustedIntermediaryGroupModel> getAllTiGroupsWithinPageSpec(
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither) {
+
+    var query =
+        database
+            .find(TrustedIntermediaryGroupModel.class)
+            .setLabel("TrustedIntermediaryGroup.findList")
+            .orderBy("name asc")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"));
+
+    //    if(sortOrder.isPresent()){
+    //      query.orderBy(sortOrder.get());
+    //    }
+    PagedList<TrustedIntermediaryGroupModel> pagedQuery;
+
+    if (paginationSpecEither.left.isPresent()) {
+      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
+      pagedQuery =
+          query
+              .where()
+              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    } else {
+      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
+      pagedQuery =
+          query
+              .setFirstRow(paginationSpec.getCurrentPageOffset())
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    }
+
+    pagedQuery.loadCount();
+
+    return new PaginationResult<>(
+        pagedQuery.hasNext(),
+        pagedQuery.getTotalPageCount(),
+        pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
   }
 
   public TrustedIntermediaryGroupModel createNewTrustedIntermediaryGroup(

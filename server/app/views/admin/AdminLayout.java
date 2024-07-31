@@ -144,7 +144,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String programAdminProgramsLink = controllers.admin.routes.ProgramAdminController.index().url();
-    String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
+    String intermediaryLink =
+        routes.TrustedIntermediaryManagementController.index(Optional.of(1)).url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String apiDocsLink = controllers.api.routes.ApiDocsController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
