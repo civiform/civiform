@@ -4,7 +4,7 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main" class="margin-2">
+    <main role="main" class="margin-2">
       <div
         th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
       ></div>
@@ -49,7 +49,7 @@
         >
         </a>
       </div>
-    </div>
+    </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
                                                              <!--/* showReviewLogin= */-->false,
