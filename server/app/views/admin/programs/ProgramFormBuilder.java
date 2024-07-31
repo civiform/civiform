@@ -284,29 +284,31 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private DivTag showCategoryCheckboxes(
       List<CategoryModel> categoryOptions, List<Long> categories) {
     return div(
-        legend("Tag this program with 1 or more categories to make it easier to find (optional)")
-            .withClass("text-gray-600"),
-        fieldset(
-                div(each(
-                        categoryOptions,
-                        category ->
-                            div(
-                                    input()
-                                        .withClasses(
-                                            "usa-checkbox__input usa-checkbox__input--tile")
-                                        .withId("check-category-" + category.getDefaultName())
-                                        .withType("checkbox")
-                                        .withName("categories" + Path.ARRAY_SUFFIX)
-                                        .withValue(String.valueOf(category.getId()))
-                                        .withCondChecked(categories.contains(category.getId())),
-                                    label(category.getDefaultName())
-                                        .withClasses("usa-checkbox__label")
-                                        .withFor("check-category-" + category.getDefaultName()))
-                                .withClasses("usa-checkbox", "grid-col-6")))
-                    .withClass("grid-row"))
-            .withId("category-checkboxes")
-            .withClasses("usa-fieldset")
-    ).withClasses("mb-2");
+            legend(
+                    "Tag this program with 1 or more categories to make it easier to find"
+                        + " (optional)")
+                .withClass("text-gray-600"),
+            fieldset(
+                    div(each(
+                            categoryOptions,
+                            category ->
+                                div(
+                                        input()
+                                            .withClasses(
+                                                "usa-checkbox__input usa-checkbox__input--tile")
+                                            .withId("check-category-" + category.getDefaultName())
+                                            .withType("checkbox")
+                                            .withName("categories" + Path.ARRAY_SUFFIX)
+                                            .withValue(String.valueOf(category.getId()))
+                                            .withCondChecked(categories.contains(category.getId())),
+                                        label(category.getDefaultName())
+                                            .withClasses("usa-checkbox__label")
+                                            .withFor("check-category-" + category.getDefaultName()))
+                                    .withClasses("usa-checkbox", "grid-col-6")))
+                        .withClass("grid-row"))
+                .withId("category-checkboxes")
+                .withClasses("usa-fieldset"))
+        .withClasses("mb-2");
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
