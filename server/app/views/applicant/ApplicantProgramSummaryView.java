@@ -6,6 +6,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -204,23 +206,34 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;
-      if (data.encodedFileKey().isPresent()) {
+
+      if (!data.encodedFileKeys().isEmpty()) {
+        answerContent = ol();
+        for (int i = 0; i < data.encodedFileKeys().size(); i++) {
+          String encodedFileKey = data.encodedFileKeys().get(i);
+          String fileName = data.fileNames().get(i);
+          String fileLink =
+              controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+          answerContent.with(li(a(fileName).withHref(fileLink).withClass(BaseStyles.LINK_TEXT)));
+        }
+      } else if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
+        answerContent = a(data.answerText()).withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
         answerContent.withClasses("font-light", "text-sm");
-      }
-      // Add answer text, converting newlines to <br/> tags.
-      String[] texts = data.answerText().split("\n");
-      texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
-      for (int i = 0; i < texts.length; i++) {
-        if (i > 0) {
-          answerContent.with(br());
+        // Add answer text, converting newlines to <br/> tags.
+        String[] texts = data.answerText().split("\n");
+        texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
+        for (int i = 0; i < texts.length; i++) {
+          if (i > 0) {
+            answerContent.with(br());
+          }
+          answerContent.withText(texts[i]);
         }
-        answerContent.withText(texts[i]);
       }
+
       questionContent.with(answerContent);
     }
 
