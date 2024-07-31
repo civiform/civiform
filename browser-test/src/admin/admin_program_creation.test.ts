@@ -1114,8 +1114,8 @@ test.describe('program creation', () => {
     })
 
     await test.step('add categories to program', async () => {
-      await page.getByRole('checkbox', {name: 'Education'}).check()
-      await page.getByRole('checkbox', {name: 'Healthcare'}).check()
+      await page.getByRole('checkbox').filter({hasText: 'Education'}).check()
+      await page.getByRole('checkbox').filter({hasText: 'Healthcare'}).check()
     })
 
     await test.step('validate screenshot', async () => {
