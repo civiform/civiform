@@ -178,3 +178,15 @@ h1.usa-step-indicator__heading {
 .cf-applicant-question-help-text {
   max-width: 480px;
 }
+
+// Let the body expand to fill the entire viewport
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Allow main content to grow and push footer down
+main {
+  flex: 1 0 auto;
+}
