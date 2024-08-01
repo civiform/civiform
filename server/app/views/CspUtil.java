@@ -6,10 +6,14 @@ import play.mvc.Http.RequestHeader;
 import views.html.helper.CSPNonce;
 
 public final class CspUtil {
+  /** Get the CSP nonce from the given request */
+  public static String getNonce(RequestHeader request) {
+    return CSPNonce.apply(request.asScala());
+  }
+
   /** Apply the CSP nonce from the given request to the given scriptTag */
   public static ScriptTag applyCsp(RequestHeader request, ScriptTag scriptTag) {
-    String nonce = CSPNonce.apply(request.asScala());
-    return scriptTag.attr("nonce", nonce);
+    return scriptTag.attr("nonce", getNonce(request));
   }
 
   /** Apply the CSP nonce from the given request to the given scriptTags */
