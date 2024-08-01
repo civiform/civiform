@@ -1,10 +1,10 @@
 <th:block th:fragment="titleAndDescriptionFragment(title, description)">
-  <div class="grid-container section">
+  <div class="grid-container container">
     <div class="grid-row">
       <div class="tablet:grid-col-8">
-        <h1 th:text="${title}" class="cf-h1-title"></h1>
-        <div class="text-medium"></div>
-        <span th:text="${description}"></span>
+        <h1 th:text="${title}" class="cf-prose-h1"></h1>
+        <div class="tablet:text-medium-spacing"></div>
+        <span th:text="${description}" class="cf-prose-intro"></span>
       </div>
     </div>
   </div>
