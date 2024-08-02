@@ -81,13 +81,6 @@ public class SecurityModule extends AbstractModule {
     logoutController.setDefaultUrl(baseUrl + routes.HomeController.index().url());
     logoutController.setLocalLogout(true);
     logoutController.setDestroySession(true);
-    /*
-     * This mitigates a vulnerability in the logout process described here:
-     * https://groups.google.com/g/pac4j-security/c/poWGfZKo-ww/m/S-h4ggaSAgAJ
-     *
-     * <p>Can be removed after upgrading to pac4j v5.6.1
-     */
-    logoutController.setLogoutUrlPattern("^(\\/|\\/[^\\/].*)$");
 
     Boolean shouldPerformAuthProviderLogout = configuration.getBoolean("auth.oidc_provider_logout");
     logoutController.setCentralLogout(shouldPerformAuthProviderLogout);
