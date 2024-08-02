@@ -325,18 +325,16 @@ public class ProgramBuilder {
   /** Returns the {@link ProgramModel} built from this {@link ProgramBuilder}. */
   public ProgramModel build() {
     ProgramDefinition programDefinition = builder.build();
-    ApplicationStatusesRepository appStatusRepo =
-        injector.instanceOf(ApplicationStatusesRepository.class);
-
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), new StatusDefinitions());
-
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
 
     ProgramModel program = programDefinition.toProgram();
     program.update();
+    ApplicationStatusesRepository appStatusRepo =
+        injector.instanceOf(ApplicationStatusesRepository.class);
+    appStatusRepo.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), new StatusDefinitions());
     return program;
   }
 

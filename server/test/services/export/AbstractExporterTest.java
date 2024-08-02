@@ -77,13 +77,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationFive;
   protected ApplicationModel applicationSix;
   protected ApplicationModel applicationSeven;
-  private ApplicationStatusesRepository apprepo;
+  private ApplicationStatusesRepository appStatusRepo;
 
   @Before
   public void setup() {
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     programService = instanceOf(ProgramService.class);
-    apprepo = instanceOf(ApplicationStatusesRepository.class);
+    appStatusRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   protected void answerQuestion(
@@ -245,7 +245,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           .build();
     }
     this.fakeProgram = fakeProgram.build();
-    apprepo.createOrUpdateStatusDefinitions(
+    appStatusRepo.createOrUpdateStatusDefinitions(
         this.fakeProgram.getProgramDefinition().adminName(),
         new StatusDefinitions()
             .setStatuses(
