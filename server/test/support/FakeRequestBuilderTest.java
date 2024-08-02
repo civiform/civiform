@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import play.mvc.Call;
 import play.mvc.Http.Request;
+import views.html.helper.CSPNonce;
 import views.html.helper.CSRF;
 
 public class FakeRequestBuilderTest {
@@ -43,9 +44,23 @@ public class FakeRequestBuilderTest {
   }
 
   @Test
+  public void cspNonce() {
+    Request fakeRequest = fakeRequestBuilder().cspNonce("foo bar").build();
+
+    assertThat(CSPNonce.apply(fakeRequest.asScala())).isEqualTo("foo bar");
+  }
+
+  @Test
   public void fakeRequest_hasCsrfToken() {
     Request fakeRequest = fakeRequest();
 
     assertThat(CSRF.getToken(fakeRequest.asScala()).value()).isNotEmpty();
+  }
+
+  @Test
+  public void fakeRequest_hasCspNonce() {
+    Request fakeRequest = fakeRequest();
+
+    assertThat(CSPNonce.apply(fakeRequest.asScala())).isNotEmpty();
   }
 }

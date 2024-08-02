@@ -277,7 +277,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(uploadForm, skipForms, buttons).with(fileUploadViewStrategy.footerTags());
+    return div(uploadForm, skipForms, buttons)
+        .with(fileUploadViewStrategy.footerTags(params.request()));
   }
 
   /**

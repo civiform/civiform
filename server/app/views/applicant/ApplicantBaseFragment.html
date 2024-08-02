@@ -5,12 +5,24 @@
 
   <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
   <link th:href="${northStarStylesheet}" type="text/css" rel="stylesheet" />
-  <script th:src="${uswdsJsInit}" type="text/javascript"></script>
+  <script
+    th:nonce="${cspNonce}"
+    th:src="${uswdsJsInit}"
+    type="text/javascript"
+  ></script>
 </head>
 
 <th:block th:fragment="pageFooterScripts">
-  <script th:src="${applicantJsBundle}" type="text/javascript"></script>
-  <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
+  <script
+    th:nonce="${cspNonce}"
+    th:src="${applicantJsBundle}"
+    type="text/javascript"
+  ></script>
+  <script
+    th:nonce="${cspNonce}"
+    th:src="${uswdsJsBundle}"
+    type="text/javascript"
+  ></script>
 </th:block>
 
 <div th:fragment="requiredFieldsExplanation">

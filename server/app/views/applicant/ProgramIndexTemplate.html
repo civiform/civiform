@@ -35,7 +35,7 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main">
+    <main role="main">
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
         id="top-content"
@@ -90,7 +90,7 @@
           th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
         ></div>
       </th:block>
-    </div>
+    </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->true,
                                                              <!--/* showReviewLogin= */-->false,

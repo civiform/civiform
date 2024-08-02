@@ -26,6 +26,8 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT("alert.eligibility_applicant_not_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityApplicantNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_applicant_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -38,6 +40,8 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT("alert.eligibility_ti_eligible_text"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE("alert.eligibility_ti_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT("alert.eligibility_ti_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityTiNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_ti_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -125,6 +129,8 @@ public enum MessageKey {
   CONTENT_FILE_UPLOAD_BLOCK_PROGRESS_FULL("content.fileUploadBlockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
+  CONTENT_CHANGE_ELIGIBILITY_ANSWERS_V2(
+      "content.changeAnswersForEligibility.v2"), // North Star only
   CONTENT_CIVIFORM_DESCRIPTION("content.findProgramsDescription"),
   CONTENT_CLIENT_CREATED("content.clientCreated"),
   CONTENT_CONFIRMED("content.confirmed"),
@@ -138,6 +144,7 @@ public enum MessageKey {
       "content.commonIntakeNoMatchingProgramsNextStep"),
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
+  CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),

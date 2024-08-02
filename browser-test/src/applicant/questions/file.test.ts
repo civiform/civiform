@@ -336,6 +336,83 @@ test.describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-uploaded-multiple-files')
     })
 
+    test('review page renders correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickReview()
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file1.txt',
+      )
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file2.txt',
+      )
+      await validateScreenshot(page.locator('main'), 'file-uploaded-review')
+    })
+
+    test('can download file content', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickNext()
+
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file1.txt'),
+      ).toEqual('file 1 content')
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file2.txt'),
+      ).toEqual('file 2 content')
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'some text',
+        'testFileName.txt',
+      )
+      await applicantQuestions.clickNext()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'testFileName.txt',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+    })
+
     test('uploading duplicate file replaces existing file', async ({
       applicantQuestions,
       applicantFileQuestion,

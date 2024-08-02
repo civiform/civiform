@@ -29,6 +29,7 @@ import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.AlertType;
 import services.LocalizedStrings;
@@ -119,6 +120,7 @@ public final class ProgramImageView extends BaseHtmlView {
     formsContainer.with(createImageDescriptionForm(request, programDefinition, editStatus));
     formsContainer.with(
         createImageUploadForm(
+            request,
             messagesApi.preferred(request),
             programDefinition,
             deleteImageModal.getButton(),
@@ -249,7 +251,11 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageUploadForm(
-      Messages messages, ProgramDefinition program, ButtonTag deleteButton, String editStatus) {
+      Request request,
+      Messages messages,
+      ProgramDefinition program,
+      ButtonTag deleteButton,
+      String editStatus) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, editStatus);
     FormTag form =
@@ -290,7 +296,7 @@ public final class ProgramImageView extends BaseHtmlView {
         .withClass("mt-10")
         .with(fullForm)
         .with(buttonsDiv)
-        .with(fileUploadViewStrategy.footerTags());
+        .with(fileUploadViewStrategy.footerTags(request));
   }
 
   private StorageUploadRequest createStorageUploadRequest(

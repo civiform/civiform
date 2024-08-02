@@ -21,17 +21,20 @@
   },
   "extensions": {
     "recommendations": [
-      "vscjava.vscode-java-pack",
-      "github.vscode-pull-request-github",
-      "knisterpeter.vscode-github",
-      "ms-azuretools.vscode-docker",
-      "hashicorp.terraform",
-      "ms-ossdata.vscode-postgresql",
       "bradlc.vscode-tailwindcss",
-      "scala-lang.scala",
-      "redhat.vscode-yaml",
       "dbaeumer.vscode-eslint",
-      "rvest.vs-code-prettier-eslint"
+      "github.vscode-pull-request-github",
+      "graphite.gti-vscode",
+      "ms-azuretools.vscode-docker",
+      "ms-ossdata.vscode-postgresql",
+      "ms-playwright.playwright",
+      "ms-vscode-remote.remote-containers",
+      "redhat.vscode-yaml",
+      "rvest.vs-code-prettier-eslint",
+      "scala-lang.scala",
+      "scalameta.metals",
+      "vscjava.vscode-java-pack",
+      "vscode-icons-team.vscode-icons"
     ]
   },
   "launch": {
