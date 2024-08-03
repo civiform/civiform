@@ -16,7 +16,7 @@
 
   <appender name="STDOUT" class="ConsoleAppender">
     <encoder class="PatternLayoutEncoder">
-      <pattern>%highlight(%-5level) %logger{15} - %message%n%xException{20}</pattern>
+      <pattern>%highlight(%-5level) %logger - %message%n%xException{20}</pattern>
     </encoder>
   </appender>
 
@@ -35,8 +35,11 @@
   <logger name="services" level="INFO" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
-  <logger name="org.pac4j" level="INFO" />
-  <logger name="auth" level="INFO" />
+  <logger name="org.pac4j" level="TRACE" />
+  <logger name="auth" level="TRACE" />
+  <logger name="org.postgresql" level="OFF" />
+  <logger name="com.zaxxer.hikari.pool" level="OFF" />
+
   <!-- Increase the level of this one to avoid leaking PII (such as email and name) into logs -->
   <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN" />
 
@@ -57,7 +60,7 @@
   <logger name="io.ebean.TXN" level="OFF" />
 
 
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>

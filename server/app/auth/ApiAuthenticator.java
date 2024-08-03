@@ -8,8 +8,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import models.ApiKeyModel;
 import org.apache.commons.net.util.SubnetUtils;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
@@ -66,7 +66,7 @@ public class ApiAuthenticator implements Authenticator {
    * malicious use.
    */
   @Override
-  public void validate(Credentials rawCredentials, WebContext context, SessionStore sessionStore) {
+  public Optional<Credentials> validate(CallContext context, Credentials rawCredentials) {
     if (!(rawCredentials instanceof UsernamePasswordCredentials)) {
       throw new RuntimeException("ApiAuthenticator must receive UsernamePasswordCredentials.");
     }
@@ -85,23 +85,23 @@ public class ApiAuthenticator implements Authenticator {
     Optional<ApiKeyModel> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     if (maybeApiKey.isEmpty()) {
-      throwUnauthorized(context, "API key does not exist: " + keyId);
+      throwUnauthorized(context.webContext(), "API key does not exist: " + keyId);
     }
 
     ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      throwUnauthorized(context, "API key is retired: " + keyId);
+      throwUnauthorized(context.webContext(), "API key is retired: " + keyId);
     }
 
     if (apiKey.expiredAfter(Instant.now())) {
-      throwUnauthorized(context, "API key is expired: " + keyId);
+      throwUnauthorized(context.webContext(), "API key is expired: " + keyId);
     }
 
-    String resolvedIp = clientIpResolver.resolveClientIp((PlayWebContext) context);
+    String resolvedIp = clientIpResolver.resolveClientIp((PlayWebContext) context.webContext());
     if (!isAllowedIp(apiKey, resolvedIp)) {
       throwUnauthorized(
-          context,
+          context.webContext(),
           String.format(
               "Resolved IP %s is not in allowed range for key ID: %s, which is \"%s\"",
               resolvedIp, keyId, String.join(",", apiKey.getSubnetSet())));
@@ -109,8 +109,10 @@ public class ApiAuthenticator implements Authenticator {
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      throwUnauthorized(context, "Invalid secret for key ID: " + keyId);
+      throwUnauthorized(context.webContext(), "Invalid secret for key ID: " + keyId);
     }
+
+    return Optional.of(rawCredentials);
   }
 
   private boolean isAllowedIp(ApiKeyModel apiKey, String clientIp) {

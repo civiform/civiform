@@ -10,7 +10,6 @@ import auth.ApplicantAuthClient;
 import auth.AuthIdentityProviderName;
 import auth.Authorizers;
 import auth.CiviFormHttpActionAdapter;
-import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
@@ -40,8 +39,8 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
@@ -49,11 +48,14 @@ import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
+import org.pac4j.play.store.DataEncrypter;
+import org.pac4j.play.store.PlayCacheSessionStore;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
+import play.cache.SyncCacheApi;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
@@ -86,22 +88,17 @@ public class SecurityModule extends AbstractModule {
     logoutController.setCentralLogout(shouldPerformAuthProviderLogout);
     bind(LogoutController.class).toInstance(logoutController);
 
-    // This is a weird one.  :)  The cookie session store refuses to serialize any
-    // classes it doesn't explicitly trust.  A bug in pac4j interacts badly with
-    // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
-    // startup,
-    // but the JAVA_SERIALIZER object is only initialized on initial startup.
-    // So, on a second startup, we'll add the CiviFormProfileData a second time.  The
-    // trusted classes set should dedupe CiviFormProfileData against the old CiviFormProfileData,
-    // but it's technically a different class with the same name at that point,
-    // which triggers the bug.  So, we just clear the classes, which will be empty
-    // on first startup and will contain the profile on subsequent startups,
-    // so that it's always safe to add the profile.
-    // We will need to do this for every class we want to store in the cookie.
-    PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
-    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(CiviFormProfileData.class);
+//    CiviFormSessionStoreFactory civiFormSessionStoreFactory =
+//        new CiviFormSessionStoreFactory(this.configuration);
+//
+//    bind(SessionStore.class).toInstance(civiFormSessionStoreFactory.newSessionStore());
+//    bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);
 
-    // We need to use the secret key to generate the encrypter / decrypter for the
+//    PlayCacheSessionStore playCacheSessionStore = new PlayCacheSessionStore(getProvider(SyncCacheApi.class));
+//    bind(SessionStore.class).toInstance(playCacheSessionStore);
+
+
+        // We need to use the secret key to generate the encrypter / decrypter for the
     // session store, so that cookies from version n of the application can be
     // read by version n + 1.  This is especially important for dev, otherwise
     // we're going to spend a lot of time deleting cookies.
@@ -109,9 +106,10 @@ public class SecurityModule extends AbstractModule {
     r.setSeed(this.configuration.getString("play.http.secret.key").hashCode());
     byte[] aesKey = new byte[32];
     r.nextBytes(aesKey);
-    PlayCookieSessionStore sessionStore =
-        new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
-    bind(SessionStore.class).toInstance(sessionStore);
+
+    PlayCookieSessionStore playCookieSessionStore = new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
+    bind(SessionStore.class).toInstance(playCookieSessionStore);
+
 
     bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
@@ -209,7 +207,7 @@ public class SecurityModule extends AbstractModule {
             // successfully authenticated. In practice, that profile is just an object we
             // use to store the API key ID so that it can be used to look up the
             // authenticated caller's ApiKey in controller code.
-            (Credentials credentials, WebContext context, SessionStore sessionStore) -> {
+            (CallContext callContext, Credentials credentials) -> {
               BasicUserProfile profile = new BasicUserProfile();
               String keyId = ((UsernamePasswordCredentials) credentials).getUsername();
               profile.setId(keyId);
@@ -319,11 +317,13 @@ public class SecurityModule extends AbstractModule {
   protected Config provideConfig(
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
-      CiviFormHttpActionAdapter civiFormHttpActionAdapter) {
+      CiviFormHttpActionAdapter civiFormHttpActionAdapter,
+      SessionStore sessionStore) {
     Config config = new Config();
     config.setClients(clients);
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
+    config.setSessionStoreFactory(p -> sessionStore);
     return config;
   }
 }

@@ -3,6 +3,10 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.util.Map;
+import java.util.Set;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
@@ -84,4 +88,44 @@ public class CiviFormProfileData extends CommonProfile {
             dbContext)
         .join();
   }
+
+//  @Override
+//  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+//    try {
+//      System.out.println("DEFAULT");
+//      super.readExternal(in);
+//    } catch (ClassCastException e) {
+//      System.out.println("DEFAULT FAILED - MANUAL BUILD");
+//      setId((String) in.readObject());
+//
+//      @SuppressWarnings("unchecked")
+//      Map<String, Object> attributes = (Map<String, Object>) in.readObject();
+//      addAttributes(attributes);
+//
+//      @SuppressWarnings("unchecked")
+//      Map<String, Object> authenticationAttributes = (Map<String, Object>) in.readObject();
+//      addAuthenticationAttributes(authenticationAttributes);
+//
+//      setRemembered(in.readBoolean());
+//
+//      @SuppressWarnings("unchecked")
+//      Set<String> roles = (Set<String>) in.readObject();
+//      setRoles(roles);
+//
+//      try {
+//
+//        // setClientName((String) in.readObject());
+//        var cn = in.readObject();
+//        setClientName((String) cn);
+//        System.out.println("CN: " + cn.toString());
+//      } catch (ClassCastException cce) {
+//        System.out.println("********************************");
+//        System.out.println(cce);
+//        System.out.println("********************************");
+//        throw cce;
+//      }
+//
+//      setLinkedId((String) in.readObject());
+//    }
+//  }
 }
