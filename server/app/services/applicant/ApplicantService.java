@@ -1778,6 +1778,8 @@ public final class ApplicantService {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectionSourcePath().toString(), suggestion.getCorrectionSource());
     } else if (selectedAddress.isPresent()
         && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(

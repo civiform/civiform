@@ -42,6 +42,7 @@ public class AddressSuggestionJsonSerializerTest {
             .setAddress(address)
             .setLocation(location)
             .setSingleLineAddress("380 New York St, Redlands, California, 92373")
+            .setCorrectionSource("https://some-fake-value")
             .setScore(100)
             .build();
 

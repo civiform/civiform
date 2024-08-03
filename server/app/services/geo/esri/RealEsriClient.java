@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
+import java.net.URI;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -189,6 +190,20 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
               } else {
                 // Process the successful response
                 JsonNode rootNode = response.asJson();
+
+                // Add the hostname of the url used in this request so we can know the
+                // source that was used in correction. Do this before merging anything
+                // from `optionalPreviousRootNode`.
+                if (hasCandidatesArray(rootNode)) {
+                  String hostname = URI.create(request.getUrl()).getHost();
+
+                  rootNode
+                      .get(CANDIDATES_NODE_NAME)
+                      .forEach(
+                          candidateNode -> {
+                            ((ObjectNode) candidateNode).put("correctionSource", hostname);
+                          });
+                }
 
                 // If we have data from a previous call we'll stitch the candidate records together
                 if (optionalPreviousRootNode.isPresent()

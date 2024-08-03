@@ -3216,6 +3216,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     .build())
             // This is the typical format for addresses we receive from ESRI.
             .setSingleLineAddress("456 Suggested Ave, Seattle, Washington, 99999")
+            .setCorrectionSource("https://some-fake-value")
             .build();
     return addressSuggestionJsonSerializer.serialize(ImmutableList.of(address));
   }

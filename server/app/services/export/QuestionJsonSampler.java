@@ -178,6 +178,7 @@ public interface QuestionJsonSampler<Q extends Question> {
           /* state= */ "OR",
           /* zip= */ "97403",
           /* corrected= */ "Corrected",
+          /* correction_source= */ "https://some-fake-value",
           /* latitude= */ 44.0462,
           /* longitude= */ -123.0236,
           /* wellKnownId= */ 4326L,

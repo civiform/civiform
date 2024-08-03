@@ -130,6 +130,7 @@ public abstract class EsriClient {
                         .setLocation(addressLocation)
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
+                        .setCorrectionSource(candidateJson.get("correctionSource").asText())
                         .build();
                 ESRI_LOOKUP_COUNT.labels("Full address").inc();
                 suggestionBuilder.add(addressCandidate);

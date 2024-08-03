@@ -18,6 +18,7 @@ public abstract class AddressSuggestion {
   public static Builder builder() {
     return new AutoValue_AddressSuggestion.Builder();
   }
+
   /** returns an address as a single line */
   @JsonProperty("singleLineAddress")
   public abstract String getSingleLineAddress();
@@ -39,6 +40,9 @@ public abstract class AddressSuggestion {
   @JsonProperty("address")
   public abstract Address getAddress();
 
+  @JsonProperty("correctionSource")
+  public abstract String getCorrectionSource();
+
   @AutoValue.Builder
   public abstract static class Builder {
     @JsonProperty("singleLineAddress")
@@ -52,6 +56,9 @@ public abstract class AddressSuggestion {
 
     @JsonProperty("address")
     public abstract Builder setAddress(Address address);
+
+    @JsonProperty("correctionSource")
+    public abstract Builder setCorrectionSource(String correctionSource);
 
     public abstract AddressSuggestion build();
   }

@@ -69,6 +69,9 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                     Path.create("applicant.sample_address_question.corrected"),
                     Optional.of("Corrected"))
                 .put(
+                    Path.create("applicant.sample_address_question.correction_source"),
+                    Optional.of("https://some-fake-value"))
+                .put(
                     Path.create("applicant.sample_address_question.longitude"),
                     Optional.of("-123.0236"))
                 .put(
