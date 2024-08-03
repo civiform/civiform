@@ -10,7 +10,6 @@ import auth.ApplicantAuthClient;
 import auth.AuthIdentityProviderName;
 import auth.Authorizers;
 import auth.CiviFormHttpActionAdapter;
-import auth.CiviFormSessionStoreFactory;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
@@ -31,6 +30,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
@@ -48,9 +48,14 @@ import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
+import org.pac4j.play.store.DataEncrypter;
+import org.pac4j.play.store.PlayCacheSessionStore;
+import org.pac4j.play.store.PlayCookieSessionStore;
+import org.pac4j.play.store.ShiroAesDataEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
+import play.cache.SyncCacheApi;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
@@ -83,11 +88,28 @@ public class SecurityModule extends AbstractModule {
     logoutController.setCentralLogout(shouldPerformAuthProviderLogout);
     bind(LogoutController.class).toInstance(logoutController);
 
-    CiviFormSessionStoreFactory civiFormSessionStoreFactory =
-        new CiviFormSessionStoreFactory(this.configuration);
+//    CiviFormSessionStoreFactory civiFormSessionStoreFactory =
+//        new CiviFormSessionStoreFactory(this.configuration);
+//
+//    bind(SessionStore.class).toInstance(civiFormSessionStoreFactory.newSessionStore());
+//    bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);
 
-    bind(SessionStore.class).toInstance(civiFormSessionStoreFactory.newSessionStore());
-    bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);
+//    PlayCacheSessionStore playCacheSessionStore = new PlayCacheSessionStore(getProvider(SyncCacheApi.class));
+//    bind(SessionStore.class).toInstance(playCacheSessionStore);
+
+
+        // We need to use the secret key to generate the encrypter / decrypter for the
+    // session store, so that cookies from version n of the application can be
+    // read by version n + 1.  This is especially important for dev, otherwise
+    // we're going to spend a lot of time deleting cookies.
+    Random r = new Random();
+    r.setSeed(this.configuration.getString("play.http.secret.key").hashCode());
+    byte[] aesKey = new byte[32];
+    r.nextBytes(aesKey);
+
+    PlayCookieSessionStore playCookieSessionStore = new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
+    bind(SessionStore.class).toInstance(playCookieSessionStore);
+
 
     bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
@@ -296,12 +318,12 @@ public class SecurityModule extends AbstractModule {
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
-      CiviFormSessionStoreFactory civiFormSessionStoreFactory) {
+      SessionStore sessionStore) {
     Config config = new Config();
     config.setClients(clients);
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
-    config.setSessionStoreFactory(civiFormSessionStoreFactory);
+    config.setSessionStoreFactory(p -> sessionStore);
     return config;
   }
 }
