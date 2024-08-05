@@ -3,10 +3,10 @@ package models;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import io.ebean.annotation.DbJson;
-import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.DbEnumType;
 import io.ebean.annotation.DbEnumValue;
+import io.ebean.annotation.DbJson;
+import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -159,7 +159,7 @@ public class ApplicantModel extends BaseModel {
 
   public Optional<String> getNameSuffixe() {
     return Optional.ofNullable(nameSuffix);
-  }  
+  }
 
   public ApplicantModel setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress.isEmpty() || emailAddress.isBlank() ? null : emailAddress;
