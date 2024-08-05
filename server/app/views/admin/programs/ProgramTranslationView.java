@@ -1,8 +1,10 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Preconditions;
@@ -18,9 +20,10 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
+import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -45,6 +48,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Http.Request request,
       Locale locale,
       ProgramDefinition program,
+      StatusDefinitions activeStatusDefinitions,
       ProgramTranslationForm translationForm,
       Optional<ToastMessage> message) {
     String formAction =
@@ -52,7 +56,11 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.adminName(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
+        renderTranslationForm(
+            request,
+            locale,
+            formAction,
+            formFields(program, translationForm, activeStatusDefinitions));
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
@@ -80,8 +88,13 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      ProgramDefinition program, ProgramTranslationForm translationForm) {
-    LocalizationUpdate updateData = translationForm.getUpdateData();
+      ProgramDefinition program,
+      ProgramTranslationForm translationForm,
+      StatusDefinitions currentStatusDefinitions) {
+    ImmutableList<BlockDefinition> blockDefinitions = program.blockDefinitions();
+    ImmutableList<Long> blockIds =
+        blockDefinitions.stream().map(block -> block.id()).collect(ImmutableList.toImmutableList());
+    LocalizationUpdate updateData = translationForm.getUpdateData(blockIds);
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(
                 program.id(), ProgramEditStatus.EDIT.name())
@@ -105,10 +118,10 @@ public final class ProgramTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 
     Preconditions.checkState(
-        updateData.statuses().size() == program.statusDefinitions().getStatuses().size());
+        updateData.statuses().size() == currentStatusDefinitions.getStatuses().size());
     for (int statusIdx = 0; statusIdx < updateData.statuses().size(); statusIdx++) {
       StatusDefinitions.Status configuredStatus =
-          program.statusDefinitions().getStatuses().get(statusIdx);
+          currentStatusDefinitions.getStatuses().get(statusIdx);
       LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
       // Note: While displayed as siblings, fields are logically grouped together by sharing a
       // common index in their field names. These are dynamically generated via helper methods
@@ -150,6 +163,66 @@ public final class ProgramTranslationView extends TranslationFormView {
                       new LinkElement()
                           .setText("(edit default)")
                           .setHref(programStatusesLink)
+                          .setStyles("ml-2")
+                          .asAnchorText()),
+              fieldsBuilder.build()));
+    }
+
+    // Add slim alert with warning that translations aren't visible yet.
+    result.add(
+        div()
+            .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
+            .with(
+                div()
+                    .withClass("usa-alert__body")
+                    .with(
+                        p().withClass("usa-alert__text")
+                            .withText(
+                                "Translations entered below will be visible at a future launch"
+                                    + " date."))));
+
+    // Add fields for Screen names and descriptions
+    ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
+    for (int i = 0; i < screens.size(); i++) {
+      LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
+
+      BlockDefinition block =
+          blockDefinitions.stream()
+              .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
+              .findFirst()
+              .get();
+      ImmutableList.Builder<DomContent> fieldsBuilder =
+          ImmutableList.<DomContent>builder()
+              .add(
+                  fieldWithDefaultLocaleTextHint(
+                      FieldWithLabel.input()
+                          .setFieldName(ProgramTranslationForm.localizedScreenName(block.id()))
+                          .setLabelText("Screen name")
+                          .setScreenReaderText("Screen name")
+                          .setValue(screenUpdateData.localizedName())
+                          .getInputTag(),
+                      block.localizedName()))
+              .add(
+                  fieldWithDefaultLocaleTextHint(
+                      FieldWithLabel.input()
+                          .setFieldName(
+                              ProgramTranslationForm.localizedScreenDescription(block.id()))
+                          .setLabelText("Screen description")
+                          .setScreenReaderText("Screen description")
+                          .setValue(screenUpdateData.localizedDescription())
+                          .getInputTag(),
+                      block.localizedDescription()));
+      String blockDetailsLink =
+          controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
+              .url();
+      result.add(
+          fieldSetForFields(
+              legend()
+                  .with(
+                      span(String.format("Screen %d", i + 1)),
+                      new LinkElement()
+                          .setText("(edit default)")
+                          .setHref(blockDetailsLink)
                           .setStyles("ml-2")
                           .asAnchorText()),
               fieldsBuilder.build()));

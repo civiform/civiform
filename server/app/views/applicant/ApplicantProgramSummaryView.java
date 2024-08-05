@@ -6,6 +6,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -21,6 +23,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.AlertSettings;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -28,7 +31,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -48,18 +51,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
   private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantLayout layout, DateConverter dateConverter, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
@@ -140,8 +138,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        settingsManifest.getIntakeFormEnabled(params.request())
-                && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
@@ -157,8 +154,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             params.totalBlockCount(),
             true,
             messages),
-        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
-        ApplicationBaseView.requiredFieldsExplanationContent(messages),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE));
+
+    if (params.eligibilityAlertSettings().show()) {
+      bundle.addMainContent(renderEligibilityAlert(params.eligibilityAlertSettings()));
+    }
+
+    bundle.addMainContent(
+        div(ApplicationBaseView.requiredFieldsExplanationContent(messages)).withClass("mt-4"),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -168,6 +171,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.messages(),
         bundle,
         params.applicantId());
+  }
+
+  private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {
+    return AlertComponent.renderFullAlert(
+        eligibilityAlertSettings.alertType(),
+        eligibilityAlertSettings.text(),
+        eligibilityAlertSettings.title(),
+        false,
+        AlertComponent.HeadingLevel.H3);
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
@@ -194,23 +206,34 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;
-      if (data.encodedFileKey().isPresent()) {
+
+      if (!data.encodedFileKeys().isEmpty()) {
+        answerContent = ol();
+        for (int i = 0; i < data.encodedFileKeys().size(); i++) {
+          String encodedFileKey = data.encodedFileKeys().get(i);
+          String fileName = data.fileNames().get(i);
+          String fileLink =
+              controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+          answerContent.with(li(a(fileName).withHref(fileLink).withClass(BaseStyles.LINK_TEXT)));
+        }
+      } else if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
+        answerContent = a(data.answerText()).withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
         answerContent.withClasses("font-light", "text-sm");
-      }
-      // Add answer text, converting newlines to <br/> tags.
-      String[] texts = data.answerText().split("\n");
-      texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
-      for (int i = 0; i < texts.length; i++) {
-        if (i > 0) {
-          answerContent.with(br());
+        // Add answer text, converting newlines to <br/> tags.
+        String[] texts = data.answerText().split("\n");
+        texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
+        for (int i = 0; i < texts.length; i++) {
+          if (i > 0) {
+            answerContent.with(br());
+          }
+          answerContent.withText(texts[i]);
         }
-        answerContent.withText(texts[i]);
       }
+
       questionContent.with(answerContent);
     }
 
@@ -337,6 +360,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     abstract int completedBlockCount();
 
     abstract Messages messages();
@@ -365,6 +390,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

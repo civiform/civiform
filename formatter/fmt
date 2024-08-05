@@ -75,12 +75,23 @@ function get_modified_html_files() {
   ) | grep -E ".+\.(html)$" || true
 }
 
-function get_modified_ts_json_md_and_html_files() {
+function get_modified_scss_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.(scss)$" || true
+}
+
+# Returns list of files that should be formatted by prettier
+function get_modified_prettier_files() {
   (
     get_modified_json_files
     get_modified_ts_files
     get_modified_md_files
     get_modified_html_files
+    get_modified_scss_files
   )
 }
 
@@ -99,9 +110,9 @@ else
   echo 'Done formatting java'
 fi
 
-modified_ts_json_md_html="$(get_modified_ts_json_md_and_html_files)"
-if [[ -z "${modified_ts_json_md_html}" ]]; then
-  echo 'No modified TypeScript, JSON, Markdown, or HTML files for prettier found'
+modified_prettier_files="$(get_modified_prettier_files)"
+if [[ -z "${modified_prettier_files}" ]]; then
+  echo 'No modified TypeScript, JSON, Markdown, HTML, CSS, or SCSS files for prettier found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
@@ -109,7 +120,7 @@ else
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
   # prefixing each line itself which is why this sed command is needed.
-  prettier_file_list="$(printf "%s" "${modified_ts_json_md_html}" | sed 's/^/ ..\//' | tr -d '\n')"
+  prettier_file_list="$(printf "%s" "${modified_prettier_files}" | sed 's/^/ ..\//' | tr -d '\n')"
 
   # The prettier_file_list array should not be surrounded by quotes, in this case
   # we want word splitting to occur so prettier will operate in each file. If

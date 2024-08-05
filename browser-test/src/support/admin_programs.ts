@@ -10,7 +10,7 @@ import {
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
-import {validateScreenshot, extractEmailsForRecipient} from '.'
+import {extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -180,8 +180,6 @@ export class AdminPrograms {
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
-      const screenshotname = programName.replaceAll(' ', '-').toLowerCase()
-      await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
@@ -367,6 +365,25 @@ export class AdminPrograms {
     )
     await waitForPageJsLoad(this.page)
     await this.expectManageProgramAdminsPage()
+  }
+
+  async gotoExportProgramPage(programName: string, lifecycle: string) {
+    await this.gotoAdminProgramsPage()
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        lifecycle,
+        '.cf-with-dropdown',
+      ),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        lifecycle,
+        ':text("Export program")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
   }
 
   async setProgramEligibility(programName: string, eligibility: Eligibility) {

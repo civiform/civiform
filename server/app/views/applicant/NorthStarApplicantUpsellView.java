@@ -5,12 +5,15 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
+import java.util.Locale;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
-public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
+public class NorthStarApplicantUpsellView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantUpsellView(
@@ -43,6 +46,18 @@ public class NorthStarApplicantUpsellView extends NorthStarApplicantBaseView {
     context.setVariable("programName", params.programTitle().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
+
+    Locale locale = params.messages().lang().toLocale();
+    String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
+
+    context.setVariable("customConfirmationMessage", customConfirmationMessage);
+
+    // Info for login modal
+    String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
+    context.setVariable("upsellBypassUrl", applyToProgramsUrl);
+    context.setVariable(
+        "upsellLoginUrl",
+        controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
 
     String downloadHref =
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();

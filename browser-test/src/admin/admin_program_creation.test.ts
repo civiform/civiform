@@ -3,6 +3,7 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
+  seedProgramsAndCategories,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
@@ -926,7 +927,6 @@ test.describe('program creation', () => {
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
@@ -953,7 +953,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
     await loginAsAdmin(page)
 
     const commonIntakeFormProgramName = 'Benefits finder'
@@ -1004,8 +1003,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -1025,8 +1022,6 @@ test.describe('program creation', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -1088,5 +1083,74 @@ test.describe('program creation', () => {
       'universal-phone',
       true,
     )
+  })
+
+  test('create and update program with categories', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+    const programName = 'program with categories'
+
+    await test.step('seed categories', async () => {
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+    })
+
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ false,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ false,
+      )
+    })
+
+    await test.step('add categories to program', async () => {
+      await page.getByText('Education').check()
+      await page.getByText('Healthcare').check()
+    })
+
+    await test.step('validate screenshot', async () => {
+      await validateScreenshot(
+        page.locator('#program-details-form'),
+        'program-creation-with-categories',
+      )
+    })
+
+    await expect(page.getByText('Education')).toBeChecked()
+    await expect(page.getByText('Healthcare')).toBeChecked()
+
+    await test.step('submit and publish program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishProgram(programName)
+    })
+
+    await test.step('go to program edit form and check that categories are still pre-selected', async () => {
+      await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+      await waitForPageJsLoad(page)
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+    })
+
+    await test.step('add another category', async () => {
+      await page.getByText('Internet').check()
+    })
+
+    await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+      await expect(page.getByText('Internet')).toBeChecked()
+    })
   })
 })

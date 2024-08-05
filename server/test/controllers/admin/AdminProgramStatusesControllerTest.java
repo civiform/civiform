@@ -2,12 +2,11 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -21,13 +20,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.style.ReferenceClasses;
 
@@ -36,6 +36,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   private ProgramService programService;
   private AdminProgramStatusesController controller;
+  private ApplicationStatusesRepository repo;
 
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
@@ -79,13 +80,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   public void setup() {
     programService = instanceOf(ProgramService.class);
     controller = instanceOf(AdminProgramStatusesController.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
   public void index_ok_get() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+    Result result = controller.index(fakeRequestBuilder().method("GET").build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("No statuses have been created yet");
@@ -106,7 +108,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                             .build())))
             .build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+    Result result = controller.index(fakeRequestBuilder().method("GET").build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Status with no email");
@@ -137,7 +139,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(updatedProgram.statusDefinitions().getStatuses())
+    assertThat(repo.lookupActiveStatusDefinitions(updatedProgram.adminName()).getStatuses())
         .isEqualTo(
             ImmutableList.of(
                 APPROVED_STATUS,
@@ -176,7 +178,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(updatedProgram.statusDefinitions().getStatuses())
+    assertThat(repo.lookupActiveStatusDefinitions(updatedProgram.adminName()).getStatuses())
         .isEqualTo(
             ImmutableList.of(
                 APPROVED_STATUS,
@@ -209,7 +211,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             ImmutableMap.of("success", "bar has been updated to the default status"));
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     ProgramDefinition newlyUpdatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(newlyUpdatedProgram.statusDefinitions().getStatuses())
+    assertThat(repo.lookupActiveStatusDefinitions(newlyUpdatedProgram.adminName()).getStatuses())
         .isEqualTo(
             ImmutableList.of(
                 APPROVED_STATUS,
@@ -262,7 +264,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
@@ -310,7 +314,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
   }
 
@@ -351,7 +357,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
   }
 
@@ -388,7 +396,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
 
     Result result2 =
@@ -424,7 +434,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ImmutableList.of(foo, bar, WITH_STATUS_TRANSLATIONS));
   }
 
@@ -448,7 +460,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -473,7 +487,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -498,7 +514,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -523,7 +541,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(
-            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
+            repo.lookupActiveStatusDefinitions(
+                    programService.getFullProgramDefinition(program.id).adminName())
+                .getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -531,9 +551,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Parameters({"GET", "POST"})
   public void index_missingProgram(String httpMethod) {
     assertThatThrownBy(
-            () ->
-                controller.index(
-                    addCSRFToken(fakeRequest().method(httpMethod)).build(), Long.MAX_VALUE))
+            () -> controller.index(fakeRequestBuilder().method(httpMethod).build(), Long.MAX_VALUE))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -543,9 +561,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
 
     assertThatThrownBy(
-            () ->
-                controller.index(
-                    addCSRFToken(fakeRequest().method(httpMethod)).build(), program.id))
+            () -> controller.index(fakeRequestBuilder().method(httpMethod).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -567,7 +583,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure the status is present.
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(updatedProgram.statusDefinitions().getStatuses())
+    assertThat(repo.lookupActiveStatusDefinitions(updatedProgram.adminName()).getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
@@ -588,7 +604,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure statuses weren't updated.
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(updatedProgram.statusDefinitions().getStatuses()).isEqualTo(ORIGINAL_STATUSES);
+    assertThat(repo.lookupActiveStatusDefinitions(updatedProgram.adminName()).getStatuses())
+        .isEqualTo(ORIGINAL_STATUSES);
   }
 
   @Test
@@ -604,7 +621,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure statuses weren't updated.
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
-    assertThat(updatedProgram.statusDefinitions().getStatuses()).isEqualTo(ORIGINAL_STATUSES);
+    assertThat(repo.lookupActiveStatusDefinitions(updatedProgram.adminName()).getStatuses())
+        .isEqualTo(ORIGINAL_STATUSES);
   }
 
   @Test
@@ -624,12 +642,12 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   private Result makeCreateOrUpdateRequest(Long programId, ImmutableMap<String, String> formData)
       throws ProgramNotFoundException {
     return controller.createOrUpdate(
-        addCSRFToken(fakeRequest().method("POST").bodyForm(formData)).build(), programId);
+        fakeRequestBuilder().method("POST").bodyForm(formData).build(), programId);
   }
 
   private Result makeDeleteRequest(Long programId, ImmutableMap<String, String> formData)
       throws ProgramNotFoundException {
     return controller.delete(
-        addCSRFToken(fakeRequest().method("POST").bodyForm(formData)).build(), programId);
+        fakeRequestBuilder().method("POST").bodyForm(formData).build(), programId);
   }
 }

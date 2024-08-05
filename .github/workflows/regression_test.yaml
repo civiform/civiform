@@ -1,7 +1,11 @@
 name: Run Performance Regression Test
 
 on: 
- workflow_dispatch:
+ workflow_dispatch: {}
+ schedule:
+  - cron: 0 11 * * * # “At 11AM UTC = 4AM PDT / 7AM EST every day.”
+
+permissions: read-all
 
 jobs:
   testing:

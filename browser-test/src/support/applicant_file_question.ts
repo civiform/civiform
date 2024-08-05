@@ -8,6 +8,7 @@ export class ApplicantFileQuestion {
   private continueButtonLocator = '#fileupload-continue-button'
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
+  private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
 
   private page!: Page
 
@@ -37,6 +38,15 @@ export class ApplicantFileQuestion {
 
   async expectFileNameDisplayed(fileName: string) {
     expect(await this.page.innerHTML('body')).toContain(fileName)
+  }
+
+  async expectFileNameCount(fileName: string, count: number) {
+    await expect(
+      this.page
+        .getByRole('list', {name: 'Uploaded files'})
+        .locator('li')
+        .filter({hasText: fileName}),
+    ).toHaveCount(count)
   }
 
   async expectHasSkipButton() {
@@ -77,5 +87,14 @@ export class ApplicantFileQuestion {
 
   async clickDelete() {
     await this.page.locator(this.deleteButtonLocator).click()
+  }
+
+  async removeFileUpload(fileName: string) {
+    await this.page
+      .getByRole('list', {name: 'Uploaded files'})
+      .locator('li')
+      .filter({hasText: fileName})
+      .getByText('Remove File')
+      .click()
   }
 }

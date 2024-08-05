@@ -43,7 +43,7 @@ test.describe('csv export for multioption question', () => {
       /* clickSubmit= */ true,
     )
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'csv-color'],
+      ['Sample Name Question', 'csv-color'],
       programName,
     )
     await logout(page)
@@ -95,7 +95,7 @@ test.describe('csv export for multioption question', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
+      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
     )
     // colors headers are - red,green,orange,blue,black,white
     expect(csvContent).toContain(
@@ -151,14 +151,14 @@ test.describe('normal application flow', () => {
     )
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
     await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
-    await adminQuestions.exportQuestion('Name')
+    await adminQuestions.exportQuestion('Sample Name Question')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
     await adminQuestions.exportQuestion('csv-color')
     await adminPrograms.addAndPublishProgramWithQuestions(
       [
-        'Name',
+        'Sample Name Question',
         'dropdown-csv-download',
         'csv-date',
         'csv-currency',
@@ -188,7 +188,7 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      ',sarah,,smith,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED',
+      ',sarah,,smith,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,admin description',
     )
 
     await logout(page)
@@ -266,9 +266,15 @@ test.describe('normal application flow', () => {
     expect(
       postEditJsonContent[0].application.dropdowncsvdownload.selection,
     ).toEqual('op2_admin')
-    expect(postEditJsonContent[0].application.name.first_name).toEqual('Gus')
-    expect(postEditJsonContent[0].application.name.middle_name).toBeNull()
-    expect(postEditJsonContent[0].application.name.last_name).toEqual('Guest')
+    expect(
+      postEditJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      postEditJsonContent[0].application.sample_name_question.middle_name,
+    ).toBeNull()
+    expect(
+      postEditJsonContent[0].application.sample_name_question.last_name,
+    ).toEqual('Guest')
     expect(postEditJsonContent[0].application.csvdate.date).toEqual(
       '1990-01-01',
     )
@@ -287,7 +293,9 @@ test.describe('normal application flow', () => {
     )
     const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
-    expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
+    expect(
+      filteredJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('sarah')
     // Ensures that choosing not to apply filters continues to return all
     // results.
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
@@ -295,9 +303,15 @@ test.describe('normal application flow', () => {
     expect(allCsvContent).toContain('Gus,,Guest,op2_admin,01/01/1990,2000.00')
     const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
-    expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
-    expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
-    expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
+    expect(
+      allJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      allJsonContent[1].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      allJsonContent[2].application.sample_name_question.first_name,
+    ).toEqual('sarah')
 
     await logout(page)
 
@@ -327,22 +341,22 @@ test.describe('normal application flow', () => {
     // so test for both situations.
     if (demographicsCsvContent.includes('Status')) {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
         'sarah,,smith,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,1000.00,05/10/2021,op2_admin,',
       )
     } else {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
         'sarah,,smith,1000.00,05/10/2021,op2_admin',
       )
     }
 
-    await adminQuestions.createNewVersion('Name')
-    await adminQuestions.exportQuestionOpaque('Name')
+    await adminQuestions.createNewVersion('Sample Name Question')
+    await adminQuestions.exportQuestionOpaque('Sample Name Question')
     await adminPrograms.publishProgram(programName)
 
     await adminPrograms.gotoAdminProgramsPage()
@@ -350,11 +364,11 @@ test.describe('normal application flow', () => {
 
     if (demographicsCsvContent.includes('Status')) {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name)',
       )
     } else {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name)',
       )
     }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
@@ -378,7 +392,10 @@ test.describe('normal application flow', () => {
     await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
-    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Sample Name Question'],
+      programName,
+    )
 
     await logout(page)
     await loginAsTestUser(page)

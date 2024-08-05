@@ -240,7 +240,7 @@ function attachFormDebouncers() {
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
-function attachRedirectToPageListeners() {
+export function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
     window.location.href = assertNotNull(

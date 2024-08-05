@@ -81,7 +81,6 @@ import views.style.StyleUtils;
 public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
-  private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
@@ -100,8 +99,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       SettingsManifest settingsManifest) {
+    super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.programDisplayType = programViewType;
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
@@ -201,7 +200,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    settingsManifest.getIntakeFormEnabled(request),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -433,7 +431,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
-      boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for
     // removing the enumerator question from the block.
@@ -457,8 +454,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (!(isIntakeFormFeatureEnabled
-        && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
+    if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
@@ -1197,7 +1193,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("block-edit-form")
         .with(
             div(
-                    h1("The following fields will only be visible to administrators")
+                    h1("The screen name and description will help a user understand which part of"
+                            + " an application they are on.")
                         .withClasses("text-base", "mb-2"),
                     FieldWithLabel.input()
                         .setId("block-name-input")

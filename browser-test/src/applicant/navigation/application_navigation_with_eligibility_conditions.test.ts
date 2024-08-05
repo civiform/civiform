@@ -86,7 +86,7 @@ test.describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -108,10 +108,10 @@ test.describe('Applicant navigation flow', () => {
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await validateScreenshot(
         page,
-        'eligible-toast',
+        'eligible-alert',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
@@ -181,7 +181,7 @@ test.describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await validateToastMessage(page, 'may not qualify')
+      await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -374,7 +374,6 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('Shows ineligible tag on home page program cards', async ({
-        page,
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
@@ -391,20 +390,10 @@ test.describe('Applicant navigation flow', () => {
             fullProgramName,
             /* isEligible= */ false,
           )
-
-          await validateScreenshot(
-            page,
-            'ineligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
         })
       })
 
-      test('Shows eligible on home page', async ({
-        page,
-        applicantQuestions,
-      }) => {
+      test('Shows eligible on home page', async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(fullProgramName)
 
         await test.step('fill out application and submit', async () => {
@@ -418,36 +407,10 @@ test.describe('Applicant navigation flow', () => {
             fullProgramName,
             /* isEligible= */ true,
           )
-
-          await validateScreenshot(
-            page,
-            'eligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
         })
       })
 
-      test('Shows may be eligible toast on block edit page with an eligible answer', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
-
-        // Fill out application and without submitting.
-        await applicantQuestions.answerNumberQuestion('5')
-        await applicantQuestions.clickContinue()
-        await validateToastMessage(page, 'may qualify')
-        await validateScreenshot(
-          page,
-          'north-star-eligible-toast',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
-
-      test('shows not eligible toast on review page with ineligible answer', async ({
-        page,
+      test('shows not eligible alert on review page with ineligible answer', async ({
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
@@ -465,7 +428,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-        await validateToastMessage(page, 'may not qualify')
+        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       })
     })
   })

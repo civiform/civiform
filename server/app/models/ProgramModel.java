@@ -30,8 +30,8 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
@@ -154,12 +154,6 @@ public class ProgramModel extends BaseModel {
     return checkNotNull(this.statusDefinitions);
   }
 
-  public Optional<StatusDefinitions.Status> getDefaultStatus() {
-    return this.statusDefinitions.getStatuses().stream()
-        .filter(StatusDefinitions.Status::computedDefaultStatus)
-        .findFirst();
-  }
-
   public ProgramModel(ProgramDefinition definition) {
     this(definition, Optional.empty());
   }
@@ -183,6 +177,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
+    this.categories = definition.categories();
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
@@ -196,6 +191,7 @@ public class ProgramModel extends BaseModel {
 
   /**
    * Construct a new Program object with the given program name, description, and block definitions.
+   * Includes program categories.
    */
   public ProgramModel(
       String adminName,
@@ -209,7 +205,8 @@ public class ProgramModel extends BaseModel {
       VersionModel associatedVersion,
       ProgramType programType,
       boolean eligibilityIsGating,
-      ProgramAcls programAcls) {
+      ProgramAcls programAcls,
+      ImmutableList<CategoryModel> categories) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
@@ -225,6 +222,7 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
+    this.categories = categories;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -247,6 +245,7 @@ public class ProgramModel extends BaseModel {
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
+    categories = programDefinition.categories();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -271,7 +270,8 @@ public class ProgramModel extends BaseModel {
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
-            .setAcls(acls);
+            .setAcls(acls)
+            .setCategories(ImmutableList.copyOf(categories));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

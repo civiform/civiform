@@ -858,11 +858,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
-  /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled(RequestHeader request) {
-    return getBool("INTAKE_FORM_ENABLED", request);
-  }
-
   /**
    * If this is a staging deployment and this variable is set to true, a [robots
    * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
@@ -915,8 +910,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables setting a universal question as a question representing information about the
    * applicant. The system can then take certain actions based on the answer to this question.
    */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled(RequestHeader request) {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", request);
+  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
+    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
   }
 
   /**
@@ -927,12 +922,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /**
-   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
-   * instead of only saving on 'Save and next'.
-   */
-  public boolean getSaveOnAllActions() {
-    return getBool("SAVE_ON_ALL_ACTIONS");
+  /** Enables suffix dropdown field in name question. */
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
@@ -958,11 +950,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /**
    * Enabling this will add a banner to the site to tell applicants this is not Production and that
    * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
-   * also include a link to your production site. This banner will not show on Production sites even
-   * if this setting is enabled.
+   * also include a link to your production site.
    */
   public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  }
+
+  /**
+   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * version of a program when a newer version has been published.
+   */
+  public boolean getFastforwardEnabled(RequestHeader request) {
+    return getBool("FASTFORWARD_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1883,12 +1882,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "INTAKE_FORM_ENABLED",
-                      "Enables the Common Intake Form feature.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"
                           + " noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag)"
@@ -1949,7 +1942,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " on the answer to this question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
@@ -1958,13 +1951,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "SAVE_ON_ALL_ACTIONS",
-                      "Save an applicant's answers when they take any action"
-                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
-                          + " and next'.",
+                      "NAME_SUFFIX_DROPDOWN_ENABLED",
+                      "Enables suffix dropdown field in name question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",
@@ -1997,8 +1988,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enabling this will add a banner to the site to tell applicants this is not"
                           + " Production and that they shouldn't submit real applications."
                           + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
-                          + " link to your production site. This banner will not show on Production"
-                          + " sites even if this setting is enabled.",
+                          + " link to your production site.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "FASTFORWARD_ENABLED",
+                      "When enabled, existing draft applications will be automatically be updated"
+                          + " to use the latest version of a program when a newer version has been"
+                          + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

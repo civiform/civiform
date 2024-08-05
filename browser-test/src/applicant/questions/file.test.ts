@@ -242,6 +242,259 @@ test.describe('file upload applicant flow', () => {
     })
   })
 
+  test.describe('required file upload question with multiple file uploads', () => {
+    const programName = 'Test program for multiple file upload'
+    const fileUploadQuestionText = 'Required file upload question'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+      await loginAsAdmin(page)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload-test-q',
+        questionText: fileUploadQuestionText,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    test('validate screenshot', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'file-required-multiple-uploads-enabled')
+    })
+
+    test('form is correctly formatted', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      const formInputs = await page
+        .locator('#cf-block-form')
+        .locator('input')
+        .all()
+      const lastFormInput = formInputs[formInputs.length - 1]
+
+      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+      await expect(lastFormInput).toHaveAttribute('type', 'file')
+    })
+
+    test('does not show errors initially', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantFileQuestion.expectFileSelectionErrorHidden()
+      await applicantFileQuestion.expectFileTooLargeErrorHidden()
+    })
+
+    test('can remove last file of a required question and show error', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+
+      await applicantFileQuestion.removeFileUpload('file.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file.txt', 0)
+
+      await applicantFileQuestion.removeFileUpload('file2.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file2.txt', 0)
+
+      await applicantQuestions.expectRequiredQuestionError(
+        '.cf-question-fileupload',
+      )
+    })
+
+    test('can upload multiple files', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+      await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+
+      await validateScreenshot(page, 'file-uploaded-multiple-files')
+    })
+
+    test('review page renders correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickReview()
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file1.txt',
+      )
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file2.txt',
+      )
+      await validateScreenshot(page.locator('main'), 'file-uploaded-review')
+    })
+
+    test('can download file content', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickNext()
+
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file1.txt'),
+      ).toEqual('file 1 content')
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file2.txt'),
+      ).toEqual('file 2 content')
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'some text',
+        'testFileName.txt',
+      )
+      await applicantQuestions.clickNext()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'testFileName.txt',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+    })
+
+    test('uploading duplicate file replaces existing file', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file',
+        'file1.txt',
+      )
+      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file',
+        'file1.txt',
+      )
+      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+    })
+
+    test('can remove files', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file 2',
+        'file2.txt',
+      )
+
+      await applicantFileQuestion.removeFileUpload('file.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file.txt', 0)
+
+      await applicantFileQuestion.removeFileUpload('file2.txt')
+
+      await applicantFileQuestion.expectFileNameCount('file2.txt', 0)
+    })
+
+    test('too large file error', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Shows error when file size is too large', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+
+        await applicantFileQuestion.expectFileTooLargeErrorShown()
+        await validateScreenshot(page, 'file-error-too-large-multiple-files')
+        await validateAccessibility(page)
+      })
+
+      await test.step('Cannot save file if too large', async () => {
+        await applicantQuestions.clickNext()
+
+        // Verify the file isn't saved and we're still on the file upload question block
+        await applicantQuestions.validateQuestionIsOnPage(
+          fileUploadQuestionText,
+        )
+      })
+
+      await test.step('Hides error when smaller file is uploaded', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+
+        await applicantFileQuestion.expectFileTooLargeErrorHidden()
+      })
+    })
+
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+  })
+
   test.describe(
     'required file upload question with North Star enabled',
     {tag: ['@northstar']},
@@ -265,15 +518,67 @@ test.describe('file upload applicant flow', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+      test('validate screenshots', async ({
+        page,
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initial rendering screenshot', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantFileQuestion.expectFileSelectionErrorHidden()
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'file-required-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'file-required-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Show missing file alert', async () => {
+          await applicantQuestions.clickNext()
+          await applicantFileQuestion.expectFileSelectionErrorShown()
+
+          await validateScreenshot(
+            page.getByTestId('questionRoot'),
+            'file-missing-north-star',
+            /* fullPage= */ false,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('File too large error', async ({
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initially no error is shown', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantFileQuestion.expectFileTooLargeErrorHidden()
+        })
+
+        await test.step('Shows error when file size is too large', async () => {
+          await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+
+          await applicantFileQuestion.expectFileTooLargeErrorShown()
+          // Don't perform a screenshot here because it shows a spinner that doesn't become stable
+          // while the file is uploading.
+        })
+
+        await test.step('Cannot save file if too large', async () => {
+          await applicantQuestions.clickNext()
+
+          // Verify the file isn't saved and we're still on the file upload question block
+          await applicantQuestions.validateQuestionIsOnPage(
+            fileUploadQuestionText,
+          )
+        })
+
+        await test.step('Hides error when smaller file is uploaded', async () => {
+          await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+
+          await applicantFileQuestion.expectFileTooLargeErrorHidden()
+        })
       })
 
       test('form is correctly formatted', async ({

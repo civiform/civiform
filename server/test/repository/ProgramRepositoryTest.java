@@ -2,8 +2,6 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -32,7 +30,6 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
 import play.libs.F;
-import play.test.Helpers;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
@@ -44,9 +41,9 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.QuestionAnswerer;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 
@@ -222,7 +219,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     draftOne.save();
 
     var draftTwo =
@@ -238,7 +236,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
 
     var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
     throwableAssert.hasMessageContaining("Program test-program already has a draft!");
@@ -260,7 +259,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     ProgramModel withId = repo.insertProgramSync(program);
 
     ProgramModel found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
@@ -346,8 +346,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -425,8 +424,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(searchFragment))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -438,8 +436,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_searchesByNameEmailPhone() {
-    Mockito.when(mockSettingsManifest.getPrimaryApplicantInfoQuestionsEnabled(any()))
-        .thenReturn(true);
+    Mockito.when(mockSettingsManifest.getPrimaryApplicantInfoQuestionsEnabled()).thenReturn(true);
 
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
@@ -456,8 +453,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("One"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResultOne.getPageContents().stream()
@@ -473,8 +469,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("Last"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResultTwo.getPageContents().stream()
@@ -490,8 +485,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(emailTwo))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResultThree.getPageContents().stream()
@@ -507,8 +501,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("1234"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResultFour.getPageContents().stream()
@@ -524,8 +517,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("(1.23)- 456"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(
             paginationResultFive.getPageContents().stream()
@@ -692,8 +684,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            filter,
-            addCSRFToken(Helpers.fakeRequest()).build());
+            filter);
     assertThat(result.hasMorePages()).isEqualTo(false);
     return result.getPageContents().stream()
         .map(app -> app.id)
@@ -771,8 +762,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
-                .build(),
-            addCSRFToken(Helpers.fakeRequest()).build());
+                .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -804,8 +794,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
-            SubmittedApplicationFilter.EMPTY,
-            addCSRFToken(Helpers.fakeRequest()).build());
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -818,8 +807,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
-            SubmittedApplicationFilter.EMPTY,
-            addCSRFToken(Helpers.fakeRequest()).build());
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -849,8 +837,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
-            SubmittedApplicationFilter.EMPTY,
-            addCSRFToken(Helpers.fakeRequest()).build());
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -864,8 +851,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
-            SubmittedApplicationFilter.EMPTY,
-            addCSRFToken(Helpers.fakeRequest()).build());
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
@@ -879,9 +865,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-1");
     ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
-    long latestId = repo.getMostRecentActiveProgramId(programModel1.id);
+    Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
-    assertThat(latestId).isEqualTo(programModel4.id);
+    assertThat(latestId.isPresent()).isTrue();
+    assertThat(latestId.get()).isEqualTo(programModel4.id);
   }
 
   @Test
@@ -892,19 +879,34 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
     ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
-    long latestId = repo.getMostRecentActiveProgramId(programModel1.id);
+    Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
-    assertThat(latestId).isEqualTo(programModel1.id);
+    assertThat(latestId.isPresent()).isTrue();
+    assertThat(latestId.get()).isEqualTo(programModel1.id);
   }
 
   @Test
-  public void getMostRecentActiveProgramVersion_throwsWhenProgramIdDoesNotExist() {
+  public void getMostRecentActiveProgramVersion_returnsEmptyWhenIdDoesNotExist() {
     ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
     ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
     ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
     ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
     ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
-    assertThatThrownBy(() -> repo.getMostRecentActiveProgramId(-1));
+    Optional<Long> latestId = repo.getMostRecentActiveProgramId(-1);
+
+    assertThat(latestId.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void getMostRecentActiveProgramVersion_returnsEmptyWhenNoActiveProgramExists() {
+    ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
+    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
+    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
+    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
+
+    Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
+
+    assertThat(latestId.isEmpty()).isTrue();
   }
 }

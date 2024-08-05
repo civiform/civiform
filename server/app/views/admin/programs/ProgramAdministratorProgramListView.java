@@ -18,7 +18,6 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -35,18 +34,13 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramAdministratorProgramListView(
-      AdminLayoutFactory layoutFactory,
-      Config config,
-      ProgramCardFactory programCardFactory,
-      SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory, Config config, ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -67,16 +61,19 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(p -> buildCardData(request, p, civiformProfile))
+                        .map(p -> buildCardData(p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(request, cardData))));
+                        .map(
+                            cardData ->
+                                programCardFactory.renderCard(
+                                    cardData, /* showCategories= */ false))));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
   private ProgramCardFactory.ProgramCardData buildCardData(
-      Request request, ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
+      ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -85,14 +82,14 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                     .setRowActions(
                         ImmutableList.of(
                             renderShareLink(activeProgram),
-                            renderViewApplicationsLink(request, activeProgram)))
+                            renderViewApplicationsLink(activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
         .setProfile(profile)
         .build();
   }
 
-  private ButtonTag renderViewApplicationsLink(Request request, ProgramDefinition activeProgram) {
+  private ButtonTag renderViewApplicationsLink(ProgramDefinition activeProgram) {
     String viewApplicationsLink =
         routes.AdminApplicationController.index(
                 activeProgram.id(),
@@ -104,10 +101,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
 
-    String buttonText =
-        settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
-            ? "Forms"
-            : "Applications";
+    String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
     ButtonTag button =
         makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewApplicationsLink);

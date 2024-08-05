@@ -8,6 +8,7 @@ import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -18,6 +19,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.TestQuestionBank;
 import views.ViewUtils.ProgramDisplayType;
@@ -27,6 +29,7 @@ public class ProgramBaseViewTest {
 
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
+  private SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
   private ImmutableList<QuestionDefinition> questionDefinitions =
       ImmutableList.of(
           testQuestionBank.applicantDate().getQuestionDefinition(),
@@ -46,7 +49,7 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -83,7 +86,7 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -140,7 +143,7 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -154,6 +157,10 @@ public class ProgramBaseViewTest {
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
+
+    public ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
+      super(settingsManifest);
+    }
 
     @Override
     protected ProgramDisplayType getProgramDisplayStatus() {

@@ -5,6 +5,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
@@ -14,13 +15,15 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.settings.SettingsManifest;
+import views.NorthStarBaseView;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
+public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
 
   @Inject
   NorthStarApplicantProgramSummaryView(
@@ -49,6 +52,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
             params.profile(),
             params.applicantPersonalInfo(),
             params.messages());
+    context.setVariable("programTitle", params.programTitle());
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
@@ -60,7 +64,30 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
-    context.setVariable("errorBannerMessage", request.flash().get("error"));
+    context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
+
+    // Eligibility Alerts
+    context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());
+
+    // Login modal
+    Optional<String> redirectedFromProgramSlug =
+        request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG);
+    context.setVariable("redirectedFromProgramSlug", redirectedFromProgramSlug);
+    if (redirectedFromProgramSlug.isPresent()) {
+      String postLoginRedirect =
+          controllers.applicant.routes.ApplicantProgramsController.show(
+                  request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG).get())
+              .url();
+      context.setVariable("slugBypassUrl", postLoginRedirect);
+      context.setVariable(
+          "slugLoginUrl",
+          controllers.routes.LoginController.applicantLogin(Optional.of(postLoginRedirect)).url());
+      context.setVariable(
+          "authProviderName",
+          // The applicant portal name should always be set (there is a
+          // default setting as well).
+          settingsManifest.getApplicantPortalName(request).get());
+    }
 
     return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }
@@ -108,6 +135,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
       return new AutoValue_NorthStarApplicantProgramSummaryView_Params.Builder();
     }
 
+    abstract String programTitle();
+
     abstract long applicantId();
 
     abstract ApplicantPersonalInfo applicantPersonalInfo();
@@ -130,8 +159,12 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
     abstract Optional<String> notEligibleBannerMessage();
 
+    abstract AlertSettings eligibilityAlertSettings();
+
     @AutoValue.Builder
     public abstract static class Builder {
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setApplicantId(long applicantId);
 
@@ -155,6 +188,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
       public abstract Builder setNotEligibleBannerMessage(
           Optional<String> notEligibleBannerMessage);
+
+      public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Params build();
     }

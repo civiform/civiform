@@ -74,8 +74,7 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
     ImmutableList<String> supportedLanguages =
         ImmutableList.of("am", "en-US", "es-US", "ko", "lo", "so", "tl", "vi", "zh-TW");
 
-    assertThat(allCategories.size())
-        .isEqualTo(CategoryTranslationFileParser.PROGRAM_CATEGORY_NAMES.size());
+    assertThat(allCategories.size()).isEqualTo(10);
     allCategories.forEach(
         category -> {
           assertThat(category.getLocalizedName().getDefault()).isNotEmpty();

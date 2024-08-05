@@ -11,9 +11,21 @@
 button.logout=ka bixida
 label.selectLanguage=Fadlan dooro luqadda aad doorbidayso.
 button.untranslatedSubmit=Gudbi
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=Ku saabsan CiviForm
 footer.supportLinkDescription=Taageero farsamo, la xidhiidh
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=Websaydka rasmiga ah ee {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Kor ku noqo
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=Wixii taageero farsamo ah: {0}
 guest=Marti
 label.languageSr=Dooro luqad
+# A label on the button that opens the header menu shown on mobile
+header.menu=Liis
 header.endSession=Dhammee kullanka
 toast.sessionEnded=Kullankaagii wuu dhammaaday.
 header.guestIndicator=Waxaad tahay isticmaale marti ah
@@ -24,7 +36,7 @@ validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka h
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
 content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Goobaha loo baahan yahay waxaa lagu calaamadeeyay calaamadda xiddigta ({0}).
 content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
@@ -63,15 +75,15 @@ button.keepFile=Sii wad
 button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Keydi oo hadhow dhammaystir arjiga
 button.skipFileUpload=Ka bood
 content.blockProgress={0} ee {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} ee {1} la dhameeyay
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Geeddi socodka arjiga
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} ee {1} la soo galiyay
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -324,6 +336,46 @@ toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u
 toast.mayNotQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}. Haddi imacluumaadka macmiilku uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
 banner.errorSavingApplication=Khalad ayaa ka imaaday kadib kaydinta codsiga
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=iyadoo lagu salaynayo jawaabahaagaa, waxay u badan tahay inaad u qalanto barnaamijkan.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=Waxaa suurtagal ah inaadan u qalmin barnaamijkan
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah inaadan u qalmin barnaamijkan. Haddii macluumaadkaaga is badalay, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjigaaga.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub mise kuwo la cusbooneysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su'aalaha hoose.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Waxaa suurtagal ah inaadan u qalmin barnaamijkan mar dambe
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su'aalaha hoose.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=Iyadoo lagu salaynayo jawaabahaaga, macmiilkaagu waxay u badan tahay inuu u qalmo barnaamijkan.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan. Haddii macluumaadka macmiilkaaga la badalo, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjiga.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su'aalaha hoose.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan mar dambe
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su'aalaha hoose.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,15 +521,14 @@ validation.impossibleDob=Taariikhda Dhalashadu waa inay ahaataa in ka yar 150 sa
 
 button.addEntity=Ku dar {0}
 button.removeEntity=Ka saar {0}
-dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad midkaan saarto{0}? Isbeddelkan waxa la kaydin doonaa marka aad gujiso "Dib-u-eeg", "Hore", ama "Xiga" oo dhammaan xogta la xiriirta tan {0} way lumi doontaa.
 validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
 validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Fadlan gali ugu badnaan {0} tirooyin.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Fadlan gali ugu yaraan {0} tirooyin.
 placeholder.entityName=Naanaysta {0}
 
 #---------------------------------------------------------------------------------#
@@ -502,7 +553,8 @@ validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Fadlan dooro ugu yaraan {0}.
-validation.tooManySelections=Fadlan dooro wax ka yar {0}
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Fadlan dooro {0} ugu badnaan.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +623,8 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 #------------------------------------------------------------------------------#
 
 banner.title=Tani waa websaydka rasmiga ah ee dowladda.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=Mareegaha rasmiga ah ee dawladda Mareykanka
 banner.link=Halkan waxaa ah sida aad u garanayso
 banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
@@ -585,3 +639,11 @@ banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxa
 banner.notForProductionBannerLine1=Mareegtan kaliya waxaa loo hagaajiyey tijaabo. Ha galinin macluumaad shaqsiyadeed.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=Waxaad u codsanaysaa sidii qof marti ah. Markaad dhammayso codsiga, {0} si aad u ilaaliso xogtaada.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=dhammee kulankaaga

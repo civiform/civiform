@@ -1,83 +1,110 @@
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()}" data-testid="programSummary">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main">
-      <div th:replace="~{components/ToastFragment :: summaryToasts}"></div>
-      <h1 th:text="#{title.getStarted}"></h1>
-      <p th:text="#{content.reviewPageIntro}"></p>
-      <ul class="usa-card-group">
-        <li class="usa-card grid-col-12" th:each="block: ${blocks}">
-          <div class="usa-card__container">
-            <div class="usa-card__header">
-              <span
-                class="usa-tag"
-                th:if="${block.answeredByUserQuestionsCount() == 0}"
-                th:text="#{title.activeProgramsUpdated}"
-              ></span>
-              <span
-                class="usa-tag"
-                th:if="${block.isCompletedInProgramWithoutErrors() && block.answeredByUserQuestionsCount() != 0}"
-                th:text="#{title.programSectionCompleted}"
-              ></span>
-              <span
-                class="usa-tag"
-                th:if="${!block.isCompletedInProgramWithoutErrors() && block.answeredByUserQuestionsCount() != 0}"
-                th:text="#{title.inProgressProgramsUpdated}"
-              ></span>
-              <h2 class="usa-card__heading" th:text="${block.getName()}"></h2>
-            </div>
-            <div class="usa-card__body">
-              <p th:text="${block.getDescription()}"></p>
-              <p
-                th:if="${block.isFileUpload()}"
-                th:text="#{content.fileUploadBlockProgressFull(${block.answeredByUserQuestionsCount()}, ${block.answerableQuestionsCount()})}"
-              ></p>
-              <p
-                th:unless="${block.isFileUpload()}"
-                th:text="#{content.blockProgressFull(${block.answeredByUserQuestionsCount()}, ${block.answerableQuestionsCount()})}"
-              ></p>
-            </div>
-            <div class="usa-card__footer">
-              <a
-                class="usa-button"
-                th:href="${blockEditUrlMap.get(block.getId())}"
-                th:if="${block.isCompletedInProgramWithoutErrors()}"
-                th:text="#{button.review}"
-              ></a>
-              <a
-                class="usa-button"
-                th:href="${blockEditUrlMap.get(block.getId())}"
-                th:unless="${block.isCompletedInProgramWithoutErrors()}"
-                >Start</a
-              >
-            </div>
-          </div>
-        </li>
-      </ul>
+    <main>
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <div
+              th:replace="~{components/ToastFragment :: summaryToasts}"
+            ></div>
+            <h1 th:text="${programTitle}"></h1>
+            <p th:text="#{content.reviewPageIntro}"></p>
 
-      <form class="cf-debounced-form" th:action="${submitUrl}" method="POST">
-        <input hidden th:value="${csrfToken}" name="csrfToken" />
-        <button
-          th:if="${hasCompletedAllBlocks}"
-          th:text="#{button.submit}"
-          type="submit"
-          class="usa-button"
-        ></button>
-        <a
-          th:unless="${hasCompletedAllBlocks}"
-          th:href="${continueUrl}"
-          th:text="#{button.continue}"
-          id="continue-application-button"
-          class="usa-button"
-        ></a>
-      </form>
-    </div>
-    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+            <div
+              th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
+            ></div>
+
+            <div class="section-spacing"></div>
+
+            <ul class="usa-card-group">
+              <li class="usa-card grid-col-12" th:each="block: ${blocks}">
+                <div class="usa-card__container">
+                  <div class="usa-card__header">
+                    <span
+                      class="usa-tag"
+                      th:if="${block.answeredByUserQuestionsCount() == 0}"
+                      th:text="#{title.activeProgramsUpdated}"
+                    ></span>
+                    <span
+                      class="usa-tag"
+                      th:if="${block.isCompletedInProgramWithoutErrors() && block.answeredByUserQuestionsCount() != 0}"
+                      th:text="#{title.programSectionCompleted}"
+                    ></span>
+                    <span
+                      class="usa-tag"
+                      th:if="${!block.isCompletedInProgramWithoutErrors() && block.answeredByUserQuestionsCount() != 0}"
+                      th:text="#{title.inProgressProgramsUpdated}"
+                    ></span>
+                    <h2
+                      class="usa-card__heading"
+                      th:text="${block.getLocalizedName(preferredLanguage.toLocale())}"
+                    ></h2>
+                  </div>
+                  <div class="usa-card__body">
+                    <p
+                      th:text="${block.getLocalizedDescription(preferredLanguage.toLocale())}"
+                    ></p>
+                    <p
+                      th:if="${block.isFileUpload()}"
+                      th:text="#{content.fileUploadBlockProgressFull(${block.answeredByUserQuestionsCount()}, ${block.answerableQuestionsCount()})}"
+                    ></p>
+                    <p
+                      th:unless="${block.isFileUpload()}"
+                      th:text="#{content.blockProgressFull(${block.answeredByUserQuestionsCount()}, ${block.answerableQuestionsCount()})}"
+                    ></p>
+                  </div>
+                  <div class="usa-card__footer">
+                    <a
+                      class="usa-button"
+                      th:href="${blockEditUrlMap.get(block.getId())}"
+                      th:if="${block.isCompletedInProgramWithoutErrors()}"
+                      th:text="#{button.review}"
+                    ></a>
+                    <a
+                      class="usa-button"
+                      th:href="${blockEditUrlMap.get(block.getId())}"
+                      th:unless="${block.isCompletedInProgramWithoutErrors()}"
+                      th:text="#{button.start}"
+                    ></a>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <form
+              class="cf-debounced-form"
+              th:action="${submitUrl}"
+              method="POST"
+            >
+              <input hidden th:value="${csrfToken}" name="csrfToken" />
+              <button
+                th:if="${hasCompletedAllBlocks}"
+                th:text="#{button.submit}"
+                type="submit"
+                class="usa-button"
+              ></button>
+              <a
+                th:unless="${hasCompletedAllBlocks}"
+                th:href="${continueUrl}"
+                th:text="#{button.continue}"
+                id="continue-application-button"
+                class="usa-button"
+              ></a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->${isGuest && redirectedFromProgramSlug.isPresent()},
+                                                             <!--/* showUpsellLogin= */-->false)}"
+    ></div>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

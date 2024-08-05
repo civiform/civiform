@@ -24,7 +24,10 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: ['./node_modules/@uswds/uswds/packages'],
+                includePaths: [
+                  './app/assets/stylesheets/northstar',
+                  './node_modules/@uswds/uswds/packages'
+                ],
               },
             },
           },
@@ -46,6 +49,10 @@ module.exports = {
     uswds: [
       './node_modules/@uswds/uswds/dist/js/uswds.min.js',
       './app/assets/stylesheets/uswds/styles.scss',
+    ],
+    uswds_northstar: [
+      './node_modules/@uswds/uswds/dist/js/uswds.min.js',
+      './app/assets/stylesheets/northstar/styles.scss'
     ],
   },
   output: {

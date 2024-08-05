@@ -43,8 +43,8 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.ProgramImageUtils;
 import views.TranslationUtils;
@@ -240,7 +240,8 @@ public final class ProgramCardViewRenderer {
               messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
     }
 
-    String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+    String actionUrl =
+        applicantRoutes.review(profile, applicantId, cardData.currentApplicationProgramId()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(

@@ -115,41 +115,38 @@ public interface QuestionJsonSampler<Q extends Question> {
       switch (questionType) {
         case ADDRESS:
           return addressJsonSampler;
+        case CHECKBOX:
+          return multiSelectJsonSampler;
+        case CURRENCY:
+          return currencyJsonSampler;
+        case DATE:
+          return dateJsonSampler;
+        case DROPDOWN:
+        case RADIO_BUTTON:
+          return singleSelectJsonSampler;
         case EMAIL:
           return emailJsonSampler;
-        case ID:
-          return idJsonSampler;
-        case NAME:
-          return nameJsonSampler;
-        case TEXT:
-          return textJsonSampler;
-
           // Answers to enumerator questions are not included. This is because enumerators store an
           // identifier value for each repeated entity, which with the current export logic
           // conflicts with the answers stored for repeated entities.
         case ENUMERATOR:
           return emptyJsonSampler;
-
-          // Static content questions are not included in API responses because they
-          // do not include an answer from the user.
-        case STATIC:
-          return emptyJsonSampler;
-
-        case CHECKBOX:
-          return multiSelectJsonSampler;
         case FILEUPLOAD:
           return fileUploadJsonSampler;
+        case ID:
+          return idJsonSampler;
+        case NAME:
+          return nameJsonSampler;
         case NUMBER:
           return numberJsonSampler;
         case PHONE:
           return phoneJsonSampler;
-        case RADIO_BUTTON:
-        case DROPDOWN:
-          return singleSelectJsonSampler;
-        case CURRENCY:
-          return currencyJsonSampler;
-        case DATE:
-          return dateJsonSampler;
+          // Static content questions are not included in API responses because they
+          // do not include an answer from the user.
+        case STATIC:
+          return emptyJsonSampler;
+        case TEXT:
+          return textJsonSampler;
 
         default:
           throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
@@ -184,7 +181,7 @@ public interface QuestionJsonSampler<Q extends Question> {
           /* latitude= */ 44.0462,
           /* longitude= */ -123.0236,
           /* wellKnownId= */ 4326L,
-          /* serviceArea= */ "springfield_county_InArea_1709069741,portland_NotInArea_1709069741");
+          /* serviceArea= */ "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741");
     }
 
     @Override

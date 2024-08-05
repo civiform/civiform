@@ -4,6 +4,7 @@
  */
 
 import * as main from './main'
+import * as languageSelector from './language_selector'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
@@ -14,9 +15,11 @@ import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
+import * as trustedIntermediary from './trusted_intermediary'
 
 window.addEventListener('load', () => {
   main.init()
+  languageSelector.init()
   enumerator.init()
   radio.init()
   toast.init()
@@ -28,4 +31,5 @@ window.addEventListener('load', () => {
   phoneNumber.init()
   // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()
+  trustedIntermediary.init()
 })

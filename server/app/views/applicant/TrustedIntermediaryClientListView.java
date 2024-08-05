@@ -21,6 +21,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.FlashKey;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -56,6 +57,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashboardView {
@@ -108,11 +110,11 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
             .addMainStyles("bg-white");
 
     Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
+    if (flash.get(FlashKey.ERROR).isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get("error").get());
+          .info(request.flash().get(FlashKey.ERROR).get());
       bundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
+          ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
@@ -200,14 +202,9 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
 
   private ATag renderClearSearchLink(Messages messages) {
     return new LinkElement()
+        .setId(ReferenceClasses.TI_CLEAR_SEARCH)
         .setText(messages.at(MessageKey.BUTTON_CLEAR_SEARCH.getKeyName()))
-        .asAnchorText()
-        .attr(
-            "onClick",
-            "document.getElementById('name-query').value = '';"
-                + "document.getElementById('date_of_birth_day').value = '';"
-                + "document.getElementById('date_of_birth_month').value = '';"
-                + "document.getElementById('date_of_birth_year').value = '';");
+        .asAnchorText();
   }
 
   private DivTag renderClientList(

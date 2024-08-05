@@ -560,7 +560,8 @@ public class TestQuestionBank {
         question.loadQuestionDefinition();
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
         throw new IllegalArgumentException(
-            "Questions in the TestQuestionBank better be supported QuestionTypes.");
+            "Questions in the TestQuestionBank better be supported QuestionTypes. "
+                + e.getLocalizedMessage());
       }
     }
     return question;

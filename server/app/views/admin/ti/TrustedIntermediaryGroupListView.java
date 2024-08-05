@@ -13,6 +13,7 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -73,10 +74,10 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                                 QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS))),
                 renderTiGroupCards(tis, request));
 
-    if (request.flash().get("error").isPresent()) {
+    if (request.flash().get(FlashKey.ERROR).isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get("error").get());
-      String error = request.flash().get("error").get();
+          .info(request.flash().get(FlashKey.ERROR).get());
+      String error = request.flash().get(FlashKey.ERROR).get();
       htmlBundle.addToastMessages(
           ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
@@ -124,13 +125,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
-            .setValue(request.flash().get("providedName").orElse(""));
+            .setValue(request.flash().get(FlashKey.PROVIDED_NAME).orElse(""));
     FieldWithLabel descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")
             .setLabelText("Description")
-            .setValue(request.flash().get("providedDescription").orElse(""));
+            .setValue(request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse(""));
     return div()
         .with(
             formTag.with(
@@ -153,7 +154,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withData(QuestionSortOption.TI_NAME.getDataAttribute(), ti.getName())
         .withData(
             QuestionSortOption.TI_NUM_MEMBERS.getDataAttribute(),
-            Integer.toString(ti.getTrustedIntermediaries().size()))
+            Integer.toString(ti.getMembersCount()))
         .with(renderActionsCell(ti, request));
   }
 
@@ -168,7 +169,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses("font-semibold"))
-        .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
+        .with(div("Clients: " + tiGroup.getManagedAccountsCount()).withClasses("text-sm"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12")
         .attr("data-testid", "ti-member");
   }

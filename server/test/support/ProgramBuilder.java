@@ -11,6 +11,7 @@ import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
+import repository.ApplicationStatusesRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
@@ -19,10 +20,10 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * The ProgramBuilder can only be used by tests that have a database available because the programs
@@ -103,7 +104,8 @@ public class ProgramBuilder {
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -216,7 +218,8 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
-            /* ProgramAcls */ new ProgramAcls());
+            /* ProgramAcls */ new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -243,7 +246,8 @@ public class ProgramBuilder {
             obsoleteVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -326,6 +330,11 @@ public class ProgramBuilder {
   /** Returns the {@link ProgramModel} built from this {@link ProgramBuilder}. */
   public ProgramModel build() {
     ProgramDefinition programDefinition = builder.build();
+    ApplicationStatusesRepository appStatusRepo =
+        injector.instanceOf(ApplicationStatusesRepository.class);
+    appStatusRepo.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), programDefinition.statusDefinitions());
+
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }

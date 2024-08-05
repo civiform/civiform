@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +49,7 @@ import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
@@ -60,7 +62,6 @@ import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.Representation;
-import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -84,11 +85,11 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -108,6 +109,7 @@ public final class ApplicantService {
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
   private final ProgramRepository programRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -132,6 +134,7 @@ public final class ApplicantService {
       ProgramRepository programRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -149,6 +152,7 @@ public final class ApplicantService {
     this.programRepository = checkNotNull(programRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -242,7 +246,8 @@ public final class ApplicantService {
    * valid, they are saved to storage. If not, a set of errors are returned along with the modified
    * {@link ApplicantData}, but none of the updates are persisted to storage.
    *
-   * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written.
+   * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written. If
+   * {@code forceUpdate} is {@code true} then updates will be written even if they fail validation.
    *
    * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates. If the service
    *     cannot perform the update due to exceptions, they are wrapped in `CompletionException`s.
@@ -266,7 +271,8 @@ public final class ApplicantService {
       long programId,
       String blockId,
       ImmutableMap<String, String> updateMap,
-      boolean addressServiceAreaValidationEnabled) {
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -284,7 +290,13 @@ public final class ApplicantService {
     }
 
     return stageAndUpdateIfValid(
-        applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
+        applicantId,
+        programId,
+        blockId,
+        updateMap,
+        updates,
+        addressServiceAreaValidationEnabled,
+        forceUpdate);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -293,7 +305,8 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
-      boolean addressServiceAreaValidationEnabled) {
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -337,7 +350,8 @@ public final class ApplicantService {
                               blockBeforeUpdate,
                               programDefinition,
                               updates,
-                              serviceAreaUpdate);
+                              serviceAreaUpdate,
+                              forceUpdate);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -348,7 +362,8 @@ public final class ApplicantService {
                   blockBeforeUpdate,
                   programDefinition,
                   updates,
-                  Optional.empty());
+                  Optional.empty(),
+                  forceUpdate);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -364,7 +379,8 @@ public final class ApplicantService {
       Block blockBeforeUpdate,
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
-      Optional<ServiceAreaUpdate> serviceAreaUpdate) {
+      Optional<ServiceAreaUpdate> serviceAreaUpdate,
+      boolean forceUpdate) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -389,7 +405,7 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
-    if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+    if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
@@ -544,7 +560,7 @@ public final class ApplicantService {
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId, request).toCompletableFuture();
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -567,8 +583,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition =
                   programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
+              StatusDefinitions activeStatusDefinitions =
+                  applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
-                  applicationProgram.getDefaultStatus();
+                  activeStatusDefinitions.getDefaultStatus();
 
               CompletableFuture<ApplicationEventModel> updateStatusFuture =
                   maybeDefaultStatus
@@ -873,7 +891,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -899,7 +917,7 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
                 }
@@ -974,7 +992,7 @@ public final class ApplicantService {
    * </ul>
    */
   public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
-      long applicantId, CiviFormProfile requesterProfile) {
+      long applicantId, CiviFormProfile requesterProfile, Request request) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<ApplicationModel>> applicationsFuture =
         applicationRepository
@@ -1016,7 +1034,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms);
+                  activeProgramDefinitions, applications, allPrograms, request);
             },
             classLoaderExecutionContext.current());
   }
@@ -1035,8 +1053,8 @@ public final class ApplicantService {
    *     auth.CiviFormProfile)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
-      long applicantId, CiviFormProfile requesterProfile) {
-    return relevantProgramsForApplicant(applicantId, requesterProfile)
+      long applicantId, CiviFormProfile requesterProfile, Request request) {
+    return relevantProgramsForApplicant(applicantId, requesterProfile, request)
         .thenApplyAsync(
             relevantPrograms ->
                 Stream.of(
@@ -1082,7 +1100,8 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms) {
+      ImmutableList<ProgramDefinition> allPrograms,
+      Request request) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1135,17 +1154,19 @@ public final class ApplicantService {
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             ApplicationModel draftApp = maybeDraftApp.get();
-            // Get the program definition from the all programs list, since that has the
-            // associated question data.
             ProgramDefinition programDefinition =
-                findProgramWithId(allPrograms, draftApp.getProgram().id);
+                getProgramDefinitionForDraftApplication(
+                    allPrograms, draftApp.getProgram().id, request);
+
             ApplicantProgramData.Builder applicantProgramDataBuilder =
-                ApplicantProgramData.builder()
-                    .setProgram(programDefinition)
+                ApplicantProgramData.builder(programDefinition)
+                    .setCurrentApplicationProgramId(draftApp.getProgram().id)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.DRAFT));
+
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
+
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
             } else {
@@ -1153,15 +1174,18 @@ public final class ApplicantService {
             }
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            // When extracting the application status, the definitions associated with the program
-            // version at the time of submission are used. However, when clicking "reapply", we use
-            // the latest program version below.
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
+
+            // Set the current application status by looking at the active statusDefinitions of the
+            // program
+            StatusDefinitions activeStatusDefinitions =
+                applicationStatusesRepository.lookupActiveStatusDefinitions(
+                    applicationProgramVersion.adminName());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
-                    ? applicationProgramVersion.statusDefinitions().getStatuses().stream()
+                    ? activeStatusDefinitions.getStatuses().stream()
                         .filter(
                             programStatus ->
                                 programStatus.statusText().equals(maybeLatestStatus.get()))
@@ -1172,9 +1196,9 @@ public final class ApplicantService {
             // associated question data.
             ProgramDefinition programDefinition =
                 findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+
             ApplicantProgramData.Builder applicantProgramDataBuilder =
-                ApplicantProgramData.builder()
-                    .setProgram(programDefinition)
+                ApplicantProgramData.builder(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
@@ -1192,7 +1216,8 @@ public final class ApplicantService {
     unappliedActivePrograms.forEach(
         programName -> {
           ApplicantProgramData.Builder applicantProgramDataBuilder =
-              ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
+              ApplicantProgramData.builder(activeProgramNames.get(programName));
+
           ProgramDefinition program =
               findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
@@ -1216,9 +1241,52 @@ public final class ApplicantService {
         .build();
   }
 
+  /**
+   * Returns the {@link ProgramDefinition} Most current active version of a program for the given
+   * programId.
+   */
+  private ProgramDefinition getProgramDefinitionForDraftApplication(
+      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+
+    if (settingsManifest.getFastforwardEnabled(request)) {
+      // Check if the draft application is using the latest version of the program. If it
+      // is not, load the latest version of the program instead since we want to base this
+      // list off of current programs.
+      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+
+      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+        Optional<ProgramDefinition> programDefinitionOptional =
+            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+
+        if (programDefinitionOptional.isPresent()) {
+          return programDefinitionOptional.get();
+        }
+
+        try {
+          // Didn't find it in the list we already had, so go fetch it
+          return programService.getFullProgramDefinition(latestProgramId.get());
+        } catch (ProgramNotFoundException e) {
+          throw new RuntimeException(
+              String.format("Can't find program id: %s", latestProgramId.get()), e);
+        }
+      }
+    }
+
+    // Get the program definition from the all programs list, since that has the
+    // associated question data.
+    return findProgramWithId(programList, programId);
+  }
+
   private ProgramDefinition findProgramWithId(
       ImmutableList<ProgramDefinition> programList, long id) {
-    return programList.stream().filter(p -> p.id() == id).findFirst().get();
+    return programList.stream()
+        .filter(p -> p.id() == id)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    String.format(
+                        "Expected to find program id %s in this list, but it was not found.", id)));
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -1283,6 +1351,8 @@ public final class ApplicantService {
       return program().id();
     }
 
+    public abstract Long currentApplicationProgramId();
+
     public abstract ProgramDefinition program();
 
     /**
@@ -1304,13 +1374,17 @@ public final class ApplicantService {
      */
     public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
 
-    public static Builder builder() {
-      return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
+    public static Builder builder(ProgramDefinition programDefinition) {
+      return new AutoValue_ApplicantService_ApplicantProgramData.Builder()
+          .setProgram(programDefinition)
+          .setCurrentApplicationProgramId(programDefinition.id());
     }
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setProgram(ProgramDefinition v);
+      protected abstract Builder setProgram(ProgramDefinition v);
+
+      public abstract Builder setCurrentApplicationProgramId(Long programId);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1900,5 +1974,22 @@ public final class ApplicantService {
 
               return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
+  }
+
+  /**
+   * Update the applicant's application to use the latest active version of a program if there is a
+   * newer one
+   *
+   * @return The new programId or empty if no change
+   */
+  public Optional<Long> updateApplicationToLatestProgramVersion(long applicantId, long programId) {
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+
+    if (latestProgramId.isPresent() && latestProgramId.get() > programId) {
+      applicationRepository.updateDraftApplicationProgram(applicantId, latestProgramId.get());
+      return latestProgramId;
+    }
+
+    return Optional.empty();
   }
 }

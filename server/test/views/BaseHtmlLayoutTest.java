@@ -2,7 +2,8 @@ package views;
 
 import static j2html.TagCreator.link;
 import static org.assertj.core.api.Assertions.assertThat;
-import static support.CfTestHelpers.EMPTY_REQUEST;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
@@ -41,7 +42,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void addsDefaultContent() {
-    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
+    HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
@@ -52,7 +53,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<script src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
-                + " type=\"text/javascript\"></script>");
+                + " type=\"text/javascript\" nonce=\"my-nonce\"></script>");
     assertThat(content.body()).doesNotContain("googletagmanager");
 
     assertThat(content.body()).contains("<main></main>");
@@ -68,18 +69,18 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class));
-    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
+    HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 
     assertThat(content.body())
         .contains(
             "<script src=\"https://www.googletagmanager.com/gtag/js?id=abcdef\""
-                + " async type=\"text/javascript\"></script>");
+                + " async type=\"text/javascript\" nonce=\"my-nonce\"></script>");
   }
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), instanceOf(ViewUtils.class));
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
@@ -99,14 +100,14 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void withNoExplicitTitle() {
-    Content content = layout.render(layout.getBundle(EMPTY_REQUEST));
+    Content content = layout.render(layout.getBundle(fakeRequest()));
 
     assertThat(content.body()).contains("<title>CiviForm</title>");
   }
 
   @Test
   public void withProvidedTitle() {
-    Content content = layout.render(layout.getBundle(EMPTY_REQUEST).setTitle("A title"));
+    Content content = layout.render(layout.getBundle(fakeRequest()).setTitle("A title"));
 
     assertThat(content.body()).contains("<title>A title — CiviForm</title>");
   }

@@ -9,7 +9,7 @@ import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 
 /** An EBean class that stores all the statuses related to programs. */
 @Entity

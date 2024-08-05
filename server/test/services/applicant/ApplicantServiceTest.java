@@ -3,7 +3,8 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -40,7 +41,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
-import play.test.Helpers;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
@@ -76,7 +76,6 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -96,6 +95,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -173,7 +173,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithOptionalQuestion(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -203,7 +204,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -217,7 +218,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -245,7 +246,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -255,7 +256,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -270,6 +271,80 @@ public class ApplicantServiceTest extends ResetPostgres {
   private Path applicantPathForQuestion(QuestionModel question) {
     return ApplicantData.APPLICANT_PATH.join(
         question.getQuestionDefinition().getQuestionPathSegment());
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_unansweringRequiredQuestionFailsAtomically() {
+    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    QuestionModel dropdownQuestion = testQuestionBank.applicantIceCream();
+    Path dropdownPath = applicantPathForQuestion(dropdownQuestion).join(Scalar.SELECTION);
+
+    createProgram(numberQuestion.getQuestionDefinition(), dropdownQuestion.getQuestionDefinition());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(numberPath.toString(), "4")
+            .put(dropdownPath.toString(), "chocolate")
+            .build();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // First, save an answer.
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(numberPath.toString(), "")
+            .put(dropdownPath.toString(), "strawberry")
+            .build();
+
+    // Then, try to remove the answer to one question, and change the value of another. Neither
+    // update should go through because
+    // removing the required answer is invalid.
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantData.readLong(numberPath)).contains(4l);
+    assertThat(applicantData.readString(dropdownPath)).contains("chocolate");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_forceUpdate() {
+    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    createProgram(numberQuestion.getQuestionDefinition());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder().put(numberPath.toString(), "4").build();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // First, save an answer.
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ false)
+        .toCompletableFuture()
+        .join();
+
+    updates = ImmutableMap.<String, String>builder().put(numberPath.toString(), "").build();
+
+    // Then remove force removing it. This is a required question, so unless we force an update, it
+    // will fail.
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantData.hasPath(numberPath)).isFalse();
   }
 
   @Test
@@ -303,7 +378,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
             .toCompletableFuture()
             .join();
 
@@ -350,7 +425,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -366,7 +441,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -390,7 +465,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -422,7 +497,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -444,7 +519,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -479,7 +554,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -495,7 +570,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -544,7 +619,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -563,7 +638,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -579,7 +654,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -612,7 +687,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -637,7 +712,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -658,7 +733,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        badApplicantId, programDefinition.id(), "1", updates, false)
+                        badApplicantId, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -675,7 +750,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -694,7 +769,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates, false)
+                        applicant.id, programDefinition.id(), badBlockId, updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -715,7 +790,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -734,7 +809,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -758,7 +833,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -803,15 +878,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -911,14 +985,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile, request)
+            .submitApplication(
+                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -978,14 +1052,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
     storedFile.save();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = fakeRequest();
     subject
         .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
@@ -1015,11 +1089,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = fakeRequest();
     ApplicationModel oldApplication =
         subject
             .submitApplication(
@@ -1029,7 +1103,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates("Bob", "Elisa"), false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates("Bob", "Elisa"),
+            false,
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1063,15 +1142,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1097,15 +1175,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1177,15 +1254,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1252,15 +1328,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1312,14 +1387,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), applicantProfile, request)
+            .submitApplication(
+                applicant.id, programDefinition.id(), applicantProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1352,11 +1427,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = fakeRequest();
     ApplicationModel application =
         subject
             .submitApplication(
@@ -1371,14 +1446,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_failsWithApplicationSubmissionException() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
                     .submitApplication(
-                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), request)
+                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -1401,17 +1474,19 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1435,15 +1510,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
 
@@ -1497,7 +1571,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -1556,7 +1630,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -1573,14 +1647,15 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -1594,9 +1669,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1611,9 +1685,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1626,9 +1699,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1644,9 +1716,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1662,9 +1733,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
@@ -1679,9 +1749,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1693,9 +1762,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.setEmailAddress("test@example.com");
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofGuestUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
@@ -1711,9 +1779,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setEmailAddress("ticlient@example.com");
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofTiPartiallyCreated(
                 Representation.builder()
@@ -1727,9 +1794,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -1742,16 +1808,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(account);
     applicant.save();
     account.save();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
   }
 
   @Test
   public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThat(subject.getPersonalInfo(9999L, request).toCompletableFuture().join())
+    assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
@@ -1760,6 +1824,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
     return applicant;
+  }
+
+  private Request createRequestWithFastForwardDisabled() {
+    return fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build();
   }
 
   @Test
@@ -1794,7 +1862,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -1853,7 +1922,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -1894,7 +1964,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     // No CIF application started.
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     assertThat(result.inProgress()).isEmpty();
@@ -1913,7 +1984,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     assertThat(result.inProgress()).isEmpty();
@@ -1934,7 +2006,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     assertThat(result.inProgress()).isEmpty();
@@ -1974,7 +2047,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2036,7 +2110,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2101,7 +2176,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicationRepository
@@ -2110,7 +2185,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2126,7 +2202,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -2136,7 +2212,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     ApplicantService.ApplicationPrograms secondResult =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     // The previously inelgible program is now included.
@@ -2175,7 +2252,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(otherApplicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                otherApplicant.id,
+                trustedIntermediaryProfile,
+                createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2232,7 +2312,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2303,7 +2384,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2376,12 +2458,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms applicantResult =
         subject
-            .relevantProgramsForApplicant(applicant.id, applicantProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, applicantProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     ApplicantService.ApplicationPrograms tiResult =
         subject
-            .relevantProgramsForApplicant(ti.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                ti.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2456,12 +2540,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms applicantResult =
         subject
-            .relevantProgramsForApplicant(applicant.id, applicantProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, applicantProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
     ApplicantService.ApplicationPrograms tiResult =
         subject
-            .relevantProgramsForApplicant(tiProfile.getApplicant().join().id, tiProfile)
+            .relevantProgramsForApplicant(
+                tiProfile.getApplicant().join().id,
+                tiProfile,
+                createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2519,7 +2607,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2619,7 +2708,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2663,7 +2753,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2702,7 +2793,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Publish a new program that has an updated set of status configurations that doesn't include
     // the application's status. The displayed status definition configuration should be pulled
-    // from the program version associated with the application.
+    // from the program's ACTIVE status definitions
     StatusDefinitions.Status updatedStatus =
         APPROVED_STATUS.toBuilder()
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Updated email content"))
@@ -2717,7 +2808,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2726,7 +2818,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(updatedProgram.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.of(APPROVED_STATUS));
+        .containsExactly(Optional.of(updatedStatus));
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -2817,7 +2909,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2892,7 +2985,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -2929,6 +3023,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -2974,7 +3069,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -3004,6 +3100,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3028,7 +3125,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -3075,7 +3173,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -3113,7 +3212,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .maybeEligibleProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, createRequestWithFastForwardDisabled())
             .toCompletableFuture()
             .join();
 
@@ -3156,7 +3256,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), lastName)
             .build();
     subject
-        .stageAndUpdateIfValid(applicantId, programId, Long.toString(blockId), updates, false)
+        .stageAndUpdateIfValid(
+            applicantId, programId, Long.toString(blockId), updates, false, false)
         .toCompletableFuture()
         .join();
   }
@@ -3291,6 +3392,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
@@ -3728,7 +3830,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), block.getId(), updates, true)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), block.getId(), updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -3794,7 +3897,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -3809,7 +3912,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -3834,10 +3937,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = fakeRequest();
+
     ApplicationModel ineligibleApplication =
         subject
             .submitApplication(
@@ -3852,7 +3956,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicationModel eligibleApplication =

@@ -24,10 +24,14 @@ export class AdminTranslations {
   async editProgramTranslations({
     name,
     description,
+    blockName,
+    blockDescription,
     statuses = [],
   }: {
     name: string
     description: string
+    blockName: string
+    blockDescription: string
     statuses: ProgramStatusTranslationParams[]
   }) {
     await this.page.fill('text=Program name', name)
@@ -51,6 +55,9 @@ export class AdminTranslations {
         )
       }
     }
+
+    await this.page.fill('text=Screen name', blockName)
+    await this.page.fill('text=Screen description', blockDescription)
 
     await this.page.click('#update-localizations-button')
     await waitForPageJsLoad(this.page)
@@ -137,6 +144,13 @@ export class AdminTranslations {
       'Program image description',
     )
     await expect(imageDescriptionValue).toHaveValue(expectImageDescription)
+  }
+
+  async expectBlockTranslations(blockName: string, blockDescription: string) {
+    const blockNameValue = this.page.getByLabel('Screen name')
+    await expect(blockNameValue).toHaveValue(blockName)
+    const blockDescriptionValue = this.page.getByLabel('Screen description')
+    await expect(blockDescriptionValue).toHaveValue(blockDescription)
   }
 
   async editQuestionTranslations(

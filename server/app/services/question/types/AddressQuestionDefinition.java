@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,7 +10,7 @@ import java.util.Optional;
 /** Defines an address question. */
 public final class AddressQuestionDefinition extends QuestionDefinition {
 
-  public AddressQuestionDefinition(QuestionDefinitionConfig config) {
+  public AddressQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
@@ -52,10 +53,6 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public AddressValidationPredicates getAddressValidationPredicates() {
-    return (AddressValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ADDRESS;
@@ -66,7 +63,13 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     return AddressValidationPredicates.create();
   }
 
+  @JsonIgnore
   public boolean getDisallowPoBox() {
     return getAddressValidationPredicates().disallowPoBox().orElse(false);
+  }
+
+  @JsonIgnore
+  private AddressValidationPredicates getAddressValidationPredicates() {
+    return (AddressValidationPredicates) getValidationPredicates();
   }
 }

@@ -4,6 +4,11 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
 export function init() {
+  updateListeners()
+}
+
+/** Safe to call multiple times */
+export function updateListeners() {
   refreshAddButtonStatus()
 
   addEventListenerToElements(
@@ -94,9 +99,14 @@ function addNewEnumeratorField() {
  * @param {Event} event The event that triggered this action.
  */
 function removeEnumeratorField(event: Event) {
+  const removeButton = event.currentTarget as HTMLElement
+  if (!confirm(removeButton.dataset.confirmationMessage)) {
+    return false
+  }
+
   // Get the parent div, which contains the input field and remove button, and remove it.
   const enumeratorFieldDiv = assertNotNull(
-    (event.currentTarget as HTMLElement).parentNode,
+    removeButton.parentNode,
   ) as HTMLElement
   enumeratorFieldDiv.remove()
 
@@ -114,6 +124,10 @@ function removeEnumeratorField(event: Event) {
 function removeExistingEnumeratorField(event: Event) {
   // Get the button that was clicked
   const removeButton = event.currentTarget as HTMLElement
+
+  if (!confirm(removeButton.dataset.confirmationMessage)) {
+    return false
+  }
 
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
@@ -168,7 +182,7 @@ function setFocusAfterEnumeratorRemoval() {
 
 /**
  * Enable the add button if and only if all inputs are filled (the user doesn't need two blank
- * inputs).
+ * inputs) and the user has not reached the maximum number of inputs.
  */
 function refreshAddButtonStatus() {
   const enumeratorInputValues = Array.from(
@@ -183,7 +197,11 @@ function refreshAddButtonStatus() {
   ) as HTMLInputElement
 
   if (addButton) {
-    addButton.disabled = enumeratorInputValues.includes('')
+    // converts to 0 or NaN if unset
+    const maxEntities = Number(addButton.dataset.maxEntities)
+    addButton.disabled =
+      enumeratorInputValues.includes('') ||
+      (maxEntities > 0 && enumeratorInputValues.length >= maxEntities)
   }
 }
 

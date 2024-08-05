@@ -1,5 +1,10 @@
-import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {test, expect} from '../support/civiform_fixtures'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  seedProgramsAndCategories,
+  validateScreenshot,
+} from '../support'
 
 test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
@@ -13,6 +18,48 @@ test.describe('admin program view page', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
+  })
+
+  test('view program details shows program categories', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const programName = 'Active Program'
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+
+    await test.step('seed categories', async () => {
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+    })
+
+    await test.step('login as admin', async () => {
+      await loginAsAdmin(page)
+    })
+
+    await test.step('create and publish new program', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishAllDrafts()
+    })
+
+    await test.step('expect categories to be none on details page', async () => {
+      await adminPrograms.gotoViewActiveProgramPage(programName)
+      await expect(page.getByText('Categories: None')).toBeVisible()
+    })
+
+    await test.step('add two categories', async () => {
+      await page.getByRole('button', {name: 'Edit program'}).click()
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+
+      await page.getByText('Internet').check()
+      await page.getByText('Education').check()
+      await adminPrograms.submitProgramDetailsEdits()
+    })
+
+    await test.step('expect to see the two categories on details page', async () => {
+      await expect(
+        page.getByText('Categories: Education, Internet'),
+      ).toBeVisible()
+    })
   })
 
   test('view draft program', async ({page, adminPrograms}) => {

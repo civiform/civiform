@@ -19,11 +19,12 @@ import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
-import * as preview from './preview'
+import PreviewController, * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
+import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
 
 import htmx from 'htmx.org'
@@ -38,6 +39,13 @@ declare global {
 window.htmx = htmx
 
 window.addEventListener('load', () => {
+  initializeEverything()
+  htmx.on('htmx:afterSettle', () => {
+    afterSettle()
+  })
+})
+
+function initializeEverything(): void {
   main.init()
   radio.init()
   toast.init()
@@ -59,5 +67,11 @@ window.addEventListener('load', () => {
   phoneNumber.init()
   adminQuestionEdit.init()
   adminExportView.init()
+  adminImportView.init()
   trustedIntermediaryController.init()
-})
+}
+
+function afterSettle(): void {
+  PreviewController.updateListeners()
+  enumerator.updateListeners()
+}

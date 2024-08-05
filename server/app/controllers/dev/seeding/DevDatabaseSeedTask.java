@@ -41,6 +41,7 @@ import models.CategoryModel;
 import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -48,7 +49,6 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.CantAddQuestionToBlockException;
-import services.program.DuplicateStatusException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -56,7 +56,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -66,6 +65,9 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.statuses.DuplicateStatusException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 
 /**
  * Task for seeding the development database for manual and automated testing. Seeding for prod
@@ -85,7 +87,8 @@ public final class DevDatabaseSeedTask {
   private static final int MAX_RETRIES = 10;
   private final QuestionService questionService;
   private final ProgramService programService;
-
+  private final StatusService statusService;
+  private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
@@ -94,13 +97,17 @@ public final class DevDatabaseSeedTask {
   public DevDatabaseSeedTask(
       QuestionService questionService,
       ProgramService programService,
+      StatusService statusService,
       VersionRepository versionRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      Environment environment) {
     this.questionService = checkNotNull(questionService);
+    this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
+    this.environment = checkNotNull(environment);
   }
 
   /**
@@ -169,8 +176,8 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.of(),
+              /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -211,17 +218,17 @@ public final class DevDatabaseSeedTask {
               DisplayMode.PUBLIC.getValue(),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
+              ImmutableList.of(),
+              /* categoryIds= */ ImmutableList.of());
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
+      String programName = programDefinition.adminName();
 
-      ErrorAnd<ProgramDefinition, CiviFormError> appendStatusResult =
-          programService.appendStatus(
-              programId,
+      ErrorAnd<StatusDefinitions, CiviFormError> appendStatusResult =
+          statusService.appendStatus(
+              programName,
               StatusDefinitions.Status.builder()
                   .setStatusText("Pending Review")
                   .setDefaultStatus(Optional.of(true))
@@ -231,7 +238,7 @@ public final class DevDatabaseSeedTask {
       if (appendStatusResult.isError()) {
         throw new RuntimeException(appendStatusResult.getErrors().toString());
       }
-
+      long programId = programDefinition.id();
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
       blockForm.setName("Screen 1");
@@ -352,13 +359,8 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    List<CategoryModel> categories = new ArrayList<>();
-
-    CategoryTranslationFileParser.PROGRAM_CATEGORY_NAMES.forEach(
-        categoryName -> {
-          categories.add(
-              CategoryTranslationFileParser.createCategoryModelFromTranslationsMap(categoryName));
-        });
+    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
+    List<CategoryModel> categories = parser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(

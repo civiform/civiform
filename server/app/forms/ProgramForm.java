@@ -19,6 +19,7 @@ public final class ProgramForm {
   private Boolean confirmedChangeCommonIntakeForm;
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
+  private List<Long> categories;
 
   public ProgramForm() {
     adminName = "";
@@ -32,6 +33,7 @@ public final class ProgramForm {
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
+    categories = new ArrayList<>();
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -120,5 +122,9 @@ public final class ProgramForm {
 
   public List<Long> getTiGroups() {
     return this.tiGroups;
+  }
+
+  public List<Long> getCategories() {
+    return this.categories;
   }
 }

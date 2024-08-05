@@ -13,9 +13,10 @@ import play.i18n.Lang;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 
 /**
  * Form for updating translations for programs. This isn't a typical Play form in that the number of
@@ -43,7 +44,10 @@ public final class ProgramTranslationForm {
   }
 
   public static ProgramTranslationForm fromProgram(
-      ProgramDefinition program, Locale locale, FormFactory formFactory) {
+      ProgramDefinition program,
+      Locale locale,
+      FormFactory formFactory,
+      StatusDefinitions activeStatusDefinitions) {
     ImmutableMap.Builder<String, String[]> formValuesBuilder =
         ImmutableMap.<String, String[]>builder()
             .put(
@@ -64,7 +68,7 @@ public final class ProgramTranslationForm {
           });
     }
 
-    ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
+    ImmutableList<StatusDefinitions.Status> statuses = activeStatusDefinitions.getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
       StatusDefinitions.Status status = statuses.get(i);
       formValuesBuilder.put(statusKeyToUpdateFieldName(i), new String[] {status.statusText()});
@@ -81,6 +85,23 @@ public final class ProgramTranslationForm {
                 .orElse("")
           });
     }
+
+    for (int i = 0; i < program.blockDefinitions().size(); i++) {
+      BlockDefinition blockDefinition = program.blockDefinitions().get(i);
+      formValuesBuilder.put(
+          localizedScreenName(blockDefinition.id()),
+          new String[] {blockDefinition.localizedName().maybeGet(locale).orElse("")});
+
+      formValuesBuilder.put(
+          localizedScreenDescription(blockDefinition.id()),
+          new String[] {blockDefinition.localizedDescription().maybeGet(locale).orElse("")});
+    }
+
+    ImmutableList<Long> blockIds =
+        program.blockDefinitions().stream()
+            .map(block -> block.id())
+            .collect(ImmutableList.toImmutableList());
+
     DynamicForm form =
         formFactory
             .form()
@@ -89,16 +110,18 @@ public final class ProgramTranslationForm {
                 TypedMap.empty(),
                 formValuesBuilder.build(),
                 ImmutableMap.of(),
-                allFieldNames(statuses.size(), hasSummaryImageDescription).toArray(new String[0]));
+                allFieldNames(statuses.size(), hasSummaryImageDescription, blockIds)
+                    .toArray(new String[0]));
     return new ProgramTranslationForm(
-        form, program.statusDefinitions().getStatuses().size(), hasSummaryImageDescription);
+        form, activeStatusDefinitions.getStatuses().size(), hasSummaryImageDescription);
   }
 
   public static ProgramTranslationForm bindFromRequest(
       Http.Request request,
       FormFactory formFactory,
       int maxStatusTranslations,
-      boolean hasSummaryImageDescription) {
+      boolean hasSummaryImageDescription,
+      ImmutableList<Long> blockIds) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
     DynamicForm form =
@@ -106,13 +129,13 @@ public final class ProgramTranslationForm {
             .form()
             .bindFromRequest(
                 request,
-                allFieldNames(maxStatusTranslations, hasSummaryImageDescription)
+                allFieldNames(maxStatusTranslations, hasSummaryImageDescription, blockIds)
                     .toArray(new String[0]));
     return new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
   }
 
   private static ImmutableList<String> allFieldNames(
-      int maxStatusTranslations, boolean hasSummaryImageDescription) {
+      int maxStatusTranslations, boolean hasSummaryImageDescription, ImmutableList<Long> blockIds) {
     ImmutableList.Builder<String> builder =
         ImmutableList.<String>builder()
             .add(
@@ -126,6 +149,10 @@ public final class ProgramTranslationForm {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
     }
+    for (int i = 0; i < blockIds.size(); i++) {
+      builder.add(
+          localizedScreenName(blockIds.get(i)), localizedScreenDescription(blockIds.get(i)));
+    }
     return builder.build();
   }
 
@@ -133,7 +160,7 @@ public final class ProgramTranslationForm {
     return Optional.ofNullable(form.rawData().get(fieldName));
   }
 
-  public LocalizationUpdate getUpdateData() {
+  public LocalizationUpdate getUpdateData(ImmutableList<Long> blockIds) {
     LocalizationUpdate.Builder dataBuilder =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
@@ -146,6 +173,7 @@ public final class ProgramTranslationForm {
           getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""));
     }
     dataBuilder.setStatuses(parseStatusUpdatesFromRequest());
+    dataBuilder.setScreens(parseScreenUpdatesFromRequest(blockIds));
     return dataBuilder.build();
   }
 
@@ -184,6 +212,29 @@ public final class ProgramTranslationForm {
         .collect(ImmutableList.toImmutableList());
   }
 
+  private ImmutableList<LocalizationUpdate.ScreenUpdate> parseScreenUpdatesFromRequest(
+      ImmutableList<Long> blockIds) {
+    return blockIds.stream()
+        .map(
+            blockId -> {
+              Optional<String> optionalBlockName = getStringFormField(localizedScreenName(blockId));
+              Optional<String> optionalBlockDescription =
+                  getStringFormField(localizedScreenDescription(blockId));
+              if (optionalBlockName.isEmpty() || optionalBlockDescription.isEmpty()) {
+                return Optional.<LocalizationUpdate.ScreenUpdate>empty();
+              }
+
+              LocalizationUpdate.ScreenUpdate.Builder resultBuilder =
+                  LocalizationUpdate.ScreenUpdate.builder().setBlockIdToUpdate(blockId);
+              resultBuilder.setLocalizedName(optionalBlockName.orElse(""));
+              resultBuilder.setLocalizedDescription(optionalBlockDescription.orElse(""));
+              return Optional.of(resultBuilder.build());
+            })
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public static String statusKeyToUpdateFieldName(int index) {
     return String.format("status-key-to-update-%d", index);
   }
@@ -194,5 +245,13 @@ public final class ProgramTranslationForm {
 
   public static String localizedEmailFieldName(int index) {
     return String.format("localized-email-%d", index);
+  }
+
+  public static String localizedScreenName(long blockId) {
+    return String.format("screen-name-%d", blockId);
+  }
+
+  public static String localizedScreenDescription(long blockId) {
+    return String.format("screen-description-%d", blockId);
   }
 }

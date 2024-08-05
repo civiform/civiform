@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+# DOC: Loads the grafana gui tool and connects to the dev environment database
+
+source bin/lib.sh
+docker::set_project_name_dev
+
+docker::compose_dev \
+  up db \
+  -d
+
+docker::compose_dev \
+  --profile monitoring \
+  up grafana \
+  --wait \
+  -d
+
+echo "Running grafana at http://localhost:8013"

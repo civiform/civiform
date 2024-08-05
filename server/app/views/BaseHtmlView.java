@@ -155,7 +155,7 @@ public abstract class BaseHtmlView {
    * @param optionalMessages Optional messages to be used for i18n
    * @return NavTag
    */
-  protected NavTag renderPagination(
+  protected static NavTag renderPagination(
       int page,
       int pageCount,
       Function<Integer, Call> linkForPage,
@@ -226,7 +226,7 @@ public abstract class BaseHtmlView {
                     page != pageCount, renderNextPageButton(page, linkForPage, optionalMessages)));
   }
 
-  private LiTag renderPaginationPageButton(
+  private static LiTag renderPaginationPageButton(
       int page, boolean isCurrentPage, Function<Integer, Call> linkForPage) {
     return li().withClass("usa-pagination__item usa-pagination__page-no")
         .with(
@@ -238,7 +238,7 @@ public abstract class BaseHtmlView {
                 .condAttr(isCurrentPage, "aria-current", "page"));
   }
 
-  private LiTag renderPreviousPageButton(
+  private static LiTag renderPreviousPageButton(
       int page, Function<Integer, Call> linkForPage, Optional<Messages> optionalMessages) {
     return li().withClass("usa-pagination__item usa-pagination__arrow")
         .with(
@@ -258,7 +258,7 @@ public abstract class BaseHtmlView {
                         .withClass("usa-pagination__link-text")));
   }
 
-  private LiTag renderNextPageButton(
+  private static LiTag renderNextPageButton(
       int page, Function<Integer, Call> linkForPage, Optional<Messages> optionalMessages) {
     return li().withClass("usa-pagination__item usa-pagination__arrow")
         .with(
@@ -276,7 +276,7 @@ public abstract class BaseHtmlView {
                         .attr("aria-hidden", "true")));
   }
 
-  private LiTag renderPaginationEllipses() {
+  private static LiTag renderPaginationEllipses() {
     return li().withClass("usa-pagination__item usa-pagination__overflow")
         .attr("aria-label", "ellipsis indicating non-visible pages")
         .with(span("..."));

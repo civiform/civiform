@@ -9,14 +9,15 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import repository.ApplicationStatusesRepository;
 import services.DeploymentType;
 import services.Path;
 import services.export.JsonExporterService.ApplicationExportData;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionDefinition;
+import services.statuses.StatusDefinitions.Status;
 
 /** Contains methods related to sampling JSON data for programs. */
 public final class ProgramJsonSampler {
@@ -26,17 +27,20 @@ public final class ProgramJsonSampler {
   private final JsonExporterService jsonExporterService;
   private final DeploymentType deploymentType;
   private static final String EMPTY_VALUE = "";
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   ProgramJsonSampler(
       QuestionJsonSampler.Factory questionJsonSamplerFactory,
       ApiPayloadWrapper apiPayloadWrapper,
       JsonExporterService jsonExporterService,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
     this.apiPayloadWrapper = apiPayloadWrapper;
     this.jsonExporterService = jsonExporterService;
     this.deploymentType = deploymentType;
+    this.applicationStatusesRepository = applicationStatusesRepository;
   }
 
   /**
@@ -49,7 +53,10 @@ public final class ProgramJsonSampler {
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
             .setStatus(
-                programDefinition.statusDefinitions().getStatuses().stream()
+                applicationStatusesRepository
+                    .lookupActiveStatusDefinitions(programDefinition.adminName())
+                    .getStatuses()
+                    .stream()
                     .findFirst()
                     .map(Status::statusText))
             .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())

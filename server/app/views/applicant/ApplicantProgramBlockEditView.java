@@ -21,10 +21,11 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
@@ -43,7 +44,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final ApplicantRoutes applicantRoutes;
-  private final SettingsManifest settingsManifest;
   private final EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator;
 
   @Inject
@@ -52,14 +52,12 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
       ApplicantRoutes applicantRoutes,
-      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator,
-      SettingsManifest settingsManifest) {
+      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator) {
     this.layout = checkNotNull(layout);
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.editOrDiscardAnswersModalCreator = checkNotNull(editOrDiscardAnswersModalCreator);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(ApplicationBaseViewParams params) {
@@ -77,8 +75,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    if (settingsManifest.getSaveOnAllActions()
-        && shouldShowErrorsWithModal(params.errorDisplayMode())) {
+    if (shouldShowErrorsWithModal(params.errorDisplayMode())) {
       modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
 
@@ -98,15 +95,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     if (maybeBackToAdminViewButton.isPresent()) {
       bundle.addMainContent(maybeBackToAdminViewButton.get());
     }
+    bundle.addMainContent(
+        layout.renderProgramApplicationTitleAndProgressIndicator(
+            params.programTitle(),
+            params.blockIndex(),
+            params.totalBlockCount(),
+            false,
+            params.messages()));
+
+    if (params.eligibilityAlertSettings().show()) {
+      bundle.addMainContent(renderEligibilityAlert(params.eligibilityAlertSettings()));
+    }
+
     bundle
-        .addMainContent(
-            layout.renderProgramApplicationTitleAndProgressIndicator(
-                params.programTitle(),
-                params.blockIndex(),
-                params.totalBlockCount(),
-                false,
-                params.messages()),
-            blockDiv)
+        .addMainContent(blockDiv)
         .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -123,6 +125,15 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         params.messages(),
         bundle,
         params.applicantId());
+  }
+
+  private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {
+    return AlertComponent.renderFullAlert(
+        eligibilityAlertSettings.alertType(),
+        eligibilityAlertSettings.text(),
+        eligibilityAlertSettings.title(),
+        false,
+        AlertComponent.HeadingLevel.H2);
   }
 
   /**
@@ -249,14 +260,13 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(ApplicationBaseViewParams params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(settingsManifest, params))
-        .with(renderPreviousButton(settingsManifest, params))
+        .with(renderReviewButton(params))
+        .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
 
   private ButtonTag renderNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withClasses(ButtonStyles.SOLID_BLUE)
-        .withId("cf-block-submit");
+        .withClasses(ButtonStyles.SOLID_BLUE);
   }
 }

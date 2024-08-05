@@ -5,7 +5,7 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div
+    <main
       role="main"
       th:with="question=${applicationParams.block().getQuestions().get(0)},
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
@@ -98,10 +98,12 @@
           id="fileupload-continue-button"
         ></button>
       </div>
-    </div>
-    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+    </main>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                             <!--/* showReviewLogin= */-->false,
+                                                             <!--/* showUpsellLogin= */-->false)}"
+    ></div>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

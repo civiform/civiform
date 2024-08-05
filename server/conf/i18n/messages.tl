@@ -11,9 +11,21 @@
 button.logout=Mag-logout
 label.selectLanguage=Pakipili ang iyong gustong wika.
 button.untranslatedSubmit=Isumite
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=Tungkol sa CiviForm
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=Opisyal na website ng {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Bumalik sa itaas
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=Para sa technical support: {0}
 guest=Bisita
 label.languageSr=Pumili ng wika
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
 header.endSession=Tapusin ang session
 toast.sessionEnded=Natapos na ang iyong session.
 header.guestIndicator=Bisitang user ka
@@ -24,7 +36,7 @@ validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago m
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Minamarkahan ng asterisk ({0}) ang mga nire-require na field.
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
@@ -63,15 +75,15 @@ button.keepFile=Ipagpatuloy
 button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Mag-save at tapusin ang application sa ibang pagkakataon
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Pag-usad ng aplikasyon
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -324,6 +336,46 @@ toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado par
 toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}. Kung nagbago ang iyong impormasyon ng kliyente, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
 banner.errorSavingApplication=Nagka-error sa pag-save ng application
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=Posibleng kwalipikado ka para sa programang ito
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=Batay sa mga sagot mo, malamang na kwalipikado ka para sa programang ito.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=Posibleng hindi ka kwalipikado para sa programang ito.
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=Batay sa mga sagot mo, posibleng hindi ka kwalipikado para sa programang ito. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=Posibleng kwalipikado ka para sa programang ito
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado mo. Pakisuri ang lahat ng tanong sa ibaba.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Posibleng hindi ka na kwalipikado para sa programang ito
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado mo. Pakisuri ang lahat ng tanong sa ibaba.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=Batay sa mga sagot mo, malamang na kwalipikado ang iyong kliyente para sa programang ito.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Posibleng hindi kwalipikado ang kliyente mo para sa programang ito
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=Batay sa mga sagot mo, posibleng hindi kwalipikado ang iyong kliyente para sa programang ito. Kung nagbago ang impormasyon ng iyong kliyente, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Posibleng hindi na kwalipikado ang kliyente mo para sa programang ito
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,15 +521,14 @@ validation.impossibleDob=Kailangang hindi hihigit sa 150 taon ang nakalipas ng P
 
 button.addEntity=Idagdag {0}
 button.removeEntity=Alisin {0}
-dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na ito ay maitatala matapos mong i-click ang "Next" at lahat ng mga data na nauugnay dito ay mawawala.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na ito? Ise-save ang pagbabagong ito kapag na-click mo ang "Suriin," "Nakaraan," o "Susunod" at mawawala ang lahat ng data na nauugnay sa {0} na ito.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Maglagay ng hindi lalampas sa {0} (na) value.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Maglagay ng hindi bababa sa {0} (na) value.
 placeholder.entityName={0} Palayaw
 
 #---------------------------------------------------------------------------------#
@@ -502,7 +553,8 @@ validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Maaari lamang na pumili ng hindi bababa sa {0}.
-validation.tooManySelections=Maaari lamang na pumili ng mas-kaunti sa {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +623,8 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=Opisyal na website ng pamahalaan ng United States
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
@@ -585,3 +639,11 @@ banner.httpsSectionContent=Ang lock na ( {0} ) o https:// ay nangangahulugang li
 banner.notForProductionBannerLine1=Para lang sa layunin ng pagsubok ang site na ito. Huwag maglagay ng personal na impormasyon.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, pumunta sa {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=tapusin ang session mo

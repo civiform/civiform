@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import controllers.FlashKey;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
 import org.pac4j.play.java.Secure;
@@ -18,11 +19,12 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.program.DuplicateStatusException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
+import services.statuses.DuplicateStatusException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 import views.admin.programs.ProgramStatusesView;
 
 /**
@@ -31,35 +33,39 @@ import views.admin.programs.ProgramStatusesView;
  */
 public final class AdminProgramStatusesController extends CiviFormController {
 
-  private final ProgramService service;
+  private final StatusService service;
   private final ProgramStatusesView statusesView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
+  private final ProgramService programService;
 
   @Inject
   public AdminProgramStatusesController(
-      ProgramService service,
+      StatusService service,
       ProgramStatusesView statusesView,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ProgramService programService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
+    this.programService = checkNotNull(programService);
   }
 
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     return ok(
         statusesView.render(
             request,
-            service.getFullProgramDefinition(programId),
+            program,
+            service.lookupActiveStatusDefinitions(program.adminName()),
             /* maybeStatusForm= */ Optional.empty()));
   }
 
@@ -74,13 +80,15 @@ public final class AdminProgramStatusesController extends CiviFormController {
    * status is edited, it's replaced in-line.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result createOrUpdate(Http.Request request, long programId)
+  public Result createOrUpdate(Http.Request request, Long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = service.getFullProgramDefinition(programId);
-    int previousStatusCount = program.statusDefinitions().getStatuses().size();
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    StatusDefinitions activeStatusDefinitions =
+        service.lookupActiveStatusDefinitions(program.adminName());
+    int previousStatusCount = activeStatusDefinitions.getStatuses().size();
     Optional<StatusDefinitions.Status> previousDefaultStatus =
-        program.toProgram().getDefaultStatus();
+        activeStatusDefinitions.getDefaultStatus();
 
     Form<ProgramStatusesForm> form =
         formFactory
@@ -91,7 +99,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
-      return ok(statusesView.render(request, program, Optional.of(form)));
+      return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     // Because we need to look directly at the value sent (or absent) in the form data
     // itself to determine if a checkbox is checked, we need to calculate this here
@@ -112,23 +120,22 @@ public final class AdminProgramStatusesController extends CiviFormController {
               ProgramStatusesForm.DEFAULT_CHECKBOX_NAME, maybeSetDefault.get()));
     }
 
-    final ErrorAnd<ProgramDefinition, CiviFormError> mutateResult;
+    final ErrorAnd<StatusDefinitions, CiviFormError> mutateResult;
     try {
-      mutateResult = createOrEditStatusFromFormData(program, form.get(), setDefault);
+      mutateResult = createOrEditStatusFromFormData(programId, form.get(), setDefault);
     } catch (DuplicateStatusException e) {
       // Redirecting to the index view would re-render the statuses and lose
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
       form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
-      return ok(statusesView.render(request, program, Optional.of(form)));
+      return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
     if (mutateResult.isError()) {
-      return redirect(indexUrl).flashing("error", joinErrors(mutateResult.getErrors()));
+      return redirect(indexUrl).flashing(FlashKey.ERROR, joinErrors(mutateResult.getErrors()));
     }
-    boolean isUpdate =
-        previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size();
+    boolean isUpdate = previousStatusCount == mutateResult.getResult().getStatuses().size();
     String toastMessage = isUpdate ? "Status updated" : "Status created";
     final ProgramStatusesForm programStatusesForm = form.get();
     if (setDefault
@@ -138,14 +145,15 @@ public final class AdminProgramStatusesController extends CiviFormController {
       toastMessage =
           programStatusesForm.getStatusText() + " has been updated to the default status";
     }
-    return redirect(indexUrl).flashing("success", toastMessage);
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, toastMessage);
   }
 
-  private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
-      ProgramDefinition program, ProgramStatusesForm formData, boolean setDefault)
+  private ErrorAnd<StatusDefinitions, CiviFormError> createOrEditStatusFromFormData(
+      Long programId, ProgramStatusesForm formData, boolean setDefault)
       throws ProgramNotFoundException, DuplicateStatusException {
     // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
+    String programName = programService.getFullProgramDefinition(programId).adminName();
     if (formData.getConfiguredStatusText().isEmpty()) {
       StatusDefinitions.Status.Builder newStatusBuilder =
           StatusDefinitions.Status.builder()
@@ -157,11 +165,11 @@ public final class AdminProgramStatusesController extends CiviFormController {
             newStatusBuilder.setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
       }
-      return service.appendStatus(program.id(), newStatusBuilder.build());
-    }
 
+      return service.appendStatus(programName, newStatusBuilder.build());
+    }
     return service.editStatus(
-        program.id(),
+        programName,
         formData.getConfiguredStatusText(),
         (existingStatus) -> {
           StatusDefinitions.Status.Builder builder =
@@ -201,8 +209,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = service.getFullProgramDefinition(programId);
-
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
     final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText : "";
@@ -211,11 +217,13 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
 
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
-    ErrorAnd<ProgramDefinition, CiviFormError> deleteStatusResult =
-        service.deleteStatus(program.id(), deleteStatusText);
+    ErrorAnd<StatusDefinitions, CiviFormError> deleteStatusResult =
+        service.deleteStatus(
+            programService.getFullProgramDefinition(programId).adminName(), deleteStatusText);
     if (deleteStatusResult.isError()) {
-      return redirect(indexUrl).flashing("error", joinErrors(deleteStatusResult.getErrors()));
+      return redirect(indexUrl)
+          .flashing(FlashKey.ERROR, joinErrors(deleteStatusResult.getErrors()));
     }
-    return redirect(indexUrl).flashing("success", "Status deleted");
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Status deleted");
   }
 }

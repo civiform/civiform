@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -32,6 +33,7 @@ import models.ProgramTab;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
@@ -39,9 +41,9 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -53,7 +55,6 @@ import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -118,20 +119,46 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
 
+    DivTag headerContent =
+        div()
+            .withClasses("flex", "items-center", "space-x-4", "mt-12")
+            .with(
+                h1(pageTitle),
+                div().withClass("flex-grow"),
+                demographicsCsvModal
+                    .getButton()
+                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                renderNewProgramButton(),
+                maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null);
+
+    if (settingsManifest.getProgramMigrationEnabled(request)) {
+      headerContent =
+          div()
+              .withClasses("flex", "items-center", "space-x-4", "mt-12")
+              .with(
+                  h1(pageTitle),
+                  div().withClass("flex-grow"),
+                  div()
+                      .with(
+                          div()
+                              .with(
+                                  demographicsCsvModal
+                                      .getButton()
+                                      .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                                  renderNewProgramButton(),
+                                  maybePublishModal.isPresent()
+                                      ? maybePublishModal.get().getButton()
+                                      : null)
+                              .withClasses("flex", "flex-row", "space-x-4"),
+                          renderImportProgramLink())
+                      .withClasses("flex", "flex-col", "items-end"));
+    }
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
             .with(
-                div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
-                    .with(
-                        h1(pageTitle),
-                        div().withClass("flex-grow"),
-                        demographicsCsvModal
-                            .getButton()
-                            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
-                        renderNewProgramButton(),
-                        maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
+                headerContent,
                 div()
                     .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(h2(pageExplanation)),
@@ -140,6 +167,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
+
     if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
       contentDiv.with(
           renderFilterLink(
@@ -168,7 +196,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     publishSingleProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(request, cardData)))));
+                        .map(
+                            cardData ->
+                                programCardFactory.renderCard(
+                                    cardData,
+                                    settingsManifest.getProgramFilteringEnabled(request))))));
 
     HtmlBundle htmlBundle =
         layout
@@ -269,12 +301,12 @@ public final class ProgramIndexView extends BaseHtmlView {
               DivTag missingUniversalQuestionsWarning =
                   div()
                       .with(
-                          ViewUtils.makeAlert(
+                          AlertComponent.renderFullAlert(
+                              AlertType.WARNING,
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              /* hidden= */ false,
                               /* title= */ Optional.empty(),
-                              BaseStyles.ALERT_WARNING))
+                              /* hidden= */ false))
                       .with(
                           p("We recommend using all universal questions when possible"
                                   + " to create consistent reuse of data and question"
@@ -353,12 +385,12 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
-                ViewUtils.makeAlert(
+                AlertComponent.renderFullAlert(
+                    AlertType.WARNING,
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
-                    /* hidden= */ false,
                     /* title= */ Optional.of("All draft questions in programs will be published."),
-                    BaseStyles.ALERT_WARNING),
+                    /* hidden= */ false),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
@@ -474,6 +506,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, link);
   }
 
+  private ATag renderImportProgramLink() {
+    return a("Import existing program")
+        .withHref(routes.AdminImportController.index().url())
+        .withClass("usa-link");
+  }
+
   private ProgramCardFactory.ProgramCardData buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
@@ -483,6 +521,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
+
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
@@ -504,6 +543,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      if (settingsManifest.getProgramMigrationEnabled(request)) {
+        draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
+      }
+
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -529,6 +572,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
+      if (settingsManifest.getProgramMigrationEnabled(request)) {
+        activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
+      }
+
       activeRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -646,10 +693,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* selectedApplicationUri= */ Optional.empty())
               .url();
 
-      String buttonText =
-          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
-              ? "Forms"
-              : "Applications";
+      String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
       ButtonTag button =
           makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
       return Optional.of(asRedirectElement(button, editLink));
@@ -662,6 +706,14 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+    return asRedirectElement(button, adminLink);
+  }
+
+  private ButtonTag renderExportProgramLink(ProgramDefinition program) {
+    String adminLink = routes.AdminExportController.index(program.id()).url();
+    ButtonTag button =
+        makeSvgTextButton("Export program", Icons.DOWNLOAD)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
   }

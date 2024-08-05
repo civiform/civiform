@@ -6,7 +6,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
-import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
@@ -37,19 +36,16 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
-  private final String authProviderName;
   private final ProgramCardViewRenderer programCardViewRenderer;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ProgramCardViewRenderer programCardViewRenderer,
-      SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.authProviderName = checkNotNull(authProviderName);
   }
 
   /**
@@ -105,7 +101,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       // "Save time finding and applying for programs and services"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
-          messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), authProviderName);
+          messages.at(
+              MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(),
+              // The applicant portal name should always be set (there is a
+              // default setting as well).
+              settingsManifest.getApplicantPortalName(request).get());
       widthClass = "w-8/12";
     } else { // Logged in.
       // "Find programs"
@@ -192,8 +192,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (settingsManifest.getIntakeFormEnabled(request)
-        && relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
               request,

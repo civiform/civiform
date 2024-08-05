@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
@@ -26,7 +26,6 @@ import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminExportView;
-import views.admin.migration.AdminExportViewPartial;
 
 public class AdminExportControllerTest extends ResetPostgres {
   private AdminExportController controller;
@@ -37,7 +36,6 @@ public class AdminExportControllerTest extends ResetPostgres {
     controller =
         new AdminExportController(
             instanceOf(AdminExportView.class),
-            instanceOf(AdminExportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
@@ -51,76 +49,46 @@ public class AdminExportControllerTest extends ResetPostgres {
   public void index_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequest(), 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
     assertThat(contentAsString(result)).contains("export is not enabled");
   }
 
   @Test
-  public void index_migrationEnabled_ok_listsActiveAndDraftProgramsAlphabeticallyByDisplayName() {
+  public void index_migrationEnabled_ok_displaysJsonForTheSelectedProgram() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     String draftProgramA = "a-program-draft";
-    String activeProgramB = "b-program-active";
-    String activeProgramC = "c-program-active";
 
-    ProgramBuilder.newActiveProgram(activeProgramC).build();
-    ProgramBuilder.newActiveProgram(activeProgramB).build();
-    ProgramBuilder.newDraftProgram(draftProgramA).build();
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram(draftProgramA).build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    Result result = controller.index(fakeRequest(), draftProgram.id);
     String stringResult = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(stringResult).contains("Export a program");
+    assertThat(stringResult)
+        .contains("JSON export for " + draftProgram.getProgramDefinition().adminName());
     assertThat(stringResult).contains(draftProgramA);
-    assertThat(stringResult).contains(activeProgramB);
-    assertThat(stringResult).contains(activeProgramC);
-    assertThat(stringResult.indexOf(draftProgramA))
-        .isLessThan(stringResult.indexOf(activeProgramB));
-    assertThat(stringResult.indexOf(activeProgramB))
-        .isLessThan(stringResult.indexOf(activeProgramC));
   }
 
   @Test
-  public void hxExportProgram_migrationNotEnabled_notFound() {
-    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
-
-    Result result = controller.hxExportProgram(addCSRFToken(fakeRequest()).build());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("export is not enabled");
-  }
-
-  @Test
-  public void hxExportProgram_invalidProgramId_badRequest() {
+  public void index_invalidProgramId_badRequest() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
-    Result result =
-        controller.hxExportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programId", String.valueOf(Long.MAX_VALUE))))
-                .build());
+    Result result = controller.index(fakeRequest(), Long.MAX_VALUE);
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
     assertThat(contentAsString(result)).contains("ID " + Long.MAX_VALUE + " could not be found");
   }
 
   @Test
-  public void hxExportProgram_validProgram_rendersHtmxPartial() {
+  public void index_validProgram_rendersJsonPreview() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
-    Result result =
-        controller.hxExportProgram(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programId", String.valueOf(activeProgram.id))))
-                .build());
+    Result result = controller.index(fakeRequest(), activeProgram.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Copy JSON");
@@ -134,10 +102,9 @@ public class AdminExportControllerTest extends ResetPostgres {
 
     Result result =
         controller.downloadJson(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", String.valueOf(""))))
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", String.valueOf("")))
                 .build(),
             adminName);
 

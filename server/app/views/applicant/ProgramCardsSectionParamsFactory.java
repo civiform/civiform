@@ -17,7 +17,9 @@ import play.mvc.Http.Request;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
+import views.ProgramImageUtils;
 import views.components.Modal;
 
 /**
@@ -28,12 +30,16 @@ import views.components.Modal;
 public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   public ProgramCardsSectionParamsFactory(
-      ApplicantRoutes applicantRoutes, ProfileUtils profileUtils) {
+      ApplicantRoutes applicantRoutes,
+      ProfileUtils profileUtils,
+      PublicStorageClient publicStorageClient) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   /**
@@ -129,6 +135,15 @@ public final class ProgramCardsSectionParamsFactory {
                 isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
       }
 
+      Optional<String> fileKey = program.summaryImageFileKey();
+      if (fileKey.isPresent()) {
+        String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
+        cardBuilder.setImageSourceUrl(imageSourceUrl);
+
+        String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
+        cardBuilder.setAltText(altText);
+      }
+
       cardsListBuilder.add(cardBuilder.build());
     }
 
@@ -195,6 +210,10 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> applicationStatus();
 
+    public abstract Optional<String> imageSourceUrl();
+
+    public abstract Optional<String> altText();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
     }
@@ -220,6 +239,10 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setEligibilityMessage(String eligibilityMessage);
 
       public abstract Builder setApplicationStatus(String applicationStatus);
+
+      public abstract Builder setImageSourceUrl(String imageSourceUrl);
+
+      public abstract Builder setAltText(String altText);
 
       public abstract ProgramCardParams build();
     }

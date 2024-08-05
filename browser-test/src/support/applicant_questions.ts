@@ -96,7 +96,7 @@ export class ApplicantQuestions {
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
-    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    const filePath = 'file-size-' + mbSize + '-mb.pdf'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)
@@ -430,6 +430,22 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
+  async downloadFileFromReviewPage(fileName: string) {
+    await expect(
+      this.page.getByRole('heading', {name: 'Program application summary'}),
+    ).toBeVisible()
+
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText(fileName).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
     await this.expectConfirmationPage()
@@ -453,7 +469,9 @@ export class ApplicantQuestions {
 
   async expectReviewPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      await expect(this.page.locator('h1')).toContainText("Let's get started")
+      await expect(
+        this.page.locator('[data-testid="programSummary"]'),
+      ).toBeVisible()
     } else {
       await expect(this.page.locator('h2')).toContainText(
         'Program application summary',
@@ -693,5 +711,23 @@ export class ApplicantQuestions {
     await this.clickNext()
     await this.submitFromReviewPage()
     await this.page.click('text=End session')
+  }
+
+  async expectMayBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).not.toBeAttached()
+  }
+
+  async expectMayNotBeEligibileAlertToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
   }
 }

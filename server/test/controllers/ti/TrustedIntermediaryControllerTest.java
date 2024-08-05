@@ -2,12 +2,11 @@ package controllers.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
-import static support.CfTestHelpers.requestBuilderWithSettings;
+import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -21,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.AccountRepository;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -46,24 +44,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void testUpdateClientInfo_ThrowsApplicantNotFoundException()
       throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-18",
-                        "emailAddress",
-                        "sample3@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-18",
+                    "emailAddress",
+                    "sample3@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
@@ -82,24 +79,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "emailControllerSam",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "emailControllerSam",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Http.Request request2 = requestBuilder2.build();
     assertThatThrownBy(() -> tiController.editClient(account.id, request2))
         .isInstanceOf(ApplicantNotFoundException.class)
@@ -113,20 +109,19 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     account.setEmailAddress("test@ReturnsNotfound");
     account.save();
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "first",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com",
-                        "dob",
-                        "")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "first",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "last",
+                    "emailAddress",
+                    "sample1@fake.com",
+                    "dob",
+                    ""));
     Http.Request request = requestBuilder.build();
     Result result = tiController.showAddClientForm(account.id, request);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -135,24 +130,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testEditClient_AllFieldsUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "2022-07-18",
-                        "emailAddress",
-                        "testUpdate@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "2022-07-18",
+                    "emailAddress",
+                    "testUpdate@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
@@ -168,24 +162,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "emailControllerSam",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "2022-07-07",
+                    "emailAddress",
+                    "emailControllerSam",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
     Http.Request request2 = requestBuilder2.build();
     Result result2 = tiController.editClient(account.id, request2);
 
@@ -214,8 +207,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testShowEditClientFormCall() {
     AccountModel account = setupForEditClient("test33@test.com");
-    Http.Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = tiController.showEditClientForm(account.id, request);
+    Result result = tiController.showEditClientForm(account.id, fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -224,31 +216,29 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     ApplicantModel managedApplicant = createApplicantWithMockedProfile();
     createTIWithMockedProfile(managedApplicant);
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "",
-                        "emailAddress",
-                        "sam2@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "",
+                    "emailAddress",
+                    "sam2@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    System.out.println(contentAsString(result));
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Date of birth required");
   }
@@ -256,24 +246,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void addClient_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "2022-07-18",
-                        "emailAddress",
-                        "sample2@fake.com",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "2022-07-18",
+                    "emailAddress",
+                    "sample2@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(
@@ -289,24 +278,23 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
   private AccountModel setupForEditClient(String email) {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "clientMiddle",
-                        "lastName",
-                        "clientLast",
-                        "dob",
-                        "2022-07-18",
-                        "emailAddress",
-                        email,
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "4259879090")));
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "firstName",
+                    "clientFirst",
+                    "middleName",
+                    "clientMiddle",
+                    "lastName",
+                    "clientLast",
+                    "dob",
+                    "2022-07-18",
+                    "emailAddress",
+                    email,
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(

@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,6 +75,14 @@ public final class Block {
 
   public String getDescription() {
     return blockDefinition.description();
+  }
+
+  public String getLocalizedName(Locale preferredLocale) {
+    return blockDefinition.localizedName().getOrDefault(preferredLocale);
+  }
+
+  public String getLocalizedDescription(Locale preferredLocale) {
+    return blockDefinition.localizedDescription().getOrDefault(preferredLocale);
   }
 
   public Optional<EligibilityDefinition> getEligibilityDefinition() {

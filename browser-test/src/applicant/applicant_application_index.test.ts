@@ -51,6 +51,30 @@ test.describe('applicant program index page', () => {
     await logout(page)
   })
 
+  test('shows value of APPLICANT_PORTAL_NAME in welcome text', async ({
+    page,
+    adminSettings,
+  }) => {
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+    await adminSettings.setStringSetting(
+      'APPLICANT_PORTAL_NAME',
+      'Awesome Sauce',
+    )
+    await adminSettings.expectStringSetting(
+      'APPLICANT_PORTAL_NAME',
+      'Awesome Sauce',
+    )
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    expect(
+      await page
+        .getByText(/Log in to your (\w|\s)+ account or create/)
+        .textContent(),
+    ).toContain('Awesome Sauce')
+  })
+
   test('shows log in button for guest users', async ({
     page,
     applicantQuestions,
@@ -150,19 +174,15 @@ test.describe('applicant program index page', () => {
     })
   })
 
-  test('common intake form enabled but not present', async ({page}) => {
-    await enableFeatureFlag(page, 'intake_form_enabled')
-
+  test('common intake form not present', async ({page}) => {
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form enabled and present', () => {
+  test.describe('common intake form present', () => {
     const commonIntakeFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
-      await enableFeatureFlag(page, 'intake_form_enabled')
-
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
         commonIntakeFormProgramName,
@@ -305,7 +325,7 @@ test.describe('applicant program index page', () => {
           await validateScreenshot(
             page,
             'apply-program-login-prompt-northstar',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -403,6 +423,27 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
+  test(
+    'shows program with wide image in North Star',
+    {tag: ['@northstar']},
+    async ({page, adminPrograms, adminProgramImage}) => {
+      const programName = 'Wide Image Program'
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await validateScreenshot(page, 'north-star-program-image-wide')
+      await validateAccessibility(page)
+    },
+  )
+
   test('shows program with tall image', async ({
     page,
     adminPrograms,
@@ -468,8 +509,6 @@ test.describe('applicant program index page with images', () => {
     applicantQuestions,
   }) => {
     test.slow()
-
-    await enableFeatureFlag(page, 'intake_form_enabled')
 
     // Common Intake: Basic (no image or status)
     await loginAsAdmin(page)

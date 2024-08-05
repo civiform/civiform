@@ -151,6 +151,42 @@ public final class QuestionRepository {
   }
 
   /**
+   * Create multiple questions at once. Used in program migration to import all the questions in a
+   * program.
+   */
+  public ImmutableList<QuestionModel> bulkCreateQuestions(
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
+      ImmutableList<QuestionModel> updatedQuestions =
+          questionDefinitions.stream()
+              .map(
+                  questionDefinition -> {
+                    try {
+                      QuestionModel newDraftQuestion =
+                          new QuestionModel(
+                              new QuestionDefinitionBuilder(questionDefinition)
+                                  .setId(null)
+                                  .setPrimaryApplicantInfoTags(ImmutableSet.of())
+                                  .build());
+                      newDraftQuestion.addVersion(draftVersion);
+                      newDraftQuestion.save();
+                      return newDraftQuestion;
+                    } catch (UnsupportedQuestionTypeException error) {
+                      throw new RuntimeException(error);
+                    }
+                  })
+              .collect(ImmutableList.toImmutableList());
+      transaction.commit();
+
+      return updatedQuestions;
+    }
+  }
+
+  /**
    * Update DRAFT and ACTIVE questions that reference {@code oldEnumeratorId} to reference {@code
    * newEnumeratorId}.
    */
@@ -170,16 +206,21 @@ public final class QuestionRepository {
         // Update to the new enumerator ID.
         .forEach(
             question -> {
-              try {
-                createOrUpdateDraft(
-                    new QuestionDefinitionBuilder(getQuestionDefinition(question))
-                        .setEnumeratorId(Optional.of(newEnumeratorId))
-                        .build());
-              } catch (UnsupportedQuestionTypeException e) {
-                // All question definitions are looked up and should be valid.
-                throw new RuntimeException(e);
-              }
+              createOrUpdateDraft(
+                  updateEnumeratorId(getQuestionDefinition(question), newEnumeratorId));
             });
+  }
+
+  public QuestionDefinition updateEnumeratorId(
+      QuestionDefinition questionDefinition, Long newEnumeratorId) {
+    try {
+      return new QuestionDefinitionBuilder(questionDefinition)
+          .setEnumeratorId(Optional.of(newEnumeratorId))
+          .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // All question definitions are looked up and should be valid.
+      throw new RuntimeException(e);
+    }
   }
 
   /**

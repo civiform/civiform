@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import controllers.FlashKey;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -108,7 +109,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(
                   programId, blockDefinitionId))
-          .flashing("error", e.getLocalizedMessage());
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

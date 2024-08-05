@@ -11,18 +11,15 @@ import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
-import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 
 /**
  * This will build a sticky banner that follows the user as they scroll. Enable the
- * SHOW_NOT_PRODUCTION_BANNER_ENABLED setting to add this banner to the page. It will not show on a
- * production site even if the SHOW_NOT_PRODUCTION_BANNER_ENABLED setting is enabled.
+ * SHOW_NOT_PRODUCTION_BANNER_ENABLED setting to add this banner to the page. It will show on a
+ * production site if the SHOW_NOT_PRODUCTION_BANNER_ENABLED setting is enabled. Default is false.
  *
  * <p>Set the CIVIC_ENTITY_PRODUCTION_URL to include an optional link to the production site.
  *
@@ -31,14 +28,11 @@ import services.settings.SettingsManifest;
  */
 public final class PageNotProductionBanner {
 
-  private static final Logger logger = LoggerFactory.getLogger(PageNotProductionBanner.class);
   private final SettingsManifest settingsManifest;
-  private final DeploymentType deploymentType;
 
   @Inject
-  public PageNotProductionBanner(SettingsManifest settingsManifest, DeploymentType deploymentType) {
+  public PageNotProductionBanner(SettingsManifest settingsManifest) {
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.deploymentType = checkNotNull(deploymentType);
   }
 
   public Optional<DivTag> render(Http.Request request, Messages messages) {
@@ -46,15 +40,10 @@ public final class PageNotProductionBanner {
       return Optional.empty();
     }
 
-    if (!deploymentType.isDevOrStaging()) {
-      logger.debug("Don't show this banner on production");
-      return Optional.empty();
-    }
-
     String productionUrl = settingsManifest.getCivicEntityProductionUrl(request).orElse("");
 
     ATag link =
-        a(settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("") + " CiviForm")
+        a(settingsManifest.getWhitelabelCivicEntityFullName(request).orElse("") + " CiviForm")
             .withHref(productionUrl)
             .withClasses("font-bold", "underline", "hover:no-underline");
 

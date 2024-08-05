@@ -31,6 +31,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.AlertType;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -40,6 +41,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -215,8 +217,23 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
-    DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+    DivTag previewContent;
+
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
+      // fragments without using HTMX
+      previewContent =
+          div()
+              .attr("hx-swap", "outerHTML")
+              .attr(
+                  "hx-get",
+                  controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
+                      type.getLabel()))
+              .attr("hx-trigger", "load");
+    } else {
+      previewContent =
+          QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+    }
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
@@ -436,14 +453,16 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> questionConfig =
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest.getMultipleFileUploadEnabled(request));
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
 
     questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
 
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
         && questionForm.getEnumeratorId().isEmpty()
         && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
       questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));
@@ -534,26 +553,26 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          ViewUtils.makeAlertSlim(
+                          AlertComponent.renderSlimAlert(
+                              AlertType.INFO,
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
-                              /* classes...= */ BaseStyles.ALERT_INFO,
                               "cf-pai-not-universal-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          ViewUtils.makeAlertSlim(
+                          AlertComponent.renderSlimAlert(
+                              AlertType.INFO,
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
-                              /* classes...= */ BaseStyles.ALERT_INFO,
                               "cf-pai-tag-set-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          ViewUtils.makeAlertSlim(
+                          AlertComponent.renderSlimAlert(
+                              AlertType.INFO,
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),
-                              /* classes...= */ BaseStyles.ALERT_INFO,
                               "cf-pai-tag-set-not-universal-alert",
                               "usa-alert-remove-top-margin"));
               result.with(tagSubsection);

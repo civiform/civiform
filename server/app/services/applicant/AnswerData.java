@@ -1,6 +1,7 @@
 package services.applicant;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import services.Path;
@@ -76,6 +77,20 @@ public abstract class AnswerData {
   public abstract Optional<String> encodedFileKey();
 
   /**
+   * Identifiers for the applicant's uploaded files, UTF-8 encoded.
+   *
+   * <p>Only set for questions answered when the "MULTIPLE_FILE_UPLOAD_ENABLED" feature flag is
+   * enabled.
+   */
+  public abstract ImmutableList<String> encodedFileKeys();
+
+  /**
+   * File names for the applicant's uploaded files. Will always be the same size as {@link
+   * #encodedFileKeys}, with corresponding indicies.
+   */
+  public abstract ImmutableList<String> fileNames();
+
+  /**
    * The original file name of the applicant's uploaded file, if applicable. For example, this is
    * needed for Azure blob storage, where the original file name is different from the file key.
    */
@@ -125,6 +140,10 @@ public abstract class AnswerData {
     public abstract Builder setEncodedFileKey(Optional<String> encodedFileKey);
 
     public abstract Builder setOriginalFileName(Optional<String> originalFileName);
+
+    public abstract Builder setEncodedFileKeys(ImmutableList<String> encodedFileKeys);
+
+    public abstract Builder setFileNames(ImmutableList<String> fileNames);
 
     public abstract Builder setTimestamp(Long timestamp);
 

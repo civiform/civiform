@@ -26,12 +26,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
 
 /**
  * An immutable configuration of a program.
@@ -132,6 +134,10 @@ public abstract class ProgramDefinition {
   /** A description of the program's summary image, used for alt text. */
   @JsonProperty("localizedSummaryImageDescription")
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
+
+  /** The categories this program belongs to. */
+  @JsonProperty("categories")
+  public abstract ImmutableList<CategoryModel> categories();
 
   /** A key used to fetch the program's summary image from cloud storage. */
   // JsonIgnored because the file key points to a file in cloud storage, and different instances
@@ -827,6 +833,9 @@ public abstract class ProgramDefinition {
     @JsonProperty("localizedSummaryImageDescription")
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
+
+    @JsonProperty("categories")
+    public abstract Builder setCategories(ImmutableList<CategoryModel> categories);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

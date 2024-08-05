@@ -36,14 +36,12 @@ public class QuestionDefinitionTest {
             .setName("name")
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"));
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"));
     configBuilder =
         QuestionDefinitionConfig.builder()
             .setName("name")
             .setDescription("description")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"));
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"));
   }
 
   @Test
@@ -199,7 +197,9 @@ public class QuestionDefinitionTest {
 
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
-    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder.setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text")).build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
@@ -242,7 +242,9 @@ public class QuestionDefinitionTest {
 
   @Test
   public void maybeGetQuestionText_returnsOptionalWithText() {
-    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder.setQuestionText(LocalizedStrings.of(Locale.US, "question?")).build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("question?");
   }
@@ -256,7 +258,9 @@ public class QuestionDefinitionTest {
 
   @Test
   public void maybeGetQuestionHelpText_returnsOptionalWithText() {
-    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder.setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text")).build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("help text");
   }
@@ -685,6 +689,7 @@ public class QuestionDefinitionTest {
             + " updated version.");
   }
 
+  @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
     return ImmutableList.of(
         // Valid cases.

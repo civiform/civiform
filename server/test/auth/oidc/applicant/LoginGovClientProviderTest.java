@@ -1,7 +1,7 @@
 package auth.oidc.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
@@ -38,7 +38,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   private static final String CLIENT_ID = "login:gov:client";
 
   private static final SessionStore mockSessionStore = Mockito.mock(SessionStore.class);
-  private static final Request requestMock = fakeRequest().remoteAddress("1.1.1.1").build();
+  private static final Request requestMock = fakeRequestBuilder().remoteAddress("1.1.1.1").build();
   private static final PlayWebContext webContext = new PlayWebContext(requestMock);
 
   @Before

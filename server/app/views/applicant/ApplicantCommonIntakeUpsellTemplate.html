@@ -4,43 +4,60 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main role="main" class="margin-2">
-      <div th:replace="~{components/ToastFragment :: upsellToasts}"></div>
-      <h1>
-        <th:block
-          th:text="${isTrustedIntermediary} ? #{title.commonIntakeConfirmationTi} : #{title.commonIntakeConfirmation}"
-        ></th:block>
-      </h1>
+    <main>
+      <div class="grid-container section">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <div th:replace="~{components/ToastFragment :: upsellToasts}"></div>
+            <h1>
+              <th:block
+                th:text="${isTrustedIntermediary} ? #{title.commonIntakeConfirmationTi} : #{title.commonIntakeConfirmation}"
+              ></th:block>
+            </h1>
 
-      <div th:if="${eligiblePrograms.size() eq 0}" class="margin-y-2">
-        <!-- utext is necessary to insert a hyperlink into a localized string. -->
-        <p
-          th:utext="${isTrustedIntermediary} ? #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} : #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
-        ></p>
-      </div>
+            <div th:if="${eligiblePrograms.size() eq 0}" class="margin-y-2">
+              <!-- utext is necessary to insert a hyperlink into a localized string. -->
+              <p
+                th:utext="${isTrustedIntermediary} ? #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} : #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
+              ></p>
+            </div>
 
-      <div th:if="${eligiblePrograms.size() neq 0}" class="margin-y-2">
-        <p
-          th:text="${isTrustedIntermediary} ? #{content.commonIntakeConfirmationTi} : #{content.commonIntakeConfirmation}"
-        ></p>
+            <div th:if="${eligiblePrograms.size() neq 0}" class="margin-y-2">
+              <p
+                th:text="${isTrustedIntermediary} ? #{content.commonIntakeConfirmationTi} : #{content.commonIntakeConfirmation}"
+              ></p>
 
-        <div th:each="ep : ${eligiblePrograms}" class="margin-y-2">
-          <h2 th:text="${ep.getTitle()}"></h2>
-          <p th:text="${ep.getDescription()}"></p>
+              <div th:each="ep : ${eligiblePrograms}" class="margin-y-2">
+                <h2 th:text="${ep.getTitle()}"></h2>
+                <p th:text="${ep.getDescription()}"></p>
+              </div>
+            </div>
+
+            <a
+              th:if="${!isGuest}"
+              href="/"
+              class="usa-button"
+              id="another-program"
+              th:text="#{link.applyToAnotherProgram}"
+            ></a>
+            <a
+              th:if="${isGuest}"
+              href="#login-dialog-upsell"
+              aria-controls="login-dialog-upsell"
+              class="usa-button"
+              id="another-program"
+              th:text="#{link.applyToAnotherProgram}"
+              data-open-modal
+            ></a>
+          </div>
         </div>
       </div>
-
-      <a
-        href="/"
-        class="usa-button"
-        id="another-program"
-        th:text="#{link.applyToAnotherProgram}"
-      >
-      </a>
     </main>
-    <div th:replace="~{applicant/ModalFragment:: modalContainer}"></div>
-    <footer
-      th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"
-    ></footer>
+    <div
+      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
+                                                           <!--/* showReviewLogin= */-->false,
+                                                           <!--/* showUpsellLogin= */-->${isGuest})}"
+    ></div>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

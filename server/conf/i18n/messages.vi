@@ -11,9 +11,21 @@
 button.logout=Đăng xuất
 label.selectLanguage=Vui lòng chọn ngôn ngữ bạn ưa dùng.
 button.untranslatedSubmit=Gửi
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=Giới thiệu về CiviForm
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=Một trang web chính thức của {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Quay lại đầu trang
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=Để được hỗ trợ kỹ thuật: {0}
 guest=Khách
 label.languageSr=Chọn một ngôn ngữ
+# A label on the button that opens the header menu shown on mobile
+header.menu=Trình đơn
 header.endSession=Kết thúc phiên truy cập
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 header.guestIndicator=Bạn là người dùng khách
@@ -24,7 +36,7 @@ validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc ph
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
-content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
+content.requiredFieldsNoteNorthStar=Các trường bắt buộc được đánh dấu bằng dấu hoa thị ({0}).
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
@@ -63,15 +75,15 @@ button.keepFile=Tiếp tục
 button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
 # The label on a button that will navigate the user to the previous section of the form.
-button.back=Back
+button.back=Quay lại
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.saveAndExit=Lưu và hoàn tất quá trình đăng ký sau
 button.skipFileUpload=Bỏ qua
 content.blockProgress={0}/{1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
 # An aria-label on a progress bar showing user how much of the application they have completed.
-content.blockProgressLabel=Application progress
+content.blockProgressLabel=Tiến trình đăng ký
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -324,6 +336,46 @@ toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể kh
 toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
 banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
 
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia chương trình này.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=Bạn có thể không đủ điều kiện tham gia chương trình này
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi tiếp tục quá trình đăng ký.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Bạn có thể không còn đủ điều kiện tham gia chương trình này nữa
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ điều kiện tham gia chương trình này.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời của mình rồi tiếp tục quá trình đăng ký.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Khách hàng của bạn có thể không còn đủ điều kiện tham gia chương trình này nữa
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -469,15 +521,14 @@ validation.impossibleDob=Ngày sinh phải cách đây không quá 150 năm
 
 button.addEntity=Thêm {0}
 button.removeEntity=Xoá {0}
-dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Bạn có chắc chắn muốn xoá mục {0} này không? Thay đổi này sẽ được lưu khi bạn nhấp vào "Xem lại", "Trước" hoặc "Tiếp theo" và tất cả dữ liệu liên kết với mục {0} này sẽ bị mất.
 validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
 validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
-validation.tooManyEntities=Please enter at most {0} values.
+validation.tooManyEntities=Vui lòng nhập không quá {0} giá trị.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
-validation.tooFewEntities=Please enter at least {0} values.
+validation.tooFewEntities=Vui lòng nhập ít nhất {0} giá trị.
 placeholder.entityName=Tên {0}
 
 #---------------------------------------------------------------------------------#
@@ -502,7 +553,8 @@ validation.numberRequired=Chỉ được chứa chữ số.
 #----------------------------------------------------------------------------------------------------------#
 
 validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
-validation.tooManySelections=Vui lòng chọn ít hơn {0}.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Vui lòng chọn không quá {0}.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -571,6 +623,8 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 #------------------------------------------------------------------------------#
 
 banner.title=Đây là một trang web chính thức của chính phủ.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=Một trang web chính thức của chính phủ Hoa Kỳ
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
@@ -585,3 +639,11 @@ banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có ngh
 banner.notForProductionBannerLine1=Trang web này chỉ dành cho mục đích thử nghiệm. Đừng nhập thông tin cá nhân.
 # A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc dịch vụ, hãy truy cập {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=Bạn đang đăng ký với tư cách là khách. Sau khi đăng ký xong, hãy {0} để bảo vệ dữ liệu của bạn.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=kết thúc phiên của bạn
