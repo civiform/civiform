@@ -12,7 +12,6 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -23,6 +22,7 @@ import javax.persistence.RollbackException;
 import models.CategoryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.i18n.Lang;
 import repository.CategoryRepository;
 import repository.VersionRepository;
@@ -97,20 +97,23 @@ public final class DatabaseSeedTask {
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
+  private final Environment environment;
 
   @Inject
   public DatabaseSeedTask(
       QuestionService questionService,
       VersionRepository versionRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      Environment environment) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.database = DB.getDefault();
+    this.environment = checkNotNull(environment);
   }
 
   public ImmutableList<QuestionDefinition> run() {
-    seedProgramCategories();
+    if (categoryRepository.listCategories().isEmpty()) seedProgramCategories();
     return seedCanonicalQuestions();
   }
 
@@ -165,29 +168,18 @@ public final class DatabaseSeedTask {
   }
 
   /** Seeds the predefined program categories from the category translation files. */
-  private List<CategoryModel> seedProgramCategories() {
-    List<CategoryModel> categories = new ArrayList<>();
+  private void seedProgramCategories() {
+    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
+    List<CategoryModel> categories = parser.createCategoryModelList();
 
-    CategoryTranslationFileParser.PROGRAM_CATEGORY_NAMES.forEach(
-        categoryName -> {
-          categories.add(
-              CategoryTranslationFileParser.createCategoryModelFromTranslationsMap(categoryName));
-        });
-
-    List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(
         category -> {
           inSerializableTransaction(
               () -> {
-                CategoryModel inserted = categoryRepository.fetchOrSaveUniqueCategory(category);
-                if (inserted != null) {
-                  dbCategories.add(inserted);
-                }
+                categoryRepository.fetchOrSaveUniqueCategory(category);
               },
               1);
         });
-
-    return dbCategories;
   }
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {

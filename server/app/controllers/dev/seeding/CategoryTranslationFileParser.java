@@ -51,16 +51,22 @@ public final class CategoryTranslationFileParser {
     parseCategoryTranslationFiles();
 
     List<CategoryModel> categoryModels = new ArrayList<>();
-    categoryModels.add(createCategoryModelFromCategoryMap(childcareMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(economicMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(educationMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(foodMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(generalMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(healthcareMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(housingMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(internetMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(transportationMap));
-    categoryModels.add(createCategoryModelFromCategoryMap(utilitiesMap));
+    if (!childcareMap.isEmpty())
+      categoryModels.add(createCategoryModelFromCategoryMap(childcareMap));
+    if (!economicMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(economicMap));
+    if (!educationMap.isEmpty())
+      categoryModels.add(createCategoryModelFromCategoryMap(educationMap));
+    if (!foodMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(foodMap));
+    if (!generalMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(generalMap));
+    if (!healthcareMap.isEmpty())
+      categoryModels.add(createCategoryModelFromCategoryMap(healthcareMap));
+    if (!housingMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(housingMap));
+    if (!internetMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(internetMap));
+    if (!transportationMap.isEmpty())
+      categoryModels.add(createCategoryModelFromCategoryMap(transportationMap));
+    if (!utilitiesMap.isEmpty())
+      categoryModels.add(createCategoryModelFromCategoryMap(utilitiesMap));
+
     return categoryModels;
   }
 
@@ -74,7 +80,24 @@ public final class CategoryTranslationFileParser {
       logger.error("File is not a directory: " + CATEGORY_TRANSLATIONS_DIRECTORY);
       return;
     }
-    File[] files = directory.listFiles();
+    File[] files = null;
+    try {
+      files = directory.listFiles();
+    } catch (SecurityException e) {
+      logger.error(
+          "There was a security exception listing files in directory: "
+              + CATEGORY_TRANSLATIONS_DIRECTORY,
+          e);
+    }
+
+    if (files == null) {
+      logger.error(
+          "Unable to list files in directory: "
+              + CATEGORY_TRANSLATIONS_DIRECTORY
+              + ".  "
+              + "There may have been an I/O error.");
+      return;
+    }
     for (File file : files) {
       String fileLanguage = FilenameUtils.getExtension(file.getName());
       try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
@@ -122,7 +145,7 @@ public final class CategoryTranslationFileParser {
                 });
 
       } catch (FileNotFoundException e) {
-        logger.error("File not found: " + file.getName());
+        logger.error("File not found: " + file.getName(), e);
       } catch (IOException e) {
         logger.error("Error reading file: " + file.getName(), e);
       }

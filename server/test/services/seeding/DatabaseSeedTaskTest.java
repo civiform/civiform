@@ -2,11 +2,15 @@ package services.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Set;
+import models.CategoryModel;
+import models.LifecycleStage;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
+import repository.CategoryRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -18,11 +22,13 @@ import services.question.types.QuestionDefinitionConfig;
 public class DatabaseSeedTaskTest extends ResetPostgres {
 
   private QuestionRepository questionRepository;
+  private CategoryRepository categoryRepository;
   private DatabaseSeedTask databaseSeedTask;
 
   @Before
   public void setUp() {
     questionRepository = instanceOf(QuestionRepository.class);
+    categoryRepository = instanceOf(CategoryRepository.class);
     databaseSeedTask = instanceOf(DatabaseSeedTask.class);
   }
 
@@ -64,6 +70,39 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
                 .map(QuestionModel::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
         .containsOnly("Name", "Applicant Date of Birth");
+  }
+
+  @Test
+  public void seedProgramCategories_whenCategoriesNotSeededYet_insertsCategories() {
+    databaseSeedTask.run();
+
+    ImmutableList<CategoryModel> allCategories = categoryRepository.listCategories();
+    ImmutableList<String> supportedLanguages =
+        ImmutableList.of("am", "en-US", "es-US", "ko", "lo", "so", "tl", "vi", "zh-TW");
+
+    assertThat(allCategories.size()).isEqualTo(10);
+    allCategories.forEach(
+        category -> {
+          assertThat(category.getLocalizedName().getDefault()).isNotEmpty();
+          assertThat(category.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+          supportedLanguages.forEach(
+              lang -> {
+                assertThat(
+                        category
+                            .getLocalizedName()
+                            .hasTranslationFor(Lang.forCode(lang).toLocale()))
+                    .isTrue();
+              });
+        });
+  }
+
+  @Test
+  public void seedProgramCategories_whenCategoriesAlreadySeeded_doesNothing() {
+    databaseSeedTask.run();
+    assertThat(categoryRepository.listCategories().size()).isEqualTo(10);
+
+    databaseSeedTask.run(); // Run again to ensure categories aren't re-added.
+    assertThat(categoryRepository.listCategories().size()).isEqualTo(10);
   }
 
   private Set<QuestionModel> getAllQuestions() {
