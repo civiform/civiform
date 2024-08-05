@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.DbEnumType;
+import io.ebean.annotation.DbEnumValue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +40,26 @@ import services.applicant.ApplicantData;
 @Entity
 @Table(name = "applicants")
 public class ApplicantModel extends BaseModel {
+  public enum NameSuffix {
+    JR("Jr."),
+    SR("Sr."),
+    I("I"),
+    II("II"),
+    III("III"),
+    IV("IV"),
+    V("V");
+
+    private final String displayName;
+
+    NameSuffix(String displayName) {
+      this.displayName = displayName;
+    }
+
+    @DbEnumValue(storage = DbEnumType.VARCHAR)
+    public String getValue() {
+      return this.displayName;
+    }
+  }
 
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
@@ -56,6 +78,7 @@ public class ApplicantModel extends BaseModel {
   private String firstName;
   private String middleName;
   private String lastName;
+  private String nameSuffix;
   private String emailAddress;
   private String countryCode;
   private String phoneNumber;
@@ -128,6 +151,15 @@ public class ApplicantModel extends BaseModel {
   public Optional<String> getLastName() {
     return Optional.ofNullable(lastName);
   }
+
+  public ApplicantModel setNameSuffix(String nameSuffix) {
+    this.nameSuffix = nameSuffix.isEmpty() || nameSuffix.isBlank() ? null : nameSuffix;
+    return this;
+  }
+
+  public Optional<String> getNameSuffixe() {
+    return Optional.ofNullable(nameSuffix);
+  }  
 
   public ApplicantModel setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress.isEmpty() || emailAddress.isBlank() ? null : emailAddress;
