@@ -157,7 +157,7 @@ public class ApplicantModel extends BaseModel {
     return this;
   }
 
-  public Optional<String> getNameSuffixe() {
+  public Optional<String> getNameSuffix() {
     return Optional.ofNullable(nameSuffix);
   }
 

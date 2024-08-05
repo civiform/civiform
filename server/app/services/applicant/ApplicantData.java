@@ -152,6 +152,12 @@ public class ApplicantData extends CfJsonDocumentContext {
         .or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
   }
 
+  public Optional<String> getApplicantNameSuffix() {
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getNameSuffix)
+        .or(() -> readString(WellKnownPaths.APPLICANT_SUFFIX));
+  }
+
   public Optional<String> getApplicantEmail() {
     return Optional.ofNullable(applicant)
         .flatMap(ApplicantModel::getEmailAddress)
@@ -206,6 +212,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     String firstName;
     Optional<String> lastName = Optional.empty();
     Optional<String> middleName = Optional.empty();
+    Optional<String> nameSuffix = Optional.empty();
     List<String> listSplit = Splitter.on(' ').splitToList(displayName);
     switch (listSplit.size()) {
       case 2:
@@ -216,6 +223,7 @@ public class ApplicantData extends CfJsonDocumentContext {
         firstName = listSplit.get(0);
         middleName = Optional.of(listSplit.get(1));
         lastName = Optional.of(listSplit.get(2));
+        nameSuffix = Optional.of(listSplit.get(3));
         break;
       case 1:
         // fallthrough
@@ -223,13 +231,16 @@ public class ApplicantData extends CfJsonDocumentContext {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName, false);
+    setUserName(firstName, middleName, lastName, nameSuffix, false);
   }
 
   // By default, overwrite name fields if data exists in them
   public void setUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName) {
-    setUserName(firstName, middleName, lastName, true);
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix) {
+    setUserName(firstName, middleName, lastName, nameSuffix, true);
   }
 
   /**
@@ -238,14 +249,20 @@ public class ApplicantData extends CfJsonDocumentContext {
    * @param firstName First name of applicant
    * @param middleName Middle name of applicant
    * @param lastName Last name of applicant
+   * @param nameSuffix Name suffix of applicant
    * @param overwrite When false, if first name already exists, do not update fields and return
    *     unchanged.
    */
   public void setUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName, boolean overwrite) {
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix,
+      boolean overwrite) {
     Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
     Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
     Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    Path suffixPath = WellKnownPaths.APPLICANT_SUFFIX;
     boolean firstNamePresent =
         applicant.getFirstName().isPresent()
             || (hasPath(firstPath) && readString(firstPath).isPresent());
@@ -270,6 +287,13 @@ public class ApplicantData extends CfJsonDocumentContext {
     } else {
       if (hasPath(lastPath)) {
         getDocumentContext().delete(lastPath.toString());
+      }
+    }
+    if (nameSuffix.isPresent()) {
+      putString(suffixPath, nameSuffix.get());
+    } else {
+      if (hasPath(suffixPath)) {
+        getDocumentContext().delete(suffixPath.toString());
       }
     }
   }
