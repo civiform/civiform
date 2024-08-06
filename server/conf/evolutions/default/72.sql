@@ -1,7 +1,7 @@
---- Drop status_definitions column in programs table.
+# --- Add suffix column to applicants table
 
 # --- !Ups
-alter table programs drop column if exists status_definitions;
+ALTER TABLE applicants add column IF NOT EXISTS suffix varchar;
 
 # --- !Downs
-alter table programs add status_definitions jsonb;
+ALTER TABLE applicants DROP column IF EXISTS suffix;
