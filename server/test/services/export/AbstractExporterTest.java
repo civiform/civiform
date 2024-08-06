@@ -14,6 +14,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
@@ -73,11 +74,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationFour;
   protected ApplicationModel applicationFive;
   protected ApplicationModel applicationSeven;
+  private ApplicationStatusesRepository appStatusRepo;
 
   @Before
   public void setup() {
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     programService = instanceOf(ProgramService.class);
+    appStatusRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   protected void answerQuestion(
@@ -238,7 +241,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           .withRequiredQuestion(fakeQuestions.get(i))
           .build();
     }
-    fakeProgram.withStatusDefinitions(
+    this.fakeProgram = fakeProgram.build();
+    appStatusRepo.createOrUpdateStatusDefinitions(
+        this.fakeProgram.getProgramDefinition().adminName(),
         new StatusDefinitions()
             .setStatuses(
                 ImmutableList.of(
@@ -249,8 +254,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
                                 .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_VALUE))
                                 .build())
                         .build())));
-
-    this.fakeProgram = fakeProgram.build();
   }
 
   protected void createFakeProgramWithOptionalQuestion(QuestionModel optionalQuestion) {

@@ -33,7 +33,6 @@ import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.statuses.StatusDefinitions;
 
 /**
  * An immutable configuration of a program.
@@ -105,10 +104,6 @@ public abstract class ProgramDefinition {
   /** The list of {@link BlockDefinition}s that make up the program. */
   @JsonProperty("blockDefinitions")
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
-
-  /** The application review statuses available for the program. */
-  @JsonProperty("statusDefinitions")
-  public abstract StatusDefinitions statusDefinitions();
 
   /** When was this program created. Could be null for older programs. */
   @JsonIgnore
@@ -805,9 +800,6 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("blockDefinitions")
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
-
-    @JsonProperty("statusDefinitions")
-    public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
 
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
 

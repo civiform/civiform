@@ -96,17 +96,16 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void index_ok_noEmailOrDefaultForStatus() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(
-                new StatusDefinitions(
-                    ImmutableList.of(
-                        StatusDefinitions.Status.builder()
-                            .setStatusText("Status with no email")
-                            .setLocalizedStatusText(
-                                LocalizedStrings.withDefaultValue("Status with no email"))
-                            .build())))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText("Status with no email")
+                    .setLocalizedStatusText(
+                        LocalizedStrings.withDefaultValue("Status with no email"))
+                    .build())));
 
     Result result = controller.index(fakeRequestBuilder().method("GET").build(), program.id);
 
@@ -119,10 +118,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createNewStatus() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -156,10 +154,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createNewStatusAsDefault() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -235,10 +232,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editExistingStatus() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -273,10 +269,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   public void update_editExistingStatusPreservesNonDefaultLocaleTranslations()
       throws ProgramNotFoundException, TranslationNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -323,10 +318,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   public void update_editExistingStatusClearEmailClearsTranslatedEmailContent()
       throws ProgramNotFoundException, TranslationNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -365,10 +359,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editExistingStatusMakeDefault() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result1 =
         makeCreateOrUpdateRequest(
@@ -442,10 +435,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_emptyStatusParam() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -468,10 +460,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editStatusNameAlreadyExists() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -495,10 +486,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editUnrecognizedStatusName() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -522,10 +512,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createStatusNameAlreadyExists() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeCreateOrUpdateRequest(
@@ -567,10 +556,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_ok() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result =
         makeDeleteRequest(
@@ -589,10 +577,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_unrecognizedStatusParam() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result = makeDeleteRequest(program.id, ImmutableMap.of("deleteStatusText", "oldStatus"));
 
@@ -610,10 +597,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_missingStatusParam() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
 
     Result result = makeDeleteRequest(program.id, ImmutableMap.of("deleteStatusText", ""));
 

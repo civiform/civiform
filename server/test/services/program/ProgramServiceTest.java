@@ -63,7 +63,6 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.settings.SettingsManifest;
-import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -2435,7 +2434,6 @@ public class ProgramServiceTest extends ResetPostgres {
                     "English image description",
                     Locale.FRENCH,
                     "existing French image description"))
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of()))
             .build();
 
     LocalizationUpdate updateData =

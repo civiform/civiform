@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -32,19 +31,16 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import services.statuses.StatusDefinitions;
 
 public class ProgramModelTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private Long uniqueProgramId;
-  private ApplicationStatusesRepository appStatusRepo;
 
   @Before
   public void setupProgramRepository() {
     repo = instanceOf(ProgramRepository.class);
     uniqueProgramId = new Random().nextLong();
-    appStatusRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
@@ -84,7 +80,6 @@ public class ProgramModelTest extends ResetPostgres {
                 LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
@@ -97,8 +92,6 @@ public class ProgramModelTest extends ResetPostgres {
     ProgramModel program = new ProgramModel(definition);
 
     program.save();
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        program.getProgramDefinition().adminName(), new StatusDefinitions());
 
     ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
@@ -177,7 +170,6 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
@@ -186,8 +178,6 @@ public class ProgramModelTest extends ResetPostgres {
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        program.getProgramDefinition().adminName(), new StatusDefinitions());
 
     ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
@@ -240,7 +230,6 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
@@ -249,8 +238,6 @@ public class ProgramModelTest extends ResetPostgres {
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        program.getProgramDefinition().adminName(), new StatusDefinitions());
 
     ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
@@ -353,7 +340,6 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
@@ -368,8 +354,6 @@ public class ProgramModelTest extends ResetPostgres {
 
     ProgramModel program = programDefinition.toProgram();
     program.save();
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        program.getProgramDefinition().adminName(), new StatusDefinitions());
 
     assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
   }
