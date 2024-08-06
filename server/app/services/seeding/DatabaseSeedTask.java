@@ -113,7 +113,7 @@ public final class DatabaseSeedTask {
   }
 
   public ImmutableList<QuestionDefinition> run() {
-    if (categoryRepository.listCategories().isEmpty()) seedProgramCategories();
+    seedProgramCategories();
     return seedCanonicalQuestions();
   }
 
@@ -169,17 +169,24 @@ public final class DatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   private void seedProgramCategories() {
-    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
-    List<CategoryModel> categories = parser.createCategoryModelList();
+    if (categoryRepository.listCategories().isEmpty()) {
+      try {
+        CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
+        List<CategoryModel> categories = parser.createCategoryModelList();
 
-    categories.forEach(
-        category -> {
-          inSerializableTransaction(
-              () -> {
-                categoryRepository.fetchOrSaveUniqueCategory(category);
-              },
-              1);
-        });
+        categories.forEach(
+            category -> {
+              inSerializableTransaction(
+                  () -> {
+                    categoryRepository.fetchOrSaveUniqueCategory(category);
+                  },
+                  1);
+            });
+      } catch (RuntimeException e) {
+        // We don't want to prevent startup if seeding fails.
+        LOGGER.error("Failed to seed program categories.", e);
+      }
+    }
   }
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {

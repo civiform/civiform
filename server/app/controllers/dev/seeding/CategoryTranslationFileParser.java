@@ -51,104 +51,109 @@ public final class CategoryTranslationFileParser {
     parseCategoryTranslationFiles();
 
     List<CategoryModel> categoryModels = new ArrayList<>();
-    if (!childcareMap.isEmpty())
-      categoryModels.add(createCategoryModelFromCategoryMap(childcareMap));
-    if (!economicMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(economicMap));
-    if (!educationMap.isEmpty())
-      categoryModels.add(createCategoryModelFromCategoryMap(educationMap));
-    if (!foodMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(foodMap));
-    if (!generalMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(generalMap));
-    if (!healthcareMap.isEmpty())
-      categoryModels.add(createCategoryModelFromCategoryMap(healthcareMap));
-    if (!housingMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(housingMap));
-    if (!internetMap.isEmpty()) categoryModels.add(createCategoryModelFromCategoryMap(internetMap));
-    if (!transportationMap.isEmpty())
-      categoryModels.add(createCategoryModelFromCategoryMap(transportationMap));
-    if (!utilitiesMap.isEmpty())
-      categoryModels.add(createCategoryModelFromCategoryMap(utilitiesMap));
+
+    List<Map<String, String>> categoryMaps =
+        List.of(
+            childcareMap,
+            economicMap,
+            educationMap,
+            foodMap,
+            generalMap,
+            healthcareMap,
+            housingMap,
+            internetMap,
+            transportationMap,
+            utilitiesMap);
+
+    categoryMaps.stream()
+        .filter(map -> !map.isEmpty())
+        .map(this::createCategoryModelFromCategoryMap)
+        .forEach(categoryModels::add);
 
     return categoryModels;
   }
 
   private void parseCategoryTranslationFiles() {
     File directory = environment.getFile(CATEGORY_TRANSLATIONS_DIRECTORY);
+
     if (!directory.exists()) {
       logger.error("Directory does not exist: " + CATEGORY_TRANSLATIONS_DIRECTORY);
       return;
     }
+
     if (!directory.isDirectory()) {
       logger.error("File is not a directory: " + CATEGORY_TRANSLATIONS_DIRECTORY);
       return;
     }
-    File[] files = null;
+
+    File[] files;
     try {
       files = directory.listFiles();
+      if (files == null) {
+        logger.error(
+            "Unable to list files in directory: "
+                + CATEGORY_TRANSLATIONS_DIRECTORY
+                + ".  "
+                + "There may have been an I/O error.");
+        return;
+      }
+      for (File file : files) {
+        String fileLanguage = FilenameUtils.getExtension(file.getName());
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
+
+          Properties prop = new Properties();
+          prop.load(reader);
+
+          prop.entrySet()
+              .forEach(
+                  entry -> {
+                    switch ((String) entry.getKey()) {
+                      case "tag.childcare":
+                        childcareMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.economic":
+                        economicMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.education":
+                        educationMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.food":
+                        foodMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.general":
+                        generalMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.healthcare":
+                        healthcareMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.housing":
+                        housingMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.internet":
+                        internetMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.transportation":
+                        transportationMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "tag.utilities":
+                        utilitiesMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      default:
+                        logger.error("Unknown category: " + entry.getKey());
+                    }
+                  });
+
+        } catch (FileNotFoundException e) {
+          logger.error("File not found: " + file.getName(), e);
+        } catch (IOException e) {
+          logger.error("Error reading file: " + file.getName(), e);
+        }
+      }
     } catch (SecurityException e) {
       logger.error(
           "There was a security exception listing files in directory: "
               + CATEGORY_TRANSLATIONS_DIRECTORY,
           e);
-    }
-
-    if (files == null) {
-      logger.error(
-          "Unable to list files in directory: "
-              + CATEGORY_TRANSLATIONS_DIRECTORY
-              + ".  "
-              + "There may have been an I/O error.");
-      return;
-    }
-    for (File file : files) {
-      String fileLanguage = FilenameUtils.getExtension(file.getName());
-      try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
-
-        Properties prop = new Properties();
-        prop.load(reader);
-
-        prop.entrySet()
-            .forEach(
-                entry -> {
-                  switch ((String) entry.getKey()) {
-                    case "tag.childcare":
-                      childcareMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.economic":
-                      economicMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.education":
-                      educationMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.food":
-                      foodMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.general":
-                      generalMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.healthcare":
-                      healthcareMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.housing":
-                      housingMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.internet":
-                      internetMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.transportation":
-                      transportationMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    case "tag.utilities":
-                      utilitiesMap.put(fileLanguage, (String) entry.getValue());
-                      break;
-                    default:
-                      logger.error("Unknown category: " + entry.getKey());
-                  }
-                });
-
-      } catch (FileNotFoundException e) {
-        logger.error("File not found: " + file.getName(), e);
-      } catch (IOException e) {
-        logger.error("Error reading file: " + file.getName(), e);
-      }
     }
   }
 
