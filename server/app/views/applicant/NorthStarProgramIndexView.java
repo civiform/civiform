@@ -66,8 +66,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
 
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
 
-    if (settingsManifest.getIntakeFormEnabled()
-        && applicationPrograms.commonIntakeForm().isPresent()) {
+    if (applicationPrograms.commonIntakeForm().isPresent()) {
       intakeSection =
           Optional.of(
               getCommonIntakeFormSection(

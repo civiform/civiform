@@ -19,12 +19,13 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class AdminProgramTranslationsControllerTest extends ResetPostgres {
@@ -48,11 +49,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   private ProgramRepository programRepository;
   private AdminProgramTranslationsController controller;
+  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setup() {
     programRepository = instanceOf(ProgramRepository.class);
     controller = instanceOf(AdminProgramTranslationsController.class);
+    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
@@ -166,7 +169,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program display name");
     assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish program description");
-    assertThat(updatedProgram.statusDefinitions().getStatuses())
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(updatedProgram.adminName())
+                .getStatuses())
         .isEqualTo(
             ImmutableList.of(
                 StatusDefinitions.Status.builder()
@@ -281,8 +287,22 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 .url());
     assertThat(result.flash().get(FlashKey.ERROR).get())
         .isEqualTo("The program's associated statuses are out of date.");
-
-    assertProgramNotChanged(program);
+    // latest program
+    ProgramDefinition freshProgram =
+        programRepository
+            .lookupProgram(program.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getProgramDefinition();
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(freshProgram.adminName())
+                .getStatuses())
+        .isEqualTo(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
+                .getStatuses());
   }
 
   private void assertProgramNotChanged(ProgramModel initialProgram) {
@@ -297,8 +317,14 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo(initialProgram.getProgramDefinition().localizedName());
     assertThat(freshProgram.localizedDescription())
         .isEqualTo(initialProgram.getProgramDefinition().localizedDescription());
-    assertThat(freshProgram.statusDefinitions().getStatuses())
-        .isEqualTo(initialProgram.getProgramDefinition().statusDefinitions().getStatuses());
+    assertThat(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(freshProgram.adminName())
+                .getStatuses())
+        .isEqualTo(
+            applicationStatusesRepository
+                .lookupActiveStatusDefinitions(initialProgram.getProgramDefinition().adminName())
+                .getStatuses());
   }
 
   private static final ImmutableList<StatusDefinitions.Status> STATUSES_WITH_EMAIL =
@@ -352,10 +378,11 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.withDefaultValue(ENGLISH_DESCRIPTION)
                     .updateTranslation(ES_LOCALE, SPANISH_DESCRIPTION))
-            .setStatusDefinitions(new StatusDefinitions(statuses))
             .build()
             .toProgram();
     program.update();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(statuses));
     return program;
   }
 }

@@ -40,8 +40,8 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
-import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -229,7 +229,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private DivTag renderAnswer(AnswerData answerData, boolean showEligibilityText) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
-    if (answerData.encodedFileKey().isPresent()) {
+    if (!answerData.encodedFileKeys().isEmpty()) {
+      answerContent = div();
+      for (int i = 0; i < answerData.encodedFileKeys().size(); i++) {
+        String encodedFileKey = answerData.encodedFileKeys().get(i);
+        String fileName = answerData.fileNames().get(i);
+        String fileLink = controllers.routes.FileController.acledAdminShow(encodedFileKey).url();
+        answerContent.with(a(fileName).withHref(fileLink).withClass(BaseStyles.LINK_TEXT));
+        if (i < answerData.encodedFileKeys().size() - 1) {
+          answerContent.with(span(", "));
+        }
+      }
+    } else if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
       String fileLink = controllers.routes.FileController.acledAdminShow(encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));

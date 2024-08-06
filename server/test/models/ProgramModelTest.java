@@ -19,7 +19,6 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -81,7 +80,6 @@ public class ProgramModelTest extends ResetPostgres {
                 LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
@@ -89,6 +87,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
             .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -171,11 +170,11 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -231,11 +230,11 @@ public class ProgramModelTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -341,7 +340,6 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
@@ -349,6 +347,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
@@ -357,85 +356,5 @@ public class ProgramModelTest extends ResetPostgres {
     program.save();
 
     assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
-  }
-
-  @Test
-  public void getDefaultStatus() throws UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.TEXT)
-            .setId(123L)
-            .setName("question")
-            .setDescription("applicant's name")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-            .build();
-    BlockDefinition blockDefinition =
-        BlockDefinition.builder()
-            .setId(1L)
-            .setName("First Block")
-            .setDescription("basic info")
-            .setLocalizedName(LocalizedStrings.withDefaultValue("First Block"))
-            .setLocalizedDescription(LocalizedStrings.withDefaultValue("basic info"))
-            .setProgramQuestionDefinitions(
-                ImmutableList.of(
-                    ProgramQuestionDefinition.create(questionDefinition, Optional.of(1L))))
-            .build();
-
-    StatusDefinitions.Status nonDefaultStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Not default")
-            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Not default"))
-            .build();
-    StatusDefinitions.Status defaultStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Default")
-            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Default"))
-            .setDefaultStatus(Optional.of(true))
-            .build();
-
-    ProgramDefinition definition =
-        ProgramDefinition.builder()
-            .setId(new Random().nextLong())
-            .setAdminName("Admin name")
-            .setAdminDescription("Admin description")
-            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
-            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
-            .setLocalizedConfirmationMessage(
-                LocalizedStrings.of(Locale.US, "custom confirmation message"))
-            .setBlockDefinitions(ImmutableList.of(blockDefinition))
-            .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions(ImmutableList.of(nonDefaultStatus)))
-            .setDisplayMode(DisplayMode.PUBLIC)
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
-            .setEligibilityIsGating(false)
-            .setAcls(new ProgramAcls())
-            .build();
-    ProgramModel program = new ProgramModel(definition);
-    program.save();
-    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
-    assertThat(found.getDefaultStatus()).isEqualTo(Optional.empty());
-
-    ProgramDefinition definition2 =
-        ProgramDefinition.builder()
-            .setId(uniqueProgramId)
-            .setAdminName("Admin name")
-            .setAdminDescription("Admin description")
-            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
-            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
-            .setLocalizedConfirmationMessage(
-                LocalizedStrings.of(Locale.US, "custom confirmation message"))
-            .setBlockDefinitions(ImmutableList.of(blockDefinition))
-            .setExternalLink("")
-            .setStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(nonDefaultStatus, defaultStatus)))
-            .setDisplayMode(DisplayMode.PUBLIC)
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
-            .setEligibilityIsGating(false)
-            .setAcls(new ProgramAcls())
-            .build();
-    ProgramModel program2 = new ProgramModel(definition2);
-    program2.save();
-    ProgramModel found2 = repo.lookupProgram(program2.id).toCompletableFuture().join().get();
-    assertThat(found2.getDefaultStatus()).isEqualTo(Optional.of(defaultStatus));
   }
 }

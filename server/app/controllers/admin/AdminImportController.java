@@ -106,7 +106,9 @@ public class AdminImportController extends CiviFormController {
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
+              .renderError(
+                  "Error processing JSON",
+                  deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
@@ -114,7 +116,8 @@ public class AdminImportController extends CiviFormController {
     if (programMigrationWrapper.getProgram() == null) {
       return ok(
           adminImportViewPartial
-              .renderError("JSON did not have a top-level \"program\" field")
+              .renderError(
+                  "Error processing JSON", "JSON did not have a top-level \"program\" field")
               .render());
     }
     return ok(
@@ -128,7 +131,7 @@ public class AdminImportController extends CiviFormController {
    * neccessary question updates before saving the program
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result saveProgram(Http.Request request) {
+  public Result hxSaveProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
@@ -137,35 +140,50 @@ public class AdminImportController extends CiviFormController {
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
+              .renderError(
+                  "Error processing JSON",
+                  deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
-    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
-    ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
-    ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+    try {
+      ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+      ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
+      ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
 
-    ProgramDefinition updatedProgram = programOnJson;
+      ProgramDefinition updatedProgram = programOnJson;
 
-    if (questionsOnJson != null) {
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
-          questionsOnJson.stream()
-              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+      if (questionsOnJson != null) {
+        ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+            questionsOnJson.stream()
+                .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-          updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+        ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+            updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
 
-      ImmutableList<BlockDefinition> updatedBlockDefinitions =
-          updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
+        ImmutableList<BlockDefinition> updatedBlockDefinitions =
+            updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
 
-      updatedProgram =
-          programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+        updatedProgram =
+            programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+      }
+
+      ProgramModel savedProgram =
+          programRepository.insertProgramSync(
+              new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+      return ok(
+          adminImportViewPartial
+              .renderProgramSaved(updatedProgram.adminName(), savedProgram.id)
+              .render());
+    } catch (RuntimeException error) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "Unable to save program. Please try again or contact your IT team for support.",
+                  "Error: " + error.toString())
+              .render());
     }
-
-    programRepository.insertProgramSync(
-        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
-
-    return ok(adminImportView.render(request));
   }
 
   private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {

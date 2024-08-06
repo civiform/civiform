@@ -24,7 +24,6 @@ import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -987,11 +986,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
-                .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
                 .setAcls(new ProgramAcls())
+                .setCategories(ImmutableList.of())
                 .build(),
             FAKE_BASE_URL);
 
@@ -1211,7 +1210,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getSummaryDataOnlyActive_returnsLinkForUploadedFile() {
+  public void getSummaryDataOnlyActive_returnsKeysForUploadedFileForSingleFile() {
     // Create a program with a fileupload question and a non-fileupload question
     QuestionDefinition fileUploadQuestionDefinition =
         testQuestionBank.applicantFile().getQuestionDefinition();
@@ -1239,6 +1238,42 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     assertThat(result.get(0).encodedFileKey()).isEmpty();
     // Fileupload question has a file key
     assertThat(result.get(1).encodedFileKey()).isNotEmpty();
+  }
+
+  @Test
+  public void getSummaryDataOnlyActive_returnsKeysForUploadedFiles() {
+    // Create a program with a fileupload question and a non-fileupload question
+    QuestionDefinition fileUploadQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(fileUploadQuestionDefinition)
+            .buildDefinition();
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        0,
+        "file-key-1");
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        1,
+        "file-key-2");
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).encodedFileKeys()).isEmpty();
+    assertThat(result.get(1).encodedFileKeys()).containsExactly("file-key-1", "file-key-2");
   }
 
   @Test

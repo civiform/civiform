@@ -57,10 +57,11 @@ import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
-import services.program.StatusDefinitions.Status;
-import services.program.StatusNotFoundException;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusDefinitions.Status;
+import services.statuses.StatusNotFoundException;
+import services.statuses.StatusService;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -103,11 +104,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
       ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS);
   private AdminApplicationController controller;
   private ProgramAdminApplicationService programAdminApplicationService;
+  private ApplicationStatusesRepository repo;
 
   @Before
   public void setupController() {
     controller = instanceOf(AdminApplicationController.class);
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
+    repo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Test
@@ -176,10 +179,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -208,10 +210,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -242,10 +243,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_noNewStatus_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -268,10 +268,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_noCurrentStatus_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -295,10 +294,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_invalidSendEmail_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -331,10 +329,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -375,10 +372,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Instant start = Instant.now();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     ApplicationModel application =
@@ -420,10 +416,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test name", "test description")
-            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -579,7 +574,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
-        instanceOf(ApplicationStatusesRepository.class));
+        instanceOf(StatusService.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

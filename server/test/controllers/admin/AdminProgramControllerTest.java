@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -16,7 +15,6 @@ import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
@@ -27,7 +25,6 @@ import repository.VersionRepository;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
@@ -40,14 +37,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
   private AdminProgramController controller;
   private ProgramRepository programRepository;
   private VersionRepository versionRepository;
-  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setup() {
     programRepository = instanceOf(ProgramRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
-    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getIntakeFormEnabled()).thenReturn(true);
 
     controller =
         new AdminProgramController(
@@ -59,8 +53,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
-            instanceOf(RequestChecker.class),
-            mockSettingsManifest);
+            instanceOf(RequestChecker.class));
   }
 
   @Test
@@ -196,13 +189,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
 
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(

@@ -374,7 +374,6 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('Shows ineligible tag on home page program cards', async ({
-        page,
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
@@ -391,20 +390,10 @@ test.describe('Applicant navigation flow', () => {
             fullProgramName,
             /* isEligible= */ false,
           )
-
-          await validateScreenshot(
-            page,
-            'ineligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
         })
       })
 
-      test('Shows eligible on home page', async ({
-        page,
-        applicantQuestions,
-      }) => {
+      test('Shows eligible on home page', async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(fullProgramName)
 
         await test.step('fill out application and submit', async () => {
@@ -417,13 +406,6 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.seeEligibilityTag(
             fullProgramName,
             /* isEligible= */ true,
-          )
-
-          await validateScreenshot(
-            page,
-            'eligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
           )
         })
       })

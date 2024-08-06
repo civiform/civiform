@@ -47,8 +47,8 @@ import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -96,17 +96,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   public Content render(
-    Http.Request request,
-    CiviFormProfile profile,
-    ProgramDefinition program,
-    ImmutableList<String> allPossibleProgramApplicationStatuses,
-    PageNumberBasedPaginationSpec paginationSpec,
-    PaginationResult<ApplicationModel> paginatedApplications,
-    RenderFilterParams filterParams,
-    Optional<String> selectedApplicationUri) {
+      Http.Request request,
+      CiviFormProfile profile,
+      ProgramDefinition program,
+      Optional<StatusDefinitions.Status> defaultStatus,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
+      PageNumberBasedPaginationSpec paginationSpec,
+      PaginationResult<ApplicationModel> paginatedApplications,
+      RenderFilterParams filterParams,
+      Optional<String> selectedApplicationUri) {
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
-    Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
 
     DivTag applicationListDiv =
         div()

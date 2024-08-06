@@ -26,6 +26,8 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT("alert.eligibility_applicant_not_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityApplicantNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_applicant_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -38,6 +40,8 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT("alert.eligibility_ti_eligible_text"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE("alert.eligibility_ti_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT("alert.eligibility_ti_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityTiNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_ti_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -125,6 +129,8 @@ public enum MessageKey {
   CONTENT_FILE_UPLOAD_BLOCK_PROGRESS_FULL("content.fileUploadBlockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
+  CONTENT_CHANGE_ELIGIBILITY_ANSWERS_V2(
+      "content.changeAnswersForEligibility.v2"), // North Star only
   CONTENT_CIVIFORM_DESCRIPTION("content.findProgramsDescription"),
   CONTENT_CLIENT_CREATED("content.clientCreated"),
   CONTENT_CONFIRMED("content.confirmed"),
@@ -138,6 +144,7 @@ public enum MessageKey {
       "content.commonIntakeNoMatchingProgramsNextStep"),
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
+  CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -226,6 +233,7 @@ public enum MessageKey {
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
+  LINK_REMOVE_FILE("link.removeFile"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
@@ -245,11 +253,20 @@ public enum MessageKey {
   NAME_LABEL_FIRST("label.firstName"),
   NAME_LABEL_LAST("label.lastName"),
   NAME_LABEL_MIDDLE("label.middleName"),
+  NAME_LABEL_SUFFIX("label.nameSuffix"),
   NAME_PLACEHOLDER_FIRST("placeholder.firstName"),
   NAME_PLACEHOLDER_LAST("placeholder.lastName"),
   NAME_PLACEHOLDER_MIDDLE("placeholder.middleName"),
+  NAME_PLACEHOLDER_SUFFIX("placeholder.nameSuffix"),
   NAME_VALIDATION_FIRST_REQUIRED("validation.firstNameRequired"),
   NAME_VALIDATION_LAST_REQUIRED("validation.lastNameRequired"),
+  OPTION_SUFFIX_JUNIOR("option.junior"),
+  OPTION_SUFFIX_SENIOR("option.senior"),
+  OPTION_SUFFIX_FIRST("option.first"),
+  OPTION_SUFFIX_SECOND("option.second"),
+  OPTION_SUFFIX_THIRD("option.third"),
+  OPTION_SUFFIX_FORTH("option.forth"),
+  OPTION_SUFFIX_FIFTH("option.fifth"),
   OPTION_MEMORABLE_DATE_JANUARY("option.memorableDate.January"),
   OPTION_MEMORABLE_DATE_FEBRUARY("option.memorableDate.February"),
   OPTION_MEMORABLE_DATE_MARCH("option.memorableDate.March"),

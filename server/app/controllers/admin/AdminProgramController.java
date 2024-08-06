@@ -29,7 +29,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
-import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -46,7 +45,6 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramController(
@@ -58,8 +56,7 @@ public final class AdminProgramController extends CiviFormController {
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker,
-      SettingsManifest settingsManifest) {
+      RequestChecker requestChecker) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -68,7 +65,6 @@ public final class AdminProgramController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -126,6 +122,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
@@ -134,9 +131,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (settingsManifest.getIntakeFormEnabled()
-        && programData.getIsCommonIntakeForm()
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+    if (programData.getIsCommonIntakeForm() && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()) {
         return ok(
@@ -158,8 +153,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            settingsManifest.getIntakeFormEnabled(),
-            ImmutableList.copyOf(programData.getTiGroups()));
+            ImmutableList.copyOf(programData.getTiGroups()),
+            ImmutableList.copyOf(programData.getCategories()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -259,6 +254,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
@@ -268,9 +264,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (settingsManifest.getIntakeFormEnabled()
-        && programData.getIsCommonIntakeForm()
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+    if (programData.getIsCommonIntakeForm() && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()
           && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
@@ -295,8 +289,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        settingsManifest.getIntakeFormEnabled(),
-        ImmutableList.copyOf(programData.getTiGroups()));
+        ImmutableList.copyOf(programData.getTiGroups()),
+        ImmutableList.copyOf(programData.getCategories()));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 

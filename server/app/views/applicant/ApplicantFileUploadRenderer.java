@@ -47,6 +47,7 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** A helper class for rendering the file upload question for applicants. */
@@ -103,12 +104,32 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * @param fileUploadQuestion The question which files were uploaded for
    * @return ul containing list of all uploaded files
    */
-  public UlTag uploadedFiles(FileUploadQuestion fileUploadQuestion) {
+  public UlTag uploadedFiles(
+      ApplicationBaseViewParams params, FileUploadQuestion fileUploadQuestion) {
     UlTag result = ul().attr("aria-label", "Uploaded files");
 
     if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
       for (String fileKey : fileUploadQuestion.getFileKeyListValue().get()) {
-        result.with(li().withText(FileUploadQuestion.getFileName(fileKey)));
+        String removeUrl =
+            applicantRoutes
+                .removeFile(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    fileKey,
+                    params.inReview())
+                .url();
+
+        result.with(
+            li().withClass("flex justify-between mb-2")
+                .withText(FileUploadQuestion.getFileName(fileKey))
+                .with(
+                    TagCreator.a()
+                        .withText(params.messages().at(MessageKey.LINK_REMOVE_FILE.getKeyName()))
+                        .withHref(removeUrl)
+                        .withClasses(
+                            BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "underline")));
       }
     }
 
@@ -226,18 +247,38 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .withId(BLOCK_FORM_ID)
             .with(requiredFieldsExplanationContent(params.messages()));
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
-    uploadForm.with(
-        each(
-            params.block().getQuestions(),
-            question ->
-                applicantQuestionRendererFactory
-                    .getRenderer(question, Optional.of(params.messages()))
-                    .render(rendererParams)));
+
+    if (multipleFileUploadEnabled) {
+      Optional<ApplicantQuestion> fileUploadQuestion =
+          params.block().getQuestions().stream()
+              .filter(question -> question.isFileUploadQuestion())
+              .findFirst();
+
+      Preconditions.checkState(
+          fileUploadQuestion.isPresent(),
+          "File upload blocks must contain a file upload question.");
+      uploadForm.withClass("max-w-xl");
+      uploadForm.with(
+          applicantQuestionRendererFactory
+              .getRenderer(fileUploadQuestion.get(), Optional.of(params.messages()))
+              .render(rendererParams)
+              .with(uploadedFiles(params, fileUploadQuestion.get().createFileUploadQuestion())));
+
+    } else {
+      uploadForm.with(
+          each(
+              params.block().getQuestions(),
+              question ->
+                  applicantQuestionRendererFactory
+                      .getRenderer(question, Optional.of(params.messages()))
+                      .render(rendererParams)));
+    }
 
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(uploadForm, skipForms, buttons).with(fileUploadViewStrategy.footerTags());
+    return div(uploadForm, skipForms, buttons)
+        .with(fileUploadViewStrategy.footerTags(params.request()));
   }
 
   /**

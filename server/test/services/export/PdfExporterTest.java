@@ -13,10 +13,16 @@ import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import services.Path;
+import services.applicant.ApplicantData;
 import services.applications.PdfExporterService;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 
 public class PdfExporterTest extends AbstractExporterTest {
@@ -43,20 +49,12 @@ public class PdfExporterTest extends AbstractExporterTest {
     int pages = pdfReader.getNumberOfPages();
     for (int pageNum = 1; pageNum < pages; pageNum++) {
       textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
-      // Assertions to check if the URL is embedded for the FileUpload
-      PdfDictionary pdfDictionary = pdfReader.getPageN(pageNum);
-      PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-      PdfObject current = annots.getPdfObject(0);
-      PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
-      assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-      PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
-      assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
-      PdfString link = AnnotationAction.getAsString(PdfName.URI);
-      assertThat(link.toString())
-          .isEqualTo(
-              "http://localhost:9000/applicants/"
-                  + applicationOne.getApplicantData().getApplicant().id
-                  + "/files/my-file-key");
+      assertFileUploadLink(
+          pdfReader.getPageN(pageNum),
+          0,
+          "http://localhost:9000/applicants/"
+              + applicationOne.getApplicantData().getApplicant().id
+              + "/files/my-file-key");
     }
 
     pdfReader.close();
@@ -74,13 +72,29 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_optionalFileUploadWithFile_asAdmin()
+  public void exportApplication_optionalFileUploadWithFile_asAdmin_singleFile()
       throws IOException, DocumentException {
-    createFakeProgramWithOptionalQuestion();
+
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
+
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
-    // The applicant for this application has a value for the name, so ensure that it is reflected
-    // in the generated filename, and later, in the PDF contents.
+    // The applicant for this application has a value for the name, so ensure that
+    // it is reflected in the generated filename, and later, in the PDF contents.
     assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
     String applicantName = applicationFive.getApplicantData().getApplicantName().get();
     String applicantNameWithApplicationId =
@@ -91,17 +105,65 @@ public class PdfExporterTest extends AbstractExporterTest {
     StringBuilder textFromPDF = new StringBuilder();
 
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-    // Assertions to check if the URL is embedded for the FileUpload
+    assertFileUploadLink(
+        pdfReader.getPageN(1), 0, "http://localhost:9000/admin/applicant-files/my-file-key");
+
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
+  }
+
+  @Test
+  public void exportApplication_optionalFileUploadWithFile_asAdmin()
+      throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-1");
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-2");
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    // The applicant for this application has a value for the name, so ensure that
+    // it is reflected in the generated filename, and later, in the PDF contents.
+    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationFive.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
     PdfDictionary pdfDictionary = pdfReader.getPageN(1);
-    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-    PdfObject current = annots.getPdfObject(0);
-    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
-    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
-    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
-    PdfString link = AnnotationAction.getAsString(PdfName.URI);
-    assertThat(link.toString())
-        .isEqualTo("http://localhost:9000/admin/applicant-files/my-file-key");
+    assertFileUploadLink(
+        pdfDictionary, 0, "http://localhost:9000/admin/applicant-files/my-file-key-1");
+    assertFileUploadLink(
+        pdfDictionary, 1, "http://localhost:9000/admin/applicant-files/my-file-key-2");
 
     pdfReader.close();
     assertThat(textFromPDF).isNotNull();
@@ -119,9 +181,25 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void
-      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
+      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent_singleFile()
           throws IOException, DocumentException {
-    createFakeProgramWithOptionalQuestion();
+
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
+
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
@@ -130,20 +208,67 @@ public class PdfExporterTest extends AbstractExporterTest {
     StringBuilder textFromPDF = new StringBuilder();
 
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-    // Assertions to check if the URL is embedded for the FileUpload
-    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
-    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-    PdfObject current = annots.getPdfObject(0);
-    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
-    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
-    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
-    PdfString link = AnnotationAction.getAsString(PdfName.URI);
-    assertThat(link.toString())
-        .isEqualTo(
-            "http://localhost:9000/applicants/"
-                + applicationFive.getApplicantData().getApplicant().id
-                + "/files/my-file-key");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicantData().getApplicant().id
+            + "/files/my-file-key");
+
+    pdfReader.close();
+
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
+  }
+
+  @Test
+  public void
+      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
+          throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-1");
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-2");
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicantData().getApplicant().id
+            + "/files/my-file-key-1");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        1,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicantData().getApplicant().id
+            + "/files/my-file-key-2");
 
     pdfReader.close();
 
@@ -159,31 +284,39 @@ public class PdfExporterTest extends AbstractExporterTest {
   @Test
   public void exportApplication_optionalFileUploadWithoutFile()
       throws IOException, DocumentException {
-    createFakeProgramWithOptionalQuestion();
+
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
-    String applicantName = "name-unavailable";
+    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
     String applicantNameWithApplicationId =
-        String.format("%s (%d)", applicantName, applicationSix.id);
+        String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationSix, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
+
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+
+    // Check for URL, annots is null if url is not present.
     PdfDictionary pdfDictionary = pdfReader.getPageN(1);
-    // Annots would be empty for no file cases
     PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
     assertThat(annots).isNull();
+
     pdfReader.close();
     assertThat(textFromPDF).isNotNull();
-    System.out.println(textFromPDF);
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
     assertThat(textFromPDF).isNotNull();
-    String programName = applicationSix.getProgram().getProgramDefinition().adminName();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
 
-    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_SIX_STRING);
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_WITHOUT_FILE_STRING);
 
     for (int i = 3; i < linesFromPDF.size(); i++) {
       assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
@@ -278,6 +411,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     // question): Verify the PDF has the block name, question text, question help text, admin name,
     // admin description, and question type.
     for (int i = 0; i < fakeQuestions.size(); i++) {
+      BlockDefinition block = programDef.blockDefinitions().get(i);
       QuestionDefinition questionDefinition = fakeQuestions.get(i).getQuestionDefinition();
       pdfText = assertContainsThenCrop(pdfText, "Screen " + (i + 1));
       pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionText().getDefault());
@@ -285,6 +419,16 @@ public class PdfExporterTest extends AbstractExporterTest {
         pdfText =
             assertContainsThenCrop(pdfText, questionDefinition.getQuestionHelpText().getDefault());
       }
+      pdfText =
+          assertContainsThenCrop(
+              pdfText,
+              block.programQuestionDefinitions().stream()
+                      .filter(pqd -> pqd.id() == questionDefinition.getId())
+                      .findFirst()
+                      .get()
+                      .optional()
+                  ? "Optional Question"
+                  : "Required Question");
       pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
       pdfText =
           assertContainsThenCrop(
@@ -403,19 +547,32 @@ public class PdfExporterTest extends AbstractExporterTest {
     return textFromPdf.toString();
   }
 
-  public static final String APPLICATION_SIX_STRING =
-      "Optional.empty (653)\n"
+  private static void assertFileUploadLink(
+      PdfDictionary pdfDictionary, int index, String expectedLink) {
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    PdfObject current = annots.getPdfObject(index);
+    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
+    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
+    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+    PdfString link = AnnotationAction.getAsString(PdfName.URI);
+    assertThat(link.toString()).isEqualTo(expectedLink);
+  }
+
+  public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
+      "Optional.empty (558)\n"
           + "Program Name : Fake Optional Question Program\n"
           + "Status: none\n"
           + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
           + " \n"
           + "applicant name\n"
-          + "Example Six\n"
+          + "Example Five\n"
           + "Answered on : 1969-12-31\n"
           + "applicant file\n"
           + "-- NO FILE SELECTED --\n"
           + "Answered on : 1969-12-31\n";
-  public static final String APPLICATION_FIVE_STRING =
+
+  public static final String APPLICATION_FIVE_STRING_SINGLE_FILE =
       "Optional.empty (558)\n"
           + "Program Name : Fake Optional Question Program\n"
           + "Status: none\n"
@@ -426,6 +583,20 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "Answered on : 1969-12-31\n"
           + "applicant file\n"
           + "-- my-file-key UPLOADED (click to download) --\n"
+          + "Answered on : 1969-12-31\n";
+
+  public static final String APPLICATION_FIVE_STRING =
+      "Optional.empty (558)\n"
+          + "Program Name : Fake Optional Question Program\n"
+          + "Status: none\n"
+          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
+          + " \n"
+          + "applicant name\n"
+          + "Example Five\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant file\n"
+          + "my-file-key-1\n"
+          + "my-file-key-2\n"
           + "Answered on : 1969-12-31\n";
 
   public static final String APPLICATION_ONE_STRING =

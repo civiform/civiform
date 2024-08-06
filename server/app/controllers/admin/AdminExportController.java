@@ -7,7 +7,6 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import java.util.Locale;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -24,7 +23,6 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
-import views.admin.migration.AdminExportViewPartial;
 import views.admin.migration.AdminProgramExportForm;
 
 /**
@@ -39,7 +37,6 @@ import views.admin.migration.AdminProgramExportForm;
  */
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
-  private final AdminExportViewPartial adminExportViewPartial;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
@@ -49,7 +46,6 @@ public class AdminExportController extends CiviFormController {
   @Inject
   public AdminExportController(
       AdminExportView adminExportView,
-      AdminExportViewPartial adminExportViewPartial,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
@@ -59,7 +55,6 @@ public class AdminExportController extends CiviFormController {
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
-    this.adminExportViewPartial = checkNotNull(adminExportViewPartial);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
@@ -68,36 +63,10 @@ public class AdminExportController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Http.Request request) {
+  public Result index(Http.Request request, Long programId) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
-
-    // Show the most recent version of programs (eg. draft version if there is one) sorted
-    // alphabetically by display name
-    ImmutableList<ProgramDefinition> sortedPrograms =
-        programService.getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-            .sorted(
-                (p1, p2) ->
-                    p1.localizedName()
-                        .getOrDefault(Locale.getDefault())
-                        .compareTo(p2.localizedName().getOrDefault(Locale.getDefault())))
-            .collect(ImmutableList.toImmutableList());
-
-    return ok(adminExportView.render(request, sortedPrograms));
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result hxExportProgram(Http.Request request) {
-    if (!settingsManifest.getProgramMigrationEnabled(request)) {
-      return notFound("Program export is not enabled");
-    }
-    Form<AdminProgramExportForm> form =
-        formFactory
-            .form(AdminProgramExportForm.class)
-            .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
-
-    Long programId = form.get().getProgramId();
 
     ProgramDefinition program;
     try {
@@ -128,9 +97,7 @@ public class AdminExportController extends CiviFormController {
     }
 
     return ok(
-        adminExportViewPartial
-            .renderJsonPreview(request, serializeResult.getResult(), program.adminName())
-            .render());
+        adminExportView.render(request, program, serializeResult.getResult(), program.adminName()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

@@ -24,6 +24,7 @@ import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
+import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
 
 import htmx from 'htmx.org'
@@ -66,6 +67,7 @@ function initializeEverything(): void {
   phoneNumber.init()
   adminQuestionEdit.init()
   adminExportView.init()
+  adminImportView.init()
   trustedIntermediaryController.init()
 }
 

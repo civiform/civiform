@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ExportServiceRepository;
+import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
@@ -94,7 +95,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     versionRepository.publishNewSynchronizedVersion();
 
     CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
     assertThat(parser.getHeaderNames())
         .containsExactly(
@@ -127,7 +131,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     createFakeApplications();
 
     CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(3);
@@ -232,7 +239,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
 
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramCsv(fakeProgramWithEligibility.id), DEFAULT_FORMAT);
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgramWithEligibility.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
+
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(3);
@@ -289,7 +299,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
 
     CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(0);
@@ -358,8 +371,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     // Generate default CSV
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramCsv(fakeProgramWithEnumerator.id), DEFAULT_FORMAT);
-
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgramWithEnumerator.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     assertThat(parser.getHeaderNames())
         .containsExactly(
             "Applicant ID",
@@ -440,7 +454,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
         .submit();
 
     CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("TRUSTED_INTERMEDIARY");
@@ -454,7 +471,10 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");

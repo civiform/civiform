@@ -68,9 +68,6 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withFor(fileInputId)
                 .withClass("sr-only")
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
-        .condWith(
-            params.multipleFileUploadEnabled(),
-            applicantFileUploadRenderer.uploadedFiles(fileUploadQuestion))
         .with(
             applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))

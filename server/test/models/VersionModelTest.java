@@ -39,7 +39,9 @@ public class VersionModelTest extends ResetPostgres {
             version,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
-            new ProgramAcls());
+            new ProgramAcls(),
+            /* categories= */ ImmutableList.of());
+    ;
 
     version.addProgram(program);
     assertThat(version.getPrograms()).hasSize(1);

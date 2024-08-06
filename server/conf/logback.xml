@@ -37,13 +37,25 @@
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
   <logger name="auth" level="INFO" />
-
   <!-- Increase the level of this one to avoid leaking PII (such as email and name) into logs -->
   <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN" />
 
   <!-- Off these ones as they are annoying. -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />
   <logger name="org.apache.http.wire" level="OFF" />
+
+  <!--
+      When using the ebeans logging, it is recommended to set the poll_interval_seconds in
+      the server/conf/helper/jobs.conf file to a very large number to avoid excess noise.
+
+      Set level="TRACE" to show in the logs.
+
+      io.ebean.SQL -> for SQL and bind values
+      io.ebean.TXN -> for Transaction commit and rollback events
+  -->
+  <logger name="io.ebean.SQL" level="OFF" />
+  <logger name="io.ebean.TXN" level="OFF" />
+
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />

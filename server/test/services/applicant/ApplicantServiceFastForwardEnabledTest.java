@@ -43,6 +43,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationRepository;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.Address;
@@ -76,7 +77,6 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -96,6 +96,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -115,6 +116,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
+  private ApplicationStatusesRepository applicationStatusesRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -126,6 +128,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     accountRepository = instanceOf(AccountRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
+    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     createQuestions();
     createProgram();
 
@@ -173,7 +176,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     createProgramWithOptionalQuestion(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -203,7 +207,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -217,7 +221,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -245,7 +249,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -255,7 +259,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -270,6 +274,80 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private Path applicantPathForQuestion(QuestionModel question) {
     return ApplicantData.APPLICANT_PATH.join(
         question.getQuestionDefinition().getQuestionPathSegment());
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_unansweringRequiredQuestionFailsAtomically() {
+    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    QuestionModel dropdownQuestion = testQuestionBank.applicantIceCream();
+    Path dropdownPath = applicantPathForQuestion(dropdownQuestion).join(Scalar.SELECTION);
+
+    createProgram(numberQuestion.getQuestionDefinition(), dropdownQuestion.getQuestionDefinition());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(numberPath.toString(), "4")
+            .put(dropdownPath.toString(), "chocolate")
+            .build();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // First, save an answer.
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(numberPath.toString(), "")
+            .put(dropdownPath.toString(), "strawberry")
+            .build();
+
+    // Then, try to remove the answer to one question, and change the value of another. Neither
+    // update should go through because
+    // removing the required answer is invalid.
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantData.readLong(numberPath)).contains(4l);
+    assertThat(applicantData.readString(dropdownPath)).contains("chocolate");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_forceUpdate() {
+    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    createProgram(numberQuestion.getQuestionDefinition());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder().put(numberPath.toString(), "4").build();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // First, save an answer.
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ false)
+        .toCompletableFuture()
+        .join();
+
+    updates = ImmutableMap.<String, String>builder().put(numberPath.toString(), "").build();
+
+    // Then remove force removing it. This is a required question, so unless we force an update, it
+    // will fail.
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantData.hasPath(numberPath)).isFalse();
   }
 
   @Test
@@ -303,7 +381,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
             .toCompletableFuture()
             .join();
 
@@ -350,7 +428,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -366,7 +444,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -390,7 +468,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -422,7 +500,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -444,7 +522,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -479,7 +557,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -495,7 +573,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -544,7 +622,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -563,7 +641,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -579,7 +657,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -612,7 +690,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -637,7 +715,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -658,7 +736,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        badApplicantId, programDefinition.id(), "1", updates, false)
+                        badApplicantId, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -675,7 +753,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -694,7 +772,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates, false)
+                        applicant.id, programDefinition.id(), badBlockId, updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -715,7 +793,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join());
 
@@ -734,7 +812,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -758,7 +836,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false)
+                        applicant.id, programDefinition.id(), "1", updates, false, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -803,7 +881,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -910,7 +988,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -977,7 +1055,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -1014,7 +1092,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1027,7 +1105,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates("Bob", "Elisa"), false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates("Bob", "Elisa"),
+            false,
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1061,7 +1144,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1094,7 +1177,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1173,7 +1256,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1247,7 +1330,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1306,7 +1389,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1346,7 +1429,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
         .toCompletableFuture()
         .join();
 
@@ -1392,7 +1475,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -1428,7 +1511,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -1489,7 +1572,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -1548,7 +1631,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -2094,7 +2177,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicationRepository
@@ -2120,7 +2203,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
         .toCompletableFuture()
         .join();
 
@@ -2653,10 +2736,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
@@ -2688,10 +2773,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        originalProgram.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     originalProgram.getVersions().stream()
         .findAny()
         .orElseThrow()
@@ -2717,10 +2804,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        updatedProgram.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(updatedStatus)));
 
     ApplicantService.ApplicationPrograms result =
         subject
@@ -2734,7 +2823,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .containsExactly(updatedProgram.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.of(APPROVED_STATUS));
+        .containsExactly(Optional.of(updatedStatus));
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -2937,8 +3026,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3013,8 +3102,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3170,7 +3259,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), lastName)
             .build();
     subject
-        .stageAndUpdateIfValid(applicantId, programId, Long.toString(blockId), updates, false)
+        .stageAndUpdateIfValid(
+            applicantId, programId, Long.toString(blockId), updates, false, false)
         .toCompletableFuture()
         .join();
   }
@@ -3209,10 +3299,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
-            .withStatusDefinitions(statuses)
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), statuses);
     versionRepository.publishNewSynchronizedVersion();
   }
 
@@ -3303,8 +3394,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
-                    .setStatusDefinitions(new StatusDefinitions())
                     .setAcls(new ProgramAcls())
+                    .setCategories(ImmutableList.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
@@ -3333,10 +3424,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3443,10 +3536,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3535,10 +3630,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3641,10 +3738,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3678,10 +3777,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3713,10 +3814,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
             .build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     BlockDefinition blockDefinition =
         program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
@@ -3742,7 +3845,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), block.getId(), updates, true)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), block.getId(), updates, true, false)
         .toCompletableFuture()
         .join();
 
@@ -3808,7 +3912,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -3823,7 +3927,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -3848,7 +3952,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     Request request = fakeRequest();
@@ -3867,7 +3971,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
         .toCompletableFuture()
         .join();
     ApplicationModel eligibleApplication =

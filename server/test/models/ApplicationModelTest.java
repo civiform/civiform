@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
+import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.program.StatusDefinitions;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ApplicationModelTest extends ResetPostgres {
@@ -19,16 +21,22 @@ public class ApplicationModelTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .build();
+  ApplicationStatusesRepository applicationStatusesRepository;
+
+  @Before
+  public void setUp() {
+    applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
+  }
 
   @Test
   public void staleLatestStatusIsNotPersisted() {
     // Tests a case where an Application (and its associated latest_status value has been loaded
     // in-memory, a new ApplicationEventDetails is added (causing the trigger to execute), and the
     // Application is persisted.
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel application =
@@ -60,10 +68,10 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void latestStatusIsNotPersistedEvenWithNoApplicationEvents() {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
@@ -78,11 +86,11 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_applicant_isFalse() {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
 
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -91,11 +99,11 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_globalAdmin_isTrue() {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
 
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().setGlobalAdmin(true);
 
@@ -105,10 +113,11 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_programAdmin_isTrue() {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());

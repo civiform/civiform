@@ -3,6 +3,9 @@ package repository;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import javax.inject.Inject;
 import models.CategoryModel;
 
@@ -33,12 +36,19 @@ public final class CategoryRepository {
 
   /** Fetches a list of all categories. */
   public ImmutableList<CategoryModel> listCategories() {
-    return ImmutableList.copyOf(
+    List<CategoryModel> categories =
         database
             .find(CategoryModel.class)
             .setLabel("CategoryModel.list")
             .setProfileLocation(queryProfileLocationBuilder.create("listCategories"))
-            .findList());
+            .findList();
+    Comparator<CategoryModel> comparator =
+        (c1, c2) ->
+            c1.getDefaultName()
+                .toLowerCase(Locale.getDefault())
+                .compareTo(c2.getDefaultName().toLowerCase(Locale.getDefault()));
+    categories.sort(comparator);
+    return ImmutableList.copyOf(categories);
   }
 
   /**

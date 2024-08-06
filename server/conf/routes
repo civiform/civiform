@@ -119,7 +119,6 @@ POST    /admin/tiDash/editClient/:id                  controllers.ti.TrustedInte
 GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/allJson                     controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/all                         controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
-GET     /admin/programs/:programId/applications/singleVersion               controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId              controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 POST    /admin/programs/:programId/applications/:applicationId/updateStatus controllers.admin.AdminApplicationController.updateStatus(request: Request, programId: Long, applicationId: Long)
 POST    /admin/programs/:programId/applications/:applicationId/updateNote   controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
@@ -136,12 +135,11 @@ POST    /admin/apiKeys                              controllers.admin.AdminApiKe
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
 # Admin program migration
-GET /admin/export                                   controllers.admin.AdminExportController.index(request: Request)
-POST /admin/export/hx/program                       controllers.admin.AdminExportController.hxExportProgram(request: Request)
+GET /admin/export                                   controllers.admin.AdminExportController.index(request: Request, programId: Long)
 POST /admin/export/download/:adminName              controllers.admin.AdminExportController.downloadJson(request: Request, adminName: String)
 GET /admin/import                                   controllers.admin.AdminImportController.index(request: Request)
 POST /admin/import/hx/program                       controllers.admin.AdminImportController.hxImportProgram(request: Request)
-POST /admin/import/saveProgram                      controllers.admin.AdminImportController.saveProgram(request: Request)
+POST /admin/import/hx/saveProgram                   controllers.admin.AdminImportController.hxSaveProgram(request: Request)
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
@@ -176,6 +174,7 @@ POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicant
 GET     /programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programId: Long, previousBlockIndex: Int, inReview: Boolean)
 GET     /programs/:programId/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /programs/:programId/blocks/:blockId/addFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
+GET     /programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview      controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # This route is special. It may specify a program by id or by program
@@ -203,6 +202,7 @@ POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddr
 GET     /applicants/:applicantId/programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programId: Long, previousBlockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper      controllers.applicant.ApplicantProgramBlocksController.updateFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/addFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview      controllers.applicant.ApplicantProgramBlocksController.removeFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                 controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # API
@@ -251,13 +251,16 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 
 ## Methods for development
 # Seed the database with test content to develop against, and clear the database
-GET     /dev/seed                        controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
-GET     /dev/seed/data                   controllers.dev.seeding.DevDatabaseSeedController.data(request: Request)
-POST    /dev/seedQuestions               controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
-POST    /dev/seedPrograms                controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
-POST    /dev/seed/clear                  controllers.dev.seeding.DevDatabaseSeedController.clear()
-POST    /dev/seed/clearCache             controllers.dev.seeding.DevDatabaseSeedController.clearCache()
-GET     /dev/icons                       controllers.dev.IconsController.index(request: Request)
+GET     /dev/seed                                 controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
+GET     /dev/seed/data                            controllers.dev.seeding.DevDatabaseSeedController.data(request: Request)
+POST    /dev/seedQuestions                        controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
+POST    /dev/seedPrograms                         controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
+POST    /dev/seed/clear                           controllers.dev.seeding.DevDatabaseSeedController.clear()
+POST    /dev/seed/clearCache                      controllers.dev.seeding.DevDatabaseSeedController.clearCache()
+GET     /dev/icons                                controllers.dev.IconsController.index(request: Request)
+GET     /dev/addressChecker                       controllers.dev.AddressCheckerController.index(request: Request)
+POST    /dev/addressChecker/hx/correctAddress     controllers.dev.AddressCheckerController.hxCorrectAddress(request: Request)
+POST    /dev/addressChecker/hx/checkServiceArea   controllers.dev.AddressCheckerController.hxCheckServiceArea(request: Request)
 POST    /dev/runDurableJob               controllers.dev.seeding.DevDatabaseSeedController.runDurableJob(request: Request)
 
 # Change feature flags.

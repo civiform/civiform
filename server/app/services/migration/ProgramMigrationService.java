@@ -2,6 +2,7 @@ package services.migration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -27,7 +28,8 @@ public final class ProgramMigrationService {
     this.objectMapper =
         checkNotNull(objectMapper)
             .registerModule(new GuavaModule())
-            .registerModule(new Jdk8Module());
+            .registerModule(new Jdk8Module())
+            .configure(Feature.INCLUDE_SOURCE_IN_LOCATION, true);
   }
 
   /**

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import modules.MainModule;
@@ -104,10 +105,6 @@ public abstract class ProgramDefinition {
   @JsonProperty("blockDefinitions")
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
-  /** The application review statuses available for the program. */
-  @JsonProperty("statusDefinitions")
-  public abstract StatusDefinitions statusDefinitions();
-
   /** When was this program created. Could be null for older programs. */
   @JsonIgnore
   public abstract Optional<Instant> createTime();
@@ -132,6 +129,10 @@ public abstract class ProgramDefinition {
   /** A description of the program's summary image, used for alt text. */
   @JsonProperty("localizedSummaryImageDescription")
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
+
+  /** The categories this program belongs to. */
+  @JsonProperty("categories")
+  public abstract ImmutableList<CategoryModel> categories();
 
   /** A key used to fetch the program's summary image from cloud storage. */
   // JsonIgnored because the file key points to a file in cloud storage, and different instances
@@ -800,9 +801,6 @@ public abstract class ProgramDefinition {
     @JsonProperty("blockDefinitions")
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
-    @JsonProperty("statusDefinitions")
-    public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
-
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
 
     public abstract LocalizedStrings.Builder localizedNameBuilder();
@@ -827,6 +825,9 @@ public abstract class ProgramDefinition {
     @JsonProperty("localizedSummaryImageDescription")
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
+
+    @JsonProperty("categories")
+    public abstract Builder setCategories(ImmutableList<CategoryModel> categories);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

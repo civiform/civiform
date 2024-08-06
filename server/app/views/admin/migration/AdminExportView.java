@@ -1,18 +1,18 @@
 package views.admin.migration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.hr;
 import static j2html.TagCreator.p;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FieldsetTag;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -20,90 +20,90 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
-import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 
 /** A view allowing admins to export a program into JSON format. */
 public final class AdminExportView extends BaseHtmlView {
 
-  public static final String PROGRAM_EXPORT_FORM_ID = "program-export-form";
-  public static final String GENERATE_JSON_BUTTON_ID = "generate-json-button";
+  private static final String COPY_BUTTON_ID = "copy-json-button";
+  public static final String PROGRAM_JSON_ID = "json-preview";
 
   private final AdminLayout layout;
 
   @Inject
   public AdminExportView(AdminLayoutFactory layoutFactory) {
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.EXPORT);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
   }
 
   /**
-   * Renders the export page, showing a list of all active programs. Admins can select a single
-   * program then download it.
+   * Renders the export page, showing a preview of the program JSON. Admins can choose to copy or
+   * download the JSON.
    */
-  public Content render(Http.Request request, ImmutableList<ProgramDefinition> programs) {
+  public Content render(
+      Http.Request request, ProgramDefinition program, String json, String adminName) {
     String title = "Export a program";
     DivTag contentDiv =
         div()
             .withClasses("pt-10", "px-20")
-            .with(h1(title))
+            .with(renderBackButton())
+            .with(h1(title).withClass("mb-2"))
             .with(
-                p("Select the program you'd like to export to a different environment and then"
-                      + " click \"Generate JSON\". This will generate a JSON file representing the"
-                      + " selected program.")
-                    .withClass("my-2"))
-            .with(
-                p("Once the JSON file is generated, you can copy it to the clipboard or download a"
-                      + " file containing the JSON. To import the JSON, open the environment where"
-                      + " this program should be added, log in as a CiviForm Admin and use the"
-                      + " \"Import\" tab to add the program.")
-                    .withClass("my-2"));
+                p(
+                    "To export a program, either copy the JSON file content or download the JSON"
+                        + " file to your local device."))
+            .with(hr().withClasses("usa-hr", "my-5"));
 
-    contentDiv.with(createProgramSelectionForm(request, programs));
-    contentDiv.with(renderJSONPreviewRegion());
+    contentDiv.with(renderJsonPreviewRegion(request, json, adminName));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
   }
 
-  private DomContent createProgramSelectionForm(
-      Http.Request request, ImmutableList<ProgramDefinition> programs) {
-    FieldsetTag fields = fieldset();
-    for (ProgramDefinition program : programs) {
-      String labelText =
-          "Name: "
-              + program.localizedName().getDefault()
-              + "\n"
-              + "Admin Name: "
-              + program.adminName();
-
-      fields
-          .with(
-              FieldWithLabel.radio()
-                  .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
-                  .setLabelText(labelText)
-                  .setValue(String.valueOf(program.id()))
-                  .getRadioTag())
-          .withClass("whitespace-pre-wrap");
-    }
-
+  private DomContent renderJsonPreviewRegion(Http.Request request, String json, String adminName) {
     return div()
+        .withId(PROGRAM_JSON_ID)
+        .with(h2("JSON export for " + adminName))
         .with(
             form()
-                .withId(PROGRAM_EXPORT_FORM_ID)
-                .attr("hx-encoding", "multipart/form-data")
-                .attr("hx-post", routes.AdminExportController.hxExportProgram().url())
-                .attr("hx-target", "#" + AdminExportViewPartial.PROGRAM_JSON_ID)
-                .attr("hx-swap", "outerHTML")
+                .withMethod("POST")
                 .with(makeCsrfTokenInputTag(request))
-                .with(fields)
                 .with(
-                    submitButton("Generate JSON")
-                        .withId(GENERATE_JSON_BUTTON_ID)
-                        .isDisabled()
-                        .withClasses(ButtonStyles.SOLID_BLUE, "mb-10")));
+                    div()
+                        .with(
+                            button("Copy JSON")
+                                .withId(COPY_BUTTON_ID)
+                                .withClasses("usa-button", "usa-button--outline", "mr-2"),
+                            submitButton("Download JSON")
+                                .withClasses("usa-button", "usa-button--outline"))
+                        .withClasses("flex", "my-5"))
+                .with(
+                    FieldWithLabel.textArea()
+                        // We set this to disabled to prevent admin from editing the json.
+                        // Since disabled fields aren't included in the form body, we need to
+                        // include a hidden field with the same data that will be included in
+                        // the form body.
+                        .setDisabled(true)
+                        .setId("program-json")
+                        .setValue(json)
+                        .setAttribute("rows", "12")
+                        .getTextareaTag())
+                .with(
+                    FieldWithLabel.textArea()
+                        .setFieldName(AdminProgramExportForm.PROGRAM_JSON_FIELD)
+                        .setValue(json)
+                        .getTextareaTag()
+                        .withClass("hidden"))
+                .withAction(routes.AdminExportController.downloadJson(adminName).url()));
   }
 
-  private DomContent renderJSONPreviewRegion() {
-    return div().withId(AdminExportViewPartial.PROGRAM_JSON_ID);
+  private DivTag renderBackButton() {
+    return div()
+        .withClasses("flex", "items-center", "mb-5")
+        .with(Icons.svg(Icons.ARROW_LEFT).withClasses("mr-2", "w-5", "h-5"))
+        .with(
+            a("Back to all programs")
+                .withHref(routes.AdminProgramController.index().url())
+                .withClass("usa-link"));
   }
 }

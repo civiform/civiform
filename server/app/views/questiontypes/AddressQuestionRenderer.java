@@ -46,7 +46,8 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1);
+            .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
+            .setRequired(true);
 
     boolean alreadyAutofocused = false;
     if (params.autofocusFirstField()
@@ -76,7 +77,8 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
+            .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
+            .setRequired(true);
 
     if (!alreadyAutofocused
         && params.autofocusFirstError()
@@ -102,7 +104,8 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                     messages,
                     validationErrors.getOrDefault(
                         addressQuestion.getStatePath(), ImmutableSet.of()))
-                .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+                .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
+                .setRequired(true);
 
     if (!alreadyAutofocused
         && params.autofocusFirstError()
@@ -121,7 +124,8 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
+            .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
+            .setRequired(true);
 
     if (!alreadyAutofocused
         && params.autofocusFirstError()

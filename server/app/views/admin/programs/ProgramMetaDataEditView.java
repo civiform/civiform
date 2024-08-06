@@ -12,6 +12,7 @@ import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
@@ -31,8 +32,9 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
       AdminLayoutFactory layoutFactory,
       Config configuration,
       SettingsManifest settingsManifest,
-      AccountRepository accountRepository) {
-    super(configuration, settingsManifest, accountRepository);
+      AccountRepository accountRepository,
+      CategoryRepository categoryRepository) {
+    super(configuration, settingsManifest, accountRepository, categoryRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

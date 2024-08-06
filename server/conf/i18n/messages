@@ -92,6 +92,8 @@ toast.localeNotSupported=We''re sorry, this program is not fully translated to y
 link.allDone=I''m all done
 link.applyToAnotherProgram=Apply to another program
 link.createAccountOrSignIn=Create account or sign in
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -322,7 +324,11 @@ title.programSummary=Program application summary
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
 title.applicantNotEligibleTi=Based on your responses to the following questions, your client may not qualify for the {0}.
 content.eligibilityCriteria=For eligibility criteria please refer to {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=For eligibility criteria, please refer to {0}.
 content.changeAnswersForEligibility=You can return to the previous page to edit your answers. Or apply to another program.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there is a mistake, you can return to the previous page to edit your answers. You can also apply to other programs.
 button.goBackAndEdit=Go back and edit
 toast.mayQualifyTi=Based on your responses, your client may qualify for the {0}. To proceed, continue filling out the application.
 toast.mayQualify=Based on your responses, you may qualify for the {0}. To proceed, continue filling out the application.
@@ -330,10 +336,9 @@ tag.mayQualify=You may qualify
 tag.mayQualifyTi=Your client may qualify
 tag.mayNotQualify=You may not qualify
 tag.mayNotQualifyTi=Your client may not qualify
-
 toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If your information has changed you can edit your answers and then proceed with the application.
-
 toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client''s information has changed you can edit your answers and then proceed with the application.
+
 banner.errorSavingApplication=Error saving application
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +350,8 @@ alert.eligibility_applicant_eligible_text=Based on your responses, you are likel
 alert.eligibility_applicant_not_eligible_title=You may not be eligible for this program
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Based on your responses, you may not be eligible for this program. If your information has changed, you can edit your answer and proceed with the application.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=You may be eligible for this program
@@ -365,6 +372,8 @@ alert.eligibility_ti_eligible_text=Based on your responses, your client is likel
 alert.eligibility_ti_not_eligible_title=Your client may not be eligible for this program
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Based on your responses, your client may not be eligible for this program. If your client''s information has changed, you can edit your answer and proceed with the application.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Your client may be eligible for this program
@@ -563,10 +572,29 @@ validation.tooManySelections.v2=Please select at most {0}.
 label.firstName=First name
 label.lastName=Last name
 label.middleName=Middle name
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=First name
 placeholder.lastName=Last name
 placeholder.middleName=Middle name
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.

@@ -33,7 +33,6 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -57,8 +56,9 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.StatusDefinitions;
-import services.program.StatusNotFoundException;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusNotFoundException;
+import services.statuses.StatusService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -82,7 +82,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final StatusService statusService;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -108,7 +108,7 @@ public final class AdminApplicationController extends CiviFormController {
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      StatusService statusService) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -122,7 +122,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
-    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.statusService = checkNotNull(statusService);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -204,27 +204,6 @@ public final class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
-      return ok(csv)
-          .as(Http.MimeTypes.BINARY)
-          .withHeader(
-              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException | NoSuchElementException e) {
-      return unauthorized();
-    }
-  }
-
-  /**
-   * Download a CSV file containing all applications to the specified program version. This was the
-   * original behavior for the program admin CSV download but is currently unused as of 10/13/2021.
-   */
-  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadSingleVersion(Http.Request request, long programId)
-      throws ProgramNotFoundException {
-    try {
-      ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      checkProgramAdminAuthorization(request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -350,7 +329,7 @@ public final class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            applicationStatusesRepository.lookupActiveStatusDefinitions(programName),
+            statusService.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));
@@ -575,12 +554,16 @@ public final class AdminApplicationController extends CiviFormController {
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters);
 
+    StatusDefinitions activeStatusDefinitions =
+        statusService.lookupActiveStatusDefinitions(program.adminName());
+
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
         applicationListView.render(
             request,
             profile,
             program,
+            activeStatusDefinitions.getDefaultStatus(),
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
@@ -593,9 +576,10 @@ public final class AdminApplicationController extends CiviFormController {
             selectedApplicationUri));
   }
 
-  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
-    return programService.getAllVersionsFullProgramDefinition(programId).stream()
-        .map(pdef -> pdef.statusDefinitions().getStatuses())
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)
+      throws ProgramNotFoundException {
+    return statusService.getAllPossibleStatusDefinitions(programId).stream()
+        .map(stdef -> stdef.getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)
         .distinct()
