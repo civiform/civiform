@@ -177,7 +177,7 @@ test.describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programWithExternalLink)
       await logout(page)
       // Verify we are on program list page.
-      expect(await page.innerText('h1')).toContain(
+      await expect( page.innerText('h1')).toContain(
         'Save time applying for programs and services',
       )
 

@@ -31,13 +31,13 @@ export class AdminProgramImage {
   }
 
   async expectHasContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect( this.page.locator(this.continueButtonLocator).count()).toEqual(
       1,
     )
   }
 
   async expectNoContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect( this.page.locator(this.continueButtonLocator).count()).toEqual(
       0,
     )
   }
@@ -108,7 +108,7 @@ export class AdminProgramImage {
   }
 
   async expectProgramImagePage() {
-    expect(await this.page.innerText('h1')).toContain(`Image upload`)
+    await expect( this.page.innerText('h1')).toContain(`Image upload`)
   }
 
   async expectDescriptionIs(description: string) {

@@ -79,7 +79,7 @@ export class AdminTranslations {
 
   async expectNoProgramStatusTranslations() {
     // Fix me! ESLint: playwright/prefer-web-first-assertions
-    expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
+    await expect( this.page.isVisible(':has-text("Application status: ")')).toBe(
       false,
     )
   }

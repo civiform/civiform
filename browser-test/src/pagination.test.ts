@@ -19,12 +19,12 @@ test.describe('Pagination', () => {
     expect(cardCount).toBe(10)
 
     // No 'Previous' button
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__previous-page',
     )
 
     // No 'Next' button
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__next-page',
     )
 
@@ -35,10 +35,10 @@ test.describe('Pagination', () => {
     await tiDashboard.expectPageNumberButtonNotPresent('2')
 
     // The page 1 button should be the current page
-    expect(await page.innerHTML('.usa-current')).toContain('1')
+    await expect( page.innerHTML('.usa-current')).toContain('1')
 
     // There should be no ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__overflow',
     )
   })
@@ -58,22 +58,22 @@ test.describe('Pagination', () => {
     expect(cardCount).toBe(10)
 
     // No 'Previous' button because we're on the 1st page
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__previous-page',
     )
 
     // There should be a 'Next' button
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__next-page',
     )
 
     await tiDashboard.expectPageNumberButton('1')
     await tiDashboard.expectPageNumberButton('2')
 
-    expect(await page.innerHTML('.usa-current')).toContain('1')
+    await expect( page.innerHTML('.usa-current')).toContain('1')
 
     // There should be no ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__overflow',
     )
 
@@ -84,18 +84,18 @@ test.describe('Pagination', () => {
     expect(page2CardCount).toBe(1)
 
     // Now there should be a 'Previous' button
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__previous-page',
     )
 
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__next-page',
     )
 
     await tiDashboard.expectPageNumberButton('1')
     await tiDashboard.expectPageNumberButton('2')
 
-    expect(await page.innerHTML('.usa-current')).toContain('2')
+    await expect( page.innerHTML('.usa-current')).toContain('2')
   })
 
   test('shows 7 pages and no ellipses when there are 65 clients', async ({
@@ -119,14 +119,14 @@ test.describe('Pagination', () => {
 
     // Going to page 7
     await page.click('[aria-label=Page7]')
-    expect(await page.innerHTML('.usa-current')).toContain('7')
+    await expect( page.innerHTML('.usa-current')).toContain('7')
 
     // There should be no ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__overflow',
     )
 
-    expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).not.toContain(
       'usa-pagination__next-page',
     )
 
@@ -157,18 +157,18 @@ test.describe('Pagination', () => {
     await tiDashboard.expectPageNumberButton('8')
 
     // There should be an ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__overflow',
     )
 
     // Going to page 4
     await page.click('[aria-label=Page4]')
-    expect(await page.innerHTML('.usa-current')).toContain('4')
+    await expect( page.innerHTML('.usa-current')).toContain('4')
 
     await tiDashboard.expectPageNumberButtonNotPresent('6')
     await tiDashboard.expectPageNumberButtonNotPresent('7')
 
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__overflow',
     )
 
@@ -190,7 +190,7 @@ test.describe('Pagination', () => {
 
     // Going to page 5
     await page.click('[aria-label=Page5]')
-    expect(await page.innerHTML('.usa-current')).toContain('5')
+    await expect( page.innerHTML('.usa-current')).toContain('5')
 
     await tiDashboard.expectPageNumberButton('1')
     // An ellipses takes the place of 2 and 3 when current page is 5
@@ -205,7 +205,7 @@ test.describe('Pagination', () => {
     await tiDashboard.expectPageNumberButton('9')
 
     // There should be an ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__overflow',
     )
 
@@ -228,7 +228,7 @@ test.describe('Pagination', () => {
     // Going to page 6 via page 5
     await page.click('[aria-label=Page5]')
     await page.click('.usa-pagination__next-page')
-    expect(await page.innerHTML('.usa-current')).toContain('6')
+    await expect( page.innerHTML('.usa-current')).toContain('6')
 
     await tiDashboard.expectPageNumberButton('1')
     // The ellipses is on the left
@@ -242,7 +242,7 @@ test.describe('Pagination', () => {
     await tiDashboard.expectPageNumberButton('9')
 
     // There should be an ellipses
-    expect(await page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( page.innerHTML('.usa-pagination__list')).toContain(
       'usa-pagination__overflow',
     )
 

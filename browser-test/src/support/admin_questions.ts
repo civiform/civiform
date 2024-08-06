@@ -273,7 +273,7 @@ export class AdminQuestions {
     )
 
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       `Programs referencing ${questionName}`,
     )
     return modal
@@ -420,7 +420,7 @@ export class AdminQuestions {
     )
     if (expectModal) {
       const modal = await waitForAnyModal(this.page)
-      expect(await modal.innerText()).toContain(
+      await expect( modal.innerText()).toContain(
         'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)
@@ -460,14 +460,14 @@ export class AdminQuestions {
   }
 
   async expectQuestionEditPage(questionName: string) {
-    expect(await this.page.innerText('h1')).toContain('Edit')
+    await expect( this.page.innerText('h1')).toContain('Edit')
     await expect(this.page.locator('#question-name-input')).toHaveText(
       questionName,
     )
   }
 
   async expectQuestionTranslationPage(questionName: string) {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       `Manage question translations: ${questionName}`,
     )
   }
@@ -1272,7 +1272,7 @@ export class AdminQuestions {
     fieldName: string,
     value: boolean,
   ) {
-    expect(await this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
+    await expect( this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
       value.toString(),
     )
   }
@@ -1381,13 +1381,13 @@ export class AdminQuestions {
     // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
     //   addEntityButtonText,
     // )
-    expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
+    await expect( this.page.innerText('.cf-entity-name-input label')).toBe(
       entityNameInputLabelText,
     )
-    expect(await this.page.innerText('.cf-enumerator-delete-button')).toBe(
+    await expect( this.page.innerText('.cf-enumerator-delete-button')).toBe(
       deleteEntityButtonText,
     )
-    expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
+    await expect( this.page.innerText('#enumerator-field-add-button')).toBe(
       addEntityButtonText,
     )
   }

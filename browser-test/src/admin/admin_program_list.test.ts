@@ -187,7 +187,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
 
     await adminPrograms.gotoAdminProgramsPage()
-    expect(await page.innerText('.cf-admin-program-card')).not.toContain(
+    await expect( page.innerText('.cf-admin-program-card')).not.toContain(
       'universal questions',
     )
 
@@ -203,7 +203,7 @@ test.describe('Program list page.', () => {
       universal: true,
     })
     await adminPrograms.gotoAdminProgramsPage()
-    expect(await page.innerText('.cf-admin-program-card')).toContain(
+    await expect( page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
     )
     await validateScreenshot(
@@ -270,11 +270,11 @@ test.describe('Program list page.', () => {
 
     await adminPrograms.gotoAdminProgramsPage()
     await page.click(publishProgramOneModalButton)
-    expect(await page.innerText(publishProgramOneModal)).toContain(
+    await expect( page.innerText(publishProgramOneModal)).toContain(
       'Are you sure you want to publish program one and all of its draft questions?',
     )
     // Warning should not show because there are no universal questions
-    expect(await page.innerText(publishProgramOneModal)).not.toContain(
+    await expect( page.innerText(publishProgramOneModal)).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await validateScreenshot(page, 'publish-single-program-modal-no-warning')
@@ -290,7 +290,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
     await page.click(publishProgramOneModalButton)
     // Warning should show because there is a universal question that is not used in this program
-    expect(await page.innerText(publishProgramOneModal)).toContain(
+    await expect( page.innerText(publishProgramOneModal)).toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await validateScreenshot(page, 'publish-single-program-modal-with-warning')
@@ -303,7 +303,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
     await page.click(publishProgramOneModalButton)
     // Warning should not show because the program uses all universal questions
-    expect(await page.innerText(publishProgramOneModal)).not.toContain(
+    await expect( page.innerText(publishProgramOneModal)).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await adminQuestions.clickSubmitButtonAndNavigate('Publish program')

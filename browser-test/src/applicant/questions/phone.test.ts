@@ -74,7 +74,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain('Phone number is required')
+      await expect( page.innerText(textId)).toContain('Phone number is required')
     })
 
     test('invalid phone numbers', async ({page, applicantQuestions}) => {
@@ -84,7 +84,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const countryCodeId = '.cf-question-phone'
-      expect(await page.innerText(countryCodeId)).toContain(
+      await expect( page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
@@ -95,7 +95,7 @@ test.describe('phone question for applicant flow', () => {
 
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-question-phone'
-      expect(await page.innerText(countryCodeId)).toContain(
+      await expect( page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
@@ -109,7 +109,7 @@ test.describe('phone question for applicant flow', () => {
 
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-question-phone'
-      expect(await page.innerText(countryCodeId)).toContain(
+      await expect( page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
@@ -123,7 +123,7 @@ test.describe('phone question for applicant flow', () => {
 
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-question-phone'
-      expect(await page.innerText(countryCodeId)).toContain(
+      await expect( page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
@@ -137,7 +137,7 @@ test.describe('phone question for applicant flow', () => {
 
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-question-phone'
-      expect(await page.innerText(countryCodeId)).toContain(
+      await expect( page.innerText(countryCodeId)).toContain(
         'Phone number is required',
       )
     })
@@ -237,7 +237,7 @@ test.describe('phone question for applicant flow', () => {
       const locatorId = '[name="applicant.firstphoneq.phone_number"]'
       const parentElement = page.locator(locatorId).locator('..')
 
-      expect(await parentElement.innerText()).toContain(
+      await expect( parentElement.innerText()).toContain(
         'This phone number is invalid',
       )
     })
@@ -252,7 +252,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-phone >> nth=1`
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'This phone number is invalid',
       )
     })

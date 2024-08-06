@@ -20,11 +20,11 @@ export class NotFoundPage {
 
   async checkPageHeader(lang = 'en-US') {
     if (lang === 'es-US') {
-      expect(await this.ctx.page.innerText('h1')).toContain(
+      await expect( this.ctx.page.innerText('h1')).toContain(
         'No Pudimos encontrar la página que intentó visitar',
       )
     } else {
-      expect(await this.ctx.page.innerText('h1')).toContain(
+      await expect( this.ctx.page.innerText('h1')).toContain(
         'We were unable to find the page you tried to visit',
       )
     }

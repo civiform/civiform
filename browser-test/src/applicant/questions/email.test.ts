@@ -58,10 +58,10 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const emailId = '.cf-question-email'
-      expect(await page.innerText(emailId)).toContain(
+      await expect( page.innerText(emailId)).toContain(
         'This question is required.',
       )
-      expect(await page.innerHTML(emailId)).toContain('autofocus')
+      await expect( page.innerHTML(emailId)).toContain('autofocus')
     })
   })
 

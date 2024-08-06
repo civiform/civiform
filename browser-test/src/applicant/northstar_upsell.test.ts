@@ -48,9 +48,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
-    expect(await page.textContent('html')).toContain('Application confirmation')
-    expect(await page.textContent('html')).toContain(programName)
-    expect(await page.textContent('html')).toContain(customConfirmationText)
+    await expect( page.textContent('html')).toContain('Application confirmation')
+    await expect( page.textContent('html')).toContain(programName)
+    await expect( page.textContent('html')).toContain(customConfirmationText)
 
     await test.step('Validate screenshot and accessibility', async () => {
       await validateScreenshot(

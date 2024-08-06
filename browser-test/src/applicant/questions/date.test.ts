@@ -59,7 +59,7 @@ test.describe('Date question for applicant flow', () => {
 
       // Check required error is present
       const dateId = '.cf-question-date'
-      expect(await page.innerText(dateId)).toContain(
+      await expect( page.innerText(dateId)).toContain(
         'This question is required.',
       )
     })

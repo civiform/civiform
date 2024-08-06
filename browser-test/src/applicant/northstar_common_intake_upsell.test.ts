@@ -59,10 +59,10 @@ test.describe(
       })
 
       await test.step('Verify output', async () => {
-        expect(await page.textContent('html')).toContain(
+        await expect( page.textContent('html')).toContain(
           'Programs you may qualify for',
         )
-        expect(await page.textContent('html')).toContain(eligibleProgram1)
+        await expect( page.textContent('html')).toContain(eligibleProgram1)
 
         await validateScreenshot(
           page,
@@ -91,7 +91,7 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
+      await expect( page.textContent('html')).toContain(
         'The pre-screener could not find programs you may qualify for at this time',
       )
     })
@@ -156,10 +156,10 @@ test.describe(
       })
 
       await test.step('Verify output', async () => {
-        expect(await page.textContent('html')).toContain(
+        await expect( page.textContent('html')).toContain(
           'Programs your client may qualify for',
         )
-        expect(await page.textContent('html')).toContain(eligibleProgram1)
+        await expect( page.textContent('html')).toContain(eligibleProgram1)
       })
     })
 
@@ -195,7 +195,7 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
+      await expect( page.textContent('html')).toContain(
         'The pre-screener could not find programs your client may qualify for at this time',
       )
     })

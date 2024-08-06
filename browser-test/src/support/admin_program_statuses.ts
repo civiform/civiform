@@ -27,11 +27,11 @@ export class AdminProgramStatuses {
     )
     await expect(statusLocator).toBeVisible()
     if (expectEmailExists) {
-      expect(await statusLocator.innerText()).toContain(
+      await expect( statusLocator.innerText()).toContain(
         'Applicant notification email added',
       )
     } else {
-      expect(await statusLocator.innerText()).not.toContain(
+      await expect( statusLocator.innerText()).not.toContain(
         'Applicant notification email added',
       )
     }
@@ -42,7 +42,7 @@ export class AdminProgramStatuses {
       this.programStatusItemSelector(statusName),
     )
     await expect(statusLocator).toBeVisible()
-    expect(await statusLocator.innerText()).toContain('Default status')
+    await expect( statusLocator.innerText()).toContain('Default status')
   }
 
   async expectStatusIsNotDefault(statusName: string) {
@@ -50,7 +50,7 @@ export class AdminProgramStatuses {
       this.programStatusItemSelector(statusName),
     )
     await expect(statusLocator).toBeVisible()
-    expect(await statusLocator.innerText()).not.toContain('Default status')
+    await expect( statusLocator.innerText()).not.toContain('Default status')
   }
 
   async expectStatusNotExists(statusName: string) {
@@ -71,7 +71,7 @@ export class AdminProgramStatuses {
     await this.page.click('button:has-text("Create a new status")')
 
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
+    await expect( modal.innerText()).toContain('Create a new status')
 
     emailBody = emailBody ?? ''
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
@@ -92,7 +92,7 @@ export class AdminProgramStatuses {
   async createDefaultStatusWithoutClickingConfirm(statusName: string) {
     await this.page.click('button:has-text("Create a new status")')
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
+    await expect( modal.innerText()).toContain('Create a new status')
     const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
     await statusFieldHandle.fill(statusName)
     const defaultCheckboxHandle = (await modal.$(
@@ -141,7 +141,7 @@ export class AdminProgramStatuses {
       this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
     )
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    await expect( modal.innerText()).toContain('Edit this status')
     const defaultCheckboxHandle = (await modal.$(
       'input[name="defaultStatusCheckbox"]',
     ))!
@@ -160,9 +160,9 @@ export class AdminProgramStatuses {
 
   async expectCreateStatusModalWithError(expectErrorContains: string) {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
+    await expect( modal.innerText()).toContain('Create a new status')
     if (expectErrorContains) {
-      expect(await modal.innerText()).toContain(expectErrorContains)
+      await expect( modal.innerText()).toContain(expectErrorContains)
     }
   }
 
@@ -179,7 +179,7 @@ export class AdminProgramStatuses {
     )
 
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    await expect( modal.innerText()).toContain('Edit this status')
 
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
       statusName: editedStatusName,
@@ -190,9 +190,9 @@ export class AdminProgramStatuses {
 
   async expectEditStatusModalWithError(expectErrorContains: string) {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    await expect( modal.innerText()).toContain('Edit this status')
     if (expectErrorContains) {
-      expect(await modal.innerText()).toContain(expectErrorContains)
+      await expect( modal.innerText()).toContain(expectErrorContains)
     }
   }
 
@@ -219,7 +219,7 @@ export class AdminProgramStatuses {
     )
 
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    await expect( modal.innerText()).toContain('Edit this status')
 
     // We perform selectors within the modal since using the typical
     // selectors will match multiple modals on the page.
@@ -253,7 +253,7 @@ export class AdminProgramStatuses {
   }
 
   async expectProgramManageStatusesPage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       `Manage application statuses for ${programName}`,
     )
   }

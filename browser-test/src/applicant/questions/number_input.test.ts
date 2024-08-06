@@ -60,7 +60,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const numberId = '.cf-question-number'
-      expect(await page.innerText(numberId)).toContain(
+      await expect( page.innerText(numberId)).toContain(
         'This question is required.',
       )
     })
@@ -145,7 +145,7 @@ test.describe('Number question for applicant flow', () => {
       //
       // Recommended prefer-web-first-assertions fix:
       //   await expect(page.locator(numberInputError)).toBeVisible()
-      expect(await page.isHidden(numberInputError)).toEqual(false)
+      await expect( page.isHidden(numberInputError)).toEqual(false)
     })
 
     test('with second invalid does not submit', async ({
@@ -164,7 +164,7 @@ test.describe('Number question for applicant flow', () => {
       //
       // Recommended prefer-web-first-assertions fix:
       //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
-      expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
+      await expect( page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
     })
 
     test('has no accessiblity violations', async ({

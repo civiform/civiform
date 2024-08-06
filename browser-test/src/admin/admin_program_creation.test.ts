@@ -62,7 +62,7 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    expect(await page.innerText('id=program-details-form')).toContain(
+    await expect( page.innerText('id=program-details-form')).toContain(
       'Disabled',
     )
     await validateScreenshot(
@@ -97,7 +97,7 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    expect(await page.innerText('id=program-details-form')).not.toContain(
+    await expect( page.innerText('id=program-details-form')).not.toContain(
       'Disabled',
     )
     await validateScreenshot(
@@ -133,7 +133,7 @@ test.describe('program creation', () => {
     )
 
     // On initial program creation, expect an admin can fill in the program name.
-    expect(await page.locator('#program-name-input').count()).toEqual(1)
+    await expect( page.locator('#program-name-input').count()).toEqual(1)
 
     await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
@@ -143,7 +143,7 @@ test.describe('program creation', () => {
 
     // THEN they should not be able to modify the program name (used for the URL).
     await adminPrograms.expectProgramEditPage(programName)
-    expect(await page.locator('#program-name-input').count()).toEqual(0)
+    await expect( page.locator('#program-name-input').count()).toEqual(0)
   })
 
   test('create program then go back can still go forward', async ({
@@ -266,16 +266,16 @@ test.describe('program creation', () => {
 
     await adminPrograms.openQuestionBank()
 
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'address-w-admin-note',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'this is a note',
     )
-    expect(await page.innerText('id=question-bank-universal')).toContain(
+    await expect( page.innerText('id=question-bank-universal')).toContain(
       'address-universal-w-admin-note',
     )
-    expect(await page.innerText('id=question-bank-universal')).toContain(
+    await expect( page.innerText('id=question-bank-universal')).toContain(
       'universal note',
     )
 
@@ -312,28 +312,28 @@ test.describe('program creation', () => {
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
     // All non-repeated questions should be available in the question bank
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-address',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-name',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-text',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-enumerator',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-repeated',
     )
 
     // Add a non-enumerator question and the enumerator option should go away
     await adminPrograms.addQuestionFromQuestionBank('apc-name')
-    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-enumerator',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-repeated',
     )
 
@@ -347,7 +347,7 @@ test.describe('program creation', () => {
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect( page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-repeated',
     )
   })
@@ -436,15 +436,15 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput1).toHaveValue('false')
     await expect(addressCorrectionInput2).toHaveValue('false')
 
-    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
-    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+    await expect( addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    await expect( addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
 
     await expect(addressCorrectionInput1).toHaveValue('true')
     await expect(addressCorrectionInput2).toHaveValue('false')
-    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
-    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+    await expect( addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    await expect( addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
       page,
@@ -456,8 +456,8 @@ test.describe('program creation', () => {
 
     await expect(addressCorrectionInput1).toHaveValue('true')
     await expect(addressCorrectionInput2).toHaveValue('false')
-    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
-    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+    await expect( addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    await expect( addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
       page,
@@ -470,8 +470,8 @@ test.describe('program creation', () => {
 
     await expect(addressCorrectionInput1).toHaveValue('false')
     await expect(addressCorrectionInput2).toHaveValue('true')
-    expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
-    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+    await expect( addressCorrectionHelpText1.innerText()).toContain(helpText)
+    await expect( addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await validateScreenshot(
       page,
@@ -981,7 +981,7 @@ test.describe('program creation', () => {
     await page.click('#program-update-button')
 
     let modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    await expect( modal.innerText()).toContain(`Confirm pre-screener change?`)
     await validateScreenshot(
       page,
       'confirm-common-intake-change-modal',
@@ -992,7 +992,7 @@ test.describe('program creation', () => {
     await dismissModal(page)
     await page.click('#program-update-button')
     modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    await expect( modal.innerText()).toContain(`Confirm pre-screener change?`)
 
     await page.click('#confirm-common-intake-change-button')
     await waitForPageJsLoad(page)
@@ -1015,7 +1015,7 @@ test.describe('program creation', () => {
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
-    expect(await page.innerText('main')).toContain('Eligibility')
+    await expect( page.innerText('main')).toContain('Eligibility')
   })
 
   test('common intake form does not have eligibility conditions', async ({
@@ -1034,7 +1034,7 @@ test.describe('program creation', () => {
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
-    expect(await page.innerText('main')).not.toContain('Eligibility')
+    await expect( page.innerText('main')).not.toContain('Eligibility')
   })
 
   test('create program with universal questions', async ({

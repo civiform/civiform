@@ -477,7 +477,7 @@ test.describe('Admin can manage program image', () => {
       )
 
       await adminProgramImage.expectTooLargeErrorShown()
-      expect(await page.textContent('html')).toContain(
+      await expect( page.textContent('html')).toContain(
         'Error: Your file is too large.',
       )
     })

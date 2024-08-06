@@ -51,10 +51,10 @@ test.describe('Admin can manage translations', () => {
 
     await applicantQuestions.applyProgram(programName)
 
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-text')).toContain(
       'Spanish question text',
     )
-    expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-help-text')).toContain(
       'Spanish help text',
     )
   })
@@ -99,9 +99,9 @@ test.describe('Admin can manage translations', () => {
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
 
-    expect(await page.innerText('main form')).toContain('uno')
-    expect(await page.innerText('main form')).toContain('dos')
-    expect(await page.innerText('main form')).toContain('tres')
+    await expect( page.innerText('main form')).toContain('uno')
+    await expect( page.innerText('main form')).toContain('dos')
+    await expect( page.innerText('main form')).toContain('tres')
   })
 
   test('Expect enumerator question is translated for applicant', async ({
@@ -135,7 +135,7 @@ test.describe('Admin can manage translations', () => {
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
 
-    expect(await page.innerText('main form')).toContain('miembro de la familia')
+    await expect( page.innerText('main form')).toContain('miembro de la familia')
   })
 
   test('Applicant sees toast message warning translation is not complete', async ({

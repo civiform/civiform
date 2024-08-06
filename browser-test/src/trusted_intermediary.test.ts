@@ -450,7 +450,7 @@ test.describe('Trusted intermediaries', () => {
     expect(content).toContain('Notes (optional)')
     expect(content).toContain('Middle name (optional)')
     expect(content).toContain('Phone number (optional)')
-    expect(await page.textContent('html')).toContain(
+    await expect( page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
   })
@@ -725,7 +725,7 @@ test.describe('Trusted intermediaries', () => {
 
   test('logging in as a trusted intermediary', async ({page}) => {
     await loginAsTrustedIntermediary(page)
-    expect(await page.innerText('#ti-dashboard-link')).toContain(
+    await expect( page.innerText('#ti-dashboard-link')).toContain(
       'View and add clients',
     )
   })
@@ -746,10 +746,10 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
-    expect(await page.innerText('#ti-clients-link')).toContain(
+    await expect( page.innerText('#ti-clients-link')).toContain(
       'Select a new client',
     )
-    expect(await page.innerText('#ti-banner')).toContain(
+    await expect( page.innerText('#ti-banner')).toContain(
       'You are applying for last1, first1. Are you trying to apply for a different client?',
     )
   })
@@ -771,7 +771,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
     await page.getByRole('link', {name: 'Select a new client'}).click()
-    expect(await page.innerHTML('body')).toContain('id="name-search"')
+    await expect( page.innerHTML('body')).toContain('id="name-search"')
   })
 
   test.describe('application flow with eligibility conditions', () => {
@@ -1166,16 +1166,16 @@ test.describe('Trusted intermediaries', () => {
       })
 
       await test.step('verify client info is pre-populated in the application', async () => {
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           '01/01/2001',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           'first middle last',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           '+1 917-867-5309',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           'test@email.com',
         )
         await validateScreenshot(page, 'pai-program-application-preview')
@@ -1183,7 +1183,7 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
         await applicantQuestions.clickContinue()
-        expect(await page.locator('input[type=date]').inputValue()).toEqual(
+        await expect( page.locator('input[type=date]').inputValue()).toEqual(
           '2001-01-01',
         )
         expect(
@@ -1198,7 +1198,7 @@ test.describe('Trusted intermediaries', () => {
         expect(
           await page.locator('.cf-phone-number').locator('input').inputValue(),
         ).toEqual('(917) 867-5309')
-        expect(await page.locator('input[type=email]').inputValue()).toEqual(
+        await expect( page.locator('input[type=email]').inputValue()).toEqual(
           'test@email.com',
         )
         await validateScreenshot(page, 'pai-program-application')
@@ -1229,16 +1229,16 @@ test.describe('Trusted intermediaries', () => {
       })
 
       await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           '01/01/2001',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           'newfirst middle newlast',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           '+1 917-867-5309',
         )
-        expect(await page.innerText('#application-summary')).toContain(
+        await expect( page.innerText('#application-summary')).toContain(
           'test@email.com',
         )
       })

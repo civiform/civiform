@@ -100,7 +100,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'This question is required.',
       )
     })
@@ -114,7 +114,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'Must contain at least 5 characters.',
       )
     })
@@ -130,7 +130,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
@@ -272,7 +272,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
@@ -290,7 +290,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-text >> nth=1`
-      expect(await page.innerText(textId)).toContain(
+      await expect( page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
