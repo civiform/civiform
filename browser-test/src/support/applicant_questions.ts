@@ -217,7 +217,7 @@ export class ApplicantQuestions {
   }
 
   async validateDropdownValue(value: string, dropdownId: string) {
-    expect(await this.page.innerText(dropdownId)).toContain(value)
+    await expect( this.page.innerText(dropdownId)).toContain(value)
   }
 
   async validateInputValue(value: string, element = 'input') {
@@ -277,15 +277,15 @@ export class ApplicantQuestions {
       has: this.page.locator(`:text("${programName}")`),
     })
     const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag'
-    expect(await cardLocator.locator(tag).count()).toEqual(1)
+    await expect( cardLocator.locator(tag).count()).toEqual(1)
   }
 
   async seeNoEligibilityTags(programName: string) {
     const cardLocator = this.page.locator('.cf-application-card', {
       has: this.page.locator(`:text("${programName}")`),
     })
-    expect(await cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
-    expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
+    await expect( cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
+    await expect( cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
   }
 
   async expectPrograms({
@@ -415,7 +415,7 @@ export class ApplicantQuestions {
 
   async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h2')).toContain(
+    await expect( this.page.innerText('h2')).toContain(
       'Program application summary',
     )
 
@@ -480,13 +480,13 @@ export class ApplicantQuestions {
   }
 
   async expectConfirmationPage() {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       'Application confirmation',
     )
   }
 
   async expectCommonIntakeReviewPage() {
-    expect(await this.page.innerText('h2')).toContain(
+    await expect( this.page.innerText('h2')).toContain(
       'Benefits pre-screener summary',
     )
   }
@@ -497,11 +497,11 @@ export class ApplicantQuestions {
     wantEligiblePrograms: string[],
   ) {
     if (wantTrustedIntermediary) {
-      expect(await this.page.innerText('h1')).toContain(
+      await expect( this.page.innerText('h1')).toContain(
         'Programs your client may qualify for',
       )
     } else {
-      expect(await this.page.innerText('h1')).toContain(
+      await expect( this.page.innerText('h1')).toContain(
         'Programs you may qualify for',
       )
     }
@@ -510,25 +510,25 @@ export class ApplicantQuestions {
       ':text("Create an account or sign in"):visible',
     )
     if (wantUpsell) {
-      expect(await upsellLocator.count()).toEqual(1)
+      await expect( upsellLocator.count()).toEqual(1)
     } else {
-      expect(await upsellLocator.count()).toEqual(0)
+      await expect( upsellLocator.count()).toEqual(0)
     }
 
     const programLocator = this.page.locator(
       '.cf-applicant-cif-eligible-program-name',
     )
     if (wantEligiblePrograms.length == 0) {
-      expect(await programLocator.count()).toEqual(0)
+      await expect( programLocator.count()).toEqual(0)
     } else {
-      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      await expect( programLocator.count()).toEqual(wantEligiblePrograms.length)
       const allProgramTitles = await programLocator.allTextContents()
       expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
     }
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('html')).toContain('you may not qualify')
+    await expect( this.page.innerText('html')).toContain('you may not qualify')
   }
 
   async clickGoBackAndEditOnIneligiblePage() {
@@ -537,24 +537,24 @@ export class ApplicantQuestions {
   }
 
   async expectDuplicatesPage() {
-    expect(await this.page.innerText('h2')).toContain(
+    await expect( this.page.innerText('h2')).toContain(
       'There are no changes to save',
     )
   }
 
   async expectIneligibleQuestion(questionText: string) {
-    expect(await this.page.innerText('li')).toContain(questionText)
+    await expect( this.page.innerText('li')).toContain(questionText)
   }
 
   async expectIneligibleQuestionsCount(number: number) {
-    expect(await this.page.locator('li').count()).toEqual(number)
+    await expect( this.page.locator('li').count()).toEqual(number)
   }
 
   async expectQuestionIsNotEligible(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
+    await expect( questionLocator.count()).toEqual(1)
     expect(
       await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
     ).toEqual(1)
@@ -564,14 +564,14 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
+    await expect( questionLocator.count()).toEqual(1)
     expect(
       await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
     ).toEqual(0)
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
-    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    await expect( this.page.innerText('h2')).toContain('Confirm your address')
     // Note: If there's only one suggestion, the heading will be "Suggested address"
     // not "Suggested addresses". But, our browser setup always returns multiple
     // suggestions so we can safely assert the heading is always "Suggested addresses".
@@ -581,7 +581,7 @@ export class ApplicantQuestions {
   }
 
   async expectAddressPage() {
-    expect(await this.page.innerText('legend')).toContain('With Correction')
+    await expect( this.page.innerText('legend')).toContain('With Correction')
   }
 
   async selectAddressSuggestion(addressName: string) {
@@ -595,7 +595,7 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
+    await expect( questionLocator.count()).toEqual(1)
     const summaryRowText = await questionLocator.innerText()
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
@@ -618,7 +618,7 @@ export class ApplicantQuestions {
 
   async validateHeader(lang: string) {
     await expect(this.page.locator('html')).toHaveAttribute('lang', lang)
-    expect(await this.page.innerHTML('head')).toContain(
+    await expect( this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
   }
@@ -650,24 +650,24 @@ export class ApplicantQuestions {
   }
 
   async seeStaticQuestion(questionText: string) {
-    expect(await this.page.textContent('html')).toContain(questionText)
+    await expect( this.page.textContent('html')).toContain(questionText)
   }
 
   async expectRequiredQuestionError(questionLocator: string) {
-    expect(await this.page.innerText(questionLocator)).toContain(
+    await expect( this.page.innerText(questionLocator)).toContain(
       'This question is required',
     )
   }
 
   async expectErrorOnReviewModal() {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       `Questions on this page are not complete`,
     )
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       `Continue to review page without saving`,
     )
-    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+    await expect( modal.innerText()).toContain(`Stay and fix your answers`)
   }
   async clickReviewWithoutSaving() {
     await this.page.click(
@@ -677,13 +677,13 @@ export class ApplicantQuestions {
 
   async expectErrorOnPreviousModal() {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       `Questions on this page are not complete`,
     )
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       `Continue to previous questions without saving`,
     )
-    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+    await expect( modal.innerText()).toContain(`Stay and fix your answers`)
   }
 
   async clickPreviousWithoutSaving() {

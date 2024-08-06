@@ -85,8 +85,8 @@ export class AdminPrograms {
   }
 
   async expectAdminProgramsPage() {
-    expect(await this.page.innerText('h1')).toEqual('Program dashboard')
-    expect(await this.page.innerText('h2')).toEqual(
+    await expect( this.page.innerText('h1')).toEqual('Program dashboard')
+    await expect( this.page.innerText('h2')).toEqual(
       'Create, edit and publish programs in ' + TEST_CIVIC_ENTITY_SHORT_NAME,
     )
   }
@@ -200,13 +200,13 @@ export class AdminPrograms {
   }
 
   async expectProgramDetailsSaveAndContinueButton() {
-    expect(await this.page.innerText('#program-update-button')).toEqual(
+    await expect( this.page.innerText('#program-update-button')).toEqual(
       'Save and continue to next step',
     )
   }
 
   async expectProgramDetailsSaveButton() {
-    expect(await this.page.innerText('#program-update-button')).toEqual('Save')
+    await expect( this.page.innerText('#program-update-button')).toEqual('Save')
   }
 
   async editProgram(
@@ -500,13 +500,13 @@ export class AdminPrograms {
   }
 
   async expectProgramEditPage(programName = '') {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       `Edit program: ${programName}`,
     )
   }
 
   async expectProgramManageTranslationsPage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       `Manage program translations: ${programName}`,
     )
   }
@@ -517,13 +517,13 @@ export class AdminPrograms {
   }
 
   async expectManageProgramAdminsPage() {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       'Manage admins for program',
     )
   }
 
   async expectProgramSettingsPage() {
-    expect(await this.page.innerText('h1')).toContain('settings')
+    await expect( this.page.innerText('h1')).toContain('settings')
   }
 
   async expectAddProgramAdminErrorToast() {
@@ -535,13 +535,13 @@ export class AdminPrograms {
   }
 
   async expectEditVisibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       'Visibility condition for ' + blockName,
     )
   }
 
   async expectEditEligibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
+    await expect( this.page.innerText('h1')).toContain(
       'Eligibility condition for ' + blockName,
     )
   }
@@ -554,8 +554,8 @@ export class AdminPrograms {
   }
 
   async expectProgramBlockEditPage(programName = '') {
-    expect(await this.page.innerText('id=program-title')).toContain(programName)
-    expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
+    await expect( this.page.innerText('id=program-title')).toContain(programName)
+    await expect( this.page.innerText('id=block-edit-form')).not.toBeNull()
     // Compare string case insensitively because style may not have been computed.
     expect(
       (await this.page.innerText('[for=block-name-input]')).toUpperCase(),
@@ -565,14 +565,14 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Add a question')
+    await expect( this.page.innerText('h1')).toContain('Add a question')
   }
 
   async expectProgramBlockReadOnlyPage(programName = '') {
-    expect(await this.page.innerText('id=program-title')).toContain(programName)
+    await expect( this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
     await expect(this.page.locator('#header_edit_button')).toBeVisible()
-    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
+    await expect( this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 
   // Removes questions from given block in program.
@@ -875,7 +875,7 @@ export class AdminPrograms {
   async openPublishAllDraftsModal() {
     await this.page.click('button:has-text("Publish all drafts")')
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
+    await expect( modal.innerText()).toContain(
       AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
     )
     return modal

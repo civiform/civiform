@@ -83,8 +83,8 @@ test.describe('applicant program index page', () => {
 
     // We cannot check that the login/create account buttons redirect the user to a particular
     // URL because it varies between environments, so just check for their existence.
-    expect(await page.textContent('#login-button')).toContain('Log in')
-    expect(await page.textContent('#create-account')).toContain(
+    await expect( page.textContent('#login-button')).toContain('Log in')
+    await expect( page.textContent('#create-account')).toContain(
       'Create account',
     )
     await applicantQuestions.gotoApplicantHomePage()
@@ -100,7 +100,7 @@ test.describe('applicant program index page', () => {
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
-    expect(await page.textContent('html')).toContain(
+    await expect( page.textContent('html')).toContain(
       'Create an account or sign in',
     )
     await validateScreenshot(
@@ -114,7 +114,7 @@ test.describe('applicant program index page', () => {
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
-    expect(await page.textContent('html')).not.toContain(
+    await expect( page.textContent('html')).not.toContain(
       'Create an account or sign in',
     )
 
@@ -123,7 +123,7 @@ test.describe('applicant program index page', () => {
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
-    expect(await page.textContent('html')).toContain(
+    await expect( page.textContent('html')).toContain(
       'Create an account or sign in',
     )
   })
@@ -219,13 +219,13 @@ test.describe('applicant program index page', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-      expect(await page.innerText('h2')).toContain(
+      await expect( page.innerText('h2')).toContain(
         'Program application summary',
       )
 
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      expect(await page.innerText('h2')).toContain(
+      await expect( page.innerText('h2')).toContain(
         'Benefits pre-screener summary',
       )
     })
@@ -305,8 +305,8 @@ test.describe('applicant program index page', () => {
       test('shows log in button for guest users', async ({page}) => {
         // We cannot check that the login/create account buttons redirect the user to a particular
         // URL because it varies between environments, so just check for their existence.
-        expect(await page.textContent('#login-button')).toContain('Log in')
-        expect(await page.textContent('#create-account')).toContain(
+        await expect( page.textContent('#login-button')).toContain('Log in')
+        await expect( page.textContent('#create-account')).toContain(
           'Create account',
         )
       })
@@ -319,7 +319,7 @@ test.describe('applicant program index page', () => {
           await page.click(
             `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
           )
-          expect(await page.textContent('html')).toContain(
+          await expect( page.textContent('html')).toContain(
             'Create an account or sign in',
           )
           await validateScreenshot(
@@ -336,7 +336,7 @@ test.describe('applicant program index page', () => {
           await page.click(
             `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
           )
-          expect(await page.textContent('html')).not.toContain(
+          await expect( page.textContent('html')).not.toContain(
             'Create an account or sign in',
           )
         })

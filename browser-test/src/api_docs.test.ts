@@ -102,7 +102,7 @@ test.describe('Viewing API docs', () => {
 
       await waitForPageJsLoad(freshPage)
 
-      expect(await freshPage.textContent('html')).toContain(
+      await expect( freshPage.textContent('html')).toContain(
         '"program_name" : "minimal-sample-program"',
       )
       await validateScreenshot(

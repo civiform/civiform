@@ -101,7 +101,7 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const dropdownId = '.cf-question-dropdown'
-      expect(await page.innerText(dropdownId)).toContain(
+      await expect( page.innerText(dropdownId)).toContain(
         'This question is required.',
       )
     })

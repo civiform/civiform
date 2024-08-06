@@ -125,15 +125,15 @@ test.describe('Admin question list', () => {
     await adminQuestions.gotoAdminQuestionsPage()
 
     await page.locator('#question-bank-filter').fill('first')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'first question\n',
     ])
     await page.locator('#question-bank-filter').fill('second')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'second question\n',
     ])
     await page.locator('#question-bank-filter').fill('')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'second question\n',
       'first question\n',
     ])
@@ -169,7 +169,7 @@ test.describe('Admin question list', () => {
     await adminQuestions.gotoAdminQuestionsPage()
 
     await adminQuestions.sortQuestions('adminname-asc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'a\n',
       'b\n',
       'c\n',
@@ -179,7 +179,7 @@ test.describe('Admin question list', () => {
       'questions-list-sort-dropdown-last-adminname-asc',
     )
     await adminQuestions.sortQuestions('adminname-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'c\n',
       'b\n',
       'a\n',
@@ -187,13 +187,13 @@ test.describe('Admin question list', () => {
 
     // Question 'b' is referenced by 0 programs, 'c' by 1 program, and 'a' by 2 programs.
     await adminQuestions.sortQuestions('numprograms-asc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'b\n',
       'c\n',
       'a\n',
     ])
     await adminQuestions.sortQuestions('numprograms-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'a\n',
       'c\n',
       'b\n',
@@ -201,7 +201,7 @@ test.describe('Admin question list', () => {
 
     // Question 'c' was modified after question 'a' which was modified after 'b'.
     await adminQuestions.sortQuestions('lastmodified-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'c\n',
       'a\n',
       'b\n',
@@ -280,13 +280,13 @@ test.describe('Admin question list', () => {
 
     // Check that archived question is still at the bottom after sorting.
     await adminQuestions.sortQuestions('adminname-asc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'question list test question one\n',
       'question list test question two\n',
       'question list test question three\n',
     ])
     await adminQuestions.sortQuestions('lastmodified-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual([
+    await expect( adminQuestions.questionBankNames()).toEqual([
       'question list test question two\n',
       'question list test question one\n',
       'question list test question three\n',
@@ -304,7 +304,7 @@ test.describe('Admin question list', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('false')
 
     const question1Name = 'universalTestQuestionOne'
     await adminQuestions.addTextQuestion({
@@ -333,23 +333,23 @@ test.describe('Admin question list', () => {
 
     // Confirm that the previously selected universal option was saved.
     await adminQuestions.gotoQuestionEditPage(question1Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('true')
     await adminQuestions.gotoQuestionEditPage(question2Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('true')
     await validateScreenshot(page, 'question-edit-universal-set')
     await adminQuestions.gotoQuestionEditPage(question3Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('false')
     await adminQuestions.gotoQuestionEditPage(question4Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('false')
     await validateScreenshot(page, 'question-edit-universal-unset')
 
     // Ensure ordering is correct
     await adminQuestions.gotoAdminQuestionsPage()
-    expect(await adminQuestions.universalQuestionNames()).toEqual([
+    await expect( adminQuestions.universalQuestionNames()).toEqual([
       'universalTestQuestionTwo\n',
       'universalTestQuestionOne\n',
     ])
-    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+    await expect( adminQuestions.nonUniversalQuestionNames()).toEqual([
       'universalTestQuestionFour\n',
       'universalTestQuestionThree\n',
     ])
@@ -362,11 +362,11 @@ test.describe('Admin question list', () => {
     await adminQuestions.gotoQuestionEditPage(question3Name)
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    expect(await adminQuestions.universalQuestionNames()).toEqual([
+    await expect( adminQuestions.universalQuestionNames()).toEqual([
       'universalTestQuestionOne\n',
       'universalTestQuestionTwo\n',
     ])
-    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+    await expect( adminQuestions.nonUniversalQuestionNames()).toEqual([
       'universalTestQuestionThree\n',
       'universalTestQuestionFour\n',
     ])
@@ -382,37 +382,37 @@ test.describe('Admin question list', () => {
     )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(question1Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await expect( adminQuestions.getUniversalToggleValue()).toEqual('false')
     await adminQuestions.gotoQuestionEditPage(question3Name)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    expect(await adminQuestions.universalQuestionNames()).toEqual([
+    await expect( adminQuestions.universalQuestionNames()).toEqual([
       'universalTestQuestionThree\n',
       'universalTestQuestionTwo\n',
     ])
-    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+    await expect( adminQuestions.nonUniversalQuestionNames()).toEqual([
       'universalTestQuestionOne\n',
       'universalTestQuestionFour\n',
     ])
 
     // Ensure sorting by Admin ID works correctly
     await adminQuestions.sortQuestions('adminname-asc')
-    expect(await adminQuestions.universalQuestionNames()).toEqual([
+    await expect( adminQuestions.universalQuestionNames()).toEqual([
       'universalTestQuestionThree\n',
       'universalTestQuestionTwo\n',
     ])
-    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+    await expect( adminQuestions.nonUniversalQuestionNames()).toEqual([
       'universalTestQuestionFour\n',
       'universalTestQuestionOne\n',
     ])
 
     await adminQuestions.sortQuestions('adminname-desc')
-    expect(await adminQuestions.universalQuestionNames()).toEqual([
+    await expect( adminQuestions.universalQuestionNames()).toEqual([
       'universalTestQuestionTwo\n',
       'universalTestQuestionThree\n',
     ])
-    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+    await expect( adminQuestions.nonUniversalQuestionNames()).toEqual([
       'universalTestQuestionOne\n',
       'universalTestQuestionFour\n',
     ])

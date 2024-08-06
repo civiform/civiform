@@ -58,7 +58,7 @@ test.describe('Prevent Duplicate Submission', () => {
       // Wait for the page to finish loading
       await waitForPageJsLoad(page)
 
-      expect(await page.innerText('html')).toContain(
+      await expect( page.innerText('html')).toContain(
         'There are no changes to save',
       )
       await validateScreenshot(page, 'prevent-duplicate-submission')
@@ -109,7 +109,7 @@ test.describe('Prevent Duplicate Submission', () => {
         // Wait for the page to finish loading
         await waitForPageJsLoad(page)
 
-        expect(await page.innerText('html')).toContain(
+        await expect( page.innerText('html')).toContain(
           'There are no changes to save',
         )
         await validateScreenshot(

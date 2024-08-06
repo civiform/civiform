@@ -18,26 +18,26 @@ export class ApplicantFileQuestion {
 
   async expectFileSelectionErrorShown() {
     const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect( error?.isHidden()).toEqual(false)
   }
 
   async expectFileSelectionErrorHidden() {
     const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect( error?.isHidden()).toEqual(true)
   }
 
   async expectFileTooLargeErrorShown() {
     const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect( error?.isHidden()).toEqual(false)
   }
 
   async expectFileTooLargeErrorHidden() {
     const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect( error?.isHidden()).toEqual(true)
   }
 
   async expectFileNameDisplayed(fileName: string) {
-    expect(await this.page.innerHTML('body')).toContain(fileName)
+    await expect( this.page.innerHTML('body')).toContain(fileName)
   }
 
   async expectFileNameCount(fileName: string, count: number) {
@@ -50,11 +50,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(1)
+    await expect( this.page.locator(this.skipButtonLocator).count()).toEqual(1)
   }
 
   async expectNoSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(0)
+    await expect( this.page.locator(this.skipButtonLocator).count()).toEqual(0)
   }
 
   async clickSkip() {
@@ -62,13 +62,13 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect( this.page.locator(this.continueButtonLocator).count()).toEqual(
       1,
     )
   }
 
   async expectNoContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect( this.page.locator(this.continueButtonLocator).count()).toEqual(
       0,
     )
   }
@@ -78,11 +78,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(1)
+    await expect( this.page.locator(this.deleteButtonLocator).count()).toEqual(1)
   }
 
   async expectNoDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(0)
+    await expect( this.page.locator(this.deleteButtonLocator).count()).toEqual(0)
   }
 
   async clickDelete() {

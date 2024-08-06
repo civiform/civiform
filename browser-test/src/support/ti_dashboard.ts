@@ -129,7 +129,7 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    expect(await this.page.textContent('html')).toContain(client.notes)
+    await expect( this.page.textContent('html')).toContain(client.notes)
   }
 
   async expectDashboardClientContainsTiNoteAndFormattedPhone(
@@ -222,19 +222,19 @@ export class TIDashboard {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('h2')).toContain(
+    await expect( this.page.innerText('h2')).toContain(
       'your client may not qualify',
     )
   }
 
   async expectPageNumberButton(pageNum: string) {
-    expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
+    await expect( this.page.innerHTML('.usa-pagination__list')).toContain(
       `aria-label="Page${pageNum}"`,
     )
   }
 
   async expectPageNumberButtonNotPresent(pageNum: string) {
-    expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
+    await expect( this.page.innerHTML('.usa-pagination__list')).not.toContain(
       `aria-label="Page${pageNum}"`,
     )
   }

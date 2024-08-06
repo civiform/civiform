@@ -168,19 +168,19 @@ test.describe('normal question lifecycle', () => {
     const optionText = await page
       .getByRole('textbox', {name: 'Option Text'})
       .all()
-    expect(await optionText[0].inputValue()).toContain('option3')
-    expect(await optionText[1].inputValue()).toContain('option2')
-    expect(await optionText[2].inputValue()).toContain('option1')
-    expect(await optionText[3].inputValue()).toContain('option5')
-    expect(await optionText[4].inputValue()).toContain('option4')
+    await expect( optionText[0].inputValue()).toContain('option3')
+    await expect( optionText[1].inputValue()).toContain('option2')
+    await expect( optionText[2].inputValue()).toContain('option1')
+    await expect( optionText[3].inputValue()).toContain('option5')
+    await expect( optionText[4].inputValue()).toContain('option4')
 
     // Validate that the option admin names are in the correct order after saving.
     const adminNames = await page.getByRole('textbox', {name: 'Admin ID'}).all()
-    expect(await adminNames[0].inputValue()).toContain('option3_admin')
-    expect(await adminNames[1].inputValue()).toContain('option2_admin')
-    expect(await adminNames[2].inputValue()).toContain('option1_admin')
-    expect(await adminNames[3].inputValue()).toContain('option5_admin')
-    expect(await adminNames[4].inputValue()).toContain('option4_admin')
+    await expect( adminNames[0].inputValue()).toContain('option3_admin')
+    await expect( adminNames[1].inputValue()).toContain('option2_admin')
+    await expect( adminNames[2].inputValue()).toContain('option1_admin')
+    await expect( adminNames[3].inputValue()).toContain('option5_admin')
+    await expect( adminNames[4].inputValue()).toContain('option4_admin')
   })
 
   test('shows markdown format correctly in the preview when creating a new question', async ({
@@ -204,10 +204,10 @@ test.describe('normal question lifecycle', () => {
     })
 
     await adminQuestions.gotoQuestionEditPage(questionName)
-    expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+    await expect( page.innerHTML('.cf-applicant-question-text')).toContain(
       'https://google.com</a> <strong>bold</strong>',
     )
-    expect(await page.innerHTML('.cf-applicant-question-help-text')).toContain(
+    await expect( page.innerHTML('.cf-applicant-question-help-text')).toContain(
       '<em>italic</em>',
     )
     await validateScreenshot(page, 'question-with-markdown-formatted-preview')
@@ -524,7 +524,7 @@ test.describe('normal question lifecycle', () => {
     // Try edit the original published question and make sure that we see the draft version.
     await page.goto(editUrl)
     await waitForPageJsLoad(page)
-    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+    await expect( page.inputValue('label:has-text("Question text")')).toContain(
       newQuestionText,
     )
   })
@@ -542,7 +542,7 @@ test.describe('normal question lifecycle', () => {
       'label:has-text("Administrative identifier")',
       'My Test Question14-0',
     )
-    expect(await page.locator('#question-name-preview').innerText()).toContain(
+    await expect( page.locator('#question-name-preview').innerText()).toContain(
       'Visible in the API as:',
     )
 

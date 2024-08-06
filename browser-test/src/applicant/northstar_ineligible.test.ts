@@ -67,12 +67,12 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect ineligible page part 1', async () => {
-      expect(await page.innerText('html')).toContain(
+      await expect( page.innerText('html')).toContain(
         'Based on your responses to the following questions, you may not qualify for the ' +
           programName,
       )
 
-      expect(await page.textContent('html')).toContain(questionText)
+      await expect( page.textContent('html')).toContain(questionText)
     })
 
     await validateScreenshot(
@@ -119,12 +119,12 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     // When North Star is finalized, this test should navigate question -> review -> ineligible
     // Until then, the test must navigate question -> submit -> ineligible -> review -> ineligible
     await test.step('Expect ineligible page', async () => {
-      expect(await page.innerText('html')).toContain(
+      await expect( page.innerText('html')).toContain(
         'Based on your responses to the following questions, you may not qualify for the ' +
           programName,
       )
 
-      expect(await page.textContent('html')).toContain(questionText)
+      await expect( page.textContent('html')).toContain(questionText)
     })
 
     await test.step('Go back to the review page and re-submit', async () => {
@@ -133,12 +133,12 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      expect(await page.innerText('html')).toContain(
+      await expect( page.innerText('html')).toContain(
         'Based on your responses to the following questions, you may not qualify for the ' +
           programName,
       )
 
-      expect(await page.textContent('html')).toContain(questionText)
+      await expect( page.textContent('html')).toContain(questionText)
     })
   })
 
@@ -172,7 +172,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect client to be ineligible', async () => {
-      expect(await page.innerText('html')).toContain(
+      await expect( page.innerText('html')).toContain(
         'Based on your responses to the following questions, your client may not qualify for the ' +
           programName,
       )

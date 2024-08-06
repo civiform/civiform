@@ -177,11 +177,11 @@ test.describe('publishing all programs with universal questions feature flag on'
       await adminPrograms.gotoAdminProgramsPage()
       await page.click('#publish-all-programs-modal-button')
 
-      expect(await page.innerText('#publish-all-programs-modal')).toContain(
+      await expect( page.innerText('#publish-all-programs-modal')).toContain(
         'program one (Publicly visible) - Contains all universal questions',
       )
 
-      expect(await page.innerText('#publish-all-programs-modal')).toContain(
+      await expect( page.innerText('#publish-all-programs-modal')).toContain(
         'program two (Publicly visible) - Contains 1 of 2 universal questions',
       )
 

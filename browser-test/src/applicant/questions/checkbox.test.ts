@@ -109,7 +109,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await expect(page.locator(checkBoxError)).toBeVisible()
 
       const checkboxId = '.cf-question-checkbox'
-      expect(await page.innerText(checkboxId)).toContain(
+      await expect( page.innerText(checkboxId)).toContain(
         'This question is required.',
       )
     })

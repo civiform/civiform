@@ -102,10 +102,10 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const radioButtonId = '.cf-question-radio'
-      expect(await page.innerText(radioButtonId)).toContain(
+      await expect( page.innerText(radioButtonId)).toContain(
         'This question is required.',
       )
-      expect(await page.innerHTML(radioButtonId)).toContain('autofocus')
+      await expect( page.innerHTML(radioButtonId)).toContain('autofocus')
     })
     test('markdown applied to options shows in preview', async ({
       page,

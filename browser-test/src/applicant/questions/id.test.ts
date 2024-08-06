@@ -57,7 +57,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'This question is required.',
       )
     })
@@ -71,7 +71,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'Must contain at least 5 characters.',
       )
     })
@@ -85,7 +85,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'Must contain at most 5 characters.',
       )
     })
@@ -99,7 +99,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
     })
@@ -162,7 +162,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
     })
@@ -177,7 +177,7 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const identificationId = `.cf-question-id >> nth=1`
-      expect(await page.innerText(identificationId)).toContain(
+      await expect( page.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
     })

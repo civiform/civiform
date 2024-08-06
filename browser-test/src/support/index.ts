@@ -501,11 +501,11 @@ export const extractEmailsForRecipient = async function (
 }
 
 export const expectEnabled = async (page: Page, locator: string) => {
-  expect(await page.getAttribute(locator, 'disabled')).toBeNull()
+  await expect( page.getAttribute(locator, 'disabled')).toBeNull()
 }
 
 export const expectDisabled = async (page: Page, locator: string) => {
-  expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
+  await expect( page.getAttribute(locator, 'disabled')).not.toBeNull()
 }
 
 /**

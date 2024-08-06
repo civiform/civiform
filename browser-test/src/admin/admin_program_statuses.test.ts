@@ -39,7 +39,7 @@ test.describe('modify program statuses', () => {
       await page.click('button:has-text("Create a new status")')
 
       const modal = await waitForAnyModal(page)
-      expect(await modal.innerText()).toContain('Create a new status')
+      await expect( modal.innerText()).toContain('Create a new status')
       await validateScreenshot(page, 'create-new-status-modal')
     })
 

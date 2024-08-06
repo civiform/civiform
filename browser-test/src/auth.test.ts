@@ -62,7 +62,7 @@ test.describe('Applicant auth', () => {
 
     await logout(page)
 
-    expect(await page.title()).toContain('Find programs')
+    await expect( page.title()).toContain('Find programs')
 
     // Try login again, ensuring that full login process is followed. If login
     // page doesn't ask for username/password - the method will fail.
@@ -78,7 +78,7 @@ test.describe('Applicant auth', () => {
       .getByRole('banner')
       .getByRole('link', {name: 'End session'})
       .click()
-    expect(await page.title()).toContain('Find programs')
+    await expect( page.title()).toContain('Find programs')
   })
 
   test('Toast is shown when either guest or logged-in user end their session', async ({

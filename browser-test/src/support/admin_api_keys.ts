@@ -139,14 +139,14 @@ export class AdminApiKeys {
 
   async expectApiKeyIsActive(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+    await expect( this.page.innerText('.cf-api-key-name')).toContain(
       `${keyName} active`,
     )
   }
 
   async expectApiKeyIsRetired(keyName: string) {
     await this.gotoRetiredApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+    await expect( this.page.innerText('.cf-api-key-name')).toContain(
       `${keyName} retired`,
     )
   }

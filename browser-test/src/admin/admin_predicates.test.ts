@@ -83,7 +83,7 @@ test.describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
 
     // We should be on the review page, with an answer to Screen 2's question
-    expect(await page.innerText('#application-summary')).toContain(
+    await expect( page.innerText('#application-summary')).toContain(
       'conditional question',
     )
 
@@ -93,7 +93,7 @@ test.describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
 
     // We should be on the review page
-    expect(await page.innerText('#application-summary')).not.toContain(
+    await expect( page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
     await applicantQuestions.submitFromReviewPage()
@@ -178,7 +178,7 @@ test.describe('create and edit predicates', () => {
 
     // We should be on the review page, with no Screen 2 questions shown. We should
     // be able to submit the application
-    expect(await page.innerText('#application-summary')).not.toContain(
+    await expect( page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
     expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
@@ -196,7 +196,7 @@ test.describe('create and edit predicates', () => {
     await validateScreenshot(page, 'program-summary-page')
 
     // We should be on the review page
-    expect(await page.innerText('#application-summary')).toContain(
+    await expect( page.innerText('#application-summary')).toContain(
       'conditional question',
     )
     await applicantQuestions.submitFromReviewPage()
@@ -405,7 +405,7 @@ test.describe('create and edit predicates', () => {
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h1')).toContain(
+      await expect( page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
     })
@@ -1361,7 +1361,7 @@ test.describe('create and edit predicates', () => {
       })
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h1')).toContain(
+      await expect( page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
       await validateScreenshot(page, 'predicate-age-greater-than-edit')
@@ -1390,7 +1390,7 @@ test.describe('create and edit predicates', () => {
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h1')).toContain(
+      await expect( page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
       await adminPredicates.clickSaveConditionButton()
@@ -1418,7 +1418,7 @@ test.describe('create and edit predicates', () => {
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h1')).toContain(
+      await expect( page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
       await validateScreenshot(page, 'predicate-age-between-edit')

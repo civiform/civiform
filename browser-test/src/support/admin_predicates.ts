@@ -191,7 +191,7 @@ export class AdminPredicates {
   }
 
   async expectPredicateDisplayTextContains(condition: string) {
-    expect(await this.page.innerText('.cf-display-predicate')).toContain(
+    await expect( this.page.innerText('.cf-display-predicate')).toContain(
       condition,
     )
   }

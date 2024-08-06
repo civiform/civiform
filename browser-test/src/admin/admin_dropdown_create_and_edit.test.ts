@@ -13,10 +13,10 @@ test.describe('create dropdown question with options', () => {
     await waitForPageJsLoad(page)
 
     // Verify question preview has default text.
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-text')).toContain(
       'Sample question text',
     )
-    expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-help-text')).toContain(
       '',
     )
 
@@ -67,10 +67,10 @@ test.describe('create dropdown question with options', () => {
     })
 
     // Verify question preview text has changed based on user input.
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-text')).toContain(
       'questionText',
     )
-    expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
+    await expect( page.innerText('.cf-applicant-question-help-text')).toContain(
       'helpText',
     )
 
