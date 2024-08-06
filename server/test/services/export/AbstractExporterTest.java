@@ -61,12 +61,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ProgramModel fakeProgramWithEnumerator;
   protected ProgramModel fakeProgramWithVisibility;
   protected ProgramModel fakeProgramWithEligibility;
-  protected ProgramModel fakeProgramWithOptionalFileUpload;
   protected ProgramModel fakeProgram;
   protected ImmutableList<QuestionModel> fakeQuestions;
   protected ApplicantModel applicantOne;
   protected ApplicantModel applicantFive;
-  protected ApplicantModel applicantSix;
   protected ApplicantModel applicantTwo;
   protected ApplicantModel applicantSeven;
   protected ApplicationModel applicationOne;
@@ -74,7 +72,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationThree;
   protected ApplicationModel applicationFour;
   protected ApplicationModel applicationFive;
-  protected ApplicationModel applicationSix;
   protected ApplicationModel applicationSeven;
 
   @Before
@@ -256,23 +253,18 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     this.fakeProgram = fakeProgram.build();
   }
 
-  protected void createFakeProgramWithOptionalQuestion() {
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+  protected void createFakeProgramWithOptionalQuestion(QuestionModel optionalQuestion) {
     QuestionModel nameQuestion = testQuestionBank.applicantName();
 
-    fakeProgramWithOptionalFileUpload =
+    ProgramModel fakeProgramWithOptionalQuestion =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Optional Question Program")
             .withBlock()
             .withRequiredQuestion(nameQuestion)
             .withBlock()
-            .withOptionalQuestion(fileQuestion)
+            .withOptionalQuestion(optionalQuestion)
             .build();
 
-    Path answerPath =
-        fileQuestion
-            .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
     applicantFive.getApplicantData().setUserName("Example Five");
@@ -283,33 +275,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "Example",
         "",
         "Five");
-    QuestionAnswerer.answerFileQuestion(
-        applicantFive.getApplicantData(), answerPath, "my-file-key");
+
     applicationFive =
-        new ApplicationModel(
-            applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantFive, fakeProgramWithOptionalQuestion, LifecycleStage.ACTIVE);
     applicantFive.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
     applicationFive.setApplicantData(applicantFive.getApplicantData());
     applicationFive.save();
-    // Applicant six hasn't uploaded a file for the optional file upload question
-    applicantSix = resourceCreator.insertApplicantWithAccount();
-    QuestionAnswerer.answerNameQuestion(
-        applicantSix.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
-        "Example",
-        "",
-        "Six");
-    applicationSix =
-        new ApplicationModel(
-            applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
-    applicantSix.save();
-    CfTestHelpers.withMockedInstantNow(
-        "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
-    applicationSix.setApplicantData(applicantSix.getApplicantData());
-    applicationSix.save();
   }
 
   /**
