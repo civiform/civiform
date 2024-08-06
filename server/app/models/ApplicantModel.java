@@ -40,7 +40,7 @@ import services.applicant.ApplicantData;
 @Entity
 @Table(name = "applicants")
 public class ApplicantModel extends BaseModel {
-  public enum NameSuffix {
+  public enum Suffix {
     JR("Jr."),
     SR("Sr."),
     I("I"),
@@ -51,7 +51,7 @@ public class ApplicantModel extends BaseModel {
 
     private final String displayName;
 
-    NameSuffix(String displayName) {
+    Suffix(String displayName) {
       this.displayName = displayName;
     }
 
@@ -78,7 +78,7 @@ public class ApplicantModel extends BaseModel {
   private String firstName;
   private String middleName;
   private String lastName;
-  private String nameSuffix;
+  private String suffix;
   private String emailAddress;
   private String countryCode;
   private String phoneNumber;
@@ -152,13 +152,13 @@ public class ApplicantModel extends BaseModel {
     return Optional.ofNullable(lastName);
   }
 
-  public ApplicantModel setNameSuffix(String nameSuffix) {
-    this.nameSuffix = nameSuffix.isEmpty() || nameSuffix.isBlank() ? null : nameSuffix;
+  public ApplicantModel setSuffix(String suffix) {
+    this.suffix = suffix.isEmpty() || suffix.isBlank() ? null : suffix;
     return this;
   }
 
-  public Optional<String> getNameSuffix() {
-    return Optional.ofNullable(nameSuffix);
+  public Optional<String> getSuffix() {
+    return Optional.ofNullable(suffix);
   }
 
   public ApplicantModel setEmailAddress(String emailAddress) {
