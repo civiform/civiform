@@ -6,6 +6,9 @@ import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static java.util.concurrent.completedFuture;
+import static java.util.concurrent.failedFuture;
+import static java.util.concurrent.supplyAsync;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
@@ -725,7 +728,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 if (!fileUploadQuestion.canUploadFile()) {
                   return failedFuture(
                       new IllegalArgumentException(
-                          "Cannot upload additional files for this question."));
+                          String.format(
+                              "Cannot upload additional files for question %s, in program %s, block"
+                                  + " %s, for applicant %s.",
+                              fileUploadQuestion
+                                  .getApplicantQuestion()
+                                  .getQuestionDefinition()
+                                  .getId(),
+                              programId,
+                              blockId,
+                              applicantId)));
                 }
 
                 boolean appendValue = true;
