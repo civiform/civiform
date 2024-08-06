@@ -20,6 +20,7 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
@@ -46,6 +47,7 @@ public final class DurableJobModule extends AbstractModule {
 
     @Inject
     public DurableJobRunnerScheduler(
+        ApplicationEvolutions applicationEvolutions,
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
@@ -53,18 +55,20 @@ public final class DurableJobModule extends AbstractModule {
         RecurringJobScheduler recurringJobScheduler) {
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
-      actorSystem
-          .scheduler()
-          .scheduleAtFixedRate(
-              // Wait a random amount of time to decrease likelihood of synchronized
-              // polling with another server.
-              /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
-              /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
-              () -> {
-                recurringJobScheduler.scheduleRecurringJobs();
-                durableJobRunner.runJobs();
-              },
-              executionContext);
+      if (applicationEvolutions.upToDate()) {
+        actorSystem
+            .scheduler()
+            .scheduleAtFixedRate(
+                // Wait a random amount of time to decrease likelihood of synchronized
+                // polling with another server.
+                /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
+                /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
+                () -> {
+                  recurringJobScheduler.scheduleRecurringJobs();
+                  durableJobRunner.runJobs();
+                },
+                executionContext);
+      }
     }
   }
 

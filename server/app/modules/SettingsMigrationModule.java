@@ -1,11 +1,9 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import java.time.Duration;
 import javax.inject.Provider;
-import scala.concurrent.ExecutionContext;
+import play.api.db.evolutions.ApplicationEvolutions;
 import services.settings.SettingsService;
 
 /**
@@ -23,19 +21,12 @@ public class SettingsMigrationModule extends AbstractModule {
 
     @Inject
     public SettingsMigrator(
-        ActorSystem actorSystem,
-        ExecutionContext executionContext,
+        ApplicationEvolutions applicationEvolutions,
         Provider<SettingsService> settingsServiceProvider) {
-      actorSystem
-          .scheduler()
-          .scheduleOnce(
-              // schedule seed task for 5 sec from now. There is a race condition
-              // with Play evolutions. Evolutions must run before we seed database.
-              // It doesn't seem to be a way to run code after evolutions so just
-              // give them few sec to run.
-              Duration.ofSeconds(5),
-              () -> settingsServiceProvider.get().migrateConfigValuesToSettingsGroup(),
-              executionContext);
+
+      if (applicationEvolutions.upToDate()) {
+        settingsServiceProvider.get().migrateConfigValuesToSettingsGroup();
+      }
     }
   }
 }
