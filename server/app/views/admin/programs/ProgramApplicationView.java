@@ -151,7 +151,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     blocks,
                     block ->
                         renderApplicationBlock(
-                            block, blockToAnswers.get(block), hasEligibilityEnabled)))
+                            block,
+                            blockToAnswers.get(block),
+                            hasEligibilityEnabled,
+                            settingsManifest.getMultipleFileUploadEnabled(request))))
             .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
     HtmlBundle htmlBundle =
@@ -184,7 +187,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationBlock(
-      Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
+      Block block,
+      Collection<AnswerData> answers,
+      boolean hasEligibilityEnabled,
+      boolean multipleFileUploadEnabled) {
     DivTag topContent =
         div()
             .withClasses("flex")
@@ -216,7 +222,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                                 .predicate()
                                                 .getQuestions()
                                                 .contains(answer.questionDefinition().getId()))
-                                    .orElse(false))));
+                                    .orElse(false),
+                            multipleFileUploadEnabled)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
@@ -226,10 +233,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(AnswerData answerData, boolean showEligibilityText) {
+  private DivTag renderAnswer(
+      AnswerData answerData, boolean showEligibilityText, boolean multipleFileUploadEnabled) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
-    if (!answerData.encodedFileKeys().isEmpty()) {
+    if (multipleFileUploadEnabled && !answerData.encodedFileKeys().isEmpty()) {
       answerContent = div();
       for (int i = 0; i < answerData.encodedFileKeys().size(); i++) {
         String encodedFileKey = answerData.encodedFileKeys().get(i);
