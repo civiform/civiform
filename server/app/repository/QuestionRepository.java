@@ -74,6 +74,16 @@ public final class QuestionRepository {
         executionContext);
   }
 
+  public boolean checkQuestionNameExists(String name) {
+    return database
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findByName")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestionByName"))
+        .where()
+        .eq("name", name)
+        .exists();
+  }
+
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.

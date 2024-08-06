@@ -8,9 +8,9 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -58,8 +58,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(
-      Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
-    ProgramDefinition program = programMigrationWrapper.getProgram();
+      Http.Request request,
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      String json) {
     DivTag programDiv =
         div()
             .withId(PROGRAM_DATA_ID)
@@ -79,9 +81,9 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
     // If there are no questions in the program, the "questions" field will not be included in the
     // JSON and programMigrationWrapper.getQuestions() will return null
-    if (programMigrationWrapper.getQuestions() != null) {
+    if (questions != null) {
       questionsById =
-          programMigrationWrapper.getQuestions().stream()
+          questions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
     }
 

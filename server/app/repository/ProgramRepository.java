@@ -85,6 +85,16 @@ public final class ProgramRepository {
     return supplyAsync(() -> lookupProgramSync(id), executionContext);
   }
 
+  public boolean checkProgramAdminNameExists(String name) {
+    return database
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.findByName")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramByAdminName"))
+        .where()
+        .eq("name", name)
+        .exists();
+  }
+
   private Optional<ProgramModel> lookupProgramSync(long id) {
     return database
         .find(ProgramModel.class)

@@ -15,6 +15,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
@@ -29,6 +30,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -53,6 +55,7 @@ public class AdminImportController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   public AdminImportController(
@@ -64,7 +67,8 @@ public class AdminImportController extends CiviFormController {
       SettingsManifest settingsManifest,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      QuestionRepository questionRepository) {
+      QuestionRepository questionRepository,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
@@ -73,6 +77,7 @@ public class AdminImportController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -120,9 +125,23 @@ public class AdminImportController extends CiviFormController {
                   "Error processing JSON", "JSON did not have a top-level \"program\" field")
               .render());
     }
+
+    // If the admin id for the program or any of the questions already exists in the import
+    // environment, overwrite it with a new admin id
+    ProgramDefinition program =
+        programMigrationService.maybeOverwriteProgramId(programMigrationWrapper.getProgram());
+    ImmutableList<QuestionDefinition> questions =
+        programMigrationService.maybeOverwriteQuestionIds(programMigrationWrapper.getQuestions());
+
+    ErrorAnd<String, String> serializeResult =
+        programMigrationService.serialize(program, questions);
+    if (serializeResult.isError()) {
+      return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
+    }
+
     return ok(
         adminImportViewPartial
-            .renderProgramData(request, programMigrationWrapper, jsonString)
+            .renderProgramData(request, program, questions, serializeResult.getResult())
             .render());
   }
 
@@ -171,6 +190,10 @@ public class AdminImportController extends CiviFormController {
       ProgramModel savedProgram =
           programRepository.insertProgramSync(
               new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+      // TODO(#7087) migrate application statuses for the program
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          updatedProgram.adminName(), new StatusDefinitions());
 
       return ok(
           adminImportViewPartial
