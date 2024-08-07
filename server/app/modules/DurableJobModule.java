@@ -46,7 +46,16 @@ public final class DurableJobModule extends AbstractModule {
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
-  /** Schedules the job runner to run on an interval using the akka scheduling system. */
+  /**
+   * This class injects ApplicationEvolutions and checks the `upToDate` method to prevent this
+   * module from running until after the evolutions are completed.
+   *
+   * <p>See <a href="https://github.com/civiform/civiform/pull/8253">PR 8253</a> for more extensive
+   * details.
+   *
+   * <p>Additionally this uses The Akka scheduling system to schedules the job runner to run on an
+   * interval.
+   */
   public static final class DurableJobRunnerScheduler {
 
     @Inject
