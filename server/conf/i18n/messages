@@ -323,13 +323,17 @@ title.programSummary=Program application summary
 
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
 title.applicantNotEligibleTi=Based on your responses to the following questions, your client may not qualify for the {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=For eligibility criteria please refer to {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=For eligibility criteria, please refer to {0}.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=You can return to the previous page to edit your answers. Or apply to another program.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there is a mistake, you can return to the previous page to edit your answers. You can also apply to other programs.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=Go back and edit
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=Based on your responses, your client may qualify for the {0}. To proceed, continue filling out the application.
 toast.mayQualify=Based on your responses, you may qualify for the {0}. To proceed, continue filling out the application.
 tag.mayQualify=You may qualify

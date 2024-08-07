@@ -391,6 +391,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickEditMyResponses() {
+    await this.page.getByRole('button', {name: 'Edit my responses'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   /**
    * Remove the enumerator answer specified by entityName.
    * Note: only works if the value is in the DOM, i.e. was set at page load. Does not work if the
@@ -527,8 +532,21 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectIneligiblePage() {
-    expect(await this.page.innerText('html')).toContain('you may not qualify')
+  async expectIneligiblePage(northStar = false) {
+    if (northStar) {
+      await expect(
+        this.page
+          .getByText('You may not be eligible for this program')
+          .and(this.page.getByRole('heading')),
+      ).toBeVisible()
+
+      await expect(
+        this.page.getByText('Apply to another program'),
+      ).toBeVisible()
+      await expect(this.page.getByText('Edit my responses')).toBeVisible()
+    } else {
+      expect(await this.page.innerText('html')).toContain('you may not qualify')
+    }
   }
 
   async clickGoBackAndEditOnIneligiblePage() {

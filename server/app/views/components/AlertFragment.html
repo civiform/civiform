@@ -32,5 +32,17 @@
     ></h6>
 
     <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
+
+    <!-- padding-left-205 indents the list -->
+    <ul
+      th:if="${not #lists.isEmpty(alertSettings.additionalText)}"
+      class="padding-left-205"
+      th:style="'list-style-type: disc;'"
+    >
+      <li
+        th:each="item : ${alertSettings.additionalText}"
+        th:text="${item}"
+      ></li>
+    </ul>
   </div>
 </div>

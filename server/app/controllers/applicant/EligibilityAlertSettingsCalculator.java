@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
+import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -36,13 +38,18 @@ public final class EligibilityAlertSettingsCalculator {
     }
   }
 
+  /**
+   * questions: List of questions that the applicant answered that may make the applicant
+   * ineligible. The list may be empty.
+   */
   public AlertSettings calculate(
       Http.Request request,
       boolean isTI,
       boolean isApplicationEligible,
       boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
-      long programId) {
+      long programId,
+      ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
     boolean isEligibilityGating = isEligibilityGating(programId);
@@ -67,11 +74,17 @@ public final class EligibilityAlertSettingsCalculator {
                 isNorthStarEnabled,
                 pageHasSupplementalInformation);
 
+    ImmutableList<String> formattedQuestions =
+        questions.stream()
+            .map(ApplicantQuestion::getQuestionText)
+            .collect(ImmutableList.toImmutableList());
+
     return new AlertSettings(
         isEligibilityGating,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
         messages.at(triple.textKey.getKeyName()),
-        triple.alertType);
+        triple.alertType,
+        formattedQuestions);
   }
 
   private Triple getTi(

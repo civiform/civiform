@@ -152,7 +152,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       !roApplicantProgramService.isApplicationNotEligible(),
                       settingsManifest.getNorthStarApplicantUi(request),
                       false,
-                      programId);
+                      programId,
+                      roApplicantProgramService.getIneligibleQuestions());
 
               ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)
