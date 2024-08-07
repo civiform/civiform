@@ -28,9 +28,9 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   public void setupQuestions() {
     testQuestionBank = new TestQuestionBank(true);
     // The question bank initializes these questions in the active version.
-    nameQuestion = testQuestionBank.applicantName();
-    addressQuestion = testQuestionBank.applicantAddress();
-    basicQuestion = testQuestionBank.applicantFavoriteColor();
+    nameQuestion = testQuestionBank.nameApplicantName();
+    addressQuestion = testQuestionBank.addressApplicantAddress();
+    basicQuestion = testQuestionBank.textApplicantFavoriteColor();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     versionRepository = instanceOf(VersionRepository.class);
     VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
@@ -76,7 +76,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getEnumeratorQuestions() {
-    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
 
     VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);

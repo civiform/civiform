@@ -39,7 +39,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void create_addOldRevisionAddsLatestRevision() throws UnsupportedQuestionTypeException {
     // Setup.
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     Long activeId = nameQuestion.getId();
     Long draftId = activeId + 100000;
     QuestionDefinition toUpdate =
@@ -101,9 +101,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void move_changesOrderOfQuestions() throws Exception {
     // Setup.
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
     ProgramModel program =
         programBuilder
@@ -140,7 +140,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void move_invalidPositionInput() throws Exception {
     // Setup.
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
     ProgramModel program =
         programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();

@@ -117,7 +117,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void create_repeatedQuestion_redirectsOnSuccess() {
-    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
@@ -186,7 +186,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsRedirectWhenEditingQuestionWithExistingDraft() {
-    QuestionModel publishedQuestion = testQuestionBank.applicantName();
+    QuestionModel publishedQuestion = testQuestionBank.nameApplicantName();
     QuestionModel draftQuestion =
         testQuestionBank.maybeSave(
             this.createNameQuestionDuplicate(publishedQuestion), LifecycleStage.DRAFT);
@@ -204,7 +204,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsPopulatedForm() {
-    QuestionModel question = testQuestionBank.applicantName();
+    QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
@@ -215,7 +215,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_repeatedQuestion_hasEnumeratorName() {
-    QuestionModel repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
+    QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
@@ -227,8 +227,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_returnsQuestions() throws Exception {
-    testQuestionBank.applicantAddress();
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    testQuestionBank.addressApplicantAddress();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     // Create a draft version of an already published question and ensure that it isn't
     // double-counted in the rendered total number of questions.
     QuestionDefinition updatedQuestion =
@@ -312,7 +312,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // We can only update draft questions, so save this in the DRAFT version.
     QuestionModel originalNameQuestion =
         testQuestionBank.maybeSave(
-            this.createNameQuestionDuplicate(testQuestionBank.applicantName()),
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
             LifecycleStage.DRAFT);
     assertThat(originalNameQuestion.getQuestionTags()).isEmpty();
 
@@ -704,7 +704,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
-    QuestionModel question = testQuestionBank.applicantFavoriteColor();
+    QuestionModel question = testQuestionBank.textApplicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "favorite_color")
@@ -722,7 +722,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_failsWithInvalidQuestionType() {
-    QuestionModel question = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel question = testQuestionBank.enumeratorApplicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());

@@ -238,7 +238,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_withEmptyUpdatesForMultiSelect_deletesMultiSelectJsonData() {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(
-        testQuestionBank.applicantKitchenTools().getQuestionDefinition());
+        testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition());
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     Path questionPath = Path.create("applicant.kitchen_tools");
 
@@ -278,9 +278,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_unansweringRequiredQuestionFailsAtomically() {
-    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    QuestionModel numberQuestion = testQuestionBank.numberApplicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
-    QuestionModel dropdownQuestion = testQuestionBank.applicantIceCream();
+    QuestionModel dropdownQuestion = testQuestionBank.dropdownApplicantIceCream();
     Path dropdownPath = applicantPathForQuestion(dropdownQuestion).join(Scalar.SELECTION);
 
     createProgram(numberQuestion.getQuestionDefinition(), dropdownQuestion.getQuestionDefinition());
@@ -320,7 +320,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_forceUpdate() {
-    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    QuestionModel numberQuestion = testQuestionBank.numberApplicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
     createProgram(numberQuestion.getQuestionDefinition());
     ImmutableMap<String, String> updates =
@@ -352,13 +352,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfvalid_invalidInputsForQuestionTypes() {
-    QuestionModel dateQuestion = testQuestionBank.applicantDate();
+    QuestionModel dateQuestion = testQuestionBank.dateApplicantBirthdate();
     Path datePath = applicantPathForQuestion(dateQuestion).join(Scalar.DATE);
-    QuestionModel currencyQuestion = testQuestionBank.applicantMonthlyIncome();
+    QuestionModel currencyQuestion = testQuestionBank.currencyApplicantMonthlyIncome();
     Path currencyPath = applicantPathForQuestion(currencyQuestion).join(Scalar.CURRENCY_CENTS);
-    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
+    QuestionModel numberQuestion = testQuestionBank.numberApplicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
-    QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
+    QuestionModel phoneQuestion = testQuestionBank.phoneApplicantPhone();
     Path phonePath = applicantPathForQuestion(phoneQuestion).join(Scalar.PHONE_NUMBER);
     createProgram(
         dateQuestion.getQuestionDefinition(),
@@ -416,12 +416,12 @@ public class ApplicantServiceTest extends ResetPostgres {
       stageAndUpdateIfValid_forEnumeratorBlock_putsMetadataWithEmptyUpdate_andCanPutRealRepeatedEntitiesInAfter() {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantHouseholdMembers()
+                .enumeratorApplicantHouseholdMembers()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
 
@@ -484,13 +484,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .buildDefinition();
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantHouseholdMembers()
+                .enumeratorApplicantHouseholdMembers()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
 
@@ -673,7 +673,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_withEnumeratorChangesAndDeletes_isOk() {
     QuestionDefinition enumeratorQuestionDefinition =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     createProgram(enumeratorQuestionDefinition);
 
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
@@ -703,7 +703,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_enumeratorNotAnswered_stillWritesPathToApplicantData() {
     QuestionDefinition enumeratorQuestionDefinition =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
 
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(enumeratorQuestionDefinition);
@@ -1532,7 +1532,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -1545,7 +1545,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
 
@@ -1588,7 +1588,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void
       stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation_with_existing_service_areas() {
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -1601,7 +1601,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
 
@@ -1839,17 +1839,17 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel programForSubmitted =
         ProgramBuilder.newActiveProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForUnapplied =
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
@@ -1904,12 +1904,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel programForSubmitted =
         ProgramBuilder.newActiveProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForUnapplied =
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
@@ -1961,7 +1961,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
     // No CIF application started.
@@ -2033,7 +2033,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForSubmitted =
         ProgramBuilder.newDraftProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForUnapplied =
         ProgramBuilder.newDraftProgram("program_for_unapplied").withBlock().build();
@@ -2092,7 +2092,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForSubmitted =
         ProgramBuilder.newDraftProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForUnapplied =
         ProgramBuilder.newDraftProgram("program_for_unapplied")
@@ -2234,12 +2234,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel programForSubmitted =
         ProgramBuilder.newActiveProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     ProgramModel programForUnapplied =
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
@@ -2283,7 +2283,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgramForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
         .createOrUpdateDraft(applicant.id, originalProgramForDraft.id)
@@ -2294,7 +2294,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgramForSubmit =
         ProgramBuilder.newActiveProgram("program_for_submit")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
         .submitApplication(applicant.id, originalProgramForSubmit.id, Optional.empty())
@@ -2304,12 +2304,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Create new program versions.
     ProgramBuilder.newDraftProgram("program_for_draft")
         .withBlock()
-        .withRequiredQuestion(testQuestionBank.applicantName())
+        .withRequiredQuestion(testQuestionBank.nameApplicantName())
         .build();
     ProgramModel updatedProgramForSubmit =
         ProgramBuilder.newDraftProgram("program_for_submit")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     versionRepository.publishNewSynchronizedVersion();
 
@@ -2346,12 +2346,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgramForDraftApp =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel originalProgramForSubmittedApp =
         ProgramBuilder.newActiveProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
         .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
@@ -2366,7 +2366,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForDraftApp =
         ProgramBuilder.newDraftProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForDraftApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.HIDDEN_IN_INDEX)
@@ -2376,7 +2376,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForSubmittedApp =
         ProgramBuilder.newDraftProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.HIDDEN_IN_INDEX)
@@ -2421,12 +2421,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgramForDraftApp =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel originalProgramForSubmittedApp =
         ProgramBuilder.newActiveProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
         .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
@@ -2440,7 +2440,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForDraftApp =
         ProgramBuilder.newDraftProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForDraftApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.TI_ONLY)
@@ -2450,7 +2450,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForSubmittedApp =
         ProgramBuilder.newDraftProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.TI_ONLY)
@@ -2499,12 +2499,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgramForDraftApp =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel originalProgramForSubmittedApp =
         ProgramBuilder.newActiveProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
         .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
@@ -2520,7 +2520,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForDraftApp =
         ProgramBuilder.newDraftProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForDraftApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.SELECT_TI)
@@ -2531,7 +2531,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForSubmittedApp =
         ProgramBuilder.newDraftProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
         .setDisplayMode(DisplayMode.SELECT_TI)
@@ -2584,12 +2584,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForDraftApp =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel programForSubmittedApp =
         ProgramBuilder.newActiveProgram("program_for_application")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     Optional<ApplicationModel> firstApp =
         applicationRepository
@@ -2649,12 +2649,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     ProgramModel programForSubmitted =
         ProgramBuilder.newActiveProgram("program_for_submitted")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
     // Create multiple submitted applications and ensure the most recently submitted
@@ -2698,7 +2698,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgramForDraft =
         ProgramBuilder.newDraftProgram("program_for_draft")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     versionRepository.publishNewSynchronizedVersion();
     applicationRepository
@@ -2741,7 +2741,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     repo.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
@@ -2778,7 +2778,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     repo.createOrUpdateStatusDefinitions(
         originalProgram.getProgramDefinition().adminName(),
@@ -2786,7 +2786,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     originalProgram.getVersions().stream()
         .findAny()
         .orElseThrow()
-        .addQuestion(testQuestionBank.applicantFavoriteColor())
+        .addQuestion(testQuestionBank.textApplicantFavoriteColor())
         .save();
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
@@ -2809,7 +2809,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel updatedProgram =
         ProgramBuilder.newActiveProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     repo.createOrUpdateStatusDefinitions(
         updatedProgram.getProgramDefinition().adminName(),
@@ -3422,7 +3422,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
@@ -3534,7 +3534,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
@@ -3628,7 +3628,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
@@ -3736,7 +3736,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
@@ -3775,7 +3775,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3812,7 +3812,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("program")
