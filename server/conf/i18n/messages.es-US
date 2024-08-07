@@ -93,7 +93,7 @@ link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
 link.createAccountOrSignIn=Crear una cuenta o acceder
 # Anchor which when clicked removes a file the user has previously uploaded.
-link.removeFile=Remove file
+link.removeFile=Quitar archivo
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y comenzar la revisión de todas formas?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -577,18 +577,18 @@ label.firstName=Nombre
 label.lastName=Apellido
 label.middleName=Segundo nombre
 # Label for name suffix field in name question
-label.nameSuffix=Suffix
+label.nameSuffix=Sufijo
 
 placeholder.firstName=Nombre
 placeholder.lastName=Apellido
 placeholder.middleName=Segundo nombre
 # Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffix
+placeholder.nameSuffix=Sufijo
 
 # Option Junior for the name suffix dropdown
-option.junior=Jr.
+option.junior=Júnior
 # Option Senior for the name suffix dropdown
-option.senior=Sr.
+option.senior=Sénior
 # Option the first for the name suffix dropdown
 option.first=I
 # Option the second for the name suffix dropdown
