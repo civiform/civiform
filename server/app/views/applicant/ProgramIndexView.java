@@ -14,6 +14,7 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
 import java.util.List;
@@ -334,40 +335,38 @@ public final class ProgramIndexView extends BaseHtmlView {
                 profile));
   }
 
-  private DivTag renderCategoryFilterChips(List<String> relevantCategories) {
-    return div()
-        .with(
-            fieldset(
-                    each(
-                        relevantCategories,
-                        category ->
-                            div()
-                                .withId("filter-chip")
-                                .withClasses(
-                                    "border",
-                                    "border-gray-700",
-                                    "rounded-full",
-                                    "py-2",
-                                    "px-4",
-                                    "mr-2",
-                                    "text-sm",
-                                    "has-checked:bg-blue-100",
-                                    "has-checked:border-blue-100",
-                                    "has-checked:font-semibold",
-                                    "has-checked:text-blue-900",
-                                    "flex")
-                                .with(
-                                    input()
-                                        .withId("check-category-" + category)
-                                        .withType("checkbox")
-                                        .withName("categories")
-                                        .withValue(category)
-                                        .withClasses("appearance-none"),
-                                    Icons.svg(Icons.CHECK)
-                                        .withClasses(
-                                            "inline", "align-baseline", "w-4", "h-4", "hidden")
-                                        .attr("focusable", false),
-                                    label(category).withFor("check-category-" + category))))
-                .withClasses("flex", "mb-10"));
+  private FieldsetTag renderCategoryFilterChips(List<String> relevantCategories) {
+    return fieldset(
+            each(
+                relevantCategories,
+                category ->
+                    div()
+                        .withId("filter-chip")
+                        .withClasses(
+                            "border",
+                            "border-gray-700",
+                            "rounded-full",
+                            "py-2",
+                            "px-4",
+                            "mr-2",
+                            "mb-2",
+                            "text-sm",
+                            "has-checked:bg-blue-100",
+                            "has-checked:border-blue-100",
+                            "has-checked:font-semibold",
+                            "has-checked:text-blue-900",
+                            "flex")
+                        .with(
+                            input()
+                                .withId("check-category-" + category)
+                                .withType("checkbox")
+                                .withName("categories")
+                                .withValue(category)
+                                .withClasses("appearance-none"),
+                            Icons.svg(Icons.CHECK)
+                                .withClasses("inline", "align-baseline", "w-4", "h-4", "hidden")
+                                .attr("focusable", false),
+                            label(category).withFor("check-category-" + category))))
+        .withClasses("flex", "mb-10", "flex-wrap", "justify-center");
   }
 }
