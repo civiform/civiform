@@ -2,8 +2,12 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
@@ -12,6 +16,7 @@ import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -26,6 +31,7 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Icons;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -192,6 +198,20 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
+    // Find all the categories that are on any of the relevant programs
+    List<String> relevantCategories =
+        relevantPrograms.allPrograms().stream()
+            .map(programData -> programData.program().categories())
+            .flatMap(List::stream)
+            .distinct()
+            .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
+            .collect(ImmutableList.toImmutableList());
+
+    // The category buttons
+    if (!relevantCategories.isEmpty()) {
+      content.with(renderCategoryFilterChips(relevantCategories));
+    }
+
     if (relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
@@ -312,5 +332,42 @@ public final class ProgramIndexView extends BaseHtmlView {
                 buttonScreenReaderText,
                 bundle,
                 profile));
+  }
+
+  private DivTag renderCategoryFilterChips(List<String> relevantCategories) {
+    return div()
+        .with(
+            fieldset(
+                    each(
+                        relevantCategories,
+                        category ->
+                            div()
+                                .withId("filter-chip")
+                                .withClasses(
+                                    "border",
+                                    "border-gray-700",
+                                    "rounded-full",
+                                    "py-2",
+                                    "px-4",
+                                    "mr-2",
+                                    "text-sm",
+                                    "has-checked:bg-blue-100",
+                                    "has-checked:border-blue-100",
+                                    "has-checked:font-semibold",
+                                    "has-checked:text-blue-900",
+                                    "flex")
+                                .with(
+                                    input()
+                                        .withId("check-category-" + category)
+                                        .withType("checkbox")
+                                        .withName("categories")
+                                        .withValue(category)
+                                        .withClasses("appearance-none"),
+                                    Icons.svg(Icons.CHECK)
+                                        .withClasses(
+                                            "inline", "align-baseline", "w-4", "h-4", "hidden")
+                                        .attr("focusable", false),
+                                    label(category).withFor("check-category-" + category))))
+                .withClasses("flex", "mb-10"));
   }
 }
