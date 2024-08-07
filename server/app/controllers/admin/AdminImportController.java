@@ -179,7 +179,7 @@ public class AdminImportController extends CiviFormController {
                 .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
         ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-            updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+            updateEnumeratorIdsAndSaveAllQuestions(questionsOnJson, questionsOnJsonById);
 
         ImmutableList<BlockDefinition> updatedBlockDefinitions =
             updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
@@ -226,21 +226,21 @@ public class AdminImportController extends CiviFormController {
    * set) first so that we can update questions that reference the id of the enumerator question
    * with the id of the newly saved enumerator question.
    */
-  private ImmutableMap<String, QuestionDefinition> updateEnumeratorQuestionsAndSave(
+  private ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
       ImmutableList<QuestionDefinition> questionsOnJson,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
-    ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
+    ImmutableList<QuestionDefinition> questionsWithoutEnumeratorId =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isEmpty())
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableMap<String, QuestionDefinition> updatedNonEnumeratorQuestionsMap =
-        questionRepository.bulkCreateQuestions(nonEnumeratorQuestions).stream()
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithoutEnumeratorId =
+        questionRepository.bulkCreateQuestions(questionsWithoutEnumeratorId).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
-    ImmutableList<QuestionDefinition> enumeratorQuestions =
+    ImmutableList<QuestionDefinition> questionsWithEnumeratorId =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isPresent())
             .map(
@@ -249,21 +249,21 @@ public class AdminImportController extends CiviFormController {
                   QuestionDefinition oldQuestion = questionsOnJsonById.get(oldEnumeratorId);
                   String oldQuestionAdminName = oldQuestion.getName();
                   QuestionDefinition newQuestion =
-                      updatedNonEnumeratorQuestionsMap.get(oldQuestionAdminName);
+                      updatedQuestionsWithoutEnumeratorId.get(oldQuestionAdminName);
                   // update the enumeratorId on the child question before saving
                   Long newEnumeratorId = newQuestion.getId();
                   return questionRepository.updateEnumeratorId(qd, newEnumeratorId);
                 })
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableMap<String, QuestionDefinition> updatedEnumeratorQuestionsMap =
-        questionRepository.bulkCreateQuestions(enumeratorQuestions).stream()
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithEnumeratorId =
+        questionRepository.bulkCreateQuestions(questionsWithEnumeratorId).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return ImmutableMap.<String, QuestionDefinition>builder()
-        .putAll(updatedNonEnumeratorQuestionsMap)
-        .putAll(updatedEnumeratorQuestionsMap)
+        .putAll(updatedQuestionsWithoutEnumeratorId)
+        .putAll(updatedQuestionsWithEnumeratorId)
         .build();
   }
 

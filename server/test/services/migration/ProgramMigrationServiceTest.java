@@ -13,17 +13,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.util.Providers;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import play.cache.NamedCacheImpl;
-import play.cache.SyncCacheApi;
-import play.inject.BindingKey;
-import repository.DatabaseExecutionContext;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
@@ -32,7 +26,6 @@ import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public final class ProgramMigrationServiceTest extends ResetPostgres {
@@ -42,32 +35,15 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           instanceOf(QuestionRepository.class),
           instanceOf(ProgramRepository.class));
   private ProgramRepository programRepo;
+  private QuestionRepository questionRepo;
   private VersionRepository versionRepo;
-  private SyncCacheApi programCache;
-  private SyncCacheApi programDefCache;
-  private SyncCacheApi versionsByProgramCache;
-  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setup() {
     versionRepo = instanceOf(VersionRepository.class);
-    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    programCache = instanceOf(SyncCacheApi.class);
-    versionsByProgramCache = instanceOf(SyncCacheApi.class);
+    programRepo = instanceOf(ProgramRepository.class);
 
-    BindingKey<SyncCacheApi> programDefKey =
-        new BindingKey<>(SyncCacheApi.class)
-            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
-    programDefCache = instanceOf(programDefKey.asScala());
-
-    programRepo =
-        new ProgramRepository(
-            instanceOf(DatabaseExecutionContext.class),
-            Providers.of(versionRepo),
-            mockSettingsManifest,
-            programCache,
-            programDefCache,
-            versionsByProgramCache);
+    questionRepo = instanceOf(QuestionRepository.class);
   }
 
   @Test
@@ -206,26 +182,23 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void maybeOverwriteQuestionName_onlyOverwritesQuestionNamesIfAMatchIsFound() {
-    ProgramDefinition programOne =
-        service.deserialize(PROGRAM_JSON_WITH_PREDICATES).getResult().getProgram();
-    programRepo.insertProgramSync(
-        new ProgramModel(programOne, versionRepo.getDraftVersionOrCreate()));
+    ImmutableList<QuestionDefinition> questionsOne =
+        service.deserialize(PROGRAM_JSON_WITH_PREDICATES).getResult().getQuestions();
+    questionRepo.bulkCreateQuestions(questionsOne);
 
     // There are two questions in PROGRAM_JSON_WITH_PREDICATES: "id-test" and "text test"
     // We want to update the admin name of one of them so we can test that it is not changed by the
     // method
     String UPDATED_JSON = PROGRAM_JSON_WITH_PREDICATES.replace("text test", "new text test");
 
-    ImmutableList<QuestionDefinition> questions =
+    ImmutableList<QuestionDefinition> questionsTwo =
         service.deserialize(UPDATED_JSON).getResult().getQuestions();
     ImmutableList<QuestionDefinition> updatedQuestions =
-        service.maybeOverwriteQuestionName(questions);
+        service.maybeOverwriteQuestionName(questionsTwo);
 
-    // "new-id-test" should have not have been changed
-
-    // we're not seeing these get updated... what's up with that?
+    // "id-test" should have been updated by the method
     assertThat(updatedQuestions.get(0).getName()).isEqualTo("id-test-1");
-    // "text test" should have been updated by the method
+    // "new text test" should have not have been changed
     assertThat(updatedQuestions.get(1).getName()).isEqualTo("new text test");
   }
 }
