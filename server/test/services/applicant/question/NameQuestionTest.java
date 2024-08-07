@@ -57,6 +57,7 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
+    assertThat(nameQuestion.getSuffixValue()).isEmpty();
     assertThat(nameQuestion.getValidationErrors()).isEmpty();
   }
 
