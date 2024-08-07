@@ -323,13 +323,17 @@ title.programSummary=ສະຫຼຸບການສະໝັກໂຄງກາ�
 
 title.applicantNotEligible=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
 title.applicantNotEligibleTi=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=ສຳລັບເກນການມີສິດ ກະລຸນາເຂົ້າເບິ່ງ {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=For eligibility criteria, please refer to {0}.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=ທ່ານສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້າເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້. ຫຼື ສະໝັກໂຄງການອື່ນ.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there is a mistake, you can return to the previous page to edit your answers. You can also apply to other programs.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=ກັບຄືນ ແລະ ແກ້ໄຂ
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
 toast.mayQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
 tag.mayQualify=ທ່ານອາດມີຄຸນສົມບັດ
