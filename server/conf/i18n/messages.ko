@@ -93,7 +93,7 @@ link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
 link.createAccountOrSignIn=계정 만들기 또는 로그인
 # Anchor which when clicked removes a file the user has previously uploaded.
-link.removeFile=Remove file
+link.removeFile=파일 삭제
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -573,28 +573,28 @@ label.firstName=이름
 label.lastName=성
 label.middleName=중간 이름
 # Label for name suffix field in name question
-label.nameSuffix=Suffix
+label.nameSuffix=접두사
 
 placeholder.firstName=이름
 placeholder.lastName=성
 placeholder.middleName=중간 이름
 # Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffix
+placeholder.nameSuffix=접두사
 
 # Option Junior for the name suffix dropdown
-option.junior=Jr.
+option.junior=주니어
 # Option Senior for the name suffix dropdown
-option.senior=Sr.
+option.senior=시니어
 # Option the first for the name suffix dropdown
-option.first=I
+option.first=1세
 # Option the second for the name suffix dropdown
-option.second=II
+option.second=2세
 # Option the third for the name suffix dropdown
-option.third=III
+option.third=3세
 # Option the forth for the name suffix dropdown
-option.forth=IV
+option.forth=4세
 # Option the fifth for the name suffix dropdown
-option.fifth=V
+option.fifth=5세
 
 validation.firstNameRequired=이름을 입력하세요.
 validation.lastNameRequired=성을 입력하세요.
