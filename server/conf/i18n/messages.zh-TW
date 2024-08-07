@@ -93,7 +93,7 @@ link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
 link.createAccountOrSignIn=建立或登入帳戶
 # Anchor which when clicked removes a file the user has previously uploaded.
-link.removeFile=Remove file
+link.removeFile=移除檔案
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -573,28 +573,28 @@ label.firstName=名字
 label.lastName=姓氏
 label.middleName=中間名
 # Label for name suffix field in name question
-label.nameSuffix=Suffix
+label.nameSuffix=後綴
 
 placeholder.firstName=名字
 placeholder.lastName=姓氏
 placeholder.middleName=中間名
 # Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffix
+placeholder.nameSuffix=後綴
 
 # Option Junior for the name suffix dropdown
-option.junior=Jr.
+option.junior=小
 # Option Senior for the name suffix dropdown
-option.senior=Sr.
+option.senior=大
 # Option the first for the name suffix dropdown
-option.first=I
+option.first=一世
 # Option the second for the name suffix dropdown
-option.second=II
+option.second=二世
 # Option the third for the name suffix dropdown
-option.third=III
+option.third=三世
 # Option the forth for the name suffix dropdown
-option.forth=IV
+option.forth=四世
 # Option the fifth for the name suffix dropdown
-option.fifth=V
+option.fifth=五世
 
 validation.firstNameRequired=請輸入名字。
 validation.lastNameRequired=請輸入姓氏。
