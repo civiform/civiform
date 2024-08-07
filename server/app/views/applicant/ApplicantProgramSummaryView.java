@@ -31,6 +31,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
@@ -52,13 +53,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout, DateConverter dateConverter, ApplicantRoutes applicantRoutes) {
+      ApplicantLayout layout,
+      DateConverter dateConverter,
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -94,7 +100,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
       applicationSummary.with(
-          renderQuestionSummary(answerData, messages, params.applicantId(), params.profile()));
+          renderQuestionSummary(
+              answerData,
+              messages,
+              params.applicantId(),
+              params.profile(),
+              settingsManifest.getMultipleFileUploadEnabled(params.request())));
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -184,7 +195,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   /** Renders {@code data} including the question and any existing answer to it. */
   private DivTag renderQuestionSummary(
-      AnswerData data, Messages messages, long applicantId, CiviFormProfile profile) {
+      AnswerData data,
+      Messages messages,
+      long applicantId,
+      CiviFormProfile profile,
+      boolean allowMultipleFileUpload) {
     DivTag questionContent =
         div(div()
                 .with(
@@ -207,7 +222,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;
 
-      if (!data.encodedFileKeys().isEmpty()) {
+      if (allowMultipleFileUpload && !data.encodedFileKeys().isEmpty()) {
         answerContent = ol();
         for (int i = 0; i < data.encodedFileKeys().size(); i++) {
           String encodedFileKey = data.encodedFileKeys().get(i);
