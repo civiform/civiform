@@ -2,13 +2,11 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.oidc.applicant.ApplicantProfileCreator;
+import auth.saml.SamlProfileCreator;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
-
-import auth.oidc.applicant.ApplicantProfileCreator;
-import auth.saml.SamlProfileCreator;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
