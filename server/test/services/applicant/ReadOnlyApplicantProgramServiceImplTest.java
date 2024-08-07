@@ -33,7 +33,6 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
-import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -987,7 +986,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
-                .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)

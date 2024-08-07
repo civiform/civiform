@@ -7,7 +7,6 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.util.Providers;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
@@ -56,6 +55,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
+  private ApplicationStatusesRepository appRepo;
 
   @Before
   public void setup() {
@@ -63,6 +63,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
+    appRepo = instanceOf(ApplicationStatusesRepository.class);
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
@@ -159,32 +160,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(programDefFromCache).isEmpty();
-  }
-
-  // Verify the StatusDefinitions default value in evolution 40 loads.
-  @Test
-  public void loadStatusDefinitionsEvolution() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, status_definitions,"
-                + " localized_name, localized_description, program_type) values ('Status Default',"
-                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Status Default'));")
-        .execute();
-
-    ProgramModel found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
-    assertThat(found.getStatusDefinitions().getStatuses()).isEmpty();
   }
 
   @Test
@@ -577,11 +552,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+    appRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 

@@ -722,6 +722,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (keysOptional.isPresent()) {
                 ImmutableList<String> keys = keysOptional.get();
 
+                if (!fileUploadQuestion.canUploadFile()) {
+                  return failedFuture(
+                      new IllegalArgumentException(
+                          String.format(
+                              "Cannot upload additional files for question %s, in program %s, block"
+                                  + " %s, for applicant %s.",
+                              fileUploadQuestion
+                                  .getApplicantQuestion()
+                                  .getQuestionDefinition()
+                                  .getId(),
+                              programId,
+                              blockId,
+                              applicantId)));
+                }
+
                 boolean appendValue = true;
 
                 // Write the existing keys so that we don't delete any.
@@ -1410,7 +1425,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
-
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
@@ -1418,7 +1432,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             !roApplicantProgramService.isApplicationNotEligible(),
             settingsManifest.getNorthStarApplicantUi(request),
             false,
-            programId);
+            programId,
+            roApplicantProgramService.getIneligibleQuestions());
 
     return ApplicationBaseViewParams.builder()
         .setRequest(request)

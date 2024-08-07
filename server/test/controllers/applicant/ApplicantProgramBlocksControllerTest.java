@@ -21,11 +21,14 @@ import controllers.WithMockedProfiles;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.LifecycleStage;
 import models.ProgramModel;
 import models.StoredFileModel;
 import org.junit.Before;
@@ -36,12 +39,15 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.Address;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.question.QuestionAnswerer;
+import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -2109,6 +2115,77 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
     assertThat(applicantData).contains("fake-key");
+  }
+
+  @Test
+  public void addFile_failsIfAddingMoreThanMax() {
+    FileUploadQuestionDefinition fileUploadWithMaxDefinition =
+        new FileUploadQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.builder()
+                        .setMaxFiles(OptionalInt.of(1))
+                        .build())
+                .setLastModifiedTime(Optional.empty())
+                .build());
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(
+                testQuestionBank().maybeSave(fileUploadWithMaxDefinition, LifecycleStage.ACTIVE))
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .build();
+    RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    // Now add the second file.
+    RequestBuilder secondRequest =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
+    addQueryString(secondRequest, ImmutableMap.of("key", "fake-key-2", "bucket", "fake-bucket"));
+    result =
+        subject
+            .addFileWithApplicantId(
+                secondRequest.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("fake-key");
+    assertThat(applicantData).doesNotContain("fake-key-2");
   }
 
   @Test

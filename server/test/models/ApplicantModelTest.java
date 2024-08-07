@@ -100,6 +100,68 @@ public class ApplicantModelTest extends ResetPostgres {
     String firstName = "firstName";
     String middleName = "middleName";
     String lastName = "lastName";
+    String suffix = "suffix";
+    String emailAddress = "email@address.com";
+    String countryCode = "US";
+    String phoneNumber = "1234567890";
+    LocalDate dob = LocalDate.now(ZoneId.systemDefault());
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setFirstName(firstName);
+    applicant.setMiddleName(middleName);
+    applicant.setLastName(lastName);
+    applicant.setSuffix(suffix);
+    applicant.setEmailAddress(emailAddress);
+    applicant.setCountryCode(countryCode);
+    applicant.setPhoneNumber(phoneNumber);
+    applicant.setDateOfBirth(dob);
+    applicant.save();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+    assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
+    assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
+    assertThat(applicant.getLastName().get()).isEqualTo(lastName);
+    assertThat(applicant.getSuffix().get()).isEqualTo(suffix);
+    assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
+    assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo(dob);
+  }
+
+  @Test
+  public void savesPrimaryApplicantInfoColumns_withEmptyNameSuffix() {
+    String firstName = "firstName";
+    String middleName = "middleName";
+    String lastName = "lastName";
+    String suffix = "";
+    String emailAddress = "email@address.com";
+    String countryCode = "US";
+    String phoneNumber = "1234567890";
+    LocalDate dob = LocalDate.now(ZoneId.systemDefault());
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setFirstName(firstName);
+    applicant.setMiddleName(middleName);
+    applicant.setLastName(lastName);
+    applicant.setSuffix(suffix);
+    applicant.setEmailAddress(emailAddress);
+    applicant.setCountryCode(countryCode);
+    applicant.setPhoneNumber(phoneNumber);
+    applicant.setDateOfBirth(dob);
+    applicant.save();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+    assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
+    assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
+    assertThat(applicant.getLastName().get()).isEqualTo(lastName);
+    assertThat(applicant.getSuffix().isEmpty());
+    assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
+    assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo(dob);
+  }
+
+  @Test
+  public void savesPrimaryApplicantInfoColumns_withNullNameSuffix() {
+    String firstName = "firstName";
+    String middleName = "middleName";
+    String lastName = "lastName";
     String emailAddress = "email@address.com";
     String countryCode = "US";
     String phoneNumber = "1234567890";
@@ -117,6 +179,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
     assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
     assertThat(applicant.getLastName().get()).isEqualTo(lastName);
+    assertThat(!applicant.getSuffix().isPresent());
     assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
     assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);

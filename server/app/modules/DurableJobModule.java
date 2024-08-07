@@ -20,6 +20,9 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
@@ -33,38 +36,57 @@ import services.settings.SettingsService;
  * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
 
   @Override
   protected void configure() {
     // Binding the scheduler class as an eager singleton runs the constructor
     // at server start time.
+    LOGGER.trace("Module Started");
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
-  /** Schedules the job runner to run on an interval using the akka scheduling system. */
+  /**
+   * This class injects ApplicationEvolutions and checks the `upToDate` method to prevent this
+   * module from running until after the evolutions are completed.
+   *
+   * <p>See <a href="https://github.com/civiform/civiform/pull/8253">PR 8253</a> for more extensive
+   * details.
+   *
+   * <p>Additionally this uses The Akka scheduling system to schedules the job runner to run on an
+   * interval.
+   */
   public static final class DurableJobRunnerScheduler {
 
     @Inject
     public DurableJobRunnerScheduler(
+        ApplicationEvolutions applicationEvolutions,
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
         DurableJobRunner durableJobRunner,
         RecurringJobScheduler recurringJobScheduler) {
+      LOGGER.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
-      actorSystem
-          .scheduler()
-          .scheduleAtFixedRate(
-              // Wait a random amount of time to decrease likelihood of synchronized
-              // polling with another server.
-              /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
-              /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
-              () -> {
-                recurringJobScheduler.scheduleRecurringJobs();
-                durableJobRunner.runJobs();
-              },
-              executionContext);
+      if (applicationEvolutions.upToDate()) {
+        LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+        actorSystem
+            .scheduler()
+            .scheduleAtFixedRate(
+                // Wait a random amount of time to decrease likelihood of synchronized
+                // polling with another server.
+                /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
+                /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
+                () -> {
+                  recurringJobScheduler.scheduleRecurringJobs();
+                  durableJobRunner.runJobs();
+                },
+                executionContext);
+        LOGGER.trace("DurableJobRunnerScheduler - Task End");
+      } else {
+        LOGGER.trace("Evolutions Not Ready");
+      }
     }
   }
 

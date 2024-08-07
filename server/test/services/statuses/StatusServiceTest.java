@@ -72,7 +72,6 @@ public class StatusServiceTest extends ResetPostgres {
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     String programName = program.getProgramDefinition().adminName();
-    assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
     assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .isEmpty();
 
@@ -104,11 +103,11 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void appendStatus_duplicateStatus_throws() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     var newApprovedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText(APPROVED_STATUS.statusText())
@@ -129,10 +128,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     String programName = program.getProgramDefinition().adminName();
     assertThat(applicationStatusesRepo.lookupActiveStatusDefinitions(programName).getStatuses())
         .containsExactly(APPROVED_STATUS);
@@ -161,12 +160,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus_updatedStatusIsDuplicate_throws() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
-            .build();
-
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)));
     // We update the "rejected" status entry so that it's text is the same as the
     // "approved" status entry.
     DuplicateStatusException exc =
@@ -190,11 +187,11 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus_missingStatus_returnsError() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.editStatus(
             program.getProgramDefinition().adminName(),
@@ -215,11 +212,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void deleteStatus() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)));
 
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.deleteStatus(
@@ -242,10 +238,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void deleteStatus_missingStatus_returnsError() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
     ErrorAnd<StatusDefinitions, CiviFormError> result =
         service.deleteStatus(
             program.getProgramDefinition().adminName(), REJECTED_STATUS.statusText());
@@ -298,9 +294,10 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.withDefaultValue("default image description"))
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -370,9 +367,10 @@ public class StatusServiceTest extends ResetPostgres {
                     "English image description",
                     Locale.FRENCH,
                     "existing French image description"))
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
     assertThat(
             applicationStatusesRepo
                 .lookupActiveStatusDefinitions(program.getProgramDefinition().adminName())
@@ -445,10 +443,10 @@ public class StatusServiceTest extends ResetPostgres {
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
-
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
@@ -496,9 +494,10 @@ public class StatusServiceTest extends ResetPostgres {
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -552,11 +551,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_providesUnrecognizedStatuses_throws() {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -596,11 +594,10 @@ public class StatusServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_doesNotProvideStatus_throws() {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram()
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
-            .build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    applicationStatusesRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)));
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()

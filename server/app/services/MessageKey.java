@@ -93,6 +93,7 @@ public enum MessageKey {
   BUTTON_LOGIN("button.login"),
   BUTTON_CREATE_AN_ACCOUNT("button.createAnAccount"),
   BUTTON_CLEAR_SEARCH("button.clearSearch"),
+  BUTTON_EDIT_MY_RESPONSES("button.editMyResponses"), // North Star only
   BUTTON_LOGIN_GUEST("button.guestLogin"),
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT("button.nextPage"),
@@ -217,6 +218,7 @@ public enum MessageKey {
   HEADER_ACCT_SETTING("header.acctSettings"),
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
+  HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),

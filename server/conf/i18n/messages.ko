@@ -92,6 +92,8 @@ toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선�
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
 link.createAccountOrSignIn=계정 만들기 또는 로그인
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=파일 삭제
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=프로그램 신청 요약
 
 title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
 title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=돌아가서 수정
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
 toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
 tag.mayQualify=자격요건을 충족할 수 있음
 tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
 tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
 tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-
 toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-
 toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=귀하의 응답에 따르면 귀하�
 alert.eligibility_applicant_not_eligible_title=이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 없을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=귀하의 응답에 따르면 고객이 이 �
 alert.eligibility_ti_not_eligible_title=고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다. 고객의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
@@ -563,10 +576,29 @@ validation.tooManySelections.v2=최대 {0}개를 선택해 주세요.
 label.firstName=이름
 label.lastName=성
 label.middleName=중간 이름
+# Label for name suffix field in name question
+label.nameSuffix=접두사
 
 placeholder.firstName=이름
 placeholder.lastName=성
 placeholder.middleName=중간 이름
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=접두사
+
+# Option Junior for the name suffix dropdown
+option.junior=주니어
+# Option Senior for the name suffix dropdown
+option.senior=시니어
+# Option the first for the name suffix dropdown
+option.first=1세
+# Option the second for the name suffix dropdown
+option.second=2세
+# Option the third for the name suffix dropdown
+option.third=3세
+# Option the forth for the name suffix dropdown
+option.forth=4세
+# Option the fifth for the name suffix dropdown
+option.fifth=5세
 
 validation.firstNameRequired=이름을 입력하세요.
 validation.lastNameRequired=성을 입력하세요.

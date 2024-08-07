@@ -92,6 +92,8 @@ toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na it
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Alisin ang file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=Buod ng application para sa programa
 
 title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 title.applicantNotEligibleTi=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado ang client mo para sa {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=Bumalik at i-edit
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=Batay sa iyong mga tugon, posibleng kwalipikado ang iyong kliyente para sa {0}. Para magpatuloy, patuloy na punan ang application.
 toast.mayQualify=Batay sa iyong mga tugon, posibleng kwalipikado ka para sa {0}. Para magpatuloy, patuloy na punan ang application.
 tag.mayQualify=Posibleng kwalipikado ka
 tag.mayQualifyTi=Posibleng kwalipikado ang iyong kliyente
 tag.mayNotQualify=Posibleng hindi ka kwalipikado
 tag.mayNotQualifyTi=Posibleng hindi kwalipikado ang iyong kliyente
-
 toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
-
 toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}. Kung nagbago ang iyong impormasyon ng kliyente, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
+
 banner.errorSavingApplication=Nagka-error sa pag-save ng application
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=Batay sa mga sagot mo, malamang na kwa
 alert.eligibility_applicant_not_eligible_title=Posibleng hindi ka kwalipikado para sa programang ito.
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Batay sa mga sagot mo, posibleng hindi ka kwalipikado para sa programang ito. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Posibleng kwalipikado ka para sa programang ito
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=Batay sa mga sagot mo, malamang na kwalipikad
 alert.eligibility_ti_not_eligible_title=Posibleng hindi kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Batay sa mga sagot mo, posibleng hindi kwalipikado ang iyong kliyente para sa programang ito. Kung nagbago ang impormasyon ng iyong kliyente, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
@@ -563,10 +576,29 @@ validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 label.firstName=Pangalan
 label.lastName=Apelyido
 label.middleName=Gitnang pangalan
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=Pangalan
 placeholder.lastName=Apelyido
 placeholder.middleName=Gitnang pangalan
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Maaari lamang na ilagay ang inyong pangalan.
 validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.

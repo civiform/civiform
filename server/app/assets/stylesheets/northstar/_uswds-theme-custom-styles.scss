@@ -82,6 +82,10 @@ See the radio-option below as an example.
   @include u-padding-bottom(0);
 }
 
+.content-spacing {
+  @include u-height('105');
+}
+
 .section {
   @include u-padding-y(3);
 }
@@ -96,27 +100,6 @@ See the radio-option below as an example.
 
 .text-medium-spacing {
   @include u-height(1);
-}
-
-.cf-prose-h1 {
-  @include u-margin-y(0);
-  @include u-minh(8);
-  @include u-font('heading', '2xl');
-  @include u-line-height('heading', 5);
-  font-weight: font-weight('bold');
-
-  display: flex;
-  align-items: center;
-}
-
-.cf-prose-intro {
-  @include u-font('body', 'lg');
-  @include u-line-height('body', 5);
-  font-weight: font-weight('normal');
-  min-height: 36px; // Not USDWS standard
-
-  display: flex;
-  align-items: center;
 }
 
 // Styles for desktop

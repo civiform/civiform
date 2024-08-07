@@ -378,7 +378,6 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.withDefaultValue(ENGLISH_DESCRIPTION)
                     .updateTranslation(ES_LOCALE, SPANISH_DESCRIPTION))
-            .setStatusDefinitions(new StatusDefinitions(statuses))
             .build()
             .toProgram();
     program.update();
