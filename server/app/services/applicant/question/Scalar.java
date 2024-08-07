@@ -37,6 +37,7 @@ public enum Scalar {
   SELECTIONS("selections", ScalarType.LIST_OF_STRINGS),
   STATE("state", ScalarType.STRING),
   STREET("street", ScalarType.STRING),
+  SUFFIX("suffix", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
   WELL_KNOWN_ID("well_known_id", ScalarType.LONG),
   ZIP("ZIP code", ScalarType.STRING),
@@ -120,7 +121,7 @@ public enum Scalar {
       case ID:
         return ImmutableSet.of(ID);
       case NAME:
-        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
+        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME, SUFFIX);
       case NUMBER:
         return ImmutableSet.of(NUMBER);
       case TEXT:

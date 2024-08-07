@@ -3,6 +3,8 @@ package models;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import io.ebean.annotation.DbEnumType;
+import io.ebean.annotation.DbEnumValue;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -38,6 +40,26 @@ import services.applicant.ApplicantData;
 @Entity
 @Table(name = "applicants")
 public class ApplicantModel extends BaseModel {
+  public enum Suffix {
+    JR("Jr."),
+    SR("Sr."),
+    I("I"),
+    II("II"),
+    III("III"),
+    IV("IV"),
+    V("V");
+
+    private final String suffixName;
+
+    Suffix(String suffixName) {
+      this.suffixName = suffixName;
+    }
+
+    @DbEnumValue(storage = DbEnumType.VARCHAR)
+    public String getValue() {
+      return this.suffixName;
+    }
+  }
 
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
@@ -56,6 +78,7 @@ public class ApplicantModel extends BaseModel {
   private String firstName;
   private String middleName;
   private String lastName;
+  private String suffix;
   private String emailAddress;
   private String countryCode;
   private String phoneNumber;
@@ -127,6 +150,15 @@ public class ApplicantModel extends BaseModel {
 
   public Optional<String> getLastName() {
     return Optional.ofNullable(lastName);
+  }
+
+  public ApplicantModel setSuffix(String suffix) {
+    this.suffix = suffix.isEmpty() || suffix.isBlank() ? null : suffix;
+    return this;
+  }
+
+  public Optional<String> getSuffix() {
+    return Optional.ofNullable(suffix);
   }
 
   public ApplicantModel setEmailAddress(String emailAddress) {

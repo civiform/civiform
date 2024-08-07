@@ -5,6 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
+
+import auth.oidc.applicant.ApplicantProfileCreator;
+import auth.saml.SamlProfileCreator;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -150,6 +154,12 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.ofNullable(applicant)
         .flatMap(ApplicantModel::getLastName)
         .or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
+  }
+
+  public Optional<String> getApplicantNameSuffix() {
+    return Optional.ofNullable(applicant)
+        .flatMap(ApplicantModel::getSuffix)
+        .or(() -> readString(WellKnownPaths.APPLICANT_SUFFIX));
   }
 
   public Optional<String> getApplicantEmail() {
