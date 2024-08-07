@@ -49,15 +49,15 @@ public class ApplicantModel extends BaseModel {
     IV("IV"),
     V("V");
 
-    private final String displayName;
+    private final String nameSuffix;
 
-    Suffix(String displayName) {
-      this.displayName = displayName;
+    Suffix(String nameSuffix) {
+      this.nameSuffix = nameSuffix;
     }
 
     @DbEnumValue(storage = DbEnumType.VARCHAR)
     public String getValue() {
-      return this.displayName;
+      return this.nameSuffix;
     }
   }
 
