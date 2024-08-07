@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# DOC: Dumps all tables from the local dev environment into postgres archive file, dev_db.dump.
+
+source bin/lib.sh
+docker::set_project_name_dev
+readonly DUMPFILE="${1:-dev_db.dump}"
+
+readonly CMD="/usr/bin/pg_dump \
+    --no-password \
+    --format=custom \
+    --host=db \
+    --username=postgres \
+    --clean \
+    --if-exists \
+    postgres --file=/project/${DUMPFILE}"
+
+docker::compose_dev \
+  up db \
+  --no-deps \
+  --wait \
+  -d
+
+docker::compose_dev exec -it -e "PGPASSWORD=example" db ${CMD}
+docker::compose_dev cp "db:/project/${DUMPFILE}" "${DUMPFILE}"
+
+echo "Saved db dump to ${DUMPFILE}"
