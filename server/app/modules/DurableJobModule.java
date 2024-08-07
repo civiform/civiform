@@ -20,6 +20,8 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
@@ -34,11 +36,13 @@ import services.settings.SettingsService;
  * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
 
   @Override
   protected void configure() {
     // Binding the scheduler class as an eager singleton runs the constructor
     // at server start time.
+    LOGGER.trace("Module Started");
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
@@ -53,9 +57,11 @@ public final class DurableJobModule extends AbstractModule {
         ExecutionContext executionContext,
         DurableJobRunner durableJobRunner,
         RecurringJobScheduler recurringJobScheduler) {
+      LOGGER.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
+        LOGGER.trace("DurableJobRunnerScheduler - Task Start");
         actorSystem
             .scheduler()
             .scheduleAtFixedRate(
@@ -68,6 +74,9 @@ public final class DurableJobModule extends AbstractModule {
                   durableJobRunner.runJobs();
                 },
                 executionContext);
+        LOGGER.trace("DurableJobRunnerScheduler - Task End");
+      } else {
+        LOGGER.trace("Evolutions Not Ready");
       }
     }
   }

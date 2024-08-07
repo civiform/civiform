@@ -3,6 +3,8 @@ package modules;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import javax.inject.Provider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
 import services.settings.SettingsService;
 
@@ -11,9 +13,11 @@ import services.settings.SettingsService;
  * settings. Runs each time the server is started.
  */
 public class SettingsMigrationModule extends AbstractModule {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SettingsMigrationModule.class);
 
   @Override
   protected void configure() {
+    LOGGER.trace("Module Started");
     bind(SettingsMigrator.class).asEagerSingleton();
   }
 
@@ -23,9 +27,14 @@ public class SettingsMigrationModule extends AbstractModule {
     public SettingsMigrator(
         ApplicationEvolutions applicationEvolutions,
         Provider<SettingsService> settingsServiceProvider) {
+      LOGGER.trace("SettingsMigrator - Started");
 
       if (applicationEvolutions.upToDate()) {
+        LOGGER.trace("SettingsMigrator - Task Start");
         settingsServiceProvider.get().migrateConfigValuesToSettingsGroup();
+        LOGGER.trace("SettingsMigrator - Task End");
+      } else {
+        LOGGER.trace("Evolutions Not Ready");
       }
     }
   }
