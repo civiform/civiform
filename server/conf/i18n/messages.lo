@@ -93,7 +93,7 @@ link.allDone=ຂ້ອຍແລ້ວໆ
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
 link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
 # Anchor which when clicked removes a file the user has previously uploaded.
-link.removeFile=Remove file
+link.removeFile=ລຶບໄຟລ໌ອອກ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເລີ່ມກວດສອບຫຼືບໍ່?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -573,28 +573,28 @@ label.firstName=ຊື່
 label.lastName=ນາມສະກຸນ
 label.middleName=ຊື່ກາງ
 # Label for name suffix field in name question
-label.nameSuffix=Suffix
+label.nameSuffix=ຄຳຕໍ່ທ້າຍ
 
 placeholder.firstName=ຊື່
 placeholder.lastName=ນາມສະກຸນ
 placeholder.middleName=ຊື່ກາງ
 # Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffix
+placeholder.nameSuffix=ຄຳຕໍ່ທ້າຍ
 
 # Option Junior for the name suffix dropdown
-option.junior=Jr.
+option.junior=ຈູເນຍຣ໌
 # Option Senior for the name suffix dropdown
-option.senior=Sr.
+option.senior=ຊີເນຍຣ໌
 # Option the first for the name suffix dropdown
-option.first=I
+option.first=ທີ 1
 # Option the second for the name suffix dropdown
-option.second=II
+option.second=ທີ 2
 # Option the third for the name suffix dropdown
-option.third=III
+option.third=ທີ 3
 # Option the forth for the name suffix dropdown
-option.forth=IV
+option.forth=ທີ 4
 # Option the fifth for the name suffix dropdown
-option.fifth=V
+option.fifth=ທີ 5
 
 validation.firstNameRequired=ກະລຸນາໃສ່ຊື່ຂອງທ່ານ.
 validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນຂອງທ່ານ.
