@@ -381,7 +381,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('fill out application and submit', async () => {
           await applicantQuestions.answerNumberQuestion('1')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.expectIneligiblePage()
+          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
         })
 
         await test.step('verify question is marked ineligible', async () => {
@@ -418,7 +418,7 @@ test.describe('Applicant navigation flow', () => {
         // Fill out application and submit.
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage()
+        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
 
         // Verify the question is marked ineligible.
         await applicantQuestions.gotoApplicantHomePage()

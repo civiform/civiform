@@ -5,21 +5,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
+import models.CategoryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.i18n.Lang;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -90,16 +95,25 @@ public final class DatabaseSeedTask {
 
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
+  private final CategoryRepository categoryRepository;
   private final Database database;
+  private final Environment environment;
 
   @Inject
-  public DatabaseSeedTask(QuestionService questionService, VersionRepository versionRepository) {
+  public DatabaseSeedTask(
+      QuestionService questionService,
+      VersionRepository versionRepository,
+      CategoryRepository categoryRepository,
+      Environment environment) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
     this.database = DB.getDefault();
+    this.environment = checkNotNull(environment);
   }
 
   public ImmutableList<QuestionDefinition> run() {
+    seedProgramCategories();
     return seedCanonicalQuestions();
   }
 
@@ -150,6 +164,28 @@ public final class DatabaseSeedTask {
     } else {
       LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
+    }
+  }
+
+  /** Seeds the predefined program categories from the category translation files. */
+  private void seedProgramCategories() {
+    if (categoryRepository.listCategories().isEmpty()) {
+      try {
+        CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
+        List<CategoryModel> categories = parser.createCategoryModelList();
+
+        categories.forEach(
+            category -> {
+              inSerializableTransaction(
+                  () -> {
+                    categoryRepository.fetchOrSaveUniqueCategory(category);
+                  },
+                  1);
+            });
+      } catch (RuntimeException e) {
+        // We don't want to prevent startup if seeding fails.
+        LOGGER.error("Failed to seed program categories.", e);
+      }
     }
   }
 

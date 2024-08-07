@@ -212,27 +212,6 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   /**
-   * Download a CSV file containing all applications to the specified program version. This was the
-   * original behavior for the program admin CSV download but is currently unused as of 10/13/2021.
-   */
-  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadSingleVersion(Http.Request request, long programId)
-      throws ProgramNotFoundException {
-    try {
-      ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      checkProgramAdminAuthorization(request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramCsv(programId);
-      return ok(csv)
-          .as(Http.MimeTypes.BINARY)
-          .withHeader(
-              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException | NoSuchElementException e) {
-      return unauthorized();
-    }
-  }
-
-  /**
    * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing
    * that date in the UTC time zone.
    */

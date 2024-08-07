@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
+import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -36,8 +38,18 @@ public final class EligibilityAlertSettingsCalculator {
     }
   }
 
+  /**
+   * questions: List of questions that the applicant answered that may make the applicant
+   * ineligible. The list may be empty.
+   */
   public AlertSettings calculate(
-      Http.Request request, boolean isTI, boolean isApplicationEligible, long programId) {
+      Http.Request request,
+      boolean isTI,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation,
+      long programId,
+      ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
     boolean isEligibilityGating = isEligibilityGating(programId);
@@ -51,17 +63,35 @@ public final class EligibilityAlertSettingsCalculator {
 
     Triple triple =
         isTI
-            ? getTi(isApplicationFastForwarded, isApplicationEligible)
-            : getApplicant(isApplicationFastForwarded, isApplicationEligible);
+            ? getTi(
+                isApplicationFastForwarded,
+                isApplicationEligible,
+                isNorthStarEnabled,
+                pageHasSupplementalInformation)
+            : getApplicant(
+                isApplicationFastForwarded,
+                isApplicationEligible,
+                isNorthStarEnabled,
+                pageHasSupplementalInformation);
+
+    ImmutableList<String> formattedQuestions =
+        questions.stream()
+            .map(ApplicantQuestion::getQuestionText)
+            .collect(ImmutableList.toImmutableList());
 
     return new AlertSettings(
         isEligibilityGating,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
         messages.at(triple.textKey.getKeyName()),
-        triple.alertType);
+        triple.alertType,
+        formattedQuestions);
   }
 
-  private Triple getTi(Boolean isApplicationFastForwarded, Boolean isApplicationEligible) {
+  private Triple getTi(
+      boolean isApplicationFastForwarded,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation) {
     if (isApplicationFastForwarded == true && isApplicationEligible == true) {
       return new Triple(
           AlertType.SUCCESS,
@@ -83,6 +113,13 @@ public final class EligibilityAlertSettingsCalculator {
           MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT);
     }
 
+    if (isNorthStarEnabled == true && pageHasSupplementalInformation == true) {
+      return new Triple(
+          AlertType.WARNING,
+          MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE,
+          MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT);
+    }
+
     // The default case: isApplicationFastForwarded == false && isApplicationEligible == false
     return new Triple(
         AlertType.WARNING,
@@ -90,7 +127,11 @@ public final class EligibilityAlertSettingsCalculator {
         MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT);
   }
 
-  private Triple getApplicant(Boolean isApplicationFastForwarded, Boolean isApplicationEligible) {
+  private Triple getApplicant(
+      boolean isApplicationFastForwarded,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation) {
     if (isApplicationFastForwarded == true && isApplicationEligible == true) {
       return new Triple(
           AlertType.SUCCESS,
@@ -110,6 +151,13 @@ public final class EligibilityAlertSettingsCalculator {
           AlertType.SUCCESS,
           MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE,
           MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT);
+    }
+
+    if (pageHasSupplementalInformation == true && isNorthStarEnabled == true) {
+      return new Triple(
+          AlertType.WARNING,
+          MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE,
+          MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT);
     }
 
     // The default case: isApplicationFastForwarded == false && isApplicationEligible == false

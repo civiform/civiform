@@ -142,13 +142,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(displayDescription)
             .getTextareaTag(),
         iff(
-            settingsManifest.getProgramFilteringEnabled(request),
+            settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories)),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
-            .setLabelText("Link to program website")
+            .setLabelText("Link to program website (optional)")
             .setValue(externalLink)
             .getInputTag(),
         FieldWithLabel.textArea()
@@ -157,7 +157,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText(
                 "A custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"
-                    + " application process and/or highlight other programs to apply for.")
+                    + " application process and/or highlight other programs to apply for."
+                    + " (optional)")
             .setMarkdownSupported(true)
             .setValue(confirmationSceen)
             .getTextareaTag(),
@@ -247,7 +248,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             FieldWithLabel.textArea()
                 .setId("program-description-textarea")
                 .setFieldName("adminDescription")
-                .setLabelText("Program note for administrative use only")
+                .setLabelText("Program note for administrative use only (optional)")
                 .setValue(adminDescription)
                 .getTextareaTag())
         .with(
@@ -283,23 +284,32 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private DivTag showCategoryCheckboxes(
       List<CategoryModel> categoryOptions, List<Long> categories) {
     return div(
-        label("Tag this program with 1 or more categories to make it easier to find")
-            .withFor("category-checkboxes")
-            .withClass("text-gray-600"),
-        fieldset(
-                each(
-                    categoryOptions,
-                    category ->
-                        div(
-                            input()
-                                .withId("check-category-" + category.getDefaultName())
-                                .withType("checkbox")
-                                .withName("categories" + Path.ARRAY_SUFFIX)
-                                .withValue(String.valueOf(category.getId()))
-                                .withCondChecked(categories.contains(category.getId())),
-                            label(category.getDefaultName())
-                                .withFor("check-category-" + category.getDefaultName()))))
-            .withId("category-checkboxes"));
+            legend(
+                    "Tag this program with 1 or more categories to make it easier to find"
+                        + " (optional)")
+                .withClass("text-gray-600"),
+            fieldset(
+                    div(each(
+                            categoryOptions,
+                            category ->
+                                div(
+                                        input()
+                                            .withClasses(
+                                                "usa-checkbox__input usa-checkbox__input--tile")
+                                            .withId("check-category-" + category.getDefaultName())
+                                            .withType("checkbox")
+                                            .withName("categories" + Path.ARRAY_SUFFIX)
+                                            .withValue(String.valueOf(category.getId()))
+                                            .withCondChecked(categories.contains(category.getId())),
+                                        label(category.getDefaultName())
+                                            .withClasses("usa-checkbox__label")
+                                            .withFor("check-category-" + category.getDefaultName()))
+                                    .withClasses(
+                                        "usa-checkbox", "grid-col-12", "tablet:grid-col-6")))
+                        .withClasses("grid-row", "grid-gap-md"))
+                .withId("category-checkboxes")
+                .withClasses("usa-fieldset"))
+        .withClasses("mb-2");
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {

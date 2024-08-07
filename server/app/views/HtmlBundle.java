@@ -13,6 +13,7 @@ import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
@@ -198,14 +199,16 @@ public final class HtmlBundle {
   }
 
   private FooterTag renderFooter() {
-    FooterTag footerTag = footer().with(footerContent).with(footerScripts);
     if (jsBundle == null) {
       throw new IllegalStateException("JS bundle must be set for every page.");
     }
-    footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
-
-    // Add USWDS scripts
-    footerTag.with(viewUtils.makeLocalJsTag(USWDS_FILEPATH));
+    ImmutableList<ScriptTag> scripts =
+        ImmutableList.<ScriptTag>builder()
+            .addAll(footerScripts)
+            .add(viewUtils.makeLocalJsTag(jsBundle.getJsPath()))
+            .add(viewUtils.makeLocalJsTag(USWDS_FILEPATH))
+            .build();
+    FooterTag footerTag = footer().with(footerContent).with(CspUtil.applyCsp(request, scripts));
 
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
@@ -238,7 +241,7 @@ public final class HtmlBundle {
             link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
         .with(metadata)
         .with(stylesheets)
-        .with(headScripts);
+        .with(CspUtil.applyCsp(request, headScripts));
   }
 
   private HeaderTag renderHeader() {

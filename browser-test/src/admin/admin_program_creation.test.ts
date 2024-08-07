@@ -1114,8 +1114,8 @@ test.describe('program creation', () => {
     })
 
     await test.step('add categories to program', async () => {
-      await page.getByRole('checkbox', {name: 'Education'}).check()
-      await page.getByRole('checkbox', {name: 'Healthcare'}).check()
+      await page.getByText('Education').check()
+      await page.getByText('Healthcare').check()
     })
 
     await test.step('validate screenshot', async () => {
@@ -1125,8 +1125,8 @@ test.describe('program creation', () => {
       )
     })
 
-    await expect(page.getByRole('checkbox', {name: 'Education'})).toBeChecked()
-    await expect(page.getByRole('checkbox', {name: 'Healthcare'})).toBeChecked()
+    await expect(page.getByText('Education')).toBeChecked()
+    await expect(page.getByText('Healthcare')).toBeChecked()
 
     await test.step('submit and publish program', async () => {
       await adminPrograms.submitProgramDetailsEdits()
@@ -1137,28 +1137,20 @@ test.describe('program creation', () => {
       await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
       await page.getByRole('button', {name: 'Edit program details'}).click()
       await waitForPageJsLoad(page)
-      await expect(
-        page.getByRole('checkbox', {name: 'Education'}),
-      ).toBeChecked()
-      await expect(
-        page.getByRole('checkbox', {name: 'Healthcare'}),
-      ).toBeChecked()
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
     })
 
     await test.step('add another category', async () => {
-      await page.getByRole('checkbox', {name: 'Internet'}).check()
+      await page.getByText('Internet').check()
     })
 
     await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.goToProgramDescriptionPage(programName)
-      await expect(
-        page.getByRole('checkbox', {name: 'Education'}),
-      ).toBeChecked()
-      await expect(
-        page.getByRole('checkbox', {name: 'Healthcare'}),
-      ).toBeChecked()
-      await expect(page.getByRole('checkbox', {name: 'Internet'})).toBeChecked()
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+      await expect(page.getByText('Internet')).toBeChecked()
     })
   })
 })

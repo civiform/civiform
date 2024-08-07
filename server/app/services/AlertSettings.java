@@ -1,5 +1,6 @@
 package services;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /**
@@ -11,8 +12,16 @@ import java.util.Optional;
  * @param alertType {@link AlertType}
  */
 public record AlertSettings(
-    Boolean show, Optional<String> title, String text, AlertType alertType) {
+    Boolean show,
+    Optional<String> title,
+    String text,
+    AlertType alertType,
+    ImmutableList<String> additionalText) {
   public static AlertSettings empty() {
     return new AlertSettings(false, Optional.empty(), "", AlertType.NONE);
+  }
+
+  public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {
+    this(show, title, text, alertType, ImmutableList.of());
   }
 }

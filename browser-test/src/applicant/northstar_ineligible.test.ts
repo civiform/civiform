@@ -67,12 +67,8 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect ineligible page part 1', async () => {
-      expect(await page.innerText('html')).toContain(
-        'Based on your responses to the following questions, you may not qualify for the ' +
-          programName,
-      )
-
-      expect(await page.textContent('html')).toContain(questionText)
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
     })
 
     await validateScreenshot(
@@ -85,7 +81,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await validateAccessibility(page)
 
     await test.step('Go back and update answers to become eligible', async () => {
-      await applicantQuestions.clickGoBackAndEdit()
+      await applicantQuestions.clickEditMyResponses()
       await applicantQuestions.clickReview()
 
       await applicantQuestions.answerNumberQuestion('1')
@@ -119,26 +115,18 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     // When North Star is finalized, this test should navigate question -> review -> ineligible
     // Until then, the test must navigate question -> submit -> ineligible -> review -> ineligible
     await test.step('Expect ineligible page', async () => {
-      expect(await page.innerText('html')).toContain(
-        'Based on your responses to the following questions, you may not qualify for the ' +
-          programName,
-      )
-
-      expect(await page.textContent('html')).toContain(questionText)
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
     })
 
     await test.step('Go back to the review page and re-submit', async () => {
-      await applicantQuestions.clickGoBackAndEdit()
+      await applicantQuestions.clickEditMyResponses()
       await applicantQuestions.clickSubmit()
     })
 
     await test.step('Expect ineligible page again', async () => {
-      expect(await page.innerText('html')).toContain(
-        'Based on your responses to the following questions, you may not qualify for the ' +
-          programName,
-      )
-
-      expect(await page.textContent('html')).toContain(questionText)
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
     })
   })
 
@@ -172,10 +160,13 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect client to be ineligible', async () => {
-      expect(await page.innerText('html')).toContain(
-        'Based on your responses to the following questions, your client may not qualify for the ' +
-          programName,
-      )
+      await expect(
+        page
+          .getByText('Your client may not be eligible for this program')
+          .and(page.getByRole('heading')),
+      ).toBeVisible()
+      await expect(page.getByText('Apply to another program')).toBeVisible()
+      await expect(page.getByText('Edit my responses')).toBeVisible()
 
       await page.click('#header-return-home')
 

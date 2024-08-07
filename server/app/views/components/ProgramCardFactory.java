@@ -66,12 +66,12 @@ public final class ProgramCardFactory {
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
-    DivTag titleAndStatus =
+    DivTag cardContent =
         div()
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/4", "py-7")
+                    .withClasses("w-1/4", "py-7", "pr-2")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -86,7 +86,8 @@ public final class ProgramCardFactory {
                                     programDescriptionText,
                                     /* preserveEmptyLines= */ false,
                                     /* addRequiredIndicator= */ false))
-                            .withClasses("line-clamp-2", "text-gray-700", "text-base"))
+                            .withClasses(
+                                "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
@@ -94,7 +95,27 @@ public final class ProgramCardFactory {
                             .with(
                                 Icons.svg(Icons.CHECK)
                                     .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
-                            .with(span("Pre-screener").withClasses("text-base", "font-semibold"))),
+                            .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
+                    .condWith(
+                        !adminNoteText.isBlank(),
+                        p().withClasses(
+                                "mb-4",
+                                "pt-4",
+                                "line-clamp-3",
+                                "text-sm",
+                                StyleUtils.responsiveLarge("text-base"))
+                            .with(
+                                span("Admin note: ").withClasses("font-semibold"),
+                                span(adminNoteText)))
+                    .condWith(
+                        showCategories,
+                        p(
+                                span("Categories:  ").withClasses("font-semibold"),
+                                iffElse(
+                                    programCategoryNames.isEmpty(),
+                                    span("None"),
+                                    span(String.join(", ", programCategoryNames))))
+                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base"))),
                 statusDiv.withClasses(
                     "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
@@ -107,20 +128,7 @@ public final class ProgramCardFactory {
             "border",
             "border-gray-300",
             "rounded-lg")
-        .with(titleAndStatus)
-        .condWith(
-            !adminNoteText.isBlank(),
-            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
-                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)))
-        .condWith(
-            showCategories,
-            p(
-                    span("Categories:  ").withClasses("font-semibold"),
-                    iffElse(
-                        programCategoryNames.isEmpty(),
-                        span("None"),
-                        span(String.join(", ", programCategoryNames))))
-                .withClasses("w-3/4", "mb-8", "text-gray-700", "text-base"));
+        .with(cardContent);
   }
 
   private DivTag renderProgramRow(

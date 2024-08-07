@@ -189,13 +189,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
 
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(

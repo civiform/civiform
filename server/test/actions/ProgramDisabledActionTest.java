@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Test;
-import play.inject.Injector;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -26,8 +25,6 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 
 public class ProgramDisabledActionTest extends WithApplication {
-  private ProgramService ps;
-  private static Injector injector;
   private static final BlockDefinition EMPTY_FIRST_BLOCK =
       BlockDefinition.builder()
           .setId(1)

@@ -59,6 +59,24 @@ public final class FileUploadQuestion extends Question {
     return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
   }
 
+  /**
+   * Returns {@code true} if an additional file can be added according to the maximum files set on
+   * the current question definition.
+   */
+  public boolean canUploadFile() {
+    // Max can't be zero, so if there are no values, we can always upload a new one.
+    if (!getFileKeyListValue().isPresent()) {
+      return true;
+    }
+
+    // No max, so we can always upload.
+    if (!getQuestionDefinition().getMaxFiles().isPresent()) {
+      return true;
+    }
+
+    return getFileKeyListValue().get().size() < getQuestionDefinition().getMaxFiles().getAsInt();
+  }
+
   public Optional<String> getOriginalFileName() {
     if (originalFileNameValueCache.isPresent()) {
       return originalFileNameValueCache.get();

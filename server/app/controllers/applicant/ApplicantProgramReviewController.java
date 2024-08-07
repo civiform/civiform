@@ -150,7 +150,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       request,
                       profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
                       !roApplicantProgramService.isApplicationNotEligible(),
-                      programId);
+                      settingsManifest.getNorthStarApplicantUi(request),
+                      false,
+                      programId,
+                      roApplicantProgramService.getIneligibleQuestions());
 
               ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)

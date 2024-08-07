@@ -626,6 +626,11 @@
     "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
     "type": "int"
   },
+  "CSP_REPORT_ONLY": {
+    "mode": "HIDDEN",
+    "description": "Overrides the default configuration for the content security policy. If set to true, the browser reports content security policy violations but does not enforce the policy. If set to false, the browser enforces the policy.",
+    "type": "bool"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {

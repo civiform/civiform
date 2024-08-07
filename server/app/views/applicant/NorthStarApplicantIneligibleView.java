@@ -1,27 +1,30 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.EligibilityAlertSettingsCalculator;
 import java.util.Locale;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
 public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
+  private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject
   NorthStarApplicantIneligibleView(
@@ -31,7 +34,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -40,6 +44,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
         settingsManifest,
         languageUtils,
         deploymentType);
+    this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
   }
 
   public String render(Params params) {
@@ -56,9 +61,19 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
 
-    ImmutableList<ApplicantQuestion> ineligibleQuestions =
-        params.roApplicantProgramService().getIneligibleQuestions();
-    context.setVariable("ineligibleQuestions", ineligibleQuestions);
+    String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
+    context.setVariable("programDescription", localizedProgramDescription);
+
+    AlertSettings eligibilityAlertSettings =
+        eligibilityAlertSettingsCalculator.calculate(
+            params.request(),
+            params.profile().isTrustedIntermediary(),
+            !params.roApplicantProgramService().isApplicationNotEligible(),
+            true,
+            true,
+            program.id(),
+            params.roApplicantProgramService().getIneligibleQuestions());
+    context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
 
     // Manually construct a hyperlink with a runtime href and localized string. The hyperlink will
     // be inserted into another localized string in the Thymeleaf template.

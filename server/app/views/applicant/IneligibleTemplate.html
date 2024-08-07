@@ -4,52 +4,64 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <div role="main" class="margin-2">
+    <main>
       <div
         th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
       ></div>
-      <h1
-        th:text="${isTrustedIntermediary} ? #{title.applicantNotEligibleTi(${programName})} : #{title.applicantNotEligible(${programName})}"
-      ></h1>
 
-      <ul>
-        <li
-          th:each="question : ${ineligibleQuestions}"
-          th:utext="${question.getFormattedQuestionTextWithoutRequiredAsterisk()}"
-          class="margin-y-2"
-        ></li>
-      </ul>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programName},${programDescription})}"
+      ></div>
 
-      <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
-      <p
-        th:utext="#{content.eligibilityCriteria(${programLinkHtml})}"
-        class="margin-y-2"
-      ></p>
+      <div class="grid-container section">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <div
+              th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
+            ></div>
 
-      <p
-        th:text="#{content.changeAnswersForEligibility}"
-        class="margin-y-2"
-      ></p>
+            <div class="section-spacing"></div>
 
-      <div>
-        <a
-          class="usa-button"
-          role="button"
-          id="another-program"
-          th:text="#{link.applyToAnotherProgram}"
-          th:href="${applyHref}"
-        >
-        </a>
-        <a
-          class="usa-button"
-          role="button"
-          id="go-back"
-          th:text="#{button.goBackAndEdit}"
-          th:href="${goBackHref}"
-        >
-        </a>
+            <section class="usa-prose">
+              <h2 th:text="#{heading.eligibilityCriteria}"></h2>
+
+              <!-- <div class="content-spacing"></div> -->
+
+              <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
+              <p
+                th:utext="#{content.eligibilityCriteria.v2(${programLinkHtml})}"
+              ></p>
+              <p th:text="#{content.changeAnswersForEligibility.v2}"></p>
+            </section>
+
+            <div class="section-spacing"></div>
+
+            <ul class="usa-button-group">
+              <li class="usa-button-group__item">
+                <a
+                  class="usa-button usa-button--outline"
+                  role="button"
+                  id="another-program"
+                  th:text="#{link.applyToAnotherProgram}"
+                  th:href="${applyHref}"
+                >
+                </a>
+              </li>
+              <li class="usa-button-group__item">
+                <a
+                  class="usa-button"
+                  role="button"
+                  id="go-back"
+                  th:text="#{button.editMyResponses}"
+                  th:href="${goBackHref}"
+                >
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
                                                              <!--/* showReviewLogin= */-->false,
