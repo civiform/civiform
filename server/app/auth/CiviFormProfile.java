@@ -159,7 +159,7 @@ public class CiviFormProfile {
                             + " ID are different it is likely that the email address was used to"
                             + " create an account using one authentication system (applicant/admin)"
                             + " and the new authority was created in the other"
-                            + " (applicant/admin).See"
+                            + " (applicant/admin). See"
                             + " https://docs.civiform.us/it-manual/sre-playbook/troubleshooting-production#errors-related-to-authority-id",
                         existingAuthorityId, authorityId));
               }
