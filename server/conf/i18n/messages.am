@@ -92,6 +92,8 @@ toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግ�
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
 link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=ፋይል አስወግድ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ግምገማ መጀመር ይፈልጋሉ?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
 tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
 tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
 tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
-
 toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-
 toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
 banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=በምላሾችዎ ላይ በመመሥ
 alert.eligibility_applicant_not_eligible_title=ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=በምላሾችዎ ላይ በመመሥረት 
 alert.eligibility_ti_not_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -563,10 +576,29 @@ validation.tooManySelections.v2=እባክዎ ቢበዛ {0} ይምረጡ።
 label.firstName=መጠሪያ ስም
 label.lastName=የአያት ስም
 label.middleName=የአባት ስም
+# Label for name suffix field in name question
+label.nameSuffix=ቅጥያ
 
 placeholder.firstName=መጠሪያ ስም
 placeholder.lastName=የአያት ስም
 placeholder.middleName=የአባት ስም
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=ቅጥያ
+
+# Option Junior for the name suffix dropdown
+option.junior=ወጣት
+# Option Senior for the name suffix dropdown
+option.senior=አዛውንት
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
 validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።

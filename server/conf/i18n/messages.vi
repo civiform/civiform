@@ -92,6 +92,8 @@ toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịc
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
 link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Xoá tệp
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và bắt đầu đánh giá?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
 title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=Quay lại và chỉnh sửa
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
 toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
 tag.mayQualify=Bạn có thể đủ tiêu chuẩn
 tag.mayQualifyTi=Khách hàng của bạn có thể đủ tiêu chuẩn
 tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
 tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
-
 toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
-
 toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
+
 banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=Dựa trên câu trả lời của b�
 alert.eligibility_applicant_not_eligible_title=Bạn có thể không đủ điều kiện tham gia chương trình này
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi tiếp tục quá trình đăng ký.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=Dựa trên câu trả lời của bạn, kh�
 alert.eligibility_ti_not_eligible_title=Khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời của mình rồi tiếp tục quá trình đăng ký.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
@@ -563,10 +576,29 @@ validation.tooManySelections.v2=Vui lòng chọn không quá {0}.
 label.firstName=Tên
 label.lastName=Họ
 label.middleName=Tên đệm
+# Label for name suffix field in name question
+label.nameSuffix=Hậu tố
 
 placeholder.firstName=Tên
 placeholder.lastName=Họ
 placeholder.middleName=Tên đệm
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Hậu tố
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Vui lòng nhập tên của bạn.
 validation.lastNameRequired=Vui lòng nhập họ của bạn.

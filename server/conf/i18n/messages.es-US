@@ -92,6 +92,8 @@ toast.localeNotSupported=Lo sentimos, este programa no está traducido por compl
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
 link.createAccountOrSignIn=Crear una cuenta o acceder
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Quitar archivo
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y comenzar la revisión de todas formas?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=Resumen de la inscripción al programa
 
 title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=Volver y editar
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
 toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
 tag.mayQualify=Es posible que califiques
 tag.mayQualifyTi=Es posible que tu cliente califique
 tag.mayNotQualify=Es posible que no califiques
 tag.mayNotQualifyTi=Es posible que tu cliente no califique
-
 toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
-
 toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
+
 banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=En función de tus respuestas, es posi
 alert.eligibility_applicant_not_eligible_title=Es posible que no califiques para este programa
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=En función de tus respuestas, es posible que no califiques para este programa. Si la información cambió, puedes editar tu respuesta y continuar con la inscripción.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Es posible que califiques para este programa
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=En función de tus respuestas, es posible que
 alert.eligibility_ti_not_eligible_title=Es posible que tu cliente no califique para este programa
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=En función de tus respuestas, es posible que tu cliente no califique para este programa. Si la información de tu cliente cambió, puedes editar tu respuesta y continuar con la inscripción.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Es posible que tu cliente califique para este programa
@@ -563,10 +576,29 @@ validation.tooManySelections.v2=Selecciona hasta {0} opciones.
 label.firstName=Nombre
 label.lastName=Apellido
 label.middleName=Segundo nombre
+# Label for name suffix field in name question
+label.nameSuffix=Sufijo
 
 placeholder.firstName=Nombre
 placeholder.lastName=Apellido
 placeholder.middleName=Segundo nombre
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Sufijo
+
+# Option Junior for the name suffix dropdown
+option.junior=Júnior
+# Option Senior for the name suffix dropdown
+option.senior=Sénior
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Ingresa tu nombre.
 validation.lastNameRequired=Ingresa tu apellido.
