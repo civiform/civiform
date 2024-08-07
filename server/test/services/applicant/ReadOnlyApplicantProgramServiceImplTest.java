@@ -1110,13 +1110,15 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         enumeratorPath.atIndex(0).join(repeatedQuestionDefinition.getQuestionPathSegment()),
         "first",
         "middle",
-        "last");
+        "last",
+        "suffix");
     QuestionAnswerer.answerNameQuestion(
         applicantData,
         enumeratorPath.atIndex(1).join(repeatedQuestionDefinition.getQuestionPathSegment()),
         "foo",
         "bar",
-        "baz");
+        "baz",
+        "");
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
@@ -1507,7 +1509,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
-    QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last");
+    QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last", "Suffix");
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 

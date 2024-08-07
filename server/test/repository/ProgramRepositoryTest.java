@@ -309,10 +309,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    ApplicationModel bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    ApplicationModel bobApp =
+        makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe", "Suffix");
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
-    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
 
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
@@ -377,16 +378,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
+    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe", "Suffix")
         .setSubmitterEmail("bobs_ti@example.com")
         .save();
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
-    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
     ApplicantModel chris =
         resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
-    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
+    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person", "Suffix");
 
     ApplicantModel otherApplicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
@@ -522,11 +523,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
       ProgramModel program,
       String firstName,
       String middleName,
-      String lastName) {
+      String lastName,
+      String suffix) {
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
-        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
+        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName, suffix);
     application.setApplicantData(applicantData);
     application.save();
     return application;

@@ -153,6 +153,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant name (suffix)",
             "applicant phone (phone_number)",
             "applicant phone (country_code)",
             "kitchen tools (selections - toaster)",
@@ -260,6 +261,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant name (suffix)",
             "applicant favorite color (text)",
             "Admin Note");
 
@@ -387,14 +389,17 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant name (suffix)",
             "applicant favorite color (text)",
             "applicant monthly income (currency)",
             "applicant household members[0] - household members name (first_name)",
             "applicant household members[0] - household members name (middle_name)",
             "applicant household members[0] - household members name (last_name)",
+            "applicant household members[0] - household members name (suffix)",
             "applicant household members[1] - household members name (first_name)",
             "applicant household members[1] - household members name (middle_name)",
             "applicant household members[1] - household members name (last_name)",
+            "applicant household members[1] - household members name (suffix)",
             "applicant household members[0] - household members jobs[0] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[1] - household"

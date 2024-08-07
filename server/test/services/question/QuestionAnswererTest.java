@@ -60,11 +60,12 @@ public class QuestionAnswererTest {
   @Test
   public void answerNameQuestion() {
     Path path = Path.create("applicant.name");
-    QuestionAnswerer.answerNameQuestion(applicantData, path, "first", "middle", "last");
+    QuestionAnswerer.answerNameQuestion(applicantData, path, "first", "middle", "last", "suffix");
 
     assertThat(applicantData.readString(path.join(Scalar.FIRST_NAME))).contains("first");
     assertThat(applicantData.readString(path.join(Scalar.MIDDLE_NAME))).contains("middle");
     assertThat(applicantData.readString(path.join(Scalar.LAST_NAME))).contains("last");
+    assertThat(applicantData.readString(path.join(Scalar.SUFFIX))).contains("suffix");
   }
 
   @Test

@@ -921,7 +921,7 @@ public class BlockTest {
 
   private static void answerNameQuestion(ApplicantData data, long programId) {
     Path path = Path.create("applicant.applicant_name");
-    QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker");
+    QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker", "Jr.");
     QuestionAnswerer.addMetadata(data, path, programId, 12345L);
   }
 

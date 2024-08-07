@@ -127,8 +127,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
         break;
       case NAME:
-        QuestionAnswerer.answerNameQuestion(applicantDataOne, answerPath, "Alice", "", "Appleton");
-        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker");
+        QuestionAnswerer.answerNameQuestion(
+            applicantDataOne, answerPath, "Alice", "", "Appleton", "");
+        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker", "");
         break;
       case NUMBER:
         QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
@@ -277,7 +278,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Example",
         "",
-        "Five");
+        "Five",
+        "");
 
     applicationFive =
         new ApplicationModel(applicantFive, fakeProgramWithOptionalQuestion, LifecycleStage.ACTIVE);
@@ -320,7 +322,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jen",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantSeven.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -368,7 +371,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -391,7 +395,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -448,7 +453,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -464,13 +470,15 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Anne",
         "",
-        "Anderson");
+        "Anderson",
+        "");
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         hmPath.atIndex(1).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Bailey",
         "",
-        "Bailerson");
+        "Bailerson",
+        "");
     String hmJobPathSegment = hmJobsQuestion.getQuestionDefinition().getQuestionPathSegment();
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantOne.getApplicantData(),
@@ -501,7 +509,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -514,7 +523,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "James",
         "",
-        "Jameson");
+        "Jameson",
+        "");
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantTwo.getApplicantData(),
         hmPath.atIndex(0).join(hmJobPathSegment),
@@ -842,7 +852,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeApplicationFiller answerNameQuestion(String firstName, String middleName, String lastName) {
+    FakeApplicationFiller answerNameQuestion(
+        String firstName, String middleName, String lastName, String suffix) {
       Path answerPath =
           testQuestionBank
               .applicantName()
@@ -850,7 +861,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNameQuestion(
-          applicant.getApplicantData(), answerPath, firstName, middleName, lastName);
+          applicant.getApplicantData(), answerPath, firstName, middleName, lastName, suffix);
       applicant.save();
       return this;
     }

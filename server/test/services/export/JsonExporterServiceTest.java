@@ -771,7 +771,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.applicantName())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNameQuestion("Taylor", "Allison", "Swift")
+        .answerNameQuestion("Taylor", "Allison", "Swift", "Jr.")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -802,7 +802,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.applicantName())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNameQuestion("Taylor", "", "Swift")
+        .answerNameQuestion("Taylor", "", "Swift", "")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
