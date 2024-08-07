@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
@@ -52,7 +53,8 @@ public class AdminImportControllerTest extends ResetPostgres {
             mockSettingsManifest,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
-            instanceOf(QuestionRepository.class));
+            instanceOf(QuestionRepository.class),
+            instanceOf(ApplicationStatusesRepository.class));
     database = DB.getDefault();
   }
 

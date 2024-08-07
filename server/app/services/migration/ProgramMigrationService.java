@@ -100,7 +100,7 @@ public final class ProgramMigrationService {
    * Checks if there is an existing program that matches the admin id of the incoming program. If a
    * match is found, it overwrites the admin id and program name on the incoming program.
    */
-  public ProgramDefinition maybeOverwriteProgramId(ProgramDefinition program) {
+  public ProgramDefinition maybeOverwriteProgramAdminName(ProgramDefinition program) {
     String adminName = program.adminName();
     boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
     if (programExists) {
@@ -120,7 +120,7 @@ public final class ProgramMigrationService {
    * questions. If a match is found, it overwrites the admin id on the config of the incoming
    * question and creates a new question with the udpated config.
    */
-  public ImmutableList<QuestionDefinition> maybeOverwriteQuestionIds(
+  public ImmutableList<QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
     return questions.stream()
         .map(

@@ -129,9 +129,10 @@ public class AdminImportController extends CiviFormController {
     // If the admin id for the program or any of the questions already exists in the import
     // environment, overwrite it with a new admin id
     ProgramDefinition program =
-        programMigrationService.maybeOverwriteProgramId(programMigrationWrapper.getProgram());
+        programMigrationService.maybeOverwriteProgramAdminName(
+            programMigrationWrapper.getProgram());
     ImmutableList<QuestionDefinition> questions =
-        programMigrationService.maybeOverwriteQuestionIds(programMigrationWrapper.getQuestions());
+        programMigrationService.maybeOverwriteQuestionName(programMigrationWrapper.getQuestions());
 
     ErrorAnd<String, String> serializeResult =
         programMigrationService.serialize(program, questions);

@@ -1,6 +1,8 @@
 package services.migration;
 
+import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITHOUT_QUESTIONS;
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
+import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_PREDICATES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,19 +13,62 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.util.Providers;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
+import models.ProgramModel;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
+import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
+import repository.DatabaseExecutionContext;
+import repository.ProgramRepository;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public final class ProgramMigrationServiceTest extends ResetPostgres {
   private final ProgramMigrationService service =
-      new ProgramMigrationService(instanceOf(ObjectMapper.class));
+      new ProgramMigrationService(
+          instanceOf(ObjectMapper.class),
+          instanceOf(QuestionRepository.class),
+          instanceOf(ProgramRepository.class));
+  private ProgramRepository programRepo;
+  private VersionRepository versionRepo;
+  private SyncCacheApi programCache;
+  private SyncCacheApi programDefCache;
+  private SyncCacheApi versionsByProgramCache;
+  private SettingsManifest mockSettingsManifest;
+
+  @Before
+  public void setup() {
+    versionRepo = instanceOf(VersionRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    programCache = instanceOf(SyncCacheApi.class);
+    versionsByProgramCache = instanceOf(SyncCacheApi.class);
+
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
+
+    programRepo =
+        new ProgramRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            Providers.of(versionRepo),
+            mockSettingsManifest,
+            programCache,
+            programDefCache,
+            versionsByProgramCache);
+  }
 
   @Test
   public void serialize_mapperThrowsException_returnsError() throws JsonProcessingException {
@@ -33,7 +78,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     when(badObjectWriter.writeValueAsString(any()))
         .thenThrow(new JsonProcessingException("Test exception!") {});
 
-    ProgramMigrationService badMapperService = new ProgramMigrationService(badObjectMapper);
+    ProgramMigrationService badMapperService =
+        new ProgramMigrationService(
+            badObjectMapper,
+            instanceOf(QuestionRepository.class),
+            instanceOf(ProgramRepository.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
@@ -129,5 +178,54 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(question.getDescription()).isEqualTo("The applicant's name");
     assertThat(question.getQuestionText().getDefault())
         .isEqualTo("Please enter your first and last name");
+  }
+
+  @Test
+  public void maybeOverwriteProgramAdminName_overwritesProgramIdWhenMatchIsFound() {
+    ProgramDefinition program =
+        service.deserialize(PROGRAM_JSON_WITHOUT_QUESTIONS).getResult().getProgram();
+    programRepo.insertProgramSync(new ProgramModel(program, versionRepo.getDraftVersionOrCreate()));
+
+    ProgramDefinition updatedProgramDefinition = service.maybeOverwriteProgramAdminName(program);
+    assertThat(updatedProgramDefinition.adminName()).isEqualTo(program.adminName() + "-1");
+  }
+
+  @Test
+  public void maybeOverwriteProgramAdminName_doesNotOverwriteProgramIdWhenNoMatchIsFound() {
+    ProgramDefinition programOne =
+        service.deserialize(PROGRAM_JSON_WITHOUT_QUESTIONS).getResult().getProgram();
+    programRepo.insertProgramSync(
+        new ProgramModel(programOne, versionRepo.getDraftVersionOrCreate()));
+
+    ProgramDefinition programTwo =
+        service.deserialize(PROGRAM_JSON_WITH_ONE_QUESTION).getResult().getProgram();
+    ProgramDefinition updatedProgramDefinition = service.maybeOverwriteProgramAdminName(programTwo);
+
+    assertThat(updatedProgramDefinition.adminName()).isEqualTo(programTwo.adminName());
+  }
+
+  @Test
+  public void maybeOverwriteQuestionName_onlyOverwritesQuestionNamesIfAMatchIsFound() {
+    ProgramDefinition programOne =
+        service.deserialize(PROGRAM_JSON_WITH_PREDICATES).getResult().getProgram();
+    programRepo.insertProgramSync(
+        new ProgramModel(programOne, versionRepo.getDraftVersionOrCreate()));
+
+    // There are two questions in PROGRAM_JSON_WITH_PREDICATES: "id-test" and "text test"
+    // We want to update the admin name of one of them so we can test that it is not changed by the
+    // method
+    String UPDATED_JSON = PROGRAM_JSON_WITH_PREDICATES.replace("text test", "new text test");
+
+    ImmutableList<QuestionDefinition> questions =
+        service.deserialize(UPDATED_JSON).getResult().getQuestions();
+    ImmutableList<QuestionDefinition> updatedQuestions =
+        service.maybeOverwriteQuestionName(questions);
+
+    // "new-id-test" should have not have been changed
+
+    // we're not seeing these get updated... what's up with that?
+    assertThat(updatedQuestions.get(0).getName()).isEqualTo("id-test-1");
+    // "text test" should have been updated by the method
+    assertThat(updatedQuestions.get(1).getName()).isEqualTo("new text test");
   }
 }
