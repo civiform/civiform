@@ -50,6 +50,7 @@ public enum MessageKey {
       "alert.eligibility_ti_fastforwarded_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
+  ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),

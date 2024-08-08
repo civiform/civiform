@@ -494,9 +494,9 @@ export class ApplicantQuestions {
 
   async expectConfirmationPage(northStarEnabled = false) {
     if (northStarEnabled) {
-      expect(await this.page.innerText('h2')).toContain(
-        'Your submission information',
-      )
+      await expect(
+        this.page.getByText('Your submission information'),
+      ).toBeVisible()
     } else {
       expect(await this.page.innerText('h1')).toContain(
         'Application confirmation',
