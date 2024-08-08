@@ -219,7 +219,7 @@ GET     /programAdmin       controllers.admin.ProgramAdminController.index(reque
 
 # Upsell methods
 GET     /download                   controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
-GET     /considerSignIn             controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
+GET     /considerSignIn             controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String, submitTime: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

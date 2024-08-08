@@ -4,7 +4,12 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+
     <main>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+      ></div>
+
       <div class="grid-container section">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
@@ -12,42 +17,79 @@
               th:replace="~{components/ToastFragment :: upsellToasts}"
               class="margin-1"
             ></div>
-            <h1
-              th:text="#{title.applicationConfirmation}"
-              class="margin-1"
-            ></h1>
-            <p
-              th:text="#{content.confirmed(${programName}, ${applicationId})}"
-              class="cf-application-id margin-1"
-            ></p>
 
-            <div class="margin-1">
-              <span th:text="${customConfirmationMessage}"></span>
-            </div>
+            <!-- TODO(#7683): Add green alert -->
 
-            <div class="margin-1">
-              <a
-                th:if="${!isGuest}"
-                href="/"
-                class="usa-button margin-y-2"
-                id="another-program"
-                th:text="#{link.applyToAnotherProgram}"
-              ></a>
-              <a
-                th:if="${isGuest}"
-                href="#login-dialog-upsell"
-                aria-controls="login-dialog-upsell"
-                class="usa-button margin-y-2"
-                id="another-program"
-                th:text="#{link.applyToAnotherProgram}"
-                data-open-modal
-              ></a>
-              <a
-                th:href="${downloadHref}"
-                class="usa-button margin-y-2"
-                th:text="#{button.downloadPdf}"
-              ></a>
-            </div>
+            <section class="usa-prose">
+              <h2 th:text="#{heading.yourSubmissionInformation}"></h2>
+
+              <!-- We need h4 style for the headings, but accessibility checker
+               doesn't allow skipping from h2 to h4 -->
+              <div class="content">
+                <h3 th:text="#{heading.applicantName}" class="cf-prose-h4"></h3>
+                <p th:text="${applicantName}"></p>
+              </div>
+
+              <div class="content">
+                <h3
+                  th:text="#{heading.confirmationNumber}"
+                  class="cf-prose-h4"
+                ></h3>
+                <p th:text="${applicationId}" class="cf-application-id"></p>
+              </div>
+
+              <div class="content">
+                <h3 th:text="#{heading.dateSubmitted}" class="cf-prose-h4"></h3>
+                <p th:text="${dateSubmitted}" class="cf-bt-date"></p>
+              </div>
+
+              <div class="content">
+                <h4
+                  th:text="#{heading.forYourRecords}"
+                  class="cf-prose-h4"
+                ></h4>
+                <p th:text="#{content.youCanPrint}"></p>
+              </div>
+
+              <div>
+                <a
+                  th:href="${downloadHref}"
+                  class="usa-button"
+                  th:text="#{button.print}"
+                ></a>
+              </div>
+
+              <!-- TODO(#8299): Add "Download PDF" button -->
+
+              <section
+                th:if="${not #strings.isEmpty(customConfirmationMessage)}"
+                class="usa-prose"
+              >
+                <h2 th:text="#{heading.nextSteps}"></h2>
+                <p th:text="${customConfirmationMessage}"></p>
+              </section>
+
+              <!-- TODO(#7683): Add create an account alert -->
+
+              <div>
+                <a
+                  th:if="${isGuest}"
+                  href="#login-dialog-upsell"
+                  aria-controls="login-dialog-upsell"
+                  class="usa-button usa-button--outline margin-y-2"
+                  id="another-program"
+                  th:text="#{button.homePage}"
+                  data-open-modal
+                ></a>
+                <a
+                  th:if="!${isGuest}"
+                  href="/"
+                  class="usa-button usa-button--outline margin-y-2"
+                  id="another-program"
+                  th:text="#{button.homePage}"
+                ></a>
+              </div>
+            </section>
           </div>
         </div>
       </div>

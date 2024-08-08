@@ -254,6 +254,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Apply to another program"')
   }
 
+  async clickBackToHomepageButton() {
+    await this.page.click('text="Back to homepage"')
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -451,10 +455,14 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
-  async returnToProgramsFromSubmissionPage() {
+  async returnToProgramsFromSubmissionPage(northStarEnabled = false) {
     // Assert that we're on the submission page.
-    await this.expectConfirmationPage()
-    await this.clickApplyToAnotherProgramButton()
+    await this.expectConfirmationPage(northStarEnabled)
+    if (northStarEnabled) {
+      await this.clickBackToHomepageButton()
+    } else {
+      await this.clickApplyToAnotherProgramButton()
+    }
 
     // If we are a guest, we will get a prompt to log in before going back to the
     // programs page. Bypass this to continue as a guest.
@@ -484,10 +492,16 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectConfirmationPage() {
-    expect(await this.page.innerText('h1')).toContain(
-      'Application confirmation',
-    )
+  async expectConfirmationPage(northStarEnabled = false) {
+    if (northStarEnabled) {
+      expect(await this.page.innerText('h2')).toContain(
+        'Your submission information',
+      )
+    } else {
+      expect(await this.page.innerText('h1')).toContain(
+        'Application confirmation',
+      )
+    }
   }
 
   async expectCommonIntakeReviewPage() {
