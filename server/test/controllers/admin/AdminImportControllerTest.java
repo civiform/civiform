@@ -18,6 +18,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import models.ProgramModel;
 import models.QuestionModel;
+import models.ApplicationStatusesModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
@@ -32,6 +33,7 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
@@ -40,6 +42,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
   private Database database;
+
 
   @Before
   public void setUp() {
@@ -177,7 +180,51 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_savesTheProgramWithoutQuestions() {
+  public void hxImportProgram_overwritesProgramAndQuestionAdminNamesIfTheyAlreadyExist() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // save the program
+    controller.hxSaveProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    // parse the program for import again
+    Result result = controller.hxImportProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    // no errors
+    assertThat(result.status()).isEqualTo(OK);
+
+    // confirm that program admin name and question admin name have been updated
+    ProgramDefinition programDefinition = database
+        .find(ProgramModel.class)
+        .where()
+        .eq("name", "minimal-sample-program-1") // find program with the updated admin name
+        .findOne()
+        .getProgramDefinition();
+
+    // other information in the program is unchanged
+    assertThat(programDefinition.externalLink()).isEqualTo("https://www.example.com");
+
+    QuestionDefinition questionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Name-1") // find question with the updated admin name
+            .findOne()
+            .getQuestionDefinition();
+    
+    // other information in the question is unchanged
+    assertThat(questionDefinition.getQuestionText().getDefault()).isEqualTo("Please enter your first and last name");
+  }
+
+  @Test
+  public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -201,7 +248,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_savesTheProgramWithQuestions() {
+  public void hxSaveProgram_savesTheProgramWithQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -235,7 +282,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_savesUpdatedEnumeratorIds() {
+  public void hxSaveProgram_savesUpdatedEnumeratorIds() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -267,7 +314,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_savesUpdatedQuestionIdsOnPredicates()
+  public void hxSaveProgram_savesUpdatedQuestionIdsOnPredicates()
       throws ProgramBlockDefinitionNotFoundException {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -318,7 +365,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_discardsPaiTagsOnImportedQuestions() {
+  public void hxSaveProgram_discardsPaiTagsOnImportedQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -342,7 +389,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void saveProgram_preservesUniversalSettingOnImportedQuestions() {
+  public void hxSaveProgram_preservesUniversalSettingOnImportedQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -365,6 +412,26 @@ public class AdminImportControllerTest extends ResetPostgres {
             .getQuestionDefinition();
 
     assertThat(questionDefinition.isUniversal()).isTrue();
+  }
+
+  @Test
+  public void hxSaveProgram_addsAnEmptyStatus() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    StatusDefinitions statusDefinitions = database
+    .find(ApplicationStatusesModel.class)
+    .where()
+    .eq("program_name", "minimal-sample-program")
+    .findOne().getStatusDefinitions();
+
+    assertThat(statusDefinitions.getStatuses()).isEmpty();;
+
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =
