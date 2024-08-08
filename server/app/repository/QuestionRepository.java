@@ -74,6 +74,32 @@ public final class QuestionRepository {
         executionContext);
   }
 
+  public ImmutableList<String> getMatchingAdminNames(ImmutableList<QuestionDefinition> questions) {
+    return questions.stream()
+        .filter(
+            (QuestionDefinition question) -> {
+              return database
+                  .find(QuestionModel.class)
+                  .setLabel("QuestionModel.findByName")
+                  .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestionByName"))
+                  .where()
+                  .eq("name", question.getName())
+                  .exists();
+            })
+        .map(question -> question.getName())
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public boolean checkQuestionNameExists(String name) {
+    return database
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findByName")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestionByName"))
+        .where()
+        .eq("name", name)
+        .exists();
+  }
+
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.

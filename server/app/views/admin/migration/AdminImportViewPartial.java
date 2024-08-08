@@ -8,9 +8,9 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -58,8 +58,13 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(
-      Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
-    ProgramDefinition program = programMigrationWrapper.getProgram();
+      Http.Request request,
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> matchingQuestionAdminNames,
+      String json) {
+
+    String matchingQuestionAdminNamesList = String.join(", ", matchingQuestionAdminNames);
     DivTag programDiv =
         div()
             .withId(PROGRAM_DATA_ID)
@@ -70,18 +75,28 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     /* text= */ "Please review the program name and details before saving.",
                     /* title= */ Optional.empty(),
                     /* hidden= */ false,
-                    /* classes...= */ "mb-2"),
+                    /* classes...= */ "mb-2"))
+            .condWith(
+                !matchingQuestionAdminNames.isEmpty(),
+                AlertComponent.renderFullAlert(
+                    AlertType.WARNING,
+                    "New versions of these questions will be created when you save this program: "
+                        + matchingQuestionAdminNamesList,
+                    Optional.of(
+                        "The following questions have admin names that already exist in this"
+                            + " environment."),
+                    false,
+                    ""))
+            .with(
                 h4("Program name: " + program.localizedName().getDefault()).withClass("mb-2"),
                 h4("Admin name: " + program.adminName()).withClass("mb-2"));
-    // TODO(#7087): If the imported program admin name matches an existing program admin name, we
-    // should show some kind of error because admin names need to be unique.
 
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
     // If there are no questions in the program, the "questions" field will not be included in the
     // JSON and programMigrationWrapper.getQuestions() will return null
-    if (programMigrationWrapper.getQuestions() != null) {
+    if (questions != null) {
       questionsById =
-          programMigrationWrapper.getQuestions().stream()
+          questions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
     }
 
