@@ -32,7 +32,7 @@ public class ApplicantQuestionTest {
   public void getContextualizedScalars_returnsContextualizedScalarsAndMetadataForType() {
     ApplicantQuestion testApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+            testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
 
@@ -53,7 +53,7 @@ public class ApplicantQuestionTest {
   public void getContextualizedScalars_forEnumerationQuestion_throwsInvalidQuestionTypeException() {
     ApplicantQuestion enumerationApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
 
@@ -86,7 +86,7 @@ public class ApplicantQuestionTest {
   public void getsExpectedQuestionType() {
     ApplicantQuestion addressApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantAddress().getQuestionDefinition(),
+            testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(addressApplicantQuestion.createAddressQuestion())
@@ -94,7 +94,7 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion checkboxApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+            testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
@@ -102,7 +102,7 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion dropdownApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantIceCream().getQuestionDefinition(),
+            testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
@@ -110,7 +110,7 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion enumeratorApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
@@ -118,21 +118,21 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantName().getQuestionDefinition(),
+            testQuestionBank.nameApplicantName().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantSeason().getQuestionDefinition(),
+            testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
@@ -140,14 +140,14 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion textApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+            testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
 
     ApplicantQuestion phoneQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantPhone().getQuestionDefinition(),
+            testQuestionBank.phoneApplicantPhone().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
     assertThat(phoneQuestion.createPhoneQuestion()).isInstanceOf(PhoneQuestion.class);
@@ -162,91 +162,91 @@ public class ApplicantQuestionTest {
         .addEqualityGroup(
             // Address
             new ApplicantQuestion(
-                testQuestionBank.applicantAddress().getQuestionDefinition(),
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantAddress().getQuestionDefinition(),
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Address
             new ApplicantQuestion(
-                testQuestionBank.applicantPhone().getQuestionDefinition(),
+                testQuestionBank.phoneApplicantPhone().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantPhone().getQuestionDefinition(),
+                testQuestionBank.phoneApplicantPhone().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Checkbox
             new ApplicantQuestion(
-                testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+                testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+                testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Dropdown
             new ApplicantQuestion(
-                testQuestionBank.applicantIceCream().getQuestionDefinition(),
+                testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantIceCream().getQuestionDefinition(),
+                testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Name
             new ApplicantQuestion(
-                testQuestionBank.applicantName().getQuestionDefinition(),
+                testQuestionBank.nameApplicantName().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantName().getQuestionDefinition(),
+                testQuestionBank.nameApplicantName().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Number
             new ApplicantQuestion(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Radio button
             new ApplicantQuestion(
-                testQuestionBank.applicantSeason().getQuestionDefinition(),
+                testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantSeason().getQuestionDefinition(),
+                testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Text
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(
             // Text with answered data
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
                 Optional.empty()),
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
                 Optional.empty()))
         .testEquals();
@@ -258,7 +258,7 @@ public class ApplicantQuestionTest {
     Path householdMembersPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantHouseholdMembers()
+                .enumeratorApplicantHouseholdMembers()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -268,7 +268,7 @@ public class ApplicantQuestionTest {
             .atIndex(0)
             .join(
                 testQuestionBank
-                    .applicantHouseholdMemberJobs()
+                    .enumeratorNestedApplicantHouseholdMemberJobs()
                     .getQuestionDefinition()
                     .getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -276,7 +276,7 @@ public class ApplicantQuestionTest {
     RepeatedEntity jonathan =
         RepeatedEntity.createRepeatedEntities(
                 (EnumeratorQuestionDefinition)
-                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                    testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
                 Optional.empty(),
                 applicantData)
             .get(0);
@@ -284,14 +284,18 @@ public class ApplicantQuestionTest {
         jonathan
             .createNestedRepeatedEntities(
                 (EnumeratorQuestionDefinition)
-                    testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                    testQuestionBank
+                        .enumeratorNestedApplicantHouseholdMemberJobs()
+                        .getQuestionDefinition(),
                 Optional.empty(),
                 applicantData)
             .get(0);
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition(),
+            testQuestionBank
+                .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+                .getQuestionDefinition(),
             applicantData,
             Optional.of(jonCo));
 
@@ -308,7 +312,7 @@ public class ApplicantQuestionTest {
     ApplicantData applicantData = new ApplicantData();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
             applicantData,
             Optional.empty());
     QuestionAnswerer.addMetadata(
@@ -324,7 +328,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -340,7 +344,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -356,7 +360,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -374,7 +378,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     ApplicantQuestion applicantQuestion =
@@ -392,13 +396,13 @@ public class ApplicantQuestionTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
 
@@ -415,13 +419,13 @@ public class ApplicantQuestionTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId + 1, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
 
@@ -438,13 +442,13 @@ public class ApplicantQuestionTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
 
     ApplicantQuestion applicantQuestion =
@@ -459,7 +463,8 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -475,7 +480,8 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
+            testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+            Optional.of(programId));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(

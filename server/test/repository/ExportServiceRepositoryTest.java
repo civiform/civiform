@@ -32,7 +32,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   @Test
   public void getMultiSelectedHeaders_NoPreviousQuestionVersion() {
     QuestionDefinition questionDefinition =
-        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+        testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
     ImmutableList<String> multiSelectHeaders =
         repo.getAllHistoricMultiOptionAdminNames(questionDefinition);
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
@@ -115,7 +115,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   @Test
   public void getMultiSelectedHeaders_ThrowsExceptionOnWrongQuestionType() {
     QuestionDefinition questionDefinition =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     assertThatThrownBy(() -> repo.getAllHistoricMultiOptionAdminNames(questionDefinition))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("The Question Type is not a multi-option type");

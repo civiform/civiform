@@ -64,7 +64,7 @@ public class PredicateValueTest {
   @Test
   public void toDisplayString_currency() {
     QuestionDefinition currencyDef =
-        testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
+        testQuestionBank.currencyApplicantMonthlyIncome().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(10001);
 
     assertThat(value.value()).isEqualTo("10001");
@@ -74,7 +74,7 @@ public class PredicateValueTest {
   @Test
   public void toDisplayString_currencyPair() {
     QuestionDefinition currencyDef =
-        testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
+        testQuestionBank.currencyApplicantMonthlyIncome().getQuestionDefinition();
     PredicateValue value = PredicateValue.pairOfLongs(10001, 20002);
 
     assertThat(value.value()).isEqualTo("[10001, 20002]");
@@ -83,7 +83,7 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_date() {
-    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
+    QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
 
     assertThat(value.value()).isEqualTo("1609459200000");
@@ -92,7 +92,8 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_listOfLongs() {
-    QuestionDefinition longDef = testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    QuestionDefinition longDef =
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
 
     assertThat(value.value()).isEqualTo("[1, 2, 3]");
@@ -102,7 +103,7 @@ public class PredicateValueTest {
   @Test
   public void toDisplayString_simpleList() {
     QuestionDefinition stringDef =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("kangaroo", "turtle"));
 
     assertThat(value.toDisplayString(stringDef)).isEqualTo("[\"kangaroo\", \"turtle\"]");
@@ -110,7 +111,8 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_multiOptionList() {
-    QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
+    QuestionDefinition multiOption =
+        testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
@@ -120,7 +122,7 @@ public class PredicateValueTest {
   @Test
   public void toDisplayString_multiOptionSingleValue_convertsIdToString() {
     QuestionDefinition multiOption =
-        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+        testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.of("1");
 
@@ -129,7 +131,8 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete() {
-    QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
+    QuestionDefinition multiOption =
+        testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition();
 
     PredicateValue value =
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
@@ -139,7 +142,7 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_pairOfDates() {
-    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
+    QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
 
     LocalDate date1 = LocalDate.of(2024, 5, 1);
     LocalDate date2 = LocalDate.of(2024, 5, 2);
@@ -150,7 +153,7 @@ public class PredicateValueTest {
 
   @Test
   public void toDisplayString_pairOfLongs() {
-    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
+    QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.pairOfLongs(18, 30);
 

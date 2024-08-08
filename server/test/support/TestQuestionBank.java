@@ -76,146 +76,173 @@ public class TestQuestionBank {
    */
   public ImmutableMap<QuestionType, QuestionModel> getSampleQuestionsForAllTypes() {
     return new ImmutableMap.Builder<QuestionType, QuestionModel>()
-        .put(QuestionType.ADDRESS, applicantAddress())
-        .put(QuestionType.CHECKBOX, applicantKitchenTools())
-        .put(QuestionType.CURRENCY, applicantMonthlyIncome())
-        .put(QuestionType.DATE, applicantDate())
-        .put(QuestionType.DROPDOWN, applicantIceCream())
-        .put(QuestionType.EMAIL, applicantEmail())
-        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
-        .put(QuestionType.FILEUPLOAD, applicantFile())
-        .put(QuestionType.ID, applicantId())
-        .put(QuestionType.NAME, applicantName())
-        .put(QuestionType.NUMBER, applicantJugglingNumber())
-        .put(QuestionType.PHONE, applicantPhone())
-        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.ADDRESS, addressApplicantAddress())
+        .put(QuestionType.CHECKBOX, checkboxApplicantKitchenTools())
+        .put(QuestionType.CURRENCY, currencyApplicantMonthlyIncome())
+        .put(QuestionType.DATE, dateApplicantBirthdate())
+        .put(QuestionType.DROPDOWN, dropdownApplicantIceCream())
+        .put(QuestionType.EMAIL, emailApplicantEmail())
+        .put(QuestionType.ENUMERATOR, enumeratorApplicantHouseholdMembers())
+        .put(QuestionType.FILEUPLOAD, fileUploadApplicantFile())
+        .put(QuestionType.ID, IdApplicantId())
+        .put(QuestionType.NAME, nameApplicantName())
+        .put(QuestionType.NUMBER, numberApplicantJugglingNumber())
+        .put(QuestionType.PHONE, phoneApplicantPhone())
+        .put(QuestionType.RADIO_BUTTON, radioApplicantFavoriteSeason())
         .put(QuestionType.STATIC, staticContent())
-        .put(QuestionType.TEXT, applicantFavoriteColor())
+        .put(QuestionType.TEXT, textApplicantFavoriteColor())
         .build();
   }
 
-  public QuestionModel applicantPhone() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_PHONE, this::applicantPhone);
-  }
-
-  // Address
-  public QuestionModel applicantAddress() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
-  }
-
-  // Address
-  public QuestionModel applicantSecondaryAddress() {
+  /** Returns a sample PHONE question. */
+  public QuestionModel phoneApplicantPhone() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_SECONDARY_ADDRESS, this::applicantSecondaryAddress);
+        QuestionEnum.PHONE_APPLICANT_PHONE, this::phoneApplicantPhone);
   }
 
-  // Checkbox
-  public QuestionModel applicantKitchenTools() {
+  /** Returns a sample ADDRESS question. */
+  public QuestionModel addressApplicantAddress() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
+        QuestionEnum.ADDRESS_APPLICANT_ADDRESS, this::addressApplicantAddress);
   }
 
-  // Date
-  public QuestionModel applicantDate() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_BIRTHDATE, this::applicantDate);
-  }
-
-  // Dropdown
-  public QuestionModel applicantIceCream() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
-  }
-
-  // Email
-  public QuestionModel applicantEmail() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_EMAIL, this::applicantEmail);
-  }
-
-  // Enumerator
-  public QuestionModel applicantHouseholdMembers() {
+  /** Returns a sample ADDRESS question for the applicant's secondary address. */
+  public QuestionModel addressApplicantSecondaryAddress() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
+        QuestionEnum.ADDRESS_APPLICANT_SECONDARY_ADDRESS, this::addressAapplicantSecondaryAddress);
   }
 
-  // Nested Enumerator
-  public QuestionModel applicantHouseholdMemberJobs() {
+  /** Returns a sample CHECKBOX question about kitchen tools the applicant owns. */
+  public QuestionModel checkboxApplicantKitchenTools() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOBS, this::applicantHouseholdMemberJobs);
+        QuestionEnum.CHECKBOX_APPLICANT_KITCHEN_TOOLS, this::checkboxApplicantKitchenTools);
   }
 
-  // File upload
-  public QuestionModel applicantFile() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
-  }
-
-  // Currency
-  public QuestionModel applicantMonthlyIncome() {
+  /** Returns a sample DATE question for the applicant's birthday. */
+  public QuestionModel dateApplicantBirthdate() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+        QuestionEnum.DATE_APPLICANT_BIRTHDATE, this::DateApplicantBirthdate);
   }
 
-  // Id
-  public QuestionModel applicantId() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
+  /** Returns a sample DROPDOWN question about the applicant's favorite ice cream flavor. */
+  public QuestionModel dropdownApplicantIceCream() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.DROPDOWN_APPLICANT_ICE_CREAM, this::dropdownApplicantIceCream);
   }
 
-  // Name
-  public QuestionModel applicantName() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
+  /** Returns a sample EMAIL question about the applicant's email. */
+  public QuestionModel emailApplicantEmail() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.EMAIL_APPLICANT_EMAIL, this::emailApplicantEmail);
   }
 
-  // Name
+  /**
+   * Returns a sample ENUMERATOR question listing the applicant's household members.
+   *
+   * <p>This enumerator question is used as the parent of many sample repeated questions.
+   */
+  public QuestionModel enumeratorApplicantHouseholdMembers() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS,
+        this::enumeratorApplicantHouseholdMembers);
+  }
+
+  /**
+   * Returns a nested sample ENUMERATOR question listing the jobs each of the applicant's household
+   * members holds.
+   *
+   * <p>This enumerator is nested under the household members enumerator, and is the parent of many
+   * sample nested repeated questions.
+   */
+  public QuestionModel enumeratorNestedApplicantHouseholdMemberJobs() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.ENUMERATOR_NESTED_APPLICANT_HOUSEHOLD_MEMBER_JOBS,
+        this::enumeratorNestedApplicantHouseholdMemberJobs);
+  }
+
+  /** Returns a sample FILE_UPLOAD question. */
+  public QuestionModel fileUploadApplicantFile() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.FILE_UPLOAD_APPLICANT_FILE, this::fileUploadApplicantFile);
+  }
+
+  /** Returns a sample CURRENCY question about the applicant's monthly income. */
+  public QuestionModel currencyApplicantMonthlyIncome() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.CURRENCY_APPLICANT_MONTHLY_INCOME, this::currencyApplicantMonthlyIncome);
+  }
+
+  /** Returns a sample ID question. */
+  public QuestionModel IdApplicantId() {
+    return questionCache.computeIfAbsent(QuestionEnum.ID_APPLICANT_ID, this::IdApplicantId);
+  }
+
+  /** Returns a sample NAME question. */
+  public QuestionModel nameApplicantName() {
+    return questionCache.computeIfAbsent(QuestionEnum.NAME_APPLICANT_NAME, this::nameApplicantName);
+  }
+
+  /** Returns a sample NULL question. */
   public QuestionModel nullQuestion() {
     return questionCache.computeIfAbsent(QuestionEnum.NULL_QUESTION, this::nullQuestion);
   }
 
-  // Repeated name
-  public QuestionModel applicantHouseholdMemberName() {
+  /** Returns a sample repeated NAME question about the applicant's household members' names. */
+  public QuestionModel nameRepeatedApplicantHouseholdMemberName() {
     // Make sure the next call will have the question ready
-    applicantHouseholdMembers();
+    enumeratorApplicantHouseholdMembers();
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME, this::applicantHouseholdMemberName);
+        QuestionEnum.NAME_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_NAME,
+        this::nameRepeatedApplicantHouseholdMemberName);
   }
 
-  // Repeated test
-  public QuestionModel applicantHouseholdMemberFavoriteShape() {
+  /**
+   * Returns a sample repeated TEXT question about the applicant's household members' favorite
+   * shapes.
+   */
+  public QuestionModel textRepeatedApplicantHouseholdMemberFavoriteShape() {
     // Make sure the next call will have the question ready
-    applicantHouseholdMembers();
+    enumeratorApplicantHouseholdMembers();
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
-        this::applicantHouseholdMemberFavoriteShape);
+        QuestionEnum.TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
+        this::textRepeatedApplicantHouseholdMemberFavoriteShape);
   }
 
-  // Number
-  public QuestionModel applicantJugglingNumber() {
+  /** Returns a sample NUMBER question about the number of items the applicant can juggle. */
+  public QuestionModel numberApplicantJugglingNumber() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
+        QuestionEnum.NUMBER_APPLICANT_JUGGLING_NUMBER, this::numberApplicantJugglingNumber);
   }
 
-  // Deeply nested Number
-  public QuestionModel applicantHouseholdMemberDaysWorked() {
+  /**
+   * Returns a nested repeated sample NUMBER question about the number of days worked at each of the
+   * jobs of each of the applicant's household numbers.
+   */
+  public QuestionModel numberNestedRepeatedApplicantHouseholdMemberDaysWorked() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
-        this::applicantHouseholdMemberDaysWorked);
+        QuestionEnum.NUMBER_NESTED_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
+        this::numberNestedRepeatedApplicantHouseholdMemberDaysWorked);
   }
 
-  // Radio button
-  public QuestionModel applicantSeason() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
-  }
-
-  // Text
-  public QuestionModel applicantFavoriteColor() {
+  /** Returns a sample RADIO question about the applicant's favorite season. */
+  public QuestionModel radioApplicantFavoriteSeason() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_FAVORITE_COLOR, this::applicantFavoriteColor);
+        QuestionEnum.RADIO_APPLICANT_FAVORITE_SEASON, this::radioApplicantFavoriteSeason);
   }
 
-  // Text
+  /** Returns a sample TEXT question about the applicant's favorite color. */
+  public QuestionModel textApplicantFavoriteColor() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.TEXT_APPLICANT_FAVORITE_COLOR, this::textApplicantFavoriteColor);
+  }
+
+  /** Returns a sample STATIC_CONTENT question */
   public QuestionModel staticContent() {
     return questionCache.computeIfAbsent(QuestionEnum.STATIC_CONTENT, this::staticContent);
   }
 
   // Address
-  private QuestionModel applicantAddress(QuestionEnum ignore) {
+  private QuestionModel addressApplicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -227,7 +254,7 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private QuestionModel applicantPhone(QuestionEnum ignore) {
+  private QuestionModel phoneApplicantPhone(QuestionEnum ignore) {
     QuestionDefinition definition =
         new PhoneQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -240,7 +267,7 @@ public class TestQuestionBank {
   }
 
   // Address
-  private QuestionModel applicantSecondaryAddress(QuestionEnum ignore) {
+  private QuestionModel addressAapplicantSecondaryAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -253,7 +280,7 @@ public class TestQuestionBank {
   }
 
   // Checkbox
-  private QuestionModel applicantKitchenTools(QuestionEnum ignore) {
+  private QuestionModel checkboxApplicantKitchenTools(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("kitchen tools")
@@ -277,7 +304,7 @@ public class TestQuestionBank {
   }
 
   // Dropdown
-  private QuestionModel applicantIceCream(QuestionEnum ignore) {
+  private QuestionModel dropdownApplicantIceCream(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("applicant ice cream")
@@ -301,7 +328,7 @@ public class TestQuestionBank {
   }
 
   // Enumerator
-  private QuestionModel applicantHouseholdMembers(QuestionEnum ignore) {
+  private QuestionModel enumeratorApplicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -315,8 +342,8 @@ public class TestQuestionBank {
   }
 
   // Nested Enumerator
-  private QuestionModel applicantHouseholdMemberJobs(QuestionEnum ignore) {
-    QuestionModel householdMembers = applicantHouseholdMembers();
+  private QuestionModel enumeratorNestedApplicantHouseholdMemberJobs(QuestionEnum ignore) {
+    QuestionModel householdMembers = enumeratorApplicantHouseholdMembers();
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -331,7 +358,7 @@ public class TestQuestionBank {
   }
 
   // File upload
-  private QuestionModel applicantFile(QuestionEnum ignore) {
+  private QuestionModel fileUploadApplicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -345,7 +372,7 @@ public class TestQuestionBank {
   }
 
   // Currency
-  private QuestionModel applicantMonthlyIncome(QuestionEnum ignore) {
+  private QuestionModel currencyApplicantMonthlyIncome(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CurrencyQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -358,7 +385,7 @@ public class TestQuestionBank {
   }
 
   // Id
-  private QuestionModel applicantId(QuestionEnum ignore) {
+  private QuestionModel IdApplicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
         new IdQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -371,7 +398,7 @@ public class TestQuestionBank {
   }
 
   // Name
-  private QuestionModel applicantName(QuestionEnum ignore) {
+  private QuestionModel nameApplicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -389,8 +416,8 @@ public class TestQuestionBank {
   }
 
   // Repeated name
-  private QuestionModel applicantHouseholdMemberName(QuestionEnum ignore) {
-    QuestionModel householdMembers = applicantHouseholdMembers();
+  private QuestionModel nameRepeatedApplicantHouseholdMemberName(QuestionEnum ignore) {
+    QuestionModel householdMembers = enumeratorApplicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -406,8 +433,8 @@ public class TestQuestionBank {
   }
 
   // Repeated text
-  private QuestionModel applicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
-    QuestionModel householdMembers = applicantHouseholdMembers();
+  private QuestionModel textRepeatedApplicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
+    QuestionModel householdMembers = enumeratorApplicantHouseholdMembers();
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -421,7 +448,7 @@ public class TestQuestionBank {
   }
 
   // Number
-  private QuestionModel applicantJugglingNumber(QuestionEnum ignore) {
+  private QuestionModel numberApplicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -435,7 +462,7 @@ public class TestQuestionBank {
   }
 
   // Date
-  private QuestionModel applicantDate(QuestionEnum ignore) {
+  private QuestionModel DateApplicantBirthdate(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DateQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -448,7 +475,7 @@ public class TestQuestionBank {
   }
 
   // Email
-  private QuestionModel applicantEmail(QuestionEnum ignore) {
+  private QuestionModel emailApplicantEmail(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EmailQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -461,8 +488,9 @@ public class TestQuestionBank {
   }
 
   // Deeply Nested Number
-  private QuestionModel applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
-    QuestionModel householdMemberJobs = applicantHouseholdMemberJobs();
+  private QuestionModel numberNestedRepeatedApplicantHouseholdMemberDaysWorked(
+      QuestionEnum ignore) {
+    QuestionModel householdMemberJobs = enumeratorNestedApplicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -481,7 +509,7 @@ public class TestQuestionBank {
   }
 
   // Radio button
-  private QuestionModel applicantSeason(QuestionEnum ignore) {
+  private QuestionModel radioApplicantFavoriteSeason(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("applicant favorite season")
@@ -515,7 +543,7 @@ public class TestQuestionBank {
   }
 
   // Text
-  private QuestionModel applicantFavoriteColor(QuestionEnum ignore) {
+  private QuestionModel textApplicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -568,26 +596,26 @@ public class TestQuestionBank {
   }
 
   private enum QuestionEnum {
-    APPLICANT_ADDRESS,
-    APPLICANT_SECONDARY_ADDRESS,
-    APPLICANT_FAVORITE_COLOR,
-    APPLICANT_FILE,
-    APPLICANT_ID,
-    APPLICANT_HOUSEHOLD_MEMBERS,
-    APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
-    APPLICANT_HOUSEHOLD_MEMBER_NAME,
-    APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
-    APPLICANT_HOUSEHOLD_MEMBER_JOBS,
-    APPLICANT_MONTHLY_INCOME,
-    APPLICANT_ICE_CREAM,
-    APPLICANT_JUGGLING_NUMBER,
-    APPLICANT_KITCHEN_TOOLS,
-    APPLICANT_NAME,
-    APPLICANT_BIRTHDATE,
-    APPLICANT_SEASON,
-    APPLICANT_EMAIL,
+    ADDRESS_APPLICANT_ADDRESS,
+    ADDRESS_APPLICANT_SECONDARY_ADDRESS,
+    CHECKBOX_APPLICANT_KITCHEN_TOOLS,
+    CURRENCY_APPLICANT_MONTHLY_INCOME,
+    DATE_APPLICANT_BIRTHDATE,
+    DROPDOWN_APPLICANT_ICE_CREAM,
+    EMAIL_APPLICANT_EMAIL,
+    ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS,
+    ENUMERATOR_NESTED_APPLICANT_HOUSEHOLD_MEMBER_JOBS,
+    FILE_UPLOAD_APPLICANT_FILE,
+    ID_APPLICANT_ID,
+    NAME_APPLICANT_NAME,
+    NAME_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    NULL_QUESTION,
+    NUMBER_APPLICANT_JUGGLING_NUMBER,
+    NUMBER_NESTED_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
+    PHONE_APPLICANT_PHONE,
+    RADIO_APPLICANT_FAVORITE_SEASON,
     STATIC_CONTENT,
-    APPLICANT_PHONE,
-    NULL_QUESTION
+    TEXT_APPLICANT_FAVORITE_COLOR,
+    TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE
   }
 }

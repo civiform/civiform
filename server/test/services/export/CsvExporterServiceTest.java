@@ -70,7 +70,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     createFakeQuestions();
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.applicantKitchenTools())
+            .withQuestion(testQuestionBank.checkboxApplicantKitchenTools())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
         .answerCheckboxQuestion(
@@ -85,7 +85,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
         QuestionOption.create(4L, 4L, "stand_mixer", LocalizedStrings.of(Locale.US, "stand_mixer"));
     MultiOptionQuestionDefinition questionDefinition =
         (MultiOptionQuestionDefinition)
-            testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+            testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
     ImmutableList<QuestionOption> currentOptions = questionDefinition.getOptions();
     ImmutableList<QuestionOption> newOptionList =
         ImmutableList.<QuestionOption>builder().addAll(currentOptions).add(newOption).build();
@@ -178,7 +178,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
-        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
+        getApplicantQuestion(testQuestionBank.nameApplicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
@@ -264,7 +264,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
-        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
+        getApplicantQuestion(testQuestionBank.nameApplicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());

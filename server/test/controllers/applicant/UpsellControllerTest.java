@@ -64,7 +64,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   @Test
   public void
       considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
-    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -122,7 +122,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void considerRegister_redirectsToUpsellViewForCommonIntakeWithRecommendedPrograms() {
-    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(
