@@ -241,6 +241,7 @@ public final class AccountRepository {
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
     return database
         .find(TrustedIntermediaryGroupModel.class)
+        .orderBy("name asc")
         .setLabel("TrustedIntermediaryGroup.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"))
         .findList();
