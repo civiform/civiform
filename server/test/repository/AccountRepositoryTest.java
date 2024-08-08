@@ -428,10 +428,11 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void listTrustedIntermediaryGroups_test() {
-    repo.createNewTrustedIntermediaryGroup("bbc", "something");
-    repo.createNewTrustedIntermediaryGroup("abc", "something");
-    repo.createNewTrustedIntermediaryGroup("zbc", "something");
-    repo.createNewTrustedIntermediaryGroup("cbc", "something");
+    String dummyDesc = "something";
+    repo.createNewTrustedIntermediaryGroup("bbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("abc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("zbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("cbc", dummyDesc);
 
     List<TrustedIntermediaryGroupModel> tiGroups = repo.listTrustedIntermediaryGroups();
 
