@@ -86,7 +86,7 @@ public class NameQuestionTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({",,", ",Middle Name,", "Wendel,,", ",,Patrick", "Suffix"})
+  @Parameters({",,,", ",Middle Name,,", "Wendel,,,", ",,Patrick,"})
   public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
