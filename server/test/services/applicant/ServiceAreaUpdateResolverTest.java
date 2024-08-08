@@ -43,9 +43,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     applicantData = new ApplicantData();
     pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
-    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -131,9 +132,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     ApplicantData applicantData = new ApplicantData();
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
+            testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+            Optional.of(programId));
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -177,10 +179,11 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     ApplicantData applicantData = new ApplicantData();
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(

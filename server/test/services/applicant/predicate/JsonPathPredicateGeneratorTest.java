@@ -40,10 +40,10 @@ public class JsonPathPredicateGeneratorTest {
 
   @Before
   public void setupGenerator() {
-    question = questionBank.applicantAddress().getQuestionDefinition();
-    dateQuestion = questionBank.applicantDate().getQuestionDefinition();
-    numberQuestion = questionBank.applicantJugglingNumber().getQuestionDefinition();
-    currencyQuestion = questionBank.applicantIceCream().getQuestionDefinition();
+    question = questionBank.addressApplicantAddress().getQuestionDefinition();
+    dateQuestion = questionBank.dateApplicantBirthdate().getQuestionDefinition();
+    numberQuestion = questionBank.numberApplicantJugglingNumber().getQuestionDefinition();
+    currencyQuestion = questionBank.dropdownApplicantIceCream().getQuestionDefinition();
     generator =
         new JsonPathPredicateGenerator(
             new DateConverter(clock),
@@ -319,10 +319,10 @@ public class JsonPathPredicateGeneratorTest {
     ApplicantData applicantData = new ApplicantData();
     EnumeratorQuestionDefinition enumerator =
         (EnumeratorQuestionDefinition)
-            questionBank.applicantHouseholdMembers().getQuestionDefinition();
+            questionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedQuestion =
         new QuestionDefinitionBuilder(
-                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+                questionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition())
             .setEnumeratorId(Optional.of(enumerator.getId()))
             .build();
 
@@ -363,10 +363,10 @@ public class JsonPathPredicateGeneratorTest {
     ApplicantData applicantData = new ApplicantData();
     EnumeratorQuestionDefinition enumerator =
         (EnumeratorQuestionDefinition)
-            questionBank.applicantHouseholdMembers().getQuestionDefinition();
+            questionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition siblingQuestion =
         new QuestionDefinitionBuilder(
-                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+                questionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition())
             .setEnumeratorId(Optional.of(enumerator.getId()))
             .build();
 
@@ -408,13 +408,15 @@ public class JsonPathPredicateGeneratorTest {
     //  \_ name (target), jobs
     //                      \_ days worked (current block)
     QuestionDefinition topLevelEnumerator =
-        questionBank.applicantHouseholdMembers().getQuestionDefinition();
+        questionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition targetQuestion =
-        questionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        questionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     QuestionDefinition nestedEnumerator =
-        questionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+        questionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition currentQuestion =
-        questionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
+        questionBank
+            .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+            .getQuestionDefinition();
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
@@ -467,14 +469,14 @@ public class JsonPathPredicateGeneratorTest {
       throws Exception {
     ApplicantData applicantData = new ApplicantData();
     QuestionDefinition topLevelEnumerator =
-        questionBank.applicantHouseholdMembers().getQuestionDefinition();
+        questionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition targetQuestion =
         new QuestionDefinitionBuilder(
-                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+                questionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition())
             .setEnumeratorId(Optional.of(12345L))
             .build();
     QuestionDefinition currentQuestion =
-        questionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+        questionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition();
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =

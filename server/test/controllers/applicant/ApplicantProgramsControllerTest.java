@@ -346,7 +346,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Result result =
@@ -366,13 +366,13 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
-        testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank().textApplicantFavoriteColor().getQuestionDefinition();
     ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     // Answer the color question
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");

@@ -32,8 +32,8 @@ public class ProgramBaseViewTest {
   private SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
   private ImmutableList<QuestionDefinition> questionDefinitions =
       ImmutableList.of(
-          testQuestionBank.applicantDate().getQuestionDefinition(),
-          testQuestionBank.applicantEmail().getQuestionDefinition());
+          testQuestionBank.dateApplicantBirthdate().getQuestionDefinition(),
+          testQuestionBank.emailApplicantEmail().getQuestionDefinition());
 
   @Test
   public void renderExistingPredicate_singleQuestion() {
@@ -41,7 +41,7 @@ public class ProgramBaseViewTest {
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.builder()
-                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
                     .setScalar(Scalar.DATE)
                     .setOperator(Operator.EQUAL_TO)
                     .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
@@ -70,7 +70,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -78,7 +79,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(PredicateValue.of("test@example.com"))
@@ -108,7 +110,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -116,7 +119,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(PredicateValue.of("test@example.com"))
@@ -126,7 +130,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -134,7 +139,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(

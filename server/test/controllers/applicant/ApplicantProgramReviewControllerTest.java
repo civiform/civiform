@@ -47,7 +47,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
     applicantWithoutProfile = createApplicant();
@@ -73,7 +73,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Result result = this.review(applicant.id, draftProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -87,7 +87,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Result result = this.review(applicant.id, draftProgram.id);
     assertThat(result.status()).isEqualTo(OK);
@@ -133,7 +133,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Result result = this.submit(applicant.id, draftProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -147,12 +147,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     ProgramBuilder.newActiveProgram("test program", "desc")
         .withBlock()
-        .withRequiredQuestion(testQuestionBank().applicantName())
+        .withRequiredQuestion(testQuestionBank().nameApplicantName())
         .buildDefinition();
     ProgramDefinition draftProgramDefinition =
         ProgramBuilder.newDraftProgram("test program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
     answer(draftProgramDefinition.id());
 
@@ -181,7 +181,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -208,7 +208,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
     ProgramModel newProgramModel =
         resourceCreator().insertDraftProgram(programDefinition.adminName());
@@ -258,7 +258,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
     ProgramModel newProgramModel =
         resourceCreator().insertDraftProgram(programDefinition.adminName());
@@ -304,7 +304,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
@@ -329,7 +329,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     // The questions haven't been answered.
     Result result = this.submit(applicant.id, activeProgram.id);
@@ -344,7 +344,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();

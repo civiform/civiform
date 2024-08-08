@@ -75,7 +75,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithFile_asAdmin_singleFile()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -127,7 +127,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithFile_asAdmin()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -184,7 +184,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent_singleFile()
           throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -232,7 +232,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
           throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -285,7 +285,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithoutFile()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 

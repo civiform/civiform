@@ -202,7 +202,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   public void getMetadata_forEnumeratorQuestion() {
     ApplicantData applicantData = new ApplicantData();
     QuestionDefinition enumeratorQuestionDefinition =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
     applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.UPDATED_AT), 123L);
