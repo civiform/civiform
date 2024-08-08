@@ -411,6 +411,22 @@ content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la pági
 content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Your submission information
+# Text above the name of the person who submitted this application
+heading.applicantName=Who submitted this application
+# Text above the confirmation number of the application
+heading.confirmationNumber=Confirmation number
+# Text above the date submitted of the application
+heading.dateSubmitted=Date submitted
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmation for your records
+# Text above a button to print this page
+content.youCanPrint=You can print this confirmation for your records.
+# Button to print this webpage
+button.print=Print this page
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=What are my next steps?
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
