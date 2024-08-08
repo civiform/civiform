@@ -401,7 +401,12 @@ public interface QuestionJsonSampler<Q extends Question> {
     @Override
     public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerNameQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "Homer", "Jay", "Simpson");
+          applicantData,
+          applicantQuestion.getContextualizedPath(),
+          "Homer",
+          "Jay",
+          "Simpson",
+          "Jr.");
     }
 
     @Override

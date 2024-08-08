@@ -57,17 +57,23 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
+    assertThat(nameQuestion.getSuffixValue()).isEmpty();
     assertThat(nameQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
-  @Parameters({"Wendel,Middle Name,Patric", "Wendel,,Patrick"})
+  @Parameters({"Wendel,Middle Name,Patric,Suffix", "Wendel,,Patrick,"})
   public void withValidApplicantData_passesValidation(
-      String firstName, String middleName, String lastName) {
+      String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        firstName,
+        middleName,
+        lastName,
+        suffix);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
@@ -80,13 +86,18 @@ public class NameQuestionTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({",,", ",Middle Name,", "Wendel,,", ",,Patrick"})
+  @Parameters({",,,", ",Middle Name,,", "Wendel,,,", ",,Patrick,"})
   public void withInvalidApplicantData_failsValidation(
-      String firstName, String middleName, String lastName) {
+      String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        firstName,
+        middleName,
+        lastName,
+        suffix);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
