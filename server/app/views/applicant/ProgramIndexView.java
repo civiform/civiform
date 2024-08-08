@@ -17,6 +17,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -71,6 +72,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
+      List<String> selectedCategoriesFromParams,
       Optional<ToastMessage> bannerMessage,
       CiviFormProfile profile) {
     HtmlBundle bundle = layout.getBundle(request);
