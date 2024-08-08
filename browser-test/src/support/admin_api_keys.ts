@@ -90,7 +90,7 @@ export class AdminApiKeys {
           `#${keyNameSlugified}-call-count`,
           {timeout: 100},
         )
-      } catch (e) {
+      } catch {
         console.log(`failed to find #${keyNameSlugified}-call-count`)
       }
 
@@ -118,7 +118,7 @@ export class AdminApiKeys {
           `#${keyNameSlugified}-last-call-ip`,
           {timeout: 100},
         )
-      } catch (e) {
+      } catch {
         console.log(`failed to find #${keyNameSlugified}-last-call-ip`)
       }
 
@@ -133,8 +133,13 @@ export class AdminApiKeys {
 
   async retireApiKey(keyNameSlugified: string) {
     await this.gotoApiKeyIndexPage()
-    this.page.on('dialog', (dialog) => void dialog.accept())
+    let isDialogHandled = false
+    this.page.on('dialog', (dialog) => {
+      void dialog.accept()
+      isDialogHandled = true
+    })
     await this.page.click(`#retire-${keyNameSlugified} button`)
+    expect(isDialogHandled).toBe(true)
   }
 
   async expectApiKeyIsActive(keyName: string) {
