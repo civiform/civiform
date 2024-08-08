@@ -11,8 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
-import java.util.Locale;
-import repository.ProgramRepository;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
@@ -40,13 +38,9 @@ import services.question.types.TextQuestionDefinition;
 public final class ProgramMigrationService {
   private final ObjectMapper objectMapper;
   private final QuestionRepository questionRepository;
-  private final ProgramRepository programRepository;
 
   @Inject
-  public ProgramMigrationService(
-      ObjectMapper objectMapper,
-      QuestionRepository questionRepository,
-      ProgramRepository programRepository) {
+  public ProgramMigrationService(ObjectMapper objectMapper, QuestionRepository questionRepository) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
         checkNotNull(objectMapper)
@@ -54,7 +48,6 @@ public final class ProgramMigrationService {
             .registerModule(new Jdk8Module())
             .configure(Feature.INCLUDE_SOURCE_IN_LOCATION, true);
     this.questionRepository = checkNotNull(questionRepository);
-    this.programRepository = checkNotNull(programRepository);
   }
 
   /**
@@ -94,25 +87,6 @@ public final class ProgramMigrationService {
       return ErrorAnd.error(
           ImmutableSet.of(String.format("JSON is incorrectly formatted: %s", e.getMessage())));
     }
-  }
-
-  /**
-   * Checks if there is an existing program that matches the admin id of the incoming program. If a
-   * match is found, it overwrites the admin id and program name on the incoming program.
-   */
-  public ProgramDefinition maybeOverwriteProgramAdminName(ProgramDefinition program) {
-    String adminName = program.adminName();
-    boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
-    if (programExists) {
-      String newAdminName = adminName + "-1";
-      String newProgramName = program.localizedName().getDefault() + "-1";
-      return program.toBuilder()
-          .setAdminName(newAdminName)
-          .setLocalizedName(
-              program.localizedName().updateTranslation(Locale.getDefault(), newProgramName))
-          .build();
-    }
-    return program;
   }
 
   /**

@@ -1,6 +1,5 @@
 package services.migration;
 
-import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITHOUT_QUESTIONS;
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_PREDICATES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
-import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -154,30 +152,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(question.getDescription()).isEqualTo("The applicant's name");
     assertThat(question.getQuestionText().getDefault())
         .isEqualTo("Please enter your first and last name");
-  }
-
-  @Test
-  public void maybeOverwriteProgramAdminName_overwritesProgramIdWhenMatchIsFound() {
-    ProgramDefinition program =
-        service.deserialize(PROGRAM_JSON_WITHOUT_QUESTIONS).getResult().getProgram();
-    programRepo.insertProgramSync(new ProgramModel(program, versionRepo.getDraftVersionOrCreate()));
-
-    ProgramDefinition updatedProgramDefinition = service.maybeOverwriteProgramAdminName(program);
-    assertThat(updatedProgramDefinition.adminName()).isEqualTo(program.adminName() + "-1");
-  }
-
-  @Test
-  public void maybeOverwriteProgramAdminName_doesNotOverwriteProgramIdWhenNoMatchIsFound() {
-    ProgramDefinition programOne =
-        service.deserialize(PROGRAM_JSON_WITHOUT_QUESTIONS).getResult().getProgram();
-    programRepo.insertProgramSync(
-        new ProgramModel(programOne, versionRepo.getDraftVersionOrCreate()));
-
-    ProgramDefinition programTwo =
-        service.deserialize(PROGRAM_JSON_WITH_ONE_QUESTION).getResult().getProgram();
-    ProgramDefinition updatedProgramDefinition = service.maybeOverwriteProgramAdminName(programTwo);
-
-    assertThat(updatedProgramDefinition.adminName()).isEqualTo(programTwo.adminName());
   }
 
   @Test

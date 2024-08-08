@@ -126,13 +126,31 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
 
-    // If the admin id for the program or any of the questions already exists in the import
-    // environment, overwrite it with a new admin id
-    ProgramDefinition program =
-        programMigrationService.maybeOverwriteProgramAdminName(
-            programMigrationWrapper.getProgram());
-    ImmutableList<QuestionDefinition> questions =
-        programMigrationService.maybeOverwriteQuestionName(programMigrationWrapper.getQuestions());
+    ProgramDefinition program = programMigrationWrapper.getProgram();
+    ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
+
+    // Prevent admin from importing a program that already exists in the import environment
+    String adminName = program.adminName();
+    boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
+    if (programExists) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "Program already exists",
+                  "A program with the admin name "
+                      + adminName
+                      + " already exists. Please try again.")
+              .render());
+    }
+
+    // Get the admin names of any incoming questions that already exist in the import environment so
+    // we can warn the user that new versions of these questions will be created
+    ImmutableList<String> matchingQuestionAdminNames =
+        questionRepository.getMatchingAdminNames(questions);
+
+    // Overwrite the admin names for any questions that already exist in the import environment so
+    // we can create new versions of the questions
+    questions = programMigrationService.maybeOverwriteQuestionName(questions);
 
     ErrorAnd<String, String> serializeResult =
         programMigrationService.serialize(program, questions);
@@ -142,7 +160,12 @@ public class AdminImportController extends CiviFormController {
 
     return ok(
         adminImportViewPartial
-            .renderProgramData(request, program, questions, serializeResult.getResult())
+            .renderProgramData(
+                request,
+                program,
+                questions,
+                matchingQuestionAdminNames,
+                serializeResult.getResult())
             .render());
   }
 
