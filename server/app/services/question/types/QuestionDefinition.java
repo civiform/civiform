@@ -389,15 +389,6 @@ public abstract class QuestionDefinition {
     return this.idEquals(other) && this.equalsIgnoreId(other);
   }
 
-  public QuestionDefinitionConfig overwriteQuestionName(
-      String newName, LocalizedStrings questionText) {
-    return this.config.toBuilder()
-        .setName(newName)
-        .setDescription(config.description())
-        .setQuestionText(questionText)
-        .build();
-  }
-
   private boolean idEquals(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;

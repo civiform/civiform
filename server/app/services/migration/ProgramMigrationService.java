@@ -14,22 +14,9 @@ import controllers.admin.ProgramMigrationWrapper;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.DateQuestionDefinition;
-import services.question.types.EmailQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.IdQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.PhoneQuestionDefinition;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 /**
  * A service responsible for helping admins migrate program definitions between different
@@ -101,65 +88,12 @@ public final class ProgramMigrationService {
             (QuestionDefinition question) -> {
               boolean questionExists =
                   questionRepository.checkQuestionNameExists(question.getName());
-
               if (questionExists) {
                 String newAdminName = question.getName() + "-1";
-                QuestionDefinitionConfig newConfig =
-                    question.overwriteQuestionName(newAdminName, question.getQuestionText());
-
-                switch (question.getQuestionType()) {
-                  case ADDRESS:
-                    return new AddressQuestionDefinition(newConfig);
-                  case CHECKBOX:
-                    MultiOptionQuestionDefinition multiOptionCheckboxQuestion =
-                        (MultiOptionQuestionDefinition) question;
-                    return new MultiOptionQuestionDefinition(
-                        newConfig,
-                        multiOptionCheckboxQuestion.getOptions(),
-                        MultiOptionQuestionType.CHECKBOX);
-                  case DROPDOWN:
-                    MultiOptionQuestionDefinition multiOptionDropdownQuestion =
-                        (MultiOptionQuestionDefinition) question;
-                    return new MultiOptionQuestionDefinition(
-                        newConfig,
-                        multiOptionDropdownQuestion.getOptions(),
-                        MultiOptionQuestionType.DROPDOWN);
-                  case RADIO_BUTTON:
-                    MultiOptionQuestionDefinition multiOptionRadioQuestion =
-                        (MultiOptionQuestionDefinition) question;
-                    return new MultiOptionQuestionDefinition(
-                        newConfig,
-                        multiOptionRadioQuestion.getOptions(),
-                        MultiOptionQuestionType.RADIO_BUTTON);
-                  case CURRENCY:
-                    return new CurrencyQuestionDefinition(newConfig);
-                  case DATE:
-                    return new DateQuestionDefinition(newConfig);
-                  case EMAIL:
-                    return new EmailQuestionDefinition(newConfig);
-                  case ENUMERATOR:
-                    EnumeratorQuestionDefinition enumeratorQuestion =
-                        (EnumeratorQuestionDefinition) question;
-                    return new EnumeratorQuestionDefinition(
-                        newConfig, enumeratorQuestion.getEntityType());
-                  case FILEUPLOAD:
-                    return new FileUploadQuestionDefinition(newConfig);
-                  case ID:
-                    return new IdQuestionDefinition(newConfig);
-                  case NAME:
-                    return new NameQuestionDefinition(newConfig);
-                  case NUMBER:
-                    return new NumberQuestionDefinition(newConfig);
-                  case PHONE:
-                    return new PhoneQuestionDefinition(newConfig);
-                  case STATIC:
-                    return new StaticContentQuestionDefinition(newConfig);
-                  case TEXT:
-                    return new TextQuestionDefinition(newConfig);
-                  case NULL_QUESTION: // fallthrough intended
-                  default:
-                    throw new RuntimeException(
-                        String.format("Unknown QuestionType %s", question.getQuestionType()));
+                try {
+                  return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
+                } catch (UnsupportedQuestionTypeException error) {
+                  throw new RuntimeException(error);
                 }
               } else {
                 return question;

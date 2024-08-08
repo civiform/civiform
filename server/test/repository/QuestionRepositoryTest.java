@@ -434,9 +434,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .build();
     QuestionDefinition dateQuestion =
         new QuestionDefinitionBuilder()
-            .setName(
-                "applicant birth date - newres") // different admin name than the saved date
-                                                 // question
+            .setName("applicant birth date - newres") // different admin name than the saved date
+            // question
             .setDescription("description")
             .setQuestionType(QuestionType.DATE)
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
