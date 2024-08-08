@@ -25,13 +25,13 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .withBlock("Screen 2")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
-            .withRequiredQuestion(testQuestionBank.applicantIceCream())
-            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .withRequiredQuestion(testQuestionBank.dropdownApplicantIceCream())
+            .withRequiredQuestion(testQuestionBank.checkboxApplicantKitchenTools())
             .withBlock("Screen 3")
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
   }
 

@@ -257,7 +257,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgramWithOptionalQuestion(QuestionModel optionalQuestion) {
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
 
     ProgramModel fakeProgramWithOptionalQuestion =
         ProgramBuilder.newActiveProgram()
@@ -293,8 +293,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * applications have submission times one month apart starting on 2023-01-01.
    */
   protected void createFakeProgramWithVisibilityPredicate() {
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
-    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
@@ -340,8 +340,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEligibilityPredicate() {
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
-    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
@@ -418,13 +418,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
-    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
-    QuestionModel monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
-    QuestionModel householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
-    QuestionModel hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
-    QuestionModel hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
-    QuestionModel hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
+    QuestionModel monthlyIncomeQuestion = testQuestionBank.currencyApplicantMonthlyIncome();
+    QuestionModel householdMembersQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionModel hmNameQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
+    QuestionModel hmJobsQuestion = testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs();
+    QuestionModel hmNumberDaysWorksQuestion =
+        testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked();
     fakeProgramWithEnumerator =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
@@ -619,8 +620,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
      * @return the fake {@link ProgramBuilder}
      */
     FakeProgramBuilder withDateQuestionWithVisibilityPredicateOnTextQuestion() {
-      QuestionModel dateQuestion = testQuestionBank.applicantDate();
-      QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+      QuestionModel dateQuestion = testQuestionBank.dateApplicantBirthdate();
+      QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
       PredicateDefinition colorPredicate =
           PredicateDefinition.create(
@@ -654,20 +655,23 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
         fakeProgramBuilder
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .withRequiredQuestion(
+                testQuestionBank.textRepeatedApplicantHouseholdMemberFavoriteShape())
             .withAnotherRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
+            .withRequiredQuestion(
+                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
             .build();
       } else if (addEnumeratorQuestion) {
         fakeProgramBuilder
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .withRequiredQuestion(
+                testQuestionBank.textRepeatedApplicantHouseholdMemberFavoriteShape())
             .build();
       }
 
@@ -708,7 +712,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         String street, String line2, String city, String state, String zip) {
       Path answerPath =
           testQuestionBank
-              .applicantAddress()
+              .addressApplicantAddress()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -731,7 +735,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         String serviceArea) {
       Path answerPath =
           testQuestionBank
-              .applicantAddress()
+              .addressApplicantAddress()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -755,7 +759,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
       Path answerPath =
           testQuestionBank
-              .applicantKitchenTools()
+              .checkboxApplicantKitchenTools()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -770,7 +774,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerCurrencyQuestion(String answer) {
       Path answerPath =
           testQuestionBank
-              .applicantMonthlyIncome()
+              .currencyApplicantMonthlyIncome()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -782,7 +786,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerDateQuestion(String answer) {
       Path answerPath =
           testQuestionBank
-              .applicantDate()
+              .dateApplicantBirthdate()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -794,7 +798,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerDropdownQuestion(Long optionId) {
       Path answerPath =
           testQuestionBank
-              .applicantIceCream()
+              .dropdownApplicantIceCream()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -807,7 +811,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerEmailQuestion(String answer) {
       Path answerPath =
           testQuestionBank
-              .applicantEmail()
+              .emailApplicantEmail()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -819,7 +823,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerFileUploadQuestion(String fileKey) {
       Path answerPath =
           testQuestionBank
-              .applicantFile()
+              .fileUploadApplicantFile()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -832,7 +836,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerIdQuestion(String answer) {
       Path answerPath =
           testQuestionBank
-              .applicantId()
+              .IdApplicantId()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -845,7 +849,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerNameQuestion(String firstName, String middleName, String lastName) {
       Path answerPath =
           testQuestionBank
-              .applicantName()
+              .nameApplicantName()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -858,7 +862,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerNumberQuestion(long answer) {
       Path answerPath =
           testQuestionBank
-              .applicantJugglingNumber()
+              .numberApplicantJugglingNumber()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -870,7 +874,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
       Path answerPath =
           testQuestionBank
-              .applicantPhone()
+              .phoneApplicantPhone()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -883,7 +887,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
       Path answerPath =
           testQuestionBank
-              .applicantSeason()
+              .radioApplicantFavoriteSeason()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -896,7 +900,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerTextQuestion(String answer) {
       Path answerPath =
           testQuestionBank
-              .applicantFavoriteColor()
+              .textApplicantFavoriteColor()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -908,7 +912,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
       Path answerPath =
           testQuestionBank
-              .applicantHouseholdMembers()
+              .enumeratorApplicantHouseholdMembers()
               .getQuestionDefinition()
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
@@ -923,7 +927,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
               (EnumeratorQuestionDefinition)
-                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                  testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
               /* visibility= */ Optional.empty(),
               applicant.getApplicantData());
       var parentRepeatedEntity =
@@ -932,7 +936,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .findFirst();
       Path answerPath =
           testQuestionBank
-              .applicantHouseholdMemberJobs()
+              .enumeratorNestedApplicantHouseholdMemberJobs()
               .getQuestionDefinition()
               .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
@@ -944,14 +948,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
               (EnumeratorQuestionDefinition)
-                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                  testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
               /* visibility= */ Optional.empty(),
               applicant.getApplicantData());
       var repeatedEntity =
           repeatedEntities.stream().filter(e -> e.entityName().equals(entityName)).findFirst();
       Path answerPath =
           testQuestionBank
-              .applicantHouseholdMemberFavoriteShape()
+              .textRepeatedApplicantHouseholdMemberFavoriteShape()
               .getQuestionDefinition()
               .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
@@ -964,7 +968,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
               (EnumeratorQuestionDefinition)
-                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                  testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
               /* visibility= */ Optional.empty(),
               applicant.getApplicantData());
       var nestedRepeatedEntities =
@@ -974,7 +978,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .get()
               .createNestedRepeatedEntities(
                   (EnumeratorQuestionDefinition)
-                      testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                      testQuestionBank
+                          .enumeratorNestedApplicantHouseholdMemberJobs()
+                          .getQuestionDefinition(),
                   /* visibility= */ Optional.empty(),
                   applicant.getApplicantData());
 
@@ -984,7 +990,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .findFirst();
       Path answerPath =
           testQuestionBank
-              .applicantHouseholdMemberDaysWorked()
+              .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
               .getQuestionDefinition()
               .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);

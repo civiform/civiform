@@ -92,6 +92,8 @@ toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງກ�
 link.allDone=ຂ້ອຍແລ້ວໆ
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
 link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=ລຶບໄຟລ໌ອອກ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເລີ່ມກວດສອບຫຼືບໍ່?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=ສະຫຼຸບການສະໝັກໂຄງກາ�
 
 title.applicantNotEligible=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
 title.applicantNotEligibleTi=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=ສຳລັບເກນການມີສິດ ກະລຸນາເຂົ້າເບິ່ງ {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=ທ່ານສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້າເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້. ຫຼື ສະໝັກໂຄງການອື່ນ.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=ກັບຄືນ ແລະ ແກ້ໄຂ
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
 toast.mayQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
 tag.mayQualify=ທ່ານອາດມີຄຸນສົມບັດ
 tag.mayQualifyTi=ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດ
 tag.mayNotQualify=ທ່ານອາດຂາດຄຸນສົມບັດ
 tag.mayNotQualifyTi=ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດ
-
 toast.mayNotQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
-
 toast.mayNotQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
+
 banner.errorSavingApplication=ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກໃບສະໝັກ
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=ອີງຕາມຄຳຕອບຂ�
 alert.eligibility_applicant_not_eligible_title=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=ທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=ອີງຕາມຄຳຕອບຂອງທ
 alert.eligibility_ti_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=ລູກຄ້າຂອງທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
@@ -398,6 +411,22 @@ content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, �
 content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
 button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Your submission information
+# Text above the name of the person who submitted this application
+heading.applicantName=Who submitted this application
+# Text above the confirmation number of the application
+heading.confirmationNumber=Confirmation number
+# Text above the date submitted of the application
+heading.dateSubmitted=Date submitted
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmation for your records
+# Text above a button to print this page
+content.youCanPrint=You can print this confirmation for your records.
+# Button to print this webpage
+button.print=Print this page
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=What are my next steps?
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +592,29 @@ validation.tooManySelections.v2=ກະລຸນາເລືອກບໍ່ເກ
 label.firstName=ຊື່
 label.lastName=ນາມສະກຸນ
 label.middleName=ຊື່ກາງ
+# Label for name suffix field in name question
+label.nameSuffix=ຄຳຕໍ່ທ້າຍ
 
 placeholder.firstName=ຊື່
 placeholder.lastName=ນາມສະກຸນ
 placeholder.middleName=ຊື່ກາງ
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=ຄຳຕໍ່ທ້າຍ
+
+# Option Junior for the name suffix dropdown
+option.junior=ຈູເນຍຣ໌
+# Option Senior for the name suffix dropdown
+option.senior=ຊີເນຍຣ໌
+# Option the first for the name suffix dropdown
+option.first=ທີ 1
+# Option the second for the name suffix dropdown
+option.second=ທີ 2
+# Option the third for the name suffix dropdown
+option.third=ທີ 3
+# Option the forth for the name suffix dropdown
+option.forth=ທີ 4
+# Option the fifth for the name suffix dropdown
+option.fifth=ທີ 5
 
 validation.firstNameRequired=ກະລຸນາໃສ່ຊື່ຂອງທ່ານ.
 validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນຂອງທ່ານ.

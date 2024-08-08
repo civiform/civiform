@@ -92,6 +92,8 @@ toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjum
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
 link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Ka saar faylka
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aadna bilawdo inaad dib u eegto?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=Soo koobida barnaamijka codsiga
 
 title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
 title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga su'aalaha soo socda, macmiilkaagu waxa laga yaabaa inuusan u qalmin {0}.
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=Dib u noqo oo wax ka beddel
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inuu u qalmo {0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
 toast.mayQualify=Iyada oo ku saleysan jawaabahaaga, waxaad u qalmi kartaa{0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
 tag.mayQualify=Waxa dhici karta inaad u qalanto
 tag.mayQualifyTi=Macmiilkaaga waxa dhici karta inuu u qalmo
 tag.mayNotQualify=Waxa dhici karta inaanad u qalmin
 tag.mayNotQualifyTi=Macmiilkaaga waxa dhici karta inuusan u qalmin
-
 toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u qalmin {0}. Haddi imacluumaadkaagu uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
-
 toast.mayNotQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}. Haddi imacluumaadka macmiilku uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
+
 banner.errorSavingApplication=Khalad ayaa ka imaaday kadib kaydinta codsiga
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=iyadoo lagu salaynayo jawaabahaagaa, w
 alert.eligibility_applicant_not_eligible_title=Waxaa suurtagal ah inaadan u qalmin barnaamijkan
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah inaadan u qalmin barnaamijkan. Haddii macluumaadkaaga is badalay, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjigaaga.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=Iyadoo lagu salaynayo jawaabahaaga, macmiilka
 alert.eligibility_ti_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan. Haddii macluumaadka macmiilkaaga la badalo, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjiga.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
@@ -398,6 +411,22 @@ content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
 button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Your submission information
+# Text above the name of the person who submitted this application
+heading.applicantName=Who submitted this application
+# Text above the confirmation number of the application
+heading.confirmationNumber=Confirmation number
+# Text above the date submitted of the application
+heading.dateSubmitted=Date submitted
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmation for your records
+# Text above a button to print this page
+content.youCanPrint=You can print this confirmation for your records.
+# Button to print this webpage
+button.print=Print this page
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=What are my next steps?
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +592,29 @@ validation.tooManySelections.v2=Fadlan dooro {0} ugu badnaan.
 label.firstName=Magaca hore
 label.lastName=Magaca dambe
 label.middleName=Magaca dhexe
+# Label for name suffix field in name question
+label.nameSuffix=Dibkabe
 
 placeholder.firstName=Magaca hore
 placeholder.lastName=Magaca dambe
 placeholder.middleName=Magaca dhexe
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Dibkabe
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Fadlan gali magacaga koowaad.
 validation.lastNameRequired=Fadlan geli magacaaga dambe.

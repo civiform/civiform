@@ -18,7 +18,7 @@ public class QuestionTranslationFormTest {
 
   @Test
   public void builder_updatesExistingTextTranslations() throws Exception {
-    QuestionDefinition question = questionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = questionBank.nameApplicantName().getQuestionDefinition();
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new text");
@@ -33,7 +33,7 @@ public class QuestionTranslationFormTest {
 
   @Test
   public void builder_addsTranslationsForNewLocale() throws Exception {
-    QuestionDefinition question = questionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = questionBank.nameApplicantName().getQuestionDefinition();
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new locale");

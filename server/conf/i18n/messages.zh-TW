@@ -92,6 +92,8 @@ toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好�
 link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
 link.createAccountOrSignIn=建立或登入帳戶
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=移除檔案
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -321,19 +323,26 @@ title.programSummary=計畫申請摘要
 
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
+# Section heading
+heading.eligibilityCriteria=More about eligibility requirements
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
 content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
 button.goBackAndEdit=返回並編輯
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Edit my responses
 toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
 toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
 tag.mayQualify=您可能符合資格
 tag.mayQualifyTi=您的客戶可能符合資格
 tag.mayNotQualify=您可能不符合資格
 tag.mayNotQualifyTi=您的客戶可能不符合資格
-
 toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
-
 toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+
 banner.errorSavingApplication=儲存申請書時發生錯誤
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +354,8 @@ alert.eligibility_applicant_eligible_text=根據您的回答，您可能符合�
 alert.eligibility_applicant_not_eligible_title=您可能不符合這項計畫的資格
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=根據您的回答，您可能不符合這項計畫的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=您可能符合這項計畫的資格
@@ -365,6 +376,8 @@ alert.eligibility_ti_eligible_text=根據您的回答，您的客戶可能符合
 alert.eligibility_ti_not_eligible_title=您的客戶可能不符合這項計畫的資格
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=根據您的回答，您的客戶可能不符合這項計畫的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=您的客戶可能符合這項計畫的資格
@@ -398,6 +411,22 @@ content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Your submission information
+# Text above the name of the person who submitted this application
+heading.applicantName=Who submitted this application
+# Text above the confirmation number of the application
+heading.confirmationNumber=Confirmation number
+# Text above the date submitted of the application
+heading.dateSubmitted=Date submitted
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmation for your records
+# Text above a button to print this page
+content.youCanPrint=You can print this confirmation for your records.
+# Button to print this webpage
+button.print=Print this page
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=What are my next steps?
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +592,29 @@ validation.tooManySelections.v2=最多只能選取 {0} 個選項。
 label.firstName=名字
 label.lastName=姓氏
 label.middleName=中間名
+# Label for name suffix field in name question
+label.nameSuffix=後綴
 
 placeholder.firstName=名字
 placeholder.lastName=姓氏
 placeholder.middleName=中間名
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=後綴
+
+# Option Junior for the name suffix dropdown
+option.junior=小
+# Option Senior for the name suffix dropdown
+option.senior=大
+# Option the first for the name suffix dropdown
+option.first=一世
+# Option the second for the name suffix dropdown
+option.second=二世
+# Option the third for the name suffix dropdown
+option.third=三世
+# Option the forth for the name suffix dropdown
+option.forth=四世
+# Option the fifth for the name suffix dropdown
+option.fifth=五世
 
 validation.firstNameRequired=請輸入名字。
 validation.lastNameRequired=請輸入姓氏。

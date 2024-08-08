@@ -30,9 +30,9 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
   @Test
   public void getAllQuestions() {
     // The question bank initializes these in the active version.
-    testQuestionBank.applicantName();
-    testQuestionBank.applicantAddress();
-    testQuestionBank.applicantFavoriteColor();
+    testQuestionBank.nameApplicantName();
+    testQuestionBank.addressApplicantAddress();
+    testQuestionBank.textApplicantFavoriteColor();
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
     assertThat(service.getAllQuestions().size()).isEqualTo(3);
   }
@@ -40,7 +40,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
   @Test
   public void getEnumeratorQuestions() {
     // The question bank initializes this question in the active version.
-    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
 
@@ -55,7 +55,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
     // The question bank initializes these in the active version.
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
     long questionId = nameQuestion.id;
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);

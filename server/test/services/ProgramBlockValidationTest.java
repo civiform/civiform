@@ -67,9 +67,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   @Test
   public void canAddQuestions_cantAddQuestionNotInActiveDraftState() throws Exception {
     QuestionDefinition householdMemberQuestion =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition householdMemberNameQuestion =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -97,7 +97,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_duplicate() throws Exception {
-    QuestionDefinition question = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -111,8 +111,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_blockIsSingleQuestion() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition fileQuestion = testQuestionBank.applicantFile().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition fileQuestion =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -126,8 +127,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_cantAddSingleQuestionBlock() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition fileQuestion = testQuestionBank.applicantFile().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition fileQuestion =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -142,7 +144,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   @Test
   public void canAddQuestion_cantAddEmuratorQuestionToNonEnumeratorBlock() throws Exception {
     QuestionDefinition question =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
@@ -153,9 +155,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_cantAddNonEmuratorQuestionToEnumeratorBlock() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition householdMemberQuestion =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()

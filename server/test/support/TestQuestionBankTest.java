@@ -22,15 +22,15 @@ public class TestQuestionBankTest {
 
   @Test
   public void withoutDatabase_canGetQuestion() {
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
 
     assertThat(question.id).isEqualTo(1L);
   }
 
   @Test
   public void withoutDatabase_setsId() {
-    testQuestionBank.applicantAddress();
-    QuestionModel question = testQuestionBank.applicantName();
+    testQuestionBank.addressApplicantAddress();
+    QuestionModel question = testQuestionBank.nameApplicantName();
 
     assertThat(question.id).isEqualTo(2L);
   }

@@ -67,11 +67,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .buildDefinition();
 
     QuestionDefinition addressQuestionDefinition =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition nameQuestionDefinition =
-        testQuestionBank.applicantName().getQuestionDefinition();
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition emailQuestionDefinition =
-        testQuestionBank.applicantEmail().getQuestionDefinition();
+        testQuestionBank.emailApplicantEmail().getQuestionDefinition();
 
     ImmutableList<QuestionDefinition> questions =
         ImmutableList.of(
