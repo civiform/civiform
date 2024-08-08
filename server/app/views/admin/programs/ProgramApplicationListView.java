@@ -33,14 +33,12 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import models.ApplicationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
-
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -127,28 +125,27 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             allPossibleProgramApplicationStatuses,
                             hasEligibilityEnabled,
                             defaultStatus,
-                            program, request))
+                            program,
+                            request))
                         .withClasses("usa-table-container", "usa-table--borderless")
                         .withTabindex(0)),
                 div(div()
-                  .condWith(
-                    paginatedApplications.getNumPages() > 1,
-                    renderPagination(
-                      paginationSpec.getCurrentPage(),
-                      paginatedApplications.getNumPages(),
-                      pageNumber ->
-
-                        routes.AdminApplicationController.index(
-                          program.id(),
-                          filterParams.search(),
-                          Optional.of(pageNumber),
-                          filterParams.fromDate(),
-                          filterParams.untilDate(),
-                          filterParams.selectedApplicationStatus(),
-                          /* selectedApplicationUri= */ Optional.empty()),
-                      /* optionalMessages */ Optional.empty())))
+                        .condWith(
+                            paginatedApplications.getNumPages() > 1,
+                            renderPagination(
+                                paginationSpec.getCurrentPage(),
+                                paginatedApplications.getNumPages(),
+                                pageNumber ->
+                                    routes.AdminApplicationController.index(
+                                        program.id(),
+                                        filterParams.search(),
+                                        Optional.of(pageNumber),
+                                        filterParams.fromDate(),
+                                        filterParams.untilDate(),
+                                        filterParams.selectedApplicationStatus(),
+                                        /* selectedApplicationUri= */ Optional.empty()),
+                                /* optionalMessages */ Optional.empty())))
                     .withClasses("flex", "items-start"))
-
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
@@ -377,43 +374,54 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationsTable(
-    ImmutableList<ApplicationModel> applications,
-    ImmutableList<String> allPossibleProgramApplicationStatuses,
-    boolean hasEligibilityEnabled,
-    Optional<StatusDefinitions.Status> defaultStatus,
-    ProgramDefinition program, Http.Request request) {
+      ImmutableList<ApplicationModel> applications,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
+      boolean hasEligibilityEnabled,
+      Optional<StatusDefinitions.Status> defaultStatus,
+      ProgramDefinition program,
+      Http.Request request) {
     boolean displayStatus = allPossibleProgramApplicationStatuses.size() > 0;
     AtomicInteger count = new AtomicInteger();
     DivTag table =
-      div(form().withId("bulk-status-update")
-          .withMethod("POST")
-          .withAction(
-            routes.AdminApplicationController.updateStatuses(program.id()).url())
-        .with(
-            table()
-                .withClasses("usa-table")
-                .with(renderGroupTableHeader(displayStatus))
+        div(
+            form()
+                .withId("bulk-status-update")
+                .withMethod("POST")
+                .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
                 .with(
-                    tbody(
-                        each(
-                            applications,
-                            application ->
-                                renderApplicationRowItem(
-                                    application,
-                                    /* displayStatus= */ displayStatus,
-                                    hasEligibilityEnabled
-                                        ? applicantService.getApplicationEligibilityStatus(
-                                            application, program)
-                                        : Optional.empty(),
-                                    defaultStatus, count.getAndIncrement()))))).with(makeCsrfTokenInputTag(request),
-          submitButton("Submit")));
+                    table()
+                        .withClasses("usa-table")
+                        .with(renderGroupTableHeader(displayStatus))
+                        .with(
+                            tbody(
+                                each(
+                                    applications,
+                                    application ->
+                                        renderApplicationRowItem(
+                                            application,
+                                            /* displayStatus= */ displayStatus,
+                                            hasEligibilityEnabled
+                                                ? applicantService.getApplicationEligibilityStatus(
+                                                    application, program)
+                                                : Optional.empty(),
+                                            defaultStatus,
+                                            count.getAndIncrement())))))
+                .with(makeCsrfTokenInputTag(request), input().withType("text").withName("status").withClasses(  "h-10",
+                  "px-10",
+                  "pr-5",
+                  "w-full",
+                  "rounded-full",
+                  "text-sm",
+                  "border",
+                  "border-gray-200",
+                  "shadow"),submitButton("Submit")));
     return table;
   }
 
   private j2html.tags.specialized.TheadTag renderGroupTableHeader(boolean displayStatus) {
     return thead(
-        tr()//.with(th(input().withName("selectall").withType("checked").withClasses(BaseStyles.CHECKBOX)))
-      .with(th("Name").withScope("col"))
+        tr() // .with(th(input().withName("selectall").withType("checked").withClasses(BaseStyles.CHECKBOX)))
+            .with(th("Name").withScope("col"))
             .with(th("Eligibility").withScope("col"))
             .condWith(displayStatus, th("Status").withScope("col"))
             .with(th("Submission date").withScope("col")));
@@ -423,7 +431,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ApplicationModel application,
       boolean displayStatus,
       Optional<Boolean> maybeEligibilityStatus,
-      Optional<StatusDefinitions.Status> defaultStatus, int count) {
+      Optional<StatusDefinitions.Status> defaultStatus,
+      int count) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -447,14 +456,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             : "Doesn't meet eligibility";
     System.out.print("count " + count);
     return tr().withClasses("has:checked:text-red-500")
-        .with(td(
-//          input()
-//            .withName("applicationid" + count)
-//            .withValue(Long.toString(application.id))
-//            .isHidden(),
-          input().withType("checkbox").withName("selected"+count).withValue(Long.toString(application.id))
-           .withClasses(BaseStyles.CHECKBOX)
-          ))
+        .with(
+            td(
+//                          input()
+//                            .withName("applicationid" + count)
+//                            .withValue(Long.toString(application.id))
+//                            .isHidden(),
+                input()
+                    .withType("checkbox")
+                  .withName("applicationsIds[]")
+                  .withValue(Long.toString(application.id))
+                    .withClasses(BaseStyles.CHECKBOX)))
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .with(td(eligibility))
         .condWith(displayStatus, td(statusString))

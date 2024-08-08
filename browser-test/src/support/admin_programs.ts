@@ -949,7 +949,6 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-
     await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
       expectedCount,
     )
