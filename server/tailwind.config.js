@@ -67,20 +67,5 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/line-clamp'),
-
-    // Add a custom plugin to support the `has` pseudo-classes.  For example: "has-checked:bg-blue-300".
-    function ({ matchVariant }) {
-      matchVariant(
-        "has",
-        (value) => {
-          return `&:has(${value})`;
-        },
-        {
-          values: {
-            checked: "input:checked",
-          },
-        }
-      );
-    },
   ]
 }

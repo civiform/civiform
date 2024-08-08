@@ -206,10 +206,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .flatMap(List::stream)
             .distinct()
             .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
             .collect(ImmutableList.toImmutableList());
 
     // The category buttons
-    if (!relevantCategories.isEmpty()) {
+    if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
       content.with(renderCategoryFilterChips(relevantCategories));
     }
 
@@ -342,20 +343,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                 category ->
                     div()
                         .withId("filter-chip")
-                        .withClasses(
-                            "border",
-                            "border-gray-700",
-                            "rounded-full",
-                            "py-2",
-                            "px-4",
-                            "mr-2",
-                            "mb-2",
-                            "text-sm",
-                            "has-checked:bg-blue-100",
-                            "has-checked:border-blue-100",
-                            "has-checked:font-semibold",
-                            "has-checked:text-blue-900",
-                            "flex")
                         .with(
                             input()
                                 .withId("check-category-" + category)
