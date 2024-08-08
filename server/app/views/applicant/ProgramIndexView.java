@@ -367,6 +367,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 .withClasses("inline", "align-baseline", "w-4", "h-4", "hidden")
                                 .attr("focusable", false),
                             label(category).withFor("check-category-" + category))))
-        .withClasses("flex", "mb-10", "flex-wrap", "justify-center");
+        .withClasses("flex", "mb-10", "flex-wrap", "ml-4");
   }
 }
