@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -19,6 +20,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -415,6 +417,49 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
+  }
+
+  @Test
+  public void getMatchingAdminNames_returnsQuestionNamesAlreadyFoundInTheDb()
+      throws UnsupportedQuestionTypeException {
+    testQuestionBank.applicantName();
+    testQuestionBank.applicantDate();
+
+    QuestionDefinition nameQuestion =
+        new QuestionDefinitionBuilder()
+            .setName("applicant name") // same admin name as the saved name question
+            .setDescription("description")
+            .setQuestionType(QuestionType.TEXT)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .build();
+    QuestionDefinition dateQuestion =
+        new QuestionDefinitionBuilder()
+            .setName(
+                "applicant birth date - newres") // different admin name than the saved date
+                                                 // question
+            .setDescription("description")
+            .setQuestionType(QuestionType.DATE)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .build();
+
+    ImmutableList<String> matchingAdminNames =
+        repo.getMatchingAdminNames(ImmutableList.of(nameQuestion, dateQuestion));
+
+    // only the admin name already contained in the db should be returned
+    assertThat(matchingAdminNames).containsExactly("applicant name");
+  }
+
+  @Test
+  public void checkQuestionNameExists_returnsTrueIfAdminNameExistsFalseOtherwise()
+      throws UnsupportedQuestionTypeException {
+    testQuestionBank.applicantName();
+
+    Boolean existsOne =
+        repo.checkQuestionNameExists("applicant name"); // same admin name as the saved question
+    Boolean existsTwo = repo.checkQuestionNameExists("another admin name");
+
+    assertThat(existsOne).isTrue();
+    assertThat(existsTwo).isFalse();
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

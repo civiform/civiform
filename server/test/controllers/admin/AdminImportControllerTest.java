@@ -206,6 +206,41 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Please enter your first and last name");
   }
 
+  public void hxImportProgram_showsWarningAndOverwritesQuestionAdminNamesIfTheyAlreadyExist() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // save the program
+    controller.hxSaveProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    // update the program admin name so we don't receive an error
+    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
+        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
+            "minimal-sample-program", "minimal-sample-program-new");
+
+    // parse the program for import
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    // warning is shown
+    assertThat(contentAsString(result))
+        .contains(
+            "The following questions have admin names that already exist in this environment.");
+    // question has the new admin name
+    assertThat(contentAsString(result)).contains("Name-1");
+    // other information in the question is unchanged
+    assertThat(contentAsString(result)).contains("Please enter your first and last name");
+  }
+
   @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);

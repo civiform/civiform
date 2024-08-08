@@ -16,10 +16,8 @@ import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
-import repository.VersionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -29,18 +27,11 @@ import support.ProgramBuilder;
 public final class ProgramMigrationServiceTest extends ResetPostgres {
   private final ProgramMigrationService service =
       new ProgramMigrationService(
-          instanceOf(ObjectMapper.class),
-          instanceOf(QuestionRepository.class),
-          instanceOf(ProgramRepository.class));
-  private ProgramRepository programRepo;
+          instanceOf(ObjectMapper.class), instanceOf(QuestionRepository.class));
   private QuestionRepository questionRepo;
-  private VersionRepository versionRepo;
 
   @Before
   public void setup() {
-    versionRepo = instanceOf(VersionRepository.class);
-    programRepo = instanceOf(ProgramRepository.class);
-
     questionRepo = instanceOf(QuestionRepository.class);
   }
 
@@ -53,10 +44,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         .thenThrow(new JsonProcessingException("Test exception!") {});
 
     ProgramMigrationService badMapperService =
-        new ProgramMigrationService(
-            badObjectMapper,
-            instanceOf(QuestionRepository.class),
-            instanceOf(ProgramRepository.class));
+        new ProgramMigrationService(badObjectMapper, instanceOf(QuestionRepository.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
