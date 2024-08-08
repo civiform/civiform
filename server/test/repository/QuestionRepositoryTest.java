@@ -422,8 +422,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void getMatchingAdminNames_returnsQuestionNamesAlreadyFoundInTheDb()
       throws UnsupportedQuestionTypeException {
-    testQuestionBank.applicantName();
-    testQuestionBank.applicantDate();
+    testQuestionBank.nameApplicantName();
+    testQuestionBank.dateApplicantBirthdate();
 
     QuestionDefinition nameQuestion =
         new QuestionDefinitionBuilder()
@@ -451,7 +451,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void checkQuestionNameExists_returnsTrueIfAdminNameExistsFalseOtherwise()
       throws UnsupportedQuestionTypeException {
-    testQuestionBank.applicantName();
+    testQuestionBank.nameApplicantName();
 
     Boolean existsOne =
         repo.checkQuestionNameExists("applicant name"); // same admin name as the saved question
