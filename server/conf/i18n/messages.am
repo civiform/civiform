@@ -427,6 +427,8 @@ content.youCanPrint=You can print this confirmation for your records.
 button.print=Print this page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=You''ve submitted your {0} application
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
