@@ -95,7 +95,7 @@ test.describe('csv export for multioption question', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (suffix),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
+      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (name_suffix),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
     )
     // colors headers are - red,green,orange,blue,black,white
     expect(csvContent).toContain(
@@ -370,7 +370,7 @@ test.describe('normal application flow', () => {
       )
     } else {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (suffix)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (name_suffix)',
       )
     }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
