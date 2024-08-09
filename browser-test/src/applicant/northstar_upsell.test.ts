@@ -7,6 +7,7 @@ import {
   validateScreenshot,
   validateAccessibility,
 } from '../support'
+import {Page} from 'playwright'
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
@@ -48,9 +49,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
-    await expect(page.getByRole('heading', {name: programName})).toBeVisible()
-    await expect(page.getByText('Your submission information')).toBeVisible()
-    await expect(page.getByText(customConfirmationText)).toBeVisible()
+    await validateApplicationSubmittedPage(page)
 
     await test.step('Validate screenshot and accessibility', async () => {
       await validateScreenshot(
@@ -82,6 +81,8 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
+    await validateApplicationSubmittedPage(page)
+
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
       await applicantQuestions.clickBackToHomepageButton()
       await expect(page.getByText('Create an account or sign in')).toBeVisible()
@@ -96,4 +97,19 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await validateAccessibility(page)
     })
   })
+
+  async function validateApplicationSubmittedPage(page: Page) {
+    await test.step('Validate application submitted page', async () => {
+      await expect(
+        page.getByRole('heading', {name: programName, exact: true}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: "You've submitted your " + programName + ' application',
+        }),
+      ).toBeVisible()
+      await expect(page.getByText('Your submission information')).toBeVisible()
+      await expect(page.getByText(customConfirmationText)).toBeVisible()
+    })
+  }
 })

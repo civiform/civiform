@@ -18,7 +18,11 @@
               class="margin-1"
             ></div>
 
-            <!-- TODO(#7683): Add green alert -->
+            <section class="section">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2')}"
+              ></div>
+            </section>
 
             <section class="usa-prose">
               <h2 th:text="#{heading.yourSubmissionInformation}"></h2>
