@@ -47,7 +47,8 @@ public final class ProgramJsonSampler {
    * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
    * the API response looks like.
    */
-  public String getSampleJson(ProgramDefinition programDefinition) {
+  public String getSampleJson(
+      ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {
     ApplicationExportData.Builder jsonExportData =
         ApplicationExportData.builder()
             // Customizable program-specific API fields
@@ -81,7 +82,7 @@ public final class ProgramJsonSampler {
       ImmutableMap<Path, Optional<?>> questionEntries =
           questionJsonSamplerFactory
               .create(questionDefinition.getQuestionType())
-              .getSampleJsonEntries(questionDefinition);
+              .getSampleJsonEntries(questionDefinition, multipleFileUploadEnabled);
 
       jsonExportData.addApplicationEntries(questionEntries);
     }

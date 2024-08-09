@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -105,12 +106,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   private AdminApplicationController controller;
   private ProgramAdminApplicationService programAdminApplicationService;
   private ApplicationStatusesRepository repo;
+  private SettingsManifest settingsManifestMock;
 
   @Before
   public void setupController() {
     controller = instanceOf(AdminApplicationController.class);
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     repo = instanceOf(ApplicationStatusesRepository.class);
+    settingsManifestMock = mock();
   }
 
   @Test
@@ -574,7 +577,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(DateConverter.class),
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
-        instanceOf(StatusService.class));
+        instanceOf(StatusService.class),
+        settingsManifestMock);
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
