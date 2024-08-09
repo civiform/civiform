@@ -22,6 +22,7 @@ import play.data.validation.Constraints;
 public final class PersistedDurableJobModel extends BaseModel {
 
   @Constraints.Required private String jobName;
+  @Constraints.Required private JobType jobType;
   @Constraints.Required private Instant executionTime;
 
   private Instant successTime;
@@ -34,12 +35,17 @@ public final class PersistedDurableJobModel extends BaseModel {
 
   public PersistedDurableJobModel(String jobName, Instant executionTime) {
     this.jobName = Preconditions.checkNotNull(jobName);
+    this.jobType = JobType.RECURRING;
     this.executionTime = Preconditions.checkNotNull(executionTime);
     this.remainingAttempts = 3;
   }
 
   public String getJobName() {
     return jobName;
+  }
+
+  public JobType getJobType() {
+    return jobType;
   }
 
   public Instant getExecutionTime() {
