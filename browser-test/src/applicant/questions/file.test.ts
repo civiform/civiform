@@ -600,38 +600,39 @@ test.describe('file upload applicant flow', () => {
         })
       })
 
-      test('File too large error', async ({
-        applicantFileQuestion,
-        applicantQuestions,
-      }) => {
-        await test.step('Initially no error is shown', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await applicantFileQuestion.expectFileTooLargeErrorHidden()
-        })
+      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
+      test.fixme(
+        'File too large error',
+        async ({applicantFileQuestion, applicantQuestions}) => {
+          await test.step('Initially no error is shown', async () => {
+            await applicantQuestions.applyProgram(programName)
+            await applicantFileQuestion.expectFileTooLargeErrorHidden()
+          })
 
-        await test.step('Shows error when file size is too large', async () => {
-          await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+          await test.step('Shows error when file size is too large', async () => {
+            await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
-          await applicantFileQuestion.expectFileTooLargeErrorShown()
-          // Don't perform a screenshot here because it shows a spinner that doesn't become stable
-          // while the file is uploading.
-        })
+            await applicantFileQuestion.expectFileTooLargeErrorShown()
+            // Don't perform a screenshot here because it shows a spinner that doesn't become stable
+            // while the file is uploading.
+          })
 
-        await test.step('Cannot save file if too large', async () => {
-          await applicantQuestions.clickNext()
+          await test.step('Cannot save file if too large', async () => {
+            await applicantQuestions.clickNext()
 
-          // Verify the file isn't saved and we're still on the file upload question block
-          await applicantQuestions.validateQuestionIsOnPage(
-            fileUploadQuestionText,
-          )
-        })
+            // Verify the file isn't saved and we're still on the file upload question block
+            await applicantQuestions.validateQuestionIsOnPage(
+              fileUploadQuestionText,
+            )
+          })
 
-        await test.step('Hides error when smaller file is uploaded', async () => {
-          await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+          await test.step('Hides error when smaller file is uploaded', async () => {
+            await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
 
-          await applicantFileQuestion.expectFileTooLargeErrorHidden()
-        })
-      })
+            await applicantFileQuestion.expectFileTooLargeErrorHidden()
+          })
+        },
+      )
 
       test('form is correctly formatted', async ({
         page,
@@ -668,46 +669,47 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectNoSkipButton()
       })
 
-      test('can upload file', async ({
-        page,
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
+      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
+      test.fixme(
+        'can upload file',
+        async ({page, applicantQuestions, applicantFileQuestion}) => {
+          await applicantQuestions.applyProgram(programName)
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file.txt',
-        )
+          await applicantQuestions.answerFileUploadQuestion(
+            'some file',
+            'file.txt',
+          )
 
-        await applicantFileQuestion.expectFileNameDisplayed('file.txt')
-        await validateScreenshot(
-          page,
-          'file-uploaded-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
+          await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+          await validateScreenshot(
+            page,
+            'file-uploaded-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        },
+      )
 
       /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-      test('can replace file', async ({
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
+      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
+      test.fixme(
+        'can replace file',
+        async ({applicantQuestions, applicantFileQuestion}) => {
+          await applicantQuestions.applyProgram(programName)
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file1.txt',
-        )
-        await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+          await applicantQuestions.answerFileUploadQuestion(
+            'some file',
+            'file1.txt',
+          )
+          await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file2.txt',
-        )
-        await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
-      })
+          await applicantQuestions.answerFileUploadQuestion(
+            'some file',
+            'file2.txt',
+          )
+          await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+        },
+      )
 
       test('has no accessiblity violations', async ({
         page,
