@@ -212,7 +212,8 @@ public class DatabaseSeedView extends BaseHtmlView {
         .with(p("Open S3 or SES endpoints on localstack"))
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
-            createLink("✉\uFE0F View SES Emails", "http://localhost.localstack.cloud:4566/_aws/ses/")
+            createLink(
+                    "✉\uFE0F View SES Emails", "http://localhost.localstack.cloud:4566/_aws/ses/")
                 .withTarget("_blank"),
             createLink(
                     "\uD83D\uDCC1 S3 Private Bucket",
