@@ -83,7 +83,7 @@ public class NameQuestionTest extends ResetPostgres {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
     }
     assertThat(nameQuestion.getLastNameValue().get()).isEqualTo(lastName);
-    if (nameQuestion.getMiddleNameValue().isPresent()) {
+    if (nameQuestion.getNameSuffixValue().isPresent()) {
       assertThat(nameQuestion.getNameSuffixValue().get()).isEqualTo(suffix);
     }
   }
@@ -132,6 +132,7 @@ public class NameQuestionTest extends ResetPostgres {
     applicant.setFirstName("First");
     applicant.setMiddleName("Middle");
     applicant.setLastName("Last");
+    applicant.setSuffix("Suffix");
 
     NameQuestion nameQuestion =
         new ApplicantQuestion(nameQuestionDefinitionWithPaiTag, applicantData, Optional.empty())
@@ -140,5 +141,6 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(applicant.getFirstName().get());
     assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(applicant.getMiddleName().get());
     assertThat(nameQuestion.getLastNameValue().get()).isEqualTo(applicant.getLastName().get());
+    assertThat(nameQuestion.getNameSuffixValue().get()).isEqualTo(applicant.getSuffix().get());
   }
 }
