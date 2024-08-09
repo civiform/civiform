@@ -43,13 +43,18 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    context.setVariable("programName", params.programTitle().orElse(""));
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programDescription", params.programDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
 
+    String applicantName = params.profile().getApplicant().join().getAccount().getApplicantName();
+    context.setVariable("applicantName", applicantName);
+
+    context.setVariable("dateSubmitted", params.dateSubmitted());
+
     Locale locale = params.messages().lang().toLocale();
     String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
-
     context.setVariable("customConfirmationMessage", customConfirmationMessage);
 
     // Info for login modal

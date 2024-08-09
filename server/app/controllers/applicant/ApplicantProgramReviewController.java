@@ -350,12 +350,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (v) -> {
               ApplicationModel application = submitAppFuture.join();
               Long applicationId = application.id;
+
               Call endOfProgramSubmission =
                   routes.UpsellController.considerRegister(
                       applicantId,
                       programId,
                       applicationId,
-                      applicantRoutes.index(submittingProfile, applicantId).url());
+                      applicantRoutes.index(submittingProfile, applicantId).url(),
+                      application.getSubmitTime().toString());
               return found(endOfProgramSubmission);
             },
             classLoaderExecutionContext.current())

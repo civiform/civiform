@@ -8,6 +8,9 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -93,7 +96,8 @@ public final class UpsellController extends CiviFormController {
       long applicantId,
       long programId,
       long applicationId,
-      String redirectTo) {
+      String redirectTo,
+      String submitTime) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       // should definitely never happen.
@@ -156,6 +160,14 @@ public final class UpsellController extends CiviFormController {
               Optional<ToastMessage> toastMessage =
                   toastMessageValue.map(m -> ToastMessage.alert(m));
 
+              Instant instant = Instant.parse(submitTime);
+              Date submitDate = Date.from(instant);
+              DateFormat dateFormat =
+                  DateFormat.getDateInstance(
+                      DateFormat.LONG,
+                      roApplicantProgramService.join().getApplicantData().preferredLocale());
+              String formattedDate = dateFormat.format(submitDate);
+
               if (settingsManifest.getNorthStarApplicantUi(request)) {
                 UpsellParams.Builder paramsBuilder =
                     UpsellParams.builder()
@@ -169,12 +181,14 @@ public final class UpsellController extends CiviFormController {
                         .setBannerMessage(toastMessageValue)
                         .setCustomConfirmationMessage(
                             roApplicantProgramService.join().getCustomConfirmationMessage())
-                        .setApplicantId(applicantId);
+                        .setApplicantId(applicantId)
+                        .setDateSubmitted(formattedDate);
 
                 if (isCommonIntake.join()) {
                   UpsellParams upsellParams =
                       paramsBuilder
                           .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                          .setDateSubmitted(formattedDate)
                           .build();
                   return ok(northStarCommonIntakeUpsellView.render(upsellParams))
                       .as(Http.MimeTypes.HTML);
@@ -182,6 +196,8 @@ public final class UpsellController extends CiviFormController {
                   UpsellParams upsellParams =
                       paramsBuilder
                           .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                          .setProgramDescription(
+                              roApplicantProgramService.join().getProgramDescription())
                           .build();
                   return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
                 }

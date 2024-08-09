@@ -441,8 +441,12 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(primaryProgramName)
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage(true)
-          await applicantQuestions.returnToProgramsFromSubmissionPage()
+          await applicantQuestions.submitFromReviewPage(
+            /* northStarEnabled= */ true,
+          )
+          await applicantQuestions.returnToProgramsFromSubmissionPage(
+            /* northStarEnabled= */ true,
+          )
           await applicantQuestions.expectPrograms({
             wantNotStartedPrograms: [otherProgramName],
             wantInProgressPrograms: [],

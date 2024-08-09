@@ -48,9 +48,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
-    expect(await page.textContent('html')).toContain('Application confirmation')
-    expect(await page.textContent('html')).toContain(programName)
-    expect(await page.textContent('html')).toContain(customConfirmationText)
+    await expect(page.getByRole('heading', {name: programName})).toBeVisible()
+    await expect(page.getByText('Your submission information')).toBeVisible()
+    await expect(page.getByText(customConfirmationText)).toBeVisible()
 
     await test.step('Validate screenshot and accessibility', async () => {
       await validateScreenshot(
@@ -64,7 +64,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await validateAccessibility(page)
 
     await test.step('Validate that user can click through without logging in', async () => {
-      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await applicantQuestions.clickBackToHomepageButton()
       await expect(page.locator('[data-testId="login"]')).toBeHidden()
     })
   })
@@ -83,11 +83,15 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
-      await applicantQuestions.clickApplyToAnotherProgramButton()
-      await expect(page.getByTestId('login')).toContainText(
-        'Create an account or sign in',
+      await applicantQuestions.clickBackToHomepageButton()
+      await expect(page.getByText('Create an account or sign in')).toBeVisible()
+
+      await validateScreenshot(
+        page,
+        'upsell-north-star-login',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ true,
       )
-      await validateScreenshot(page, 'upsell-north-star-login')
 
       await validateAccessibility(page)
     })
