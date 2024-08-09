@@ -724,9 +724,52 @@ test.describe('Program admin review of submitted applications', () => {
     await test.step('Go to reporting program details', async () => {
       await page.getByRole('link', {name: programName}).click()
 
+<<<<<<< HEAD
+      await test.step('Create a simple one question program application', async () => {
+        await loginAsAdmin(page)
+
+        await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['fruit-text-q'],
+          programName,
+        )
+
+        await logout(page)
+      })
+
+      await test.step('Submit applications from different users', async () => {
+        for (const answer of answers) {
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.answerTextQuestion(answer)
+          await applicantQuestions.clickNext()
+          await applicantQuestions.submitFromReviewPage()
+
+          await logout(page)
+        }
+      })
+
+      await test.step('Expect applications to be presented in reverse chronological order to program admin', async () => {
+        await loginAsProgramAdmin(page)
+
+        await adminPrograms.viewApplications(programName)
+
+        for (let i = 0; i < answers.length; i++) {
+          await page.click(
+            `:nth-match(.cf-admin-application-row, ${i + 1}) a:text("Guest")`,
+          )
+          await adminPrograms.waitForApplicationFrame()
+          await adminPrograms.expectApplicationAnswers(
+            'Screen 1',
+            'fruit-text-q',
+            answers[answers.length - i - 1],
+          )
+        }
+      })
+=======
       if (isHermeticTestEnvironment()) {
         await validateScreenshot(page, 'program-specific-reporting-page')
       }
+>>>>>>> main
     })
 
     await test.step('Log in as Civiform Admin', async () => {

@@ -11,6 +11,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
@@ -23,8 +24,12 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+
+import forms.ManageProgramAdminsForm;
+import forms.admin.BulkStatusUpdateForm;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
+import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -331,6 +336,64 @@ public final class AdminApplicationController extends CiviFormController {
             noteMaybe,
             program.hasEligibilityEnabled(),
             request));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateStatuses(Http.Request request, long programId)
+      throws ProgramNotFoundException,
+          StatusEmailNotFoundException,
+          StatusNotFoundException,
+          AccountHasNoEmailException {
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    String programName = program.adminName();
+    try {
+      checkProgramAdminAuthorization(request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+    Form<BulkStatusUpdateForm> form =
+      formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
+  var ids = ImmutableSet.of(form.get().getApplicationsIds());
+  ids  .forEach(
+    id -> {
+
+        System.out.println("------------------------ "+ id);
+      });
+//
+//    System.out.println("%%%%%%%%%%%%%%%%%%%%%bbbb "+form.get().getStatus());
+//    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+//    System.out.println(formData);formData.entrySet().stream()
+//        .forEach(
+//            key -> {
+//              System.out.println("------------------------");
+//              System.out.println("key - " + key);
+//                System.out.println("value - " + key.getValue());
+//
+//              });
+
+              //      Optional<String> maybeApplicationId =
+              // Optional.ofNullable(formData.get(APPLICATION_ID));
+              //      Long applicationId = Long.parseLong(key.getKey());
+              //      //Optional<String> maybeNewStatus =
+              // Optional.ofNullable(formData.get(NEW_STATUS));
+              //      //Optional<String> maybeSendEmail =
+              // Optional.ofNullable(formData.get(SEND_EMAIL));
+              //     // Optional<String> maybeAppId = Optional.ofNullable(formData.get(SEND_EMAIL));
+              //      //Optional<String> maybeRedirectUri =
+              // Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
+              //
+              //      Optional<ApplicationModel> applicationMaybe =
+              //        programAdminApplicationService.getApplication(applicationId, program);
+
+    return redirect(
+        routes.AdminApplicationController.index(
+            programId,
+            Optional.empty(),
+            Optional.of(1),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()));
   }
 
   /**

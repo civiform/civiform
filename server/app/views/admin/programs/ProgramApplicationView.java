@@ -121,7 +121,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withId("application-view")
-            .withClasses("px-20")
+            .withClasses("px-10")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
                 div()

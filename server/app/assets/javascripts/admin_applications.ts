@@ -1,7 +1,7 @@
 class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
   private static BACKGROUND_WHITE_CLASS = 'bg-white'
-  private static CARD_SELECTOR = '.cf-admin-application-card'
+  private static ROW_SELECTOR = '.cf-admin-application-row'
   static DISPLAY_FRAME_SELECTOR = 'iframe[name="application-display-frame"]'
 
   // This value should be kept in sync with that in AdminApplicationController.java.
@@ -16,59 +16,59 @@ class AdminApplications {
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
   private static NOTE_INPUT_NAME = 'note'
 
-  private cards: Array<HTMLElement>
+  private rows: Array<HTMLElement>
 
   constructor(private readonly displayFrame: Element) {
-    this.cards = Array.from(
-      document.querySelectorAll(AdminApplications.CARD_SELECTOR),
+    this.rows = Array.from(
+      document.querySelectorAll(AdminApplications.ROW_SELECTOR),
     )
 
-    this.registerApplicationCardEventListeners()
+    this.registerApplicationRowEventListeners()
     this.registerApplicationViewPostMessageListener()
   }
 
-  registerApplicationCardEventListeners() {
-    this.cards.forEach((cardEl: HTMLElement) => {
-      const linkEl = cardEl.querySelector('a')
+  registerApplicationRowEventListeners() {
+    this.rows.forEach((rowEl: HTMLElement) => {
+      const linkEl = rowEl.querySelector('a')
 
       if (linkEl == null) {
-        throw new Error('No `a` found for application card')
+        throw new Error('No `a` found for application row')
       }
 
       const href = linkEl.getAttribute('href')
 
       if (href == null) {
-        throw new Error('Missing href for application card view link')
+        throw new Error('Missing href for application row view link')
       }
 
       linkEl.addEventListener('click', (event) => {
         event.preventDefault()
         event.stopPropagation()
 
-        this.viewApplication(cardEl, href)
+        this.viewApplication(rowEl, href)
       })
     })
   }
 
-  viewApplication(selectedCard: Element, applicationUrlPath: string) {
-    // Remove selection style from previously selected card.
-    this.cards.forEach((card) => {
-      const child = card.children[0]
-      this._assertNotNull(child, 'card inner div').classList.remove(
+  viewApplication(selectedRow: Element, applicationUrlPath: string) {
+    // Remove selection style from previously selected row.
+    this.rows.forEach((row) => {
+      const child = row.children[0]
+      this._assertNotNull(child, 'row inner div').classList.remove(
         AdminApplications.BACKGROUND_GRAY_CLASS,
       )
-      this._assertNotNull(child, 'card inner div').classList.add(
+      this._assertNotNull(child, 'row inner div').classList.add(
         AdminApplications.BACKGROUND_WHITE_CLASS,
       )
     })
 
-    // Add selection style to selected card.
-    const child = selectedCard.children[0]
-    this._assertNotNull(child, 'card inner div').classList.add(
+    // Add selection style to selected row.
+    const child = selectedRow.children[0]
+    this._assertNotNull(child, 'row inner div').classList.add(
       AdminApplications.BACKGROUND_GRAY_CLASS,
     )
 
-    this._assertNotNull(child, 'card inner div').classList.remove(
+    this._assertNotNull(child, 'row inner div').classList.remove(
       AdminApplications.BACKGROUND_WHITE_CLASS,
     )
 

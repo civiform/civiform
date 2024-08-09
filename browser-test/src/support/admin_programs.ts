@@ -105,9 +105,9 @@ export class AdminPrograms {
   ) {
     expect(
       await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
+        this.selectApplicationRowForApplicant(applicant),
       ),
-    ).toContain(`Status: ${statusString}`)
+    ).toContain(`${statusString}`)
   }
 
   async expectApplicationStatusDoesntContain(
@@ -116,7 +116,7 @@ export class AdminPrograms {
   ) {
     expect(
       await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
+        this.selectApplicationRowForApplicant(applicant),
       ),
     ).not.toContain(statusString)
   }
@@ -949,19 +949,19 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
+    await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
       expectedCount,
     )
   }
-
-  selectApplicationCardForApplicant(applicantName: string) {
-    return `.cf-admin-application-card:has-text("${applicantName}")`
+  selectApplicationRowForApplicant(applicantName: string) {
+    return `.cf-admin-application-row:has-text("${applicantName}")`
   }
-
-  selectWithinApplicationForApplicant(applicantName: string, selector: string) {
-    return (
-      this.selectApplicationCardForApplicant(applicantName) + ' ' + selector
-    )
+  selectWithinApplicationForApplicant(applicantName: string) {
+    return this.page
+      .getByRole('row')
+      .filter({hasText: applicantName})
+      .getByRole('link')
+      .click()
   }
 
   selectQuestionWithinBlock(question: string) {
@@ -998,7 +998,7 @@ export class AdminPrograms {
     }
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.click('button:has-text("Filter")'),
+      await this.page.click('button:has-text("Search")'),
     ])
     await waitForPageJsLoad(this.page)
   }
@@ -1022,12 +1022,7 @@ export class AdminPrograms {
   async viewApplicationForApplicant(applicantName: string) {
     await Promise.all([
       this.waitForApplicationFrame(),
-      this.page.click(
-        this.selectWithinApplicationForApplicant(
-          applicantName,
-          'a:text("View")',
-        ),
-      ),
+      this.selectWithinApplicationForApplicant(applicantName),
     ])
   }
 
