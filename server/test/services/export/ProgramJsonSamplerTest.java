@@ -8,7 +8,6 @@ import static services.export.JsonPrettifier.asPrettyJsonString;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import java.util.stream.Stream;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,9 +25,6 @@ import services.statuses.StatusDefinitions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramJsonSamplerTest extends ResetPostgres {
-
-  private static final Stream<QuestionDefinition> ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM =
-      ALL_SAMPLE_QUESTION_DEFINITIONS.stream().map(QuestionDefinition::withPopulatedTestId);
 
   private ProgramJsonSampler programJsonSampler;
 
@@ -60,7 +56,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
                 .setLocalizedDescription(
                     LocalizedStrings.withDefaultValue("Test Block Description"))
                 .setProgramQuestionDefinitions(
-                    ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM
+                    ALL_SAMPLE_QUESTION_DEFINITIONS.stream()
+                        .map(QuestionDefinition::withPopulatedTestId)
                         .map(
                             questionDefinition ->
                                 ProgramQuestionDefinition.create(
@@ -85,8 +82,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
-  public void samplesFullProgram() {
-    String json = programJsonSampler.getSampleJson(programDefinition);
+  public void samplesFullProgram_whenMultipleFileDisabled_showsBothFileFormats() {
+    String json = programJsonSampler.getSampleJson(programDefinition, false);
 
     String expectedJson =
         """
@@ -130,6 +127,103 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
       },
       "sample_file_upload_question" : {
         "file_key" : "http://localhost:9000/admin/applicant-files/my-file-key",
+        "file_key_list" : [ "http://localhost:9000/admin/applicant-files/my-file-key" ],
+        "question_type" : "FILE_UPLOAD"
+      },
+      "sample_id_question" : {
+        "id" : "12345",
+        "question_type" : "ID"
+      },
+      "sample_name_question" : {
+        "first_name" : "Homer",
+        "last_name" : "Simpson",
+        "middle_name" : "Jay",
+        "question_type" : "NAME"
+      },
+      "sample_number_question" : {
+        "number" : 12321,
+        "question_type" : "NUMBER"
+      },
+      "sample_phone_question" : {
+        "phone_number" : "+12143673764",
+        "question_type" : "PHONE"
+      },
+      "sample_predicate_date_question" : {
+        "date" : "2023-01-02",
+        "question_type" : "DATE"
+      },
+      "sample_radio_button_question" : {
+        "question_type" : "SINGLE_SELECT",
+        "selection" : "winter"
+      },
+      "sample_text_question" : {
+        "question_type" : "TEXT",
+        "text" : "I love CiviForm!"
+      }
+    },
+    "application_id" : 456,
+    "create_time" : "2023-05-25T13:46:15-07:00",
+    "language" : "en-US",
+    "program_name" : "test-program-admin-name",
+    "program_version_id" : 789,
+    "revision_state" : "CURRENT",
+    "status" : "Pending Review",
+    "submit_time" : "2023-05-26T13:46:15-07:00",
+    "submitter_type" : "APPLICANT",
+    "ti_email" : null,
+    "ti_organization" : null
+  } ]
+}""";
+
+    assertThat(asPrettyJsonString(json)).isEqualTo(expectedJson);
+  }
+
+  @Test
+  public void samplesFullProgram() {
+    String json = programJsonSampler.getSampleJson(programDefinition, true);
+
+    String expectedJson =
+        """
+{
+  "nextPageToken" : null,
+  "payload" : [ {
+    "applicant_id" : 123,
+    "application" : {
+      "sample_address_question" : {
+        "city" : "Springfield",
+        "corrected" : "Corrected",
+        "latitude" : "44.0462",
+        "line2" : null,
+        "longitude" : "-123.0236",
+        "question_type" : "ADDRESS",
+        "service_area" : "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741",
+        "state" : "OR",
+        "street" : "742 Evergreen Terrace",
+        "well_known_id" : "4326",
+        "zip" : "97403"
+      },
+      "sample_checkbox_question" : {
+        "question_type" : "MULTI_SELECT",
+        "selections" : [ "toaster", "pepper_grinder" ]
+      },
+      "sample_currency_question" : {
+        "currency_dollars" : 123.45,
+        "question_type" : "CURRENCY"
+      },
+      "sample_date_question" : {
+        "date" : "2023-01-02",
+        "question_type" : "DATE"
+      },
+      "sample_dropdown_question" : {
+        "question_type" : "SINGLE_SELECT",
+        "selection" : "chocolate"
+      },
+      "sample_email_question" : {
+        "email" : "homer.simpson@springfield.gov",
+        "question_type" : "EMAIL"
+      },
+      "sample_file_upload_question" : {
+        "file_key_list" : [ "http://localhost:9000/admin/applicant-files/my-file-key-1", "http://localhost:9000/admin/applicant-files/my-file-key-2" ],
         "question_type" : "FILE_UPLOAD"
       },
       "sample_id_question" : {

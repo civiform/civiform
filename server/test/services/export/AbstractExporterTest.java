@@ -833,6 +833,20 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller answerFileQuestionWithMultipleUpload(String fileKey, int index) {
+      Path answerPath =
+          testQuestionBank
+              .applicantFile()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+      QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+          applicant.getApplicantData(), answerPath, index, fileKey);
+      applicant.save();
+      return this;
+    }
+
     FakeApplicationFiller answerIdQuestion(String answer) {
       Path answerPath =
           testQuestionBank
