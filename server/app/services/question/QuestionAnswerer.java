@@ -94,7 +94,7 @@ public final class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.FIRST_NAME), first);
     applicantData.putString(contextualizedPath.join(Scalar.MIDDLE_NAME), middle);
     applicantData.putString(contextualizedPath.join(Scalar.LAST_NAME), last);
-    applicantData.putString(contextualizedPath.join(Scalar.SUFFIX), suffix);
+    applicantData.putString(contextualizedPath.join(Scalar.NAME_SUFFIX), suffix);
   }
 
   public static void answerNumberQuestion(

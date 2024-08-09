@@ -103,16 +103,16 @@ public final class NameQuestion extends Question {
     return lastNameValue;
   }
 
-  public Optional<String> getSuffixValue() {
+  public Optional<String> getNameSuffixValue() {
     if (suffixValue != null) {
       return suffixValue;
     }
 
     ApplicantData applicantData = applicantQuestion.getApplicantData();
-    suffixValue = applicantData.readString(getSuffixPath());
+    suffixValue = applicantData.readString(getNameSuffixPath());
 
-    if (middleNameValue.isEmpty() && isPaiQuestion()) {
-      middleNameValue = applicantData.getApplicantNameSuffix();
+    if (suffixValue.isEmpty() && isPaiQuestion()) {
+      suffixValue = applicantData.getApplicantNameSuffix();
     }
     return suffixValue;
   }
@@ -133,8 +133,8 @@ public final class NameQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.LAST_NAME);
   }
 
-  public Path getSuffixPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.SUFFIX);
+  public Path getNameSuffixPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.NAME_SUFFIX);
   }
 
   @Override

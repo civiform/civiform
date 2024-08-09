@@ -65,7 +65,7 @@ public class QuestionAnswererTest {
     assertThat(applicantData.readString(path.join(Scalar.FIRST_NAME))).contains("first");
     assertThat(applicantData.readString(path.join(Scalar.MIDDLE_NAME))).contains("middle");
     assertThat(applicantData.readString(path.join(Scalar.LAST_NAME))).contains("last");
-    assertThat(applicantData.readString(path.join(Scalar.SUFFIX))).contains("suffix");
+    assertThat(applicantData.readString(path.join(Scalar.NAME_SUFFIX))).contains("Jr.");
   }
 
   @Test

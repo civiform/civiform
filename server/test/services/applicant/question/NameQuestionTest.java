@@ -57,12 +57,12 @@ public class NameQuestionTest extends ResetPostgres {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.getSuffixValue()).isEmpty();
+    assertThat(nameQuestion.getNameSuffixValue()).isEmpty();
     assertThat(nameQuestion.getValidationErrors()).isEmpty();
   }
 
   @Test
-  @Parameters({"Wendel,Middle Name,Patric,Suffix", "Wendel,,Patrick,"})
+  @Parameters({"Wendel,Middle Name,Patric,Jr.", "Wendel,,Patrick,"})
   public void withValidApplicantData_passesValidation(
       String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
@@ -83,6 +83,9 @@ public class NameQuestionTest extends ResetPostgres {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
     }
     assertThat(nameQuestion.getLastNameValue().get()).isEqualTo(lastName);
+    if (nameQuestion.getMiddleNameValue().isPresent()) {
+      assertThat(nameQuestion.getNameSuffixValue().get()).isEqualTo(suffix);
+    }
   }
 
   @Test

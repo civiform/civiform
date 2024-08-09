@@ -157,7 +157,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public Optional<String> getApplicantNameSuffix() {
     return Optional.ofNullable(applicant)
         .flatMap(ApplicantModel::getSuffix)
-        .or(() -> readString(WellKnownPaths.APPLICANT_SUFFIX));
+        .or(() -> readString(WellKnownPaths.APPLICANT_NAME_SUFFIX));
   }
 
   public Optional<String> getApplicantEmail() {
