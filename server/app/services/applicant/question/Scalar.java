@@ -31,6 +31,7 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   LONGITUDE("longitude", ScalarType.DOUBLE),
   MIDDLE_NAME("middle name", ScalarType.STRING),
+  NAME_SUFFIX("name suffix", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
   ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
   SELECTION("selection", ScalarType.STRING),
