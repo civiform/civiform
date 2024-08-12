@@ -949,7 +949,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         String middleName,
         String lastName,
         String suffix) {
-      return answerNameQuestion(question, null, firstName, middleName, lastName);
+      return answerNameQuestion(question, null, firstName, middleName, lastName, suffix);
     }
 
     FakeApplicationFiller answerNameQuestion(
