@@ -213,9 +213,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantData applicantDataMiddle =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataMiddle.asJsonString()).contains("Alice", "Doe");
-    ApplicantData applicantDataSuffix =
-        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    assertThat(applicantDataSuffix.asJsonString()).contains("Alice", "Doe");
 
     // Now put empty updates
     updates =
