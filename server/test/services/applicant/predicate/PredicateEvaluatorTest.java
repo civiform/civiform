@@ -24,7 +24,7 @@ public class PredicateEvaluatorTest {
 
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private final QuestionDefinition addressQuestion =
-      questionBank.applicantAddress().getQuestionDefinition();
+      questionBank.addressApplicantAddress().getQuestionDefinition();
 
   private ApplicantData applicantData;
   private ApplicantQuestion applicantQuestion;

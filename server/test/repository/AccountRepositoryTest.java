@@ -18,6 +18,7 @@ import java.util.Set;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -423,6 +424,23 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Valid token
     assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
         .isEqualTo(validJwt.serialize());
+  }
+
+  @Test
+  public void listTrustedIntermediaryGroups_test() {
+    String dummyDesc = "something";
+    repo.createNewTrustedIntermediaryGroup("bbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("abc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("zbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("cbc", dummyDesc);
+
+    List<TrustedIntermediaryGroupModel> tiGroups = repo.listTrustedIntermediaryGroups();
+
+    assertThat(tiGroups).hasSize(4);
+    assertThat(tiGroups.get(0).getName()).isEqualTo("abc");
+    assertThat(tiGroups.get(1).getName()).isEqualTo("bbc");
+    assertThat(tiGroups.get(2).getName()).isEqualTo("cbc");
+    assertThat(tiGroups.get(3).getName()).isEqualTo("zbc");
   }
 
   private JWT getJwtWithExpirationTime(Instant expirationTime) {

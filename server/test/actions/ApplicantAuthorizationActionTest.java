@@ -43,7 +43,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     // Setup fakeRequest and configure it to use the specified route pattern
@@ -76,7 +76,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     // Setup fakeRequest and configure it to use the specified route pattern

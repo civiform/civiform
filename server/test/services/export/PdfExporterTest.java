@@ -75,7 +75,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithFile_asAdmin_singleFile()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -127,7 +127,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithFile_asAdmin()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -184,7 +184,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent_singleFile()
           throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -232,7 +232,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
           throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -285,7 +285,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_optionalFileUploadWithoutFile()
       throws IOException, DocumentException {
 
-    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
     createFakeProgramWithOptionalQuestion(fileQuestion);
 
@@ -607,9 +607,6 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "\n"
           + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
           + " \n"
-          + "applicant Email address\n"
-          + "one@example.com\n"
-          + "Answered on : 1969-12-31\n"
           + "applicant address\n"
           + "street st\n"
           + "apt 100\n"
@@ -617,6 +614,9 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "Answered on : 1969-12-31\n"
           + "applicant birth date\n"
           + "01/01/1980\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant email address\n"
+          + "one@example.com\n"
           + "Answered on : 1969-12-31\n"
           + "applicant favorite color\n"
           + "Some Value \" containing ,,, special characters\n"

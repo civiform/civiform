@@ -97,9 +97,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of("enumeratorId", "1")).build();
     Result result = controller.create(request, program.id);
@@ -149,7 +149,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withName("Admin name")
             .withDescription("Admin description")
             .build();
-    QuestionModel applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.nameApplicantName();
     applicantName.save();
     Result result = controller.show(fakeRequest(), program.id, /* blockId= */ 1L);
 
@@ -191,7 +191,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withName("Admin name")
             .withDescription("Admin description")
             .build();
-    QuestionModel applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.nameApplicantName();
     applicantName.save();
     Result result = controller.edit(fakeRequest(), program.id, /* blockId= */ 1L);
 

@@ -7,6 +7,7 @@ import * as main from './main'
 import * as radio from './radio'
 import * as toast from './toast'
 import * as toggle from './toggle'
+import * as adminApiKeys from './admin_api_keys'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
@@ -50,6 +51,7 @@ function initializeEverything(): void {
   radio.init()
   toast.init()
   toggle.init()
+  adminApiKeys.init()
   adminApplicationView.init()
   adminApplications.init()
   adminPredicates.init()

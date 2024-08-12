@@ -70,10 +70,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     createFakeQuestions();
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.applicantKitchenTools())
+            .withQuestion(testQuestionBank.checkboxApplicantKitchenTools())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
         .answerCheckboxQuestion(
+            testQuestionBank.checkboxApplicantKitchenTools(),
             ImmutableList.of(
                 2L, // "pepper_grinder"
                 3L // "garlic_press"
@@ -85,7 +86,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
         QuestionOption.create(4L, 4L, "stand_mixer", LocalizedStrings.of(Locale.US, "stand_mixer"));
     MultiOptionQuestionDefinition questionDefinition =
         (MultiOptionQuestionDefinition)
-            testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+            testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
     ImmutableList<QuestionOption> currentOptions = questionDefinition.getOptions();
     ImmutableList<QuestionOption> newOptionList =
         ImmutableList.<QuestionOption>builder().addAll(currentOptions).add(newOption).build();
@@ -148,7 +149,16 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "applicant email address (email)",
+            "applicant address (street)",
+            "applicant address (line2)",
+            "applicant address (city)",
+            "applicant address (state)",
+            "applicant address (zip)",
+            "applicant address (corrected)",
+            "applicant address (latitude)",
+            "applicant address (longitude)",
+            "applicant address (well_known_id)",
+            "applicant address (service_area)",
             "applicant monthly income (currency)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -160,17 +170,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "kitchen tools (selections - pepper_grinder)",
             "kitchen tools (selections - garlic_press)",
             "number of items applicant can juggle (number)",
-            "applicant address (street)",
-            "applicant address (line2)",
-            "applicant address (city)",
-            "applicant address (state)",
-            "applicant address (zip)",
-            "applicant address (corrected)",
-            "applicant address (latitude)",
-            "applicant address (longitude)",
-            "applicant address (well_known_id)",
-            "applicant address (service_area)",
             "applicant birth date (date)",
+            "applicant email address (email)",
             "applicant favorite color (text)",
             "applicant favorite season (selection)",
             "applicant file (file_key)",
@@ -179,7 +180,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
-        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
+        getApplicantQuestion(testQuestionBank.nameApplicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
@@ -266,7 +267,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
-        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
+        getApplicantQuestion(testQuestionBank.nameApplicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());

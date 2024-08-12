@@ -264,7 +264,9 @@ public class ProgramModelTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                            testQuestionBank
+                                .enumeratorApplicantHouseholdMembers()
+                                .getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
             .add(
@@ -276,7 +278,7 @@ public class ProgramModelTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantEmail().getQuestionDefinition(),
+                            testQuestionBank.emailApplicantEmail().getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
             .add(
@@ -289,7 +291,9 @@ public class ProgramModelTest extends ResetPostgres {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                            testQuestionBank
+                                .enumeratorNestedApplicantHouseholdMemberJobs()
+                                .getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
             .add(
@@ -302,7 +306,9 @@ public class ProgramModelTest extends ResetPostgres {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
+                            testQuestionBank
+                                .nameRepeatedApplicantHouseholdMemberName()
+                                .getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
             .add(
@@ -316,7 +322,7 @@ public class ProgramModelTest extends ResetPostgres {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank
-                                .applicantHouseholdMemberDaysWorked()
+                                .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
                                 .getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
@@ -329,7 +335,7 @@ public class ProgramModelTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantName().getQuestionDefinition(),
+                            testQuestionBank.nameApplicantName().getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())
             .build();

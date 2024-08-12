@@ -26,7 +26,7 @@ public class QuestionDefinitionBuilderTest {
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty());
     applicantNameBuilder =
-        new QuestionDefinitionBuilder(QUESTION_BANK.applicantName().getQuestionDefinition());
+        new QuestionDefinitionBuilder(QUESTION_BANK.nameApplicantName().getQuestionDefinition());
   }
 
   @Test

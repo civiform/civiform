@@ -35,7 +35,13 @@ public abstract class UpsellParams {
 
   abstract Optional<ImmutableList<ApplicantProgramData>> eligiblePrograms();
 
+  // Will be non-empty if programTitle is used
+  abstract Optional<String> programDescription();
+
   abstract LocalizedStrings customConfirmationMessage();
+
+  // Localized string for the date the application was submitted
+  abstract String dateSubmitted();
 
   abstract Messages messages();
 
@@ -59,8 +65,12 @@ public abstract class UpsellParams {
     public abstract Builder setEligiblePrograms(
         ImmutableList<ApplicantProgramData> eligiblePrograms);
 
+    public abstract Builder setProgramDescription(String programDescription);
+
     public abstract Builder setCustomConfirmationMessage(
         LocalizedStrings customConfirmationMessage);
+
+    public abstract Builder setDateSubmitted(String dateSubmitted);
 
     public abstract Builder setMessages(Messages messages);
 

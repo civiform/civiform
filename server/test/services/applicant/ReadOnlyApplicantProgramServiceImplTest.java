@@ -51,9 +51,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void setUp() {
     jsonPathPredicateGeneratorFactory = instanceOf(JsonPathPredicateGeneratorFactory.class);
     applicantData = new ApplicantData();
-    nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
-    colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+    addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     staticQuestion = testQuestionBank.staticContent().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program setup")
@@ -88,7 +88,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   @Test
   public void getStoredFileKeys_includesAnsweredFileQuestions() {
     QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -112,7 +112,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   @Test
   public void getStoredFileKeys_worksForMultipleFileUploads() {
     QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -143,7 +143,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   @Test
   public void getStoredFileKeys_doesNotReturnOldKeyWhenMultipleFileEnabled() {
     QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -179,7 +179,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   @Test
   public void getStoredFileKeys_doesNotIncludeUnansweredFileQuestions() {
     QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -340,13 +340,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock("enumeration - household members")
             .withVisibilityPredicate(predicate)
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withRequiredQuestion(testQuestionBank.nameRepeatedApplicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withRepeatedBlock("deeply repeated - household members number days worked")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
+            .withRequiredQuestion(
+                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
             .buildDefinition();
 
     // Answer predicate question so that the block should be visible
@@ -356,7 +357,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     Path enumerationPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantHouseholdMembers()
+                .enumeratorApplicantHouseholdMembers()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
@@ -367,7 +368,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .atIndex(2)
             .join(
                 testQuestionBank
-                    .applicantHouseholdMemberJobs()
+                    .enumeratorNestedApplicantHouseholdMemberJobs()
                     .getQuestionDefinition()
                     .getQuestionPathSegment());
     applicantData.putString(
@@ -429,24 +430,25 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock("name")
-            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .withBlock("address")
-            .withRequiredQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.addressApplicantAddress())
             .withBlock("enumeration - household members")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withRequiredQuestion(testQuestionBank.nameRepeatedApplicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withRepeatedBlock("deeply repeated - household members number days worked")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
+            .withRequiredQuestion(
+                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
             .buildDefinition();
 
     // Add repeated entities to applicant data
     Path enumerationPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantHouseholdMembers()
+                .enumeratorApplicantHouseholdMembers()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
@@ -457,7 +459,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .atIndex(2)
             .join(
                 testQuestionBank
-                    .applicantHouseholdMemberJobs()
+                    .enumeratorNestedApplicantHouseholdMemberJobs()
                     .getQuestionDefinition()
                     .getQuestionPathSegment());
     applicantData.putString(
@@ -748,7 +750,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getIneligibleQuestionsForProgram_doesNotIncludeUnansweredQuestions() {
     // Create an eligibility condition with number question == 5.
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -783,7 +785,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getIneligibleQuestionsForProgram_includesQuestionsWithIneligibleAnswers() {
     // Create an eligibility condition with number question == 5.
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -820,14 +822,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // the applicant not eligible.
     assertThat(eligibilityQuestions).hasSize(1);
     assertThat(eligibilityQuestions.stream().findFirst().get().getQuestionDefinition())
-        .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition());
   }
 
   @Test
   public void getIneligibleQuestionsForProgram_doesNotIncludeQuestionsWithEligibleAnswers() {
     // Create an eligibility condition with number question == 5.
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1056,15 +1058,15 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_returnsCompletedData() {
     // Create a program with lots of questions
     QuestionDefinition singleSelectQuestionDefinition =
-        testQuestionBank.applicantSeason().getQuestionDefinition();
+        testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition();
     QuestionDefinition multiSelectQuestionDefinition =
-        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+        testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
     QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     QuestionDefinition enumeratorQuestionDefinition =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedQuestionDefinition =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -1230,7 +1232,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_returnsKeysForUploadedFileForSingleFile() {
     // Create a program with a fileupload question and a non-fileupload question
     QuestionDefinition fileUploadQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withBlock("Block one")
@@ -1261,7 +1263,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_returnsKeysForUploadedFiles() {
     // Create a program with a fileupload question and a non-fileupload question
     QuestionDefinition fileUploadQuestionDefinition =
-        testQuestionBank.applicantFile().getQuestionDefinition();
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withBlock("Block one")
@@ -1298,7 +1300,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_isEligible(long answer, boolean expectedResult) {
     // Create a program with an eligibility condition == 5 and answer it with different values.
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1365,7 +1367,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getIsApplicationEligible(long answer, boolean expectedResult) {
     // Create a program with an eligibility condition == 5 and answer it with different values.
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1407,7 +1409,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // and another with eligibility condition == "blue" answer it with different values.
 
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1419,7 +1421,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             PredicateAction.SHOW_BLOCK);
 
     QuestionDefinition colorQuestionDefinition =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1471,7 +1473,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // block with different values.
 
     QuestionDefinition numberQuestionDefinition =
-        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1483,7 +1485,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             PredicateAction.SHOW_BLOCK);
 
     QuestionDefinition colorQuestionDefinition =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(

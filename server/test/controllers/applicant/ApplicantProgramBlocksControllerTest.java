@@ -70,9 +70,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
     applicant = createApplicantWithMockedProfile();
   }
@@ -102,7 +102,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -128,7 +128,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -272,7 +272,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -297,7 +297,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -368,7 +368,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -403,7 +403,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -436,7 +436,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -697,7 +697,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -742,9 +742,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -792,7 +792,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -837,7 +837,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withOptionalQuestion(testQuestionBank().applicantName())
+            .withOptionalQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -884,7 +884,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request requestWithAnswer =
         fakeRequestBuilder()
@@ -959,7 +959,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withOptionalQuestion(testQuestionBank().applicantName())
+            .withOptionalQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request requestWithAnswer =
         fakeRequestBuilder()
@@ -1030,9 +1030,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1076,9 +1076,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1119,7 +1119,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1159,13 +1159,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank().textApplicantFavoriteColor())
             .withBlock("block 3")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .withBlock("block 4")
-            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .withRequiredQuestion(testQuestionBank().emailApplicantEmail())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1209,7 +1209,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1250,7 +1250,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1290,11 +1290,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank().textApplicantFavoriteColor())
             .withBlock("block 3")
-            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .withRequiredQuestion(testQuestionBank().emailApplicantEmail())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1331,7 +1331,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     Request request =
         fakeRequestBuilder()
@@ -1380,7 +1380,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -1453,7 +1453,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     Request request =
@@ -1489,7 +1489,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -1524,7 +1524,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -1673,9 +1673,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -1717,9 +1717,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -1763,9 +1763,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -1804,7 +1804,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -1849,7 +1849,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     var fileKey = "fake-key";
@@ -1915,7 +1915,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     Request request =
@@ -1941,7 +1941,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -1971,7 +1971,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -2087,9 +2087,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -2140,7 +2140,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(
                 testQuestionBank().maybeSave(fileUploadWithMaxDefinition, LifecycleStage.ACTIVE))
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -2193,7 +2193,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
     RequestBuilder requestOne =
         fakeRequestBuilder()
@@ -2242,7 +2242,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
     RequestBuilder request =
         fakeRequestBuilder()
@@ -2297,7 +2297,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     long badApplicantId = applicant.id + 1000;
@@ -2331,7 +2331,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
     Request request =
@@ -2364,7 +2364,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     Request request =
@@ -2397,7 +2397,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     Request request =
@@ -2454,7 +2454,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     String badBlockId = "1000";
@@ -2483,7 +2483,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank().applicantDate())
+            .withRequiredQuestion(testQuestionBank().dateApplicantBirthdate())
             .build();
 
     String dateQuestionBlockId = "1";
@@ -2516,7 +2516,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder request =
@@ -2549,25 +2549,34 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         0,
         "file-key-1");
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         1,
         "key-to-remove");
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         2,
         "file-key-2");
     applicant.save();
@@ -2605,13 +2614,16 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         1,
         "key-to-remove");
     applicant.save();
@@ -2647,19 +2659,25 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         0,
         "file-key-1");
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank().applicantFile().getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank()
+                .fileUploadApplicantFile()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         2,
         "file-key-2");
 
@@ -2729,7 +2747,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .build();
 
     Request request =
@@ -2765,7 +2783,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .build();
 
     Request request =
@@ -2799,7 +2817,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .build();
 
     Request request =
@@ -2897,9 +2915,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .build();
 
     // First, answer the address question
@@ -2992,9 +3010,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .build();
 
     String address = "456 Suggested Ave, Seattle, Washington, 99999";
@@ -3072,9 +3090,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .build();
 
     Request request =
@@ -3121,11 +3139,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .withRequiredQuestion(testQuestionBank().emailApplicantEmail())
             .withBlock("block 2")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 3")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .build();
 
     Request request =
@@ -3175,9 +3193,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
             .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
             .build();
 
     // First, answer the address question

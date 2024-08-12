@@ -102,6 +102,18 @@ See the radio-option below as an example.
   @include u-height(1);
 }
 
+.content {
+  @include u-margin-y('105');
+}
+
+// This should only be used to override styling.
+// Prefer using class="usa-prose" in parent element where possible.
+.cf-prose-h4 {
+  @include u-font('sans', 'sm');
+  font-weight: font-weight('bold');
+  @include u-line-height('sans', $theme-heading-line-height);
+}
+
 // Styles for desktop
 @media (min-width: 64em) {
   // The USWDS header doesn't give enough space for the logo and title, so we add some.
