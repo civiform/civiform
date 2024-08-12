@@ -31,7 +31,6 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   LONGITUDE("longitude", ScalarType.DOUBLE),
   MIDDLE_NAME("middle name", ScalarType.STRING),
-  NAME_SUFFIX("name suffix", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
   ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
   SELECTION("selection", ScalarType.STRING),
@@ -122,7 +121,7 @@ public enum Scalar {
       case ID:
         return ImmutableSet.of(ID);
       case NAME:
-        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME, NAME_SUFFIX);
+        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
       case NUMBER:
         return ImmutableSet.of(NUMBER);
       case TEXT:
