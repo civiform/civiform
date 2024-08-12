@@ -1134,7 +1134,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "taylor",
             "Taylor",
             "Allison",
-            "Swift")
+            "Swift",
+            "")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
