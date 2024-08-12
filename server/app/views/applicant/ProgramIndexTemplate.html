@@ -68,28 +68,36 @@
           </li>
         </ul>
       </div>
-      <div
-        th:if="${commonIntakeSection.isPresent()}"
-        class="cf-application-program-section"
-      >
-        <h2 th:text="#{title.getStartedSection}"></h2>
-        <div
-          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
-        ></div>
+      <div>
+        <div th:if="${commonIntakeSection.isPresent()}">
+          <div class="grid-container">
+            <div class="grid-row">
+              <h2 th:text="#{title.getStartedSection}"></h2>
+            </div>
+          </div>
+
+          <div
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
+          ></div>
+        </div>
+        <div class="grid-container">
+          <div class="grid-row">
+            <h2
+              th:if="${commonIntakeSection.isPresent()}"
+              th:text="#{title.allProgramsSection(${numPrograms})}"
+            ></h2>
+            <h2
+              th:unless="${commonIntakeSection.isPresent()}"
+              th:text="#{title.programs}"
+            ></h2>
+          </div>
+        </div>
+        <th:block th:each="section : ${sections}">
+          <div
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
+          ></div>
+        </th:block>
       </div>
-      <h2
-        th:if="${commonIntakeSection.isPresent()}"
-        th:text="#{title.allProgramsSection(${numPrograms})}"
-      ></h2>
-      <h2
-        th:unless="${commonIntakeSection.isPresent()}"
-        th:text="#{title.programs}"
-      ></h2>
-      <th:block th:each="section : ${sections}">
-        <div
-          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
-        ></div>
-      </th:block>
     </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->true,
