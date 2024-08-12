@@ -967,13 +967,15 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeApplicationFiller answerFileUploadQuestionWithMultipleUpload(QuestionModel question, String fileKey, int index) {
-      return answerFileUploadQuestion(question, null, fileKey, index);
+    FakeApplicationFiller answerFileQuestionWithMultipleUpload(
+        QuestionModel question, String fileKey, int index) {
+      return answerFileQuestionWithMultipleUpload(question, null, fileKey, index);
     }
 
-    FakeApplicationFiller answerFileQuestionWithMultipleUpload(QuestionModel question, String repeatedEntityName, String fileKey, int index) {
+    FakeApplicationFiller answerFileQuestionWithMultipleUpload(
+        QuestionModel question, String repeatedEntityName, String fileKey, int index) {
       var repeatedEntity =
-        Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
           question
               .getQuestionDefinition()
@@ -993,8 +995,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         QuestionModel question, String repeatedEntityName, String answer) {
       var repeatedEntity =
           Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
-
-    FakeApplicationFiller answerIdQuestion(String answer) {
       Path answerPath =
           question
               .getQuestionDefinition()

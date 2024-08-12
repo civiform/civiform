@@ -284,7 +284,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -454,7 +455,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -551,7 +553,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -648,7 +651,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -745,7 +749,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -844,7 +849,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -898,8 +904,10 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.fileUploadApplicantFile())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerFileQuestionWithMultipleUpload("test-file-key-1", 0)
-        .answerFileQuestionWithMultipleUpload("test-file-key-2", 1)
+        .answerFileQuestionWithMultipleUpload(
+            testQuestionBank.fileUploadApplicantFile(), "test-file-key-1", 0)
+        .answerFileQuestionWithMultipleUpload(
+            testQuestionBank.fileUploadApplicantFile(), "test-file-key-2", 1)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -951,7 +959,120 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
-  public void export_whenFileUploadQuestionIsRepeated_answersAreCorrectlyNested_andShowBothValues() {
+  public void export_whenFileUploadQuestionIsRepeated_answersAreCorrectlyNested() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersRepeatedQuestion(
+                testQuestionBank.fileUploadRepeatedHouseholdMemberFile())
+            .build();
+
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("taylor"))
+        .answerFileQuestionWithMultipleUpload(
+            testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
+            "taylor",
+            "test-file-key-1",
+            0)
+        .answerFileQuestionWithMultipleUpload(
+            testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
+            "taylor",
+            "test-file-key-2",
+            1)
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        """
+{
+  "entities" : [ {
+    "entity_name" : "taylor",
+    "household_member_file" : {
+      "file_key_list" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
+      "question_type" : "FILE_UPLOAD"
+    }
+  } ],
+  "question_type" : "ENUMERATOR"
+}"""
+            .formatted(BASE_URL, BASE_URL));
+  }
+
+  @Test
+  public void export_whenFileUploadQuestionIsNotAnswered_showsNullAndEmptyValues() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.fileUploadApplicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            false);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : null,
+          "file_key_list" : [ ],
+          "question_type" : "FILE_UPLOAD"
+        }""");
+  }
+
+  @Test
+  public void
+      export_whenFileUploadQuestionIsAnswered_whenMultipleFileUploadDisabled_fileKeyListEqualsFileKey() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.fileUploadApplicantFile())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerFileUploadQuestion(testQuestionBank.fileUploadApplicantFile(), "test-file-key")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            false);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_file",
+        """
+        {
+          "file_key" : "%s/admin/applicant-files/test-file-key",
+          "file_key_list" : [ "%s/admin/applicant-files/test-file-key" ],
+          "question_type" : "FILE_UPLOAD"
+        }"""
+            .formatted(BASE_URL, BASE_URL));
+  }
+
+  @Test
+  public void
+      export_whenFileUploadQuestionIsRepeated_answersAreCorrectlyNested_andShowBothValues() {
     createFakeQuestions();
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
@@ -988,68 +1109,6 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }"""
-            .formatted(BASE_URL, BASE_URL));
-  }
-
-  @Test
-  public void export_whenFileUploadQuestionIsNotAnswered_showsNullAndEmptyValues() {
-    createFakeQuestions();
-    var fakeProgram =
-        FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.applicantFile())
-            .build();
-    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
-
-    JsonExporterService exporter = instanceOf(JsonExporterService.class);
-
-    String resultJsonString =
-        exporter.export(
-            fakeProgram.getProgramDefinition(),
-            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            false);
-    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
-
-    resultAsserter.assertJsonAtApplicationPath(
-        ".applicant_file",
-        """
-        {
-          "file_key" : null,
-          "file_key_list" : [ ],
-          "question_type" : "FILE_UPLOAD"
-        }""");
-  }
-
-  @Test
-  public void
-      export_whenFileUploadQuestionIsAnswered_whenMultipleFileUploadDisabled_fileKeyListEqualsFileKey() {
-    createFakeQuestions();
-    var fakeProgram =
-        FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.applicantFile())
-            .build();
-    FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerFileUploadQuestion("test-file-key")
-        .submit();
-
-    JsonExporterService exporter = instanceOf(JsonExporterService.class);
-
-    String resultJsonString =
-        exporter.export(
-            fakeProgram.getProgramDefinition(),
-            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY,
-            false);
-    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
-
-    resultAsserter.assertJsonAtApplicationPath(
-        ".applicant_file",
-        """
-        {
-          "file_key" : "%s/admin/applicant-files/test-file-key",
-          "file_key_list" : [ "%s/admin/applicant-files/test-file-key" ],
-          "question_type" : "FILE_UPLOAD"
         }"""
             .formatted(BASE_URL, BASE_URL));
   }
@@ -1103,7 +1162,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1208,7 +1268,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1340,7 +1401,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1437,7 +1499,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1536,7 +1599,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -1635,7 +1699,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
