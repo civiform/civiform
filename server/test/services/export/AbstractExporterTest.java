@@ -957,7 +957,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         String repeatedEntityName,
         String firstName,
         String middleName,
-        String lastName) {
+        String lastName,
+        String suffix) {
       var repeatedEntity =
           Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
