@@ -78,27 +78,40 @@ public final class ProgramMigrationService {
 
   /**
    * Checks if there are existing questions that match the admin id of any of the incoming
-   * questions. If a match is found, it overwrites the admin id on the config of the incoming
-   * question and creates a new question with the udpated config.
+   * questions. If a match is found, it generates a new admin name of the format "orginal admin
+   * name-n".
    */
   public ImmutableList<QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
     return questions.stream()
         .map(
             (QuestionDefinition question) -> {
-              boolean questionExists =
-                  questionRepository.checkQuestionNameExists(question.getName());
-              if (questionExists) {
-                String newAdminName = question.getName() + "-1";
-                try {
-                  return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
-                } catch (UnsupportedQuestionTypeException error) {
-                  throw new RuntimeException(error);
-                }
-              } else {
-                return question;
+              String newAdminName = maybeGenerateNewAdminName(question.getName());
+              try {
+                return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
+              } catch (UnsupportedQuestionTypeException error) {
+                throw new RuntimeException(error);
               }
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Generate a new admin name for questions of the format "orginal admin name-n" where "n" is the
+   * next consecutive number such that we don't already have a question with that admin name saved.
+   * For example if the admin name is "sample question" and we already have "sample question-1" and
+   * "sample question-2" saved in the db, the generated name will be "sample question-3"
+   */
+  public String maybeGenerateNewAdminName(String adminName) {
+    String newAdminName = adminName;
+    ImmutableList<String> similarAdminNames = questionRepository.getSimilarAdminNames(adminName);
+    int n = 1;
+    while (similarAdminNames.contains(newAdminName)) {
+      newAdminName = adminName + "-" + n;
+      System.out.println(newAdminName);
+      n++;
+      continue;
+    }
+    return newAdminName;
   }
 }

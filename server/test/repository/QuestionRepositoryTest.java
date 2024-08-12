@@ -449,16 +449,12 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void checkQuestionNameExists_returnsTrueIfAdminNameExistsFalseOtherwise()
-      throws UnsupportedQuestionTypeException {
-    testQuestionBank.nameApplicantName();
-
-    Boolean existsOne =
-        repo.checkQuestionNameExists("applicant name"); // same admin name as the saved question
-    Boolean existsTwo = repo.checkQuestionNameExists("another admin name");
-
-    assertThat(existsOne).isTrue();
-    assertThat(existsTwo).isFalse();
+  public void getQuestionsWithSimilarAdminNames_returnsSimilarAdminNames() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("name-question-1");
+    resourceCreator.insertQuestion("name-question-2");
+    ImmutableList<String> adminNames = repo.getSimilarAdminNames("name-question");
+    assertThat(adminNames.size()).isEqualTo(3);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

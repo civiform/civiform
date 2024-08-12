@@ -74,6 +74,10 @@ public final class QuestionRepository {
         executionContext);
   }
 
+  /**
+   * Check for admin names that are an exact match for any of the names of the questions passed in.
+   * Return a list of matches.
+   */
   public ImmutableList<String> getMatchingAdminNames(ImmutableList<QuestionDefinition> questions) {
     return questions.stream()
         .filter(
@@ -81,7 +85,7 @@ public final class QuestionRepository {
               return database
                   .find(QuestionModel.class)
                   .setLabel("QuestionModel.findByName")
-                  .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestionByName"))
+                  .setProfileLocation(queryProfileLocationBuilder.create("getMatchingAdminNames"))
                   .where()
                   .eq("name", question.getName())
                   .exists();
@@ -90,14 +94,21 @@ public final class QuestionRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public boolean checkQuestionNameExists(String name) {
+  /** Get any similar admin names to the admin name passed in */
+  public ImmutableList<String> getSimilarAdminNames(String adminName) {
     return database
         .find(QuestionModel.class)
-        .setLabel("QuestionModel.findByName")
-        .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestionByName"))
+        .setLabel("QuestionModel.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getSimilarAdminNames"))
         .where()
-        .eq("name", name)
-        .exists();
+        .ilike("name", adminName + "%")
+        .findList()
+        .stream()
+        .map(
+            question -> {
+              return question.getQuestionDefinition().getName();
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
