@@ -207,7 +207,7 @@ public class ApplicantData extends CfJsonDocumentContext {
    * @param input The string to be checked for suffix validity.
    * @return 'true' if the input string matches a suffix defined in Suffix enum, 'false' otherwise.
    */
-  public static boolean isSuffix(String input) {
+  private static boolean isSuffix(String input) {
     return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
   }
 
