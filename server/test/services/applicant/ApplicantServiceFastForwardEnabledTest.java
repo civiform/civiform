@@ -1713,7 +1713,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithManyNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Second Third Fourth");
+    applicant.getApplicantData().setUserName("First Second Third Fourth Fifth");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -1723,7 +1723,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
                     .setEmail(ImmutableSet.of("test@example.com"))
-                    .setName("First Second Third Fourth")
+                    .setName("First Second Third Fourth Fifth")
                     .build()));
   }
 

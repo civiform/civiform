@@ -207,8 +207,8 @@ public class ApplicantData extends CfJsonDocumentContext {
    * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
    * SamlProfileCreator} and we do not want it to overwrite the name upon login.
    *
-   * @param displayName A string that contains the applicant's name, with first, middle, and last
-   *     separated by spaces. May provide only first name or only first last.
+   * @param displayName A string that contains the applicant's name, with first, middle, last, and
+   *     suffix separated by spaces. May provide only first name or only first last.
    */
   public void setUserName(String displayName) {
     String firstName;
@@ -222,6 +222,11 @@ public class ApplicantData extends CfJsonDocumentContext {
         lastName = Optional.of(listSplit.get(1));
         break;
       case 3:
+        firstName = listSplit.get(0);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
+        break;
+      case 4:
         firstName = listSplit.get(0);
         middleName = Optional.of(listSplit.get(1));
         lastName = Optional.of(listSplit.get(2));
