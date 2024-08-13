@@ -309,6 +309,13 @@ public interface QuestionJsonPresenter<Q extends Question> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
         FileUploadQuestion question, boolean multipleFileUploadEnabled) {
+
+      Path fileUrlsPath =
+          question
+              .getApplicantQuestion()
+              .getContextualizedPath()
+              .join("file_urls")
+              .asNestedEntitiesPath();
       if (multipleFileUploadEnabled) {
         ImmutableList<String> fileKeys =
             question
@@ -317,7 +324,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
                 .getFileKeyListValue()
                 .orElse(ImmutableList.of());
 
-        fileKeys =
+        ImmutableList<String> fileUrls =
             fileKeys.stream()
                 .map(
                     fileKey ->
@@ -327,8 +334,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
                                 .url())
                 .collect(toImmutableList());
 
-        return ImmutableMap.of(
-            question.getFileKeyListPath().asNestedEntitiesPath(), Optional.of(fileKeys));
+        return ImmutableMap.of(fileUrlsPath, Optional.of(fileUrls));
       } else {
         Optional<String> singleFileUploadLink =
             question
@@ -342,7 +348,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
                                     URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                 .url());
 
-        Optional<ImmutableList<String>> fileKeyList =
+        Optional<ImmutableList<String>> fileUrls =
             singleFileUploadLink.isPresent()
                 ? Optional.of(ImmutableList.of(singleFileUploadLink.get()))
                 : Optional.of(ImmutableList.of());
@@ -350,8 +356,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
         return ImmutableMap.of(
             question.getFileKeyPath().asNestedEntitiesPath(),
             singleFileUploadLink,
-            question.getFileKeyListPath().asNestedEntitiesPath(),
-            fileKeyList);
+            fileUrlsPath,
+            fileUrls);
       }
     }
   }

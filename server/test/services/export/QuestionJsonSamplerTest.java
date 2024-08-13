@@ -141,7 +141,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
             ImmutableMap.of(
                 Path.create("applicant.sample_file_upload_question.question_type"),
                 Optional.of("FILE_UPLOAD"),
-                Path.create("applicant.sample_file_upload_question.file_key_list"),
+                Path.create("applicant.sample_file_upload_question.file_urls"),
                 Optional.of(
                     Arrays.asList(
                         "http://localhost:9000/admin/applicant-files/my-file-key-1",
@@ -163,7 +163,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 Optional.of("FILE_UPLOAD"),
                 Path.create("applicant.sample_file_upload_question.file_key"),
                 Optional.of("http://localhost:9000/admin/applicant-files/my-file-key"),
-                Path.create("applicant.sample_file_upload_question.file_key_list"),
+                Path.create("applicant.sample_file_upload_question.file_urls"),
                 Optional.of(
                     Arrays.asList("http://localhost:9000/admin/applicant-files/my-file-key"))));
   }

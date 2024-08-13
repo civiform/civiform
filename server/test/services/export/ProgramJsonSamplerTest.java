@@ -127,7 +127,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
       },
       "sample_file_upload_question" : {
         "file_key" : "http://localhost:9000/admin/applicant-files/my-file-key",
-        "file_key_list" : [ "http://localhost:9000/admin/applicant-files/my-file-key" ],
+        "file_urls" : [ "http://localhost:9000/admin/applicant-files/my-file-key" ],
         "question_type" : "FILE_UPLOAD"
       },
       "sample_id_question" : {
@@ -223,7 +223,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "question_type" : "EMAIL"
       },
       "sample_file_upload_question" : {
-        "file_key_list" : [ "http://localhost:9000/admin/applicant-files/my-file-key-1", "http://localhost:9000/admin/applicant-files/my-file-key-2" ],
+        "file_urls" : [ "http://localhost:9000/admin/applicant-files/my-file-key-1", "http://localhost:9000/admin/applicant-files/my-file-key-2" ],
         "question_type" : "FILE_UPLOAD"
       },
       "sample_id_question" : {

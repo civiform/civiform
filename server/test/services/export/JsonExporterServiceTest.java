@@ -924,7 +924,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         ".applicant_file",
         """
 {
-  "file_key_list" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
+  "file_urls" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
   "question_type" : "FILE_UPLOAD"
 }"""
             .formatted(BASE_URL, BASE_URL));
@@ -953,7 +953,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         ".applicant_file",
         """
         {
-          "file_key_list" : [ ],
+          "file_urls" : [ ],
           "question_type" : "FILE_UPLOAD"
         }""");
   }
@@ -999,7 +999,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   "entities" : [ {
     "entity_name" : "taylor",
     "household_member_file" : {
-      "file_key_list" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
+      "file_urls" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
       "question_type" : "FILE_UPLOAD"
     }
   } ],
@@ -1032,7 +1032,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         """
         {
           "file_key" : null,
-          "file_key_list" : [ ],
+          "file_urls" : [ ],
           "question_type" : "FILE_UPLOAD"
         }""");
   }
@@ -1064,7 +1064,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         """
         {
           "file_key" : "%s/admin/applicant-files/test-file-key",
-          "file_key_list" : [ "%s/admin/applicant-files/test-file-key" ],
+          "file_urls" : [ "%s/admin/applicant-files/test-file-key" ],
           "question_type" : "FILE_UPLOAD"
         }"""
             .formatted(BASE_URL, BASE_URL));
@@ -1104,7 +1104,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "entity_name" : "taylor",
             "household_member_file" : {
               "file_key" : "%s/admin/applicant-files/test-file-key",
-              "file_key_list" : [ "%s/admin/applicant-files/test-file-key" ],
+              "file_urls" : [ "%s/admin/applicant-files/test-file-key" ],
               "question_type" : "FILE_UPLOAD"
             }
           } ],
