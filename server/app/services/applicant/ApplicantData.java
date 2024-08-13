@@ -8,10 +8,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicantModel;
+import models.ApplicantModel.Suffix;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
@@ -199,6 +201,10 @@ public class ApplicantData extends CfJsonDocumentContext {
     putDate(dobPath, dateOfBirth);
   }
 
+  public static boolean isSuffix(String input) {
+    return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
+  }
+
   // TODO: Get rid of this function, and change ApplicantProfileCreator and SamlProfileCreator
   // to use the function that passes in each field separately.
   /**
@@ -221,16 +227,21 @@ public class ApplicantData extends CfJsonDocumentContext {
         firstName = listSplit.get(0);
         lastName = Optional.of(listSplit.get(1));
         break;
-      case 3:
-        firstName = listSplit.get(0);
-        middleName = Optional.of(listSplit.get(1));
-        lastName = Optional.of(listSplit.get(2));
-        break;
       case 4:
         firstName = listSplit.get(0);
         middleName = Optional.of(listSplit.get(1));
         lastName = Optional.of(listSplit.get(2));
         nameSuffix = Optional.of(listSplit.get(3));
+        break;
+      case 3:
+        firstName = listSplit.get(0);
+        if (isSuffix(listSplit.get(2))) {
+          lastName = Optional.of(listSplit.get(1));
+          nameSuffix = Optional.of(listSplit.get(2));
+        } else {
+          middleName = Optional.of(listSplit.get(1));
+          lastName = Optional.of(listSplit.get(2));
+        }
         break;
       case 1:
         // fallthrough
@@ -279,6 +290,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     // Empty string will remove it from the model
     applicant.setMiddleName(middleName.orElse(""));
     applicant.setLastName(lastName.orElse(""));
+    applicant.setSuffix(nameSuffix.orElse(""));
 
     putString(firstPath, firstName);
     if (middleName.isPresent()) {

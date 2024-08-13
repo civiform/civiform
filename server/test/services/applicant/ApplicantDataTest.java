@@ -69,11 +69,28 @@ public class ApplicantDataTest extends ResetPostgres {
   }
 
   @Test
-  public void getApplicantName_withMiddleName_exists() {
+  public void getApplicantName_withMiddleNameWithoutSuffix_exists() {
     ApplicantData data = createNewApplicantData();
     data.setUserName("First Middle Last");
     assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
     assertThat(data.getApplicant().getMiddleName().get()).isEqualTo("Middle");
+  }
+
+  @Test
+  public void getApplicantName_withNameSuffixWithoutMiddleName_exist() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Last Jr.");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(data.getApplicant().getSuffix().get()).isEqualTo("Jr.");
+  }
+
+  @Test
+  public void getApplicantName_withAllNameFields_exist() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Middle Last Jr.");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(data.getApplicant().getMiddleName().get()).isEqualTo("Middle");
+    assertThat(data.getApplicant().getSuffix().get()).isEqualTo("Jr.");
   }
 
   @Test
