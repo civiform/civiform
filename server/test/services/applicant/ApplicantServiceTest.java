@@ -977,6 +977,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.nameplz").join(Scalar.FIRST_NAME).toString(), "Jean")
             .put(Path.create("applicant.nameplz").join(Scalar.MIDDLE_NAME).toString(), "Luc")
             .put(Path.create("applicant.nameplz").join(Scalar.LAST_NAME).toString(), "Picard")
+            .put(Path.create("applicant.nameplz").join(Scalar.NAME_SUFFIX).toString(), "Sr.")
             .put(Path.create("applicant.dateplz").join(Scalar.DATE).toString(), "1999-01-07")
             .put(
                 Path.create("applicant.emailplz").join(Scalar.EMAIL).toString(),
@@ -1006,6 +1007,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
     assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getSuffix().get()).isEqualTo("Sr.");
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("1999-01-07");
     assertThat(applicant.getEmailAddress().get()).isEqualTo("picard@starfleet.com");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5032161111");
@@ -2895,6 +2897,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Taylor",
         "Allison",
         "Swift",
+        "I",
         programForAnsweringQuestions
             .getProgramDefinition()
             .getBlockDefinitionByIndex(0)
@@ -2964,6 +2967,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Taylor",
         "Allison",
         "Swift",
+        "I",
         programWithEligibleAndIneligibleAnswers
             .getProgramDefinition()
             .getBlockDefinitionByIndex(0)
@@ -2976,6 +2980,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Solána",
         "Imani",
         "Rowe",
+        "Jr.",
         programWithEligibleAndIneligibleAnswers
             .getProgramDefinition()
             .getBlockDefinitionByIndex(1)
@@ -3048,6 +3053,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Taylor",
         "Allison",
         "Swift",
+        "I",
         programWithEligibleAndIneligibleAnswers
             .getProgramDefinition()
             .getBlockDefinitionByIndex(0)
@@ -3060,6 +3066,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Solána",
         "Imani",
         "Rowe",
+        "Jr.",
         programWithEligibleAndIneligibleAnswers
             .getProgramDefinition()
             .getBlockDefinitionByIndex(1)
@@ -3118,6 +3125,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Taylor",
         "Allison",
         "Swift",
+        "I",
         commonIntakeForm.getProgramDefinition().getBlockDefinitionByIndex(0).orElseThrow().id(),
         applicant.id,
         commonIntakeForm.id);
@@ -3162,6 +3170,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Taylor",
         "Allison",
         "Swift",
+        "I",
         testProgramWithNoEligibilityConditions
             .getProgramDefinition()
             .getBlockDefinitionByIndex(0)
@@ -3250,6 +3259,7 @@ public class ApplicantServiceTest extends ResetPostgres {
       String firstName,
       String middleName,
       String lastName,
+      String nameSuffix,
       Long blockId,
       long applicantId,
       long programId) {
@@ -3260,6 +3270,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), firstName)
             .put(questionPath.join(Scalar.MIDDLE_NAME).toString(), middleName)
             .put(questionPath.join(Scalar.LAST_NAME).toString(), lastName)
+            .put(questionPath.join(Scalar.NAME_SUFFIX).toString(), nameSuffix)
             .build();
     subject
         .stageAndUpdateIfValid(
