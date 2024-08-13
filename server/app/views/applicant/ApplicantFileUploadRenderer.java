@@ -162,7 +162,20 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag result = div();
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
-    result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
+
+    if (params.multipleFileUploadEnabled()) {
+      result.with(
+          FileUploadViewStrategy.createUswdsFileInputFormElement(
+              fileInputId,
+              MIME_TYPES_IMAGES_AND_PDF,
+              ImmutableList.of(
+                  params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName())),
+              /* disabled= */ false,
+              applicantStorageClient.getFileLimitMb(),
+              params.messages()));
+    } else {
+      result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
+    }
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
         AlertComponent.renderSlimAlert(
@@ -172,10 +185,11 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 /* hidden= */ true,
                 "mb-2")
             .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
-    result.with(
-        createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
 
     if (!params.multipleFileUploadEnabled()) {
+      result.with(
+        createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
+        
       Optional<String> uploaded =
           fileUploadQuestion
               .getFilename()
