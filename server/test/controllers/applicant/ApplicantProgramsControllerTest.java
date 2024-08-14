@@ -14,6 +14,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_differentApplicant_redirectsToHome() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id + 1)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id + 1, List.of())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -67,7 +68,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_applicantWithoutProfile_redirectsToHome() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), applicantWithoutProfile.id)
+            .indexWithApplicantId(fakeRequest(), applicantWithoutProfile.id, List.of())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -78,7 +79,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_withNoPrograms_returnsEmptyResult() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
             .toCompletableFuture()
             .join();
 
@@ -96,7 +97,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
             .toCompletableFuture()
             .join();
 
@@ -110,7 +111,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_clearsRedirectToSessionKey() {
     Request request = fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect").build();
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .toCompletableFuture()
+            .join();
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();
   }
 
@@ -128,7 +132,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
             .toCompletableFuture()
             .join();
 
@@ -156,7 +160,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
             .toCompletableFuture()
             .join();
 
@@ -171,7 +175,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id)
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
             .toCompletableFuture()
             .join();
 
@@ -187,7 +191,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
 
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Buscar programas");
@@ -203,7 +210,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
 
     Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("A different language!");

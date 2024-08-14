@@ -233,6 +233,7 @@ public enum MessageKey {
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
   INPUT_FILE_ALREADY_UPLOADED("input.fileAlreadyUploaded"),
   INVALID_INPUT("validation.invalidInput"),
+  LABEL_PROGRAM_FILTERS("label.programFilters"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),

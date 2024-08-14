@@ -9,7 +9,6 @@ import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -84,7 +83,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> indexWithApplicantId(Request request, long applicantId, List<String> categories) {
+  public CompletionStage<Result> indexWithApplicantId(
+      Request request, long applicantId, List<String> categories) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -161,7 +161,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return indexWithApplicantId(
-        request, applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)));
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        List.of());
   }
 
   @Secure

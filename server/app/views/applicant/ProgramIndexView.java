@@ -4,20 +4,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -85,17 +87,33 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setCondOnStorageKey("session_just_ended")
             .setDuration(5000));
 
-    bundle.addMainContent(
-        topContent(request, messages, personalInfo),
-        mainContent(
-            request,
-            messages,
-            personalInfo,
-            applicationPrograms,
-            applicantId,
-            messages.lang().toLocale(),
-            bundle,
-            profile));
+    // TODO: When the program filtering flag is removed, we can remove this conditional statement.
+    if (settingsManifest.getProgramFilteringEnabled(request)) {
+      bundle.addMainContent(
+          topContent(request, messages, personalInfo),
+          mainContentWithProgramFiltersEnabled(
+              request,
+              messages,
+              personalInfo,
+              applicationPrograms,
+              selectedCategoriesFromParams,
+              applicantId,
+              messages.lang().toLocale(),
+              bundle,
+              profile));
+    } else {
+      bundle.addMainContent(
+          topContent(request, messages, personalInfo),
+          mainContent(
+              request,
+              messages,
+              personalInfo,
+              applicationPrograms,
+              applicantId,
+              messages.lang().toLocale(),
+              bundle,
+              profile));
+    }
 
     return layout.renderWithNav(
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
@@ -201,21 +219,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    // Find all the categories that are on any of the relevant programs
-    List<String> relevantCategories =
-        relevantPrograms.allPrograms().stream()
-            .map(programData -> programData.program().categories())
-            .flatMap(List::stream)
-            .distinct()
-            .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
-            .sorted()
-            .collect(ImmutableList.toImmutableList());
-
-    // The category buttons
-    if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
-      content.with(renderCategoryFilterChips(relevantCategories));
-    }
-
     if (relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
@@ -291,6 +294,229 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
   }
 
+  private DivTag mainContentWithProgramFiltersEnabled(
+      Http.Request request,
+      Messages messages,
+      ApplicantPersonalInfo personalInfo,
+      ApplicantService.ApplicationPrograms relevantPrograms,
+      List<String> selectedCategoriesFromParams,
+      long applicantId,
+      Locale preferredLocale,
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
+    DivTag content =
+        div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
+
+    // Find all the categories that are on any of the relevant programs to which the resident hasn't
+    // applied
+    List<String> relevantCategories =
+        relevantPrograms.unapplied().stream()
+            .map(programData -> programData.program().categories())
+            .flatMap(List::stream)
+            .distinct()
+            .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
+            .collect(ImmutableList.toImmutableList());
+
+    // Find all programs that have at least one of the selected categories
+    ImmutableList<ApplicantService.ApplicantProgramData> filteredPrograms =
+        relevantPrograms.unapplied().stream()
+            .filter(
+                program ->
+                    program.program().categories().stream()
+                        .anyMatch(
+                            category ->
+                                selectedCategoriesFromParams.contains(category.getDefaultName())))
+            .collect(ImmutableList.toImmutableList());
+
+    // Find all programs that don't have any of the selected categories
+    ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
+        relevantPrograms.unapplied().stream()
+            .filter(programData -> !filteredPrograms.contains(programData))
+            .collect(ImmutableList.toImmutableList());
+
+    // The different program card containers should have the same styling, by using the program
+    // count of the larger set of programs
+    String cardContainerStyles =
+        programCardViewRenderer.programCardsContainerStyles(
+            Arrays.asList(
+                    relevantPrograms.unapplied().size(),
+                    relevantPrograms.inProgress().size(),
+                    relevantPrograms.submitted().size(),
+                    filteredPrograms.size(),
+                    otherPrograms.size())
+                .stream()
+                .max(Integer::compare)
+                .get());
+
+    // In progress or submitted programs
+    if (!relevantPrograms.inProgress().isEmpty()) {
+      content.with(
+          programCardViewRenderer.programCardsSection(
+              request,
+              messages,
+              personalInfo,
+              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.inProgress(),
+              MessageKey.BUTTON_CONTINUE,
+              MessageKey.BUTTON_CONTINUE_SR,
+              bundle,
+              profile));
+      content.with(div().withClasses("mb-10"));
+    }
+    if (!relevantPrograms.submitted().isEmpty()) {
+      content.with(
+          programCardViewRenderer.programCardsSection(
+              request,
+              messages,
+              personalInfo,
+              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.submitted(),
+              MessageKey.BUTTON_EDIT,
+              MessageKey.BUTTON_EDIT_SR,
+              bundle,
+              profile));
+      content.with(div().withClasses("mb-10"));
+    }
+
+    // The category buttons
+    if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
+      content.with(
+          renderCategoryFilterChips(
+              applicantId, relevantCategories, selectedCategoriesFromParams, messages));
+    }
+
+    if (selectedCategoriesFromParams.isEmpty()) {
+      buildSectionsWithNoFiltersSelected(
+          request,
+          messages,
+          personalInfo,
+          relevantPrograms,
+          applicantId,
+          preferredLocale,
+          bundle,
+          profile,
+          content,
+          cardContainerStyles);
+
+    } else {
+      buildSectionsWithFiltersApplied(
+          request,
+          messages,
+          personalInfo,
+          applicantId,
+          preferredLocale,
+          bundle,
+          profile,
+          content,
+          cardContainerStyles,
+          filteredPrograms,
+          otherPrograms);
+    }
+
+    return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
+  }
+
+  private void buildSectionsWithFiltersApplied(
+      Http.Request request,
+      Messages messages,
+      ApplicantPersonalInfo personalInfo,
+      long applicantId,
+      Locale preferredLocale,
+      HtmlBundle bundle,
+      CiviFormProfile profile,
+      DivTag content,
+      String cardContainerStyles,
+      ImmutableList<ApplicantService.ApplicantProgramData> filteredPrograms,
+      ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms) {
+    // Recommended section
+    content.with(
+        programCardViewRenderer
+            .programCardsSection(
+                request,
+                messages,
+                personalInfo,
+                Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION),
+                cardContainerStyles,
+                applicantId,
+                preferredLocale,
+                filteredPrograms,
+                MessageKey.BUTTON_APPLY,
+                MessageKey.BUTTON_APPLY_SR,
+                bundle,
+                profile)
+            .withId("recommended-programs"));
+
+    if (!otherPrograms.isEmpty()) {
+      content.with(div().withClasses("mt-10"));
+      content.with(
+          programCardViewRenderer.programCardsSection(
+              request,
+              messages,
+              personalInfo,
+              Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION),
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              otherPrograms,
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR,
+              bundle,
+              profile));
+    }
+  }
+
+  private void buildSectionsWithNoFiltersSelected(
+      Http.Request request,
+      Messages messages,
+      ApplicantPersonalInfo personalInfo,
+      ApplicantService.ApplicationPrograms relevantPrograms,
+      long applicantId,
+      Locale preferredLocale,
+      HtmlBundle bundle,
+      CiviFormProfile profile,
+      DivTag content,
+      String cardContainerStyles) {
+    // Intake form
+    if (relevantPrograms.commonIntakeForm().isPresent()) {
+      content.with(
+          findServicesSection(
+              request,
+              messages,
+              personalInfo,
+              relevantPrograms,
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              bundle,
+              profile),
+          div().withClass("mb-12"));
+    }
+
+    if (!relevantPrograms.unapplied().isEmpty()) {
+      content.with(
+          programCardViewRenderer.programCardsSection(
+              request,
+              messages,
+              personalInfo,
+              Optional.of(MessageKey.TITLE_PROGRAMS),
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.unapplied(),
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR,
+              bundle,
+              profile));
+    }
+  }
+
   private DivTag findServicesSection(
       Http.Request request,
       Messages messages,
@@ -338,24 +564,41 @@ public final class ProgramIndexView extends BaseHtmlView {
                 profile));
   }
 
-  private FieldsetTag renderCategoryFilterChips(List<String> relevantCategories) {
-    return fieldset(
-            each(
-                relevantCategories,
-                category ->
-                    div()
-                        .withId("filter-chip")
-                        .with(
-                            input()
-                                .withId("check-category-" + category)
-                                .withType("checkbox")
-                                .withName("categories")
-                                .withValue(category)
-                                .withClasses("appearance-none"),
-                            Icons.svg(Icons.CHECK)
-                                .withClasses("inline", "align-baseline", "w-4", "h-4", "hidden")
-                                .attr("focusable", false),
-                            label(category).withFor("check-category-" + category))))
-        .withClasses("flex", "mb-10", "flex-wrap", "ml-4");
+  private FormTag renderCategoryFilterChips(
+      long applicantId,
+      List<String> relevantCategories,
+      List<String> selectedCategoriesFromParams,
+      Messages messages) {
+    return form()
+        .withId("category-filter-form")
+        .withAction(
+            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                    applicantId, List.of())
+                .url())
+        .withMethod("GET")
+        .with(
+            fieldset(
+                    legend(messages.at(MessageKey.LABEL_PROGRAM_FILTERS.getKeyName()))
+                        .withClasses("mb-2"),
+                    each(
+                        relevantCategories,
+                        category ->
+                            div()
+                                .withId("filter-chip")
+                                .with(
+                                    input()
+                                        .withId("check-category-" + category)
+                                        .withType("checkbox")
+                                        .withName("categories")
+                                        .withValue(category)
+                                        .withCondChecked(
+                                            selectedCategoriesFromParams.contains(category))
+                                        .withClasses("sr-only"),
+                                    Icons.svg(Icons.CHECK)
+                                        .withClasses(
+                                            "inline", "align-baseline", "w-4", "h-4", "hidden")
+                                        .attr("focusable", false),
+                                    label(category).withFor("check-category-" + category))))
+                .withClasses("flex", "mb-10", "flex-wrap", "ml-4"));
   }
 }

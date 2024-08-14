@@ -317,6 +317,72 @@ export class ApplicantQuestions {
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
   }
 
+  async expectProgramsWithFilteringEnabled(
+    {
+      expectedProgramsInInProgressSection,
+      expectedProgramsInSubmittedSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      expectedProgramsInInProgressSection: string[]
+      expectedProgramsInSubmittedSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+  ) {
+    const gotInProgressProgramNames =
+      await this.programNamesForSection('In progress')
+    const gotSubmittedProgramNames =
+      await this.programNamesForSection('Submitted')
+
+    let gotRecommendedProgramNames
+    let gotOtherProgramNames
+    let gotProgramsAndServicesNames
+
+    if (filtersOn) {
+      gotRecommendedProgramNames =
+        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames.sort()
+      gotOtherProgramNames = await this.programNamesForSection('Other programs')
+      gotOtherProgramNames.sort()
+    } else {
+      gotProgramsAndServicesNames = await this.programNamesForSection(
+        'Programs & services',
+      )
+      gotProgramsAndServicesNames.sort()
+    }
+
+    // Sort results before comparing since we don't care about order.
+    expectedProgramsInInProgressSection.sort()
+    expectedProgramsInSubmittedSection.sort()
+    expectedProgramsInProgramsAndServicesSection.sort()
+    expectedProgramsInRecommendedSection.sort()
+    expectedProgramsInOtherProgramsSection.sort()
+    gotInProgressProgramNames.sort()
+    gotSubmittedProgramNames.sort()
+
+    expect(gotInProgressProgramNames).toEqual(
+      expectedProgramsInInProgressSection,
+    )
+    expect(gotSubmittedProgramNames).toEqual(expectedProgramsInSubmittedSection)
+
+    if (filtersOn) {
+      expect(gotRecommendedProgramNames).toEqual(
+        expectedProgramsInRecommendedSection,
+      )
+      expect(gotOtherProgramNames).toEqual(
+        expectedProgramsInOtherProgramsSection,
+      )
+    } else {
+      expect(gotProgramsAndServicesNames).toEqual(
+        expectedProgramsInProgramsAndServicesSection,
+      )
+    }
+  }
+
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
       await this.programNamesForSection('Get Started')

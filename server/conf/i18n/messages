@@ -130,6 +130,8 @@ content.findPrograms=Find programs
 content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 content.saveTimeServices=Save time applying for programs and services
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Program details
 link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Programs & services
