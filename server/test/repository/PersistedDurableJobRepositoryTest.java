@@ -36,7 +36,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getJobForExecution_locksRowsForUpdateAndSkipsThem() throws Throwable {
+  public void getRecurringJobForExecution_locksRowsForUpdateAndSkipsThem() throws Throwable {
     Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
     var jobA = new PersistedDurableJobModel("fake-name", JobType.RECURRING, yesterday);
     jobA.save();
@@ -46,7 +46,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
     AtomicReference<Optional<Throwable>> threadException = new AtomicReference<>(Optional.empty());
 
     try (Transaction transactionA = database.beginTransaction()) {
-      Optional<PersistedDurableJobModel> firstFoundJob = repo.getJobForExecution();
+      Optional<PersistedDurableJobModel> firstFoundJob = repo.getRecurringJobForExecution();
       assertThat(firstFoundJob.get()).isEqualTo(jobA);
 
       // Because EBean transactions are thread-local we start a new thread so
@@ -58,7 +58,8 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
                   // There is only one job in the table, and it is locked by
                   // a transaction in the parent thread, querying for jobs
                   // should therefore return empty.
-                  Optional<PersistedDurableJobModel> secondFoundJob = repo.getJobForExecution();
+                  Optional<PersistedDurableJobModel> secondFoundJob =
+                      repo.getRecurringJobForExecution();
                   assertThat(secondFoundJob).isEmpty();
 
                   // After saving the second job, it should now be available for
@@ -66,7 +67,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
                   var jobB =
                       new PersistedDurableJobModel("fake-name", JobType.RECURRING, yesterday);
                   jobB.save();
-                  secondFoundJob = repo.getJobForExecution();
+                  secondFoundJob = repo.getRecurringJobForExecution();
                   assertThat(secondFoundJob.get()).isEqualTo(jobB);
                 }
               });
@@ -85,16 +86,27 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   public void deleteJobsOlderThanSixMonths() {
     Instant oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS);
     Instant fiveMonthsAgo = Instant.now().minus(5 * 30, ChronoUnit.DAYS);
+
+    // Jobs that will be deleted
     var oneYearOldJob = new PersistedDurableJobModel("fake-name", JobType.RECURRING, oneYearAgo);
     var fiveMonthOldJob =
         new PersistedDurableJobModel("fake-name", JobType.RECURRING, fiveMonthsAgo);
     oneYearOldJob.save();
     fiveMonthOldJob.save();
 
-    assertThat(repo.getJobs().size()).isEqualTo(2);
+    // Jobs that will not be deleted
+    var runOnceJob =
+        new PersistedDurableJobModel("run-once-job-name", JobType.RUN_ONCE, Instant.now());
+    var runOnStartupJob =
+        new PersistedDurableJobModel(
+            "run-once-job-name", JobType.RUN_ON_EACH_STARTUP, Instant.now());
+    runOnceJob.save();
+    runOnStartupJob.save();
+
+    assertThat(repo.getJobs().size()).isEqualTo(4);
     repo.deleteJobsOlderThanSixMonths();
     ImmutableList<PersistedDurableJobModel> remainingJobs = repo.getJobs();
-    assertThat(remainingJobs.size()).isEqualTo(1);
+    assertThat(remainingJobs.size()).isEqualTo(3);
     assertThat(remainingJobs.get(0)).isEqualTo(fiveMonthOldJob);
   }
 }

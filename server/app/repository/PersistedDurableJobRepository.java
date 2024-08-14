@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.JobType;
 import models.PersistedDurableJobModel;
 
 /** Implements queries related to {@link PersistedDurableJobModel}. */
@@ -27,6 +28,10 @@ public final class PersistedDurableJobRepository {
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
   }
 
+  /**
+   * Find the first scheduled job matching the job name and execution time, or an empty Optional if
+   * none exists
+   */
   public Optional<PersistedDurableJobModel> findScheduledJob(
       String jobName, Instant executionTime) {
     return database
@@ -41,7 +46,7 @@ public final class PersistedDurableJobRepository {
   }
 
   /**
-   * Gets a job that is ready to be executed or empty if none are available.
+   * Gets a recurring job that is ready to be executed or empty if none are available.
    *
    * <p>A job is ready to be executed if it:
    *
@@ -53,13 +58,14 @@ public final class PersistedDurableJobRepository {
    *   <li>has a null success time (has never succeeded)
    * </ul>
    */
-  public Optional<PersistedDurableJobModel> getJobForExecution() {
+  public Optional<PersistedDurableJobModel> getRecurringJobForExecution() {
     return database
         .find(PersistedDurableJobModel.class)
         .forUpdateSkipLocked()
         .setLabel("PersistedDurableJobModel.findById")
-        .setProfileLocation(queryProfileLocationBuilder.create("getJobForExecution"))
+        .setProfileLocation(queryProfileLocationBuilder.create("getRecurringJobForExecution"))
         .where()
+        .eq("job_type", JobType.RECURRING)
         .le("execution_time", nowProvider.get())
         .gt("remaining_attempts", 0)
         .isNull("success_time")
@@ -79,13 +85,17 @@ public final class PersistedDurableJobRepository {
   }
 
   /**
-   * Delete all {@link PersistedDurableJobModel}s that have an execution time older than six months.
+   * Delete all {@link PersistedDurableJobModel}s that have an execution time older than six months
+   * and that are a recurring JobType.
    */
   public int deleteJobsOlderThanSixMonths() {
     return database
         .sqlUpdate(
-            "DELETE FROM persisted_durable_jobs WHERE persisted_durable_jobs.execution_time <"
-                + " CURRENT_DATE - INTERVAL '6 months'")
+            """
+            DELETE FROM persisted_durable_jobs
+            WHERE job_type = 'RECURRING'
+            AND execution_time <CURRENT_DATE - INTERVAL '6 months'
+            """)
         .execute();
   }
 }

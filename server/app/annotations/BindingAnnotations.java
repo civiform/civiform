@@ -32,4 +32,13 @@ public final class BindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface ApplicantAuthProviderName {}
+
+  /**
+   * Holds the {@link durablejobs.DurableJobRegistry} that contains recurring job types to be run by
+   * the ActorSystem.
+   */
+  @Qualifier
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public @interface RecurringJobsProviderName {}
 }

@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
 import java.time.Instant;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
 
-public class DurableJobSchedulerTest extends ResetPostgres {
+public class RecurringJobSchedulerTest extends ResetPostgres {
 
   private Clock clock;
   private DurableJobRegistry durableJobRegistry;
@@ -23,6 +24,7 @@ public class DurableJobSchedulerTest extends ResetPostgres {
     durableJobRegistry = new DurableJobRegistry();
     durableJobRegistry.register(
         DurableJobName.TEST,
+        JobType.RECURRING,
         (persistedDurableJob) -> makeTestJob(persistedDurableJob, () -> {}),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
