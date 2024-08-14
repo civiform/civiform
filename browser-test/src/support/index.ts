@@ -176,7 +176,7 @@ async function loginAsTestUserAwsStaging(
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
     // getByRole selects items by their accessible name, so it only selects the visible button
-    page.getByRole('button', { name: 'Continue', exact: true, }).click(),
+    page.getByRole('button', {name: 'Continue', exact: true}).click(),
   ])
 }
 
