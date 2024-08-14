@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   @Test
   public void findScheduledJob_findsJobsAtATime() {
     Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
-    var job = new PersistedDurableJobModel("fake-name", tomorrow);
+    var job = new PersistedDurableJobModel("fake-name", JobType.RECURRING, tomorrow);
 
     assertThat(repo.findScheduledJob("fake-name", tomorrow)).isEmpty();
     job.save();
@@ -37,7 +38,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   @Test
   public void getJobForExecution_locksRowsForUpdateAndSkipsThem() throws Throwable {
     Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
-    var jobA = new PersistedDurableJobModel("fake-name", yesterday);
+    var jobA = new PersistedDurableJobModel("fake-name", JobType.RECURRING, yesterday);
     jobA.save();
 
     // Exceptions thrown in a separate thread won't cause the test to fail, so
@@ -62,7 +63,8 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
 
                   // After saving the second job, it should now be available for
                   // execution.
-                  var jobB = new PersistedDurableJobModel("fake-name", yesterday);
+                  var jobB =
+                      new PersistedDurableJobModel("fake-name", JobType.RECURRING, yesterday);
                   jobB.save();
                   secondFoundJob = repo.getJobForExecution();
                   assertThat(secondFoundJob.get()).isEqualTo(jobB);
@@ -83,8 +85,9 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   public void deleteJobsOlderThanSixMonths() {
     Instant oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS);
     Instant fiveMonthsAgo = Instant.now().minus(5 * 30, ChronoUnit.DAYS);
-    var oneYearOldJob = new PersistedDurableJobModel("fake-name", oneYearAgo);
-    var fiveMonthOldJob = new PersistedDurableJobModel("fake-name", fiveMonthsAgo);
+    var oneYearOldJob = new PersistedDurableJobModel("fake-name", JobType.RECURRING, oneYearAgo);
+    var fiveMonthOldJob =
+        new PersistedDurableJobModel("fake-name", JobType.RECURRING, fiveMonthsAgo);
     oneYearOldJob.save();
     fiveMonthOldJob.save();
 
