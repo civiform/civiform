@@ -168,7 +168,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         exporter.export(
             fakeProgram.getProgramDefinition(),
             IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            false);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     // results are in reverse order from submission
