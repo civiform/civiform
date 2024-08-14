@@ -87,7 +87,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
     context.setVariable("downloadHref", downloadHref);
 
-    ProgramSectionParams section =
+    ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(
             params.request(),
             params.messages(),
@@ -98,7 +98,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.profile(),
             params.applicantId(),
             params.applicantPersonalInfo());
-    context.setVariable("section", section);
+    context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }

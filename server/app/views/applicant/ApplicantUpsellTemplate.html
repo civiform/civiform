@@ -131,7 +131,7 @@
         </div>
       </div>
 
-      <section th:if="${section.cards().size() > 0}">
+      <section th:if="${cardsSection.cards().size() > 0}">
         <div class="grid-container section">
           <div class="grid-row">
             <div class="tablet:grid-col-8">
@@ -142,7 +142,7 @@
           </div>
         </div>
         <div
-          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
+          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
         ></div>
       </section>
     </main>
