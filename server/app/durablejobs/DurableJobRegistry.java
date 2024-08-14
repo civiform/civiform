@@ -1,9 +1,11 @@
 package durablejobs;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Optional;
+import models.JobType;
 import models.PersistedDurableJobModel;
 
 /**
@@ -36,9 +38,10 @@ public final class DurableJobRegistry {
     private static RegisteredJob create(
         DurableJobFactory durableJobFactory,
         DurableJobName jobName,
+        JobType jobType,
         Optional<RecurringJobExecutionTimeResolver> recurringJobExecutionTimeResolver) {
       return new AutoValue_DurableJobRegistry_RegisteredJob(
-          durableJobFactory, jobName, recurringJobExecutionTimeResolver);
+          durableJobFactory, jobName, jobType, recurringJobExecutionTimeResolver);
     }
 
     /** The {@link DurableJobFactory} factory for this {@link DurableJob}. */
@@ -46,6 +49,8 @@ public final class DurableJobRegistry {
 
     /** The {@link DurableJobName} for this {@link DurableJob}. */
     public abstract DurableJobName getJobName();
+
+    public abstract JobType getJobType();
 
     /**
      * The {@link RecurringJobExecutionTimeResolver} for this {@link DurableJob}.
@@ -62,13 +67,32 @@ public final class DurableJobRegistry {
   }
 
   /** Registers a factory for a given job name. */
-  public void register(DurableJobName jobName, DurableJobFactory durableJobFactory) {
+  @VisibleForTesting
+  public void registerWithNoTimeResolver(
+      DurableJobName jobName, JobType jobType, DurableJobFactory durableJobFactory) {
     validateJobName(jobName);
 
     registeredJobs.put(
         jobName.getJobNameString(),
         RegisteredJob.create(
-            durableJobFactory, jobName, /* recurringJobExecutionTimeResolver= */ Optional.empty()));
+            durableJobFactory,
+            jobName,
+            jobType,
+            /* recurringJobExecutionTimeResolver= */ Optional.empty()));
+  }
+
+  /** Registers a factory for a given job name. */
+  public void register(
+      DurableJobName jobName, JobType jobType, DurableJobFactory durableJobFactory) {
+    validateJobName(jobName);
+
+    registeredJobs.put(
+        jobName.getJobNameString(),
+        RegisteredJob.create(
+            durableJobFactory,
+            jobName,
+            jobType,
+            Optional.of(new RecurringJobExecutionTimeResolvers.InOneMinute())));
   }
 
   /**
@@ -77,6 +101,7 @@ public final class DurableJobRegistry {
    */
   public void register(
       DurableJobName jobName,
+      JobType jobType,
       DurableJobFactory durableJobFactory,
       RecurringJobExecutionTimeResolver recurringJobExecutionTimeResolver) {
     validateJobName(jobName);
@@ -84,7 +109,7 @@ public final class DurableJobRegistry {
     registeredJobs.put(
         jobName.getJobNameString(),
         RegisteredJob.create(
-            durableJobFactory, jobName, Optional.of(recurringJobExecutionTimeResolver)));
+            durableJobFactory, jobName, jobType, Optional.of(recurringJobExecutionTimeResolver)));
   }
 
   private void validateJobName(DurableJobName jobName) {

@@ -12,6 +12,7 @@ import io.ebean.annotation.TxIsolation;
 import java.time.Instant;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -74,7 +75,9 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
 
     PersistedDurableJobModel job =
         new PersistedDurableJobModel(
-            DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO.toString(), Instant.ofEpochMilli(0));
+            DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO.toString(),
+            JobType.RECURRING,
+            Instant.ofEpochMilli(0));
     MigratePrimaryApplicantInfoJob migrateJob =
         new MigratePrimaryApplicantInfoJob(
             job, instanceOf(AccountRepository.class), settingsService, config);

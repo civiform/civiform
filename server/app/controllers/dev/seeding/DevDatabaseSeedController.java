@@ -13,6 +13,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import models.JobType;
 import models.LifecycleStage;
 import models.Models;
 import models.PersistedDurableJobModel;
@@ -134,7 +135,8 @@ public class DevDatabaseSeedController extends Controller {
         LocalDateTime.now(clock)
             .minus(1, ChronoUnit.DAYS)
             .toInstant(clock.getZone().getRules().getOffset(Instant.now()));
-    PersistedDurableJobModel job = new PersistedDurableJobModel(jobName, runTime);
+    PersistedDurableJobModel job =
+        new PersistedDurableJobModel(jobName, JobType.RECURRING, runTime);
     Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
     job.save(transaction);
     transaction.commit();

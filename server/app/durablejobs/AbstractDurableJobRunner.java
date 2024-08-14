@@ -1,6 +1,5 @@
 package durablejobs;
 
-import annotations.BindingAnnotations;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import io.ebean.DB;
@@ -16,14 +15,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.PersistedDurableJobRepository;
 import services.cloud.aws.SimpleEmail;
 
 /**
@@ -32,10 +28,9 @@ import services.cloud.aws.SimpleEmail;
  * <p>DurableJobRunner is a singleton and its {@code runJobs} method is {@code synchronized} to
  * prevent overlapping executions within the same server at the same time.
  */
-@Singleton
-public final class DurableJobRunner {
+public abstract class AbstractDurableJobRunner {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableJobRunner.class);
 
   private final String hostName;
   private final Database database = DB.getDefault();
@@ -43,19 +38,15 @@ public final class DurableJobRunner {
   private final DurableJobRegistry durableJobRegistry;
   private final String itEmailAddress;
   private final int jobTimeoutMinutes;
-  private final PersistedDurableJobRepository persistedDurableJobRepository;
   private final Provider<LocalDateTime> nowProvider;
   private final SimpleEmail simpleEmail;
   private final ZoneOffset zoneOffset;
-  private final int runnerLifespanSeconds;
 
-  @Inject
-  public DurableJobRunner(
+  public AbstractDurableJobRunner(
       Config config,
       DurableJobExecutionContext durableJobExecutionContext,
       DurableJobRegistry durableJobRegistry,
-      PersistedDurableJobRepository persistedDurableJobRepository,
-      @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
+      Provider<LocalDateTime> nowProvider,
       SimpleEmail simpleEmail,
       ZoneId zoneId) {
     this.hostName =
@@ -67,12 +58,17 @@ public final class DurableJobRunner {
             ? config.getString("support_email_address")
             : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
-    this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
-    this.runnerLifespanSeconds = config.getInt("durable_jobs.poll_interval_seconds");
+
     this.simpleEmail = Preconditions.checkNotNull(simpleEmail);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
+
+  /** Get the job to run or an empty optional if one does not exist */
+  abstract Optional<PersistedDurableJobModel> getJobForExecution();
+
+  /** Determines if the provided job, if it exists, is allowed to be run. */
+  abstract boolean canRun(Optional<PersistedDurableJobModel> maybeJobToRun);
 
   /**
    * Queries for durable jobs that are ready to run and executes them.
@@ -86,19 +82,17 @@ public final class DurableJobRunner {
   public synchronized void runJobs() {
     LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
 
-    LocalDateTime stopTime = resolveStopTime();
     Transaction transaction = database.beginTransaction();
-    Optional<PersistedDurableJobModel> maybeJobToRun =
-        persistedDurableJobRepository.getJobForExecution();
+    Optional<PersistedDurableJobModel> maybeJobToRun = getJobForExecution();
 
-    while (maybeJobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
+    while (canRun(maybeJobToRun)) {
       PersistedDurableJobModel jobToRun = maybeJobToRun.get();
       runJob(jobToRun);
       notifyUponFinalFailure(jobToRun);
       transaction.commit();
 
       transaction = database.beginTransaction();
-      maybeJobToRun = persistedDurableJobRepository.getJobForExecution();
+      maybeJobToRun = getJobForExecution();
     }
     transaction.close();
 
@@ -214,16 +208,6 @@ public final class DurableJobRunner {
       LOGGER.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     }
-  }
-
-  private LocalDateTime resolveStopTime() {
-    // We set poll interval to 0 in test
-    if (runnerLifespanSeconds == 0) {
-      // Run for no more than 5 seconds
-      return nowProvider.get().plus(5000, ChronoUnit.MILLIS);
-    }
-
-    return nowProvider.get().plus(runnerLifespanSeconds, ChronoUnit.SECONDS);
   }
 
   private synchronized void runJobWithTimeout(DurableJob jobToRun)

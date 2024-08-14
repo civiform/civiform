@@ -33,9 +33,9 @@ public final class PersistedDurableJobModel extends BaseModel {
 
   private String errorMessage;
 
-  public PersistedDurableJobModel(String jobName, Instant executionTime) {
+  public PersistedDurableJobModel(String jobName, JobType jobType, Instant executionTime) {
     this.jobName = Preconditions.checkNotNull(jobName);
-    this.jobType = JobType.RECURRING;
+    this.jobType = jobType;
     this.executionTime = Preconditions.checkNotNull(executionTime);
     this.remainingAttempts = 3;
   }

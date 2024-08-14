@@ -2,10 +2,9 @@ package durablejobs;
 
 import static org.checkerframework.errorprone.com.google.common.base.Preconditions.checkNotNull;
 
-import annotations.BindingAnnotations.RecurringJobsProviderName;
+import annotations.BindingAnnotations.StartupJobsProviderName;
 import com.google.common.collect.ImmutableList;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,34 +19,40 @@ import repository.PersistedDurableJobRepository;
  * overlapping executions within the same server at the same time.
  */
 @Singleton
-public final class RecurringJobScheduler extends AbstractJobScheduler {
-  private final Clock clock;
+public final class StartupJobScheduler extends AbstractJobScheduler {
   private final PersistedDurableJobRepository persistedDurableJobRepository;
 
   @Inject
-  public RecurringJobScheduler(
+  public StartupJobScheduler(
       Clock clock,
-      @RecurringJobsProviderName DurableJobRegistry durableJobRegistry,
+      @StartupJobsProviderName DurableJobRegistry durableJobRegistry,
       PersistedDurableJobRepository persistedDurableJobRepository) {
     super(clock, durableJobRegistry, persistedDurableJobRepository);
-    this.clock = checkNotNull(clock);
     this.persistedDurableJobRepository = checkNotNull(persistedDurableJobRepository);
   }
 
   /** Returns the list of allowed {$JobType}s that can this scheduler can process */
   @Override
   protected synchronized ImmutableList<JobType> allowedJobTypes() {
-    return ImmutableList.<JobType>builder().add(JobType.RECURRING).build();
+    return ImmutableList.<JobType>builder()
+        .add(JobType.RUN_ON_EACH_STARTUP)
+        .add(JobType.RUN_ONCE)
+        .build();
   }
 
   /** Get an existing job from the database or an empty optional if one does not exist */
   @Override
   protected synchronized Optional<PersistedDurableJobModel> findScheduledJob(
       DurableJobRegistry.RegisteredJob registeredJob) {
-    Instant executionTime =
-        registeredJob.getRecurringJobExecutionTimeResolver().get().resolveExecutionTime(clock);
+    var scheduledJob =
+        persistedDurableJobRepository.findScheduledJob(
+            registeredJob.getJobName().getJobNameString());
 
-    return persistedDurableJobRepository.findScheduledJob(
-        registeredJob.getJobName().getJobNameString(), executionTime);
+    // JobType.RUN_ONCE must never run again
+    if (scheduledJob.isPresent() && scheduledJob.get().getJobType() == JobType.RUN_ONCE) {
+      return scheduledJob;
+    }
+
+    return Optional.empty();
   }
 }
