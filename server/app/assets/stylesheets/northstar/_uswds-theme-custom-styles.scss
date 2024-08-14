@@ -206,3 +206,23 @@ body {
 main {
   flex: 1 0 auto;
 }
+
+// Tablet: Program card grid has 2 columns
+@media (min-width: 40em) {
+  .cf-program-card-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Desktop: Program card grid has 3 columns
+@media (min-width: 64em) {
+  .cf-program-card-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.cf-application-card {
+  display: grid;
+}
