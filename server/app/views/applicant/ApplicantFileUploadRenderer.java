@@ -15,6 +15,7 @@ import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.nimbusds.jose.shaded.gson.JsonArray;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
@@ -108,8 +109,14 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       ApplicationBaseViewParams params, FileUploadQuestion fileUploadQuestion) {
     UlTag result = ul().attr("aria-label", "Uploaded files");
 
+    JsonArray uploadedFileNames = new JsonArray();
+
     if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
       for (String fileKey : fileUploadQuestion.getFileKeyListValue().get()) {
+        String fileName = FileUploadQuestion.getFileName(fileKey);
+
+        uploadedFileNames.add(fileName);
+
         String removeUrl =
             applicantRoutes
                 .removeFile(
@@ -123,7 +130,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
         result.with(
             li().withClass("flex justify-between mb-2")
-                .withText(FileUploadQuestion.getFileName(fileKey))
+                .withText(fileName)
                 .with(
                     TagCreator.a()
                         .withText(params.messages().at(MessageKey.LINK_REMOVE_FILE.getKeyName()))
@@ -133,7 +140,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       }
     }
 
-    return result;
+    // Add 'uploaded-files' attribute, which is used by file_upload.ts
+    return result.withData("uploaded-files", uploadedFileNames.toString());
   }
 
   /**

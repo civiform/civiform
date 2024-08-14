@@ -465,23 +465,18 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
     })
 
-    test('uploading duplicate file replaces existing file', async ({
+    test('uploading duplicate file appends suffix', async ({
       applicantQuestions,
       applicantFileQuestion,
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion(
-        'some file',
-        'file1.txt',
-      )
-      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantFileQuestion.expectFileNameCount('file.txt', 1)
 
-      await applicantQuestions.answerFileUploadQuestion(
-        'some file',
-        'file1.txt',
-      )
-      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantFileQuestion.expectFileNameCount('file.txt', 1)
+      await applicantFileQuestion.expectFileNameCount('file-2.txt', 1)
     })
 
     test('can remove files', async ({
