@@ -434,11 +434,16 @@ public final class ApplicantService {
           .thenComposeAsync(
               v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
           .thenComposeAsync(
-              account ->
+              tiAccount ->
                   submitApplication(
                       applicantId,
                       programId,
-                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
+                      // /* tiSubmitterEmail= */
+                      // If the TI is submitting for themselves, don't set the tiSubmitterEmail. See
+                      // #5325 for more.
+                      tiAccount.ownedApplicantIds().contains(applicantId)
+                          ? Optional.empty()
+                          : Optional.of(tiAccount.getEmailAddress()),
                       request),
               classLoaderExecutionContext.current());
     }
