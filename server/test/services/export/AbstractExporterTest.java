@@ -56,7 +56,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
 
-  private ProgramAdminApplicationService programAdminApplicationService;
+  protected ProgramAdminApplicationService programAdminApplicationService;
   private static ProgramService programService;
 
   protected ProgramModel fakeProgramWithEnumerator;
@@ -74,7 +74,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationFour;
   protected ApplicationModel applicationFive;
   protected ApplicationModel applicationSeven;
-  private ApplicationStatusesRepository appStatusRepo;
+  private static ApplicationStatusesRepository appStatusRepo;
 
   @Before
   public void setup() {
@@ -568,6 +568,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     ImmutableList.Builder<QuestionModel> householdMembersRepeatedQuestions =
         ImmutableList.builder();
 
+    private StatusDefinitions statusDefinitions = new StatusDefinitions();
+
     private FakeProgramBuilder(String name) {
       fakeProgramBuilder = ProgramBuilder.newActiveProgram(name);
     }
@@ -607,6 +609,24 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
       ProgramDefinition draftWithoutBlock = programService.deleteBlock(draft.id(), blockToDelete);
       return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draftWithoutBlock));
+    }
+
+    FakeProgramBuilder withStatuses(ImmutableList<String> statuses) {
+      statusDefinitions =
+          new StatusDefinitions()
+              .setStatuses(
+                  statuses.stream()
+                      .map(
+                          status ->
+                              Status.builder()
+                                  .setStatusText(status)
+                                  .setLocalizedStatusText(
+                                      LocalizedStrings.builder()
+                                          .setTranslations(ImmutableMap.of(Locale.ENGLISH, status))
+                                          .build())
+                                  .build())
+                      .collect(ImmutableList.toImmutableList()));
+      return this;
     }
 
     FakeProgramBuilder withQuestion(QuestionModel question) {
@@ -659,28 +679,37 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
 
     ProgramModel build() {
+      ProgramModel fakeProgram;
       if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
-        return fakeProgramBuilder
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
-            .withRepeatedBlock()
-            .withRequiredQuestions(householdMembersRepeatedQuestions.build())
-            .withAnotherRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
-            .withRepeatedBlock()
-            .withRequiredQuestion(
-                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
-            .build();
+        fakeProgram =
+            fakeProgramBuilder
+                .withBlock()
+                .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+                .withRepeatedBlock()
+                .withRequiredQuestions(householdMembersRepeatedQuestions.build())
+                .withAnotherRepeatedBlock()
+                .withRequiredQuestion(
+                    testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
+                .withRepeatedBlock()
+                .withRequiredQuestion(
+                    testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
+                .build();
       } else if (addEnumeratorQuestion) {
-        return fakeProgramBuilder
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
-            .withRepeatedBlock()
-            .withRequiredQuestions(householdMembersRepeatedQuestions.build())
-            .build();
+        fakeProgram =
+            fakeProgramBuilder
+                .withBlock()
+                .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+                .withRepeatedBlock()
+                .withRequiredQuestions(householdMembersRepeatedQuestions.build())
+                .build();
+      } else {
+        fakeProgram = fakeProgramBuilder.build();
       }
 
-      return fakeProgramBuilder.build();
+      appStatusRepo.createOrUpdateStatusDefinitions(
+          fakeProgram.getProgramDefinition().adminName(), statusDefinitions);
+
+      return fakeProgram;
     }
   }
 
@@ -690,8 +719,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     ApplicantModel applicant;
     ProgramModel program;
     Optional<AccountModel> trustedIntermediary = Optional.empty();
-    ApplicationModel application;
     ImmutableList<RepeatedEntity> repeatedHouseholdMemberEntities;
+
+    private ApplicationModel application;
+    private Instant createTime = FAKE_CREATE_TIME;
+    private Instant submitTime = FAKE_SUBMIT_TIME;
 
     private FakeApplicationFiller(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
@@ -711,6 +743,16 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       var tiGroup = resourceCreator.insertTiGroup(tiOrganization);
       this.trustedIntermediary = Optional.of(resourceCreator.insertAccountWithEmail(tiEmail));
       this.applicant.getAccount().setManagedByGroup(tiGroup).save();
+      return this;
+    }
+
+    FakeApplicationFiller atCreateTime(Instant createTime) {
+      this.createTime = createTime;
+      return this;
+    }
+
+    FakeApplicationFiller atSubmitTime(Instant submitTime) {
+      this.submitTime = submitTime;
       return this;
     }
 
@@ -1115,8 +1157,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
       // CreateTime of an application is set through @onCreate to Instant.now(). To change
       // the value, manually set createTime and save and refresh the application.
-      application.setCreateTimeForTest(FAKE_CREATE_TIME);
-      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.setCreateTimeForTest(this.createTime);
+      application.setSubmitTimeForTest(this.submitTime);
       application.save();
 
       return this;
@@ -1131,6 +1173,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       application.save();
 
       return this;
+    }
+
+    ApplicationModel getApplication() {
+      return application;
     }
 
     private Optional<RepeatedEntity> getHouseholdMemberEntity(String entityName) {

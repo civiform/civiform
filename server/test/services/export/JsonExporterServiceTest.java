@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Locale;
 import models.ApplicantModel;
-import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -16,6 +16,7 @@ import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.Path;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaInclusionGroup;
@@ -37,16 +38,15 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
   private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
 
-  // TODO(#5257): Refactor testAllQuestionTypesWithoutEnumerators() and
-  // testQuestionTypesWithEnumerators()
-  // into behavior-specific tests. Remaining work is:
-  // - Test that only ACTIVE applications are included in the response
-
   @Test
-  public void testAllQuestionTypesWithoutEnumerators() throws Exception {
-    createFakeQuestions();
-    createFakeProgram();
-    createFakeApplications();
+  public void testApplicationsAreInReverseSubmissionOrder() {
+    var fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    var firstApplication =
+        FakeApplicationFiller.newFillerFor(fakeProgram).submit().getApplication();
+    var secondApplication =
+        FakeApplicationFiller.newFillerFor(fakeProgram).submit().getApplication();
+    var thirdApplication =
+        FakeApplicationFiller.newFillerFor(fakeProgram).submit().getApplication();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
@@ -57,76 +57,27 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertLengthOf(3);
-    testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
-    resultAsserter.assertValueAtPath("$[2].status", STATUS_VALUE);
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_name.first_name", "Alice");
-    resultAsserter.assertNullValueAtApplicationPath(2, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_birth_date.date", "1980-01-01");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".applicant_email_address.email", "one@example.com");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.zip", "54321");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.city", "city");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.street", "street st");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.state", "AB");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.line2", "apt 100");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_phone.phone_number", "+16157571010");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".applicant_monthly_income.currency_dollars", 1234.56);
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".number_of_items_applicant_can_juggle.number", 123456);
-    resultAsserter.assertValueAtApplicationPath(2, ".kitchen_tools.selections[0]", "toaster");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".kitchen_tools.selections[1]", "pepper_grinder");
-    resultAsserter.assertValueAtApplicationPath(2, ".applicant_ice_cream.selection", "strawberry");
-    resultAsserter.assertValueAtApplicationPath(
-        2, ".applicant_favorite_season.selection", "winter");
-
-    testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationTwo, 1);
-    resultAsserter.assertValueAtPath("$[1].status", STATUS_VALUE);
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_name.first_name", "Alice");
-    resultAsserter.assertNullValueAtApplicationPath(1, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_birth_date.date", "1980-01-01");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".applicant_email_address.email", "one@example.com");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.zip", "54321");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.city", "city");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.street", "street st");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.state", "AB");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.line2", "apt 100");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".applicant_monthly_income.currency_dollars", 1234.56);
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".number_of_items_applicant_can_juggle.number", 123456);
-    resultAsserter.assertValueAtApplicationPath(1, ".kitchen_tools.selections[0]", "toaster");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".kitchen_tools.selections[1]", "pepper_grinder");
-    resultAsserter.assertValueAtApplicationPath(1, ".applicant_ice_cream.selection", "strawberry");
-    resultAsserter.assertValueAtApplicationPath(
-        1, ".applicant_favorite_season.selection", "winter");
-
-    testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
-    resultAsserter.assertNullValueAtPath("$[0].status");
-    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.first_name", "Bob");
-    resultAsserter.assertNullValueAtApplicationPath(0, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.last_name", "Baker");
+    resultAsserter.assertValueAtPath(0, "application_id", thirdApplication.id);
+    resultAsserter.assertValueAtPath(1, "application_id", secondApplication.id);
+    resultAsserter.assertValueAtPath(2, "application_id", firstApplication.id);
   }
 
   @Test
-  public void testCreateAndSubmitTime_exported() throws Exception {
-    createFakeQuestions();
-    createFakeProgram();
-    createFakeApplications();
+  public void export_testApplicationTopLevelFields() {
+    // Times are expected to be exported in instance local time, so we choose
+    // multiple timezones here to verify they're updated.
+    var createTime = Instant.parse("2015-10-21T05:28:02-06:00");
+    var submitTime = Instant.parse("2015-10-22T08:28:02-08:00");
+    var fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    var applicant = resourceCreator.insertApplicantWithAccount();
+    applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag("ko"));
+    applicant.save();
+    var application =
+        FakeApplicationFiller.newFillerFor(fakeProgram, applicant)
+            .atCreateTime(createTime)
+            .atSubmitTime(submitTime)
+            .submit()
+            .getApplication();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
@@ -137,22 +88,18 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].create_time", "2022-04-09T03:07:02-07:00");
-    resultAsserter.assertValueAtPath("$[0].submit_time", "2022-12-09T02:30:30-08:00");
-  }
-
-  private void testApplicationTopLevelAnswers(
-      ProgramModel program,
-      ResultAsserter resultAsserter,
-      ApplicationModel application,
-      int resultIndex) {
-    resultAsserter.assertValueAtPath(
-        "$[" + resultIndex + "].program_name", program.getProgramDefinition().adminName());
-    resultAsserter.assertValueAtPath("$[" + resultIndex + "].program_version_id", program.id);
-    resultAsserter.assertValueAtPath(
-        "$[" + resultIndex + "].applicant_id", application.getApplicant().id);
-    resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
-    resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
+    resultAsserter.assertValueAtPath("applicant_id", applicant.id);
+    resultAsserter.assertValueAtPath("application_id", application.id);
+    resultAsserter.assertValueAtPath("create_time", "2015-10-21T04:28:02-07:00");
+    resultAsserter.assertValueAtPath("language", "ko");
+    resultAsserter.assertValueAtPath("program_name", "fake-program");
+    resultAsserter.assertValueAtPath("program_version_id", fakeProgram.id);
+    resultAsserter.assertValueAtPath("revision_state", "CURRENT");
+    resultAsserter.assertNullValueAtPath("status");
+    resultAsserter.assertValueAtPath("submit_time", "2015-10-22T09:28:02-07:00");
+    resultAsserter.assertValueAtPath("submitter_type", "APPLICANT");
+    resultAsserter.assertNullValueAtPath("ti_email");
+    resultAsserter.assertNullValueAtPath("ti_organization");
   }
 
   @Test
@@ -171,9 +118,9 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].submitter_type", "TRUSTED_INTERMEDIARY");
-    resultAsserter.assertValueAtPath("$[0].ti_email", "ti@trusted_intermediaries.org");
-    resultAsserter.assertValueAtPath("$[0].ti_organization", "TIs Inc.");
+    resultAsserter.assertValueAtPath("submitter_type", "TRUSTED_INTERMEDIARY");
+    resultAsserter.assertValueAtPath("ti_email", "ti@trusted_intermediaries.org");
+    resultAsserter.assertValueAtPath("ti_organization", "TIs Inc.");
   }
 
   @Test
@@ -190,9 +137,39 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].submitter_type", "APPLICANT");
-    resultAsserter.assertNullValueAtPath("$[0].ti_email");
-    resultAsserter.assertNullValueAtPath("$[0].ti_organization");
+    resultAsserter.assertValueAtPath("submitter_type", "APPLICANT");
+    resultAsserter.assertNullValueAtPath("ti_email");
+    resultAsserter.assertNullValueAtPath("ti_organization");
+  }
+
+  @Test
+  public void export_whenApplicationHasStatus_applicationStatusFieldIsSet() throws Exception {
+    var status = "approved";
+    var admin = resourceCreator.insertAccount();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withStatuses(ImmutableList.of(status)).build();
+
+    var fakeApplicationFiller0 = FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+    var fakeApplication0 = fakeApplicationFiller0.getApplication();
+    programAdminApplicationService.setStatus(
+        fakeApplication0,
+        StatusEvent.builder().setEmailSent(false).setStatusText(status).build(),
+        admin);
+
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // results are in reverse order from submission
+    resultAsserter.assertNullValueAtPath(0, "status");
+    resultAsserter.assertValueAtPath(1, "status", "approved");
   }
 
   @Test
@@ -734,7 +711,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
-  public void export_whnDropdownQuestionIsRepeated_answersAreCorrectlyNested() {
+  public void export_whenDropdownQuestionIsRepeated_answersAreCorrectlyNested() {
     createFakeQuestions();
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
@@ -1999,7 +1976,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].revision_state", "CURRENT");
+    resultAsserter.assertValueAtPath("revision_state", "CURRENT");
   }
 
   @Test
@@ -2016,7 +1993,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].revision_state", "OBSOLETE");
+    resultAsserter.assertValueAtPath("revision_state", "OBSOLETE");
   }
 
   @Test
@@ -2304,49 +2281,31 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
       this.resultJson = new CfJsonDocumentContext(resultJsonString);
     }
 
-    private void assertLengthOf(int num) {
-      assertThat((int) resultJson.getDocumentContext().read("$.length()")).isEqualTo(num);
+    private void assertValueAtPath(String path, String value) {
+      assertValueAtPath(0, path, value);
     }
 
-    private void assertValueAtPath(String path, String value) {
-      assertThat(resultJson.readString(Path.create(path)).get()).isEqualTo(value);
+    private void assertValueAtPath(int resultNumber, String path, String value) {
+      Path jsonPath = Path.create("$[" + resultNumber + "]." + path);
+      assertThat(resultJson.readString(jsonPath).get()).isEqualTo(value);
     }
 
     private void assertValueAtPath(String path, Long value) {
-      assertThat(resultJson.readLong(Path.create(path)).get()).isEqualTo(value);
+      assertValueAtPath(0, path, value);
+    }
+
+    private void assertValueAtPath(int resultNumber, String path, Long value) {
+      Path jsonPath = Path.create("$[" + resultNumber + "]." + path);
+      assertThat(resultJson.readLong(jsonPath).get()).isEqualTo(value);
     }
 
     private void assertNullValueAtPath(String path) {
-      Path pathToTest = Path.create(path);
+      assertNullValueAtPath(0, path);
+    }
+
+    private void assertNullValueAtPath(int resultNumber, String path) {
+      Path pathToTest = Path.create("$[" + resultNumber + "]." + path);
       assertThat(resultJson.hasNullValueAtPath(pathToTest)).isTrue();
-    }
-
-    private void assertValueAtApplicationPath(String innerPath, String value) {
-      assertValueAtApplicationPath(0, innerPath, value);
-    }
-
-    private void assertValueAtApplicationPath(int resultNumber, String innerPath, String value) {
-      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
-      assertThat(resultJson.readString(path).get()).isEqualTo(value);
-    }
-
-    private void assertValueAtApplicationPath(int resultNumber, String innerPath, int value) {
-      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
-      assertThat(resultJson.readLong(path).get()).isEqualTo(value);
-    }
-
-    private void assertValueAtApplicationPath(int resultNumber, String innerPath, double value) {
-      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
-      assertThat(resultJson.readDouble(path).get()).isEqualTo(value);
-    }
-
-    private void assertNullValueAtApplicationPath(String innerPath) {
-      assertNullValueAtApplicationPath(0, innerPath);
-    }
-
-    private void assertNullValueAtApplicationPath(int resultNumber, String innerPath) {
-      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
-      assertThat(resultJson.hasNullValueAtPath(path)).isTrue();
     }
 
     private void assertJsonDoesNotContainApplicationPath(String innerPath) {
