@@ -74,6 +74,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
         .answerCheckboxQuestion(
+            testQuestionBank.checkboxApplicantKitchenTools(),
             ImmutableList.of(
                 2L, // "pepper_grinder"
                 3L // "garlic_press"
@@ -148,17 +149,6 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "applicant email address (email)",
-            "applicant monthly income (currency)",
-            "applicant name (first_name)",
-            "applicant name (middle_name)",
-            "applicant name (last_name)",
-            "applicant phone (phone_number)",
-            "applicant phone (country_code)",
-            "kitchen tools (selections - toaster)",
-            "kitchen tools (selections - pepper_grinder)",
-            "kitchen tools (selections - garlic_press)",
-            "number of items applicant can juggle (number)",
             "applicant address (street)",
             "applicant address (line2)",
             "applicant address (city)",
@@ -169,7 +159,19 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant address (longitude)",
             "applicant address (well_known_id)",
             "applicant address (service_area)",
+            "applicant monthly income (currency)",
+            "applicant name (first_name)",
+            "applicant name (middle_name)",
+            "applicant name (last_name)",
+            "applicant name (suffix)",
+            "applicant phone (phone_number)",
+            "applicant phone (country_code)",
+            "kitchen tools (selections - toaster)",
+            "kitchen tools (selections - pepper_grinder)",
+            "kitchen tools (selections - garlic_press)",
+            "number of items applicant can juggle (number)",
             "applicant birth date (date)",
+            "applicant email address (email)",
             "applicant favorite color (text)",
             "applicant favorite season (selection)",
             "applicant file (file_key)",
@@ -260,6 +262,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant name (suffix)",
             "applicant favorite color (text)",
             "Admin Note");
 
@@ -387,14 +390,17 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant name (suffix)",
             "applicant favorite color (text)",
             "applicant monthly income (currency)",
             "applicant household members[0] - household members name (first_name)",
             "applicant household members[0] - household members name (middle_name)",
             "applicant household members[0] - household members name (last_name)",
+            "applicant household members[0] - household members name (suffix)",
             "applicant household members[1] - household members name (first_name)",
             "applicant household members[1] - household members name (middle_name)",
             "applicant household members[1] - household members name (last_name)",
+            "applicant household members[1] - household members name (suffix)",
             "applicant household members[0] - household members jobs[0] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[1] - household"

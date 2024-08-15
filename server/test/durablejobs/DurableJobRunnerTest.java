@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
 import org.junit.Rule;
@@ -171,7 +172,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
     var persistedJob =
         new PersistedDurableJobModel(
-            DurableJobName.TEST.getJobNameString(), Instant.now().plus(10, ChronoUnit.DAYS));
+            DurableJobName.TEST.getJobNameString(),
+            JobType.RECURRING,
+            Instant.now().plus(10, ChronoUnit.DAYS));
 
     persistedJob.save();
 
@@ -181,7 +184,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
   private PersistedDurableJobModel createPersistedJobToExecute() {
     var persistedJob =
         new PersistedDurableJobModel(
-            DurableJobName.TEST.getJobNameString(), Instant.now().minus(1, ChronoUnit.DAYS));
+            DurableJobName.TEST.getJobNameString(),
+            JobType.RECURRING,
+            Instant.now().minus(1, ChronoUnit.DAYS));
 
     persistedJob.save();
 

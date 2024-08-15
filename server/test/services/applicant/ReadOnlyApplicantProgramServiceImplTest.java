@@ -483,6 +483,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 questionPath.join(Scalar.FIRST_NAME), ScalarType.STRING,
                 questionPath.join(Scalar.MIDDLE_NAME), ScalarType.STRING,
                 questionPath.join(Scalar.LAST_NAME), ScalarType.STRING,
+                questionPath.join(Scalar.NAME_SUFFIX), ScalarType.STRING,
                 questionPath.join(Scalar.PROGRAM_UPDATED_IN), ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT), ScalarType.LONG));
 
@@ -499,6 +500,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 questionPath.join(Scalar.MIDDLE_NAME),
                 ScalarType.STRING,
                 questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.NAME_SUFFIX),
                 ScalarType.STRING,
                 questionPath.join(Scalar.PROGRAM_UPDATED_IN),
                 ScalarType.LONG,
@@ -518,6 +521,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 questionPath.join(Scalar.MIDDLE_NAME),
                 ScalarType.STRING,
                 questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.NAME_SUFFIX),
                 ScalarType.STRING,
                 questionPath.join(Scalar.PROGRAM_UPDATED_IN),
                 ScalarType.LONG,
@@ -1112,13 +1117,15 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         enumeratorPath.atIndex(0).join(repeatedQuestionDefinition.getQuestionPathSegment()),
         "first",
         "middle",
-        "last");
+        "last",
+        "suffix");
     QuestionAnswerer.answerNameQuestion(
         applicantData,
         enumeratorPath.atIndex(1).join(repeatedQuestionDefinition.getQuestionPathSegment()),
         "foo",
         "bar",
-        "baz");
+        "baz",
+        "qux");
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
@@ -1183,7 +1190,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                     .atIndex(0)
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
-                "last"));
+                "last",
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.NAME_SUFFIX),
+                "suffix"));
     assertThat(result.get(8).questionIndex()).isEqualTo(0);
     assertThat(result.get(8).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
@@ -1202,7 +1214,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                     .atIndex(1)
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
-                "baz"));
+                "baz",
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.NAME_SUFFIX),
+                "qux"));
 
     for (int i = 0; i < result.size(); ++i) {
       assertThat(result.get(i).isEligible())
@@ -1509,7 +1526,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
-    QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last");
+    QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last", "Jr.");
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 

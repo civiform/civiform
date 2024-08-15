@@ -525,6 +525,11 @@ public final class ApplicantService {
                                           applicantData
                                               .readString(path.join(Scalar.LAST_NAME))
                                               .orElseThrow());
+                                      // Name suffix is optional
+                                      applicant.setSuffix(
+                                          applicantData
+                                              .readString(path.join(Scalar.NAME_SUFFIX))
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_EMAIL:
                                       applicant.setEmailAddress(

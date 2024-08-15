@@ -93,7 +93,9 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage()
+      await applicantQuestions.expectConfirmationPage(
+        /* northStarEnabled= */ true,
+      )
     })
   })
 
@@ -187,7 +189,9 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage()
+      await applicantQuestions.expectConfirmationPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     await test.step('Expect client is eligible in TI dashboard', async () => {

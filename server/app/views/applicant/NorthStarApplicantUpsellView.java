@@ -1,5 +1,6 @@
 package views.applicant;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -9,7 +10,10 @@ import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
+import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -43,13 +47,27 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    context.setVariable("programName", params.programTitle().orElse(""));
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programDescription", params.programDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
 
+    String alertTitle =
+        params
+            .messages()
+            .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
+    AlertSettings successAlertSettings =
+        new AlertSettings(
+            /* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS, ImmutableList.of());
+    context.setVariable("successAlertSettings", successAlertSettings);
+
+    String applicantName = params.profile().getApplicant().join().getAccount().getApplicantName();
+    context.setVariable("applicantName", applicantName);
+
+    context.setVariable("dateSubmitted", params.dateSubmitted());
+
     Locale locale = params.messages().lang().toLocale();
     String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
-
     context.setVariable("customConfirmationMessage", customConfirmationMessage);
 
     // Info for login modal
