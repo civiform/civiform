@@ -159,7 +159,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
         .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
         .withHref(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId, List.of())
+                    applicantId, /* categories= */ List.of())
                 .url());
   }
 

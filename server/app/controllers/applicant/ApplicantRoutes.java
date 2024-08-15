@@ -46,7 +46,7 @@ public final class ApplicantRoutes {
   public Call index(CiviFormProfile profile, long applicantId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-          applicantId, List.of());
+          applicantId, /* categories= */ List.of());
     } else {
       return controllers.applicant.routes.ApplicantProgramsController.index();
     }

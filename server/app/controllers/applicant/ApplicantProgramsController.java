@@ -84,7 +84,9 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> indexWithApplicantId(
-      Request request, long applicantId, List<String> categories) {
+      Request request,
+      long applicantId, /* The selected program categories */
+      List<String> categories) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
