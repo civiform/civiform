@@ -69,11 +69,28 @@ public class ApplicantDataTest extends ResetPostgres {
   }
 
   @Test
-  public void getApplicantName_withMiddleName_exists() {
+  public void getApplicantName_withMiddleNameWithoutSuffix_exists() {
     ApplicantData data = createNewApplicantData();
     data.setUserName("First Middle Last");
     assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
     assertThat(data.getApplicant().getMiddleName().get()).isEqualTo("Middle");
+  }
+
+  @Test
+  public void getApplicantName_withNameSuffixWithoutMiddleName_exist() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Last Jr.");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(data.getApplicant().getSuffix().get()).isEqualTo("Jr.");
+  }
+
+  @Test
+  public void getApplicantName_withAllNameFields_exist() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Middle Last Jr.");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(data.getApplicant().getMiddleName().get()).isEqualTo("Middle");
+    assertThat(data.getApplicant().getSuffix().get()).isEqualTo("Jr.");
   }
 
   @Test
@@ -212,7 +229,7 @@ public class ApplicantDataTest extends ResetPostgres {
     assertThat(data.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(data.getDateOfBirth().get()).isEqualTo("2305-07-13");
 
-    data.setUserName("Kathryn", Optional.empty(), Optional.of("Janeway"));
+    data.setUserName("Kathryn", Optional.empty(), Optional.of("Janeway"), Optional.empty());
     data.setPhoneNumber("(206) 684-2489");
     data.setDateOfBirth("2328-05-20");
     applicant.save();

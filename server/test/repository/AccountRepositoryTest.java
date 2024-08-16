@@ -65,6 +65,7 @@ public class AccountRepositoryTest extends ResetPostgres {
                     "",
                     "",
                     "",
+                    "",
                     "test@test.com",
                     "2020-10-10"))
         .isInstanceOf(EmailAddressExistsException.class);
@@ -75,24 +76,27 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2020-10-10");
+        account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("Dow");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
         .isEqualTo("James");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
         .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix().get())
+        .isEqualTo("Jr.");
   }
 
   @Test
-  public void updateClientNameTest_EmptyMiddleAndLastName() {
+  public void updateClientNameTest_EmptyMiddleLastNameAndSuffix() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
-    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
+    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("John");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
     assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix()).isEmpty();
   }
 
   @Test
@@ -100,7 +104,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
+        account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
         .isEqualTo("2023-12-12");
   }
@@ -110,7 +114,16 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
+        account,
+        applicantUpdateTest,
+        "Dow",
+        "James",
+        "John",
+        "Jr.",
+        "4259746144",
+        "",
+        "",
+        "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
         .isEqualTo("4259746144");
   }
@@ -125,6 +138,7 @@ public class AccountRepositoryTest extends ResetPostgres {
         "Dow",
         "James",
         "John",
+        "Jr.",
         "",
         "this is notes",
         "",
@@ -454,7 +468,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant
+        .getApplicantData()
+        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -465,7 +481,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant
+        .getApplicantData()
+        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;
   }
@@ -482,7 +500,8 @@ public class AccountRepositoryTest extends ResetPostgres {
   private ApplicantModel setupApplicantForUpdateTest() {
     ApplicantModel applicantUpdateTest = new ApplicantModel();
     ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
-    applicantDateUpdateTest.setUserName("Jane", Optional.empty(), Optional.of("Doe"));
+    applicantDateUpdateTest.setUserName(
+        "Jane", Optional.empty(), Optional.of("Doe"), Optional.empty());
     applicantDateUpdateTest.setDateOfBirth("2022-10-10");
     applicantUpdateTest.save();
     return applicantUpdateTest;
