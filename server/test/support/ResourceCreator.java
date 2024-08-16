@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Instant;
@@ -195,6 +196,8 @@ public class ResourceCreator {
     account.save();
     applicant.setAccount(account);
     applicant.save();
+    account.setApplicants(ImmutableList.of(applicant));
+    account.save();
 
     return applicant;
   }
