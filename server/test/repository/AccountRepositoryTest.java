@@ -88,7 +88,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void updateClientNameTest_EmptyMiddleAndLastName() {
+  public void updateClientNameTest_EmptyMiddleLastNameAndSuffix() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "", "2020-10-10");
