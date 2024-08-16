@@ -75,6 +75,7 @@ public abstract class NorthStarBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
+    context.setVariable("checkCircleIcon", assetsFinder.path("Images/uswds/icon-check-circle.svg"));
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
 

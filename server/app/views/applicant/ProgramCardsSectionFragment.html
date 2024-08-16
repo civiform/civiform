@@ -52,17 +52,27 @@
         <span th:text="#{title.status}"></span>:
         <span th:text="${card.applicationStatus().get()}"></span>
       </p>
-      <p
-        th:if="${card.eligible().isPresent()}"
-        class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-gray-200"
-      >
-        <span
-          th:text="${card.eligibilityMessage().get()}"
-          class="p-2 text-xs font-medium text-black"
-          th:classappend="${card.eligible().get()} ? cf-eligible-tag : cf-not-eligible-tag"
-        ></span>
-      </p>
+
       <p th:text="${card.body()}"></p>
+
+      <div th:if="${card.eligible().isPresent()}">
+        <div class="content-spacing"></div>
+        <div class="flex-parent">
+          <img
+            th:if="${card.eligible().isPresent()}"
+            class="usa-media-block__img"
+            th:src="${checkCircleIcon}"
+            role="img"
+            alt=""
+            aria-hidden="true"
+          />
+
+          <span
+            th:text="${card.eligibilityMessage().get()}"
+            th:classappend="${card.eligible().get()} ? cf-eligible-tag : cf-not-eligible-tag"
+          ></span>
+        </div>
+      </div>
     </div>
     <div class="usa-card__footer cf-card-footer">
       <a
