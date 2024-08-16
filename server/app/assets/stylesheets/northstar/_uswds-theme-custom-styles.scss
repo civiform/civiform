@@ -227,3 +227,9 @@ main {
 .cf-application-card {
   display: grid;
 }
+
+.cf-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+}

@@ -64,7 +64,14 @@
       </p>
       <p th:text="${card.body()}"></p>
     </div>
-    <div class="usa-card__footer">
+    <div class="usa-card__footer cf-card-footer">
+      <a
+        th:href="${card.detailsUrl()}"
+        target="_blank"
+        class="usa-button usa-button--outline"
+        th:text="#{button.viewDetails}"
+      ></a>
+
       <!--/* TODO(#6902): Check local storage to avoid always showing login dialogs.  */-->
       <a
         th:href="${card.isGuest() ? '#' + card.loginModalId().get() : card.actionUrl()}"

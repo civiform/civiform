@@ -468,6 +468,22 @@ test.describe('applicant program index page', () => {
           })
         })
       })
+
+      test('Click "View details" button and expect to open a new tab with the external program URL', async ({
+        page,
+      }) => {
+        // Locate the first card (doesn't really matter which one)
+        const firstCard = page.locator('.usa-card-group li').nth(0)
+        await firstCard.getByText('View details').click()
+
+        // Clicking the button opens a new tab
+        const popupPromise = page.waitForEvent('popup')
+        const popup = await popupPromise
+        const popupURL = await popup.evaluate('location.href')
+
+        // Verify the program details URL matches the external link
+        expect(popupURL).toMatch('https://www.usa.gov/')
+      })
     },
   )
 })
