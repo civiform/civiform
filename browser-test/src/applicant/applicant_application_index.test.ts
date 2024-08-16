@@ -388,7 +388,7 @@ test.describe('applicant program index page', () => {
             'Create an account or sign in',
           )
           await validateScreenshot(
-            page,
+            page.getByRole('dialog').getByTestId('login'),
             'apply-program-login-prompt-northstar',
             /* fullPage= */ false,
             /* mobileScreenshot= */ true,
