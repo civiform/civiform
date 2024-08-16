@@ -2,6 +2,7 @@ package modules;
 
 import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
+import annotations.BindingAnnotations.RecurringJobsProviderName;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -9,7 +10,7 @@ import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
-import durablejobs.DurableJobRunner;
+import durablejobs.RecurringDurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
@@ -20,6 +21,7 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import models.JobType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
@@ -64,13 +66,16 @@ public final class DurableJobModule extends AbstractModule {
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
-        DurableJobRunner durableJobRunner,
+        RecurringDurableJobRunner recurringDurableJobRunner,
         RecurringJobScheduler recurringJobScheduler) {
       LOGGER.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
         LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+
+        // Start the actorSystem to run recurring jobs. These jobs will run in the background after
+        // the configured initial delay.
         actorSystem
             .scheduler()
             .scheduleAtFixedRate(
@@ -80,7 +85,7 @@ public final class DurableJobModule extends AbstractModule {
                 /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
                 () -> {
                   recurringJobScheduler.scheduleRecurringJobs();
-                  durableJobRunner.runJobs();
+                  recurringDurableJobRunner.runJobs();
                 },
                 executionContext);
         LOGGER.trace("DurableJobRunnerScheduler - Task End");
@@ -91,7 +96,8 @@ public final class DurableJobModule extends AbstractModule {
   }
 
   @Provides
-  public DurableJobRegistry provideDurableJobRegistry(
+  @RecurringJobsProviderName
+  public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
@@ -104,24 +110,28 @@ public final class DurableJobModule extends AbstractModule {
 
     durableJobRegistry.register(
         DurableJobName.OLD_JOB_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     durableJobRegistry.register(
         DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
+        JobType.RECURRING,
         persistedDurableJob ->
             new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new UnusedAccountCleanupJob(accountRepository, nowProvider, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
@@ -129,6 +139,7 @@ public final class DurableJobModule extends AbstractModule {
 
     durableJobRegistry.register(
         DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
+        JobType.RECURRING,
         persistedDurableJob ->
             new MigratePrimaryApplicantInfoJob(
                 persistedDurableJob, accountRepository, settingsService, config),

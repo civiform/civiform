@@ -25,12 +25,12 @@ import repository.ResetPostgres;
 import services.cloud.aws.SimpleEmail;
 import support.TestRetry;
 
-public class DurableJobRunnerTest extends ResetPostgres {
+public class RecurringDurableJobRunnerTest extends ResetPostgres {
 
   @Rule public TestRetry testRetry = new TestRetry(5);
 
   private SimpleEmail simpleEmailMock;
-  private DurableJobRunner durableJobRunner;
+  private RecurringDurableJobRunner recurringDurableJobRunner;
   private DurableJobRegistry durableJobRegistry;
 
   @Before
@@ -51,8 +51,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
     durableJobRegistry = new DurableJobRegistry();
 
-    durableJobRunner =
-        new DurableJobRunner(
+    recurringDurableJobRunner =
+        new RecurringDurableJobRunner(
             config,
             instanceOf(DurableJobExecutionContext.class),
             durableJobRegistry,
@@ -67,8 +67,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   @Test
   public void runJobs_timesOut() {
-    durableJobRegistry.register(
+    durableJobRegistry.registerWithNoTimeResolver(
         DurableJobName.TEST,
+        JobType.RECURRING,
         (persistedDurableJob) ->
             makeTestJob(
                 persistedDurableJob,
@@ -82,7 +83,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
     PersistedDurableJobModel job = createPersistedJobToExecute();
 
-    durableJobRunner.runJobs();
+    recurringDurableJobRunner.runJobs();
 
     job.refresh();
     assertThat(job.getErrorMessage().get()).contains("JobRunner_JobTimeout");
@@ -90,8 +91,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   @Test
   public void rubJobs_executionException() {
-    durableJobRegistry.register(
+    durableJobRegistry.registerWithNoTimeResolver(
         DurableJobName.TEST,
+        JobType.RECURRING,
         (persistedDurableJob) ->
             makeTestJob(
                 persistedDurableJob,
@@ -101,7 +103,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
     PersistedDurableJobModel job = createPersistedJobToExecute();
 
-    durableJobRunner.runJobs();
+    recurringDurableJobRunner.runJobs();
 
     job.refresh();
 
@@ -112,8 +114,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
   @Test
   public void runJobs_runsJobsThatAreReady() {
     AtomicInteger runCount = new AtomicInteger(0);
-    durableJobRegistry.register(
+    durableJobRegistry.registerWithNoTimeResolver(
         DurableJobName.TEST,
+        JobType.RECURRING,
         (persistedDurableJob) ->
             makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
 
@@ -121,7 +124,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
     PersistedDurableJobModel jobB = createPersistedJobToExecute();
     PersistedDurableJobModel jobC = createPersistedJobScheduledInFuture();
 
-    durableJobRunner.runJobs();
+    recurringDurableJobRunner.runJobs();
 
     jobA.refresh();
     jobB.refresh();
@@ -159,7 +162,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
     assertThat(durableJobRegistry.getRecurringJobs()).isEmpty();
 
     // Since the job does not exist in the registry, it should be deleted when runJobs is run
-    durableJobRunner.runJobs();
+    recurringDurableJobRunner.runJobs();
     Optional<PersistedDurableJobModel> foundJob =
         DB.getDefault()
             .find(PersistedDurableJobModel.class)

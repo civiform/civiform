@@ -3,6 +3,7 @@ package durablejobs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Test;
 
@@ -12,7 +13,8 @@ public class DurableJobRegistryTest {
   public void register_andGetAJob() throws Exception {
     var registry = new DurableJobRegistry();
 
-    registry.register(DurableJobName.OLD_JOB_CLEANUP, new FakeJobFactory());
+    registry.registerWithNoTimeResolver(
+        DurableJobName.OLD_JOB_CLEANUP, JobType.RECURRING, new FakeJobFactory());
 
     // assert that it does not throw an exception
     registry.get(DurableJobName.OLD_JOB_CLEANUP);
@@ -35,6 +37,7 @@ public class DurableJobRegistryTest {
 
     registry.register(
         DurableJobName.OLD_JOB_CLEANUP,
+        JobType.RECURRING,
         new FakeJobFactory(),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
@@ -47,6 +50,7 @@ public class DurableJobRegistryTest {
 
     registry.register(
         DurableJobName.OLD_JOB_CLEANUP,
+        JobType.RECURRING,
         new FakeJobFactory(),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
@@ -54,6 +58,7 @@ public class DurableJobRegistryTest {
             () ->
                 registry.register(
                     DurableJobName.OLD_JOB_CLEANUP,
+                    JobType.RECURRING,
                     new FakeJobFactory(),
                     new RecurringJobExecutionTimeResolvers.Sunday2Am()))
         .isInstanceOf(IllegalArgumentException.class);
