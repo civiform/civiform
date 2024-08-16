@@ -17,7 +17,7 @@
     "eslint-plugin-no-unsanitized": "^4.0.2",
     "eslint-plugin-playwright": "1.6.2",
     "playwright": "1.46.0",
-    "sharp": "0.33.4",
+    "sharp": "0.33.5",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
     "typescript": "5.5.4"
