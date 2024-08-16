@@ -94,7 +94,7 @@ public final class PersistedDurableJobRepository {
             """
             DELETE FROM persisted_durable_jobs
             WHERE job_type = 'RECURRING'
-            AND execution_time <CURRENT_DATE - INTERVAL '6 months'
+            AND execution_time < CURRENT_DATE - INTERVAL '6 months'
             """)
         .execute();
   }
