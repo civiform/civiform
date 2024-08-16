@@ -101,6 +101,7 @@ public final class ProgramCardsSectionParamsFactory {
       cardBuilder
           .setTitle(program.localizedName().getOrDefault(preferredLocale))
           .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+          .setDetailsUrl(program.externalLink())
           .setActionUrl(actionUrl)
           .setIsGuest(isGuest)
           .setActionText(messages.at(buttonText.getKeyName()));
@@ -198,6 +199,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String body();
 
+    public abstract String detailsUrl();
+
     public abstract String actionUrl();
 
     public abstract Boolean isGuest();
@@ -227,6 +230,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setActionText(String actionText);
 
       public abstract Builder setBody(String body);
+
+      public abstract Builder setDetailsUrl(String detailsUrl);
 
       public abstract Builder setActionUrl(String actionUrl);
 

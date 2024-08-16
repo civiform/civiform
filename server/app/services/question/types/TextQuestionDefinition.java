@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import java.util.OptionalInt;
+import services.CiviFormError;
 
 /** Defines a text question. */
 public final class TextQuestionDefinition extends QuestionDefinition {
@@ -71,6 +74,24 @@ public final class TextQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return TextValidationPredicates.create();
+  }
+
+  @Override
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+    OptionalInt min = getMinLength();
+    OptionalInt max = getMaxLength();
+    if (min.isPresent() && min.getAsInt() < 0) {
+      errors.add(CiviFormError.of("Minimum length cannot be negative"));
+    }
+    if (max.isPresent() && max.getAsInt() < 1) {
+      errors.add(CiviFormError.of("Maximum length cannot be less than 1"));
+    }
+    if (min.isPresent() && max.isPresent() && min.getAsInt() > max.getAsInt()) {
+      errors.add(
+          CiviFormError.of("Minimum length must be less than or equal to the maximum length"));
+    }
+    return errors.build();
   }
 
   @JsonIgnore

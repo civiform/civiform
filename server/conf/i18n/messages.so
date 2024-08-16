@@ -429,6 +429,12 @@ button.print=Print this page
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=You''ve submitted your {0} application
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=Create an account to save your application information
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=Login to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #

@@ -427,7 +427,7 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
-  private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
+  private static ImmutableList<Object[]> getValidationTestData() {
     return ImmutableList.of(
         // Valid cases.
         new Object[] {OptionalInt.empty(), OptionalInt.empty(), Optional.<String>empty()},
@@ -444,8 +444,8 @@ public class MultiOptionQuestionDefinitionTest {
         },
         new Object[] {
           OptionalInt.empty(),
-          OptionalInt.of(-1),
-          Optional.of("Maximum number of choices allowed cannot be negative")
+          OptionalInt.of(0),
+          Optional.of("Maximum number of choices allowed cannot be less than 1")
         },
         new Object[] {
           OptionalInt.of(2),
@@ -453,9 +453,6 @@ public class MultiOptionQuestionDefinitionTest {
           Optional.of(
               "Minimum number of choices required must be less than or equal to the maximum"
                   + " choices allowed")
-        },
-        new Object[] {
-          OptionalInt.of(0), OptionalInt.of(0), Optional.of("Cannot require exactly 0 choices")
         },
         // Note: In the test code, we configure two options.
         new Object[] {
@@ -471,11 +468,11 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
-  @Parameters(method = "getMultiOptionQuestionValidationTestData")
-  public void validate_multiOptionQuestion_validationConstraints(
+  @Parameters(method = "getValidationTestData")
+  public void validate_settingConstraints(
       OptionalInt minChoicesRequired,
       OptionalInt maxChoicesAllowed,
-      Optional<String> wantErrorMessage) {
+      Optional<String> expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()
             .setValidationPredicates(
@@ -494,11 +491,13 @@ public class MultiOptionQuestionDefinitionTest {
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
 
     ImmutableSet<CiviFormError> errors = question.validate();
-    if (wantErrorMessage.isEmpty()) {
-      assertThat(errors).isEmpty();
-    } else {
-      assertThat(question.validate()).containsOnly(CiviFormError.of(wantErrorMessage.get()));
-    }
+
+    assertThat(errors)
+        .isEqualTo(
+            expectedErrorMessage
+                .map(CiviFormError::of)
+                .map(ImmutableSet::of)
+                .orElse(ImmutableSet.of()));
   }
 
   private QuestionDefinitionConfig.Builder makeConfigBuilder() {

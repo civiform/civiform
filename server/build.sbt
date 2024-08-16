@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.27.2",
-      "software.amazon.awssdk" % "ses" % "2.27.2",
+      "software.amazon.awssdk" % "s3" % "2.27.6",
+      "software.amazon.awssdk" % "ses" % "2.27.6",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.13.2",
@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.3",
-      "com.h2database" % "h2" % "2.3.230" % Test,
+      "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -114,7 +114,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.6"
+      "ch.qos.logback" % "logback-classic" % "1.5.7"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

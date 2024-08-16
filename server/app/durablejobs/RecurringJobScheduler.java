@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.OptimisticLockException;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public final class RecurringJobScheduler {
       if (!jobAlreadyScheduled) {
         PersistedDurableJobModel newJob =
             new PersistedDurableJobModel(
-                registeredJob.getJobName().getJobNameString(), executionTime);
+                registeredJob.getJobName().getJobNameString(), JobType.RECURRING, executionTime);
         try {
           tryScheduleRecurringJob(newJob, SCHEDULER_ATTEMPTS);
         } catch (InterruptedException e) {
