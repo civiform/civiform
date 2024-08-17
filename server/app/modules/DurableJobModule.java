@@ -3,6 +3,7 @@ package modules;
 import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
+import annotations.BindingAnnotations.StartupJobsProviderName;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -10,9 +11,12 @@ import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
+import durablejobs.JobExecutionTimeResolver;
 import durablejobs.RecurringDurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
+import durablejobs.StartupDurableJobRunner;
+import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -35,7 +39,7 @@ import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
- * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
+ * recurring, their {@link JobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
@@ -67,12 +71,19 @@ public final class DurableJobModule extends AbstractModule {
         Config config,
         ExecutionContext executionContext,
         RecurringDurableJobRunner recurringDurableJobRunner,
-        RecurringJobScheduler recurringJobScheduler) {
+        RecurringJobScheduler recurringJobScheduler,
+        StartupDurableJobRunner startupDurableJobRunner,
+        StartupJobScheduler startupJobScheduler) {
       LOGGER.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
         LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+
+        // Run startup jobs. These jobs must complete before the application can start serving
+        // pages.
+        startupJobScheduler.scheduleJobs();
+        startupDurableJobRunner.runJobs();
 
         // Start the actorSystem to run recurring jobs. These jobs will run in the background after
         // the configured initial delay.
@@ -84,7 +95,7 @@ public final class DurableJobModule extends AbstractModule {
                 /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
                 /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
                 () -> {
-                  recurringJobScheduler.scheduleRecurringJobs();
+                  recurringJobScheduler.scheduleJobs();
                   recurringDurableJobRunner.runJobs();
                 },
                 executionContext);
@@ -146,5 +157,24 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
+  }
+
+  @Provides
+  @StartupJobsProviderName
+  public DurableJobRegistry provideStartupDurableJobRegistry() {
+    //  PersistedDurableJobRepository persistedDurableJobRepository) {
+    //    var durableJobRegistry = new DurableJobRegistry();
+
+    //    // Sample job. DELETE THIS when adding first real job
+    //
+    //    durableJobRegistry.registerStartupJob(
+    //        DurableJobName.SOME_JOB_NAME,
+    //        JobType.RUN_ONCE,
+    //        persistedDurableJob ->
+    //            new SomeClassThatIsAJob(persistedDurableJob));
+
+    //    return durableJobRegistry;
+
+    return new DurableJobRegistry();
   }
 }

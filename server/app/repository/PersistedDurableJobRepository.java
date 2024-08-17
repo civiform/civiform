@@ -45,6 +45,18 @@ public final class PersistedDurableJobRepository {
         .findOneOrEmpty();
   }
 
+  /** Find the first scheduled job matching the job name or an empty Optional if none exists */
+  public Optional<PersistedDurableJobModel> findScheduledJob(String jobName) {
+    return database
+        .find(PersistedDurableJobModel.class)
+        .setLabel("PersistedDurableJobModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("findScheduledJob"))
+        .where()
+        .eq("job_name", jobName)
+        .setMaxRows(1)
+        .findOneOrEmpty();
+  }
+
   /**
    * Gets a recurring job that is ready to be executed or empty if none are available.
    *
@@ -67,6 +79,32 @@ public final class PersistedDurableJobRepository {
         .where()
         .eq("job_type", JobType.RECURRING)
         .le("execution_time", nowProvider.get())
+        .gt("remaining_attempts", 0)
+        .isNull("success_time")
+        .setMaxRows(1)
+        .findOneOrEmpty();
+  }
+
+  /**
+   * Gets a startup job that is ready to be executed or empty if none are available.
+   *
+   * <p>A job is ready to be executed if it:
+   *
+   * <ul>
+   *   <li>is not locked for update by another transaction i.e. is not currently being executed
+   *       elsewhere
+   *   <li>has more than zero remaining attempts
+   *   <li>has a null success time (has never succeeded)
+   * </ul>
+   */
+  public Optional<PersistedDurableJobModel> getStartupJobForExecution() {
+    return database
+        .find(PersistedDurableJobModel.class)
+        .forUpdateSkipLocked()
+        .setLabel("PersistedDurableJobModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("getStartupJobForExecution"))
+        .where()
+        .in("job_type", JobType.RUN_ONCE, JobType.RUN_ON_EACH_STARTUP)
         .gt("remaining_attempts", 0)
         .isNull("success_time")
         .setMaxRows(1)

@@ -3,7 +3,6 @@ package durablejobs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
-import java.time.Instant;
 import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Before;
@@ -11,48 +10,43 @@ import org.junit.Test;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
 
-public class RecurringJobSchedulerTest extends ResetPostgres {
+public class StartupJobSchedulerTest extends ResetPostgres {
 
   private Clock clock;
   private DurableJobRegistry durableJobRegistry;
   private PersistedDurableJobRepository persistedDurableJobRepository;
-  private RecurringJobScheduler recurringJobScheduler;
+  private StartupJobScheduler startupJobScheduler;
 
   @Before
   public void setUp() {
     clock = instanceOf(Clock.class);
     durableJobRegistry = new DurableJobRegistry();
-    durableJobRegistry.register(
+    durableJobRegistry.registerStartupJob(
         DurableJobName.TEST,
-        JobType.RECURRING,
-        (persistedDurableJob) -> makeTestJob(persistedDurableJob, () -> {}),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+        JobType.RUN_ONCE,
+        (persistedDurableJob) -> makeTestJob(persistedDurableJob, () -> {}));
 
     persistedDurableJobRepository = instanceOf(PersistedDurableJobRepository.class);
-    recurringJobScheduler =
-        new RecurringJobScheduler(clock, durableJobRegistry, persistedDurableJobRepository);
+    startupJobScheduler =
+        new StartupJobScheduler(clock, durableJobRegistry, persistedDurableJobRepository);
   }
 
   @Test
-  public void scheduleRecurringJobs_schedulesUnscheduledRecurringJobs() {
+  public void scheduleStartupJobs_schedulesUnscheduledStartupJobs() {
     var jobs = persistedDurableJobRepository.getJobs();
     assertThat(jobs.size()).isZero();
 
-    recurringJobScheduler.scheduleJobs();
+    startupJobScheduler.scheduleJobs();
 
     jobs = persistedDurableJobRepository.getJobs();
     assertThat(jobs.size()).isEqualTo(1);
     var job = jobs.get(0);
-    Instant expectedExecutionTime =
-        new RecurringJobExecutionTimeResolvers.Sunday2Am().resolveExecutionTime(clock);
-    assertThat(job.getExecutionTime()).isEqualTo(expectedExecutionTime);
     assertThat(job.getJobName()).isEqualTo(DurableJobName.TEST.getJobNameString());
 
     // Assert that subsequent runs do not create duplicates
-    recurringJobScheduler.scheduleJobs();
+    startupJobScheduler.scheduleJobs();
     jobs = persistedDurableJobRepository.getJobs();
     assertThat(jobs.size()).isEqualTo(1);
-    assertThat(job.getExecutionTime()).isEqualTo(expectedExecutionTime);
     assertThat(job.getJobName()).isEqualTo(DurableJobName.TEST.getJobNameString());
   }
 

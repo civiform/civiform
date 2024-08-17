@@ -41,4 +41,13 @@ public final class BindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface RecurringJobsProviderName {}
+
+  /**
+   * Holds the {@link durablejobs.DurableJobRegistry} that contains startup job types to be run
+   * during application startup.
+   */
+  @Qualifier
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public @interface StartupJobsProviderName {}
 }

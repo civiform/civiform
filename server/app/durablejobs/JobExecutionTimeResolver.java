@@ -5,7 +5,7 @@ import java.time.Instant;
 
 /** Determines when a recurring {@link DurableJob} should next run. */
 @FunctionalInterface
-public interface RecurringJobExecutionTimeResolver {
+public interface JobExecutionTimeResolver {
 
   /**
    * Computes the next execution time for a recurring job based on the local time settings
