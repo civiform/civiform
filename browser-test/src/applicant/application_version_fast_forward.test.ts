@@ -1380,9 +1380,7 @@ test.describe('Application Version Fast-Forward Flow', () => {
     // Applicant submits application for program v1; it does not change to program v3
     await test.step('As applicant - active program v3', async () => {
       await applicantActor.getPage().reload()
-      await applicantActor
-        .getPage()
-        .waitForURL('**/programs/program-fastforward-example/disabled')
+      await applicantActor.waitForDisabledPage()
     })
   })
 })
