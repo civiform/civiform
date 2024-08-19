@@ -1491,7 +1491,7 @@ class FastForwardCiviformAdminActor {
    */
   async publish() {
     await test.step('publish', async () => {
-      await this.adminPrograms.publishAllDrafts() // (this.programName)
+      await this.adminPrograms.publishAllDrafts()
     })
   }
 
