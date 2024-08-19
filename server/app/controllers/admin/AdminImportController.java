@@ -136,36 +136,31 @@ public class AdminImportController extends CiviFormController {
       return ok(
           adminImportViewPartial
               .renderError(
-                  "Program already exists",
-                  "A program with the admin name "
-                      + adminName
-                      + " already exists. Please try again.")
+                  "This program already exists in our system.",
+                  "Please check your file and and try again.")
               .render());
     }
 
     // Get the admin names of any incoming questions that already exist in the import environment so
     // we can warn the user that new versions of these questions will be created
-    ImmutableList<String> matchingQuestionAdminNames =
-        questionRepository.getMatchingAdminNames(questions);
+
+    // we need someway to connect the new name to the old name
 
     // Overwrite the admin names for any questions that already exist in the import environment so
     // we can create new versions of the questions
-    questions = programMigrationService.maybeOverwriteQuestionName(questions);
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+        programMigrationService.maybeOverwriteQuestionName(questions);
 
     ErrorAnd<String, String> serializeResult =
-        programMigrationService.serialize(program, questions);
+        programMigrationService.serialize(
+            program, ImmutableList.copyOf(updatedQuestionsMap.values()));
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
     return ok(
         adminImportViewPartial
-            .renderProgramData(
-                request,
-                program,
-                questions,
-                matchingQuestionAdminNames,
-                serializeResult.getResult())
+            .renderProgramData(request, program, updatedQuestionsMap, serializeResult.getResult())
             .render());
   }
 

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
@@ -81,19 +82,34 @@ public final class ProgramMigrationService {
    * questions. If a match is found, it generates a new admin name of the format "orginal admin
    * name-n".
    */
-  public ImmutableList<QuestionDefinition> maybeOverwriteQuestionName(
+  public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
+
     return questions.stream()
-        .map(
-            (QuestionDefinition question) -> {
-              String newAdminName = maybeGenerateNewAdminName(question.getName());
-              try {
-                return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
-              } catch (UnsupportedQuestionTypeException error) {
-                throw new RuntimeException(error);
-              }
-            })
-        .collect(ImmutableList.toImmutableList());
+        .collect(
+            ImmutableMap.toImmutableMap(
+                QuestionDefinition::getName,
+                question -> {
+                  String newAdminName = maybeGenerateNewAdminName(question.getName());
+                  try {
+                    return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
+                  } catch (UnsupportedQuestionTypeException error) {
+                    throw new RuntimeException(error);
+                  }
+                }));
+
+    // return questions.stream()
+    //     .map(
+    //         (QuestionDefinition question) -> {
+    //           String oldAdminName = question.getName();
+    //           String newAdminName = maybeGenerateNewAdminName(oldAdminName);
+    //           try {
+    //             return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
+    //           } catch (UnsupportedQuestionTypeException error) {
+    //             throw new RuntimeException(error);
+    //           }
+    //         })
+    //     .collect(ImmutableList.toImmutableList());
   }
 
   /**
