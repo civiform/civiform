@@ -18,6 +18,7 @@ import java.util.Set;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -64,6 +65,7 @@ public class AccountRepositoryTest extends ResetPostgres {
                     "",
                     "",
                     "",
+                    "",
                     "test@test.com",
                     "2020-10-10"))
         .isInstanceOf(EmailAddressExistsException.class);
@@ -74,24 +76,27 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2020-10-10");
+        account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("Dow");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
         .isEqualTo("James");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
         .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix().get())
+        .isEqualTo("Jr.");
   }
 
   @Test
-  public void updateClientNameTest_EmptyMiddleAndLastName() {
+  public void updateClientNameTest_EmptyMiddleLastNameAndSuffix() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
-    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
+    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("John");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
     assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix()).isEmpty();
   }
 
   @Test
@@ -99,7 +104,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
+        account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
         .isEqualTo("2023-12-12");
   }
@@ -109,7 +114,16 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
+        account,
+        applicantUpdateTest,
+        "Dow",
+        "James",
+        "John",
+        "Jr.",
+        "4259746144",
+        "",
+        "",
+        "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
         .isEqualTo("4259746144");
   }
@@ -124,6 +138,7 @@ public class AccountRepositoryTest extends ResetPostgres {
         "Dow",
         "James",
         "John",
+        "Jr.",
         "",
         "this is notes",
         "",
@@ -425,6 +440,23 @@ public class AccountRepositoryTest extends ResetPostgres {
         .isEqualTo(validJwt.serialize());
   }
 
+  @Test
+  public void listTrustedIntermediaryGroups_test() {
+    String dummyDesc = "something";
+    repo.createNewTrustedIntermediaryGroup("bbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("abc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("zbc", dummyDesc);
+    repo.createNewTrustedIntermediaryGroup("cbc", dummyDesc);
+
+    List<TrustedIntermediaryGroupModel> tiGroups = repo.listTrustedIntermediaryGroups();
+
+    assertThat(tiGroups).hasSize(4);
+    assertThat(tiGroups.get(0).getName()).isEqualTo("abc");
+    assertThat(tiGroups.get(1).getName()).isEqualTo("bbc");
+    assertThat(tiGroups.get(2).getName()).isEqualTo("cbc");
+    assertThat(tiGroups.get(3).getName()).isEqualTo("zbc");
+  }
+
   private JWT getJwtWithExpirationTime(Instant expirationTime) {
     JWTClaimsSet claims =
         new JWTClaimsSet.Builder().expirationTime(Date.from(expirationTime)).build();
@@ -436,7 +468,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant
+        .getApplicantData()
+        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -447,7 +481,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant
+        .getApplicantData()
+        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;
   }
@@ -464,7 +500,8 @@ public class AccountRepositoryTest extends ResetPostgres {
   private ApplicantModel setupApplicantForUpdateTest() {
     ApplicantModel applicantUpdateTest = new ApplicantModel();
     ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
-    applicantDateUpdateTest.setUserName("Jane", Optional.empty(), Optional.of("Doe"));
+    applicantDateUpdateTest.setUserName(
+        "Jane", Optional.empty(), Optional.of("Doe"), Optional.empty());
     applicantDateUpdateTest.setDateOfBirth("2022-10-10");
     applicantUpdateTest.save();
     return applicantUpdateTest;

@@ -10,7 +10,9 @@ public class PersistedDurableJobModelTest extends ResetPostgres {
 
   @Test
   public void canBePersisted() {
-    var job = new PersistedDurableJobModel("fake-job-name", Instant.ofEpochMilli(1000));
+    var job =
+        new PersistedDurableJobModel(
+            "fake-job-name", JobType.RECURRING, Instant.ofEpochMilli(1000));
 
     job.save();
     assertThat(job.id).isNotNull();
@@ -18,7 +20,9 @@ public class PersistedDurableJobModelTest extends ResetPostgres {
 
   @Test
   public void appendingErrors() {
-    var job = new PersistedDurableJobModel("fake-job-name", Instant.ofEpochMilli(1000));
+    var job =
+        new PersistedDurableJobModel(
+            "fake-job-name", JobType.RECURRING, Instant.ofEpochMilli(1000));
 
     assertThat(job.getErrorMessage()).isEmpty();
     job.appendErrorMessage("first message");
@@ -29,7 +33,9 @@ public class PersistedDurableJobModelTest extends ResetPostgres {
 
   @Test
   public void decrementRemainingAttempts() {
-    var job = new PersistedDurableJobModel("fake-job-name", Instant.ofEpochMilli(1000));
+    var job =
+        new PersistedDurableJobModel(
+            "fake-job-name", JobType.RECURRING, Instant.ofEpochMilli(1000));
 
     assertThat(job.getRemainingAttempts()).isEqualTo(3);
     job.decrementRemainingAttempts();
@@ -38,7 +44,9 @@ public class PersistedDurableJobModelTest extends ResetPostgres {
 
   @Test
   public void hasFailedWithNoRemainingAttempts() {
-    var job = new PersistedDurableJobModel("fake-job-name", Instant.ofEpochMilli(1000));
+    var job =
+        new PersistedDurableJobModel(
+            "fake-job-name", JobType.RECURRING, Instant.ofEpochMilli(1000));
 
     assertThat(job.hasFailedWithNoRemainingAttempts()).isFalse();
     job.decrementRemainingAttempts().decrementRemainingAttempts().decrementRemainingAttempts();

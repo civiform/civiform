@@ -171,6 +171,7 @@ public final class AccountRepository {
       String firstName,
       String middleName,
       String lastName,
+      String nameSuffix,
       String phoneNumber,
       String tiNote,
       String email,
@@ -195,7 +196,11 @@ public final class AccountRepository {
       applicant.getApplicantData().setPhoneNumber(phoneNumber);
       applicant
           .getApplicantData()
-          .setUserName(firstName, Optional.ofNullable(middleName), Optional.ofNullable(lastName));
+          .setUserName(
+              firstName,
+              Optional.ofNullable(middleName),
+              Optional.ofNullable(lastName),
+              Optional.ofNullable(nameSuffix));
       applicant.getApplicantData().setDateOfBirth(newDob);
       account.save();
       applicant.save();
@@ -241,6 +246,7 @@ public final class AccountRepository {
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
     return database
         .find(TrustedIntermediaryGroupModel.class)
+        .orderBy("name asc")
         .setLabel("TrustedIntermediaryGroup.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"))
         .findList();
@@ -357,7 +363,8 @@ public final class AccountRepository {
     applicantData.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
-        Optional.ofNullable(form.getLastName()));
+        Optional.ofNullable(form.getLastName()),
+        Optional.ofNullable(form.getNameSuffix()));
     applicantData.setDateOfBirth(form.getDob());
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.setPhoneNumber(form.getPhoneNumber());

@@ -48,9 +48,25 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   @Override
   ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
-    return getEntityType().hasEmptyTranslation()
-        ? ImmutableSet.of(CiviFormError.of("Enumerator question must have specified entity type"))
-        : ImmutableSet.of();
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+    if (getEntityType().hasEmptyTranslation()) {
+      errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
+    }
+
+    OptionalInt min = getMinEntities();
+    OptionalInt max = getMaxEntities();
+    if (min.isPresent() && min.getAsInt() < 0) {
+      errors.add(CiviFormError.of("Minimum entity count cannot be negative"));
+    }
+    if (max.isPresent() && max.getAsInt() < 1) {
+      errors.add(CiviFormError.of("Maximum entity count cannot be less than 1"));
+    }
+    if (min.isPresent() && max.isPresent() && min.getAsInt() > max.getAsInt()) {
+      errors.add(
+          CiviFormError.of(
+              "Minimum entity count must be less than or equal to the maximum entity count"));
+    }
+    return errors.build();
   }
 
   public LocalizedStrings getEntityType() {

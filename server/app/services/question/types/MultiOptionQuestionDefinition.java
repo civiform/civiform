@@ -157,8 +157,8 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
 
     if (maxChoicesAllowed.isPresent()) {
-      if (maxChoicesAllowed.getAsInt() < 0) {
-        errors.add(CiviFormError.of("Maximum number of choices allowed cannot be negative"));
+      if (maxChoicesAllowed.getAsInt() < 1) {
+        errors.add(CiviFormError.of("Maximum number of choices allowed cannot be less than 1"));
       }
 
       if (maxChoicesAllowed.getAsInt() > numOptions) {
@@ -168,17 +168,13 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    if (minChoicesRequired.isPresent() && maxChoicesAllowed.isPresent()) {
-      if (minChoicesRequired.getAsInt() == 0 && maxChoicesAllowed.getAsInt() == 0) {
-        errors.add(CiviFormError.of("Cannot require exactly 0 choices"));
-      }
-
-      if (minChoicesRequired.getAsInt() > maxChoicesAllowed.getAsInt()) {
-        errors.add(
-            CiviFormError.of(
-                "Minimum number of choices required must be less than or equal to the maximum"
-                    + " choices allowed"));
-      }
+    if (minChoicesRequired.isPresent()
+        && maxChoicesAllowed.isPresent()
+        && minChoicesRequired.getAsInt() > maxChoicesAllowed.getAsInt()) {
+      errors.add(
+          CiviFormError.of(
+              "Minimum number of choices required must be less than or equal to the maximum choices"
+                  + " allowed"));
     }
 
     return errors.build();

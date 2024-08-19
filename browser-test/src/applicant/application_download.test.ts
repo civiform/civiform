@@ -95,14 +95,14 @@ test.describe('csv export for multioption question', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
+      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (suffix),csvcolor (selections - red_admin),csvcolor (selections - green_admin),csvcolor (selections - orange_admin),csvcolor (selections - blue_admin),csvcolor (selections - black_admin),csvcolor (selections - white_admin)',
     )
     // colors headers are - red,green,orange,blue,black,white
     expect(csvContent).toContain(
-      ',John,,Do,NOT_AN_OPTION_AT_PROGRAM_VERSION,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_SELECTED,SELECTED,NOT_SELECTED',
+      ',John,,Do,,NOT_AN_OPTION_AT_PROGRAM_VERSION,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_SELECTED,SELECTED,NOT_SELECTED',
     )
     expect(csvContent).toContain(
-      ',Jane,,Doe,SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_AN_OPTION_AT_PROGRAM_VERSION',
+      ',Jane,,Doe,,SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_AN_OPTION_AT_PROGRAM_VERSION',
     )
   })
 })
@@ -188,7 +188,7 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      ',sarah,,smith,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,admin description',
+      ',sarah,,smith,,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,admin description',
     )
 
     await logout(page)
@@ -242,14 +242,14 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(postEditCsvContent).toContain(
-      'sarah,,smith,op2_admin,05/10/2021,1000.00',
+      'sarah,,smith,,op2_admin,05/10/2021,1000.00',
     )
     expect(postEditCsvContent).toContain(
-      'Gus,,Guest,op2_admin,01/01/1990,2000.00',
+      'Gus,,Guest,,op2_admin,01/01/1990,2000.00',
     )
 
     const numberOfGusEntries =
-      postEditCsvContent.split('Gus,,Guest,op2_admin,01/01/1990,2000.00')
+      postEditCsvContent.split('Gus,,Guest,,op2_admin,01/01/1990,2000.00')
         .length - 1
     expect(numberOfGusEntries).toEqual(2)
 
@@ -286,10 +286,10 @@ test.describe('normal application flow', () => {
     await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain(
-      'sarah,,smith,op2_admin,05/10/2021,1000.00',
+      'sarah,,smith,,op2_admin,05/10/2021,1000.00',
     )
     expect(filteredCsvContent).not.toContain(
-      'Gus,,Guest,op2_admin,01/01/1990,2000.00',
+      'Gus,,Guest,,op2_admin,01/01/1990,2000.00',
     )
     const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
@@ -299,8 +299,10 @@ test.describe('normal application flow', () => {
     // Ensures that choosing not to apply filters continues to return all
     // results.
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(allCsvContent).toContain('sarah,,smith,op2_admin,05/10/2021,1000.00')
-    expect(allCsvContent).toContain('Gus,,Guest,op2_admin,01/01/1990,2000.00')
+    expect(allCsvContent).toContain(
+      'sarah,,smith,,op2_admin,05/10/2021,1000.00',
+    )
+    expect(allCsvContent).toContain('Gus,,Guest,,op2_admin,01/01/1990,2000.00')
     const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
     expect(
@@ -368,7 +370,7 @@ test.describe('normal application flow', () => {
       )
     } else {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),sample name question (first_name),sample name question (middle_name),sample name question (last_name),sample name question (name_suffix)',
       )
     }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')

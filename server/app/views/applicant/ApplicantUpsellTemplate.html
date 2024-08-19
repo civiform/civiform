@@ -4,7 +4,12 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+
     <main>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+      ></div>
+
       <div class="grid-container section">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
@@ -12,45 +17,134 @@
               th:replace="~{components/ToastFragment :: upsellToasts}"
               class="margin-1"
             ></div>
-            <h1
-              th:text="#{title.applicationConfirmation}"
-              class="margin-1"
-            ></h1>
-            <p
-              th:text="#{content.confirmed(${programName}, ${applicationId})}"
-              class="cf-application-id margin-1"
-            ></p>
 
-            <div class="margin-1">
-              <span th:text="${customConfirmationMessage}"></span>
-            </div>
+            <section class="section">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2')}"
+              ></div>
+            </section>
 
-            <div class="margin-1">
-              <a
-                th:if="${!isGuest}"
-                href="/"
-                class="usa-button margin-y-2"
-                id="another-program"
-                th:text="#{link.applyToAnotherProgram}"
-              ></a>
-              <a
-                th:if="${isGuest}"
-                href="#login-dialog-upsell"
-                aria-controls="login-dialog-upsell"
-                class="usa-button margin-y-2"
-                id="another-program"
-                th:text="#{link.applyToAnotherProgram}"
-                data-open-modal
-              ></a>
-              <a
-                th:href="${downloadHref}"
-                class="usa-button margin-y-2"
-                th:text="#{button.downloadPdf}"
-              ></a>
-            </div>
+            <section class="usa-prose">
+              <h2 th:text="#{heading.yourSubmissionInformation}"></h2>
+
+              <!-- We need h4 style for the headings, but accessibility checker
+               doesn't allow skipping from h2 to h4 -->
+              <div class="content">
+                <h3 th:text="#{heading.applicantName}" class="cf-prose-h4"></h3>
+                <p th:text="${applicantName}"></p>
+              </div>
+
+              <div class="content">
+                <h3
+                  th:text="#{heading.confirmationNumber}"
+                  class="cf-prose-h4"
+                ></h3>
+                <p th:text="${applicationId}" class="cf-application-id"></p>
+              </div>
+
+              <div class="content">
+                <h3 th:text="#{heading.dateSubmitted}" class="cf-prose-h4"></h3>
+                <p th:text="${dateSubmitted}" class="cf-bt-date"></p>
+              </div>
+
+              <div class="content">
+                <h4
+                  th:text="#{heading.forYourRecords}"
+                  class="cf-prose-h4"
+                ></h4>
+                <p th:text="#{content.youCanPrint}"></p>
+              </div>
+
+              <div>
+                <a
+                  th:href="${downloadHref}"
+                  class="usa-button"
+                  th:text="#{button.print}"
+                ></a>
+              </div>
+
+              <!-- TODO(#8299): Add "Download PDF" button -->
+
+              <section
+                th:if="${not #strings.isEmpty(customConfirmationMessage)}"
+                class="usa-prose"
+              >
+                <h2 th:text="#{heading.nextSteps}"></h2>
+                <p th:text="${customConfirmationMessage}"></p>
+              </section>
+
+              <div class="usa-alert usa-alert--info">
+                <div class="usa-alert__body">
+                  <h2
+                    class="usa-alert__heading"
+                    th:text="#{alert.createAccount}"
+                  ></h2>
+
+                  <p
+                    class="usa-alert__text"
+                    th:text="#{alert.createAccountDescription}"
+                  ></p>
+
+                  <div class="content-spacing"></div>
+
+                  <button
+                    type="button"
+                    class="usa-button usa-button--inverse"
+                    th:text="#{button.createAnAccount}"
+                    id="create-account"
+                    th:attr="data-redirect-to=${createAccountLink}"
+                  ></button>
+
+                  <div class="text-medium-spacing"></div>
+
+                  <p>
+                    <a
+                      class="usa-link"
+                      href="javascript:void(0);"
+                      th:text="#{content.loginToExistingAccount}"
+                      >linktext</a
+                    >
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <a
+                  th:if="${isGuest}"
+                  href="#login-dialog-upsell"
+                  aria-controls="login-dialog-upsell"
+                  class="usa-button usa-button--outline margin-y-2"
+                  id="another-program"
+                  th:text="#{button.homePage}"
+                  data-open-modal
+                ></a>
+                <a
+                  th:if="!${isGuest}"
+                  href="/"
+                  class="usa-button usa-button--outline margin-y-2"
+                  id="another-program"
+                  th:text="#{button.homePage}"
+                ></a>
+              </div>
+            </section>
           </div>
         </div>
       </div>
+
+      <section th:if="${cardsSection.cards().size() > 0}">
+        <div class="grid-container section">
+          <div class="grid-row">
+            <div class="tablet:grid-col-8">
+              <div class="usa-prose">
+                <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+        ></div>
+      </section>
     </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,

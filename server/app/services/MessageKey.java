@@ -22,6 +22,8 @@ public enum MessageKey {
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),
   ADDRESS_VALIDATION_STATE_REQUIRED("validation.stateRequired"),
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
+  ALERT_CREATE_ACCOUNT("alert.createAccount"), // North Star only
+  ALERT_CREATE_ACCOUNT_DESCRIPTION("alert.createAccountDescription"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE("alert.eligibility_applicant_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
@@ -50,6 +52,7 @@ public enum MessageKey {
       "alert.eligibility_ti_fastforwarded_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
+  ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -154,6 +157,7 @@ public enum MessageKey {
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
+  CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),

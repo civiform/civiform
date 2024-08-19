@@ -37,6 +37,7 @@ import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
+import services.applicant.question.Scalar;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -65,6 +66,8 @@ public final class CsvExporterService {
 
   private static final String CURRENCY_CENTS_TYPE_STRING =
       ScalarType.CURRENCY_CENTS.toString().toLowerCase(Locale.ROOT);
+
+  private static final String NAME_SUFFIX = Scalar.NAME_SUFFIX.toString().toLowerCase(Locale.ROOT);
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
@@ -309,6 +312,11 @@ public final class CsvExporterService {
     // Remove "cents" from the currency string as the value will be dollars.
     if (path.keyName().equals(CURRENCY_CENTS_TYPE_STRING)) {
       scalarComponent = "(currency)";
+    }
+
+    // Remove "name" from the name suffix string as it will be indicated in the name.
+    if (path.keyName().equals(NAME_SUFFIX)) {
+      scalarComponent = "(suffix)";
     }
 
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));

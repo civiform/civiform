@@ -32,6 +32,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
   private static final String FIRST_NAME_ATTRIBUTE_NAME = "first_name";
   private static final String MIDDLE_NAME_ATTRIBUTE_NAME = "middle_name";
   private static final String LAST_NAME_ATTRIBUTE_NAME = "last_name";
+  private static final String NAME_SUFFIX_ATTRIBUTE_NAME = "name_suffix";
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
@@ -67,6 +68,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute(FIRST_NAME_ATTRIBUTE_NAME, "Philip");
     profile.addAttribute(MIDDLE_NAME_ATTRIBUTE_NAME, "J.");
     profile.addAttribute(LAST_NAME_ATTRIBUTE_NAME, "Fry");
+    profile.addAttribute(NAME_SUFFIX_ATTRIBUTE_NAME, "Jr.");
     profile.addAttribute(LOCALE_ATTRIBUTE_NAME, "en");
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);

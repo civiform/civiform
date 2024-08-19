@@ -175,7 +175,8 @@ async function loginAsTestUserAwsStaging(
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
-    page.click('button:visible:has-text("Continue")'),
+    // getByRole selects items by their accessible name, so it only selects the visible button
+    page.getByRole('button', {name: 'Continue', exact: true}).click(),
   ])
 }
 
@@ -408,7 +409,8 @@ const normalizeElements = async (page: Frame | Page) => {
           .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
           .replace(/\d{4}-\d{2}-\d{2}/, '2030-01-01')
           .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-          .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT'),
+          .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
+          .replace(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/, 'January 1, 2030'),
       '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
       '.cf-bt-email': () => 'fake-email@example.com',
       '.cf-bt-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),

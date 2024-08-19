@@ -9,6 +9,7 @@ import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
+import java.time.Instant;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.QuestionModel;
@@ -32,6 +33,8 @@ import support.ProgramBuilder;
 
 public class UpsellControllerTest extends WithMockedProfiles {
 
+  public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2024-01-01T01:00:00.00Z");
+
   @Before
   public void setUp() {
     resetDatabase();
@@ -44,6 +47,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ApplicantModel applicant = createApplicantWithMockedProfile();
     ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
     Result result =
@@ -53,7 +57,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programDefinition.id(),
                 application.id,
-                redirectLocation)
+                redirectLocation,
+                application.getSubmitTime().toString())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -99,7 +104,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .buildDefinition();
     ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
-
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
     Result result =
@@ -109,7 +114,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
-                redirectLocation)
+                redirectLocation,
+                application.getSubmitTime().toString())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -157,7 +163,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .buildDefinition();
     ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
-
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
     Result result =
@@ -167,7 +173,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
-                redirectLocation)
+                redirectLocation,
+                application.getSubmitTime().toString())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);

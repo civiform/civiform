@@ -56,7 +56,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
 
-  private ProgramAdminApplicationService programAdminApplicationService;
+  protected ProgramAdminApplicationService programAdminApplicationService;
   private static ProgramService programService;
 
   protected ProgramModel fakeProgramWithEnumerator;
@@ -74,7 +74,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationFour;
   protected ApplicationModel applicationFive;
   protected ApplicationModel applicationSeven;
-  private ApplicationStatusesRepository appStatusRepo;
+  private static ApplicationStatusesRepository appStatusRepo;
 
   @Before
   public void setup() {
@@ -127,8 +127,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
         break;
       case NAME:
-        QuestionAnswerer.answerNameQuestion(applicantDataOne, answerPath, "Alice", "", "Appleton");
-        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker");
+        QuestionAnswerer.answerNameQuestion(
+            applicantDataOne, answerPath, "Alice", "", "Appleton", "");
+        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker", "");
         break;
       case NUMBER:
         QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
@@ -277,7 +278,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Example",
         "",
-        "Five");
+        "Five",
+        "");
 
     applicationFive =
         new ApplicationModel(applicantFive, fakeProgramWithOptionalQuestion, LifecycleStage.ACTIVE);
@@ -320,7 +322,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jen",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantSeven.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -368,7 +371,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -391,7 +395,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -449,7 +454,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -465,13 +471,15 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Anne",
         "",
-        "Anderson");
+        "Anderson",
+        "");
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         hmPath.atIndex(1).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "Bailey",
         "",
-        "Bailerson");
+        "Bailerson",
+        "");
     String hmJobPathSegment = hmJobsQuestion.getQuestionDefinition().getQuestionPathSegment();
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantOne.getApplicantData(),
@@ -502,7 +510,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
-        "Doe");
+        "Doe",
+        "");
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -515,7 +524,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
         "James",
         "",
-        "Jameson");
+        "Jameson",
+        "");
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantTwo.getApplicantData(),
         hmPath.atIndex(0).join(hmJobPathSegment),
@@ -565,6 +575,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     ProgramBuilder fakeProgramBuilder;
     boolean addEnumeratorQuestion = false;
     boolean addNestedEnumeratorQuestion = false;
+    ImmutableList.Builder<QuestionModel> householdMembersRepeatedQuestions =
+        ImmutableList.builder();
+
+    private StatusDefinitions statusDefinitions = new StatusDefinitions();
 
     private FakeProgramBuilder(String name) {
       fakeProgramBuilder = ProgramBuilder.newActiveProgram(name);
@@ -607,6 +621,24 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draftWithoutBlock));
     }
 
+    FakeProgramBuilder withStatuses(ImmutableList<String> statuses) {
+      statusDefinitions =
+          new StatusDefinitions()
+              .setStatuses(
+                  statuses.stream()
+                      .map(
+                          status ->
+                              Status.builder()
+                                  .setStatusText(status)
+                                  .setLocalizedStatusText(
+                                      LocalizedStrings.builder()
+                                          .setTranslations(ImmutableMap.of(Locale.ENGLISH, status))
+                                          .build())
+                                  .build())
+                      .collect(ImmutableList.toImmutableList()));
+      return this;
+    }
+
     FakeProgramBuilder withQuestion(QuestionModel question) {
       fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
       return this;
@@ -646,36 +678,48 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeProgramBuilder withHouseholdMembersRepeatedQuestion(QuestionModel repeatedQuestion) {
+      householdMembersRepeatedQuestions.add(repeatedQuestion);
+      return this;
+    }
+
     FakeProgramBuilder withHouseholdMembersJobsNestedEnumeratorQuestion() {
       addNestedEnumeratorQuestion = true;
       return this;
     }
 
     ProgramModel build() {
+      ProgramModel fakeProgram;
       if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
-        fakeProgramBuilder
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
-            .withRepeatedBlock()
-            .withRequiredQuestion(
-                testQuestionBank.textRepeatedApplicantHouseholdMemberFavoriteShape())
-            .withAnotherRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
-            .withRepeatedBlock()
-            .withRequiredQuestion(
-                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
-            .build();
+        fakeProgram =
+            fakeProgramBuilder
+                .withBlock()
+                .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+                .withRepeatedBlock()
+                .withRequiredQuestions(householdMembersRepeatedQuestions.build())
+                .withAnotherRepeatedBlock()
+                .withRequiredQuestion(
+                    testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
+                .withRepeatedBlock()
+                .withRequiredQuestion(
+                    testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
+                .build();
       } else if (addEnumeratorQuestion) {
-        fakeProgramBuilder
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
-            .withRepeatedBlock()
-            .withRequiredQuestion(
-                testQuestionBank.textRepeatedApplicantHouseholdMemberFavoriteShape())
-            .build();
+        fakeProgram =
+            fakeProgramBuilder
+                .withBlock()
+                .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+                .withRepeatedBlock()
+                .withRequiredQuestions(householdMembersRepeatedQuestions.build())
+                .build();
+      } else {
+        fakeProgram = fakeProgramBuilder.build();
       }
 
-      return fakeProgramBuilder.build();
+      appStatusRepo.createOrUpdateStatusDefinitions(
+          fakeProgram.getProgramDefinition().adminName(), statusDefinitions);
+
+      return fakeProgram;
     }
   }
 
@@ -685,7 +729,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     ApplicantModel applicant;
     ProgramModel program;
     Optional<AccountModel> trustedIntermediary = Optional.empty();
-    ApplicationModel application;
+    ImmutableList<RepeatedEntity> repeatedHouseholdMemberEntities;
+
+    private ApplicationModel application;
+    private Instant createTime = FAKE_CREATE_TIME;
+    private Instant submitTime = FAKE_SUBMIT_TIME;
 
     private FakeApplicationFiller(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
@@ -708,14 +756,40 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller atCreateTime(Instant createTime) {
+      this.createTime = createTime;
+      return this;
+    }
+
+    FakeApplicationFiller atSubmitTime(Instant submitTime) {
+      this.submitTime = submitTime;
+      return this;
+    }
+
     FakeApplicationFiller answerAddressQuestion(
-        String street, String line2, String city, String state, String zip) {
+        QuestionModel question,
+        String street,
+        String line2,
+        String city,
+        String state,
+        String zip) {
+      return answerAddressQuestion(question, null, street, line2, city, state, zip);
+    }
+
+    FakeApplicationFiller answerAddressQuestion(
+        QuestionModel question,
+        String repeatedEntityName,
+        String street,
+        String line2,
+        String city,
+        String state,
+        String zip) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .addressApplicantAddress()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerAddressQuestion(
           applicant.getApplicantData(), answerPath, street, line2, city, state, zip);
       applicant.save();
@@ -723,6 +797,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
 
     FakeApplicationFiller answerCorrectedAddressQuestion(
+        QuestionModel question,
         String street,
         String line2,
         String city,
@@ -733,12 +808,40 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         Double longitude,
         Long wellKnownId,
         String serviceArea) {
+      return answerCorrectedAddressQuestion(
+          question,
+          null,
+          street,
+          line2,
+          city,
+          state,
+          zip,
+          corrected,
+          latitude,
+          longitude,
+          wellKnownId,
+          serviceArea);
+    }
+
+    FakeApplicationFiller answerCorrectedAddressQuestion(
+        QuestionModel question,
+        String repeatedEntityName,
+        String street,
+        String line2,
+        String city,
+        String state,
+        String zip,
+        String corrected,
+        Double latitude,
+        Double longitude,
+        Long wellKnownId,
+        String serviceArea) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .addressApplicantAddress()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerAddressQuestion(
           applicant.getApplicantData(),
           answerPath,
@@ -756,13 +859,19 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
+    FakeApplicationFiller answerCheckboxQuestion(
+        QuestionModel question, ImmutableList<Long> optionIds) {
+      return answerCheckboxQuestion(question, null, optionIds);
+    }
+
+    FakeApplicationFiller answerCheckboxQuestion(
+        QuestionModel question, String repeatedEntityName, ImmutableList<Long> optionIds) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .checkboxApplicantKitchenTools()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       ApplicantData applicantData = applicant.getApplicantData();
       for (int i = 0; i < optionIds.size(); i++) {
         QuestionAnswerer.answerMultiSelectQuestion(applicantData, answerPath, i, optionIds.get(i));
@@ -771,139 +880,205 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeApplicationFiller answerCurrencyQuestion(String answer) {
+    FakeApplicationFiller answerCurrencyQuestion(QuestionModel question, String answer) {
+      return answerCurrencyQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerCurrencyQuestion(
+        QuestionModel question, String repeatedEntityName, String answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .currencyApplicantMonthlyIncome()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerCurrencyQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerDateQuestion(String answer) {
+    FakeApplicationFiller answerDateQuestion(QuestionModel question, String answer) {
+      return answerDateQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerDateQuestion(
+        QuestionModel question, String repeatedEntityName, String answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .dateApplicantBirthdate()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerDateQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerDropdownQuestion(Long optionId) {
+    FakeApplicationFiller answerDropdownQuestion(QuestionModel question, Long optionId) {
+      return answerDropdownQuestion(question, null, optionId);
+    }
+
+    FakeApplicationFiller answerDropdownQuestion(
+        QuestionModel question, String repeatedEntityName, Long optionId) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .dropdownApplicantIceCream()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       ApplicantData applicantData = applicant.getApplicantData();
       QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerEmailQuestion(String answer) {
+    FakeApplicationFiller answerEmailQuestion(QuestionModel question, String answer) {
+      return answerEmailQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerEmailQuestion(
+        QuestionModel question, String repeatedEntityName, String answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .emailApplicantEmail()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerFileUploadQuestion(String fileKey) {
+    FakeApplicationFiller answerFileUploadQuestion(QuestionModel question, String fileKey) {
+      return answerFileUploadQuestion(question, null, fileKey);
+    }
+
+    FakeApplicationFiller answerFileUploadQuestion(
+        QuestionModel question, String repeatedEntityName, String fileKey) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .fileUploadApplicantFile()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
 
       QuestionAnswerer.answerFileQuestion(applicant.getApplicantData(), answerPath, fileKey);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerIdQuestion(String answer) {
+    FakeApplicationFiller answerIdQuestion(QuestionModel question, String answer) {
+      return answerIdQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerIdQuestion(
+        QuestionModel question, String repeatedEntityName, String answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .IdApplicantId()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
 
       QuestionAnswerer.answerIdQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerNameQuestion(String firstName, String middleName, String lastName) {
+    FakeApplicationFiller answerNameQuestion(
+        QuestionModel question,
+        String firstName,
+        String middleName,
+        String lastName,
+        String suffix) {
+      return answerNameQuestion(question, null, firstName, middleName, lastName, suffix);
+    }
+
+    FakeApplicationFiller answerNameQuestion(
+        QuestionModel question,
+        String repeatedEntityName,
+        String firstName,
+        String middleName,
+        String lastName,
+        String suffix) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .nameApplicantName()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNameQuestion(
-          applicant.getApplicantData(), answerPath, firstName, middleName, lastName);
+          applicant.getApplicantData(), answerPath, firstName, middleName, lastName, suffix);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerNumberQuestion(long answer) {
+    FakeApplicationFiller answerNumberQuestion(QuestionModel question, long answer) {
+      return answerNumberQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerNumberQuestion(
+        QuestionModel question, String repeatedEntityName, long answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .numberApplicantJugglingNumber()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+    FakeApplicationFiller answerPhoneQuestion(
+        QuestionModel question, String countryCode, String phoneNumber) {
+      return answerPhoneQuestion(question, null, countryCode, phoneNumber);
+    }
+
+    FakeApplicationFiller answerPhoneQuestion(
+        QuestionModel question, String repeatedEntityName, String countryCode, String phoneNumber) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .phoneApplicantPhone()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerPhoneQuestion(
           applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
+    FakeApplicationFiller answerRadioButtonQuestion(QuestionModel question, Long optionId) {
+      return answerRadioButtonQuestion(question, null, optionId);
+    }
+
+    FakeApplicationFiller answerRadioButtonQuestion(
+        QuestionModel question, String repeatedEntityName, Long optionId) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .radioApplicantFavoriteSeason()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       ApplicantData applicantData = applicant.getApplicantData();
       QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
       applicant.save();
       return this;
     }
 
-    FakeApplicationFiller answerTextQuestion(String answer) {
+    FakeApplicationFiller answerTextQuestion(QuestionModel question, String answer) {
+      return answerTextQuestion(question, null, answer);
+    }
+
+    FakeApplicationFiller answerTextQuestion(
+        QuestionModel question, String repeatedEntityName, String answer) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
-          testQuestionBank
-              .textApplicantFavoriteColor()
+          question
               .getQuestionDefinition()
-              .getContextualizedPath(
-                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
@@ -919,6 +1094,15 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       QuestionAnswerer.answerEnumeratorQuestion(
           applicant.getApplicantData(), answerPath, householdMembers);
       applicant.save();
+
+      // Store repeated entities so we can answer other questions easily
+      this.repeatedHouseholdMemberEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+
       return this;
     }
 
@@ -940,25 +1124,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getQuestionDefinition()
               .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
-      applicant.save();
-      return this;
-    }
-
-    FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
-      var repeatedEntities =
-          RepeatedEntity.createRepeatedEntities(
-              (EnumeratorQuestionDefinition)
-                  testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-              /* visibility= */ Optional.empty(),
-              applicant.getApplicantData());
-      var repeatedEntity =
-          repeatedEntities.stream().filter(e -> e.entityName().equals(entityName)).findFirst();
-      Path answerPath =
-          testQuestionBank
-              .textRepeatedApplicantHouseholdMemberFavoriteShape()
-              .getQuestionDefinition()
-              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
-      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }
@@ -1007,8 +1172,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
       // CreateTime of an application is set through @onCreate to Instant.now(). To change
       // the value, manually set createTime and save and refresh the application.
-      application.setCreateTimeForTest(FAKE_CREATE_TIME);
-      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.setCreateTimeForTest(this.createTime);
+      application.setSubmitTimeForTest(this.submitTime);
       application.save();
 
       return this;
@@ -1023,6 +1188,16 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       application.save();
 
       return this;
+    }
+
+    ApplicationModel getApplication() {
+      return application;
+    }
+
+    private Optional<RepeatedEntity> getHouseholdMemberEntity(String entityName) {
+      return repeatedHouseholdMemberEntities.stream()
+          .filter(e -> e.entityName().equals(entityName))
+          .findFirst();
     }
   }
 }
