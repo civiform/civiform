@@ -124,7 +124,7 @@
             "members": {
               "APPLICANT_OIDC_PROVIDER_LOGOUT": {
                 "mode": "HIDDEN",
-                "description": "Enables [central logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
+                "description": "Enables [central logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2) for both admin and applicant auth providers (despite the name).",
                 "type": "bool"
               },
               "APPLICANT_OIDC_OVERRIDE_LOGOUT_URL": {
