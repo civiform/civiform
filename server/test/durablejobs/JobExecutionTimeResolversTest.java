@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import org.junit.Test;
 
-public class RecurringJobExecutionTimeResolversTest {
+public class JobExecutionTimeResolversTest {
 
   @Test
   public void everySundayAt2Am() {

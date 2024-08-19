@@ -55,7 +55,7 @@ public abstract class AbstractJobScheduler {
    *
    * <p>{@code synchronized} to avoid overlapping executions within the same server.
    */
-  public synchronized void scheduleRecurringJobs() {
+  public synchronized void scheduleJobs() {
     for (DurableJobRegistry.RegisteredJob registeredJob : durableJobRegistry.getRecurringJobs()) {
       if (registeredJob.getRecurringJobExecutionTimeResolver().isEmpty()) {
         LOGGER.error(
