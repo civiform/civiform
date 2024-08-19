@@ -148,7 +148,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Enables [central
-   * logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).
+   * logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2) for both
+   * admin and applicant auth providers (despite the name).
    */
   public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
@@ -1113,7 +1114,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_PROVIDER_LOGOUT",
                                       "Enables [central"
-                                          + " logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
+                                          + " logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2)"
+                                          + " for both admin and applicant auth providers (despite"
+                                          + " the name).",
                                       /* isRequired= */ false,
                                       SettingType.BOOLEAN,
                                       SettingMode.HIDDEN),
