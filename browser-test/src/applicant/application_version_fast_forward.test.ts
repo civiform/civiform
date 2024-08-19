@@ -12,7 +12,7 @@ import {
   enableFeatureFlag,
   disableFeatureFlag,
 } from '../support'
-import {QuestionSpec} from '../support/admin_programs'
+import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
@@ -984,6 +984,407 @@ test.describe('Application Version Fast-Forward Flow', () => {
     await applicantActor.closeBrowserContext()
     await programAdminActor.closeBrowserContext()
   })
+
+  test('all major steps - fast forward flag enabled - disabled visibility enabled', async ({
+    browser,
+  }) => {
+    const programName = 'program-fastforward-example'
+
+    const civiformAdminActor = await FastForwardCiviformAdminActor.create(
+      programName,
+      browser,
+    )
+    const applicantActor = await FastForwardApplicantActor.create(
+      programName,
+      browser,
+    )
+
+    await enableFeatureFlag(civiformAdminActor.getPage(), 'FASTFORWARD_ENABLED')
+    await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
+
+    await enableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'DISABLED_VISIBILITY_CONDITION_ENABLED',
+    )
+    await enableFeatureFlag(
+      applicantActor.getPage(),
+      'DISABLED_VISIBILITY_CONDITION_ENABLED',
+    )
+
+    /*
+
+      Program definitions
+
+      Program: v1       Add (A, B, C, D, E)
+        Block: First
+          Question: A
+        Block: Second
+          Question: B  ---> Eligibility
+        Block: Third
+          Question: C  ---> Eligibility
+        Block: Fourth
+          Question: D
+        Block: Fifth
+          Question: E
+
+      Program: v2       Remove (C, D), move (A, E), add (F, G), no-change (B)
+        Block: First
+          Question: G
+        Block: Second
+          Question: B  ---> Eligibility
+        Block: Third
+          Question: A
+        Block: Fourth
+          Question: E
+        Block: Fifth
+          Question: F
+
+      Program: v3       Remove (E), add (H), no-change (G, B, A, E, F)
+        Block: First
+          Question: G
+        Block: Second
+          Question: B  ---> Eligibility
+        Block: Third
+          Question: A
+        Block: Fourth
+          Question: H ---> Eligibility
+        Block: Fifth
+          Question: F
+    */
+
+    await test.step('Login actors', async () => {
+      await civiformAdminActor.login()
+      await applicantActor.login()
+    })
+
+    // Civiform Admin creates program v1
+    const programIdV1 =
+      await test.step('As civiform admin - active program v1', async () => {
+        await test.step('create all questions', async () => {
+          await civiformAdminActor.addQuestions([
+            Question.A,
+            Question.B,
+            Question.C,
+            Question.D,
+            Question.E,
+          ])
+        })
+
+        await test.step('create application', async () => {
+          await civiformAdminActor.addProgram()
+          await civiformAdminActor.gotoEditDraftProgramPage()
+
+          await civiformAdminActor.addQuestionsToExistingBlocks([
+            {
+              block: Block.First,
+              questions: [Question.A],
+            },
+          ])
+
+          await civiformAdminActor.addQuestionsToNewBlocks([
+            {
+              block: Block.Second,
+              questions: [Question.B],
+              eligibilityValue: `${Question.B}-text-answer`,
+            },
+            {
+              block: Block.Third,
+              questions: [Question.C],
+              eligibilityValue: `${Question.C}-text-answer`,
+            },
+            {
+              block: Block.Fourth,
+              questions: [Question.D],
+            },
+            {
+              block: Block.Fifth,
+              questions: [Question.E],
+            },
+          ])
+        })
+
+        return await test.step('publish application', async () => {
+          const programIdV1 =
+            civiformAdminActor.getProgramIdFromEditProgramUrl()
+          await civiformAdminActor.publish()
+          return programIdV1
+        })
+      })
+
+    // Applicant fills out application for program v1; does not submit application
+    await test.step('As applicant - active program v1', async () => {
+      await test.step('check program list has no in-progress applications', async () => {
+        await applicantActor.gotoApplicantHomePage()
+
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
+        ).toBeAttached()
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).not.toBeAttached()
+        await expect(
+          applicantActor.getCardHeadingLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
+        ).toBeAttached()
+      })
+
+      await test.step('fill out application, but do not submit', async () => {
+        await applicantActor.applyToProgram()
+        expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
+          programIdV1,
+        )
+
+        await applicantActor.answerQuestions([
+          Question.A,
+          Question.B,
+          Question.C,
+          Question.D,
+          Question.E,
+        ])
+      })
+
+      await test.step('check program list has one in-progress application for program v1', async () => {
+        await applicantActor.gotoApplicantHomePage()
+
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
+        ).not.toBeAttached()
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).toBeAttached()
+
+        const headingLocator = applicantActor.getCardHeadingLocator(
+          ApplicationStatusCardGroupName.InProgress,
+        )
+        await expect(headingLocator).toBeAttached()
+
+        expect(
+          await applicantActor.getProgramIdFromLocator(headingLocator),
+        ).toBe(programIdV1)
+      })
+
+      await test.step('check program list shows eligible tag', async () => {
+        await expect(
+          applicantActor.getCardEligibleTagLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).toBeVisible()
+        await expect(
+          applicantActor.getCardNotEligibleTagLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).not.toBeAttached()
+      })
+    })
+
+    // Civiform Admin creates program v2
+    const programIdV2 =
+      await test.step('As civiform admin - active program v2', async () => {
+        await test.step('create new questions', async () => {
+          await civiformAdminActor.addQuestions([Question.F, Question.G])
+        })
+
+        await test.step('edit program', async () => {
+          await civiformAdminActor.editProgram()
+        })
+
+        await test.step('remove eligibility from questions', async () => {
+          await civiformAdminActor.removeEligibilityFromBlockDefinitions([
+            {
+              block: Block.Third,
+              questions: [Question.C],
+            },
+          ])
+        })
+
+        await test.step('remove questions from program', async () => {
+          await civiformAdminActor.removeQuestionsFromBlock([
+            {
+              block: Block.First,
+              questions: [Question.A],
+            },
+            {
+              block: Block.Third,
+              questions: [Question.C],
+            },
+            {
+              block: Block.Fourth,
+              questions: [Question.D],
+            },
+            {
+              block: Block.Fifth,
+              questions: [Question.E],
+            },
+          ])
+        })
+
+        return await test.step('add questions to program and republish program', async () => {
+          await civiformAdminActor.addQuestionsToExistingBlocks([
+            {
+              block: Block.First,
+              questions: [Question.G],
+            },
+            {
+              block: Block.Third,
+              questions: [Question.A],
+            },
+            {
+              block: Block.Fourth,
+              questions: [Question.E],
+            },
+            {
+              block: Block.Fifth,
+              questions: [Question.F],
+            },
+          ])
+
+          const programIdV2 =
+            civiformAdminActor.getProgramIdFromEditProgramUrl()
+          await civiformAdminActor.publish()
+          return programIdV2
+        })
+      })
+
+    // Verify we have a new program version id
+    expect(
+      programIdV1,
+      'Verify Program v1 and Program v2 have the different IDs.',
+    ).not.toEqual(programIdV2)
+    expect(
+      programIdV1,
+      'Verify Program v1 ID is less than Program v2 ID.',
+    ).toBeLessThan(programIdV2)
+
+    // Applicant edits existing application for program v1
+    await test.step('As applicant - active program v2', async () => {
+      await test.step('As applicant - check program list has one in-progress application for program v2', async () => {
+        await applicantActor.gotoApplicantHomePage()
+
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
+        ).not.toBeAttached()
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).toBeAttached()
+
+        const headingLocator = applicantActor.getCardHeadingLocator(
+          ApplicationStatusCardGroupName.InProgress,
+        )
+        await expect(headingLocator).toBeAttached()
+        expect(
+          await applicantActor.getProgramIdFromLocator(headingLocator),
+        ).toBe(programIdV2)
+      })
+
+      await test.step('As applicant - load application and verify it is on program v2', async () => {
+        await applicantActor.clickApplyProgramButton()
+        expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
+          programIdV2,
+        )
+      })
+
+      await test.step('As applicant - check program list has one in-progress application for program v2', async () => {
+        await applicantActor.gotoApplicantHomePage()
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.NotStarted,
+          ),
+        ).not.toBeAttached()
+        await expect(
+          applicantActor.getCardListLocator(
+            ApplicationStatusCardGroupName.InProgress,
+          ),
+        ).toBeAttached()
+
+        const headingLocator = applicantActor.getCardHeadingLocator(
+          ApplicationStatusCardGroupName.InProgress,
+        )
+        await expect(headingLocator).toBeAttached()
+        expect(
+          await applicantActor.getProgramIdFromLocator(headingLocator),
+        ).toBe(programIdV2)
+      })
+
+      await test.step('As applicant - navigate to a question edit page and wait there', async () => {
+        await applicantActor.clickApplyProgramButton()
+
+        expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
+          programIdV2,
+        )
+        await applicantActor.reanswerQuestion(Question.G)
+        await applicantActor.reanswerQuestion(Question.F)
+      })
+    })
+
+    // Civiform Admin creates program v3
+    const programIdV3 =
+      await test.step('As civiform admin - active program v3', async () => {
+        await test.step('create new questions', async () => {
+          await civiformAdminActor.addQuestions([Question.H])
+        })
+
+        await test.step('edit program', async () => {
+          await civiformAdminActor.editProgram()
+        })
+
+        await test.step('remove questions from program', async () => {
+          await civiformAdminActor.removeQuestionsFromBlock([
+            {
+              block: Block.Fourth,
+              questions: [Question.E],
+            },
+          ])
+        })
+
+        return await test.step('add questions to program and republish program', async () => {
+          await civiformAdminActor.addQuestionsToExistingBlocks([
+            {
+              block: Block.Fourth,
+              questions: [Question.H],
+              eligibilityValue: `${Question.H}-text-answer`,
+            },
+          ])
+
+          const programIdV3 =
+            civiformAdminActor.getProgramIdFromEditProgramUrl()
+
+          await civiformAdminActor.disableProgram()
+          await civiformAdminActor.publish()
+          return programIdV3
+        })
+      })
+
+    // Verify we have a new program version id
+    expect(
+      programIdV2,
+      'Verify Program v2 and Program v3 have the different IDs.',
+    ).not.toEqual(programIdV3)
+    expect(
+      programIdV2,
+      'Verify Program v2 ID is less than Program v3 ID.',
+    ).toBeLessThan(programIdV3)
+
+    // Applicant submits application for program v1; it does not change to program v3
+    await test.step('As applicant - active program v3', async () => {
+      await applicantActor.getPage().reload()
+      await applicantActor
+        .getPage()
+        .waitForURL('**/programs/program-fastforward-example/disabled')
+    })
+  })
 })
 
 /**
@@ -1078,11 +1479,21 @@ class FastForwardCiviformAdminActor {
   }
 
   /**
+   * Set the program visibility as disabled
+   */
+  async disableProgram() {
+    await this.adminPrograms.editProgram(
+      this.programName,
+      ProgramVisibility.DISABLED,
+    )
+  }
+
+  /**
    * Publishes a program
    */
   async publish() {
     await test.step('publish', async () => {
-      await this.adminPrograms.publishProgram(this.programName)
+      await this.adminPrograms.publishAllDrafts() // (this.programName)
     })
   }
 
@@ -1482,6 +1893,16 @@ class FastForwardApplicantActor {
     expect(id).toBeGreaterThan(0)
 
     return id
+  }
+
+  /**
+   * Waits for the program disabled page to load
+   */
+  async waitForDisabledPage(): Promise<void> {
+    await this.page.waitForURL(`**/programs/${this.programName}/disabled`)
+    await expect(
+      this.page.getByRole('heading', {name: 'This program is no longer'}),
+    ).toBeVisible()
   }
 }
 
