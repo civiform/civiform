@@ -37,6 +37,8 @@ public final class RecurringJobScheduler extends AbstractJobScheduler {
   /** Returns the list of allowed {@link JobType}s that can this scheduler can process */
   @Override
   protected synchronized ImmutableList<JobType> allowedJobTypes() {
+    // If more recurring options are added in the future the DurableJobRegistry#registerStartupJob
+    // needs to be updated to handle it.
     return ImmutableList.<JobType>builder().add(JobType.RECURRING).build();
   }
 
