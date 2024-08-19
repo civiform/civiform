@@ -130,8 +130,6 @@ public class StartupDurableJobRunnerTest extends ResetPostgres {
     jobB.refresh();
     jobC.refresh();
 
-    // This assertion fails occasionally. I've been unable to figure out why
-    // so added RetryTest rule - bionj@google.com 5/18/2023.
     assertThat(runCount).hasValue(3);
 
     assertThat(jobA.getRemainingAttempts()).isEqualTo(2);
