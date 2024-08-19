@@ -57,7 +57,6 @@ public interface QuestionJsonPresenter<Q extends Question> {
    * all, such as with static questions.
    *
    * @param question the Question to build a JSON response for.
-   * @param multipleFileUploadEnabled TODO
    * @return a map of paths to Optional answer values.
    */
   ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
@@ -314,7 +313,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
           question
               .getApplicantQuestion()
               .getContextualizedPath()
-              .join("file_urls")
+              .join(ApiPathSegment.FILE_URLS)
               .asNestedEntitiesPath();
       if (multipleFileUploadEnabled) {
         ImmutableList<String> fileKeys =

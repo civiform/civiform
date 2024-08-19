@@ -14,5 +14,7 @@ public enum ApiPathSegment {
   ENTITIES,
   // A metadata field within repeated entities, currently a placeholder to reserve the field name
   // for future use and prevent questions with this name
-  ENTITY_METADATA;
+  ENTITY_METADATA,
+  // Replaces file_key_list, since we actually show file urls.
+  FILE_URLS;
 }

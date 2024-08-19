@@ -112,6 +112,7 @@ test.describe('Viewing API docs', () => {
     })
   })
 
+  // TODO(#8362): Remove the duplicate 'Views active API docs with multiple upload', and stop enabling this flag, once the flag is removed.
   test('Views active API docs with multiple upload', async ({
     page,
     adminPrograms,
@@ -167,6 +168,7 @@ test.describe('Viewing API docs', () => {
     })
   })
 
+  // TODO(#8362): Remove the duplicate 'Views active API docs without logging in with multiple upload', and stop enabling this flag, once the flag is removed.
   test('Views active API docs without logging in with multiple upload', async ({
     page,
     adminPrograms,
