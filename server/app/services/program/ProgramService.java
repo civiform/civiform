@@ -293,16 +293,22 @@ public final class ProgramService {
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
-    ProgramDefinition programDefinition =
-        syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(program), maxVersionForProgram)
-            .orderBlockDefinitions();
-
-    // It is safe to set the program definition cache, since we have already checked that it is
-    // not a draft program.
-    programRepository.setFullProgramDefinitionCache(program.id, programDefinition);
-
-    return CompletableFuture.completedStage(programDefinition);
+    return syncProgramDefinitionQuestionsFuture(
+            programRepository.getShallowProgramDefinition(program), maxVersionForProgram)
+        .thenApply(ProgramDefinition::orderBlockDefinitions)
+        .thenApply(
+            orderedProgramDef -> {
+              programRepository.setFullProgramDefinitionCache(program.id, orderedProgramDef);
+              return orderedProgramDef;
+            })
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   /**
@@ -1636,6 +1642,12 @@ public final class ProgramService {
               }
             },
             classLoaderExecutionContext.current());
+  }
+
+  private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestionsFuture(
+      ProgramDefinition programDefinition, VersionModel version) {
+    return CompletableFuture.completedFuture(
+        syncProgramDefinitionQuestions(programDefinition, version));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
