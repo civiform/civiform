@@ -295,14 +295,14 @@ public final class ProgramService {
 
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(
-            programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
+            programRepository.getShallowProgramDefinition(program), maxVersionForProgram).thenApply(ProgramDefinition::orderBlockDefinitions);
 
     // It is safe to set the program definition cache, since we have already checked that it is
     // not a draft program.
     programRepository.setFullProgramDefinitionCache(
-        program.id, programDefinition.orderBlockDefinitions());
+        program.id, programDefinition);
 
-    return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+    return CompletableFuture.completedStage(programDefinition);
   }
 
   /**
