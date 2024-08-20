@@ -65,12 +65,13 @@ public final class JsonExporterService {
   public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      SubmittedApplicationFilter filters) {
+      SubmittedApplicationFilter filters,
+      boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
-    return exportPage(programDefinition, paginationResult);
+    return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
   }
 
   /**
@@ -82,7 +83,9 @@ public final class JsonExporterService {
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
+      ProgramDefinition programDefinition,
+      PaginationResult<ApplicationModel> paginationResult,
+      boolean multipleFileUploadEnabled) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
@@ -91,7 +94,10 @@ public final class JsonExporterService {
 
     DocumentContext jsonData =
         applications.stream()
-            .map(a -> buildApplicationExportData(a, programDefinitionsForAllVersions))
+            .map(
+                a ->
+                    buildApplicationExportData(
+                        a, programDefinitionsForAllVersions, multipleFileUploadEnabled))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
@@ -119,7 +125,8 @@ public final class JsonExporterService {
 
   private ApplicationExportData buildApplicationExportData(
       ApplicationModel application,
-      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions) {
+      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
+      boolean multipleFileUploadEnabled) {
     Map<Path, AnswerData> answersToExport = new HashMap<>();
 
     // First retrieve the answers for the program version that aligns with this application
@@ -151,7 +158,7 @@ public final class JsonExporterService {
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
               .create(answerData.applicantQuestion().getType())
-              .getAllJsonEntries(answerData.createQuestion());
+              .getAllJsonEntries(answerData.createQuestion(), multipleFileUploadEnabled);
       entriesBuilder.putAll(questionEntries);
     }
 
