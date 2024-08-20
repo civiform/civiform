@@ -79,8 +79,9 @@ public final class ProgramMigrationService {
 
   /**
    * Checks if there are existing questions that match the admin id of any of the incoming
-   * questions. If a match is found, it generates a new admin name of the format "orginal admin
-   * name-n".
+   * questions. If a match is found, generate a new admin name of the format "orginal admin name-n".
+   *
+   * <p>Return a map of old_question_name -> updated_question_data
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
@@ -97,19 +98,6 @@ public final class ProgramMigrationService {
                     throw new RuntimeException(error);
                   }
                 }));
-
-    // return questions.stream()
-    //     .map(
-    //         (QuestionDefinition question) -> {
-    //           String oldAdminName = question.getName();
-    //           String newAdminName = maybeGenerateNewAdminName(oldAdminName);
-    //           try {
-    //             return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
-    //           } catch (UnsupportedQuestionTypeException error) {
-    //             throw new RuntimeException(error);
-    //           }
-    //         })
-    //     .collect(ImmutableList.toImmutableList());
   }
 
   /**
@@ -124,7 +112,6 @@ public final class ProgramMigrationService {
     int n = 1;
     while (similarAdminNames.contains(newAdminName)) {
       newAdminName = adminName + "-" + n;
-      System.out.println(newAdminName);
       n++;
       continue;
     }

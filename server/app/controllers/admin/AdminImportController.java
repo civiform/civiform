@@ -141,13 +141,16 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
 
-    // Get the admin names of any incoming questions that already exist in the import environment so
-    // we can warn the user that new versions of these questions will be created
-
-    // we need someway to connect the new name to the old name
+    if (questions == null) {
+      return ok(
+          adminImportViewPartial
+              .renderProgramData(request, program, ImmutableMap.of(), jsonString)
+              .render());
+    }
 
     // Overwrite the admin names for any questions that already exist in the import environment so
-    // we can create new versions of the questions
+    // we can create new versions of the questions.
+    // This creates a map of the old question name -> updated question data
     ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
         programMigrationService.maybeOverwriteQuestionName(questions);
 
