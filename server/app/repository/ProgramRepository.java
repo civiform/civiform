@@ -163,8 +163,8 @@ public final class ProgramRepository {
       if (!versionRepository.get().isDraftProgram(programId)) {
         if (!programDefinition.hasOrderedBlockDefinitions()) {
           logger.warn(
-              "Program {} with ID {} does not have ordered block definitions, so we won't set it"
-                  + " into the cache.",
+              "Program {} with ID {} does not have ordered block definitions, which it should"
+                  + " have before this function being called.",
               programDefinition.slug(),
               programDefinition.id());
         }
