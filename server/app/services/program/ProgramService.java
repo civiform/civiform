@@ -295,8 +295,7 @@ public final class ProgramService {
 
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(
-                programRepository.getShallowProgramDefinition(program), maxVersionForProgram)
-            .thenApply(ProgramDefinition::orderBlockDefinitions);
+                programRepository.getShallowProgramDefinition(program), maxVersionForProgram).orderBlockDefinitions();
 
     // It is safe to set the program definition cache, since we have already checked that it is
     // not a draft program.
