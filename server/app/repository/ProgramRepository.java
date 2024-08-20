@@ -161,6 +161,11 @@ public final class ProgramRepository {
         && getFullProgramDefinitionFromCache(programId).isEmpty()) {
       // We should never set the cache for draft programs.
       if (!versionRepository.get().isDraftProgram(programId)) {
+        // Every program definition should have the block definitions ordered, since the cache is
+        // only set
+        // after syncing program associations and ordering the block definitions. We want to log
+        // when this doesn't happen to troubleshoot
+        // https://github.com/civiform/civiform/issues/8360.
         if (!programDefinition.hasOrderedBlockDefinitions()) {
           logger.warn(
               "Program {} with ID {} does not have ordered block definitions, so we won't set it"
