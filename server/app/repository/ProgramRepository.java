@@ -167,9 +167,8 @@ public final class ProgramRepository {
                   + " into the cache.",
               programDefinition.slug(),
               programDefinition.id());
-        } else {
-          programDefCache.set(String.valueOf(programId), programDefinition);
         }
+        programDefCache.set(String.valueOf(programId), programDefinition);
       }
     }
   }
