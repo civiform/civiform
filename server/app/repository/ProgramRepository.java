@@ -161,7 +161,15 @@ public final class ProgramRepository {
         && getFullProgramDefinitionFromCache(programId).isEmpty()) {
       // We should never set the cache for draft programs.
       if (!versionRepository.get().isDraftProgram(programId)) {
-        programDefCache.set(String.valueOf(programId), programDefinition);
+        if (!programDefinition.hasOrderedBlockDefinitions()) {
+          logger.warn(
+              "Program {} with ID {} does not have ordered block definitions, so we won't set it"
+                  + " into the cache.",
+              programDefinition.slug(),
+              programDefinition.id());
+        } else {
+          programDefCache.set(String.valueOf(programId), programDefinition);
+        }
       }
     }
   }
