@@ -1581,7 +1581,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Seattle")),
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     ProgramDefinition programDefinition =
@@ -1637,7 +1637,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Seattle")),
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     ProgramDefinition programDefinition =

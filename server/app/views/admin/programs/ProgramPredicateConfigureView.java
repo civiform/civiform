@@ -593,8 +593,12 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<Operator> maybeSelectedOperator;
 
     if (questionDefinition.isAddress()) {
+      Optional<LeafAddressServiceAreaExpressionNode> maybeLeafAddressServiceAreaExpressionNode =
+          assertLeafAddressServiceAreaNode(maybeLeafNode);
       maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
-      maybeSelectedOperator = Optional.of(Operator.IN_SERVICE_AREA);
+      maybeSelectedOperator =
+          maybeLeafAddressServiceAreaExpressionNode.map(
+              LeafAddressServiceAreaExpressionNode::operator);
     } else {
       try {
         ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
