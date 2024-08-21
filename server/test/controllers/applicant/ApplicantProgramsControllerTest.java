@@ -15,7 +15,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;

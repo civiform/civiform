@@ -14,7 +14,6 @@ import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.util.List;
 import java.util.Optional;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;

@@ -4,7 +4,6 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
-import java.util.List;
 import java.util.Optional;
 import play.api.mvc.Call;
 
