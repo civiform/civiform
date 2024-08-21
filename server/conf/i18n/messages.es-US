@@ -130,6 +130,8 @@ content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
 content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Detalles del programa
 link.programDetailsSr=Detalles del programa {0} (se abre en una pestaña nueva)
 title.programs=Programas y servicios
