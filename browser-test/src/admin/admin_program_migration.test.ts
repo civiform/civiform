@@ -8,6 +8,11 @@ import {
 } from '../support'
 
 test.describe('program migration', () => {
+  const ALERT_WARNING = 'usa-alert--warning'
+  const ALERT_ERROR = 'usa-alert--error'
+  const ALERT_INFO = 'usa-alert--info'
+  const ALERT_SUCCESS = 'usa-alert--success'
+
   test('export a program', async ({
     page,
     adminPrograms,
@@ -112,7 +117,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
       await validateScreenshot(
         page.locator('main'),
         'import-page-with-error-parse',
@@ -124,7 +132,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName": "mismatched-brackets"',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
     })
 
     await test.step('malformed: missing ,', async () => {
@@ -141,7 +152,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
     })
 
     await test.step('malformed: missing required program info', async () => {
@@ -151,7 +165,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
       await validateScreenshot(
         page,
         'import-page-with-error-missing-program-fields',
@@ -172,7 +189,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
-      await adminProgramMigration.expectAlert('Program already exists')
+      await adminProgramMigration.expectAlert(
+        'This program already exists in our system.',
+        ALERT_ERROR,
+      )
       await validateScreenshot(
         page,
         'import-page-with-error-program-already-exists',
@@ -265,9 +285,10 @@ test.describe('program migration', () => {
         page.getByRole('heading', {name: 'file upload'}),
       ).toBeVisible()
 
-      // Assert the warning about repeated question names is shown
+      // Assert the warning about duplicate question names is shown
       await adminProgramMigration.expectAlert(
-        'The following questions have admin names that already exist in this environment',
+        'Importing this program will add 17 duplicate questions to the question bank.',
+        ALERT_WARNING,
       )
 
       // Assert all the questions are shown
@@ -302,12 +323,22 @@ test.describe('program migration', () => {
     })
 
     await test.step('save the comprehensive sample program', async () => {
+      // replace a question admin name so can see warning about new and duplicate questions
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Sample Address Question',
+        'Sample Address Question-new',
+      )
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        ALERT_WARNING,
       )
       await adminProgramMigration.clickButton('Save')
       await adminProgramMigration.expectAlert(
         'Your program has been successfully imported',
+        ALERT_SUCCESS,
       )
       await validateScreenshot(page, 'saved-program-success')
     })
@@ -329,9 +360,21 @@ test.describe('program migration', () => {
         'Minimal Sample Program',
         'Minimal Sample Program New',
       )
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Minimal Sample Program',
+        'Minimal Sample Program New',
+      )
+      // Replace the question admin id so we can see the "new question" info box
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Sample Name Question',
+        'Sample Name Question-new',
+      )
       await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question to the question bank.',
+        ALERT_INFO,
+      )
       await adminProgramMigration.clickButton('Save')
-      await validateScreenshot(page, 'after-clicked-save-button')
     })
 
     await test.step('navigate to the program edit page', async () => {

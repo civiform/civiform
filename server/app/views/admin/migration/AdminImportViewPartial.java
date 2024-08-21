@@ -178,7 +178,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       String singularOrPluralQuestionString = numNewQuestions == 1 ? "question" : "questions";
       alertMessage =
           alertMessage.concat(
-              numNewQuestions + " new " + singularOrPluralQuestionString + " to the question bank");
+              numNewQuestions
+                  + " new "
+                  + singularOrPluralQuestionString
+                  + " to the question bank.");
     }
 
     return AlertComponent.renderFullAlert(alertType, alertMessage, Optional.empty(), false, "");

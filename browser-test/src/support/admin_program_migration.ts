@@ -71,10 +71,10 @@ export class AdminProgramMigration {
     await this.clickButton('Preview program')
   }
 
-  async expectAlert(alertText: string) {
-    await expect(
-      this.page.getByRole('alert').getByRole('heading', {name: alertText}),
-    ).toBeVisible()
+  async expectAlert(alertText: string, alertType: string) {
+    const alert = this.page.getByRole('alert').filter({hasText: alertText})
+    await expect(alert).toBeVisible()
+    await expect(alert).toHaveClass(new RegExp(alertType))
   }
 
   async expectProgramImported(programName: string) {
