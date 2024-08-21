@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
 import org.junit.Before;
@@ -155,13 +156,13 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ImmutableList<QuestionDefinition> questionsTwo =
         service.deserialize(UPDATED_JSON).getResult().getQuestions();
-    ImmutableList<QuestionDefinition> updatedQuestions =
+    ImmutableMap<String, QuestionDefinition> updatedQuestions =
         service.maybeOverwriteQuestionName(questionsTwo);
 
     // "id-test" should have been updated by the method
-    assertThat(updatedQuestions.get(0).getName()).isEqualTo("id-test-1");
+    assertThat(updatedQuestions.get("id-test").getName()).isEqualTo("id-test-1");
     // "new text test" should have not have been changed
-    assertThat(updatedQuestions.get(1).getName()).isEqualTo("new text test");
+    assertThat(updatedQuestions.get("new text test").getName()).isEqualTo("new text test");
   }
 
   @Test

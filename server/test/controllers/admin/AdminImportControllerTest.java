@@ -181,11 +181,8 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     // see the error
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Program already exists");
-    assertThat(contentAsString(result))
-        .contains(
-            "A program with the admin name minimal-sample-program already exists. Please try"
-                + " again.");
+    assertThat(contentAsString(result)).contains("This program already exists in our system.");
+    assertThat(contentAsString(result)).contains("Please check your file and and try again.");
   }
 
   @Test
