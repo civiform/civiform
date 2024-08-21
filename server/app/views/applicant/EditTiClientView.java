@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
@@ -13,7 +14,6 @@ import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.util.List;
 import java.util.Optional;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
@@ -159,7 +159,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
         .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
         .withHref(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId, /* categories= */ List.of())
+                    applicantId, /* categories= */ ImmutableList.of())
                 .url());
   }
 

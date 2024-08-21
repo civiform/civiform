@@ -74,7 +74,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
-      List<String> selectedCategoriesFromParams,
+      ImmutableList<String> selectedCategoriesFromParams,
       Optional<ToastMessage> bannerMessage,
       CiviFormProfile profile) {
     HtmlBundle bundle = layout.getBundle(request);
@@ -87,7 +87,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setCondOnStorageKey("session_just_ended")
             .setDuration(5000));
 
-    // TODO: When the program filtering flag is removed, we can remove this conditional statement.
+    // TODO(#7610): When the program filtering flag is removed, we can remove this conditional
+    // statement.
     if (settingsManifest.getProgramFilteringEnabled(request)) {
       bundle.addMainContent(
           topContent(request, messages, personalInfo),
@@ -299,7 +300,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
-      List<String> selectedCategoriesFromParams,
+      ImmutableList<String> selectedCategoriesFromParams,
       long applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
@@ -309,7 +310,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     // Find all the categories that are on any of the relevant programs to which the resident hasn't
     // applied
-    List<String> relevantCategories =
+    ImmutableList<String> relevantCategories =
         relevantPrograms.unapplied().stream()
             .map(programData -> programData.program().categories())
             .flatMap(List::stream)
@@ -566,14 +567,14 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private FormTag renderCategoryFilterChips(
       long applicantId,
-      List<String> relevantCategories,
-      List<String> selectedCategoriesFromParams,
+      ImmutableList<String> relevantCategories,
+      ImmutableList<String> selectedCategoriesFromParams,
       Messages messages) {
     return form()
         .withId("category-filter-form")
         .withAction(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId, List.of())
+                    applicantId, ImmutableList.of())
                 .url())
         .withMethod("GET")
         .with(

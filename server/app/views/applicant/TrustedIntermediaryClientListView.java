@@ -28,7 +28,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H3Tag;
 import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
@@ -405,7 +404,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                 .withText(messages.at(MessageKey.BUTTON_VIEW_APPLICATIONS.getKeyName()))
                 .withHref(
                     controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                            newestApplicant.get().id, /* categories */ List.of())
+                            newestApplicant.get().id, /* categories */ ImmutableList.of())
                         .url()));
   }
 }
