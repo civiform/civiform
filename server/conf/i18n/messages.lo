@@ -130,6 +130,8 @@ content.findPrograms=ຊອກຫາໂຄງການ
 content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາໂຄງການທີ່ທ່ານອາດມີສິດຮັບໃນ {0}. ເລີ່ມຕົ້ນໂດຍເລືອກໃບສະໝັກທາງລຸ່ມ.
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=ລາຍລະອຽດໂຄງການ
 link.programDetailsSr=ລາຍລະອຽດໂຄງການສຳລັບ {0}, ເປີດໃນແຖບໃໝ່
 title.programs=ໂຄງການ ແລະ ບໍລິການ
