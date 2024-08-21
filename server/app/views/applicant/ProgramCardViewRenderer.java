@@ -4,8 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
@@ -116,9 +118,14 @@ public final class ProgramCardViewRenderer {
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
     if (sectionTitle.isPresent()) {
       div.with(
-          h3().withId(sectionHeaderId)
-              .withText(messages.at(sectionTitle.get().getKeyName()))
-              .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
+          iffElse(
+              settingsManifest.getProgramFilteringEnabled(request),
+              h2().withId(sectionHeaderId)
+                  .withText(messages.at(sectionTitle.get().getKeyName()))
+                  .withClasses("mb-4", "px-4", "text-xl", "font-semibold"),
+              h3().withId(sectionHeaderId)
+                  .withText(messages.at(sectionTitle.get().getKeyName()))
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE)));
     }
     return div.with(
         ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
@@ -136,7 +143,8 @@ public final class ProgramCardViewRenderer {
                             preferredLocale,
                             buttonTitle,
                             buttonSrText,
-                            sectionTitle.isPresent(),
+                            sectionTitle.isPresent()
+                                && !settingsManifest.getProgramFilteringEnabled(request),
                             bundle,
                             profile,
                             zoneId))));

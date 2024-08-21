@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
@@ -158,7 +159,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
         .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
         .withHref(
             controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId)
+                    applicantId, /* categories= */ ImmutableList.of())
                 .url());
   }
 
