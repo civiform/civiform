@@ -130,6 +130,8 @@ content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=計畫詳情
 link.programDetailsSr=「{0}」計畫詳細資訊 (在新分頁中開啟)
 title.programs=計畫與服務
