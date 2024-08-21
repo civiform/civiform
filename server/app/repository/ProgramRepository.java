@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
@@ -39,6 +40,9 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
 /**
@@ -167,12 +171,21 @@ public final class ProgramRepository {
                 .filter(BlockDefinition::hasNullQuestion)
                 .collect(ImmutableList.toImmutableList());
         if (blocksWithNullQuestion.size() > 0) {
+          String nullQuestionIds =
+              blocksWithNullQuestion.stream()
+                  .flatMap(block -> block.programQuestionDefinitions().stream())
+                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+                  .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+                  .map(QuestionDefinition::getId)
+                  .map(String::valueOf)
+                  .collect(Collectors.joining(", "));
           logger.warn(
-              "Program {} with ID {} has a null question in {} / {} blocks, so we won't set it"
-                  + " into the cache.",
+              "Program {} with ID {} has the following null question ID(s): {} in {} / {} blocks,"
+                  + " so we won't set it into the cache.",
               programDefinition.slug(),
               programDefinition.id(),
               blocksWithNullQuestion.size(),
+              nullQuestionIds,
               programDefinition.blockDefinitions().size());
         } else {
           programDefCache.set(String.valueOf(programId), programDefinition);
