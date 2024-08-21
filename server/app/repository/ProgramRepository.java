@@ -35,6 +35,7 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
@@ -161,7 +162,21 @@ public final class ProgramRepository {
         && getFullProgramDefinitionFromCache(programId).isEmpty()) {
       // We should never set the cache for draft programs.
       if (!versionRepository.get().isDraftProgram(programId)) {
-        programDefCache.set(String.valueOf(programId), programDefinition);
+        ImmutableList<BlockDefinition> blocksWithNullQuestion =
+            programDefinition.blockDefinitions().stream()
+                .filter(BlockDefinition::hasNullQuestion)
+                .collect(ImmutableList.toImmutableList());
+        if (blocksWithNullQuestion.size() > 0) {
+          logger.warn(
+              "Program {} with ID {} has a null question in {} / {} blocks, so we won't set it"
+                  + " into the cache.",
+              programDefinition.slug(),
+              programDefinition.id(),
+              blocksWithNullQuestion.size(),
+              programDefinition.blockDefinitions().size());
+        } else {
+          programDefCache.set(String.valueOf(programId), programDefinition);
+        }
       }
     }
   }
