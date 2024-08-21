@@ -130,6 +130,8 @@ content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
