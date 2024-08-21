@@ -127,11 +127,24 @@
                 ></a>
               </div>
             </section>
-
-            <!-- TODO(#8306): Add related programs section -->
           </div>
         </div>
       </div>
+
+      <section th:if="${cardsSection.cards().size() > 0}">
+        <div class="grid-container section">
+          <div class="grid-row">
+            <div class="tablet:grid-col-8">
+              <div class="usa-prose">
+                <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+        ></div>
+      </section>
     </main>
     <div
       th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,

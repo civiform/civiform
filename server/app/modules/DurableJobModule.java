@@ -2,6 +2,8 @@ package modules;
 
 import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
+import annotations.BindingAnnotations.RecurringJobsProviderName;
+import annotations.BindingAnnotations.StartupJobsProviderName;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -9,9 +11,12 @@ import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
-import durablejobs.DurableJobRunner;
+import durablejobs.JobExecutionTimeResolver;
+import durablejobs.RecurringDurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
+import durablejobs.StartupDurableJobRunner;
+import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -20,6 +25,7 @@ import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
+import models.JobType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
@@ -33,7 +39,7 @@ import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
- * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
+ * recurring, their {@link JobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
@@ -64,13 +70,23 @@ public final class DurableJobModule extends AbstractModule {
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
-        DurableJobRunner durableJobRunner,
-        RecurringJobScheduler recurringJobScheduler) {
+        RecurringDurableJobRunner recurringDurableJobRunner,
+        RecurringJobScheduler recurringJobScheduler,
+        StartupDurableJobRunner startupDurableJobRunner,
+        StartupJobScheduler startupJobScheduler) {
       LOGGER.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
         LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+
+        // Run startup jobs. These jobs must complete before the application can start serving
+        // pages.
+        startupJobScheduler.scheduleJobs();
+        startupDurableJobRunner.runJobs();
+
+        // Start the actorSystem to run recurring jobs. These jobs will run in the background after
+        // the configured initial delay.
         actorSystem
             .scheduler()
             .scheduleAtFixedRate(
@@ -79,8 +95,8 @@ public final class DurableJobModule extends AbstractModule {
                 /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
                 /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
                 () -> {
-                  recurringJobScheduler.scheduleRecurringJobs();
-                  durableJobRunner.runJobs();
+                  recurringJobScheduler.scheduleJobs();
+                  recurringDurableJobRunner.runJobs();
                 },
                 executionContext);
         LOGGER.trace("DurableJobRunnerScheduler - Task End");
@@ -91,7 +107,8 @@ public final class DurableJobModule extends AbstractModule {
   }
 
   @Provides
-  public DurableJobRegistry provideDurableJobRegistry(
+  @RecurringJobsProviderName
+  public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
@@ -104,24 +121,28 @@ public final class DurableJobModule extends AbstractModule {
 
     durableJobRegistry.register(
         DurableJobName.OLD_JOB_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     durableJobRegistry.register(
         DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
+        JobType.RECURRING,
         persistedDurableJob ->
             new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new UnusedAccountCleanupJob(accountRepository, nowProvider, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        JobType.RECURRING,
         persistedDurableJob ->
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
@@ -129,11 +150,31 @@ public final class DurableJobModule extends AbstractModule {
 
     durableJobRegistry.register(
         DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
+        JobType.RECURRING,
         persistedDurableJob ->
             new MigratePrimaryApplicantInfoJob(
                 persistedDurableJob, accountRepository, settingsService, config),
         new RecurringJobExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
+  }
+
+  @Provides
+  @StartupJobsProviderName
+  public DurableJobRegistry provideStartupDurableJobRegistry() {
+    //  PersistedDurableJobRepository persistedDurableJobRepository) {
+    //    var durableJobRegistry = new DurableJobRegistry();
+
+    //    // Sample job. DELETE THIS when adding first real job
+    //
+    //    durableJobRegistry.registerStartupJob(
+    //        DurableJobName.SOME_JOB_NAME,
+    //        JobType.RUN_ONCE,
+    //        persistedDurableJob ->
+    //            new SomeClassThatIsAJob(persistedDurableJob));
+
+    //    return durableJobRegistry;
+
+    return new DurableJobRegistry();
   }
 }

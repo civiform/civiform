@@ -800,7 +800,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"));
+    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
     applicantData.setDateOfBirth(dob);
     applicant.save();
   }
@@ -817,7 +817,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"));
+    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
     applicantData.setDateOfBirth(dob);
     applicant.save();
     account.save();

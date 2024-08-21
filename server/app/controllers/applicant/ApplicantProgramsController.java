@@ -7,6 +7,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import java.util.List;
@@ -130,7 +131,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             applicantId,
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
-                            categories,
+                            ImmutableList.copyOf(categories),
                             banner,
                             requesterProfile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class))));
@@ -165,7 +166,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     return indexWithApplicantId(
         request,
         applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-        List.of());
+        ImmutableList.of());
   }
 
   @Secure

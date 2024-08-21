@@ -136,11 +136,13 @@ public final class QuestionConfig {
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(idQuestionForm.getMinLength())
+            .setMin(OptionalLong.of(0))
             .getNumberTag(),
         FieldWithLabel.number()
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(idQuestionForm.getMaxLength())
+            .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
   }
@@ -151,11 +153,13 @@ public final class QuestionConfig {
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
+            .setMin(OptionalLong.of(0))
             .getNumberTag(),
         FieldWithLabel.number()
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(textQuestionForm.getMaxLength())
+            .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
   }
@@ -363,17 +367,13 @@ public final class QuestionConfig {
         FieldWithLabel.number()
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
-            // Negative numbers aren't allowed. Force the admin to provide
-            // a positive number.
             .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMinChoicesRequired())
             .getNumberTag(),
         FieldWithLabel.number()
             .setFieldName("maxChoicesAllowed")
             .setLabelText("Maximum number of choices allowed")
-            // Negative numbers aren't allowed. Force the admin to provide
-            // a positive number.
-            .setMin(OptionalLong.of(0L))
+            .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getNumberTag());
     return this;
@@ -384,11 +384,13 @@ public final class QuestionConfig {
         FieldWithLabel.number()
             .setFieldName("min")
             .setLabelText("Minimum value")
+            .setMin(OptionalLong.of(0L))
             .setValue(numberQuestionForm.getMin())
             .getNumberTag(),
         FieldWithLabel.number()
             .setFieldName("max")
             .setLabelText("Maximum value")
+            .setMin(OptionalLong.of(0L))
             .setValue(numberQuestionForm.getMax())
             .getNumberTag());
     return this;

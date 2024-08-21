@@ -44,6 +44,7 @@ import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -68,6 +69,7 @@ public class ApiDocsView extends BaseHtmlView {
   private final AdminLayout authenticatedlayout;
   private final ProgramJsonSampler programJsonSampler;
   private final ExportServiceRepository exportServiceRepository;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApiDocsView(
@@ -75,12 +77,14 @@ public class ApiDocsView extends BaseHtmlView {
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
       ProgramJsonSampler programJsonSampler,
-      ExportServiceRepository exportServiceRepository) {
+      ExportServiceRepository exportServiceRepository,
+      SettingsManifest settingsManifest) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
     this.exportServiceRepository = exportServiceRepository;
+    this.settingsManifest = settingsManifest;
   }
 
   public Content render(
@@ -176,7 +180,9 @@ public class ApiDocsView extends BaseHtmlView {
 
       AsideTag rightSide = aside().withClasses("w-full flex-grow");
       rightSide.with(h2("API response preview").withClasses("pl-4"));
-      rightSide.with(apiResponseSampleDiv(programDefinition.get()));
+      rightSide.with(
+          apiResponseSampleDiv(
+              programDefinition.get(), settingsManifest.getMultipleFileUploadEnabled(request)));
 
       fullProgramDiv.with(leftSide);
       fullProgramDiv.with(rightSide);
@@ -186,9 +192,11 @@ public class ApiDocsView extends BaseHtmlView {
     return divTag;
   }
 
-  private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
+  private DivTag apiResponseSampleDiv(
+      ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {
     DivTag apiResponseSampleDiv = div();
-    String fullJsonResponsePreview = programJsonSampler.getSampleJson(programDefinition);
+    String fullJsonResponsePreview =
+        programJsonSampler.getSampleJson(programDefinition, multipleFileUploadEnabled);
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
     apiResponseSampleDiv.with(

@@ -967,6 +967,26 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller answerFileQuestionWithMultipleUpload(
+        QuestionModel question, String fileKey, int index) {
+      return answerFileQuestionWithMultipleUpload(question, null, fileKey, index);
+    }
+
+    FakeApplicationFiller answerFileQuestionWithMultipleUpload(
+        QuestionModel question, String repeatedEntityName, String fileKey, int index) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
+      Path answerPath =
+          question
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+
+      QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+          applicant.getApplicantData(), answerPath, index, fileKey);
+      applicant.save();
+      return this;
+    }
+
     FakeApplicationFiller answerIdQuestion(QuestionModel question, String answer) {
       return answerIdQuestion(question, null, answer);
     }

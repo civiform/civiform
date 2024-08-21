@@ -212,17 +212,24 @@ main {
   .cf-program-card-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
   }
 }
 
 // Desktop: Program card grid has 3 columns
 @media (min-width: 64em) {
   .cf-program-card-group {
-    display: grid;
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
 .cf-application-card {
   display: grid;
+}
+
+.cf-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
 }

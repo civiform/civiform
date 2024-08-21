@@ -8,10 +8,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicantModel;
+import models.ApplicantModel.Suffix;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
@@ -199,6 +201,16 @@ public class ApplicantData extends CfJsonDocumentContext {
     putDate(dobPath, dateOfBirth);
   }
 
+  /**
+   * Checks if the given input string represents a valid suffix from Suffix enum.
+   *
+   * @param input The string to be checked for suffix validity.
+   * @return 'true' if the input string matches a suffix defined in Suffix enum, 'false' otherwise.
+   */
+  private static boolean isSuffix(String input) {
+    return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
+  }
+
   // TODO: Get rid of this function, and change ApplicantProfileCreator and SamlProfileCreator
   // to use the function that passes in each field separately.
   /**
@@ -207,23 +219,35 @@ public class ApplicantData extends CfJsonDocumentContext {
    * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
    * SamlProfileCreator} and we do not want it to overwrite the name upon login.
    *
-   * @param displayName A string that contains the applicant's name, with first, middle, and last
-   *     separated by spaces. May provide only first name or only first last.
+   * @param displayName A string that contains the applicant's name, with first, middle, last, and
+   *     suffix separated by spaces. May provide only first name or only first last.
    */
   public void setUserName(String displayName) {
     String firstName;
     Optional<String> lastName = Optional.empty();
     Optional<String> middleName = Optional.empty();
+    Optional<String> nameSuffix = Optional.empty();
     List<String> listSplit = Splitter.on(' ').splitToList(displayName);
     switch (listSplit.size()) {
       case 2:
         firstName = listSplit.get(0);
         lastName = Optional.of(listSplit.get(1));
         break;
-      case 3:
+      case 4:
         firstName = listSplit.get(0);
         middleName = Optional.of(listSplit.get(1));
         lastName = Optional.of(listSplit.get(2));
+        nameSuffix = Optional.of(listSplit.get(3));
+        break;
+      case 3:
+        firstName = listSplit.get(0);
+        if (isSuffix(listSplit.get(2))) {
+          lastName = Optional.of(listSplit.get(1));
+          nameSuffix = Optional.of(listSplit.get(2));
+        } else {
+          middleName = Optional.of(listSplit.get(1));
+          lastName = Optional.of(listSplit.get(2));
+        }
         break;
       case 1:
         // fallthrough
@@ -231,13 +255,16 @@ public class ApplicantData extends CfJsonDocumentContext {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName, false);
+    setUserName(firstName, middleName, lastName, nameSuffix, false);
   }
 
   // By default, overwrite name fields if data exists in them
   public void setUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName) {
-    setUserName(firstName, middleName, lastName, true);
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix) {
+    setUserName(firstName, middleName, lastName, nameSuffix, true);
   }
 
   /**
@@ -250,10 +277,15 @@ public class ApplicantData extends CfJsonDocumentContext {
    *     unchanged.
    */
   public void setUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName, boolean overwrite) {
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix,
+      boolean overwrite) {
     Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
     Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
     Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    Path suffixPath = WellKnownPaths.APPLICANT_NAME_SUFFIX;
     boolean firstNamePresent =
         applicant.getFirstName().isPresent()
             || (hasPath(firstPath) && readString(firstPath).isPresent());
@@ -264,6 +296,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     // Empty string will remove it from the model
     applicant.setMiddleName(middleName.orElse(""));
     applicant.setLastName(lastName.orElse(""));
+    applicant.setSuffix(nameSuffix.orElse(""));
 
     putString(firstPath, firstName);
     if (middleName.isPresent()) {
@@ -278,6 +311,13 @@ public class ApplicantData extends CfJsonDocumentContext {
     } else {
       if (hasPath(lastPath)) {
         getDocumentContext().delete(lastPath.toString());
+      }
+    }
+    if (nameSuffix.isPresent()) {
+      putString(suffixPath, nameSuffix.get());
+    } else {
+      if (hasPath(suffixPath)) {
+        getDocumentContext().delete(suffixPath.toString());
       }
     }
   }

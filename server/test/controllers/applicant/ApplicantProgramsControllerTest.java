@@ -12,6 +12,7 @@ import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import com.google.common.collect.ImmutableList;
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_differentApplicant_redirectsToHome() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id + 1, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id + 1, ImmutableList.of())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -68,7 +69,21 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_applicantWithoutProfile_redirectsToHome() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), applicantWithoutProfile.id, List.of())
+            .indexWithApplicantId(fakeRequest(), applicantWithoutProfile.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void indexWithApplicantId_applicantWithoutProfile_redirectsToHomeWithCategories() {
+    Result result =
+        controller
+            .indexWithApplicantId(
+                fakeRequest(),
+                applicantWithoutProfile.id,
+                ImmutableList.of("category1", "category2"))
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -79,7 +94,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void indexWithApplicantId_withNoPrograms_returnsEmptyResult() {
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -97,7 +112,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -112,7 +127,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Request request = fakeRequestBuilder().session(REDIRECT_TO_SESSION_KEY, "redirect").build();
     Result result =
         controller
-            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();
@@ -132,7 +147,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -160,7 +175,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -175,7 +190,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(fakeRequest(), currentApplicant.id, List.of())
+            .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -192,7 +207,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 
@@ -211,7 +226,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .indexWithApplicantId(request, currentApplicant.id, List.of())
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
             .toCompletableFuture()
             .join();
 

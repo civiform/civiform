@@ -5,6 +5,7 @@ public final class TiClientInfoForm {
   private String firstName;
   private String middleName;
   private String lastName;
+  private String nameSuffix;
   private String dob;
   private String emailAddress;
   private String tiNote;
@@ -32,6 +33,14 @@ public final class TiClientInfoForm {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public String getNameSuffix() {
+    return nameSuffix;
+  }
+
+  public void setNameSuffix(String nameSuffix) {
+    this.nameSuffix = nameSuffix;
   }
 
   public String getDob() {

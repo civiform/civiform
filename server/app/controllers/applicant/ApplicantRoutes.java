@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
+import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public final class ApplicantRoutes {
   public Call index(CiviFormProfile profile, long applicantId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-          applicantId, /* categories= */ List.of());
+          applicantId, /* categories= */ ImmutableList.of());
     } else {
       return controllers.applicant.routes.ApplicantProgramsController.index();
     }
