@@ -77,6 +77,15 @@ public final class QuestionAnswerer {
         contextualizedPath.join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX).atIndex(index), fileKey);
   }
 
+  public static void answerFileQuestionWithMultipleUpload(
+      ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> fileKeys) {
+    for (int i = 0; i < fileKeys.size(); i++) {
+      applicantData.putString(
+          contextualizedPath.join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX).atIndex(i),
+          fileKeys.get(i));
+    }
+  }
+
   public static void answerMultiSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(

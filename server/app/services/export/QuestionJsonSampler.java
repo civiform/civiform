@@ -331,9 +331,9 @@ public interface QuestionJsonSampler<Q extends Question> {
         boolean multipleFileUploadEnabled) {
       if (multipleFileUploadEnabled) {
         QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-            applicantData, applicantQuestion.getContextualizedPath(), 0, "my-file-key-1");
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-            applicantData, applicantQuestion.getContextualizedPath(), 1, "my-file-key-2");
+            applicantData,
+            applicantQuestion.getContextualizedPath(),
+            ImmutableList.of("my-file-key-1", "my-file-key-2"));
       } else {
         QuestionAnswerer.answerFileQuestion(
             applicantData, applicantQuestion.getContextualizedPath(), "my-file-key");

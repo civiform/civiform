@@ -968,12 +968,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
 
     FakeApplicationFiller answerFileQuestionWithMultipleUpload(
-        QuestionModel question, String fileKey, int index) {
-      return answerFileQuestionWithMultipleUpload(question, null, fileKey, index);
+        QuestionModel question, ImmutableList<String> fileKeys) {
+      return answerFileQuestionWithMultipleUpload(question, null, fileKeys);
     }
 
     FakeApplicationFiller answerFileQuestionWithMultipleUpload(
-        QuestionModel question, String repeatedEntityName, String fileKey, int index) {
+        QuestionModel question, String repeatedEntityName, ImmutableList<String> fileKeys) {
       var repeatedEntity =
           Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
@@ -982,7 +982,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
 
       QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-          applicant.getApplicantData(), answerPath, index, fileKey);
+          applicant.getApplicantData(), answerPath, fileKeys);
       applicant.save();
       return this;
     }

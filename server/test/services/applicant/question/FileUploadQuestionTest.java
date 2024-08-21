@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -156,7 +157,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
     assertThat(fileUploadQuestion.canUploadFile()).isTrue();
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, "filekey1");
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("filekey1"));
 
     assertThat(fileUploadQuestion.canUploadFile()).isTrue();
   }
