@@ -94,6 +94,10 @@ export class ApplicantQuestions {
     })
   }
 
+  async answerFileUploadQuestionFromAssets(fileName: string) {
+    await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
+  }
+
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
     const filePath = 'file-size-' + mbSize + '-mb.pdf'
