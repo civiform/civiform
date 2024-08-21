@@ -188,8 +188,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
     if (!params.multipleFileUploadEnabled()) {
       result.with(
-        createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
-        
+          createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
+
       Optional<String> uploaded =
           fileUploadQuestion
               .getFilename()
