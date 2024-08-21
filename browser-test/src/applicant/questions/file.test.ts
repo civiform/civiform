@@ -669,47 +669,45 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectNoSkipButton()
       })
 
-      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
-      test.fixme(
-        'can upload file',
-        async ({page, applicantQuestions, applicantFileQuestion}) => {
-          await applicantQuestions.applyProgram(programName)
+      test('can upload file', async ({
+        page,
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some file',
-            'file.txt',
-          )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
 
-          await applicantFileQuestion.expectFileNameDisplayed('file.txt')
-          await validateScreenshot(
-            page,
-            'file-uploaded-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        },
-      )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+        await validateScreenshot(
+          page,
+          'file-uploaded-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
       /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
-      test.fixme(
-        'can replace file',
-        async ({applicantQuestions, applicantFileQuestion}) => {
-          await applicantQuestions.applyProgram(programName)
+      test('can replace file', async ({
+        applicantQuestions,
+        applicantFileQuestion,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some file',
-            'file1.txt',
-          )
-          await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some file',
-            'file2.txt',
-          )
-          await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
-        },
-      )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
+      })
 
       test('has no accessiblity violations', async ({
         page,
