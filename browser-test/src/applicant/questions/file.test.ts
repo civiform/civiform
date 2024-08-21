@@ -677,10 +677,10 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'civiform-logo.png',
+          'file-upload.png',
         )
 
-        await applicantFileQuestion.expectFileNameDisplayed('civiform-logo.png')
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
         await validateScreenshot(
           page,
           'file-uploaded-north-star',
@@ -697,15 +697,15 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'civiform-logo.png',
+          'file-upload.png',
         )
-        await applicantFileQuestion.expectFileNameDisplayed('civiform-logo.png')
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'civiform-logo-alternate.png',
+          'file-upload-second.png',
         )
         await applicantFileQuestion.expectFileNameDisplayed(
-          'civiform-logo-alternate.png',
+          'file-upload-second.png',
         )
       })
 
