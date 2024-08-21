@@ -85,10 +85,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
       ProgramTab selectedTab,
-      Optional<CiviFormProfile> profile) {
-    if (profile.isPresent()) {
-      layout.setAdminType(profile.get());
-    }
+      CiviFormProfile profile) {
+    layout.setAdminType(profile);
 
     String pageTitle = "Program dashboard";
 
@@ -516,7 +514,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<CiviFormProfile> profile,
+      CiviFormProfile profile,
       ImmutableList<Modal> publishSingleProgramModals,
       ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
@@ -590,7 +588,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
-        .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())
+        .setIsCiviFormAdmin(profile.isCiviFormAdmin())
         .build();
   }
 
@@ -665,13 +663,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
-      ProgramDefinition activeProgram,
-      Optional<CiviFormProfile> maybeUserProfile,
-      Http.Request request) {
-    if (maybeUserProfile.isEmpty()) {
-      return Optional.empty();
-    }
-    CiviFormProfile userProfile = maybeUserProfile.get();
+      ProgramDefinition activeProgram, CiviFormProfile userProfile, Http.Request request) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
     boolean userIsAuthorized;

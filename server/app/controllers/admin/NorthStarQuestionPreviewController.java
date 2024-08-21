@@ -2,11 +2,9 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.Lang;
@@ -50,8 +48,6 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
 
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
     QuestionType questionTypeEnum;
     try {
       questionTypeEnum = QuestionType.fromLabel(questionType);
@@ -64,7 +60,7 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
             .setRequest(request)
             .setApplicantId(0l)
             .setApplicantPersonalInfo(api)
-            .setProfile(profile.orElse(null))
+            .setProfile(profileUtils.currentUserProfile(request))
             .setType(questionTypeEnum)
             .setMessages(messages)
             .build();

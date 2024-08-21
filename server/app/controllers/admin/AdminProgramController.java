@@ -3,7 +3,6 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -73,14 +72,13 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
-    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
             programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
             ProgramTab.IN_USE,
-            profileMaybe));
+            profileUtils.currentUserProfile(request)));
   }
 
   /**
@@ -89,14 +87,13 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexDisabled(Request request) {
-    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(
         listView.render(
             programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
             ProgramTab.DISABLED,
-            profileMaybe));
+            profileUtils.currentUserProfile(request)));
   }
 
   /** Returns an HTML page containing a form to create a new program in the draft version. */

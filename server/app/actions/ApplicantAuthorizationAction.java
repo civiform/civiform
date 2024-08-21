@@ -75,7 +75,7 @@ public class ApplicantAuthorizationAction extends Action.Simple {
 
   /** Check if the profile is authorized to access the applicant's data. */
   private CompletionStage<Void> checkApplicantAuthorization(Request request, long applicantId) {
-    return profileUtils.currentUserProfile(request).orElseThrow().checkAuthorization(applicantId);
+    return profileUtils.currentUserProfile(request).checkAuthorization(applicantId);
   }
 
   /** Checks that the profile is authorized to access the specified program. */
@@ -84,8 +84,7 @@ public class ApplicantAuthorizationAction extends Action.Simple {
         .isDraftProgramAsync(programId)
         .thenAccept(
             (isDraftProgram) -> {
-              if (isDraftProgram
-                  && !profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+              if (isDraftProgram && !profileUtils.currentUserProfile(request).isCiviFormAdmin()) {
                 throw new SecurityException();
               }
             });

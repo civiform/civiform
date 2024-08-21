@@ -594,7 +594,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Returns a Profile that will never fail auth checks.
     @Override
-    public Optional<CiviFormProfile> currentUserProfile(Http.RequestHeader request) {
+    public Optional<CiviFormProfile> maybeCurrentUserProfile(Http.RequestHeader request) {
       return Optional.of(profileTester);
     }
 

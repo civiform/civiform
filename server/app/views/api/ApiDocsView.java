@@ -308,7 +308,8 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {
-    Optional<CiviFormProfile> currentUserProfile = profileUtils.currentUserProfile(request);
+    // Access to API docs is allowed with or without a profile
+    Optional<CiviFormProfile> currentUserProfile = profileUtils.maybeCurrentUserProfile(request);
     return currentUserProfile.isPresent()
         && (currentUserProfile.get().isCiviFormAdmin()
             || currentUserProfile.get().isProgramAdmin());

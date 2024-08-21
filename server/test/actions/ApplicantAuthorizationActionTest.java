@@ -116,8 +116,7 @@ public class ApplicantAuthorizationActionTest extends WithMockedProfiles {
 
     ProfileUtils profileUtils = Mockito.mock(ProfileUtils.class);
     when(profileUtils.getApplicantId(any(Http.Request.class))).thenReturn(Optional.of(applicantId));
-    when(profileUtils.currentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(profile));
+    when(profileUtils.currentUserProfile(any(Http.RequestHeader.class))).thenReturn(profile);
 
     // Setup fakeRequest and configure it to use the specified route pattern
     Request request =

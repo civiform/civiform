@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -32,17 +30,11 @@ public class ProfileController extends Controller {
   }
 
   public CompletionStage<Result> myProfile(Http.Request request) {
-    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
-
-    if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(ok(profileView.renderNoProfile(request)));
-    }
-
-    return maybeProfile
-        .get()
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    return profile
         .getApplicant()
         .thenApplyAsync(
-            applicant -> ok(profileView.render(request, maybeProfile.get(), applicant)),
+            applicant -> ok(profileView.render(request, profile, applicant)),
             classLoaderExecutionContext.current());
   }
 

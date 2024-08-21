@@ -83,13 +83,9 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result retire(Http.Request request, Long apiKeyId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    if (profile.isEmpty()) {
-      throw new RuntimeException("Unable to resolve profile.");
-    }
-
-    apiKeyService.retireApiKey(apiKeyId, profile.get());
+    apiKeyService.retireApiKey(apiKeyId, profile);
 
     return redirect(routes.AdminApiKeysController.index().url());
   }
@@ -107,14 +103,9 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    if (profile.isEmpty()) {
-      throw new RuntimeException("Unable to resolve profile.");
-    }
-
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
     DynamicForm form = formFactory.form().bindFromRequest(request);
-    ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile.get());
+    ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile);
 
     if (result.isSuccessful()) {
       return created(

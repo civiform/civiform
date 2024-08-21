@@ -326,7 +326,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             roApplicantProgramService -> {
               removeAddressJsonFromSession(request);
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
                   profile,
@@ -368,7 +368,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
-    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
@@ -486,7 +486,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 ApplicationBaseViewParams applicationParams =
                     applicationBaseViewParamsBuilder(
                             request,
@@ -625,8 +625,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   () -> {
                     ApplicantPersonalInfo personalInfo =
                         applicantStage.toCompletableFuture().join();
-                    CiviFormProfile submittingProfile =
-                        profileUtils.currentUserProfileOrThrow(request);
+                    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
                     ApplicationBaseViewParams applicationParams =
                         buildApplicationBaseViewParams(
@@ -789,8 +788,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   () -> {
                     ApplicantPersonalInfo personalInfo =
                         applicantStage.toCompletableFuture().join();
-                    CiviFormProfile submittingProfile =
-                        profileUtils.currentUserProfileOrThrow(request);
+                    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
                     ApplicationBaseViewParams applicationParams =
                         buildApplicationBaseViewParams(
@@ -897,7 +895,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
                   profile,
@@ -1017,7 +1015,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
               ApplicantRequestedAction applicantRequestedAction =
@@ -1141,7 +1139,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
-    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -1357,7 +1355,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isEligibilityEnabledOnThisBlock =
           thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
 
-      CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+      CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
       ApplicationBaseViewParams applicationParams =
           buildApplicationBaseViewParams(
@@ -1428,7 +1426,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
-            profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+            profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
             settingsManifest.getNorthStarApplicantUi(request),
             false,

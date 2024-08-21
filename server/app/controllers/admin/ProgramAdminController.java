@@ -6,7 +6,6 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
@@ -35,14 +34,10 @@ public class ProgramAdminController extends CiviFormController {
   /** Return a HTML page showing all programs the program admin administers. */
   @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
   public Result index(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    if (profile.isEmpty()) {
-      throw new RuntimeException("No profile found for program admin");
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     ImmutableList<String> administeredPrograms =
-        profile.get().getAccount().join().getAdministeredProgramNames();
+        profile.getAccount().join().getAdministeredProgramNames();
     ActiveAndDraftPrograms activeAndDraftPrograms =
         this.programService.getActiveAndDraftProgramsWithoutQuestionLoad();
 

@@ -415,7 +415,7 @@ public final class ProgramCardViewRenderer {
 
   private PTag eligibilityTag(
       Http.Request request, Messages messages, boolean isEligible, ProfileUtils profileUtils) {
-    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     MessageKey mayQualifyMessage =
         isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;

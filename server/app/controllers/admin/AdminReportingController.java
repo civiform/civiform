@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import auth.Authorizers;
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
@@ -47,13 +46,10 @@ public final class AdminReportingController extends CiviFormController {
     return ok(
         adminReportingIndexView
             .get()
-            .render(request, getCiviFormProfile(request), reportingService.getMonthlyStats()));
-  }
-
-  private CiviFormProfile getCiviFormProfile(Http.Request request) {
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
+            .render(
+                request,
+                profileUtils.currentUserProfile(request),
+                reportingService.getMonthlyStats()));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
@@ -67,7 +63,7 @@ public final class AdminReportingController extends CiviFormController {
                         .get()
                         .render(
                             request,
-                            getCiviFormProfile(request),
+                            profileUtils.currentUserProfile(request),
                             programSlug,
                             programDefinition.adminName(),
                             programDefinition.localizedName().getDefault(),

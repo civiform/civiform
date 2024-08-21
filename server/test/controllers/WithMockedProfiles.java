@@ -162,8 +162,8 @@ public class WithMockedProfiles {
   }
 
   private void mockProfile(CiviFormProfile profile) {
-    when(MOCK_UTILS.currentUserProfile(not(argThat(skipUserProfile()))))
+    when(MOCK_UTILS.maybeCurrentUserProfile(not(argThat(skipUserProfile()))))
         .thenReturn(Optional.of(profile));
-    when(MOCK_UTILS.currentUserProfileOrThrow(not(argThat(skipUserProfile())))).thenReturn(profile);
+    when(MOCK_UTILS.currentUserProfile(not(argThat(skipUserProfile())))).thenReturn(profile);
   }
 }

@@ -27,31 +27,31 @@ public class ProfileUtils {
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }
 
-  /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * request's cookies, using the injected session store to decrypt it.
-   */
-  public Optional<CiviFormProfile> currentUserProfile(Http.RequestHeader request) {
-    PlayWebContext webContext = new PlayWebContext(request);
-    return currentUserProfile(webContext);
+  /** Determine whether the request has a CiviForm profile. */
+  public boolean hasUserProfile(Http.RequestHeader request) {
+    return maybeCurrentUserProfile(request).isPresent();
   }
 
   /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * request's cookies, using the injected session store to decrypt it.
+   * Fetch the current profile from the session cookie, or throw an exception if none is present.
+   * {@link filters.CiviFormProfileFilter} should guarantee that a profile is present for
+   * user-facing requests.
    *
    * @throws MissingOptionalException if we can't find the profile from the request
    */
-  public CiviFormProfile currentUserProfileOrThrow(Http.RequestHeader request) {
-    return currentUserProfile(request)
+  public CiviFormProfile currentUserProfile(Http.RequestHeader request) {
+    return maybeCurrentUserProfile(request)
         .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
   }
 
-  /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * context's cookies, using the injected session store to decrypt it.
-   */
-  public Optional<CiviFormProfile> currentUserProfile(WebContext webContext) {
+  /** Fetch the current pac4j profile for the given request. */
+  public Optional<CiviFormProfile> maybeCurrentUserProfile(Http.RequestHeader request) {
+    PlayWebContext webContext = new PlayWebContext(request);
+    return maybeCurrentUserProfile(webContext);
+  }
+
+  /** Fetch the current pac4j profile for the given web context. */
+  public Optional<CiviFormProfile> maybeCurrentUserProfile(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
     Optional<CiviFormProfileData> p = profileManager.getProfile(CiviFormProfileData.class);
     if (p.isEmpty()) {
@@ -110,15 +110,7 @@ public class ProfileUtils {
 
   /** Retrieves the applicant id from the user profile, if present. */
   public Optional<Long> getApplicantId(Http.Request request) {
-    Optional<CiviFormProfile> profile = currentUserProfile(request);
-    if (profile.map(CiviFormProfile::getProfileData).isEmpty()) {
-      return Optional.empty();
-    }
-
-    CiviFormProfileData profileData =
-        profile
-            .orElseThrow(() -> new MissingOptionalException(CiviFormProfileData.class))
-            .getProfileData();
+    CiviFormProfileData profileData = currentUserProfile(request).getProfileData();
     return Optional.ofNullable(
         profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
   }

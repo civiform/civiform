@@ -213,7 +213,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages,
       Long applicantId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     return nav()
         .with(
@@ -310,11 +310,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         span(text(" CiviForm")))));
   }
 
-  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, Messages messages) {
+  private DivTag maybeRenderTiButton(CiviFormProfile profile, Messages messages) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
-    if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
+    if (profile.isTrustedIntermediary()) {
       String tiDashboardText = messages.at(MessageKey.BUTTON_VIEW_AND_ADD_CLIENTS.getKeyName());
       div.with(
           a(tiDashboardText)
@@ -329,10 +329,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div;
   }
 
-  private DivTag maybeRenderTiBanner(
-      Optional<CiviFormProfile> profile, String applicantDisplayString) {
+  private DivTag maybeRenderTiBanner(CiviFormProfile profile, String applicantDisplayString) {
     DivTag div = div();
-    if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
+    if (profile.isTrustedIntermediary()) {
       div.withClasses("flex", "bg-blue-100", "space-x-1.5", "items-center", "px-8", "py-4")
           .withId("ti-banner")
           .with(
@@ -374,10 +373,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * logged in, we show a "Logout" button.
    */
   private DivTag authDisplaySection(
-      ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
+      ApplicantPersonalInfo personalInfo, CiviFormProfile profile, Messages messages) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
-    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
+    boolean isTi = profile.isTrustedIntermediary();
     boolean isGuest = personalInfo.getType() == GUEST && !isTi;
 
     if (isGuest) {
@@ -410,7 +409,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     // TIs usually do not have the latter data available, but will always have
     // an email address because they are authenticated.
     String accountIdentifier =
-        isTi ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
+        isTi ? tiEmailForDisplay(profile) : personalInfo.getDisplayString(messages);
 
     String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), accountIdentifier);
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
@@ -541,8 +540,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   protected Optional<DivTag> maybeRenderBackToAdminViewButton(
       Http.Request request, long programId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isPresent() && profile.get().isCiviFormAdmin()) {
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    if (profile.isCiviFormAdmin()) {
       return Optional.of(
           div()
               .withClasses("mb-6")

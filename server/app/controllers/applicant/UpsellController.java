@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -98,12 +97,7 @@ public final class UpsellController extends CiviFormController {
       long applicationId,
       String redirectTo,
       String submitTime) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isEmpty()) {
-      // should definitely never happen.
-      return CompletableFuture.completedFuture(
-          badRequest("You are not signed in - you cannot perform this action."));
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     CompletableFuture<Boolean> isCommonIntake =
         programService
@@ -119,8 +113,7 @@ public final class UpsellController extends CiviFormController {
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
-            .thenComposeAsync(
-                v -> profile.get().getAccount(), classLoaderExecutionContext.current())
+            .thenComposeAsync(v -> profile.getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
@@ -130,7 +123,7 @@ public final class UpsellController extends CiviFormController {
 
     CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
         applicantService
-            .relevantProgramsForApplicant(applicantId, profile.get(), request)
+            .relevantProgramsForApplicant(applicantId, profile, request)
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -150,7 +143,7 @@ public final class UpsellController extends CiviFormController {
                       // We are already checking if profile is empty
                       v ->
                           applicantService.maybeEligibleProgramsForApplicant(
-                              applicantId, profile.get(), request),
+                              applicantId, profile, request),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(
                       eligiblePrograms -> {
@@ -180,9 +173,7 @@ public final class UpsellController extends CiviFormController {
                 UpsellParams.Builder paramsBuilder =
                     UpsellParams.builder()
                         .setRequest(request)
-                        .setProfile(
-                            profile.orElseThrow(
-                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setProfile(profile)
                         .setApplicantPersonalInfo(applicantPersonalInfo.join())
                         .setApplicationId(applicationId)
                         .setMessages(messagesApi.preferred(request))
@@ -215,8 +206,7 @@ public final class UpsellController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         applicantId,
                         programId,
-                        profile.orElseThrow(
-                            () -> new MissingOptionalException(CiviFormProfile.class)),
+                        profile,
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage,
@@ -233,8 +223,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
                       applicantId,
-                      profile.orElseThrow(
-                          () -> new MissingOptionalException(CiviFormProfile.class)),
+                      profile,
                       applicationId,
                       messagesApi.preferred(request),
                       toastMessage,

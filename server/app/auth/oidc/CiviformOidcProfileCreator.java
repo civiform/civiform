@@ -231,12 +231,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile = profileUtils.maybeCurrentUserProfile(context);
 
     // The merge function signature specifies the two profiles as parameters.
     // We need to supply an extra parameter (context), so bind it here.
     BiFunction<Optional<CiviFormProfile>, OidcProfile, UserProfile> mergeFunction =
-        (cProfile, oProfile) -> this.mergeCiviFormProfile(cProfile, oProfile, context);
+        (cfProfile, oProfile) -> this.mergeCiviFormProfile(cfProfile, oProfile, context);
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, mergeFunction);
   }

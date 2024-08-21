@@ -50,7 +50,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result preview(Request request, long programId) {
-    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     try {
       return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));

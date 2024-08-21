@@ -38,14 +38,10 @@ public final class CiviFormProfileFilter extends Filter {
     this.profileUtils = checkNotNull(profileUtils);
   }
 
-  private boolean profileIsMissing(Http.RequestHeader requestHeader) {
-    return profileUtils.currentUserProfile(requestHeader).isEmpty();
-  }
-
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
     return NonUserRoutePrefixes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
-        && profileIsMissing(requestHeader);
+        && !profileUtils.hasUserProfile(requestHeader);
   }
 
   @Override

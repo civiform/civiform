@@ -318,10 +318,10 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag currentProgramCardSection =
         div().withClass("mx-auto").with(h2("What the applicant will see").withClasses("mb-4"));
 
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
     Long applicantId;
     try {
-      applicantId = profile.get().getApplicant().get().id;
+      applicantId = profile.getApplicant().get().id;
     } catch (NoSuchElementException | ExecutionException | InterruptedException e) {
       return currentProgramCardSection.with(
           p("Applicant preview can't be rendered: Applicant ID for admin couldn't be fetched."));
@@ -347,7 +347,7 @@ public final class ProgramImageView extends BaseHtmlView {
             MessageKey.BUTTON_APPLY_SR,
             /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
-            profile.get(),
+            profile,
             zoneId,
             /* isInMyApplicationsSection= */ false);
     return currentProgramCardSection.with(programCard);

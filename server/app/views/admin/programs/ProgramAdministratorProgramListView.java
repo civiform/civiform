@@ -47,10 +47,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
       Request request,
       ActiveAndDraftPrograms programs,
       List<String> authorizedPrograms,
-      Optional<CiviFormProfile> civiformProfile) {
-    if (civiformProfile.isPresent()) {
-      layout.setAdminType(civiformProfile.get());
-    }
+      CiviFormProfile civiformProfile) {
+    layout.setAdminType(civiformProfile);
 
     String title = "Your programs";
     DivTag contentDiv =
@@ -73,7 +71,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   }
 
   private ProgramCardFactory.ProgramCardData buildCardData(
-      ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
+      ProgramDefinition activeProgram, CiviFormProfile profile) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -85,7 +83,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                             renderViewApplicationsLink(activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
-        .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())
+        .setIsCiviFormAdmin(profile.isCiviFormAdmin())
         .build();
   }
 

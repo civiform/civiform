@@ -8,7 +8,6 @@ import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
@@ -415,7 +414,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
@@ -458,7 +457,7 @@ public final class AdminApplicationController extends CiviFormController {
     programAdminApplicationService.setNote(
         application,
         ApplicationEventDetails.NoteEvent.create(note),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
@@ -518,11 +517,10 @@ public final class AdminApplicationController extends CiviFormController {
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
-    CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
         applicationListView.render(
             request,
-            profile,
+            profileUtils.currentUserProfile(request),
             program,
             activeStatusDefinitions.getDefaultStatus(),
             getAllApplicationStatusesForProgram(program.id()),
@@ -546,11 +544,5 @@ public final class AdminApplicationController extends CiviFormController {
         .distinct()
         .sorted()
         .collect(ImmutableList.toImmutableList());
-  }
-
-  private CiviFormProfile getCiviFormProfile(Http.Request request) {
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
   }
 }
