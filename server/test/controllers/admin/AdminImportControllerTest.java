@@ -203,6 +203,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Please enter your first and last name");
   }
 
+  @Test
   public void hxImportProgram_showsWarningAndOverwritesQuestionAdminNamesIfTheyAlreadyExist() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -230,8 +231,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     // warning is shown
     assertThat(contentAsString(result))
-        .contains(
-            "The following questions have admin names that already exist in this environment.");
+        .contains("Importing this program will add 1 duplicate question to the question bank.");
     // question has the new admin name
     assertThat(contentAsString(result)).contains("Name-1");
     // other information in the question is unchanged

@@ -66,7 +66,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     ImmutableMap<String, String> newToOldQuestionNameMap =
         getNewToOldQuestionAdminNameMap(updatedQuestionsMap);
 
-    // make this conditional on having questions
     DivTag questionAlert = buildQuestionAlert(updatedQuestionsMap, newToOldQuestionNameMap);
 
     DivTag programDiv =
@@ -86,9 +85,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 h4("Admin name: " + program.adminName()).withClass("mb-2"));
 
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
-    // If there are no questions in the program, the "questions" field will not be included in the
-    // JSON and programMigrationWrapper.getQuestions() will return null
-    if (updatedQuestionsMap != null) {
+
+    if (!updatedQuestionsMap.isEmpty()) {
       questionsById =
           updatedQuestionsMap.values().stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -150,6 +148,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 .withClasses("flex", "my-5"));
   }
 
+  private ImmutableMap<String, String> getNewToOldQuestionAdminNameMap(
+      ImmutableMap<String, QuestionDefinition> questions) {
+    return questions.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(
+                entry -> entry.getValue().getName(), entry -> entry.getKey()));
+  }
+
   private DivTag buildQuestionAlert(
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
       ImmutableMap<String, String> newToOldQuestionNameMap) {
@@ -162,37 +168,25 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     if (numDuplicateQuestions > 0) {
       alertType = AlertType.WARNING;
       if (numNewQuestions > 0) {
-        String singularOrPluralQuestionString = numNewQuestions == 1 ? "question" : "questions";
+        String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
         alertMessage =
-            alertMessage.concat(
-                numNewQuestions + " new " + singularOrPluralQuestionString + " and ");
+            alertMessage.concat(numNewQuestions + " new " + questionOrQuestions + " and ");
       }
-      String singularOrPluralQuestionString = numDuplicateQuestions == 1 ? "question" : "questions";
+      String questionOrQuestions = numDuplicateQuestions == 1 ? "question" : "questions";
       alertMessage =
           alertMessage.concat(
               numDuplicateQuestions
                   + " duplicate "
-                  + singularOrPluralQuestionString
+                  + questionOrQuestions
                   + " to the question bank.");
     } else if (numNewQuestions > 0) {
-      String singularOrPluralQuestionString = numNewQuestions == 1 ? "question" : "questions";
+      String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
       alertMessage =
           alertMessage.concat(
-              numNewQuestions
-                  + " new "
-                  + singularOrPluralQuestionString
-                  + " to the question bank.");
+              numNewQuestions + " new " + questionOrQuestions + " to the question bank.");
     }
 
     return AlertComponent.renderFullAlert(alertType, alertMessage, Optional.empty(), false, "");
-  }
-
-  private ImmutableMap<String, String> getNewToOldQuestionAdminNameMap(
-      ImmutableMap<String, QuestionDefinition> questions) {
-    return questions.entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(
-                entry -> entry.getValue().getName(), entry -> entry.getKey()));
   }
 
   private int countDuplicateQuestions(ImmutableMap<String, String> newToOldQuestionNameMap) {

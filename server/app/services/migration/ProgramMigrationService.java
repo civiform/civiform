@@ -85,7 +85,6 @@ public final class ProgramMigrationService {
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
-
     return questions.stream()
         .collect(
             ImmutableMap.toImmutableMap(

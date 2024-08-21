@@ -74,26 +74,6 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  /**
-   * Check for admin names that are an exact match for any of the names of the questions passed in.
-   * Return a list of matches.
-   */
-  public ImmutableList<String> getMatchingAdminNames(ImmutableList<QuestionDefinition> questions) {
-    return questions.stream()
-        .filter(
-            (QuestionDefinition question) -> {
-              return database
-                  .find(QuestionModel.class)
-                  .setLabel("QuestionModel.findByName")
-                  .setProfileLocation(queryProfileLocationBuilder.create("getMatchingAdminNames"))
-                  .where()
-                  .eq("name", question.getName())
-                  .exists();
-            })
-        .map(question -> question.getName())
-        .collect(ImmutableList.toImmutableList());
-  }
-
   /** Get any similar admin names to the admin name passed in */
   public ImmutableList<String> getSimilarAdminNames(String adminName) {
     return database

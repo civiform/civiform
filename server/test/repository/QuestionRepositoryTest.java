@@ -20,7 +20,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -417,35 +416,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
-  }
-
-  @Test
-  public void getMatchingAdminNames_returnsQuestionNamesAlreadyFoundInTheDb()
-      throws UnsupportedQuestionTypeException {
-    testQuestionBank.nameApplicantName();
-    testQuestionBank.dateApplicantBirthdate();
-
-    QuestionDefinition nameQuestion =
-        new QuestionDefinitionBuilder()
-            .setName("applicant name") // same admin name as the saved name question
-            .setDescription("description")
-            .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .build();
-    QuestionDefinition dateQuestion =
-        new QuestionDefinitionBuilder()
-            .setName("applicant birth date - newres") // different admin name than the saved date
-            // question
-            .setDescription("description")
-            .setQuestionType(QuestionType.DATE)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .build();
-
-    ImmutableList<String> matchingAdminNames =
-        repo.getMatchingAdminNames(ImmutableList.of(nameQuestion, dateQuestion));
-
-    // only the admin name already contained in the db should be returned
-    assertThat(matchingAdminNames).containsExactly("applicant name");
   }
 
   @Test
