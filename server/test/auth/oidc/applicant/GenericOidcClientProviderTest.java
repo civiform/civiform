@@ -103,6 +103,6 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     assertThat(profileAdapter.emailAttributeName).isEqualTo("email");
     assertThat(profileAdapter.localeAttributeName).isEqualTo(Optional.of("country"));
     assertThat(profileAdapter.nameAttributeNames)
-        .isEqualTo(ImmutableList.of("first", "middle", "last"));
+        .isEqualTo(ImmutableList.of("first", "middle", "last", "I."));
   }
 }
