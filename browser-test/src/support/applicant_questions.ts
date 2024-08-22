@@ -354,11 +354,13 @@ export class ApplicantQuestions {
       gotRecommendedProgramNames =
         await this.programNamesForSection('Recommended')
       gotRecommendedProgramNames.sort()
-      gotOtherProgramNames = await this.programNamesForSection('Other programs')
+      gotOtherProgramNames = await this.programNamesForSection(
+        'Other programs and services',
+      )
       gotOtherProgramNames.sort()
     } else {
       gotProgramsAndServicesNames = await this.programNamesForSection(
-        'Programs & services',
+        'Programs and services',
       )
       gotProgramsAndServicesNames.sort()
     }
