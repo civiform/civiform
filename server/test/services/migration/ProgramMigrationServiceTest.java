@@ -171,13 +171,19 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     resourceCreator.insertQuestion("name-question-1");
     resourceCreator.insertQuestion("name-question-2");
 
-    String newAdminNameOne = service.maybeGenerateNewAdminName("name-question");
-    assertThat(newAdminNameOne).isEqualTo("name-question-3");
+    String newAdminName = service.maybeGenerateNewAdminName("name-question");
+    assertThat(newAdminName).isEqualTo("name-question-3");
+    String unmatchedAdminName = service.maybeGenerateNewAdminName("admin-name-unmatched");
+    assertThat(unmatchedAdminName).isEqualTo("admin-name-unmatched");
+  }
 
-    String newAdminNameTwo = service.maybeGenerateNewAdminName("name-question-1");
-    assertThat(newAdminNameTwo).isEqualTo("name-question-3");
+  @Test
+  public void maybeGenerateNewAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("name-question-1");
+    resourceCreator.insertQuestion("name-question-2");
 
-    String unmatchedAdminName = service.maybeGenerateNewAdminName("new-admin-name");
-    assertThat(unmatchedAdminName).isEqualTo("new-admin-name");
+    String newAdminName = service.maybeGenerateNewAdminName("name-question-1");
+    assertThat(newAdminName).isEqualTo("name-question-3");
   }
 }
