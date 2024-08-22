@@ -94,6 +94,8 @@ public final class MigratePrimaryApplicantInfoJob extends DurableJob {
       Optional<String> firstName = applicantData.readString(WellKnownPaths.APPLICANT_FIRST_NAME);
       Optional<String> middleName = applicantData.readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
       Optional<String> lastName = applicantData.readString(WellKnownPaths.APPLICANT_LAST_NAME);
+      Optional<String> nameSuffix =
+          applicantData.readAsString(WellKnownPaths.APPLICANT_NAME_SUFFIX);
       String emailAddress = applicant.getAccount().getEmailAddress();
       // Note that this will only return a value if it's set via TI client
       // creation/edit. This is because that code sets a string here directly,
@@ -110,6 +112,7 @@ public final class MigratePrimaryApplicantInfoJob extends DurableJob {
       firstName.ifPresent(first -> applicant.setFirstName(first));
       middleName.ifPresent(middle -> applicant.setMiddleName(middle));
       lastName.ifPresent(last -> applicant.setLastName(last));
+      nameSuffix.ifPresent(suffix -> applicant.setSuffix(suffix));
       phoneNumber.ifPresent(phone -> applicant.setPhoneNumber(phone));
       dob.ifPresent(date -> applicant.setDateOfBirth(date));
       if (!Strings.isNullOrEmpty(emailAddress) && applicant.getEmailAddress().isEmpty()) {
