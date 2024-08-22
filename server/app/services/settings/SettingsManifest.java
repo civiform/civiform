@@ -254,6 +254,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("APPLICANT_OIDC_LAST_NAME_ATTRIBUTE");
   }
 
+  /** The OIDC attribute name for the user’s name suffix. */
+  public Optional<String> getApplicantOidcNameSuffixAttribute() {
+    return getString("APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE");
+  }
+
   /**
    * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
    * authorization servers, specifically communicating with Login.gov. A Civiform instance is always
@@ -1224,6 +1229,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s last name.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE",
+                                      "The OIDC attribute name for the user’s name suffix.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
