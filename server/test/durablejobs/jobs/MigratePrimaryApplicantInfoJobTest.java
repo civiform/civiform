@@ -46,12 +46,14 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     applicantData.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
     applicantData.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
     applicantData.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
+    applicantData.putString(WellKnownPaths.APPLICANT_NAME_SUFFIX, "II.");
     applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
     applicantData.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
     if (withPaiData) {
       applicant.setFirstName("Kathryn");
       applicant.setMiddleName("");
       applicant.setLastName("Janeway");
+      applicant.setSuffix("");
       applicant.setDateOfBirth("2328-05-20");
       applicant.setPhoneNumber("2066842489");
       applicant.setEmailAddress("applicant@email.com");
@@ -93,6 +95,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Kathryn");
     assertThat(applicant.getMiddleName()).isEmpty();
     assertThat(applicant.getLastName().get()).isEqualTo("Janeway");
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("2328-05-20");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("2066842489");
   }
@@ -105,6 +108,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
     assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getSuffix().get()).isEqualTo("II.");
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("2305-07-13");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(applicant.getEmailAddress().get()).isEqualTo("account@email.com");
@@ -118,6 +122,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
     assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getSuffix().get()).isEqualTo("II.");
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("2305-07-13");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(applicant.getEmailAddress().get()).isEqualTo("applicant@email.com");
@@ -137,6 +142,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName()).isEmpty();
     assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getDateOfBirth()).isEmpty();
     assertThat(applicant.getEmailAddress()).isEmpty();
     assertThat(applicant.getPhoneNumber()).isEmpty();
@@ -151,6 +157,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
     data.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
     data.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
+    data.putString(WellKnownPaths.APPLICANT_NAME_SUFFIX, "II.");
     data.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
     data.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
     applicant.save();
@@ -162,6 +169,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
     assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getSuffix().get()).isEqualTo("II");
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("2305-07-13");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(applicant.getCountryCode().get()).isEqualTo("US");
@@ -184,6 +192,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName()).isEmpty();
     assertThat(applicant.getMiddleName()).isEmpty();
     assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getDateOfBirth()).isEmpty();
     assertThat(applicant.getPhoneNumber()).isEmpty();
     assertThat(applicant.getCountryCode()).isEmpty();
@@ -207,6 +216,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName()).isEmpty();
     assertThat(applicant.getMiddleName()).isEmpty();
     assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getDateOfBirth()).isEmpty();
     assertThat(applicant.getPhoneNumber()).isEmpty();
     assertThat(applicant.getCountryCode()).isEmpty();
