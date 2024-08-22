@@ -366,6 +366,8 @@ test.describe('file upload applicant flow', () => {
         0,
       )
 
+      await applicantQuestions.clickNext()
+
       await applicantQuestions.expectRequiredQuestionError(
         '.cf-question-fileupload',
       )
