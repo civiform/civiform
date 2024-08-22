@@ -367,7 +367,7 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async gotoExportProgramPage(programName: string, lifecycle: string) {
+  async goToExportProgramPage(programName: string, lifecycle: string) {
     await this.gotoAdminProgramsPage()
     await this.page.click(
       this.withinProgramCardSelector(

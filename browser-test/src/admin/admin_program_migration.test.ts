@@ -8,6 +8,12 @@ import {
 } from '../support'
 
 test.describe('program migration', () => {
+  // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
+  const ALERT_WARNING = 'usa-alert--warning'
+  const ALERT_ERROR = 'usa-alert--error'
+  const ALERT_INFO = 'usa-alert--info'
+  const ALERT_SUCCESS = 'usa-alert--success'
+
   test('export a program', async ({
     page,
     adminPrograms,
@@ -60,7 +66,7 @@ test.describe('program migration', () => {
 
     await test.step('load export page', async () => {
       await enableFeatureFlag(page, 'program_migration_enabled')
-      await adminPrograms.gotoExportProgramPage(programName, 'DRAFT')
+      await adminPrograms.goToExportProgramPage(programName, 'DRAFT')
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
@@ -97,7 +103,11 @@ test.describe('program migration', () => {
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
   })
 
-  test('import errors', async ({page, adminProgramMigration}) => {
+  test('import errors', async ({
+    page,
+    adminPrograms,
+    adminProgramMigration,
+  }) => {
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_migration_enabled')
@@ -108,7 +118,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
       await validateScreenshot(
         page.locator('main'),
         'import-page-with-error-parse',
@@ -120,7 +133,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName": "mismatched-brackets"',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
     })
 
     await test.step('malformed: missing ,', async () => {
@@ -137,7 +153,10 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
     })
 
     await test.step('malformed: missing required program info', async () => {
@@ -147,10 +166,37 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
-      await adminProgramMigration.expectAlert('Error processing JSON')
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
       await validateScreenshot(
         page,
         'import-page-with-error-missing-program-fields',
+      )
+    })
+
+    await test.step('error: program already exists', async () => {
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+      await adminPrograms.goToExportProgramPage(
+        'Comprehensive Sample Program',
+        'DRAFT',
+      )
+      const downloadedComprehensiveProgram =
+        await adminProgramMigration.downloadJson()
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'This program already exists in our system.',
+        ALERT_ERROR,
+      )
+      await validateScreenshot(
+        page,
+        'import-page-with-error-program-already-exists',
       )
     })
   })
@@ -173,7 +219,7 @@ test.describe('program migration', () => {
 
     let downloadedComprehensiveProgram: string
     await test.step('export comprehensive program', async () => {
-      await adminPrograms.gotoExportProgramPage(
+      await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
         'DRAFT',
       )
@@ -187,7 +233,7 @@ test.describe('program migration', () => {
     let downloadedMinimalProgram: string
     await test.step('export minimal program', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.gotoExportProgramPage(
+      await adminPrograms.goToExportProgramPage(
         'Minimal Sample Program',
         'DRAFT',
       )
@@ -199,6 +245,12 @@ test.describe('program migration', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
       await validateScreenshot(page.locator('main'), 'import-page-no-data')
+
+      // Replace the admin name so you don't get an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-new',
+      )
 
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
@@ -212,7 +264,7 @@ test.describe('program migration', () => {
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
-          name: 'Admin name: comprehensive-sample-program',
+          name: 'Admin name: comprehensive-sample-program-new',
         }),
       ).toBeVisible()
 
@@ -233,6 +285,13 @@ test.describe('program migration', () => {
       await expect(
         page.getByRole('heading', {name: 'file upload'}),
       ).toBeVisible()
+
+      // Assert the warning about duplicate question names is shown
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 17 duplicate questions to the question bank.',
+        ALERT_WARNING,
+      )
+
       // Assert all the questions are shown
       const allQuestions = page.getByTestId('question-div')
       await expect(allQuestions).toHaveCount(17)
@@ -242,9 +301,9 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name
+      // admin name (should be updated with "-1" on the end)
       await expect(programDataDiv).toContainText(
-        'Admin name: Sample Address Question',
+        'Admin name: Sample Address Question-1',
       )
       // admin description
       await expect(programDataDiv).toContainText(
@@ -264,36 +323,23 @@ test.describe('program migration', () => {
       await expect(page.getByRole('textbox')).toHaveValue('')
     })
 
-    await test.step('attempt to save the program and see error', async () => {
+    await test.step('save the comprehensive sample program', async () => {
+      // Replace a question admin name so can see warning about new and duplicate questions
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Sample Address Question',
+        'Sample Address Question-new',
+      )
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
-      await adminProgramMigration.clickButton('Save')
-      // a db error is thrown because there is already a draft of this program
       await adminProgramMigration.expectAlert(
-        'Unable to save program. Please try again or contact your IT team for support.',
-      )
-      await validateScreenshot(page, 'error-saving-program')
-    })
-
-    await test.step('publish the program and attempt to import it again', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishAllDrafts()
-      await adminPrograms.gotoExportProgramPage(
-        'Comprehensive Sample Program',
-        'ACTIVE',
-      )
-      downloadedComprehensiveProgram =
-        await adminProgramMigration.downloadJson()
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminProgramMigration.goToImportPage()
-      await adminProgramMigration.submitProgramJson(
-        downloadedComprehensiveProgram,
+        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        ALERT_WARNING,
       )
       await adminProgramMigration.clickButton('Save')
-      // the save is successful because no draft already exists
       await adminProgramMigration.expectAlert(
         'Your program has been successfully imported',
+        ALERT_SUCCESS,
       )
       await validateScreenshot(page, 'saved-program-success')
     })
@@ -304,19 +350,38 @@ test.describe('program migration', () => {
       await expect(page.getByRole('textbox')).toHaveValue('')
     })
 
-    await test.step('replace admin name to avoid draft collision and save the program', async () => {
+    await test.step('save the minimal sample program', async () => {
+      // Replace the admin name so you don't get an error
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'minimal-sample-program',
+        'minimal-sample-program-new',
+      )
+      // Replace the program title so we can check the new one shows up
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Minimal Sample Program',
+        'Minimal Sample Program New',
+      )
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Minimal Sample Program',
+        'Minimal Sample Program New',
+      )
+      // Replace the question admin id so we can see the "new question" info box
       downloadedMinimalProgram = downloadedMinimalProgram.replace(
         'Sample Name Question',
-        'Sample Name Question 2',
+        'Sample Name Question-new',
       )
       await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question to the question bank.',
+        ALERT_INFO,
+      )
       await adminProgramMigration.clickButton('Save')
     })
 
     await test.step('navigate to the program edit page', async () => {
       await adminProgramMigration.clickButton('View program')
       await expect(page.locator('#program-title')).toContainText(
-        'Minimal Sample Program',
+        'Minimal Sample Program New',
       )
       await expect(page.locator('#header_edit_button')).toBeVisible()
     })

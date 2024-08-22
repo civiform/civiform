@@ -927,4 +927,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThat(latestId.isEmpty()).isTrue();
   }
+
+  @Test
+  public void checkProgramAdminNameExists_returnsTrueIfAdminNameExistsFalseOtherwise() {
+    ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
+
+    boolean existsOne =
+        repo.checkProgramAdminNameExists("program-name-1"); // same admin name as saved program
+    boolean existsTwo = repo.checkProgramAdminNameExists("another-admin-name");
+
+    assertThat(existsOne).isTrue();
+    assertThat(existsTwo).isFalse();
+  }
 }
