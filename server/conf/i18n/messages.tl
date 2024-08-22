@@ -142,12 +142,18 @@ title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Iba pang program ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Mga Program ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Inirerekomenda ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
