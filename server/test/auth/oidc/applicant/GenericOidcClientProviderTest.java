@@ -52,6 +52,7 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
                 .put("applicant_generic_oidc.first_name_attribute", "first")
                 .put("applicant_generic_oidc.middle_name_attribute", "middle")
                 .put("applicant_generic_oidc.last_name_attribute", "last")
+                .put("applicant_generic_oidc.name_suffix_attribute", "I.")
                 .put("applicant_generic_oidc.discovery_uri", DISCOVERY_URI)
                 .put("base_url", BASE_URL)
                 .build());
@@ -102,6 +103,6 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     assertThat(profileAdapter.emailAttributeName).isEqualTo("email");
     assertThat(profileAdapter.localeAttributeName).isEqualTo(Optional.of("country"));
     assertThat(profileAdapter.nameAttributeNames)
-        .isEqualTo(ImmutableList.of("first", "middle", "last"));
+        .isEqualTo(ImmutableList.of("first", "middle", "last", "I."));
   }
 }

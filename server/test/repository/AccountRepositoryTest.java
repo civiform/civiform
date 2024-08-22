@@ -21,7 +21,6 @@ import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
@@ -418,18 +417,14 @@ public class AccountRepositoryTest extends ResetPostgres {
     LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
-    OidcProfile expiredOidcProfile = new OidcProfile();
-    expiredOidcProfile.setIdTokenString(expiredJwt.serialize());
 
-    repo.updateSerializedIdTokens(account, "sessionId1", expiredOidcProfile);
+    repo.updateSerializedIdTokens(account, "sessionId1", expiredJwt.serialize());
 
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
-    OidcProfile validOidcProfile = new OidcProfile();
-    validOidcProfile.setIdTokenString(validJwt.serialize());
 
-    repo.updateSerializedIdTokens(account, "sessionId2", validOidcProfile);
+    repo.updateSerializedIdTokens(account, "sessionId2", validJwt.serialize());
 
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();

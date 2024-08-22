@@ -399,6 +399,11 @@ test.describe('applicant program index page', () => {
           expectedProgramsInRecommendedSection: [],
           expectedProgramsInOtherProgramsSection: [],
         })
+
+        // Check the program count in the section heading
+        await expect(
+          page.getByRole('heading', {name: 'Programs and services (4)'}),
+        ).toBeVisible()
       })
 
       await test.step('Fill out first application block and confirm that the program appears in the In progress section', async () => {
@@ -453,6 +458,13 @@ test.describe('applicant program index page', () => {
           },
           true,
         )
+        // Check the program count in the section headings
+        await expect(
+          page.getByRole('heading', {name: 'Recommended (1)'}),
+        ).toBeVisible()
+        await expect(
+          page.getByRole('heading', {name: 'Other programs and services (2)'}),
+        ).toBeVisible()
       })
 
       await validateAccessibility(page)

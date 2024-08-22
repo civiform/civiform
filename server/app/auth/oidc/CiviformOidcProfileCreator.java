@@ -165,7 +165,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               account -> {
                 accountRepositoryProvider
                     .get()
-                    .updateSerializedIdTokens(account, sessionId, oidcProfile);
+                    .updateSerializedIdTokens(account, sessionId, oidcProfile.getIdTokenString());
               })
           .join();
     }

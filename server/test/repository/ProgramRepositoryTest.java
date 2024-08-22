@@ -20,6 +20,7 @@ import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
+import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
+import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
@@ -122,6 +124,46 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void setFullProgramDefinitionFromCache_doesNotSetWhenNullQuestionsIncluded() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    QuestionModel nullQuestion = new TestQuestionBank(false).nullQuestion();
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("programWithNullQuestion")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(nullQuestion)
+            .build();
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(
+        program.getProgramDefinition().blockDefinitions().stream()
+            .anyMatch(block -> block.hasNullQuestion()));
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void setFullProgramDefinitionFromCache_doesSetWhenNoNullQuestionsIncluded() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    QuestionModel question = resourceCreator.insertQuestion("testQuestion");
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("programWithQuestion")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(
+        program.getProgramDefinition().blockDefinitions().stream()
+            .noneMatch(block -> block.hasNullQuestion()));
+    assertThat(programDefFromCache).isNotEmpty();
   }
 
   @Test
@@ -884,5 +926,17 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
     assertThat(latestId.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void checkProgramAdminNameExists_returnsTrueIfAdminNameExistsFalseOtherwise() {
+    ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
+
+    boolean existsOne =
+        repo.checkProgramAdminNameExists("program-name-1"); // same admin name as saved program
+    boolean existsTwo = repo.checkProgramAdminNameExists("another-admin-name");
+
+    assertThat(existsOne).isTrue();
+    assertThat(existsTwo).isFalse();
   }
 }

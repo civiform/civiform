@@ -196,6 +196,11 @@
                 "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s last name.",
                 "type": "string"
+              },
+              "APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE": {
+                "mode": "HIDDEN",
+                "description": "The OIDC attribute name for the user’s name suffix.",
+                "type": "string"
               }
             }
           },

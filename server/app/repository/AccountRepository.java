@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
-import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -486,8 +485,7 @@ public final class AccountRepository {
    *
    * <p>Also purges any expired ID tokens as a side effect.
    */
-  public void updateSerializedIdTokens(
-      AccountModel account, String sessionId, OidcProfile oidcProfile) {
+  public void updateSerializedIdTokens(AccountModel account, String sessionId, String idToken) {
     SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
     if (serializedIdTokens == null) {
       serializedIdTokens = new SerializedIdTokens();
@@ -495,7 +493,7 @@ public final class AccountRepository {
     }
     IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
     idTokens.purgeExpiredIdTokens();
-    idTokens.storeIdToken(sessionId, oidcProfile.getIdTokenString());
+    idTokens.storeIdToken(sessionId, idToken);
     account.save();
   }
 }

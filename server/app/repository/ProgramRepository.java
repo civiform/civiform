@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
@@ -35,9 +36,13 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
 /**
@@ -83,6 +88,16 @@ public final class ProgramRepository {
           executionContext);
     }
     return supplyAsync(() -> lookupProgramSync(id), executionContext);
+  }
+
+  public boolean checkProgramAdminNameExists(String name) {
+    return database
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.findByName")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramByAdminName"))
+        .where()
+        .eq("name", name)
+        .exists();
   }
 
   private Optional<ProgramModel> lookupProgramSync(long id) {
@@ -161,7 +176,30 @@ public final class ProgramRepository {
         && getFullProgramDefinitionFromCache(programId).isEmpty()) {
       // We should never set the cache for draft programs.
       if (!versionRepository.get().isDraftProgram(programId)) {
-        programDefCache.set(String.valueOf(programId), programDefinition);
+        ImmutableList<BlockDefinition> blocksWithNullQuestion =
+            programDefinition.blockDefinitions().stream()
+                .filter(BlockDefinition::hasNullQuestion)
+                .collect(ImmutableList.toImmutableList());
+        if (blocksWithNullQuestion.size() > 0) {
+          String nullQuestionIds =
+              blocksWithNullQuestion.stream()
+                  .flatMap(block -> block.programQuestionDefinitions().stream())
+                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+                  .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+                  .map(QuestionDefinition::getId)
+                  .map(String::valueOf)
+                  .collect(Collectors.joining(", "));
+          logger.warn(
+              "Program {} with ID {} has the following null question ID(s): {} in {} / {} blocks,"
+                  + " so we won't set it into the cache.",
+              programDefinition.slug(),
+              programDefinition.id(),
+              blocksWithNullQuestion.size(),
+              nullQuestionIds,
+              programDefinition.blockDefinitions().size());
+        } else {
+          programDefCache.set(String.valueOf(programId), programDefinition);
+        }
       }
     }
   }
