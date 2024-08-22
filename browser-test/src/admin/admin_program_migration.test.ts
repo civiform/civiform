@@ -8,6 +8,7 @@ import {
 } from '../support'
 
 test.describe('program migration', () => {
+  // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
   const ALERT_WARNING = 'usa-alert--warning'
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_INFO = 'usa-alert--info'

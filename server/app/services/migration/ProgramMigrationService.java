@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
@@ -106,8 +108,19 @@ public final class ProgramMigrationService {
    * "sample question-2" saved in the db, the generated name will be "sample question-3"
    */
   public String maybeGenerateNewAdminName(String adminName) {
-    String newAdminName = adminName;
+    // If the question name contains a suffix of the form "-n" (for example "admin-name-1"), we want
+    // to strip off the "-n" before searching for the admin name to ensure all similar names are
+    // returned. This also allows us to correctly increment the suffix of the base admin name so we
+    // don't end up with admin names like "admin-name-1-1".
+    Pattern HYPHEN_DIGIT_PATTERN = Pattern.compile("-[0-9]+");
+    Matcher matcher = HYPHEN_DIGIT_PATTERN.matcher(adminName);
+    if (matcher.find()) {
+      int lastHyphenIndex = adminName.lastIndexOf("-");
+      adminName = adminName.substring(0, lastHyphenIndex);
+    }
     ImmutableList<String> similarAdminNames = questionRepository.getSimilarAdminNames(adminName);
+
+    String newAdminName = adminName;
     int n = 1;
     while (similarAdminNames.contains(newAdminName)) {
       newAdminName = adminName + "-" + n;
