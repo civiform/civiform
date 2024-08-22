@@ -169,7 +169,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
     assertThat(applicant.getLastName().get()).isEqualTo("Picard");
-    assertThat(applicant.getSuffix().get()).isEqualTo("II");
+    assertThat(applicant.getSuffix().get()).isEqualTo("II.");
     assertThat(applicant.getDateOfBirth().get()).isEqualTo("2305-07-13");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(applicant.getCountryCode().get()).isEqualTo("US");
