@@ -294,7 +294,7 @@ test.describe('applicant program index page', () => {
       await adminPrograms.publishAllDrafts()
     })
 
-    await test.step('Navigate to program index and validate that both programs appear in Programs and Services', async () => {
+    await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
       await logout(page)
       await loginAsTestUser(page)
       await applicantQuestions.expectProgramsWithFilteringEnabled({
@@ -309,6 +309,11 @@ test.describe('applicant program index page', () => {
         expectedProgramsInRecommendedSection: [],
         expectedProgramsInOtherProgramsSection: [],
       })
+
+      // Check the program count in the section heading
+      await expect(
+        page.getByRole('heading', {name: 'Programs and services (4)'}),
+      ).toBeVisible()
     })
 
     await test.step('Fill out first application block and confirm that the program appears in the In progress section', async () => {
@@ -363,6 +368,13 @@ test.describe('applicant program index page', () => {
         },
         true,
       )
+      // Check the program count in the section headings
+      await expect(
+        page.getByRole('heading', {name: 'Recommended (1)'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {name: 'Other programs and services (2)'}),
+      ).toBeVisible()
     })
 
     await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {

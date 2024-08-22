@@ -121,7 +121,7 @@ public final class ProgramCardViewRenderer {
           iffElse(
               settingsManifest.getProgramFilteringEnabled(request),
               h2().withId(sectionHeaderId)
-                  .withText(messages.at(sectionTitle.get().getKeyName()))
+                  .withText(messages.at(sectionTitle.get().getKeyName(), cards.size()))
                   .withClasses("mb-4", "px-4", "text-xl", "font-semibold"),
               h3().withId(sectionHeaderId)
                   .withText(messages.at(sectionTitle.get().getKeyName()))

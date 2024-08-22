@@ -461,7 +461,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               request,
               messages,
               personalInfo,
-              Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION),
+              Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION_V2),
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -506,7 +506,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               request,
               messages,
               personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS),
+              Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -546,9 +546,15 @@ public final class ProgramIndexView extends BaseHtmlView {
           // Leave button text as is.
       }
     }
+
+    String titleMessage =
+        settingsManifest.getProgramFilteringEnabled(request)
+            ? messages.at(MessageKey.TITLE_BENEFITS_FINDER_SECTION_V2.getKeyName())
+            : messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName());
+
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
-        .with(programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())))
+        .with(programSectionTitle(titleMessage))
         .with(
             programCardViewRenderer.programCardsSection(
                 request,
