@@ -18,6 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.program.predicate.Operator;
 
+/**
+ * This job searches for {@link services.program.predicate.LeafAddressServiceAreaExpressionNode}s
+ * found in the programs.block_definitions columns of the database. When it finds one it adds a new
+ * property named `operator` with a default value of {@link Operator#IN_SERVICE_AREA}. Casing stored
+ * matches the casing stored on other nodes with `operator` properties.
+ *
+ * <p>Additional notes:
+ * <li>Nodes may have children so this recursively searches the tree
+ * <li>Both hidePredicate and eligibilityDefinition.predicate are checked
+ * <li>Will not modify nodes that already have this property added
+ * <li>Idempotent
+ * <li>Any failure will rollback the entire changeset
+ */
 public final class AddOperatorToLeafAddressServiceAreaJob extends DurableJob {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(AddOperatorToLeafAddressServiceAreaJob.class);

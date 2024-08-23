@@ -16,6 +16,18 @@ import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This job searches for {@link services.program.predicate.LeafAddressServiceAreaExpressionNode}s
+ * found in the programs.block_definitions columns of the database. When it finds one it removes the
+ * property named `operator`.
+ *
+ * <p>Additional notes:
+ * <li>Nodes may have children so this recursively searches the tree
+ * <li>Both hidePredicate and eligibilityDefinition.predicate are checked
+ * <li>Will not modify nodes that do not have this property
+ * <li>Idempotent
+ * <li>Any failure will rollback the entire changeset
+ */
 public final class RemoveOperatorFromLeafAddressServiceAreaJob extends DurableJob {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(RemoveOperatorFromLeafAddressServiceAreaJob.class);
