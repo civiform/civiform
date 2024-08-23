@@ -140,7 +140,10 @@ public final class NameQuestion extends Question {
   @Override
   public String getAnswerString() {
     String[] parts = {
-      getFirstNameValue().orElse(""), getMiddleNameValue().orElse(""), getLastNameValue().orElse("")
+      getFirstNameValue().orElse(""),
+      getMiddleNameValue().orElse(""),
+      getLastNameValue().orElse(""),
+      getNameSuffixValue().orElse("")
     };
 
     return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));

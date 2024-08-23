@@ -2,10 +2,13 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.stream.Stream;
+import models.ApplicantModel;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -13,6 +16,7 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a name question. */
@@ -77,6 +81,22 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
+    SelectWithLabel nameSuffixField =
+        new SelectWithLabel()
+            .addReferenceClass("cf-dropdown-question")
+            .setLabelText("Name suffix")
+            .setFieldName(nameQuestion.getNameSuffixPath().toString())
+            .setPlaceholderText("")
+            .setOptions(
+                Stream.of(ApplicantModel.Suffix.values())
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.getValue().toString())
+                                .setValue(option.toString())
+                                .build())
+                    .collect(ImmutableList.toImmutableList()));
+
     if (!alreadyAutofocused
         && params.autofocusFirstError()
         && validationErrors.containsKey(nameQuestion.getLastNamePath())) {
@@ -92,7 +112,8 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
         div()
             .with(firstNameField.getInputTag())
             .with(middleNameField.getInputTag())
-            .with(lastNameField.getInputTag());
+            .with(lastNameField.getInputTag())
+            .with(nameSuffixField.getSelectTag());
 
     return nameQuestionFormContent;
   }
