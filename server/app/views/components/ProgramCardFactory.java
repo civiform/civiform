@@ -229,7 +229,12 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+            program,
+            Locale.getDefault(),
+            /* isWithinProgramCard= */ false,
+            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
+    // if isWithProgramCard is false, we never reach the code that evaluates
+    // isProgramFilteringEnabled.
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {
