@@ -373,34 +373,31 @@ public final class ProgramCardViewRenderer {
         isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
         isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
-    PTag p =
-        settingsManifest.getProgramFilteringEnabled(request)
-            ? p().withClasses(
-                    tagClass, "border", "px-1", "mt-2", "flex", "items-center", "w-1/2", color)
-                .with(
-                    Icons.svg(icon)
-                        // 4.5 is 18px as defined in tailwind.config.js
-                        .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
-                    span(messages.at(tagText))
-                        .withClasses("p-1", "text-xs", "font-medium", textColor))
-            : p().withClasses(
-                    tagClass,
-                    "border",
-                    "rounded-full",
-                    "px-2",
-                    "py-1",
-                    "mb-4",
-                    "gap-x-2",
-                    "inline-block",
-                    "w-auto",
-                    color)
-                .with(
-                    Icons.svg(icon)
-                        // 4.5 is 18px as defined in tailwind.config.js
-                        .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
-                    span(messages.at(tagText))
-                        .withClasses("p-2", "text-xs", "font-medium", textColor));
-    return p;
+
+    return settingsManifest.getProgramFilteringEnabled(request)
+        ? p().withClasses(
+                tagClass, "border", "px-1", "mt-2", "flex", "items-center", "w-1/2", color)
+            .with(
+                Icons.svg(icon)
+                    // 4.5 is 18px as defined in tailwind.config.js
+                    .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
+                span(messages.at(tagText)).withClasses("p-1", "text-xs", "font-medium", textColor))
+        : p().withClasses(
+                tagClass,
+                "border",
+                "rounded-full",
+                "px-2",
+                "py-1",
+                "mb-4",
+                "gap-x-2",
+                "inline-block",
+                "w-auto",
+                color)
+            .with(
+                Icons.svg(icon)
+                    // 4.5 is 18px as defined in tailwind.config.js
+                    .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
+                span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate, ZoneId zoneId) {

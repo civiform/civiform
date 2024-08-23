@@ -43,12 +43,12 @@ public final class ProgramImageUtils {
 
     String styleClasses = StyleUtils.joinStyles("w-full", "aspect-video", "object-cover");
     if (isWithinProgramCard) {
-      if (!isProgramFilteringEnabled) {
-        // Only round the bottom corners when showing the image in context of a program card.
-        styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-b-lg");
-      } else {
+      if (isProgramFilteringEnabled) {
         // Round all corners when showing the image in context of a program card with filtering.
         styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-lg");
+      } else {
+        // Only round the bottom corners when showing the image in context of a program card.
+        styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-b-lg");
       }
     }
 

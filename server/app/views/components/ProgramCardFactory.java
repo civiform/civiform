@@ -232,7 +232,9 @@ public final class ProgramCardFactory {
             program,
             Locale.getDefault(),
             /* isWithinProgramCard= */ false,
-            /* isProgramFilteringEnabled= */ false);
+            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
+    // if isWithProgramCard is false, we never reach the code that evaluates
+    // isProgramFilteringEnabled.
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {
