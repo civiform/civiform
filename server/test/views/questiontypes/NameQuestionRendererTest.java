@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -40,6 +42,7 @@ public class NameQuestionRendererTest {
   private NameQuestionRenderer renderer;
   private ApplicantQuestionRendererParams params;
   private SettingsManifest settingsManifest;
+  private final Request request = fakeRequest();
 
   @Before
   public void setup() {
@@ -47,6 +50,7 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
+            .setRequest(request)
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
