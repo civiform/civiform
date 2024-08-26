@@ -4,7 +4,7 @@ Please explain the changes you made here.
 
 ## Release notes
 
-The title of the pull request will be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section.
+Remove this section if the title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
 
 ### Checklist
 
@@ -15,6 +15,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 - [ ] Added the correct label: < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers)
 - [ ] Added an additional reviewer from outside your organization as FYI (if the primary reviewer is in the same organization as you)
+- [ ] Removed the release notes section if the title is sufficient for the release notes description, or put more details in that section.
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
 - [ ] Extended the README / documentation, if necessary
@@ -26,6 +27,14 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
+- [ ] Data migrations aren't being done (if so, a [Durable Job]((https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) should likely be used)
+
+#### Durable jobs
+
+Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates)
+
+- [ ] Assigned two reviewers
+- [ ] Included a rollback plan
 
 #### User visible changes
 
