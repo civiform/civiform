@@ -70,7 +70,7 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
-  public abstract Request request();
+  public abstract Optional<Request> request();
 
   public abstract ErrorDisplayMode errorDisplayMode();
 

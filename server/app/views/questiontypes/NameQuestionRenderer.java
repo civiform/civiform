@@ -45,7 +45,8 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
     Messages messages = params.messages();
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
     boolean alreadyAutofocused = false;
-    Request request = params.request();
+    Request request =
+        params.request().orElseThrow(() -> new IllegalArgumentException("Request cannot be null"));
 
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
@@ -120,7 +121,6 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .with(firstNameField.getInputTag())
             .with(middleNameField.getInputTag())
             .with(lastNameField.getInputTag());
-
     if (settingsManifest.getNameSuffixDropdownEnabled(request)) {
       nameQuestionFormContent.with(nameSuffixField.getSelectTag());
     }
