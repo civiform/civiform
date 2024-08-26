@@ -232,7 +232,8 @@ public final class QuestionEditView extends BaseHtmlView {
               .attr("hx-trigger", "load");
     } else {
       previewContent =
-          QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+          QuestionPreview.renderQuestionPreview(
+              type, messages, applicantFileUploadRenderer, settingsManifest);
     }
 
     HtmlBundle htmlBundle =

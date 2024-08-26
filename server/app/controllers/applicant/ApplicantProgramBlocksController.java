@@ -142,7 +142,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.editView =
-        editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
+        editViewFactory.create(
+            new ApplicantQuestionRendererFactory(applicantFileUploadRenderer, settingsManifest));
     this.northStarApplicantProgramBlockEditView =
         checkNotNull(northStarApplicantProgramBlockEditView);
     this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);

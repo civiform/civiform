@@ -15,15 +15,19 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {
 
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
+  private final SettingsManifest settingsManifest;
 
-  public ApplicantQuestionRendererFactory(ApplicantFileUploadRenderer applicantFileUploadRenderer) {
+  public ApplicantQuestionRendererFactory(
+      ApplicantFileUploadRenderer applicantFileUploadRenderer, SettingsManifest settingsManifest) {
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
@@ -56,7 +60,7 @@ public final class ApplicantQuestionRendererFactory {
       case ID:
         return new IdQuestionRenderer(question);
       case NAME:
-        return new NameQuestionRenderer(question);
+        return new NameQuestionRenderer(question, settingsManifest);
       case NUMBER:
         return new NumberQuestionRenderer(question);
       case RADIO_BUTTON:

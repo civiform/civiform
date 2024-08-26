@@ -209,6 +209,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                   ApplicantQuestionRendererParams rendererParams =
                       ApplicantQuestionRendererParams.builder()
                           .setMessages(params.messages())
+                          .setRequest(params.request())
                           .setErrorDisplayMode(params.errorDisplayMode())
                           .setAutofocus(
                               calculateAutoFocusTarget(

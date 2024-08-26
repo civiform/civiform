@@ -7,6 +7,7 @@ import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -18,10 +19,13 @@ import views.style.ReferenceClasses;
 public final class QuestionPreview {
 
   private static DivTag buildQuestionRenderer(
-      QuestionType type, Messages messages, ApplicantFileUploadRenderer applicantFileUploadRenderer)
+      QuestionType type,
+      Messages messages,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      SettingsManifest settingsManifest)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
-        new ApplicantQuestionRendererFactory(applicantFileUploadRenderer);
+        new ApplicantQuestionRendererFactory(applicantFileUploadRenderer, settingsManifest);
     ApplicantQuestionRendererParams params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
@@ -33,7 +37,8 @@ public final class QuestionPreview {
   public static DivTag renderQuestionPreview(
       QuestionType type,
       Messages messages,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer) {
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      SettingsManifest settingsManifest) {
     DivTag titleContainer =
         div()
             .withId("sample-render")
@@ -46,7 +51,8 @@ public final class QuestionPreview {
 
     DivTag renderedQuestion;
     try {
-      renderedQuestion = buildQuestionRenderer(type, messages, applicantFileUploadRenderer);
+      renderedQuestion =
+          buildQuestionRenderer(type, messages, applicantFileUploadRenderer, settingsManifest);
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

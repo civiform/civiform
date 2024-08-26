@@ -3,6 +3,7 @@ package views.questiontypes;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.cloud.StorageUploadRequest;
 
 /** Contains necessary parameters for an applicant question renderer to render a question. */
@@ -69,6 +70,8 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
+  public abstract Request request();
+
   public abstract ErrorDisplayMode errorDisplayMode();
 
   public abstract boolean multipleFileUploadEnabled();
@@ -111,6 +114,8 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setSignedFileUploadRequest(
         StorageUploadRequest signedFileUploadRequest);
+
+    public abstract Builder setRequest(Request request);
 
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
