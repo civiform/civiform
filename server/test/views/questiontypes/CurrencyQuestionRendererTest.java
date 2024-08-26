@@ -1,7 +1,6 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
@@ -14,7 +13,6 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
@@ -43,7 +41,6 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   private Messages messages;
   private ApplicantQuestionRendererParams params;
   private CurrencyQuestionRenderer renderer;
-  private final Request request = fakeRequest();
 
   @Before
   public void setUp() {
@@ -52,7 +49,6 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .build();
     renderer = new CurrencyQuestionRenderer(question);

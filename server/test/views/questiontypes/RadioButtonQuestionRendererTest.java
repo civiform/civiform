@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -15,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
-import play.mvc.Http.Request;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -55,7 +53,6 @@ public class RadioButtonQuestionRendererTest {
   private ApplicantQuestion question;
   private RadioButtonQuestionRenderer renderer;
   private ApplicantQuestionRendererParams params;
-  private final Request request = fakeRequest();
 
   @Before
   public void setup() {
@@ -63,7 +60,6 @@ public class RadioButtonQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .build();
     question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
