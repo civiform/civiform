@@ -18,6 +18,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -864,7 +865,7 @@ public class BlockTest {
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Seattle")),
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     BlockDefinition blockDefinition =

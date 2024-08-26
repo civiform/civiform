@@ -78,7 +78,8 @@ public class PredicateExpressionNodeTest {
     QuestionDefinition question =
         testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     LeafAddressServiceAreaExpressionNode leaf =
-        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+        LeafAddressServiceAreaExpressionNode.create(
+            question.getId(), "Seattle", Operator.IN_SERVICE_AREA);
 
     assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
         .isEqualTo(String.format("\"%s\" is in service area \"Seattle\"", question.getName()));
@@ -89,7 +90,8 @@ public class PredicateExpressionNodeTest {
     QuestionDefinition question =
         testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     LeafAddressServiceAreaExpressionNode leaf =
-        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+        LeafAddressServiceAreaExpressionNode.create(
+            question.getId(), "Seattle", Operator.IN_SERVICE_AREA);
 
     assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of()))
         .isEqualTo(String.format("address is in service area \"Seattle\""));

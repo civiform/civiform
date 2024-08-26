@@ -344,10 +344,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThat(predicateDefinition.rootNode())
         .isEqualTo(
             PredicateExpressionNode.create(
-                LeafAddressServiceAreaExpressionNode.builder()
-                    .setQuestionId(testQuestionBank.addressApplicantAddress().id)
-                    .setServiceAreaId("seattle")
-                    .build()));
+                LeafAddressServiceAreaExpressionNode.create(
+                    testQuestionBank.addressApplicantAddress().id,
+                    "seattle",
+                    Operator.IN_SERVICE_AREA)));
   }
 
   @Test

@@ -519,27 +519,32 @@ public class JsonPathPredicateGeneratorTest {
 
     JsonPathPredicate predicate =
         generator.fromLeafAddressServiceAreaNode(
-            LeafAddressServiceAreaExpressionNode.create(question.getId(), "seattle"));
+            LeafAddressServiceAreaExpressionNode.create(
+                question.getId(), "seattle", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isTrue();
 
     predicate =
         generator.fromLeafAddressServiceAreaNode(
-            LeafAddressServiceAreaExpressionNode.create(question.getId(), "bloomington"));
+            LeafAddressServiceAreaExpressionNode.create(
+                question.getId(), "bloomington", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isTrue();
 
     predicate =
         generator.fromLeafAddressServiceAreaNode(
-            LeafAddressServiceAreaExpressionNode.create(question.getId(), "king-county"));
+            LeafAddressServiceAreaExpressionNode.create(
+                question.getId(), "king-county", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isTrue();
 
     predicate =
         generator.fromLeafAddressServiceAreaNode(
-            LeafAddressServiceAreaExpressionNode.create(question.getId(), "Arkansas"));
+            LeafAddressServiceAreaExpressionNode.create(
+                question.getId(), "Arkansas", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isFalse();
 
     predicate =
         generator.fromLeafAddressServiceAreaNode(
-            LeafAddressServiceAreaExpressionNode.create(question.getId(), "Kansas"));
+            LeafAddressServiceAreaExpressionNode.create(
+                question.getId(), "Kansas", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isFalse();
   }
 
@@ -548,7 +553,8 @@ public class JsonPathPredicateGeneratorTest {
     assertThatThrownBy(
             () ->
                 generator.fromLeafAddressServiceAreaNode(
-                    LeafAddressServiceAreaExpressionNode.create(question.getId(), "busted ID")))
+                    LeafAddressServiceAreaExpressionNode.create(
+                        question.getId(), "busted ID", Operator.IN_SERVICE_AREA)))
         .isInstanceOf(InvalidPredicateException.class);
   }
 }

@@ -165,10 +165,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
                     .setPredicate(
                         PredicateDefinition.create(
                             PredicateExpressionNode.create(
-                                LeafAddressServiceAreaExpressionNode.builder()
-                                    .setQuestionId(testQuestionBank.addressApplicantAddress().id)
-                                    .setServiceAreaId("seattle")
-                                    .build()),
+                                LeafAddressServiceAreaExpressionNode.create(
+                                    testQuestionBank.addressApplicantAddress().id,
+                                    "seattle",
+                                    Operator.IN_SERVICE_AREA)),
                             PredicateAction.ELIGIBLE_BLOCK))
                     .build())
             .withVisibilityPredicate(

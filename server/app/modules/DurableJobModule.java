@@ -17,6 +17,7 @@ import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
+import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -162,19 +163,13 @@ public final class DurableJobModule extends AbstractModule {
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry() {
-    //  PersistedDurableJobRepository persistedDurableJobRepository) {
-    //    var durableJobRegistry = new DurableJobRegistry();
+    var durableJobRegistry = new DurableJobRegistry();
 
-    //    // Sample job. DELETE THIS when adding first real job
-    //
-    //    durableJobRegistry.registerStartupJob(
-    //        DurableJobName.SOME_JOB_NAME,
-    //        JobType.RUN_ONCE,
-    //        persistedDurableJob ->
-    //            new SomeClassThatIsAJob(persistedDurableJob));
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
+        JobType.RUN_ONCE,
+        persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
 
-    //    return durableJobRegistry;
-
-    return new DurableJobRegistry();
+    return durableJobRegistry;
   }
 }

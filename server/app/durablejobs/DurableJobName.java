@@ -14,6 +14,7 @@ public enum DurableJobName {
   UNUSED_ACCOUNT_CLEANUP("UNUSED_ACCOUNT_CLEANUP"),
   UNUSED_PROGRAM_IMAGES_CLEANUP("UNUSED_PROGRAM_IMAGES_CLEANUP"),
   MIGRATE_PRIMARY_APPLICANT_INFO("MIGRATE_PRIMARY_APPLICANT_INFO"),
+  ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA("ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA"),
 
   // Jobs below this line are deprecated, but must be kept around so that durableJobRegistry.get
   // does not throw an IllegalArgumentException error
