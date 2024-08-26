@@ -813,6 +813,60 @@ public class RemoveOperatorFromLeafAddressServiceAreaJobTest extends ResetPostgr
     // ProgramModel programModel = findProgramModelById(id);
   }
 
+  @Test
+  public void run_verifyExistingOperatorsAreUntouched() throws JsonProcessingException {
+    String blockDefinitions =
+        """
+        [
+          {
+            "id": 1,
+            "name": "Screen 1",
+            "repeaterId": null,
+            "description": "Screen 1 description",
+            "hidePredicate": null,
+            "localizedName": {
+              "isRequired": true,
+              "translations": {
+                "en_US": "Screen 1"
+              }
+            },
+            "optionalPredicate": null,
+            "questionDefinitions": [
+              {
+                "id": 2513,
+                "optional": false,
+                "addressCorrectionEnabled": true
+              }
+            ],
+            "localizedDescription": {
+              "isRequired": true,
+              "translations": {
+                "en_US": "Screen 1 description"
+              }
+            },
+            "eligibilityDefinition": {
+              "predicate": {
+                "action": "ELIGIBLE_BLOCK",
+                "rootNode": {
+                  "node": {
+                    "type": "leafAddressServiceArea",
+                    "questionId": 2513,
+                    "serviceAreaId": "Seattle"
+                  }
+                }
+              }
+            }
+          }
+        ]
+        """;
+
+    Long id = insertProgram(blockDefinitions);
+
+    runJob();
+
+    assertJsonStringsAreTheSame(blockDefinitions, findBlockDefinitionsForProgramId(id));
+  }
+
   /**
    * Directly inserts a record into `public.programs` populated with default values and the provided
    * json for the `block_definitions` column.

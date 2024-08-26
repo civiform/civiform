@@ -892,6 +892,85 @@ public class AddOperatorToLeafAddressServiceAreaJobTest extends ResetPostgres {
         .isEqualTo(Operator.IN_SERVICE_AREA);
   }
 
+  @Test
+  public void run_verifyExistingOperatorsAreUntouched()
+      throws ProgramBlockDefinitionNotFoundException, JsonProcessingException {
+    String blockDefinitions =
+        """
+        [
+          {
+            "id": 1,
+            "name": "Screen 1",
+            "repeaterId": null,
+            "description": "Screen 1 description",
+            "hidePredicate": null,
+            "localizedName": {
+              "isRequired": true,
+              "translations": {
+                "en_US": "Screen 1"
+              }
+            },
+            "optionalPredicate": null,
+            "questionDefinitions": [
+              {
+                "id": 2513,
+                "optional": false,
+                "addressCorrectionEnabled": true
+              }
+            ],
+            "localizedDescription": {
+              "isRequired": true,
+              "translations": {
+                "en_US": "Screen 1 description"
+              }
+            },
+            "eligibilityDefinition": {
+              "predicate": {
+                "action": "ELIGIBLE_BLOCK",
+                "rootNode": {
+                  "node": {
+                    "type": "leafAddressServiceArea",
+                    "operator": "IN_SERVICE_AREA",
+                    "questionId": 2513,
+                    "serviceAreaId": "Seattle"
+                  }
+                }
+              }
+            }
+          }
+        ]
+        """;
+
+    Long id = insertProgram(blockDefinitions);
+
+    runJob();
+
+    assertJsonStringsAreTheSame(blockDefinitions, findBlockDefinitionsForProgramId(id));
+
+    // Load the program and verify the changes work in the context of the pojo data model
+    ProgramModel programModel = findProgramModelById(id);
+
+    assertThat(
+            programModel
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .eligibilityDefinition()
+                .isPresent())
+        .isTrue();
+
+    assertThat(
+            programModel
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .eligibilityDefinition()
+                .get()
+                .predicate()
+                .rootNode()
+                .getLeafAddressNode()
+                .operator())
+        .isEqualTo(Operator.IN_SERVICE_AREA);
+  }
+
   /**
    * Directly inserts a record into `public.programs` populated with default values and the provided
    * json for the `block_definitions` column.
