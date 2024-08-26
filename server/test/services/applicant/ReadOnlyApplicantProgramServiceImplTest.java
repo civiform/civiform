@@ -124,14 +124,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        0,
-        "file-key");
-
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantData,
-        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        1,
-        "file-key-2");
+        ImmutableList.of("file-key", "file-key-2"));
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
@@ -160,14 +153,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        0,
-        "file-key");
-
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantData,
-        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        1,
-        "file-key-2");
+        ImmutableList.of("file-key", "file-key-2"));
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
@@ -1275,14 +1261,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
-        0,
-        "file-key-1");
-
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantData,
-        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
-        1,
-        "file-key-2");
+        ImmutableList.of("file-key-1", "file-key-2"));
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
