@@ -130,6 +130,8 @@ content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
@@ -140,12 +142,18 @@ title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Tìm dịch vụ có thể giúp bạn
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Chương trình khác ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Chương trình ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Chương trình được đề xuất ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
