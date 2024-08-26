@@ -18,6 +18,7 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.settings.SettingsManifest;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class NameQuestionRendererTest {
@@ -38,6 +39,7 @@ public class NameQuestionRendererTest {
   private ApplicantQuestion question;
   private NameQuestionRenderer renderer;
   private ApplicantQuestionRendererParams params;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setup() {
@@ -49,7 +51,7 @@ public class NameQuestionRendererTest {
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
     question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
-    renderer = new NameQuestionRenderer(question);
+    renderer = new NameQuestionRenderer(question, settingsManifest);
   }
 
   @Test

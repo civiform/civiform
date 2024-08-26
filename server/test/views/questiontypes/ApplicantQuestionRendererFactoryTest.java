@@ -51,7 +51,8 @@ public class ApplicantQuestionRendererFactoryTest {
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))),
+            new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of())));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -79,7 +80,8 @@ public class ApplicantQuestionRendererFactoryTest {
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))),
+            new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of())));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
