@@ -27,14 +27,14 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
-- [ ] Data migrations aren't being done (if so, a [Durable Job]((https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) should likely be used)
+- [ ] Data migrations aren't being done (please use a [Durable Job](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) if doing a data migration)
 
 #### Durable jobs
 
 Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates)
 
 - [ ] Assigned two reviewers
-- [ ] Included a rollback plan
+- [ ] Included a rollback plan and a job to undo the data changes if appropriate
 
 #### User visible changes
 
