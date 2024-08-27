@@ -233,7 +233,7 @@ public final class QuestionEditView extends BaseHtmlView {
     } else {
       previewContent =
           QuestionPreview.renderQuestionPreview(
-              type, messages, applicantFileUploadRenderer, settingsManifest);
+              type, messages, applicantFileUploadRenderer, settingsManifest, request);
     }
 
     HtmlBundle htmlBundle =

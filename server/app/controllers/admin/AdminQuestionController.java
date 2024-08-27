@@ -222,6 +222,7 @@ public final class AdminQuestionController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Request request, Long id) {
+    System.out.println("hi from controller.request");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -232,20 +233,27 @@ public final class AdminQuestionController extends CiviFormController {
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
-
+              System.out.println("hi from controller line 236");
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
               Optional<QuestionDefinition> possibleDraft =
                   readOnlyService
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
+              System.out.println("hi from controller line 243");
+
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
                 return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
               }
 
+              System.out.println("hi from controller line 249");
+
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+
+              System.out.println("hi from controller line 254");
               try {
+                System.out.println("hi from controller line 256");
                 return ok(
                     editView.renderEditQuestionForm(
                         request, questionDefinition, maybeEnumerationQuestion));

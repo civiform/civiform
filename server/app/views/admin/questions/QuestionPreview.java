@@ -4,7 +4,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -22,15 +24,26 @@ public final class QuestionPreview {
       QuestionType type,
       Messages messages,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      SettingsManifest settingsManifest)
+      SettingsManifest settingsManifest,
+      Request request)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
         new ApplicantQuestionRendererFactory(applicantFileUploadRenderer, settingsManifest);
-    ApplicantQuestionRendererParams params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
-            .build();
+    ApplicantQuestionRendererParams params;
+    if (type == QuestionType.NAME) {
+      params =
+          ApplicantQuestionRendererParams.builder()
+              .setMessages(messages)
+              .setRequest(request)
+              .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+              .build();
+    } else {
+      params =
+          ApplicantQuestionRendererParams.builder()
+              .setMessages(messages)
+              .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+              .build();
+    }
     return div(rf.getSampleRenderer(type).render(params));
   }
 
@@ -38,7 +51,8 @@ public final class QuestionPreview {
       QuestionType type,
       Messages messages,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      Request request) {
     DivTag titleContainer =
         div()
             .withId("sample-render")
@@ -48,11 +62,11 @@ public final class QuestionPreview {
                 span()
                     .withText(type.getLabel())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, "font-semibold"));
-
     DivTag renderedQuestion;
     try {
       renderedQuestion =
-          buildQuestionRenderer(type, messages, applicantFileUploadRenderer, settingsManifest);
+          buildQuestionRenderer(
+              type, messages, applicantFileUploadRenderer, settingsManifest, request);
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
