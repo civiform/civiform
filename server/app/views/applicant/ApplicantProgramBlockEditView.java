@@ -18,7 +18,6 @@ import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
-import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.AlertSettings;
@@ -31,7 +30,6 @@ import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Modal;
-import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
@@ -114,11 +112,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     params.bannerToastMessage().ifPresent(bundle::addToastMessages);
 
-    if (!params.preferredLanguageSupported()) {
-      bundle.addMainContent(
-          renderLocaleNotSupportedToast(
-              params.applicantId(), params.programId(), params.messages()));
-    }
     return layout.renderWithNav(
         params.request(),
         params.applicantPersonalInfo(),
@@ -134,26 +127,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         eligibilityAlertSettings.title(),
         false,
         AlertComponent.HeadingLevel.H2);
-  }
-
-  /**
-   * If the applicant's preferred language is not supported for this program, render a toast
-   * warning. Allow them to dismiss the warning, and once it is dismissed it does not reappear for
-   * the same program.
-   */
-  private DivTag renderLocaleNotSupportedToast(
-      long applicantId, long programId, Messages messages) {
-    // Note: we include applicantId and programId in the ID, so that the applicant sees the warning
-    // for each program that is not properly localized. Otherwise, once dismissed, this toast would
-    // never appear for other programs. Additionally, including the applicantId ensures that this
-    // warning still appears across applicants, so that (for example) a Trusted Intermediary
-    // handling multiple applicants will see the toast displayed.
-    return ToastMessage.warning(messages.at(MessageKey.TOAST_LOCALE_NOT_SUPPORTED.getKeyName()))
-        .setId(String.format("locale-not-supported-%d-%d", applicantId, programId))
-        .setDismissible(true)
-        .setIgnorable(true)
-        .setDuration(0)
-        .getContainerTag();
   }
 
   private ContainerTag<?> renderBlockWithSubmitForm(ApplicationBaseViewParams params) {
