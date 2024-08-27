@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.question.exceptions.UnsupportedQuestionTypeException;
