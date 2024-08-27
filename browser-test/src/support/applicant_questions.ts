@@ -327,24 +327,20 @@ export class ApplicantQuestions {
 
   async expectProgramsWithFilteringEnabled(
     {
-      expectedProgramsInInProgressSection,
-      expectedProgramsInSubmittedSection,
+      expectedProgramsInMyApplicationsSection,
       expectedProgramsInProgramsAndServicesSection,
       expectedProgramsInRecommendedSection,
       expectedProgramsInOtherProgramsSection,
     }: {
-      expectedProgramsInInProgressSection: string[]
-      expectedProgramsInSubmittedSection: string[]
+      expectedProgramsInMyApplicationsSection: string[]
       expectedProgramsInProgramsAndServicesSection: string[]
       expectedProgramsInRecommendedSection: string[]
       expectedProgramsInOtherProgramsSection: string[]
     },
     /* Toggle whether filters have been selected */ filtersOn = false,
   ) {
-    const gotInProgressProgramNames =
-      await this.programNamesForSection('In progress')
-    const gotSubmittedProgramNames =
-      await this.programNamesForSection('Submitted')
+    const gotMyApplicationsProgramNames =
+      await this.programNamesForSection('My applications')
 
     let gotRecommendedProgramNames
     let gotOtherProgramNames
@@ -366,18 +362,15 @@ export class ApplicantQuestions {
     }
 
     // Sort results before comparing since we don't care about order.
-    expectedProgramsInInProgressSection.sort()
-    expectedProgramsInSubmittedSection.sort()
+    expectedProgramsInMyApplicationsSection.sort()
     expectedProgramsInProgramsAndServicesSection.sort()
     expectedProgramsInRecommendedSection.sort()
     expectedProgramsInOtherProgramsSection.sort()
-    gotInProgressProgramNames.sort()
-    gotSubmittedProgramNames.sort()
+    gotMyApplicationsProgramNames.sort()
 
-    expect(gotInProgressProgramNames).toEqual(
-      expectedProgramsInInProgressSection,
+    expect(gotMyApplicationsProgramNames).toEqual(
+      expectedProgramsInMyApplicationsSection,
     )
-    expect(gotSubmittedProgramNames).toEqual(expectedProgramsInSubmittedSection)
 
     if (filtersOn) {
       expect(gotRecommendedProgramNames).toEqual(

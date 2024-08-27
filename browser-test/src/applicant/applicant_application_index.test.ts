@@ -388,8 +388,7 @@ test.describe('applicant program index page', () => {
         await logout(page)
         await loginAsTestUser(page)
         await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInInProgressSection: [],
-          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
@@ -412,8 +411,7 @@ test.describe('applicant program index page', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInInProgressSection: [primaryProgramName],
-          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             otherProgramName,
             'Minimal Sample Program',
@@ -431,8 +429,7 @@ test.describe('applicant program index page', () => {
         await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage()
         await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInInProgressSection: [],
-          expectedProgramsInSubmittedSection: [primaryProgramName],
+          expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             otherProgramName,
             'Minimal Sample Program',
@@ -447,8 +444,7 @@ test.describe('applicant program index page', () => {
         await page.locator('#category-filter-form').getByText('General').check()
         await applicantQuestions.expectProgramsWithFilteringEnabled(
           {
-            expectedProgramsInInProgressSection: [],
-            expectedProgramsInSubmittedSection: [primaryProgramName],
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
             expectedProgramsInRecommendedSection: [otherProgramName],
             expectedProgramsInOtherProgramsSection: [
@@ -469,11 +465,15 @@ test.describe('applicant program index page', () => {
 
       await validateAccessibility(page)
 
+      await validateScreenshot(
+        page.locator('#main-content'),
+        'homepage-programs-filtered',
+      )
+
       await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
         await logout(page)
         await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInInProgressSection: [],
-          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
