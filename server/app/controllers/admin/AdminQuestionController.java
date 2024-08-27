@@ -232,20 +232,19 @@ public final class AdminQuestionController extends CiviFormController {
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
+
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
               Optional<QuestionDefinition> possibleDraft =
                   readOnlyService
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
-
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
                 return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
               }
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-
               try {
                 return ok(
                     editView.renderEditQuestionForm(

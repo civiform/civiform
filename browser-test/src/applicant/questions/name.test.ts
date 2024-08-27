@@ -218,6 +218,35 @@ test.describe('name applicant flow', () => {
   })
 
   test.describe(
+    'name question with name suffix flag enabled',
+    {tag: ['@namesuffix']},
+    () => {
+      const programName = 'Test program for name suffix'
+
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleRequiredQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+      })
+
+      test('name questions show up with suffix field being available', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('open name question during application process', async () => {
+          await validateScreenshot(page, 'name-question-with-suffix-field')
+        })
+      })
+    },
+  )
+
+  test.describe(
     'single required name question with north star flag enabled',
     {tag: ['@northstar']},
     () => {
