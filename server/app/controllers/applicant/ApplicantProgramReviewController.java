@@ -241,8 +241,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> review(Request request, long programId) {
-    String nullString = null;
-    int length = nullString.length();
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
