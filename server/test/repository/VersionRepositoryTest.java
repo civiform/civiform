@@ -674,7 +674,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             LeafOperationExpressionNode.create(
                 oldTwo.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("")));
     PredicateExpressionNode leafAddress =
-        PredicateExpressionNode.create(LeafAddressServiceAreaExpressionNode.create(oldOne.id, ""));
+        PredicateExpressionNode.create(
+            LeafAddressServiceAreaExpressionNode.create(oldOne.id, "", Operator.IN_SERVICE_AREA));
     PredicateExpressionNode or =
         PredicateExpressionNode.create(OrNode.create(ImmutableList.of(leafTwo, leafAddress)));
     PredicateExpressionNode and =

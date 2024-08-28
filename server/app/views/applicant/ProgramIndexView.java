@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.LifecycleStage;
 import play.i18n.Messages;
@@ -257,7 +258,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               MessageKey.BUTTON_CONTINUE,
               MessageKey.BUTTON_CONTINUE_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ false));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -273,7 +275,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               MessageKey.BUTTON_EDIT,
               MessageKey.BUTTON_EDIT_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ false));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -289,7 +292,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ false));
     }
 
     return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
@@ -342,47 +346,32 @@ public final class ProgramIndexView extends BaseHtmlView {
         programCardViewRenderer.programCardsContainerStyles(
             Arrays.asList(
                     relevantPrograms.unapplied().size(),
-                    relevantPrograms.inProgress().size(),
-                    relevantPrograms.submitted().size(),
+                    relevantPrograms.inProgress().size() + relevantPrograms.submitted().size(),
                     filteredPrograms.size(),
                     otherPrograms.size())
                 .stream()
                 .max(Integer::compare)
                 .get());
 
-    // In progress or submitted programs
-    if (!relevantPrograms.inProgress().isEmpty()) {
+    // My applications section
+    if (!relevantPrograms.inProgress().isEmpty() || !relevantPrograms.submitted().isEmpty()) {
       content.with(
           programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
+              Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION),
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE,
-              MessageKey.BUTTON_CONTINUE_SR,
-              bundle,
-              profile));
-      content.with(div().withClasses("mb-10"));
-    }
-    if (!relevantPrograms.submitted().isEmpty()) {
-      content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.submitted(),
+              Stream.concat(
+                      relevantPrograms.inProgress().stream(), relevantPrograms.submitted().stream())
+                  .collect(ImmutableList.toImmutableList()),
               MessageKey.BUTTON_EDIT,
               MessageKey.BUTTON_EDIT_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ true));
       content.with(div().withClasses("mb-10"));
     }
 
@@ -451,7 +440,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 MessageKey.BUTTON_APPLY,
                 MessageKey.BUTTON_APPLY_SR,
                 bundle,
-                profile)
+                profile,
+                /* isMyApplicationsSection= */ false)
             .withId("recommended-programs"));
 
     if (!otherPrograms.isEmpty()) {
@@ -469,7 +459,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ false));
     }
   }
 
@@ -514,7 +505,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
               bundle,
-              profile));
+              profile,
+              /* isMyApplicationsSection= */ false));
     }
   }
 
@@ -568,7 +560,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 buttonText,
                 buttonScreenReaderText,
                 bundle,
-                profile));
+                profile,
+                /* isMyApplicationsSection= */ false));
   }
 
   private FormTag renderCategoryFilterChips(

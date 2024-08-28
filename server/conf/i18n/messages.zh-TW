@@ -130,6 +130,8 @@ content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=計畫詳情
 link.programDetailsSr=「{0}」計畫詳細資訊 (在新分頁中開啟)
 title.programs=計畫與服務
@@ -140,12 +142,18 @@ title.inProgressProgramsUpdated=進行中
 title.activeProgramsUpdated=未開始
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=尋找可協助您的服務
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=我的申請書 ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=其他計畫 ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=計畫 ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=建議 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -324,16 +332,16 @@ title.programSummary=計畫申請摘要
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
 # Section heading
-heading.eligibilityCriteria=More about eligibility requirements
+heading.eligibilityCriteria=進一步瞭解資格規定
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+content.eligibilityCriteria.v2=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0}。
 content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+content.changeAnswersForEligibility.v2=如果您認為結果有誤，請返回上一頁編輯回覆。您也可以返回首頁申請其他計畫。
 button.goBackAndEdit=返回並編輯
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
-button.editMyResponses=Edit my responses
+button.editMyResponses=編輯回覆
 toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
 toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
 tag.mayQualify=您可能符合資格
@@ -355,7 +363,7 @@ alert.eligibility_applicant_not_eligible_title=您可能不符合這項計畫的
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=根據您的回答，您可能不符合這項計畫的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
+alert.eligibilityApplicantNotEligibleTextShort=根據您對下列問題的回覆，您可能不符合這項計畫的資格。
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=您可能符合這項計畫的資格
@@ -377,7 +385,7 @@ alert.eligibility_ti_not_eligible_title=您的客戶可能不符合這項計畫�
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=根據您的回答，您的客戶可能不符合這項計畫的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
+alert.eligibilityTiNotEligibleTextShort=根據您對下列問題的回覆，您的客戶可能不符合這項計畫的資格。
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=您的客戶可能符合這項計畫的資格
@@ -412,29 +420,29 @@ content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=您提交的資訊
 # Text above the name of the person who submitted this application
-heading.applicantName=Who submitted this application
+heading.applicantName=此申請書的提交者
 # Text above the confirmation number of the application
-heading.confirmationNumber=Confirmation number
+heading.confirmationNumber=確認編號
 # Text above the date submitted of the application
-heading.dateSubmitted=Date submitted
+heading.dateSubmitted=提交日期
 # Text above a message telling the user they can print this page
-heading.forYourRecords=Confirmation for your records
+heading.forYourRecords=記錄確認頁面
 # Text above a button to print this page
-content.youCanPrint=You can print this confirmation for your records.
+content.youCanPrint=您可以列印本記錄確認頁面。
 # Button to print this webpage
-button.print=Print this page
+button.print=列印此頁面
 # Heading above a paragraph explaining the next steps in the application process
-heading.nextSteps=What are my next steps?
+heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
-alert.submitted=You''ve submitted your {0} application
+alert.submitted=您已提交「{0}」的申請書
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=如要儲存申請書資訊，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=使用帳戶重新登入後，即可查看申請書狀態，系統還會儲存相關資訊，幫助您快速申請其他計畫。
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=登入現有帳戶
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #

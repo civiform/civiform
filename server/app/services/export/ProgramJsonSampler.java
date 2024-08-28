@@ -89,7 +89,8 @@ public final class ProgramJsonSampler {
 
     return apiPayloadWrapper.wrapPayload(
         jsonExporterService
-            .convertApplicationExportDataToJsonArray(ImmutableList.of(jsonExportData.build()))
+            .convertApplicationExportDataListToJsonArray(
+                ImmutableList.of(jsonExportData.build()), "{}")
             .jsonString(),
         /* paginationTokenPayload= */ Optional.empty());
   }

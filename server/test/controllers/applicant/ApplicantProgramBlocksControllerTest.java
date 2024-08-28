@@ -2559,26 +2559,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 .fileUploadApplicantFile()
                 .getQuestionDefinition()
                 .getQuestionPathSegment()),
-        0,
-        "file-key-1");
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank()
-                .fileUploadApplicantFile()
-                .getQuestionDefinition()
-                .getQuestionPathSegment()),
-        1,
-        "key-to-remove");
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank()
-                .fileUploadApplicantFile()
-                .getQuestionDefinition()
-                .getQuestionPathSegment()),
-        2,
-        "file-key-2");
+        ImmutableList.of("file-key-1", "key-to-remove", "file-key-2"));
+
     applicant.save();
 
     RequestBuilder request =
@@ -2624,8 +2606,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 .fileUploadApplicantFile()
                 .getQuestionDefinition()
                 .getQuestionPathSegment()),
-        1,
-        "key-to-remove");
+        ImmutableList.of("key-to-remove"));
     applicant.save();
 
     RequestBuilder request =
@@ -2669,17 +2650,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 .fileUploadApplicantFile()
                 .getQuestionDefinition()
                 .getQuestionPathSegment()),
-        0,
-        "file-key-1");
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank()
-                .fileUploadApplicantFile()
-                .getQuestionDefinition()
-                .getQuestionPathSegment()),
-        2,
-        "file-key-2");
+        ImmutableList.of("file-key-1", "file-key-2"));
 
     applicant.save();
 

@@ -115,12 +115,14 @@ public class BlockDefinitionTest {
 
   @Test
   public void setAndGetEligibilityDefinition() {
-    var visibilityAddress = LeafAddressServiceAreaExpressionNode.create(1L, "");
+    var visibilityAddress =
+        LeafAddressServiceAreaExpressionNode.create(1L, "", Operator.IN_SERVICE_AREA);
     PredicateDefinition visibilityPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(visibilityAddress), PredicateAction.HIDE_BLOCK);
 
-    var eligibilityAddress = LeafAddressServiceAreaExpressionNode.create(2L, "");
+    var eligibilityAddress =
+        LeafAddressServiceAreaExpressionNode.create(2L, "", Operator.IN_SERVICE_AREA);
     PredicateDefinition eligibilityPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(eligibilityAddress), PredicateAction.HIDE_BLOCK);

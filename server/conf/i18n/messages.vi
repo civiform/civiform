@@ -130,6 +130,8 @@ content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
@@ -140,12 +142,18 @@ title.inProgressProgramsUpdated=Đang diễn ra
 title.activeProgramsUpdated=Chưa bắt đầu
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Tìm dịch vụ có thể giúp bạn
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Chương trình khác ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Chương trình ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Chương trình được đề xuất ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -324,16 +332,16 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
 title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
 # Section heading
-heading.eligibilityCriteria=More about eligibility requirements
+heading.eligibilityCriteria=Tìm hiểu thêm về điều kiện
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+content.eligibilityCriteria.v2=Để tìm hiểu thêm các quy định về điều kiện tham gia chương trình này hoặc liên hệ trực tiếp với đội ngũ của chương trình, vui lòng xem {0}.
 content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+content.changeAnswersForEligibility.v2=Nếu cho rằng đã có sai sót, bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Bạn cũng có thể quay lại trang chủ để đăng ký một chương trình khác.
 button.goBackAndEdit=Quay lại và chỉnh sửa
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
-button.editMyResponses=Edit my responses
+button.editMyResponses=Chỉnh sửa câu trả lời của tôi
 toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
 toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
 tag.mayQualify=Bạn có thể đủ tiêu chuẩn
@@ -355,7 +363,7 @@ alert.eligibility_applicant_not_eligible_title=Bạn có thể không đủ đi�
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Dựa trên câu trả lời của bạn, bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi tiếp tục quá trình đăng ký.
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
+alert.eligibilityApplicantNotEligibleTextShort=Dựa vào câu trả lời của bạn cho những câu hỏi sau, bạn có thể không đủ điều kiện tham gia chương trình này.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Bạn có thể đủ điều kiện tham gia chương trình này
@@ -377,7 +385,7 @@ alert.eligibility_ti_not_eligible_title=Khách hàng của bạn có thể khôn
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời của mình rồi tiếp tục quá trình đăng ký.
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
+alert.eligibilityTiNotEligibleTextShort=Dựa vào câu trả lời của bạn cho những câu hỏi sau, khách hàng của bạn có thể không đủ điều kiện tham gia chương trình này.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Khách hàng của bạn có thể đủ điều kiện tham gia chương trình này
@@ -412,29 +420,29 @@ content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan 
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=Thông tin bạn đã gửi
 # Text above the name of the person who submitted this application
-heading.applicantName=Who submitted this application
+heading.applicantName=Người gửi đơn này
 # Text above the confirmation number of the application
-heading.confirmationNumber=Confirmation number
+heading.confirmationNumber=Mã xác nhận
 # Text above the date submitted of the application
-heading.dateSubmitted=Date submitted
+heading.dateSubmitted=Ngày gửi
 # Text above a message telling the user they can print this page
-heading.forYourRecords=Confirmation for your records
+heading.forYourRecords=Bản xác nhận để lưu hồ sơ
 # Text above a button to print this page
-content.youCanPrint=You can print this confirmation for your records.
+content.youCanPrint=Bạn có thể in bản xác nhận này để lưu hồ sơ.
 # Button to print this webpage
-button.print=Print this page
+button.print=In trang này
 # Heading above a paragraph explaining the next steps in the application process
-heading.nextSteps=What are my next steps?
+heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
-alert.submitted=You''ve submitted your {0} application
+alert.submitted=Bạn đã gửi đơn đăng ký {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=Tạo tài khoản để lưu thông tin đơn đăng ký của bạn
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=Sử dụng một tài khoản để đăng nhập lại nhằm kiểm tra trạng thái đơn đăng ký của bạn và tiết kiệm thời gian khi đăng ký các chương trình khác.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #

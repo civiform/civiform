@@ -3,6 +3,7 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfArray;
 import com.itextpdf.text.pdf.PdfDictionary;
@@ -137,9 +138,9 @@ public class PdfExporterTest extends AbstractExporterTest {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-1");
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-2");
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
 
     applicantFive.save();
     applicationFive.setApplicantData(applicantFive.getApplicantData());
@@ -242,9 +243,9 @@ public class PdfExporterTest extends AbstractExporterTest {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-1");
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicantFive.getApplicantData(), answerPath, 0, "my-file-key-2");
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
 
     applicantFive.save();
     applicationFive.setApplicantData(applicantFive.getApplicantData());

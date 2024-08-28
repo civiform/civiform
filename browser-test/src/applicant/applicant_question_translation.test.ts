@@ -1,11 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {
-  loginAsAdmin,
-  logout,
-  selectApplicantLanguage,
-  validateScreenshot,
-  validateToastMessage,
-} from '../support'
+import {loginAsAdmin, logout, selectApplicantLanguage} from '../support'
 
 test.describe('Admin can manage translations', () => {
   test('Expect single-answer question is translated for applicant', async ({
@@ -136,39 +130,5 @@ test.describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
-  })
-
-  test('Applicant sees toast message warning translation is not complete', async ({
-    page,
-    adminQuestions,
-    adminPrograms,
-    applicantQuestions,
-  }) => {
-    await loginAsAdmin(page)
-
-    const programName = 'Toast program'
-    await adminPrograms.addProgram(programName)
-
-    await adminQuestions.addNameQuestion({questionName: 'name-english'})
-    await adminPrograms.editProgramBlock(programName, 'not translated', [
-      'name-english',
-    ])
-
-    await adminPrograms.publishProgram(programName)
-    await logout(page)
-
-    // Set applicant preferred language to Spanish
-    // DO NOT LOG IN AS TEST USER. We want a fresh guest so we can guarantee
-    // the language has not yet been set.
-    await selectApplicantLanguage(page, 'Español')
-    await applicantQuestions.applyProgram(programName)
-
-    // Check that a toast appears warning the program is not fully translated
-    await validateToastMessage(
-      page,
-      'Lo sentimos, este programa no está traducido por completo a tu idioma preferido.',
-    )
-
-    await validateScreenshot(page, 'applicant-toast-error')
   })
 })

@@ -906,9 +906,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
         .answerFileQuestionWithMultipleUpload(
-            testQuestionBank.fileUploadApplicantFile(), "test-file-key-1", 0)
-        .answerFileQuestionWithMultipleUpload(
-            testQuestionBank.fileUploadApplicantFile(), "test-file-key-2", 1)
+            testQuestionBank.fileUploadApplicantFile(),
+            ImmutableList.of("test-file-key-1", "test-file-key-2"))
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -974,13 +973,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         .answerFileQuestionWithMultipleUpload(
             testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
             "taylor",
-            "test-file-key-1",
-            0)
-        .answerFileQuestionWithMultipleUpload(
-            testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
-            "taylor",
-            "test-file-key-2",
-            1)
+            ImmutableList.of("test-file-key-1", "test-file-key-2"))
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);

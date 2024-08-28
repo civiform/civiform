@@ -214,10 +214,8 @@ public final class PredicateGenerator {
 
       LeafExpressionNode leafNode =
           scalar.equals(Scalar.SERVICE_AREA)
-              ? LeafAddressServiceAreaExpressionNode.builder()
-                  .setQuestionId(questionId)
-                  .setServiceAreaId(predicateValue.value())
-                  .build()
+              ? LeafAddressServiceAreaExpressionNode.create(
+                  questionId, predicateValue.value(), operator)
               : LeafOperationExpressionNode.builder()
                   .setQuestionId(questionId)
                   .setScalar(scalar)
