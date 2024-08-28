@@ -816,7 +816,7 @@
       },
       "BULK_STATUS_UPDATE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, admins will be able to select many applications for status updates.",
+        "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
         "type": "bool"
       }
     }
