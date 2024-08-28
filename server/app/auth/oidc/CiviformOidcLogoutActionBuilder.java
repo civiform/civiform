@@ -25,7 +25,6 @@ import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
-import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
@@ -94,31 +93,17 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return this;
   }
 
-  private Optional<JWT> getIdTokenForAccount(
-      long accountId, WebContext context, CiviFormProfileData profileData) {
+  private Optional<JWT> getIdTokenForAccount(long accountId, CiviFormProfileData profileData) {
     if (!enhancedLogoutEnabled()) {
       return Optional.empty();
     }
 
-    // Generally, the session id should be stored in the profile.
-    //
-    // However, during a transition period, the profile may have been created before we were
-    // populating session ids in the profile. Before, they were specified directly in the
-    // session. Fall back to that value if not present in the profile.
-    Optional<String> sessionId;
-    if (profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)) {
-      sessionId =
-          Optional.of(
-              profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class));
-    } else {
-      PlayWebContext playWebContext = (PlayWebContext) context;
-      sessionId = playWebContext.getNativeSession().get(CiviformOidcProfileCreator.SESSION_ID);
-    }
-
-    if (sessionId.isEmpty()) {
-      // Can't find a session id.
+    if (!profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)) {
+      LOGGER.warn("Profile for account {} contains no session ID", accountId);
       return Optional.empty();
     }
+    String sessionId =
+        profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class);
 
     Optional<AccountModel> account = accountRepositoryProvider.get().lookupAccount(accountId);
     if (account.isEmpty()) {
@@ -130,7 +115,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
     // When we build the logout action, we do not remove the id token. We leave it in place in case
     // of transient logout failures. Expired tokens are purged at login time instead.
-    Optional<String> idToken = idTokens.getIdToken(sessionId.get());
+    Optional<String> idToken = idTokens.getIdToken(sessionId);
     if (idToken.isEmpty()) {
       return Optional.empty();
     }
@@ -164,7 +149,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
         long accountId = Long.parseLong(currentProfile.getId());
         Optional<JWT> idToken =
-            getIdTokenForAccount(accountId, context, (CiviFormProfileData) currentProfile);
+            getIdTokenForAccount(accountId, (CiviFormProfileData) currentProfile);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
