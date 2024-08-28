@@ -226,6 +226,7 @@ public class DatabaseSeedView extends BaseHtmlView {
   }
 
   private SectionTag createAddressToolsSection() {
+
     return section()
         .with(h2("Address Tools").withClass("text-2xl"))
         .with(p("View address lookup and eligibility results"))
