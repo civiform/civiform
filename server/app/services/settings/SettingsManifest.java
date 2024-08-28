@@ -979,6 +979,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
+   * status updates
+   */
+  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
+    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -2020,6 +2028,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "When enabled, existing draft applications will be automatically be updated"
                           + " to use the latest version of a program when a newer version has been"
                           + " published.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "BULK_STATUS_UPDATE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
+                          + " applications for status updates",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

@@ -813,6 +813,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
+      },
+      "BULK_STATUS_UPDATE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
+        "type": "bool"
       }
     }
   }
