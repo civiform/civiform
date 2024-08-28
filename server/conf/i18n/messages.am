@@ -332,16 +332,16 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
 # Section heading
-heading.eligibilityCriteria=More about eligibility requirements
+heading.eligibilityCriteria=ስለብቁነት መስፈርቶች ተጨማሪ
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+content.eligibilityCriteria.v2=ስለዚህ ፕሮግራም የብቁነት ደንቦች የበለጠ ለመረዳት ወይም የፕሮግራሙን ቡድን በቀጥታ ለማነጋገር እባክዎ {0} የሚለውን ይመልከቱ።
 content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+content.changeAnswersForEligibility.v2=ስህተት ነበር ብለው ካሰቡ መልሶችዎን ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ። እንዲሁም ለተለየ ፕሮግራም ለማመልከት ወደ መነሻ ገጽ መመለስ ይችላሉ።
 button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
-button.editMyResponses=Edit my responses
+button.editMyResponses=ምላሾቼን አርትዕ
 toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
@@ -363,7 +363,7 @@ alert.eligibility_applicant_not_eligible_title=ለዚህ ፕሮግራም ብቁ 
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
+alert.eligibilityApplicantNotEligibleTextShort=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሠረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -385,7 +385,7 @@ alert.eligibility_ti_not_eligible_title=ደንበኛዎ ለዚህ ፕሮግራ�
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
+alert.eligibilityTiNotEligibleTextShort=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሠረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆን ይችላል።
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -420,29 +420,29 @@ content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕ
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=የማስረከቢያ መረጃዎ
 # Text above the name of the person who submitted this application
-heading.applicantName=Who submitted this application
+heading.applicantName=ይህን ማመልከቻ ማን እንዳስገባ
 # Text above the confirmation number of the application
-heading.confirmationNumber=Confirmation number
+heading.confirmationNumber=የማረጋገጫ ቁጥር
 # Text above the date submitted of the application
-heading.dateSubmitted=Date submitted
+heading.dateSubmitted=የገባበት ቀን
 # Text above a message telling the user they can print this page
-heading.forYourRecords=Confirmation for your records
+heading.forYourRecords=የመዝገቦችዎ ማረጋገጫ
 # Text above a button to print this page
-content.youCanPrint=You can print this confirmation for your records.
+content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም ይችላሉ።
 # Button to print this webpage
-button.print=Print this page
+button.print=ይህን ገጽ ያትሙ
 # Heading above a paragraph explaining the next steps in the application process
-heading.nextSteps=What are my next steps?
+heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
-alert.submitted=You''ve submitted your {0} application
+alert.submitted=የ{0} ማመልከቻዎን አስገብተዋል
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=የማመልከቻ መረጃዎን ለማስቀመጥ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=የማመልከቻዎን ሁኔታ ማየት እና ለሌሎች ፕሮግራሞች ለማመልከት ጊዜ መቆጠብ እንዲችሉ ተመልሰው ለመግባት መለያ ይጠቀሙ።
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #

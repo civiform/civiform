@@ -332,16 +332,16 @@ title.programSummary=Resumen de la inscripción al programa
 title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
 # Section heading
-heading.eligibilityCriteria=More about eligibility requirements
+heading.eligibilityCriteria=Más información sobre los requisitos de elegibilidad
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+content.eligibilityCriteria.v2=Para obtener más información sobre las reglas de elegibilidad de este programa o comunicarte directamente con el equipo del programa, consulta {0}.
 content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+content.changeAnswersForEligibility.v2=Si crees que hubo un error, puedes volver a la página anterior para editar tus respuestas. También puedes volver a la página principal para inscribirte a otro programa.
 button.goBackAndEdit=Volver y editar
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
-button.editMyResponses=Edit my responses
+button.editMyResponses=Editar mis respuestas
 toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
 toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
 tag.mayQualify=Es posible que califiques
@@ -363,7 +363,7 @@ alert.eligibility_applicant_not_eligible_title=Es posible que no califiques para
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=En función de tus respuestas, es posible que no califiques para este programa. Si la información cambió, puedes editar tu respuesta y continuar con la inscripción.
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
+alert.eligibilityApplicantNotEligibleTextShort=Según tus respuestas a las siguientes preguntas, es posible que no cumplas con los requisitos para este programa.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Es posible que califiques para este programa
@@ -385,7 +385,7 @@ alert.eligibility_ti_not_eligible_title=Es posible que tu cliente no califique p
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=En función de tus respuestas, es posible que tu cliente no califique para este programa. Si la información de tu cliente cambió, puedes editar tu respuesta y continuar con la inscripción.
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
+alert.eligibilityTiNotEligibleTextShort=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no cumpla con los requisitos para este programa.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Es posible que tu cliente califique para este programa
@@ -420,29 +420,29 @@ content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=Tu información de envío
 # Text above the name of the person who submitted this application
-heading.applicantName=Who submitted this application
+heading.applicantName=Quién envió esta inscripción
 # Text above the confirmation number of the application
-heading.confirmationNumber=Confirmation number
+heading.confirmationNumber=Número de confirmación
 # Text above the date submitted of the application
-heading.dateSubmitted=Date submitted
+heading.dateSubmitted=Fecha de envío
 # Text above a message telling the user they can print this page
-heading.forYourRecords=Confirmation for your records
+heading.forYourRecords=Confirmación de tus registros
 # Text above a button to print this page
-content.youCanPrint=You can print this confirmation for your records.
+content.youCanPrint=Puedes imprimir esta confirmación de tus registros.
 # Button to print this webpage
-button.print=Print this page
+button.print=Imprimir esta página
 # Heading above a paragraph explaining the next steps in the application process
-heading.nextSteps=What are my next steps?
+heading.nextSteps=¿Qué debo hacer a continuación?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
-alert.submitted=You''ve submitted your {0} application
+alert.submitted=Enviaste tu inscripción a {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=Crea una cuenta para guardar tu información de inscripción
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=Usa una cuenta para volver a acceder, de modo que puedas revisar el estado de tu inscripción y ahorrar tiempo al inscribirte a otros programas.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=Accede a una cuenta existente
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
