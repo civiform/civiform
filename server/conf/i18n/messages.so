@@ -332,16 +332,16 @@ title.programSummary=Soo koobida barnaamijka codsiga
 title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
 title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga su'aalaha soo socda, macmiilkaagu waxa laga yaabaa inuusan u qalmin {0}.
 # Section heading
-heading.eligibilityCriteria=More about eligibility requirements
+heading.eligibilityCriteria=Wax badan oo ku saabsan shuruudaha u qalmitaanka
 content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+content.eligibilityCriteria.v2=Si aad wax badan oo ku saabsan sharciyada u qalmitaanka barnaamijkan u ogaato ama aad si toos ah ula xiriirto kooxda barnaamijka, fadlan eeg {0}.
 content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+content.changeAnswersForEligibility.v2=Haddii aad u malayso inuu khalad dhacay, waxaad ku noqon kartaa boggii hore si aad wax uga bedesho jawaabahaaga. Waxaad sidoo kale ku noqon kartaa bogga hore si aad u codsato barnaamij ka duwan.
 button.goBackAndEdit=Dib u noqo oo wax ka beddel
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
-button.editMyResponses=Edit my responses
+button.editMyResponses=Wax ka bedel jawaabahayga
 toast.mayQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inuu u qalmo {0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
 toast.mayQualify=Iyada oo ku saleysan jawaabahaaga, waxaad u qalmi kartaa{0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
 tag.mayQualify=Waxa dhici karta inaad u qalanto
@@ -363,7 +363,7 @@ alert.eligibility_applicant_not_eligible_title=Waxaa suurtagal ah inaadan u qalm
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah inaadan u qalmin barnaamijkan. Haddii macluumaadkaaga is badalay, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjigaaga.
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Based on your responses to the following questions, you may not be eligible for this program.
+alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, waxaa laga yaabaa inaadan u qalmin barnaamijkan.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
@@ -385,7 +385,7 @@ alert.eligibility_ti_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qal
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan. Haddii macluumaadka macmiilkaaga la badalo, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjiga.
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Based on your responses to the following questions, your client may not be eligible for this program.
+alert.eligibilityTiNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, macmiilkaagu waxaa laga yaabaa in aanu u qalmin barnaamijkan.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
@@ -420,29 +420,29 @@ content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynay
 button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=Macluumaadka soo gudbintaada
 # Text above the name of the person who submitted this application
-heading.applicantName=Who submitted this application
+heading.applicantName=Yaa soo gudbiyay arjigan
 # Text above the confirmation number of the application
-heading.confirmationNumber=Confirmation number
+heading.confirmationNumber=Lambarka xaqiijinta
 # Text above the date submitted of the application
-heading.dateSubmitted=Date submitted
+heading.dateSubmitted=Taariikhda la gudbiyay
 # Text above a message telling the user they can print this page
-heading.forYourRecords=Confirmation for your records
+heading.forYourRecords=Xaqiijinta diiwaannadaada
 # Text above a button to print this page
-content.youCanPrint=You can print this confirmation for your records.
+content.youCanPrint=Waxaad xaqiijintan u daabacan kartaa diiwaannadaada.
 # Button to print this webpage
-button.print=Print this page
+button.print=Daabac boggan
 # Heading above a paragraph explaining the next steps in the application process
-heading.nextSteps=What are my next steps?
+heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
-alert.submitted=You''ve submitted your {0} application
+alert.submitted=Waxaad gudbisay arjigaagii {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=Samee akoon si aad u kaydsato macluumaadka arjigaaga
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=Isticmaal akoon si aad dib ugu soo gasho si aad u hubiso heerka arjigaaga oo aad u badbaadsato wakhtiga aad ku codsan lahayd barnaamijyada kale.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=Ku gal akoon hore u jiray
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
