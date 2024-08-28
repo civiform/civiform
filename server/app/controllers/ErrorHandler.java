@@ -9,7 +9,6 @@ import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -85,25 +84,31 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
     // Unwrap exceptions thrown within a CompletableFuture, to handle the
     // original error stack trace.
-    if (exception instanceof CompletionException) {
-      exception = exception.getCause();
-    }
+    UsefulException usefulException = throwableToUsefulException(exception);
 
-    // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
-    // visible states. Note: there are methods on the parent that handle dev and prod separately.
-    Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
+    // hacked this to always show the prod error page
+    return onProdServerError(request, usefulException);
 
-    if (match.isPresent()) {
-      return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
-    }
+    // if (exception instanceof CompletionException) {
+    //   exception = exception.getCause();
+    // }
 
-    match = findThrowableByTypes(exception, UNAUTHORIZED_REQUEST_EXCEPTION_TYPES);
+    // // Exceptions that reach here will generate 500s. Here we convert certain ones to different
+    // user
+    // // visible states. Note: there are methods on the parent that handle dev and prod separately.
+    // Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
 
-    if (match.isPresent()) {
-      return CompletableFuture.completedFuture(Results.unauthorized());
-    }
+    // if (match.isPresent()) {
+    //   return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
+    // }
 
-    return super.onServerError(request, exception);
+    // match = findThrowableByTypes(exception, UNAUTHORIZED_REQUEST_EXCEPTION_TYPES);
+
+    // if (match.isPresent()) {
+    //   return CompletableFuture.completedFuture(Results.unauthorized());
+    // }
+
+    // return super.onServerError(request, exception);
   }
 
   /**
@@ -151,9 +156,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   protected CompletionStage<Result> onProdServerError(
       RequestHeader request, UsefulException exception) {
     return CompletableFuture.completedFuture(
-        Results.internalServerError(
-            internalServerErrorPageProvider
-                .get()
-                .render(request, messagesApi.preferred(request), exception.id)));
+        Results.redirect(
+            controllers.routes.InternalServerErrorController.index(exception.id).url()));
   }
 }
