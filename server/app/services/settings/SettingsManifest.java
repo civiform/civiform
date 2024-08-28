@@ -2030,7 +2030,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "BULK_STATUS_UPDATE_ENABLED",
-                      "When enabled, admins will be able to select many applications for status"
+                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status"
                           + " updates.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
