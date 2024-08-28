@@ -405,7 +405,12 @@ public final class ProgramCardViewRenderer {
                 .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_CIVIFORM_BLUE),
             span(badgeText)
                 .withClasses(
-                    "p-1", "text-xs", "font-medium", "w-11/12", BaseStyles.TEXT_CIVIFORM_BLUE));
+                    "p-1",
+                    "text-xs",
+                    "font-medium",
+                    "w-11/12",
+                    BaseStyles.TEXT_CIVIFORM_BLUE,
+                    ReferenceClasses.BT_DATE));
   }
 
   private PTag eligibilityTag(
