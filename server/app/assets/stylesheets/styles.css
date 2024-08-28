@@ -129,4 +129,10 @@
       has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
   }
 
+  /* Re-style USWDS file input hint since it has contrast issues with the non-northstar background.
+     This can be removed once we switch to North Star. */
+  .cf-question-fileupload .usa-hint { 
+    color: #1b1b1b;
+  }
+
 }

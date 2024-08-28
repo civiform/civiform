@@ -71,11 +71,12 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withFor(fileInputId)
                 .withClass("sr-only")
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
-        .with(
+        .condWith(
+            canUploadFile,
             applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .condWith(
-            canUploadFile,
+            !params.multipleFileUploadEnabled(),
             label()
                 .withFor(fileInputId)
                 .with(
@@ -86,7 +87,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                         .withClasses(
                             ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
         .condWith(
-            canUploadFile,
+            !params.multipleFileUploadEnabled(),
             p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
                 .withClasses("text-sm", "text-gray-600", "my-2"));
   }

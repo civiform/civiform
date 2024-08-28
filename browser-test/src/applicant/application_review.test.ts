@@ -209,13 +209,11 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Fill out third application block', async () => {
-      await applicantQuestions.answerFileUploadQuestion(
-        'file content 1',
-        'file-key-1',
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
       )
-      await applicantQuestions.answerFileUploadQuestion(
-        'file content 2',
-        'file-key-2',
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
       )
       await applicantQuestions.clickNext()
     })
@@ -296,12 +294,12 @@ test.describe('Program admin review of submitted applications', () => {
       await adminPrograms.expectApplicationAnswers(
         'Screen 3',
         'fileupload-q',
-        'file-key-1',
+        'file-upload.png',
       )
       await adminPrograms.expectApplicationAnswers(
         'Screen 3',
         'fileupload-q',
-        'file-key-2',
+        'file-upload-second.png',
       )
     })
 
