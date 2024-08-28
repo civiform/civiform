@@ -240,12 +240,18 @@ test.describe('name applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('opens name question during application process', async () => {
-          await validateScreenshot(page.locator('.cf-question-name'), 'name-question-with-suffix-field')
+          await validateScreenshot(
+            page.locator('.cf-question-name'),
+            'name-question-with-suffix-field',
+          )
         })
 
         await test.step('selects an option in name suffix dropdown', async () => {
           await applicantQuestions.answerDropdownQuestion('II')
-          await validateScreenshot(page.locator('.cf-question-name'), 'name-suffix-with-value-selected')
+          await validateScreenshot(
+            page.locator('.cf-question-name'),
+            'name-suffix-with-value-selected',
+          )
         })
       })
     },
