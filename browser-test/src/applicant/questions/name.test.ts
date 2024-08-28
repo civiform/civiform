@@ -242,6 +242,11 @@ test.describe('name applicant flow', () => {
         await test.step('open name question during application process', async () => {
           await validateScreenshot(page, 'name-question-with-suffix-field')
         })
+
+        await test.step('selects an option in name suffix dropdown', async () => {
+          await applicantQuestions.answerDropdownQuestion('II')
+          await validateScreenshot(page, 'name-suffix-with-options')
+        })
       })
     },
   )
