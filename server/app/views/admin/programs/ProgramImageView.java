@@ -348,7 +348,8 @@ public final class ProgramImageView extends BaseHtmlView {
             /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile.get(),
-            zoneId);
+            zoneId,
+            /* isInMyApplicationsSection= */ false);
     return currentProgramCardSection.with(programCard);
     // Note: The "Program details" link inside the card preview will not work if the admin hasn't
     // provided a custom external link. This is because the default "Program details" link redirects
