@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import io.ebean.QueryIterator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -450,6 +451,19 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(tiGroups.get(1).getName()).isEqualTo("bbc");
     assertThat(tiGroups.get(2).getName()).isEqualTo("cbc");
     assertThat(tiGroups.get(3).getName()).isEqualTo("zbc");
+  }
+
+  @Test
+  public void streamAllApplicants() {
+    ApplicantModel one = saveApplicant("one");
+    ApplicantModel two = saveApplicant("two");
+
+    try (QueryIterator<ApplicantModel> iterator = repo.streamAllApplicants()) {
+      assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.next()).isEqualTo(one);
+      assertThat(iterator.next()).isEqualTo(two);
+      assertThat(iterator.hasNext()).isFalse();
+    }
   }
 
   private JWT getJwtWithExpirationTime(Instant expirationTime) {

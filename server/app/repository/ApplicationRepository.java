@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import io.ebean.QueryIterator;
 import io.ebean.Transaction;
 import java.util.List;
 import java.util.Optional;
@@ -365,5 +366,19 @@ public final class ApplicationRepository {
 
       transaction.commit();
     }
+  }
+
+  /*
+   * Returns an iterator which iterates through all applications in the database.
+   *
+   * This uses ebeans "adaptive persistence context" to avoid holding all applications in memory.
+   *
+   * <p>Remember that you must call {@code close()} when you are finished iterating. Since QueryIterator
+   * is auto-closeable, you can use "try with resources" to ensure this happens.
+   *
+   * <p> See https://ebean.io/apidoc/12/io/ebean/QueryIterator.html
+   */
+  public QueryIterator<ApplicationModel> streamAllApplications() {
+    return database.find(ApplicationModel.class).findIterate();
   }
 }

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.ebean.QueryIterator;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -390,6 +391,25 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThatThrownBy(() -> repo.updateDraftApplicationProgram(applicant.id, fakeProgramV2Id))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Program not found");
+  }
+
+  @Test
+  public void streamAllApplications() {
+    ApplicationModel appOne =
+        repo.createOrUpdateDraft(saveApplicant("applicantName"), createDraftProgram("first"))
+            .toCompletableFuture()
+            .join();
+    ApplicationModel appTwo =
+        repo.createOrUpdateDraft(saveApplicant("applicantName2"), createDraftProgram("second"))
+            .toCompletableFuture()
+            .join();
+
+    try (QueryIterator<ApplicationModel> iterator = repo.streamAllApplications()) {
+      assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.next()).isEqualTo(appOne);
+      assertThat(iterator.next()).isEqualTo(appTwo);
+      assertThat(iterator.hasNext()).isFalse();
+    }
   }
 
   private ApplicantModel saveApplicant(String name) {

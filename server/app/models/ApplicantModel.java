@@ -88,6 +88,11 @@ public class ApplicantModel extends BaseModel {
     super();
   }
 
+  /** Sets a new applicant data, overwriting any previous value. */
+  public void setApplicantData(ApplicantData applicantData) {
+    this.applicantData = applicantData;
+  }
+
   public ApplicantData getApplicantData() {
     // This is called both before and after serialization, so we need to handle
     // all three cases - loading from the database, where `object` contains the
