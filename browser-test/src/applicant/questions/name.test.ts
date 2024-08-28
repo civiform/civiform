@@ -233,19 +233,19 @@ test.describe('name applicant flow', () => {
         await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
       })
 
-      test('name questions show up with suffix field being available', async ({
+      test('name questions with suffix field being available to use', async ({
         page,
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(programName)
 
-        await test.step('open name question during application process', async () => {
-          await validateScreenshot(page, 'name-question-with-suffix-field')
+        await test.step('opens name question during application process', async () => {
+          await validateScreenshot(page.locator('.cf-question-name'), 'name-question-with-suffix-field')
         })
 
         await test.step('selects an option in name suffix dropdown', async () => {
           await applicantQuestions.answerDropdownQuestion('II')
-          await validateScreenshot(page, 'name-suffix-with-options')
+          await validateScreenshot(page.locator('.cf-question-name'), 'name-suffix-with-value-selected')
         })
       })
     },
