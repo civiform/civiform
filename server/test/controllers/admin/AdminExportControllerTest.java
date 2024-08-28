@@ -101,6 +101,8 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_removesProgramCategories() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
     ImmutableMap<Locale, String> translations =
         ImmutableMap.of(
             Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
