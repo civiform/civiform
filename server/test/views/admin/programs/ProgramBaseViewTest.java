@@ -8,6 +8,7 @@ import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -18,6 +19,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.TestQuestionBank;
 import views.ViewUtils.ProgramDisplayType;
@@ -27,10 +29,11 @@ public class ProgramBaseViewTest {
 
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
+  private SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
   private ImmutableList<QuestionDefinition> questionDefinitions =
       ImmutableList.of(
-          testQuestionBank.applicantDate().getQuestionDefinition(),
-          testQuestionBank.applicantEmail().getQuestionDefinition());
+          testQuestionBank.dateApplicantBirthdate().getQuestionDefinition(),
+          testQuestionBank.emailApplicantEmail().getQuestionDefinition());
 
   @Test
   public void renderExistingPredicate_singleQuestion() {
@@ -38,7 +41,7 @@ public class ProgramBaseViewTest {
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.builder()
-                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
                     .setScalar(Scalar.DATE)
                     .setOperator(Operator.EQUAL_TO)
                     .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
@@ -46,7 +49,7 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -67,7 +70,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -75,7 +79,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(PredicateValue.of("test@example.com"))
@@ -83,14 +88,14 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
         .contains(
-            "Block_name is hidden if &quot;applicant Email address&quot; email is equal to"
-                + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
-                + " equal to 2023-01-01");
+            "Block_name is hidden if &quot;applicant birth date&quot; date is equal to 2023-01-01"
+                + " and &quot;applicant email address&quot; email is equal to"
+                + " &quot;test@example.com&quot;");
   }
 
   @Test
@@ -105,7 +110,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -113,7 +119,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(PredicateValue.of("test@example.com"))
@@ -123,7 +130,8 @@ public class ProgramBaseViewTest {
                                 ImmutableList.of(
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantDate().id)
+                                            .setQuestionId(
+                                                testQuestionBank.dateApplicantBirthdate().id)
                                             .setScalar(Scalar.DATE)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -131,7 +139,8 @@ public class ProgramBaseViewTest {
                                             .build()),
                                     PredicateExpressionNode.create(
                                         LeafOperationExpressionNode.builder()
-                                            .setQuestionId(testQuestionBank.applicantEmail().id)
+                                            .setQuestionId(
+                                                testQuestionBank.emailApplicantEmail().id)
                                             .setScalar(Scalar.EMAIL)
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(
@@ -140,20 +149,24 @@ public class ProgramBaseViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockBaseViewTestChild()
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
         .contains(
-            "Block_name is hidden if any of:<ul class=\"list-disc ml-4"
-                + " mb-4\"><li>&quot;applicant Email address&quot; email is equal to"
-                + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
-                + " equal to 2023-01-01</li><li>&quot;applicant Email address&quot; email is equal"
-                + " to &quot;other@example.com&quot; and &quot;applicant birth date&quot; date is"
-                + " equal to 2023-03-03</li></ul>");
+            "Block_name is hidden if any of:<ul class=\"list-disc ml-4 mb-4\"><li>&quot;applicant"
+                + " birth date&quot; date is equal to 2023-01-01 and &quot;applicant email"
+                + " address&quot; email is equal to"
+                + " &quot;test@example.com&quot;</li><li>&quot;applicant birth date&quot; date is"
+                + " equal to 2023-03-03 and &quot;applicant email address&quot; email is equal to"
+                + " &quot;other@example.com&quot;</li></ul>");
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
+
+    public ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
+      super(settingsManifest);
+    }
 
     @Override
     protected ProgramDisplayType getProgramDisplayStatus() {

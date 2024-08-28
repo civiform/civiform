@@ -63,7 +63,6 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.settings.SettingsManifest;
-import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -92,10 +91,11 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
-    secondaryAddressQuestion = testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
-    colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    secondaryAddressQuestion =
+        testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
+    colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+    nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
     categoryRepository = instanceOf(CategoryRepository.class);
@@ -1386,11 +1386,11 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
@@ -1408,13 +1408,16 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
     assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+        .isEqualTo(
+            testQuestionBank
+                .enumeratorNestedApplicantHouseholdMemberJobs()
+                .getQuestionDefinition());
 
     // The newly added block.
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
@@ -1424,7 +1427,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(3).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantFavoriteColor().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition());
 
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
@@ -1435,11 +1438,11 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .build();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
@@ -1457,18 +1460,21 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantFavoriteColor().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition());
 
     assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
     assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+        .isEqualTo(
+            testQuestionBank
+                .enumeratorNestedApplicantHouseholdMemberJobs()
+                .getQuestionDefinition());
 
     // The newly added block.
     assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isTrue();
@@ -1722,7 +1728,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -1835,7 +1841,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockEligibilityDefinition_updatesBlock() throws Exception {
-    QuestionModel question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.addressApplicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -2435,7 +2441,6 @@ public class ProgramServiceTest extends ResetPostgres {
                     "English image description",
                     Locale.FRENCH,
                     "existing French image description"))
-            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of()))
             .build();
 
     LocalizationUpdate updateData =
@@ -2502,7 +2507,9 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                            testQuestionBank
+                                .enumeratorApplicantHouseholdMembers()
+                                .getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
             .add(
@@ -2514,7 +2521,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantEmail().getQuestionDefinition(),
+                            testQuestionBank.emailApplicantEmail().getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
             .add(
@@ -2527,7 +2534,9 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                            testQuestionBank
+                                .enumeratorNestedApplicantHouseholdMemberJobs()
+                                .getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
             .add(
@@ -2540,7 +2549,9 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
+                            testQuestionBank
+                                .nameRepeatedApplicantHouseholdMemberName()
+                                .getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
             .add(
@@ -2554,7 +2565,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank
-                                .applicantHouseholdMemberDaysWorked()
+                                .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
                                 .getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
@@ -2567,7 +2578,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantName().getQuestionDefinition(),
+                            testQuestionBank.nameApplicantName().getQuestionDefinition(),
                             Optional.of(programId)))
                     .build())
             .build();

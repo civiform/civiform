@@ -157,7 +157,7 @@ public final class TextFormatter {
     return markdownText.substring(0, indexOfClosingTag) + markdownWithRequiredIndicator;
   }
 
-  private static String sanitizeHtml(String markdownText) {
+  public static String sanitizeHtml(String markdownText) {
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder()
             .allowElements(

@@ -1,6 +1,7 @@
 package services.migration;
 
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_QUESTION;
+import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_PREDICATES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,9 +12,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
+import org.junit.Before;
 import org.junit.Test;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
@@ -23,7 +27,14 @@ import support.ProgramBuilder;
 
 public final class ProgramMigrationServiceTest extends ResetPostgres {
   private final ProgramMigrationService service =
-      new ProgramMigrationService(instanceOf(ObjectMapper.class));
+      new ProgramMigrationService(
+          instanceOf(ObjectMapper.class), instanceOf(QuestionRepository.class));
+  private QuestionRepository questionRepo;
+
+  @Before
+  public void setup() {
+    questionRepo = instanceOf(QuestionRepository.class);
+  }
 
   @Test
   public void serialize_mapperThrowsException_returnsError() throws JsonProcessingException {
@@ -33,7 +44,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     when(badObjectWriter.writeValueAsString(any()))
         .thenThrow(new JsonProcessingException("Test exception!") {});
 
-    ProgramMigrationService badMapperService = new ProgramMigrationService(badObjectMapper);
+    ProgramMigrationService badMapperService =
+        new ProgramMigrationService(badObjectMapper, instanceOf(QuestionRepository.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
@@ -56,11 +68,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .buildDefinition();
 
     QuestionDefinition addressQuestionDefinition =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition nameQuestionDefinition =
-        testQuestionBank.applicantName().getQuestionDefinition();
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition emailQuestionDefinition =
-        testQuestionBank.applicantEmail().getQuestionDefinition();
+        testQuestionBank.emailApplicantEmail().getQuestionDefinition();
 
     ImmutableList<QuestionDefinition> questions =
         ImmutableList.of(
@@ -129,5 +141,49 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(question.getDescription()).isEqualTo("The applicant's name");
     assertThat(question.getQuestionText().getDefault())
         .isEqualTo("Please enter your first and last name");
+  }
+
+  @Test
+  public void maybeOverwriteQuestionName_onlyOverwritesQuestionNamesIfAMatchIsFound() {
+    ImmutableList<QuestionDefinition> questionsOne =
+        service.deserialize(PROGRAM_JSON_WITH_PREDICATES).getResult().getQuestions();
+    questionRepo.bulkCreateQuestions(questionsOne);
+
+    // There are two questions in PROGRAM_JSON_WITH_PREDICATES: "id-test" and "text test"
+    // We want to update the admin name of one of them so we can test that it is not changed by the
+    // method
+    String UPDATED_JSON = PROGRAM_JSON_WITH_PREDICATES.replace("text test", "new text test");
+
+    ImmutableList<QuestionDefinition> questionsTwo =
+        service.deserialize(UPDATED_JSON).getResult().getQuestions();
+    ImmutableMap<String, QuestionDefinition> updatedQuestions =
+        service.maybeOverwriteQuestionName(questionsTwo);
+
+    // "id-test" should have been updated by the method
+    assertThat(updatedQuestions.get("id-test").getName()).isEqualTo("id-test-1");
+    // "new text test" should have not have been changed
+    assertThat(updatedQuestions.get("new text test").getName()).isEqualTo("new text test");
+  }
+
+  @Test
+  public void maybeGenerateNewAdminName_generatesCorrectAdminNames() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("name-question-1");
+    resourceCreator.insertQuestion("name-question-2");
+
+    String newAdminName = service.maybeGenerateNewAdminName("name-question");
+    assertThat(newAdminName).isEqualTo("name-question-3");
+    String unmatchedAdminName = service.maybeGenerateNewAdminName("admin-name-unmatched");
+    assertThat(unmatchedAdminName).isEqualTo("admin-name-unmatched");
+  }
+
+  @Test
+  public void maybeGenerateNewAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("name-question-1");
+    resourceCreator.insertQuestion("name-question-2");
+
+    String newAdminName = service.maybeGenerateNewAdminName("name-question-1");
+    assertThat(newAdminName).isEqualTo("name-question-3");
   }
 }

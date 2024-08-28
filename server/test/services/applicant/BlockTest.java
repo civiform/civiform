@@ -18,6 +18,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -38,9 +39,10 @@ public class BlockTest {
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private static final NameQuestionDefinition NAME_QUESTION =
-      (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
+      (NameQuestionDefinition) testQuestionBank.nameApplicantName().getQuestionDefinition();
   private static final TextQuestionDefinition COLOR_QUESTION =
-      (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+      (TextQuestionDefinition)
+          testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
@@ -467,7 +469,7 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                    testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
                     Optional.empty()))
             .build();
 
@@ -490,7 +492,7 @@ public class BlockTest {
   public void getEnumeratorQuestion() {
     ApplicantData applicantData = new ApplicantData();
     QuestionDefinition enumeratorQuestionDefinition =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     BlockDefinition definition =
         BlockDefinition.builder()
             .setId(1L)
@@ -520,7 +522,8 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
+                    testQuestionBank.fileUploadApplicantFile().getQuestionDefinition(),
+                    Optional.empty()))
             .build();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
@@ -550,11 +553,11 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                    testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                     Optional.of(programId)))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                    testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
@@ -591,11 +594,11 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                    testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                     Optional.of(programId)))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                    testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
@@ -615,13 +618,13 @@ public class BlockTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     BlockDefinition blockDefinition =
@@ -651,12 +654,12 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                        testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                        testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                         Optional.of(programId))
                     .setOptional(true))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                        testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                         Optional.of(programId))
                     .setOptional(true))
             .build();
@@ -678,11 +681,11 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                    testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                     Optional.of(programId)))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                    testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
@@ -704,13 +707,13 @@ public class BlockTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId + 1, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     BlockDefinition blockDefinition =
@@ -735,13 +738,13 @@ public class BlockTest {
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
-                .applicantJugglingNumber()
+                .numberApplicantJugglingNumber()
                 .getQuestionDefinition()
                 .getQuestionPathSegment());
     QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -763,12 +766,12 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd1 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(false);
     ProgramQuestionDefinition pqd2 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(false);
     BlockDefinition blockDefinition =
@@ -792,12 +795,12 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd1 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     ProgramQuestionDefinition pqd2 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(false);
     BlockDefinition blockDefinition =
@@ -821,12 +824,12 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd1 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     ProgramQuestionDefinition pqd2 =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
                 Optional.of(programId))
             .setOptional(true);
     BlockDefinition blockDefinition =
@@ -851,17 +854,18 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setOptional(true);
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Seattle")),
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     BlockDefinition blockDefinition =
@@ -889,7 +893,8 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -921,7 +926,7 @@ public class BlockTest {
 
   private static void answerNameQuestion(ApplicantData data, long programId) {
     Path path = Path.create("applicant.applicant_name");
-    QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker");
+    QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker", "Jr.");
     QuestionAnswerer.addMetadata(data, path, programId, 12345L);
   }
 

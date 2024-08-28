@@ -13,7 +13,8 @@ public class PredicateAddressServiceAreaNodeExtractorTest {
     var leaf1 =
         LeafOperationExpressionNode.create(
             123L, Scalar.SELECTION, Operator.EQUAL_TO, PredicateValue.of("hello"));
-    var addressNode = LeafAddressServiceAreaExpressionNode.create(456L, "Seattle");
+    var addressNode =
+        LeafAddressServiceAreaExpressionNode.create(456L, "Seattle", Operator.IN_SERVICE_AREA);
     var rootNode =
         PredicateExpressionNode.create(
             OrNode.create(

@@ -92,6 +92,8 @@ toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግ�
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
 link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=ፋይል አስወግድ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ግምገማ መጀመር ይፈልጋሉ?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -128,6 +130,8 @@ content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=የፕሮግራም ዝርዝሮች
 link.programDetailsSr=ለ{0} የፕሮግራም ዝርዝሮች፣ በአዲስ ትር ውስጥ ይከፍታል
 title.programs=ፕሮግራሞች እና አገልግሎቶች
@@ -138,12 +142,18 @@ title.inProgressProgramsUpdated=በሂደት ላይ
 title.activeProgramsUpdated=ያልተጀመሩ
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=ሊረዱዎት የሚችሉ አገልግሎቶችን ያግኙ
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=ሌሎች ፕሮግራሞች ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=ፕሮግራሞች ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=የሚመከር ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -321,19 +331,26 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+# Section heading
+heading.eligibilityCriteria=ስለብቁነት መስፈርቶች ተጨማሪ
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=ስለዚህ ፕሮግራም የብቁነት ደንቦች የበለጠ ለመረዳት ወይም የፕሮግራሙን ቡድን በቀጥታ ለማነጋገር እባክዎ {0} የሚለውን ይመልከቱ።
 content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=ስህተት ነበር ብለው ካሰቡ መልሶችዎን ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ። እንዲሁም ለተለየ ፕሮግራም ለማመልከት ወደ መነሻ ገጽ መመለስ ይችላሉ።
 button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=ምላሾቼን አርትዕ
 toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
 tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
 tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
 tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
 tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
-
 toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-
 toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
 banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +362,8 @@ alert.eligibility_applicant_eligible_text=በምላሾችዎ ላይ በመመሥ
 alert.eligibility_applicant_not_eligible_title=ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሠረት ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -365,6 +384,8 @@ alert.eligibility_ti_eligible_text=በምላሾችዎ ላይ በመመሥረት 
 alert.eligibility_ti_not_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=በምላሾችዎ ላይ በመመሥረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተቀየረ መልስዎን ማርትዕ እና በማመልከቻው መቀጠል ይችላሉ።
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሠረት ደንበኛዎ ለዚህ ፕሮግራም ብቁ ላይሆን ይችላል።
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=ደንበኛዎ ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ።
@@ -398,6 +419,30 @@ content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎ�
 content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=የማስረከቢያ መረጃዎ
+# Text above the name of the person who submitted this application
+heading.applicantName=ይህን ማመልከቻ ማን እንዳስገባ
+# Text above the confirmation number of the application
+heading.confirmationNumber=የማረጋገጫ ቁጥር
+# Text above the date submitted of the application
+heading.dateSubmitted=የገባበት ቀን
+# Text above a message telling the user they can print this page
+heading.forYourRecords=የመዝገቦችዎ ማረጋገጫ
+# Text above a button to print this page
+content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም ይችላሉ።
+# Button to print this webpage
+button.print=ይህን ገጽ ያትሙ
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=የ{0} ማመልከቻዎን አስገብተዋል
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=የማመልከቻ መረጃዎን ለማስቀመጥ መለያ ይፍጠሩ
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=የማመልከቻዎን ሁኔታ ማየት እና ለሌሎች ፕሮግራሞች ለማመልከት ጊዜ መቆጠብ እንዲችሉ ተመልሰው ለመግባት መለያ ይጠቀሙ።
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +608,29 @@ validation.tooManySelections.v2=እባክዎ ቢበዛ {0} ይምረጡ።
 label.firstName=መጠሪያ ስም
 label.lastName=የአያት ስም
 label.middleName=የአባት ስም
+# Label for name suffix field in name question
+label.nameSuffix=ቅጥያ
 
 placeholder.firstName=መጠሪያ ስም
 placeholder.lastName=የአያት ስም
 placeholder.middleName=የአባት ስም
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=ቅጥያ
+
+# Option Junior for the name suffix dropdown
+option.junior=ወጣት
+# Option Senior for the name suffix dropdown
+option.senior=አዛውንት
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
 validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።

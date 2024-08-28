@@ -92,6 +92,8 @@ toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na it
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Alisin ang file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -128,6 +130,8 @@ content.findPrograms=Maghanap ng mga program
 content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Mga detalya ng programa
 link.programDetailsSr=Mga detalye ng programa para sa {0}, bubukas sa bagong tab
 title.programs=Mga programa at mga serbisyo
@@ -138,12 +142,18 @@ title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Iba pang program ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Mga Program ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Inirerekomenda ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -321,19 +331,26 @@ title.programSummary=Buod ng application para sa programa
 
 title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 title.applicantNotEligibleTi=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado ang client mo para sa {0}.
+# Section heading
+heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwalipikado
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=Kung sa tingin mo ay may mali, puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. Puwede ka ring bumalik sa homepage para mag-apply sa ibang programa.
 button.goBackAndEdit=Bumalik at i-edit
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=I-edit ang mga sagot ko
 toast.mayQualifyTi=Batay sa iyong mga tugon, posibleng kwalipikado ang iyong kliyente para sa {0}. Para magpatuloy, patuloy na punan ang application.
 toast.mayQualify=Batay sa iyong mga tugon, posibleng kwalipikado ka para sa {0}. Para magpatuloy, patuloy na punan ang application.
 tag.mayQualify=Posibleng kwalipikado ka
 tag.mayQualifyTi=Posibleng kwalipikado ang iyong kliyente
 tag.mayNotQualify=Posibleng hindi ka kwalipikado
 tag.mayNotQualifyTi=Posibleng hindi kwalipikado ang iyong kliyente
-
 toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
-
 toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}. Kung nagbago ang iyong impormasyon ng kliyente, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
+
 banner.errorSavingApplication=Nagka-error sa pag-save ng application
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +362,8 @@ alert.eligibility_applicant_eligible_text=Batay sa mga sagot mo, malamang na kwa
 alert.eligibility_applicant_not_eligible_title=Posibleng hindi ka kwalipikado para sa programang ito.
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Batay sa mga sagot mo, posibleng hindi ka kwalipikado para sa programang ito. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa programang ito.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Posibleng kwalipikado ka para sa programang ito
@@ -365,6 +384,8 @@ alert.eligibility_ti_eligible_text=Batay sa mga sagot mo, malamang na kwalipikad
 alert.eligibility_ti_not_eligible_title=Posibleng hindi kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Batay sa mga sagot mo, posibleng hindi kwalipikado ang iyong kliyente para sa programang ito. Kung nagbago ang impormasyon ng iyong kliyente, puwede mong i-edit ang sagot mo at ipagpatuloy ang pag-apply.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado para sa programang ito ang iyong kliyente.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Posibleng kwalipikado ang kliyente mo para sa programang ito
@@ -398,6 +419,30 @@ content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraa
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Impormasyon ng iyong pagsusumite
+# Text above the name of the person who submitted this application
+heading.applicantName=Sino ang nagsumite ng aplikasyong ito
+# Text above the confirmation number of the application
+heading.confirmationNumber=Numero ng kumpirmasyon
+# Text above the date submitted of the application
+heading.dateSubmitted=Petsa ng pagsusumite
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Kumpirmasyon para sa iyong mga record
+# Text above a button to print this page
+content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga record.
+# Button to print this webpage
+button.print=I-print ang page na ito
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=Ano ang mga susunod na hakbang ko?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=Gumawa ng account para i-save ang impormasyon ng iyong aplikasyon
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=Gumamit ng account para mag-log in ulit para tingnan ang status ng iyong aplikasyon at makatipid ng oras sa pag-apply sa iba pang programa.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=Mag-log in sa kasalukuyang account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +608,29 @@ validation.tooManySelections.v2=Pumili ng hindi hihigit sa {0}.
 label.firstName=Pangalan
 label.lastName=Apelyido
 label.middleName=Gitnang pangalan
+# Label for name suffix field in name question
+label.nameSuffix=Suffix
 
 placeholder.firstName=Pangalan
 placeholder.lastName=Apelyido
 placeholder.middleName=Gitnang pangalan
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffix
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Maaari lamang na ilagay ang inyong pangalan.
 validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.

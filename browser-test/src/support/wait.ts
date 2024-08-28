@@ -1,4 +1,5 @@
 import {ElementHandle, Frame, Page} from 'playwright'
+import {expect} from 'playwright/test'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
@@ -42,4 +43,16 @@ export const waitForAnyModal = async (
  */
 export const dismissModal = async (page: Page | Frame) => {
   await page.click('.cf-modal:not(.hidden) .cf-modal-close')
+}
+
+/**
+ * Waits for HTMX calls to be completed.
+ *
+ * The CSS classes in the locator are added automatically by HTMX when it beings running an action. This
+ * list may not be exhaustive.
+ */
+export const waitForHtmxReady = async (page: Page) => {
+  await expect(
+    page.locator('.htmx-request, .htmx-settling, .htmx-swapping, .htmx-added'),
+  ).toHaveCount(0)
 }

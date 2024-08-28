@@ -20,7 +20,7 @@ public class EligibilityDefinitionTest {
 
   @Test
   public void setAndGet() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(

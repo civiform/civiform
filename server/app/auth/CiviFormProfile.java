@@ -154,8 +154,12 @@ public class CiviFormProfile {
                   && !existingAuthorityId.get().equals(authorityId)) {
                 throw new ProfileMergeConflictException(
                     String.format(
-                        "Profile already contains an authority ID: %s - which is different from"
-                            + " the new authority ID address %s.",
+                        "Profile already contains an authority ID: %s - which is different from the"
+                            + " new authority ID address %s. If the 'iss' values of the authority"
+                            + " ID are different it is likely that the email address was used to"
+                            + " create an account using one authentication system (applicant/admin)"
+                            + " and the new authority was created in the other (applicant/admin)."
+                            + " See https://docs.civiform.us/it-manual/sre-playbook/troubleshooting-production#errors-related-to-authority-id",
                         existingAuthorityId, authorityId));
               }
               a.setAuthorityId(authorityId);

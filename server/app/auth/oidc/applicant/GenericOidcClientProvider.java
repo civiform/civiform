@@ -27,6 +27,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String FIRST_NAME_ATTRIBUTE_CONFIG_NAME = "first_name_attribute";
   private static final String MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME = "middle_name_attribute";
   private static final String LAST_NAME_ATTRIBUTE_CONFIG_NAME = "last_name_attribute";
+  private static final String NAME_SUFFIX_ATTRIBUTE_CONFIG_NAME = "name_suffix_attribute";
   private static final String EMAIL_ATTRIBUTE_CONFIG_NAME = "email_attribute";
   private static final String LOCALE_ATTRIBUTE_CONFIG_NAME = "locale_attribute";
 
@@ -55,6 +56,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
     getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
+    getConfigurationValue(NAME_SUFFIX_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     return new GenericApplicantProfileCreator(
         config, client, params, emailAttr, localeAttr.orElse(null), nameAttrsBuilder.build());
   }

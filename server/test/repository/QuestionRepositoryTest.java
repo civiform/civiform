@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -67,7 +68,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void findConflictingQuestion_noConflicts_ok() throws Exception {
     QuestionDefinition applicantAddress =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress)
             .clearId()
@@ -81,7 +82,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void findConflictingQuestion_sameName_hasConflict() throws Exception {
-    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
@@ -95,7 +96,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void findConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
-    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
@@ -110,7 +111,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void findConflictingQuestion_sameQuestionPathSegmentButDifferentEnumeratorId_ok()
       throws Exception {
-    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
@@ -125,7 +126,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void findConflictingQuestion_sameQuestion_hasConflict() {
-    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     Optional<QuestionModel> maybeConflict =
         repo.findConflictingQuestion(applicantAddress.getQuestionDefinition());
 
@@ -134,7 +135,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void findConflictingQuestion_differentVersion_hasConflict() throws Exception {
-    QuestionModel applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.nameApplicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).setId(123123L).build();
 
@@ -148,7 +149,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void insertingDuplicateDraftQuestions_raisesDatabaseException() throws Exception {
     var versionRepo = instanceOf(VersionRepository.class);
     var draftVersion = versionRepo.getDraftVersionOrCreate();
-    QuestionModel activeQuestion = testQuestionBank.applicantName();
+    QuestionModel activeQuestion = testQuestionBank.nameApplicantName();
     assertThat(activeQuestion.id).isNotNull();
 
     var draftOne =
@@ -251,7 +252,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void createOrUpdateDraft_managesUniversalTagCorrectly()
       throws UnsupportedQuestionTypeException {
     // Question will be published in an ACTIVE version
-    QuestionModel question = testQuestionBank.applicantName();
+    QuestionModel question = testQuestionBank.nameApplicantName();
     QuestionDefinition nextQuestionDefinition;
 
     // Create new draft, ensure tags are correct
@@ -281,10 +282,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void createOrUpdateDraft_managesPrimaryApplicantInfoTagsCorrectl()
       throws UnsupportedQuestionTypeException {
-    QuestionModel nameQuestion = testQuestionBank.applicantName();
-    QuestionModel dateQuestion = testQuestionBank.applicantDate();
-    QuestionModel emailQuestion = testQuestionBank.applicantEmail();
-    QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    QuestionModel dateQuestion = testQuestionBank.dateApplicantBirthdate();
+    QuestionModel emailQuestion = testQuestionBank.emailApplicantEmail();
+    QuestionModel phoneQuestion = testQuestionBank.phoneApplicantPhone();
 
     // Create new draft, ensure tags are correct
     QuestionDefinition nameQuestionDefinition = addTagToDefinition(nameQuestion);
@@ -415,6 +416,15 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
+  }
+
+  @Test
+  public void getQuestionsWithSimilarAdminNames_returnsSimilarAdminNames() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("name-question-1");
+    resourceCreator.insertQuestion("name-question-2");
+    ImmutableList<String> adminNames = repo.getSimilarAdminNames("name-question");
+    assertThat(adminNames.size()).isEqualTo(3);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

@@ -22,10 +22,14 @@ public enum MessageKey {
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),
   ADDRESS_VALIDATION_STATE_REQUIRED("validation.stateRequired"),
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
+  ALERT_CREATE_ACCOUNT("alert.createAccount"), // North Star only
+  ALERT_CREATE_ACCOUNT_DESCRIPTION("alert.createAccountDescription"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE("alert.eligibility_applicant_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT("alert.eligibility_applicant_not_eligible_text"),
+  ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityApplicantNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_applicant_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -38,6 +42,8 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT("alert.eligibility_ti_eligible_text"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE("alert.eligibility_ti_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT("alert.eligibility_ti_not_eligible_text"),
+  ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT(
+      "alert.eligibilityTiNotEligibleTextShort"), // North Star only
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TITLE(
       "alert.eligibility_ti_fastforwarded_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_ELIGIBLE_TEXT(
@@ -46,6 +52,7 @@ public enum MessageKey {
       "alert.eligibility_ti_fastforwarded_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
+  ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -89,11 +96,13 @@ public enum MessageKey {
   BUTTON_LOGIN("button.login"),
   BUTTON_CREATE_AN_ACCOUNT("button.createAnAccount"),
   BUTTON_CLEAR_SEARCH("button.clearSearch"),
+  BUTTON_EDIT_MY_RESPONSES("button.editMyResponses"), // North Star only
   BUTTON_LOGIN_GUEST("button.guestLogin"),
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT("button.nextPage"),
   BUTTON_NEXT_SCREEN("button.nextScreen"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
+  BUTTON_PRINT("button.print"), // North Star only
   BUTTON_BACK("button.back"),
   BUTTON_SAVE_AND_EXIT("button.saveAndExit"),
   BUTTON_REVIEW("button.review"),
@@ -125,6 +134,8 @@ public enum MessageKey {
   CONTENT_FILE_UPLOAD_BLOCK_PROGRESS_FULL("content.fileUploadBlockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
+  CONTENT_CHANGE_ELIGIBILITY_ANSWERS_V2(
+      "content.changeAnswersForEligibility.v2"), // North Star only
   CONTENT_CIVIFORM_DESCRIPTION("content.findProgramsDescription"),
   CONTENT_CLIENT_CREATED("content.clientCreated"),
   CONTENT_CONFIRMED("content.confirmed"),
@@ -138,6 +149,7 @@ public enum MessageKey {
       "content.commonIntakeNoMatchingProgramsNextStep"),
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
+  CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -145,6 +157,7 @@ public enum MessageKey {
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
+  CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),
@@ -157,6 +170,7 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
   ERROR_EMAIL_IN_USE_CLIENT_EDIT("label.errorEmailInUseForClientEdit"),
@@ -210,12 +224,20 @@ public enum MessageKey {
   HEADER_ACCT_SETTING("header.acctSettings"),
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
+  HEADING_APPLICANT_NAME("heading.applicantName"), // North Star Only
+  HEADING_CONFIRMATION_NUMBER("heading.confirmationNumber"), // North Star Only
+  HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
+  HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
+  HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
+  HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
+  HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
   INPUT_FILE_ALREADY_UPLOADED("input.fileAlreadyUploaded"),
   INVALID_INPUT("validation.invalidInput"),
+  LABEL_PROGRAM_FILTERS("label.programFilters"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),
@@ -310,6 +332,7 @@ public enum MessageKey {
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_BENEFITS_FINDER_SECTION("title.benefitsFinderSection"),
+  TITLE_BENEFITS_FINDER_SECTION_V2("title.benefitsFinderSection.v2"),
   TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_DISPLAY_ALL_CLIENTS("title.displayingAllClients"),
@@ -323,10 +346,12 @@ public enum MessageKey {
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),
   TITLE_ORG_MEMBERS("title.orgMembers"),
   TITLE_OTHER_PROGRAMS_SECTION("title.otherProgramsSection"),
+  TITLE_OTHER_PROGRAMS_SECTION_V2("title.otherProgramsSection.v2"),
   TITLE_PROGRAM_NOT_AVAILABLE("title.programNotAvailable"),
   TITLE_PROGRAM_SECTION_COMPLETED("title.programSectionCompleted"),
   TITLE_PROGRAMS("title.programs"),
   TITLE_PROGRAMS_SECTION("title.programsSection"),
+  TITLE_PROGRAMS_SECTION_V2("title.programsSection.v2"),
   TITLE_PROGRAMS_ACTIVE_UPDATED("title.activeProgramsUpdated"),
   TITLE_PROGRAMS_IN_PROGRESS_UPDATED("title.inProgressProgramsUpdated"),
   TITLE_PROGRAM_SUMMARY("title.programSummary"),

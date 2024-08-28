@@ -18,6 +18,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -43,16 +44,17 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     applicantData = new ApplicantData();
     pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
-    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Seattle")),
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     blockDefinition =
@@ -131,16 +133,17 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     ApplicantData applicantData = new ApplicantData();
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
+            testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+            Optional.of(programId));
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Moon")),
+                            addressQuestion.getId(), "Moon", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     BlockDefinition blockDefinition =
@@ -177,17 +180,18 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     ApplicantData applicantData = new ApplicantData();
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
         EligibilityDefinition.builder()
             .setPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafAddressServiceAreaExpressionNode.create(
-                            addressQuestion.getId(), "Moon")),
+                            addressQuestion.getId(), "Moon", Operator.IN_SERVICE_AREA)),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     BlockDefinition blockDefinition =

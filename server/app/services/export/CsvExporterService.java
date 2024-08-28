@@ -37,6 +37,7 @@ import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
+import services.applicant.question.Scalar;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -66,6 +67,8 @@ public final class CsvExporterService {
   private static final String CURRENCY_CENTS_TYPE_STRING =
       ScalarType.CURRENCY_CENTS.toString().toLowerCase(Locale.ROOT);
 
+  private static final String NAME_SUFFIX = Scalar.NAME_SUFFIX.toString().toLowerCase(Locale.ROOT);
+
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
   private final ExportServiceRepository exportServiceRepository;
@@ -94,8 +97,7 @@ public final class CsvExporterService {
 
     ProgramDefinition currentProgram = programService.getFullProgramDefinition(programId);
     CsvExportConfig exportConfig =
-        generateAllProgramVersionsCsvExportConfig(
-            allProgramVersions, currentProgram.hasEligibilityEnabled());
+        generateCsvConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
 
     ImmutableList<ApplicationModel> applications =
         programService
@@ -108,7 +110,7 @@ public final class CsvExporterService {
     return exportCsv(exportConfig, applications, Optional.of(currentProgram));
   }
 
-  private CsvExportConfig generateAllProgramVersionsCsvExportConfig(
+  private CsvExportConfig generateCsvConfig(
       ImmutableList<ProgramDefinition> programDefinitions, boolean showEligibilityColumn)
       throws ProgramNotFoundException {
     Map<Path, AnswerData> answerMap = new HashMap<>();
@@ -134,22 +136,6 @@ public final class CsvExporterService {
             .collect(ImmutableList.toImmutableList());
 
     return buildColumnHeaders(answers, showEligibilityColumn);
-  }
-
-  /**
-   * Return a string containing a CSV of all applications for a specific program version.
-   *
-   * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
-   */
-  public String getProgramCsv(long programId) throws ProgramNotFoundException {
-    ImmutableList<ApplicationModel> applications =
-        programService.getSubmittedProgramApplications(programId);
-    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-    return exportCsv(
-        generateSingleProgramVersionCsvExportConfig(
-            programId, programDefinition.hasEligibilityEnabled()),
-        applications,
-        Optional.of(programDefinition));
   }
 
   private String exportCsv(
@@ -200,50 +186,6 @@ public final class CsvExporterService {
       throw new RuntimeException(e);
     }
     return inMemoryBytes.toString();
-  }
-
-  /**
-   * Produce the CSV config for a given program. The config includes the application id, the
-   * application submission time, and all possible scalar values from all of its applications. This
-   * means if one application had a question repeated for N repeated entities, then there would be N
-   * columns for each of that question's scalars.
-   */
-  private CsvExportConfig generateSingleProgramVersionCsvExportConfig(
-      long programId, boolean showEligibilityColumn) {
-    ImmutableList<ApplicationModel> applications;
-
-    try {
-      applications = programService.getSubmittedProgramApplications(programId);
-    } catch (ProgramNotFoundException e) {
-      throw new RuntimeException("Cannot find a program we are trying to generate CSVs for.", e);
-    }
-
-    // Create a map, keyed by <block id, question index>, holding an AnswerData for every <block id,
-    // question index> in all the applications
-    // for this program. The content of the answer doesn't matter, only that we have one
-    // representing every  <block id, question index>.
-    Map<String, AnswerData> representativeAnswerMap = new HashMap<>();
-    for (ApplicationModel application : applications) {
-      ReadOnlyApplicantProgramService roApplicantService =
-          applicantService
-              .getReadOnlyApplicantProgramService(application)
-              .toCompletableFuture()
-              .join();
-      roApplicantService
-          .getSummaryDataOnlyActive()
-          .forEach(
-              data -> representativeAnswerMap.putIfAbsent(representativeAnswersKey(data), data));
-    }
-
-    // Get the list of all representative answers, sorted by block ID and question index, and
-    // generate the
-    // csv config.
-    ImmutableList<AnswerData> representativeAnswers =
-        representativeAnswerMap.values().stream()
-            .sorted(
-                Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
-            .collect(ImmutableList.toImmutableList());
-    return buildColumnHeaders(representativeAnswers, showEligibilityColumn);
   }
 
   /**
@@ -372,6 +314,11 @@ public final class CsvExporterService {
       scalarComponent = "(currency)";
     }
 
+    // Remove "name" from the name suffix string as it will be indicated in the name.
+    if (path.keyName().equals(NAME_SUFFIX)) {
+      scalarComponent = "(suffix)";
+    }
+
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
     while (!path.parentPath().isEmpty()
         && !path.parentPath().equals(ApplicantData.APPLICANT_PATH)) {
@@ -393,14 +340,6 @@ public final class CsvExporterService {
       }
     }
     return builder.toString();
-  }
-
-  /**
-   * A useful string that uniquely identifies an answer within an applicant program and is shared
-   * across applicant programs.
-   */
-  private static String representativeAnswersKey(AnswerData answerData) {
-    return String.format("%s-%d", answerData.blockId(), answerData.questionIndex());
   }
 
   /**

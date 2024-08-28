@@ -10,24 +10,10 @@ export class AdminProgramMigration {
     this.page = page
   }
 
-  async goToExportPage() {
-    await this.page.getByRole('link', {name: 'Export'}).click()
-    await waitForPageJsLoad(this.page)
-    await this.expectExportPage()
-  }
-
   async expectExportPage() {
     await expect(
       this.page.getByRole('heading', {name: 'Export a program'}),
     ).toBeVisible()
-  }
-
-  async selectProgramToExport(adminName: string) {
-    await this.page.check(`text=${adminName}`)
-  }
-
-  async generateJson() {
-    await this.page.getByRole('button', {name: 'Generate JSON'}).click()
   }
 
   async expectJsonPreview() {
@@ -62,8 +48,14 @@ export class AdminProgramMigration {
     return readFileSync(path, 'utf8')
   }
 
+  async clickBackButton() {
+    const backButton = this.page.getByText('Back to all programs')
+    await backButton.click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async goToImportPage() {
-    await this.page.getByRole('link', {name: 'Import'}).click()
+    await this.page.getByRole('link', {name: 'Import existing program'}).click()
     await waitForPageJsLoad(this.page)
     await this.expectImportPage()
   }
@@ -76,18 +68,13 @@ export class AdminProgramMigration {
 
   async submitProgramJson(content: string) {
     await this.page.getByRole('textbox').fill(content)
-    await this.page
-      .getByRole('button', {name: 'Display program information'})
-      .click()
-    await waitForPageJsLoad(this.page)
+    await this.clickButton('Preview program')
   }
 
-  async expectImportError() {
-    await expect(
-      this.page
-        .getByRole('alert')
-        .getByRole('heading', {name: 'Error processing JSON'}),
-    ).toBeVisible()
+  async expectAlert(alertText: string, alertType: string) {
+    const alert = this.page.getByRole('alert').filter({hasText: alertText})
+    await expect(alert).toBeVisible()
+    await expect(alert).toHaveClass(new RegExp(alertType))
   }
 
   async expectProgramImported(programName: string) {
@@ -96,8 +83,8 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async saveProgram() {
-    await this.page.getByRole('button', {name: 'Save Program'}).click()
+  async clickButton(buttonText: string) {
+    await this.page.getByRole('button', {name: buttonText}).click()
     await waitForPageJsLoad(this.page)
   }
 }

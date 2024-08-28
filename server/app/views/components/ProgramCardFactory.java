@@ -2,6 +2,7 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -36,12 +37,16 @@ public final class ProgramCardFactory {
     this.programImageUtils = checkNotNull(programImageUtils);
   }
 
-  public DivTag renderCard(ProgramCardData cardData) {
+  public DivTag renderCard(ProgramCardData cardData, boolean showCategories) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
     String programDescriptionText = displayProgram.localizedDescription().getDefault();
     String adminNoteText = displayProgram.adminDescription();
+    ImmutableList<String> programCategoryNames =
+        displayProgram.categories().stream()
+            .map(category -> category.getDefaultName())
+            .collect(ImmutableList.toImmutableList());
 
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
@@ -61,12 +66,12 @@ public final class ProgramCardFactory {
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
-    DivTag titleAndStatus =
+    DivTag cardContent =
         div()
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/4", "py-7")
+                    .withClasses("w-1/4", "py-7", "pr-2")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -81,7 +86,8 @@ public final class ProgramCardFactory {
                                     programDescriptionText,
                                     /* preserveEmptyLines= */ false,
                                     /* addRequiredIndicator= */ false))
-                            .withClasses("line-clamp-2", "text-gray-700", "text-base"))
+                            .withClasses(
+                                "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
@@ -89,7 +95,27 @@ public final class ProgramCardFactory {
                             .with(
                                 Icons.svg(Icons.CHECK)
                                     .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
-                            .with(span("Pre-screener").withClasses("text-base", "font-semibold"))),
+                            .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
+                    .condWith(
+                        !adminNoteText.isBlank(),
+                        p().withClasses(
+                                "mb-4",
+                                "pt-4",
+                                "line-clamp-3",
+                                "text-sm",
+                                StyleUtils.responsiveLarge("text-base"))
+                            .with(
+                                span("Admin note: ").withClasses("font-semibold"),
+                                span(adminNoteText)))
+                    .condWith(
+                        showCategories,
+                        p(
+                                span("Categories:  ").withClasses("font-semibold"),
+                                iffElse(
+                                    programCategoryNames.isEmpty(),
+                                    span("None"),
+                                    span(String.join(", ", programCategoryNames))))
+                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base"))),
                 statusDiv.withClasses(
                     "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
@@ -102,11 +128,7 @@ public final class ProgramCardFactory {
             "border",
             "border-gray-300",
             "rounded-lg")
-        .with(titleAndStatus)
-        .condWith(
-            !adminNoteText.isBlank(),
-            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
-                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
+        .with(cardContent);
   }
 
   private DivTag renderProgramRow(
@@ -207,7 +229,12 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+            program,
+            Locale.getDefault(),
+            /* isWithinProgramCard= */ false,
+            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
+    // if isWithProgramCard is false, we never reach the code that evaluates
+    // isProgramFilteringEnabled.
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {

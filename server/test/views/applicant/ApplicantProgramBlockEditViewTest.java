@@ -17,7 +17,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   private static QuestionDefinition ADDRESS_QD =
-      testQuestionBank.applicantAddress().getQuestionDefinition();
+      testQuestionBank.addressApplicantAddress().getQuestionDefinition();
   private static ApplicantRoutes applicantRoutes = new ApplicantRoutes();
 
   private static ApplicantProgramBlockEditView EMPTY_VIEW =

@@ -148,19 +148,13 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     if (apiKey.isRetired()) {
       statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
     } else {
-
-      String onSubmitJs =
-          "return confirm('Retiring the API key is permanent and will prevent"
-              + " anyone from being able to call the API with the key. Are you"
-              + " sure you want to retire "
-              + apiKey.getName()
-              + "?')";
       linksDiv.with(
           form(makeCsrfTokenInputTag(request))
               .withAction(controllers.admin.routes.AdminApiKeysController.retire(apiKey.id).url())
               .withMethod("POST")
-              .withOnsubmit(onSubmitJs)
               .withId(String.format("retire-%s", keyNameSlugified))
+              .withData("api-key-name", apiKey.getName())
+              .withClasses("retire-key-form")
               .with(
                   makeSvgTextButton("Retire key", Icons.DELETE)
                       .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON)));

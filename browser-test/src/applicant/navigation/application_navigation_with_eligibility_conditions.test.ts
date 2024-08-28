@@ -374,7 +374,6 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('Shows ineligible tag on home page program cards', async ({
-        page,
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(fullProgramName)
@@ -382,7 +381,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('fill out application and submit', async () => {
           await applicantQuestions.answerNumberQuestion('1')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.expectIneligiblePage()
+          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
         })
 
         await test.step('verify question is marked ineligible', async () => {
@@ -391,20 +390,10 @@ test.describe('Applicant navigation flow', () => {
             fullProgramName,
             /* isEligible= */ false,
           )
-
-          await validateScreenshot(
-            page,
-            'ineligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
         })
       })
 
-      test('Shows eligible on home page', async ({
-        page,
-        applicantQuestions,
-      }) => {
+      test('Shows eligible on home page', async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(fullProgramName)
 
         await test.step('fill out application and submit', async () => {
@@ -418,13 +407,6 @@ test.describe('Applicant navigation flow', () => {
             fullProgramName,
             /* isEligible= */ true,
           )
-
-          await validateScreenshot(
-            page,
-            'eligible-home-page-program-tagnorthstar',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
         })
       })
 
@@ -436,7 +418,7 @@ test.describe('Applicant navigation flow', () => {
         // Fill out application and submit.
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage()
+        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
 
         // Verify the question is marked ineligible.
         await applicantQuestions.gotoApplicantHomePage()

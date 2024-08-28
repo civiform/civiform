@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import durablejobs.DurableJobName;
 import java.time.Instant;
+import models.JobType;
 import models.PersistedDurableJobModel;
 import models.ProgramModel;
 import org.junit.Test;
@@ -22,7 +23,9 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   VersionRepository versionRepository = instanceOf(VersionRepository.class);
   PersistedDurableJobModel jobModel =
       new PersistedDurableJobModel(
-          DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP.toString(), Instant.ofEpochMilli(1000));
+          DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP.toString(),
+          JobType.RECURRING,
+          Instant.ofEpochMilli(1000));
 
   @Test
   public void getPersistedDurableJob_isJobModel() {

@@ -7,31 +7,39 @@ import com.google.common.collect.ImmutableMap;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import play.api.mvc.request.RequestAttrKey;
+import play.api.routing.HandlerDef;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Http.RequestImpl;
+import scala.jdk.javaapi.CollectionConverters;
 
 public final class FakeRequestBuilder extends RequestBuilder {
   private List<String> xForwardedFor = new ArrayList<>();
   private ImmutableMap.Builder<String, String> settingsMap = ImmutableMap.builder();
 
   public static Request fakeRequest() {
-    return new FakeRequestBuilder().build();
+    return fakeRequestBuilder().build();
   }
 
   public static FakeRequestBuilder fakeRequestBuilder() {
-    return new FakeRequestBuilder();
+    return new FakeRequestBuilder().addCSRFToken().cspNonce("do-not-assert-on-this-value-in-tests");
   }
 
-  private FakeRequestBuilder() {
-    addCSRFToken();
-  }
+  private FakeRequestBuilder() {}
 
   public FakeRequestBuilder call(Call call) {
     method(call.method());
     uri(call.url());
+    return this;
+  }
+
+  public FakeRequestBuilder location(String httpVerb, String path) {
+    method(httpVerb);
+    uri(path);
     return this;
   }
 
@@ -59,6 +67,11 @@ public final class FakeRequestBuilder extends RequestBuilder {
     return this;
   }
 
+  public FakeRequestBuilder cspNonce(String nonce) {
+    attr(RequestAttrKey.CSPNonce().asJava(), nonce);
+    return this;
+  }
+
   @Override
   public RequestImpl build() {
     if (!xForwardedFor.isEmpty()) {
@@ -71,5 +84,27 @@ public final class FakeRequestBuilder extends RequestBuilder {
       attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settings);
     }
     return super.build();
+  }
+
+  /**
+   * Create a {@link HandlerDef} object with customized route information
+   *
+   * @param routePattern is the pattern for the routes
+   * @return {@link HandlerDef}
+   */
+  public static HandlerDef createHandlerDef(ClassLoader classLoader, String routePattern) {
+    HandlerDef handlerDef =
+        new HandlerDef(
+            classLoader,
+            "router",
+            "controllers.MyFakeController", // This can be anything
+            "index",
+            CollectionConverters.asScala(Collections.<Class<?>>emptyList()).toSeq(),
+            "GET",
+            routePattern,
+            "",
+            CollectionConverters.asScala(Collections.<String>emptyList()).toSeq());
+
+    return handlerDef;
   }
 }

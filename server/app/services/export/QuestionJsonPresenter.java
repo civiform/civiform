@@ -1,6 +1,7 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -58,12 +59,14 @@ public interface QuestionJsonPresenter<Q extends Question> {
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional answer values.
    */
-  ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Q question);
+  ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+      Q question, boolean multipleFileUploadEnabled);
 
   /**
    * The metadata entries that should be present in a JSON export of answers, for this question.
    *
-   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question)}.
+   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question,
+   * boolean)}.
    *
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional metadata values.
@@ -85,15 +88,17 @@ public interface QuestionJsonPresenter<Q extends Question> {
    * The metadata and answer entries that should be present in a JSON export of answers, for this
    * question.
    *
-   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question)}.
+   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question,
+   * boolean)}.
    *
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional metadata and answer values.
    */
-  default ImmutableMap<Path, Optional<?>> getAllJsonEntries(Q question) {
+  default ImmutableMap<Path, Optional<?>> getAllJsonEntries(
+      Q question, boolean multipleFileUploadEnabled) {
     return ImmutableMap.<Path, Optional<?>>builder()
         .putAll(getMetadataJsonEntries(question))
-        .putAll(getAnswerJsonEntries(question))
+        .putAll(getAnswerJsonEntries(question, multipleFileUploadEnabled))
         .build();
   }
 
@@ -188,7 +193,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class AddressJsonPresenter implements QuestionJsonPresenter<AddressQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(AddressQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        AddressQuestion question, boolean multipleFileUploadEnabled) {
       // lat/long past 8 decimal places isn't likely or useful, so we round at 8 and always use a
       // period as the decimal seperator.
       DecimalFormat latLongFormat =
@@ -224,7 +230,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
   class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
 
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(CurrencyQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        CurrencyQuestion question, boolean multipleFileUploadEnabled) {
       Path questionPath =
           question.getApplicantQuestion().getContextualizedPath().asNestedEntitiesPath();
 
@@ -236,7 +243,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(DateQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        DateQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getDatePath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getDateValue().map(DateTimeFormatter.ISO_DATE::format));
@@ -245,7 +253,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class EmailJsonPresenter implements QuestionJsonPresenter<EmailQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EmailQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        EmailQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getEmailPath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getEmailValue());
@@ -254,14 +263,16 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        Question question, boolean multipleFileUploadEnabled) {
       return ImmutableMap.of();
     }
   }
 
   class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EnumeratorQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        EnumeratorQuestion question, boolean multipleFileUploadEnabled) {
       Path path =
           question
               .getApplicantQuestion()
@@ -295,25 +306,65 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
 
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(FileUploadQuestion question) {
-      return ImmutableMap.of(
-          question.getFileKeyPath().asNestedEntitiesPath(),
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        FileUploadQuestion question, boolean multipleFileUploadEnabled) {
+
+      Path fileUrlsPath =
           question
               .getApplicantQuestion()
-              .createFileUploadQuestion()
-              .getFileKeyValue()
-              .map(
-                  fileKey ->
-                      baseUrl
-                          + controllers.routes.FileController.acledAdminShow(
-                                  URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                              .url()));
+              .getContextualizedPath()
+              .join(ApiPathSegment.FILE_URLS)
+              .asNestedEntitiesPath();
+      if (multipleFileUploadEnabled) {
+        ImmutableList<String> fileKeys =
+            question
+                .getApplicantQuestion()
+                .createFileUploadQuestion()
+                .getFileKeyListValue()
+                .orElse(ImmutableList.of());
+
+        ImmutableList<String> fileUrls =
+            fileKeys.stream()
+                .map(
+                    fileKey ->
+                        baseUrl
+                            + controllers.routes.FileController.acledAdminShow(
+                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                                .url())
+                .collect(toImmutableList());
+
+        return ImmutableMap.of(fileUrlsPath, Optional.of(fileUrls));
+      } else {
+        Optional<String> singleFileUploadLink =
+            question
+                .getApplicantQuestion()
+                .createFileUploadQuestion()
+                .getFileKeyValue()
+                .map(
+                    fileKey ->
+                        baseUrl
+                            + controllers.routes.FileController.acledAdminShow(
+                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                                .url());
+
+        Optional<ImmutableList<String>> fileUrls =
+            singleFileUploadLink.isPresent()
+                ? Optional.of(ImmutableList.of(singleFileUploadLink.get()))
+                : Optional.of(ImmutableList.of());
+
+        return ImmutableMap.of(
+            question.getFileKeyPath().asNestedEntitiesPath(),
+            singleFileUploadLink,
+            fileUrlsPath,
+            fileUrls);
+      }
     }
   }
 
   class IdJsonPresenter implements QuestionJsonPresenter<IdQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(IdQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        IdQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getIdPath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getIdValue());
@@ -322,7 +373,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        MultiSelectQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
 
       ImmutableList<String> selectedOptions =
@@ -334,7 +386,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class NameJsonPresenter implements QuestionJsonPresenter<NameQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NameQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        NameQuestion question, boolean multipleFileUploadEnabled) {
       // We could be clever and loop through question.getAllPaths(), but we want
       // to explicitly set which scalars are exposed to the API.
       return ImmutableMap.of(
@@ -349,7 +402,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NumberQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        NumberQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getNumberPath().asNestedEntitiesPath();
       return ImmutableMap.of(path, question.getNumberValue());
     }
@@ -359,7 +413,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(PhoneQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        PhoneQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getPhoneNumberPath().asNestedEntitiesPath();
 
       if (question.getPhoneNumberValue().isPresent()
@@ -391,7 +446,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(SingleSelectQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        SingleSelectQuestion question, boolean multipleFileUploadEnabled) {
       return ImmutableMap.of(
           question.getSelectionPath().asNestedEntitiesPath(),
           question
@@ -403,7 +459,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
   class TextJsonPresenter implements QuestionJsonPresenter<TextQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(TextQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
+        TextQuestion question, boolean multipleFileUploadEnabled) {
       Path path = question.getTextPath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getTextValue());

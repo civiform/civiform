@@ -46,7 +46,7 @@ public class QuestionServiceTest extends ResetPostgres {
   @Test
   public void create_failsWhenQuestionsConflict() throws Exception {
     QuestionDefinition householdMemberName =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(householdMemberName)
             .clearId()
@@ -105,7 +105,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void update_returnsQuestionDefinitionWhenSucceeds() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion).setDescription("updated description").build();
 
@@ -134,7 +134,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void update_failsWhenQuestionImmutableMembersChange() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
 
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)
@@ -166,7 +166,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void discardDraft() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     long draftId = nameQuestion.getId() + 100000;
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)
@@ -228,7 +228,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_notReferencedSucceeds() throws Exception {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
@@ -239,7 +239,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_referencedFails() {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
     // Create a program that references the question.
     ProgramBuilder.newDraftProgram()
         .withBlock()
@@ -257,7 +257,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_alreadyArchivedFails() throws Exception {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
@@ -278,7 +278,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
 
     assertThat(
             versionRepository.getQuestionNamesForVersion(
@@ -299,7 +299,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void restoreQuestion_pendingDeletionSucceeds() throws Exception {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
@@ -311,7 +311,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void restoreQuestion_notArchivedFails() {
-    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.addressApplicantAddress();
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
     assertThatThrownBy(() -> questionService.restoreQuestion(addressQuestion.id))

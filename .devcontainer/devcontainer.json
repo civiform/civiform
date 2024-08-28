@@ -17,7 +17,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/java:1.5.0": {
+    "ghcr.io/devcontainers/features/java:1.6.0": {
       "version": "17",
       "jdkDistro": "tem", // Eclipse Adoptium Temurin per https://sdkman.io/jdks#tem See also: whichjdk.com
       "installMaven": "true",
@@ -49,6 +49,7 @@
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
         "github.vscode-pull-request-github",
+        "graphite.gti-vscode",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
         "ms-playwright.playwright",
@@ -58,8 +59,7 @@
         "scala-lang.scala",
         "scalameta.metals",
         "vscjava.vscode-java-pack",
-        "vscode-icons-team.vscode-icons",
-        "Graphite.gti-vscode"
+        "vscode-icons-team.vscode-icons"
       ]
     }
   },

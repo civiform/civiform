@@ -92,6 +92,8 @@ toast.localeNotSupported=Lo sentimos, este programa no está traducido por compl
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
 link.createAccountOrSignIn=Crear una cuenta o acceder
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Quitar archivo
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y comenzar la revisión de todas formas?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -128,6 +130,8 @@ content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
 content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=Detalles del programa
 link.programDetailsSr=Detalles del programa {0} (se abre en una pestaña nueva)
 title.programs=Programas y servicios
@@ -138,12 +142,18 @@ title.inProgressProgramsUpdated=En curso
 title.activeProgramsUpdated=Sin comenzar
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Encuentra servicios que te sean útiles
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mis solicitudes ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Otros programas ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Programas ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Recomendado ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -321,19 +331,26 @@ title.programSummary=Resumen de la inscripción al programa
 
 title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
+# Section heading
+heading.eligibilityCriteria=Más información sobre los requisitos de elegibilidad
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=Para obtener más información sobre las reglas de elegibilidad de este programa o comunicarte directamente con el equipo del programa, consulta {0}.
 content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=Si crees que hubo un error, puedes volver a la página anterior para editar tus respuestas. También puedes volver a la página principal para inscribirte a otro programa.
 button.goBackAndEdit=Volver y editar
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Editar mis respuestas
 toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
 toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
 tag.mayQualify=Es posible que califiques
 tag.mayQualifyTi=Es posible que tu cliente califique
 tag.mayNotQualify=Es posible que no califiques
 tag.mayNotQualifyTi=Es posible que tu cliente no califique
-
 toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
-
 toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
+
 banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +362,8 @@ alert.eligibility_applicant_eligible_text=En función de tus respuestas, es posi
 alert.eligibility_applicant_not_eligible_title=Es posible que no califiques para este programa
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=En función de tus respuestas, es posible que no califiques para este programa. Si la información cambió, puedes editar tu respuesta y continuar con la inscripción.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=Según tus respuestas a las siguientes preguntas, es posible que no cumplas con los requisitos para este programa.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Es posible que califiques para este programa
@@ -365,6 +384,8 @@ alert.eligibility_ti_eligible_text=En función de tus respuestas, es posible que
 alert.eligibility_ti_not_eligible_title=Es posible que tu cliente no califique para este programa
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=En función de tus respuestas, es posible que tu cliente no califique para este programa. Si la información de tu cliente cambió, puedes editar tu respuesta y continuar con la inscripción.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no cumpla con los requisitos para este programa.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Es posible que tu cliente califique para este programa
@@ -398,6 +419,30 @@ content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la pági
 content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Tu información de envío
+# Text above the name of the person who submitted this application
+heading.applicantName=Quién envió esta inscripción
+# Text above the confirmation number of the application
+heading.confirmationNumber=Número de confirmación
+# Text above the date submitted of the application
+heading.dateSubmitted=Fecha de envío
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmación de tus registros
+# Text above a button to print this page
+content.youCanPrint=Puedes imprimir esta confirmación de tus registros.
+# Button to print this webpage
+button.print=Imprimir esta página
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=¿Qué debo hacer a continuación?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=Enviaste tu inscripción a {0}
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=Crea una cuenta para guardar tu información de inscripción
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=Usa una cuenta para volver a acceder, de modo que puedas revisar el estado de tu inscripción y ahorrar tiempo al inscribirte a otros programas.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=Accede a una cuenta existente
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +608,29 @@ validation.tooManySelections.v2=Selecciona hasta {0} opciones.
 label.firstName=Nombre
 label.lastName=Apellido
 label.middleName=Segundo nombre
+# Label for name suffix field in name question
+label.nameSuffix=Sufijo
 
 placeholder.firstName=Nombre
 placeholder.lastName=Apellido
 placeholder.middleName=Segundo nombre
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Sufijo
+
+# Option Junior for the name suffix dropdown
+option.junior=Júnior
+# Option Senior for the name suffix dropdown
+option.senior=Sénior
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
 
 validation.firstNameRequired=Ingresa tu nombre.
 validation.lastNameRequired=Ingresa tu apellido.

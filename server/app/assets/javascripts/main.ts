@@ -240,7 +240,7 @@ function attachFormDebouncers() {
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
-function attachRedirectToPageListeners() {
+export function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
     window.location.href = assertNotNull(
@@ -357,6 +357,23 @@ export function init() {
     'click',
     moveMultiOptionQuestionDown,
   )
+
+  /* Bind click handler to submit category filter form when any category is clicked
+    and set the URL fragment to the most recently clicked category */
+  addEventListenerToElements('[id*="check-category"]', 'click', (event) => {
+    const form = document.getElementById(
+      'category-filter-form',
+    ) as HTMLFormElement
+
+    // Update the form action URL with the current selected category as a fragment
+    if (event.srcElement) {
+      const srcElement = event.srcElement as HTMLElement
+      const action = form.action + '#' + srcElement.id
+      form.action = action
+    }
+
+    form.submit()
+  })
 
   attachFormDebouncers()
 

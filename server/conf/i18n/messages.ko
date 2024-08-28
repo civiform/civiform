@@ -92,6 +92,8 @@ toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선�
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
 link.createAccountOrSignIn=계정 만들기 또는 로그인
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=파일 삭제
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -128,6 +130,8 @@ content.findPrograms=프로그램 찾기
 content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 해당될 수 있는 프로그램을 확인할 수 있습니다. 먼저 아래에서 신청서를 선택하세요.
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
+# The label for the program filter buttons
+label.programFilters=Program filters
 link.programDetails=프로그램 세부정보
 link.programDetailsSr={0}의 프로그램 세부정보, 새 탭에서 열림
 title.programs=프로그램 및 서비스
@@ -138,12 +142,18 @@ title.inProgressProgramsUpdated=진행 중
 title.activeProgramsUpdated=시작 안 함
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=유용한 서비스 찾기
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=내 신청 프로그램({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=다른 프로그램({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=프로그램({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=추천 프로그램({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -321,19 +331,26 @@ title.programSummary=프로그램 신청 요약
 
 title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
 title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
+# Section heading
+heading.eligibilityCriteria=자격 요건에 관한 자세한 내용
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램 팀에 직접 문의하려면 {0}을(를) 참고하세요
 content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=오류가 있다고 생각되면 이전 페이지로 돌아가 답변을 수정할 수 있습니다. 홈페이지로 돌아가 다른 프로그램에 지원할 수도 있습니다.
 button.goBackAndEdit=돌아가서 수정
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=내 답변 수정하기
 toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
 toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
 tag.mayQualify=자격요건을 충족할 수 있음
 tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
 tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
 tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-
 toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-
 toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
 
 # Alert title when applicant may be eligible for a program
@@ -345,6 +362,8 @@ alert.eligibility_applicant_eligible_text=귀하의 응답에 따르면 귀하�
 alert.eligibility_applicant_not_eligible_title=이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=귀하의 응답에 따르면 귀하는 이 프로그램에 참여할 자격이 없을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=이 프로그램의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=이 프로그램에 참여할 자격이 있을 수 있습니다
@@ -365,6 +384,8 @@ alert.eligibility_ti_eligible_text=귀하의 응답에 따르면 고객이 이 �
 alert.eligibility_ti_not_eligible_title=고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=귀하의 응답에 따르면 고객이 이 프로그램에 참여할 자격이 없을 수도 있습니다. 고객의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=고객이 이 프로그램의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=고객이 이 프로그램에 참여할 자격이 있을 수 있습니다
@@ -398,6 +419,30 @@ content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응
 content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=내 제출 정보
+# Text above the name of the person who submitted this application
+heading.applicantName=이 신청서를 제출한 사람
+# Text above the confirmation number of the application
+heading.confirmationNumber=확인 번호
+# Text above the date submitted of the application
+heading.dateSubmitted=제출일
+# Text above a message telling the user they can print this page
+heading.forYourRecords=기록을 위한 확인
+# Text above a button to print this page
+content.youCanPrint=기록을 위해 이 확인 페이지를 인쇄할 수 있습니다.
+# Button to print this webpage
+button.print=이 페이지 인쇄
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=다음 단계는 무엇인가요?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted={0} 신청을 제출했습니다.
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=신청 정보를 저장하려면 계정을 만드세요
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=계정을 사용하면 다시 로그인하여 지원 상태를 확인하고 다른 프로그램에 지원하는 시간을 절약할 수 있습니다.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=기존 계정에 로그인
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -563,10 +608,29 @@ validation.tooManySelections.v2=최대 {0}개를 선택해 주세요.
 label.firstName=이름
 label.lastName=성
 label.middleName=중간 이름
+# Label for name suffix field in name question
+label.nameSuffix=접두사
 
 placeholder.firstName=이름
 placeholder.lastName=성
 placeholder.middleName=중간 이름
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=접두사
+
+# Option Junior for the name suffix dropdown
+option.junior=주니어
+# Option Senior for the name suffix dropdown
+option.senior=시니어
+# Option the first for the name suffix dropdown
+option.first=1세
+# Option the second for the name suffix dropdown
+option.second=2세
+# Option the third for the name suffix dropdown
+option.third=3세
+# Option the forth for the name suffix dropdown
+option.forth=4세
+# Option the fifth for the name suffix dropdown
+option.fifth=5세
 
 validation.firstNameRequired=이름을 입력하세요.
 validation.lastNameRequired=성을 입력하세요.

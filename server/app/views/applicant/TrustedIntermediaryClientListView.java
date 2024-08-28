@@ -404,7 +404,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                 .withText(messages.at(MessageKey.BUTTON_VIEW_APPLICATIONS.getKeyName()))
                 .withHref(
                     controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                            newestApplicant.get().id)
+                            newestApplicant.get().id, /* categories */ ImmutableList.of())
                         .url()));
   }
 }

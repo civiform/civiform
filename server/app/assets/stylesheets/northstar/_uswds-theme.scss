@@ -23,5 +23,8 @@ https://designsystem.digital.gov/utilities/.
   $border-settings: ('output': false),
   $color-settings: ('output': false),
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
-  $theme-focus-offset: 0.5
+  $theme-focus-offset: 0.5,
+  $theme-heading-line-height: 2,
+  // "Normal" text should use "wide" width
+  $theme-text-measure: 6
 );

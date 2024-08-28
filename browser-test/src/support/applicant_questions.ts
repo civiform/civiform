@@ -94,6 +94,10 @@ export class ApplicantQuestions {
     })
   }
 
+  async answerFileUploadQuestionFromAssets(fileName: string) {
+    await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
+  }
+
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
     const filePath = 'file-size-' + mbSize + '-mb.pdf'
@@ -254,6 +258,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Apply to another program"')
   }
 
+  async clickBackToHomepageButton() {
+    await this.page.click('text="Back to homepage"')
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -315,6 +323,74 @@ export class ApplicantQuestions {
     expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
+  }
+
+  async expectProgramsWithFilteringEnabled(
+    {
+      expectedProgramsInInProgressSection,
+      expectedProgramsInSubmittedSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      expectedProgramsInInProgressSection: string[]
+      expectedProgramsInSubmittedSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+  ) {
+    const gotInProgressProgramNames =
+      await this.programNamesForSection('In progress')
+    const gotSubmittedProgramNames =
+      await this.programNamesForSection('Submitted')
+
+    let gotRecommendedProgramNames
+    let gotOtherProgramNames
+    let gotProgramsAndServicesNames
+
+    if (filtersOn) {
+      gotRecommendedProgramNames =
+        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames.sort()
+      gotOtherProgramNames = await this.programNamesForSection(
+        'Other programs and services',
+      )
+      gotOtherProgramNames.sort()
+    } else {
+      gotProgramsAndServicesNames = await this.programNamesForSection(
+        'Programs and services',
+      )
+      gotProgramsAndServicesNames.sort()
+    }
+
+    // Sort results before comparing since we don't care about order.
+    expectedProgramsInInProgressSection.sort()
+    expectedProgramsInSubmittedSection.sort()
+    expectedProgramsInProgramsAndServicesSection.sort()
+    expectedProgramsInRecommendedSection.sort()
+    expectedProgramsInOtherProgramsSection.sort()
+    gotInProgressProgramNames.sort()
+    gotSubmittedProgramNames.sort()
+
+    expect(gotInProgressProgramNames).toEqual(
+      expectedProgramsInInProgressSection,
+    )
+    expect(gotSubmittedProgramNames).toEqual(expectedProgramsInSubmittedSection)
+
+    if (filtersOn) {
+      expect(gotRecommendedProgramNames).toEqual(
+        expectedProgramsInRecommendedSection,
+      )
+      expect(gotOtherProgramNames).toEqual(
+        expectedProgramsInOtherProgramsSection,
+      )
+    } else {
+      expect(gotProgramsAndServicesNames).toEqual(
+        expectedProgramsInProgramsAndServicesSection,
+      )
+    }
   }
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
@@ -391,6 +467,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickEditMyResponses() {
+    await this.page.getByRole('button', {name: 'Edit my responses'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   /**
    * Remove the enumerator answer specified by entityName.
    * Note: only works if the value is in the DOM, i.e. was set at page load. Does not work if the
@@ -430,10 +511,30 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
-  async returnToProgramsFromSubmissionPage() {
+  async downloadFileFromReviewPage(fileName: string) {
+    await expect(
+      this.page.getByRole('heading', {name: 'Program application summary'}),
+    ).toBeVisible()
+
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText(fileName).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
+  async returnToProgramsFromSubmissionPage(northStarEnabled = false) {
     // Assert that we're on the submission page.
-    await this.expectConfirmationPage()
-    await this.clickApplyToAnotherProgramButton()
+    await this.expectConfirmationPage(northStarEnabled)
+    if (northStarEnabled) {
+      await this.clickBackToHomepageButton()
+    } else {
+      await this.clickApplyToAnotherProgramButton()
+    }
 
     // If we are a guest, we will get a prompt to log in before going back to the
     // programs page. Bypass this to continue as a guest.
@@ -463,10 +564,16 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectConfirmationPage() {
-    expect(await this.page.innerText('h1')).toContain(
-      'Application confirmation',
-    )
+  async expectConfirmationPage(northStarEnabled = false) {
+    if (northStarEnabled) {
+      await expect(
+        this.page.getByText('Your submission information'),
+      ).toBeVisible()
+    } else {
+      expect(await this.page.innerText('h1')).toContain(
+        'Application confirmation',
+      )
+    }
   }
 
   async expectCommonIntakeReviewPage() {
@@ -511,8 +618,21 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectIneligiblePage() {
-    expect(await this.page.innerText('html')).toContain('you may not qualify')
+  async expectIneligiblePage(northStar = false) {
+    if (northStar) {
+      await expect(
+        this.page
+          .getByText('You may not be eligible for this program')
+          .and(this.page.getByRole('heading')),
+      ).toBeVisible()
+
+      await expect(
+        this.page.getByText('Apply to another program'),
+      ).toBeVisible()
+      await expect(this.page.getByText('Edit my responses')).toBeVisible()
+    } else {
+      expect(await this.page.innerText('html')).toContain('you may not qualify')
+    }
   }
 
   async clickGoBackAndEditOnIneligiblePage() {

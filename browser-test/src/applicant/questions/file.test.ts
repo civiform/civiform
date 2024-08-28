@@ -242,6 +242,58 @@ test.describe('file upload applicant flow', () => {
     })
   })
 
+  test.describe('test multiple file upload with max files', () => {
+    const programName = 'Test program for multiple file upload'
+    const fileUploadQuestionText = 'Required file upload question'
+
+    test('hides upload button at max', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await test.step('Add file upload question and publish', async () => {
+        await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+        await loginAsAdmin(page)
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
+          programName,
+        )
+
+        await logout(page)
+      })
+
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Adding maximum files hides file input', async () => {
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file.txt',
+        )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file2.txt',
+        )
+
+        await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+        await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+        await applicantFileQuestion.expectNoFileInput()
+      })
+
+      await test.step('Removing a file shows file input again', async () => {
+        await applicantFileQuestion.removeFileUpload('file.txt')
+        await applicantFileQuestion.expectHasFileInput()
+      })
+    })
+  })
+
   test.describe('required file upload question with multiple file uploads', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'
@@ -336,23 +388,95 @@ test.describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-uploaded-multiple-files')
     })
 
-    test('uploading duplicate file replaces existing file', async ({
+    test('review page renders correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickReview()
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file1.txt',
+      )
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file2.txt',
+      )
+      await validateScreenshot(page.locator('main'), 'file-uploaded-review')
+    })
+
+    test('can download file content', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 1 content',
+        'file1.txt',
+      )
+      await applicantQuestions.answerFileUploadQuestion(
+        'file 2 content',
+        'file2.txt',
+      )
+
+      await applicantQuestions.clickNext()
+
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file1.txt'),
+      ).toEqual('file 1 content')
+      expect(
+        await applicantQuestions.downloadFileFromReviewPage('file2.txt'),
+      ).toEqual('file 2 content')
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'some text',
+        'testFileName.txt',
+      )
+      await applicantQuestions.clickNext()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'testFileName.txt',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+    })
+
+    test('uploading duplicate file appends suffix', async ({
       applicantQuestions,
       applicantFileQuestion,
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion(
-        'some file',
-        'file1.txt',
-      )
-      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantFileQuestion.expectFileNameCount('file.txt', 1)
 
-      await applicantQuestions.answerFileUploadQuestion(
-        'some file',
-        'file1.txt',
-      )
-      await applicantFileQuestion.expectFileNameCount('file1.txt', 1)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantFileQuestion.expectFileNameCount('file.txt', 1)
+      await applicantFileQuestion.expectFileNameCount('file-2.txt', 1)
     })
 
     test('can remove files', async ({
@@ -471,38 +595,39 @@ test.describe('file upload applicant flow', () => {
         })
       })
 
-      test('File too large error', async ({
-        applicantFileQuestion,
-        applicantQuestions,
-      }) => {
-        await test.step('Initially no error is shown', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await applicantFileQuestion.expectFileTooLargeErrorHidden()
-        })
+      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
+      test.fixme(
+        'File too large error',
+        async ({applicantFileQuestion, applicantQuestions}) => {
+          await test.step('Initially no error is shown', async () => {
+            await applicantQuestions.applyProgram(programName)
+            await applicantFileQuestion.expectFileTooLargeErrorHidden()
+          })
 
-        await test.step('Shows error when file size is too large', async () => {
-          await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+          await test.step('Shows error when file size is too large', async () => {
+            await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
-          await applicantFileQuestion.expectFileTooLargeErrorShown()
-          // Don't perform a screenshot here because it shows a spinner that doesn't become stable
-          // while the file is uploading.
-        })
+            await applicantFileQuestion.expectFileTooLargeErrorShown()
+            // Don't perform a screenshot here because it shows a spinner that doesn't become stable
+            // while the file is uploading.
+          })
 
-        await test.step('Cannot save file if too large', async () => {
-          await applicantQuestions.clickNext()
+          await test.step('Cannot save file if too large', async () => {
+            await applicantQuestions.clickNext()
 
-          // Verify the file isn't saved and we're still on the file upload question block
-          await applicantQuestions.validateQuestionIsOnPage(
-            fileUploadQuestionText,
-          )
-        })
+            // Verify the file isn't saved and we're still on the file upload question block
+            await applicantQuestions.validateQuestionIsOnPage(
+              fileUploadQuestionText,
+            )
+          })
 
-        await test.step('Hides error when smaller file is uploaded', async () => {
-          await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+          await test.step('Hides error when smaller file is uploaded', async () => {
+            await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
 
-          await applicantFileQuestion.expectFileTooLargeErrorHidden()
-        })
-      })
+            await applicantFileQuestion.expectFileTooLargeErrorHidden()
+          })
+        },
+      )
 
       test('form is correctly formatted', async ({
         page,
@@ -546,12 +671,11 @@ test.describe('file upload applicant flow', () => {
       }) => {
         await applicantQuestions.applyProgram(programName)
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file.txt',
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
         )
 
-        await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
         await validateScreenshot(
           page,
           'file-uploaded-north-star',
@@ -567,17 +691,17 @@ test.describe('file upload applicant flow', () => {
       }) => {
         await applicantQuestions.applyProgram(programName)
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file1.txt',
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
         )
-        await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
 
-        await applicantQuestions.answerFileUploadQuestion(
-          'some file',
-          'file2.txt',
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
         )
-        await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
       })
 
       test('has no accessiblity violations', async ({

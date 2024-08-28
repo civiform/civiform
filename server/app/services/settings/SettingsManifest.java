@@ -148,7 +148,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Enables [central
-   * logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).
+   * logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2) for both
+   * admin and applicant auth providers (despite the name).
    */
   public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
@@ -251,6 +252,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** The OIDC attribute name for the user’s last name. */
   public Optional<String> getApplicantOidcLastNameAttribute() {
     return getString("APPLICANT_OIDC_LAST_NAME_ATTRIBUTE");
+  }
+
+  /** The OIDC attribute name for the user’s name suffix. */
+  public Optional<String> getApplicantOidcNameSuffixAttribute() {
+    return getString("APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE");
   }
 
   /**
@@ -747,6 +753,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Overrides the default configuration for the content security policy. If set to true, the
+   * browser reports content security policy violations but does not enforce the policy. If set to
+   * false, the browser enforces the policy.
+   */
+  public boolean getCspReportOnly() {
+    return getBool("CSP_REPORT_ONLY");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -1104,7 +1119,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_PROVIDER_LOGOUT",
                                       "Enables [central"
-                                          + " logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
+                                          + " logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2)"
+                                          + " for both admin and applicant auth providers (despite"
+                                          + " the name).",
                                       /* isRequired= */ false,
                                       SettingType.BOOLEAN,
                                       SettingMode.HIDDEN),
@@ -1212,6 +1229,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s last name.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE",
+                                      "The OIDC attribute name for the user’s name suffix.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
@@ -2096,5 +2119,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " deployments, this value is 1.",
                       /* isRequired= */ false,
                       SettingType.INT,
-                      SettingMode.ADMIN_READABLE))));
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "CSP_REPORT_ONLY",
+                      "Overrides the default configuration for the content security policy. If set"
+                          + " to true, the browser reports content security policy violations but"
+                          + " does not enforce the policy. If set to false, the browser enforces"
+                          + " the policy.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN))));
 }

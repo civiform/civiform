@@ -351,6 +351,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
         Optional<String> encodedFileKey = Optional.empty();
+        ImmutableList<String> encodedFileKeys = ImmutableList.of();
+        ImmutableList<String> fileNames = ImmutableList.of();
+
         if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
           FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
           originalFileName = fileUploadQuestion.getOriginalFileName();
@@ -358,7 +361,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               fileUploadQuestion
                   .getFileKeyValue()
                   .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
+
+          if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
+            ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
+            fileNames =
+                fileKeys.stream().map(FileUploadQuestion::getFileName).collect(toImmutableList());
+            encodedFileKeys =
+                fileKeys.stream()
+                    .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                    .collect(toImmutableList());
+          }
         }
+
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
         AnswerData data =
@@ -377,6 +391,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setEligibilityIsGating(programDefinition.eligibilityIsGating())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
+                .setEncodedFileKeys(encodedFileKeys)
+                .setFileNames(fileNames)
                 .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)

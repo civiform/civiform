@@ -1,11 +1,11 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import java.time.Duration;
 import javax.inject.Provider;
-import scala.concurrent.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.api.db.evolutions.ApplicationEvolutions;
 import services.settings.SettingsService;
 
 /**
@@ -13,29 +13,36 @@ import services.settings.SettingsService;
  * settings. Runs each time the server is started.
  */
 public class SettingsMigrationModule extends AbstractModule {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SettingsMigrationModule.class);
 
   @Override
   protected void configure() {
+    LOGGER.trace("Module Started");
     bind(SettingsMigrator.class).asEagerSingleton();
   }
 
+  /**
+   * This class injects ApplicationEvolutions and checks the `upToDate` method to prevent this
+   * module from running until after the evolutions are completed.
+   *
+   * <p>See <a href="https://github.com/civiform/civiform/pull/8253">PR 8253</a> for more extensive
+   * details.
+   */
   public static final class SettingsMigrator {
 
     @Inject
     public SettingsMigrator(
-        ActorSystem actorSystem,
-        ExecutionContext executionContext,
+        ApplicationEvolutions applicationEvolutions,
         Provider<SettingsService> settingsServiceProvider) {
-      actorSystem
-          .scheduler()
-          .scheduleOnce(
-              // schedule seed task for 5 sec from now. There is a race condition
-              // with Play evolutions. Evolutions must run before we seed database.
-              // It doesn't seem to be a way to run code after evolutions so just
-              // give them few sec to run.
-              Duration.ofSeconds(5),
-              () -> settingsServiceProvider.get().migrateConfigValuesToSettingsGroup(),
-              executionContext);
+      LOGGER.trace("SettingsMigrator - Started");
+
+      if (applicationEvolutions.upToDate()) {
+        LOGGER.trace("SettingsMigrator - Task Start");
+        settingsServiceProvider.get().migrateConfigValuesToSettingsGroup();
+        LOGGER.trace("SettingsMigrator - Task End");
+      } else {
+        LOGGER.trace("Evolutions Not Ready");
+      }
     }
   }
 }

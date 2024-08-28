@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import play.mvc.Http;
@@ -95,6 +96,25 @@ public final class RouteExtractor {
 
     try {
       return Long.parseLong(routeParameters.get(key));
+    } catch (NumberFormatException ex) {
+      throw new RuntimeException(
+          String.format("Could not parse value from '%s' in route '%s'", key, path), ex);
+    }
+  }
+
+  /**
+   * The given key's value converted into a long format or an empty optional.
+   *
+   * @param key Path parameter key name as defined in the routes file.
+   * @return the given key's value converted into a long format or an empty optional.
+   */
+  public Optional<Long> getParamOptionalLongValue(String key) {
+    if (!routeParameters.containsKey(key)) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(Long.parseLong(routeParameters.get(key)));
     } catch (NumberFormatException ex) {
       throw new RuntimeException(
           String.format("Could not parse value from '%s' in route '%s'", key, path), ex);

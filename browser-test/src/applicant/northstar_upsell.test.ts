@@ -6,12 +6,17 @@ import {
   logout,
   validateScreenshot,
   validateAccessibility,
+  AdminPrograms,
 } from '../support'
+import {Page} from 'playwright'
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
   const customConfirmationText =
     'Custom confirmation message for sample program'
+
+  const relatedProgramsHeading = 'Other programs you might be interested in'
+  const relatedProgramName = 'Related program'
 
   test.beforeEach(async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
@@ -29,14 +34,19 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
+
       await logout(page)
     })
   })
 
   test('view application submitted page while logged in', async ({
     page,
+    adminPrograms,
     applicantQuestions,
   }) => {
+    // Create a second program for the related programs section
+    await createRelatedProgram(page, adminPrograms)
+
     await loginAsTestUser(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -48,9 +58,10 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
-    expect(await page.textContent('html')).toContain('Application confirmation')
-    expect(await page.textContent('html')).toContain(programName)
-    expect(await page.textContent('html')).toContain(customConfirmationText)
+    await validateApplicationSubmittedPage(
+      page,
+      /* expectRelatedProgram= */ true,
+    )
 
     await test.step('Validate screenshot and accessibility', async () => {
       await validateScreenshot(
@@ -63,9 +74,14 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await validateAccessibility(page)
 
-    await test.step('Validate that user can click through without logging in', async () => {
-      await applicantQuestions.clickApplyToAnotherProgramButton()
-      await expect(page.locator('[data-testId="login"]')).toBeHidden()
+    await test.step('Validate that user can return to the homepage without logging in', async () => {
+      await applicantQuestions.clickBackToHomepageButton()
+      // Expect the login dialog did not appear, so the user should already see the homepage
+      await page.waitForURL('**/programs')
+      // Expect the user is still logged in
+      await expect(page.getByRole('banner')).toContainText(
+        'Logged in as testuser@example.com',
+      )
     })
   })
 
@@ -82,14 +98,69 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       )
     })
 
+    await validateApplicationSubmittedPage(
+      page,
+      /* expectRelatedProgram= */ false,
+    )
+
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
-      await applicantQuestions.clickApplyToAnotherProgramButton()
-      await expect(page.getByTestId('login')).toContainText(
-        'Create an account or sign in',
+      await applicantQuestions.clickBackToHomepageButton()
+      await expect(page.getByText('Create an account or sign in')).toBeVisible()
+
+      await validateScreenshot(
+        page,
+        'upsell-north-star-login',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ true,
       )
-      await validateScreenshot(page, 'upsell-north-star-login')
 
       await validateAccessibility(page)
     })
   })
+
+  async function validateApplicationSubmittedPage(
+    page: Page,
+    expectRelatedProgram: boolean,
+  ) {
+    await test.step('Validate application submitted page', async () => {
+      await expect(
+        page.getByRole('heading', {name: programName, exact: true}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: "You've submitted your " + programName + ' application',
+        }),
+      ).toBeVisible()
+      await expect(page.getByText('Your submission information')).toBeVisible()
+      await expect(page.getByText(customConfirmationText)).toBeVisible()
+
+      if (expectRelatedProgram) {
+        await expect(
+          page.getByRole('heading', {
+            name: relatedProgramsHeading,
+          }),
+        ).toBeVisible()
+        await expect(page.getByText(relatedProgramName)).toBeVisible()
+      } else {
+        await expect(
+          page.getByRole('heading', {
+            name: relatedProgramsHeading,
+          }),
+        ).toBeHidden()
+      }
+    })
+  }
+
+  async function createRelatedProgram(
+    page: Page,
+    adminPrograms: AdminPrograms,
+  ) {
+    await test.step('Create related program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(relatedProgramName)
+      await adminPrograms.publishProgram(relatedProgramName)
+      await adminPrograms.expectActiveProgram(relatedProgramName)
+      await logout(page)
+    })
+  }
 })

@@ -15,6 +15,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
@@ -29,6 +30,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import services.statuses.StatusDefinitions;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -53,6 +55,7 @@ public class AdminImportController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
+  private final ApplicationStatusesRepository applicationStatusesRepository;
 
   @Inject
   public AdminImportController(
@@ -64,7 +67,8 @@ public class AdminImportController extends CiviFormController {
       SettingsManifest settingsManifest,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      QuestionRepository questionRepository) {
+      QuestionRepository questionRepository,
+      ApplicationStatusesRepository applicationStatusesRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
@@ -73,6 +77,7 @@ public class AdminImportController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -106,7 +111,9 @@ public class AdminImportController extends CiviFormController {
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
+              .renderError(
+                  "Error processing JSON",
+                  deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
@@ -114,12 +121,49 @@ public class AdminImportController extends CiviFormController {
     if (programMigrationWrapper.getProgram() == null) {
       return ok(
           adminImportViewPartial
-              .renderError("JSON did not have a top-level \"program\" field")
+              .renderError(
+                  "Error processing JSON", "JSON did not have a top-level \"program\" field")
               .render());
     }
+
+    ProgramDefinition program = programMigrationWrapper.getProgram();
+    ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
+
+    // Prevent admin from importing a program that already exists in the import environment
+    String adminName = program.adminName();
+    boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
+    if (programExists) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "This program already exists in our system.",
+                  "Please check your file and and try again.")
+              .render());
+    }
+
+    if (questions == null) {
+      return ok(
+          adminImportViewPartial
+              .renderProgramData(request, program, ImmutableMap.of(), jsonString)
+              .render());
+    }
+
+    // Overwrite the admin names for any questions that already exist in the import environment so
+    // we can create new versions of the questions.
+    // This creates a map of the old question name -> updated question data
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+        programMigrationService.maybeOverwriteQuestionName(questions);
+
+    ErrorAnd<String, String> serializeResult =
+        programMigrationService.serialize(
+            program, ImmutableList.copyOf(updatedQuestionsMap.values()));
+    if (serializeResult.isError()) {
+      return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
+    }
+
     return ok(
         adminImportViewPartial
-            .renderProgramData(request, programMigrationWrapper, jsonString)
+            .renderProgramData(request, program, updatedQuestionsMap, serializeResult.getResult())
             .render());
   }
 
@@ -128,7 +172,7 @@ public class AdminImportController extends CiviFormController {
    * neccessary question updates before saving the program
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result saveProgram(Http.Request request) {
+  public Result hxSaveProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
@@ -137,35 +181,54 @@ public class AdminImportController extends CiviFormController {
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
+              .renderError(
+                  "Error processing JSON",
+                  deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
-    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
-    ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
-    ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+    try {
+      ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+      ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
+      ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
 
-    ProgramDefinition updatedProgram = programOnJson;
+      ProgramDefinition updatedProgram = programOnJson;
 
-    if (questionsOnJson != null) {
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
-          questionsOnJson.stream()
-              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+      if (questionsOnJson != null) {
+        ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+            questionsOnJson.stream()
+                .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-          updateEnumeratorQuestionsAndSave(questionsOnJson, questionsOnJsonById);
+        ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+            updateEnumeratorIdsAndSaveAllQuestions(questionsOnJson, questionsOnJsonById);
 
-      ImmutableList<BlockDefinition> updatedBlockDefinitions =
-          updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
+        ImmutableList<BlockDefinition> updatedBlockDefinitions =
+            updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
 
-      updatedProgram =
-          programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+        updatedProgram =
+            programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+      }
+
+      ProgramModel savedProgram =
+          programRepository.insertProgramSync(
+              new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+      // TODO(#7087) migrate application statuses for the program
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          updatedProgram.adminName(), new StatusDefinitions());
+
+      return ok(
+          adminImportViewPartial
+              .renderProgramSaved(updatedProgram.adminName(), savedProgram.id)
+              .render());
+    } catch (RuntimeException error) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "Unable to save program. Please try again or contact your IT team for support.",
+                  "Error: " + error.toString())
+              .render());
     }
-
-    programRepository.insertProgramSync(
-        new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
-
-    return ok(adminImportView.render(request));
   }
 
   private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
@@ -184,21 +247,21 @@ public class AdminImportController extends CiviFormController {
    * set) first so that we can update questions that reference the id of the enumerator question
    * with the id of the newly saved enumerator question.
    */
-  private ImmutableMap<String, QuestionDefinition> updateEnumeratorQuestionsAndSave(
+  private ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
       ImmutableList<QuestionDefinition> questionsOnJson,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
-    ImmutableList<QuestionDefinition> nonEnumeratorQuestions =
+    ImmutableList<QuestionDefinition> questionsWithoutEnumeratorId =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isEmpty())
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableMap<String, QuestionDefinition> updatedNonEnumeratorQuestionsMap =
-        questionRepository.bulkCreateQuestions(nonEnumeratorQuestions).stream()
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithoutEnumeratorId =
+        questionRepository.bulkCreateQuestions(questionsWithoutEnumeratorId).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
-    ImmutableList<QuestionDefinition> enumeratorQuestions =
+    ImmutableList<QuestionDefinition> questionsWithEnumeratorId =
         questionsOnJson.stream()
             .filter(qd -> qd.getEnumeratorId().isPresent())
             .map(
@@ -207,21 +270,21 @@ public class AdminImportController extends CiviFormController {
                   QuestionDefinition oldQuestion = questionsOnJsonById.get(oldEnumeratorId);
                   String oldQuestionAdminName = oldQuestion.getName();
                   QuestionDefinition newQuestion =
-                      updatedNonEnumeratorQuestionsMap.get(oldQuestionAdminName);
+                      updatedQuestionsWithoutEnumeratorId.get(oldQuestionAdminName);
                   // update the enumeratorId on the child question before saving
                   Long newEnumeratorId = newQuestion.getId();
                   return questionRepository.updateEnumeratorId(qd, newEnumeratorId);
                 })
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableMap<String, QuestionDefinition> updatedEnumeratorQuestionsMap =
-        questionRepository.bulkCreateQuestions(enumeratorQuestions).stream()
+    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithEnumeratorId =
+        questionRepository.bulkCreateQuestions(questionsWithEnumeratorId).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return ImmutableMap.<String, QuestionDefinition>builder()
-        .putAll(updatedNonEnumeratorQuestionsMap)
-        .putAll(updatedEnumeratorQuestionsMap)
+        .putAll(updatedQuestionsWithoutEnumeratorId)
+        .putAll(updatedQuestionsWithEnumeratorId)
         .build();
   }
 

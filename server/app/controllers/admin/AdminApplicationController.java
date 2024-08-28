@@ -54,6 +54,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
@@ -81,6 +82,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
   private final StatusService statusService;
+  private final SettingsManifest settingsManifest;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -106,7 +108,8 @@ public final class AdminApplicationController extends CiviFormController {
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
-      StatusService statusService) {
+      StatusService statusService,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -121,6 +124,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -163,7 +167,10 @@ public final class AdminApplicationController extends CiviFormController {
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporterService.export(
-            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
+            program,
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            filters,
+            settingsManifest.getMultipleFileUploadEnabled(request));
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -202,27 +209,6 @@ public final class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
-      return ok(csv)
-          .as(Http.MimeTypes.BINARY)
-          .withHeader(
-              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException | NoSuchElementException e) {
-      return unauthorized();
-    }
-  }
-
-  /**
-   * Download a CSV file containing all applications to the specified program version. This was the
-   * original behavior for the program admin CSV download but is currently unused as of 10/13/2021.
-   */
-  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadSingleVersion(Http.Request request, long programId)
-      throws ProgramNotFoundException {
-    try {
-      ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      checkProgramAdminAuthorization(request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(

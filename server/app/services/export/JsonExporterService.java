@@ -65,12 +65,13 @@ public final class JsonExporterService {
   public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      SubmittedApplicationFilter filters) {
+      SubmittedApplicationFilter filters,
+      boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
-    return exportPage(programDefinition, paginationResult);
+    return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
   }
 
   /**
@@ -82,20 +83,61 @@ public final class JsonExporterService {
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
+      ProgramDefinition programDefinition,
+      PaginationResult<ApplicationModel> paginationResult,
+      boolean multipleFileUploadEnabled) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programDefinition.id()).stream()
             .collect(ImmutableMap.toImmutableMap(ProgramDefinition::id, pd -> pd));
 
+    // Build a template JSON document of all possible questions that have ever been in the program.
+    // TODO(#8147): Reduce code duplication once we find a long term solution. Here we've moved the
+    // template creation outside of the loop, so we don't rebuild it for each application, but as a
+    // result we've duplicated the AnswerData -> questionEntries map -> add to JSON document flow.
+    Map<Path, AnswerData> answersToExport = new HashMap<>();
+    for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
+      // We use an empty ApplicantData because these should all be exported as unanswered questions.
+      applicantService
+          .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
+          .getSummaryDataAllQuestions()
+          .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
+    }
+    ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
+    for (AnswerData answerData : answersToExport.values()) {
+      // We suppress the unchecked warning because create() returns a genericized
+      // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+      // the json entries for any Question in one line.
+      @SuppressWarnings("unchecked")
+      ImmutableMap<Path, Optional<?>> questionEntries =
+          presenterFactory
+              .create(answerData.applicantQuestion().getType())
+              .getAllJsonEntries(answerData.createQuestion(), multipleFileUploadEnabled);
+      entriesBuilder.putAll(questionEntries);
+    }
+    CfJsonDocumentContext template = new CfJsonDocumentContext();
+    exportApplicationEntriesToJsonApplication(template, entriesBuilder.build());
+    // TODO(#8147): I'm not sure if reading the template out into a string, just to re-parse it into
+    // a JsonData for each application, is more or less efficient than trying to clone a JsonData
+    // object.
+    String jsonStringTemplate = template.asJsonString();
+
+    // Then use the template when exporting each application.
     DocumentContext jsonData =
         applications.stream()
-            .map(a -> buildApplicationExportData(a, programDefinitionsForAllVersions))
+            .map(
+                app ->
+                    buildApplicationExportData(
+                        app,
+                        programDefinitionsForAllVersions.get(app.getProgram().id),
+                        multipleFileUploadEnabled))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
-                    this::convertApplicationExportDataToJsonArray));
+                    appDataList ->
+                        convertApplicationExportDataListToJsonArray(
+                            appDataList, jsonStringTemplate)));
 
     return jsonData.jsonString();
   }
@@ -106,41 +148,29 @@ public final class JsonExporterService {
    * @param applicationExportDataList the list of applications to export as JSON
    * @return the exported applications, as a JSON array
    */
-  public DocumentContext convertApplicationExportDataToJsonArray(
-      ImmutableList<ApplicationExportData> applicationExportDataList) {
+  public DocumentContext convertApplicationExportDataListToJsonArray(
+      ImmutableList<ApplicationExportData> applicationExportDataList, String jsonTemplate) {
     DocumentContext applications = makeEmptyJsonArray();
     applicationExportDataList.forEach(
         applicationExportData -> {
           applications.add(
-              "$", convertExportDataToJson(applicationExportData).getDocumentContext().json());
+              "$",
+              convertExportDataToJson(applicationExportData, jsonTemplate)
+                  .getDocumentContext()
+                  .json());
         });
     return applications;
   }
 
   private ApplicationExportData buildApplicationExportData(
       ApplicationModel application,
-      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions) {
+      ProgramDefinition programDefinition,
+      boolean multipleFileUploadEnabled) {
     Map<Path, AnswerData> answersToExport = new HashMap<>();
-
-    // First retrieve the answers for the program version that aligns with this application
-    ProgramDefinition pdForApplication =
-        programDefinitionsForAllVersions.get(application.getProgram().id);
     applicantService
-        .getReadOnlyApplicantProgramService(application.getApplicantData(), pdForApplication)
+        .getReadOnlyApplicantProgramService(application.getApplicantData(), programDefinition)
         .getSummaryDataAllQuestions()
         .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
-
-    // Then populate the questions that were not in the application's program version. We use an
-    // empty ApplicantData because these should all be exported as unanswered questions.
-    for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
-      if (application.getProgram().id == pd.id()) {
-        continue;
-      }
-      applicantService
-          .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
-          .getSummaryDataAllQuestions()
-          .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
-    }
 
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     for (AnswerData answerData : answersToExport.values()) {
@@ -151,12 +181,12 @@ public final class JsonExporterService {
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
               .create(answerData.applicantQuestion().getType())
-              .getAllJsonEntries(answerData.createQuestion());
+              .getAllJsonEntries(answerData.createQuestion(), multipleFileUploadEnabled);
       entriesBuilder.putAll(questionEntries);
     }
 
     return ApplicationExportData.builder()
-        .setAdminName(programDefinitionsForAllVersions.get(application.getProgram().id).adminName())
+        .setAdminName(programDefinition.adminName())
         .setApplicantId(application.getApplicant().id)
         .setApplicationId(application.id)
         .setProgramId(application.getProgram().id)
@@ -186,8 +216,8 @@ public final class JsonExporterService {
   }
 
   private CfJsonDocumentContext convertExportDataToJson(
-      ApplicationExportData applicationExportData) {
-    CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
+      ApplicationExportData applicationExportData, String jsonTemplate) {
+    CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(jsonTemplate);
 
     jsonApplication.putString(Path.create("program_name"), applicationExportData.adminName());
     jsonApplication.putLong(Path.create("program_version_id"), applicationExportData.programId());
@@ -270,10 +300,6 @@ public final class JsonExporterService {
 
   private DocumentContext makeEmptyJsonArray() {
     return JsonPathProvider.getJsonPath().parse("[]");
-  }
-
-  private DocumentContext makeEmptyJsonObject() {
-    return JsonPathProvider.getJsonPath().parse("{}");
   }
 
   private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {

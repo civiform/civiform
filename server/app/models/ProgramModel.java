@@ -31,7 +31,6 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
-import services.statuses.StatusDefinitions;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
@@ -75,8 +74,6 @@ public class ProgramModel extends BaseModel {
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
-
-  @Constraints.Required @DbJson private StatusDefinitions statusDefinitions;
 
   /** When was this program created. */
   @WhenCreated private Instant createTime;
@@ -150,10 +147,6 @@ public class ProgramModel extends BaseModel {
     return checkNotNull(this.programDefinition);
   }
 
-  public StatusDefinitions getStatusDefinitions() {
-    return checkNotNull(this.statusDefinitions);
-  }
-
   public ProgramModel(ProgramDefinition definition) {
     this(definition, Optional.empty());
   }
@@ -172,7 +165,6 @@ public class ProgramModel extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
-    this.statusDefinitions = definition.statusDefinitions();
     this.displayMode = definition.displayMode().getValue();
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
@@ -217,7 +209,6 @@ public class ProgramModel extends BaseModel {
     this.externalLink = externalLink;
     this.displayMode = displayMode;
     this.blockDefinitions = blockDefinitions;
-    this.statusDefinitions = new StatusDefinitions();
     this.versions.add(associatedVersion);
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
@@ -236,7 +227,6 @@ public class ProgramModel extends BaseModel {
     localizedDescription = programDefinition.localizedDescription();
     localizedConfirmationMessage = programDefinition.localizedConfirmationMessage();
     blockDefinitions = programDefinition.blockDefinitions();
-    statusDefinitions = programDefinition.statusDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
     programType = programDefinition.programType();
@@ -261,7 +251,6 @@ public class ProgramModel extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setStatusDefinitions(statusDefinitions)
             .setLocalizedName(localizedName)
             .setLocalizedDescription(localizedDescription)
             .setExternalLink(externalLink)

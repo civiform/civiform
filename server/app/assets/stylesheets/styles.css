@@ -82,7 +82,7 @@
 
   /* USWDS defaults to 1rem, which ends up looking weird and unbalanced on some pages. */
   .usa-alert-remove-top-margin {
-    margin-top: 0
+    margin-top: 0;
   }
 
   /**
@@ -122,4 +122,11 @@
   .ti-header-band {
     background-color: #f0f0f0;
   }
+
+  #filter-chip {
+    @apply border border-gray-700 rounded-full py-2 px-4 mr-2 mb-2 text-sm
+     has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
+      has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
+  }
+
 }

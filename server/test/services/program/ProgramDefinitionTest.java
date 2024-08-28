@@ -18,7 +18,6 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.QuestionModel;
 import org.junit.Test;
-import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -31,7 +30,6 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
-import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
@@ -39,8 +37,6 @@ import support.TestQuestionBank;
 public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
-  private ApplicationStatusesRepository applicationStatusesRepository =
-      instanceOf(ApplicationStatusesRepository.class);
 
   @Test
   public void createProgramDefinition() {
@@ -60,7 +56,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -92,7 +87,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
@@ -114,7 +108,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -130,18 +123,18 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantJugglingNumber())
-            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
-            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withRequiredQuestion(testQuestionBank.numberApplicantJugglingNumber())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .withRequiredQuestion(testQuestionBank.dateApplicantBirthdate())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .withRequiredQuestion(testQuestionBank.checkboxApplicantKitchenTools())
             .buildDefinition();
 
     assertThat(
             programDefinition
-                .getProgramQuestionDefinition(testQuestionBank.applicantJugglingNumber().id)
+                .getProgramQuestionDefinition(testQuestionBank.numberApplicantJugglingNumber().id)
                 .id())
-        .isEqualTo(testQuestionBank.applicantJugglingNumber().id);
+        .isEqualTo(testQuestionBank.numberApplicantJugglingNumber().id);
   }
 
   @Test
@@ -149,16 +142,16 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
-            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .withRequiredQuestion(testQuestionBank.dateApplicantBirthdate())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .withRequiredQuestion(testQuestionBank.checkboxApplicantKitchenTools())
             .buildDefinition();
 
     assertThatThrownBy(
             () ->
                 programDefinition.getProgramQuestionDefinition(
-                    testQuestionBank.applicantJugglingNumber().id))
+                    testQuestionBank.numberApplicantJugglingNumber().id))
         .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
   }
 
@@ -172,17 +165,17 @@ public class ProgramDefinitionTest extends ResetPostgres {
                     .setPredicate(
                         PredicateDefinition.create(
                             PredicateExpressionNode.create(
-                                LeafAddressServiceAreaExpressionNode.builder()
-                                    .setQuestionId(testQuestionBank.applicantAddress().id)
-                                    .setServiceAreaId("seattle")
-                                    .build()),
+                                LeafAddressServiceAreaExpressionNode.create(
+                                    testQuestionBank.addressApplicantAddress().id,
+                                    "seattle",
+                                    Operator.IN_SERVICE_AREA)),
                             PredicateAction.ELIGIBLE_BLOCK))
                     .build())
             .withVisibilityPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
                         LeafOperationExpressionNode.builder()
-                            .setQuestionId(testQuestionBank.applicantDate().id)
+                            .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
                             .setScalar(Scalar.DATE)
                             .setOperator(Operator.IS_BEFORE)
                             .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
@@ -190,13 +183,17 @@ public class ProgramDefinitionTest extends ResetPostgres {
                     PredicateAction.HIDE_BLOCK))
             .buildDefinition();
 
-    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantAddress().id))
-        .isTrue();
-    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantDate().id))
+    assertThat(
+            programDefinition.isQuestionUsedInPredicate(
+                testQuestionBank.addressApplicantAddress().id))
         .isTrue();
     assertThat(
             programDefinition.isQuestionUsedInPredicate(
-                testQuestionBank.applicantKitchenTools().id))
+                testQuestionBank.dateApplicantBirthdate().id))
+        .isTrue();
+    assertThat(
+            programDefinition.isQuestionUsedInPredicate(
+                testQuestionBank.checkboxApplicantKitchenTools().id))
         .isFalse();
 
     // program has eligibility enabled
@@ -205,10 +202,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasQuestion_trueIfTheProgramUsesTheQuestion() {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
 
     long programDefinitionId = 123L;
     BlockDefinition blockA =
@@ -241,7 +239,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
@@ -268,7 +265,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -304,7 +300,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -340,7 +335,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -353,10 +347,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void getSupportedLocales_returnsLocalesSupportedByQuestionsAndText() {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
 
     long programDefinitionId = 123L;
     BlockDefinition blockA =
@@ -392,7 +387,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
@@ -408,10 +402,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
   @Test
   public void getAvailablePredicateQuestionDefinitions()
       throws ProgramBlockDefinitionNotFoundException {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionC = testQuestionBank.applicantFile().getQuestionDefinition();
-    QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
+    QuestionDefinition questionD =
+        testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
     // To aid readability and reduce errors the block names include the questions that are in them.
@@ -465,7 +462,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -497,10 +493,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
   @Test
   public void getAvailablePredicateQuestionDefinitions_doesNotDependOnBlockIdOrder()
       throws ProgramBlockDefinitionNotFoundException {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionC = testQuestionBank.applicantFile().getQuestionDefinition();
-    QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
+    QuestionDefinition questionD =
+        testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
     // The blocks have their IDs set to non-consecutive numbers. This mimics blocks being re-ordered
@@ -555,7 +554,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -588,15 +586,17 @@ public class ProgramDefinitionTest extends ResetPostgres {
   public void
       getAvailablePredicateQuestionDefinitions_withRepeatedBlocks_onlyIncludesQuestionsWithSameEnumeratorId()
           throws ProgramBlockDefinitionNotFoundException {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition questionBEnum =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition questionC =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     QuestionDefinition questionDEnum =
-        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+        testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition questionE =
-        testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
+        testQuestionBank
+            .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+            .getQuestionDefinition();
 
     long programDefinitionId = 123L;
     BlockDefinition blockA =
@@ -663,7 +663,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockBEnum)
@@ -712,9 +711,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .build()
             .getProgramDefinition();
 
@@ -727,11 +726,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build()
             .getProgramDefinition();
     BlockDefinition blockDefinition =
@@ -751,12 +750,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
     assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+        .isEqualTo(
+            testQuestionBank
+                .enumeratorNestedApplicantHouseholdMemberJobs()
+                .getQuestionDefinition());
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionCount()).isEqualTo(0);
@@ -768,11 +770,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -783,12 +785,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
     assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+        .isEqualTo(
+            testQuestionBank
+                .enumeratorNestedApplicantHouseholdMemberJobs()
+                .getQuestionDefinition());
   }
 
   @Test
@@ -796,11 +801,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withRepeatedBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
             .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -811,17 +816,20 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
     assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
-        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+        .isEqualTo(
+            testQuestionBank
+                .enumeratorNestedApplicantHouseholdMemberJobs()
+                .getQuestionDefinition());
   }
 
   @Test
   public void moveBlock_up_withVisibilityPredicate() throws Exception {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -838,7 +846,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withBlock()
-            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withOptionalQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withBlock()
             .withVisibilityPredicate(predicate)
             .build()
@@ -852,7 +860,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withVisibilityPredicate_throwsForIllegalMove() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -882,7 +890,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate() throws Exception {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -902,7 +910,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withBlock()
-            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withOptionalQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withBlock()
             .withEligibilityDefinition(eligibility)
             .build()
@@ -920,7 +928,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate_throwsForIllegalMove() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -953,7 +961,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicateAndQuestionInSameBlock() throws Exception {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -971,7 +979,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withOptionalQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withEligibilityDefinition(eligibility)
@@ -991,7 +999,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlockDown_throwsForIllegalMove() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     // Trying to move a block after a block that depends on it throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -1021,7 +1029,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1057,7 +1065,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering_returnsFalseIfQuestionsAreInSameBlockAsPredicate() {
-    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.textApplicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1090,7 +1098,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
             .setProgramType(ProgramType.DEFAULT)
@@ -1111,7 +1118,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1132,7 +1138,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
             .setProgramType(ProgramType.DEFAULT)
@@ -1153,7 +1158,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1174,7 +1178,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1197,7 +1200,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1219,7 +1221,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1252,7 +1253,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1276,7 +1276,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1297,7 +1296,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
@@ -1317,10 +1315,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void serializeThenDeserialize_allFieldsPresent() throws JsonProcessingException {
-    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
 
     long programDefinitionId = 654L;
     BlockDefinition blockA =
@@ -1359,23 +1358,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                     /* addressCorrectionEnabled= */ false))
             .build();
 
-    StatusDefinitions.Status approvedStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Approved")
-            .setLocalizedStatusText(
-                LocalizedStrings.of(
-                    Locale.US, "US approved status", Locale.GERMAN, "German approved status"))
-            .build();
-    StatusDefinitions.Status deniedStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Denied")
-            .setLocalizedStatusText(
-                LocalizedStrings.of(
-                    Locale.US, "US denied status", Locale.GERMAN, "German denied status"))
-            .build();
-    StatusDefinitions statusDefinitions =
-        new StatusDefinitions(ImmutableList.of(approvedStatus, deniedStatus));
-
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
             // The following fields *should* be included in the serialization
@@ -1403,7 +1385,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                         Locale.ITALIAN,
                         "Italian summary image description")))
             .setExternalLink("external.link")
-            .setStatusDefinitions(statusDefinitions)
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(true)
@@ -1416,8 +1397,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .build();
-    applicationStatusesRepository.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), statusDefinitions);
 
     ObjectMapper objectMapper =
         instanceOf(ObjectMapper.class)
@@ -1454,11 +1433,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 Locale.ITALIAN,
                 "Italian summary image description"));
     assertThat(result.externalLink()).isEqualTo("external.link");
-    assertThat(
-            applicationStatusesRepository
-                .lookupActiveStatusDefinitions(result.adminName())
-                .getStatuses())
-        .containsExactly(approvedStatus, deniedStatus);
     assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
     assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
     assertThat(result.eligibilityIsGating()).isTrue();
@@ -1510,13 +1484,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
     long programDefinitionId = 654L;
 
     QuestionDefinition mainEnumQ =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition qForMainEnum =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+        testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     QuestionDefinition nestedEnumQ =
-        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+        testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition qForNestedEnum =
-        testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
+        testQuestionBank
+            .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+            .getQuestionDefinition();
 
     BlockDefinition blockA =
         BlockDefinition.builder()
@@ -1572,7 +1548,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
-            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)

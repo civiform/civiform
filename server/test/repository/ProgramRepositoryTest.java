@@ -7,7 +7,6 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.util.Providers;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
@@ -21,6 +20,7 @@ import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
+import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +46,7 @@ import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
+import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
@@ -56,6 +57,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
+  private ApplicationStatusesRepository appRepo;
 
   @Before
   public void setup() {
@@ -63,6 +65,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
+    appRepo = instanceOf(ApplicationStatusesRepository.class);
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
@@ -124,6 +127,46 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void setFullProgramDefinitionFromCache_doesNotSetWhenNullQuestionsIncluded() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    QuestionModel nullQuestion = new TestQuestionBank(false).nullQuestion();
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("programWithNullQuestion")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(nullQuestion)
+            .build();
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(
+        program.getProgramDefinition().blockDefinitions().stream()
+            .anyMatch(block -> block.hasNullQuestion()));
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void setFullProgramDefinitionFromCache_doesSetWhenNoNullQuestionsIncluded() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    QuestionModel question = resourceCreator.insertQuestion("testQuestion");
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("programWithQuestion")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(
+        program.getProgramDefinition().blockDefinitions().stream()
+            .noneMatch(block -> block.hasNullQuestion()));
+    assertThat(programDefFromCache).isNotEmpty();
+  }
+
+  @Test
   public void getFullProgramDefinitionFromCache_getsFromCacheWhenPresent() {
     Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
     ProgramModel program = resourceCreator.insertActiveProgram("testInCache");
@@ -159,32 +202,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(programDefFromCache).isEmpty();
-  }
-
-  // Verify the StatusDefinitions default value in evolution 40 loads.
-  @Test
-  public void loadStatusDefinitionsEvolution() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, status_definitions,"
-                + " localized_name, localized_description, program_type) values ('Status Default',"
-                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
-                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Status Default'));")
-        .execute();
-
-    ProgramModel found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
-    assertThat(found.getStatusDefinitions().getStatuses()).isEmpty();
   }
 
   @Test
@@ -334,10 +351,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    ApplicationModel bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    ApplicationModel bobApp =
+        makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe", "Suffix");
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
-    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
 
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
@@ -402,16 +420,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
+    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe", "Suffix")
         .setSubmitterEmail("bobs_ti@example.com")
         .save();
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
-    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
     ApplicantModel chris =
         resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
-    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
+    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person", "Suffix");
 
     ApplicantModel otherApplicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
@@ -547,11 +565,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
       ProgramModel program,
       String firstName,
       String middleName,
-      String lastName) {
+      String lastName,
+      String suffix) {
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
-        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
+        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName, suffix);
     application.setApplicantData(applicantData);
     application.save();
     return application;
@@ -577,11 +596,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
-    ProgramModel program =
-        ProgramBuilder.newActiveProgram("test program", "description")
-            .withStatusDefinitions(
-                new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
-            .build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+    appRepo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
@@ -908,5 +926,17 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
     assertThat(latestId.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void checkProgramAdminNameExists_returnsTrueIfAdminNameExistsFalseOtherwise() {
+    ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
+
+    boolean existsOne =
+        repo.checkProgramAdminNameExists("program-name-1"); // same admin name as saved program
+    boolean existsTwo = repo.checkProgramAdminNameExists("another-admin-name");
+
+    assertThat(existsOne).isTrue();
+    assertThat(existsTwo).isFalse();
   }
 }

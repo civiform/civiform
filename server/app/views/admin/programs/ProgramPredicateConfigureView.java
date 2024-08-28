@@ -57,6 +57,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -98,7 +99,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   @Inject
   public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      SettingsManifest settingsManifest) {
+    super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
@@ -590,8 +593,12 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<Operator> maybeSelectedOperator;
 
     if (questionDefinition.isAddress()) {
+      Optional<LeafAddressServiceAreaExpressionNode> maybeLeafAddressServiceAreaExpressionNode =
+          assertLeafAddressServiceAreaNode(maybeLeafNode);
       maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
-      maybeSelectedOperator = Optional.of(Operator.IN_SERVICE_AREA);
+      maybeSelectedOperator =
+          maybeLeafAddressServiceAreaExpressionNode.map(
+              LeafAddressServiceAreaExpressionNode::operator);
     } else {
       try {
         ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());

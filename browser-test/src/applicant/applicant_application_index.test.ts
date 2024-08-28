@@ -10,6 +10,7 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  seedProgramsAndCategories,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -283,6 +284,209 @@ test.describe('applicant program index page', () => {
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
 
+  test.describe('applicant program index page with program filtering', () => {
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await enableFeatureFlag(page, 'program_filtering_enabled')
+
+      await test.step('seed categories', async () => {
+        await seedProgramsAndCategories(page)
+        await page.goto('/')
+      })
+
+      await test.step('go to program edit form and add categories to primary program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+          primaryProgramName,
+        )
+        await page.getByRole('button', {name: 'Edit program details'}).click()
+        await page.getByText('Education').check()
+        await page.getByText('Healthcare').check()
+        await adminPrograms.submitProgramDetailsEdits()
+      })
+
+      await test.step('add different categories to other program', async () => {
+        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+          otherProgramName,
+        )
+        await page.getByRole('button', {name: 'Edit program details'}).click()
+        await page.getByText('General').check()
+        await page.getByText('Utilities').check()
+        await adminPrograms.submitProgramDetailsEdits()
+      })
+    })
+
+    test('shows category filter chips', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
+        await logout(page)
+        await expect(
+          page.getByRole('checkbox', {name: 'Education'}),
+        ).toBeHidden()
+        await expect(
+          page.getByRole('checkbox', {name: 'Healthcare'}),
+        ).toBeHidden()
+        await expect(page.getByRole('checkbox', {name: 'General'})).toBeHidden()
+        await expect(
+          page.getByRole('checkbox', {name: 'Utilities'}),
+        ).toBeHidden()
+      })
+
+      await test.step('publish programs with categories', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      const filterChips = page.locator('#category-filter-form')
+
+      await test.step('check that filter chips appear on homepage', async () => {
+        await expect(filterChips.getByText('Education')).toBeVisible()
+        await expect(filterChips.getByText('Healthcare')).toBeVisible()
+        await expect(filterChips.getByText('General')).toBeVisible()
+        await expect(filterChips.getByText('Utilities')).toBeVisible()
+      })
+
+      await test.step('select some filter chips and take screenshot', async () => {
+        await filterChips.getByText('Education').check()
+        await filterChips.getByText('General').check()
+        await validateScreenshot(
+          page.locator('#main-content'),
+          'category-filter-chips',
+        )
+      })
+
+      await test.step('start applying to a program', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('first answer')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
+
+      await test.step('check that categories only on started program are removed from filters', async () => {
+        await expect(filterChips.getByText('Education')).toBeHidden()
+        await expect(filterChips.getByText('Healthcare')).toBeHidden()
+        await expect(filterChips.getByText('General')).toBeVisible()
+        await expect(filterChips.getByText('Utilities')).toBeVisible()
+      })
+
+      await validateAccessibility(page)
+    })
+
+    test('with program filters enabled, categorizes programs correctly', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+      })
+
+      await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
+        await logout(page)
+        await loginAsTestUser(page)
+        await applicantQuestions.expectProgramsWithFilteringEnabled({
+          expectedProgramsInInProgressSection: [],
+          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+            'Minimal Sample Program',
+            'Comprehensive Sample Program',
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        })
+
+        // Check the program count in the section heading
+        await expect(
+          page.getByRole('heading', {name: 'Programs and services (4)'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Fill out first application block and confirm that the program appears in the In progress section', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('first answer')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.expectProgramsWithFilteringEnabled({
+          expectedProgramsInInProgressSection: [primaryProgramName],
+          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            otherProgramName,
+            'Minimal Sample Program',
+            'Comprehensive Sample Program',
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        })
+      })
+
+      await test.step('Finish the application and confirm that the program appears in the "Submitted" section', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('second answer')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.returnToProgramsFromSubmissionPage()
+        await applicantQuestions.expectProgramsWithFilteringEnabled({
+          expectedProgramsInInProgressSection: [],
+          expectedProgramsInSubmittedSection: [primaryProgramName],
+          expectedProgramsInProgramsAndServicesSection: [
+            otherProgramName,
+            'Minimal Sample Program',
+            'Comprehensive Sample Program',
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        })
+      })
+
+      await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
+        await page.locator('#category-filter-form').getByText('General').check()
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInInProgressSection: [],
+            expectedProgramsInSubmittedSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInOtherProgramsSection: [
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+          },
+          true,
+        )
+        // Check the program count in the section headings
+        await expect(
+          page.getByRole('heading', {name: 'Recommended (1)'}),
+        ).toBeVisible()
+        await expect(
+          page.getByRole('heading', {name: 'Other programs and services (2)'}),
+        ).toBeVisible()
+      })
+
+      await validateAccessibility(page)
+
+      await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
+        await logout(page)
+        await applicantQuestions.expectProgramsWithFilteringEnabled({
+          expectedProgramsInInProgressSection: [],
+          expectedProgramsInSubmittedSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+            'Minimal Sample Program',
+            'Comprehensive Sample Program',
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        })
+      })
+    })
+  })
+
   test.describe(
     'applicant program index page with northstar UI',
     {tag: ['@northstar']},
@@ -323,9 +527,9 @@ test.describe('applicant program index page', () => {
             'Create an account or sign in',
           )
           await validateScreenshot(
-            page,
+            page.getByRole('dialog').getByTestId('login'),
             'apply-program-login-prompt-northstar',
-            /* fullPage= */ true,
+            /* fullPage= */ false,
             /* mobileScreenshot= */ true,
           )
         })
@@ -376,8 +580,12 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(primaryProgramName)
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage(true)
-          await applicantQuestions.returnToProgramsFromSubmissionPage()
+          await applicantQuestions.submitFromReviewPage(
+            /* northStarEnabled= */ true,
+          )
+          await applicantQuestions.returnToProgramsFromSubmissionPage(
+            /* northStarEnabled= */ true,
+          )
           await applicantQuestions.expectPrograms({
             wantNotStartedPrograms: [otherProgramName],
             wantInProgressPrograms: [],
@@ -398,6 +606,22 @@ test.describe('applicant program index page', () => {
             wantSubmittedPrograms: [],
           })
         })
+      })
+
+      test('Click "View details" button and expect to open a new tab with the external program URL', async ({
+        page,
+      }) => {
+        // Locate the first card (doesn't really matter which one)
+        const firstCard = page.locator('.usa-card-group li').nth(0)
+        await firstCard.getByText('View details').click()
+
+        // Clicking the button opens a new tab
+        const popupPromise = page.waitForEvent('popup')
+        const popup = await popupPromise
+        const popupURL = await popup.evaluate('location.href')
+
+        // Verify the program details URL matches the external link
+        expect(popupURL).toMatch('https://www.usa.gov/')
       })
     },
   )

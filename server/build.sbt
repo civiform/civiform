@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.2.1-jre",
+      "com.google.guava" % "guava" % "33.3.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -42,16 +42,16 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.26.24",
-      "software.amazon.awssdk" % "ses" % "2.26.24",
+      "software.amazon.awssdk" % "s3" % "2.27.12",
+      "software.amazon.awssdk" % "ses" % "2.27.12",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.13.1",
-      "com.azure" % "azure-storage-blob" % "12.27.0",
+      "com.azure" % "azure-identity" % "1.13.2",
+      "com.azure" % "azure-storage-blob" % "12.27.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.3",
-      "com.h2database" % "h2" % "2.3.230" % Test,
+      "org.postgresql" % "postgresql" % "42.7.4",
+      "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.26.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.2.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.3.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -75,13 +75,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.6",
+      "org.pac4j" % "pac4j-core" % "5.7.7",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.6",
+      "org.pac4j" % "pac4j-http" % "5.7.7",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.6",
+      "org.pac4j" % "pac4j-oidc" % "5.7.7",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.6",
+      "org.pac4j" % "pac4j-saml" % "5.7.7",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -91,8 +91,8 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.29.2",
-      "org.checkerframework" % "dataflow-errorprone" % "3.45.0",
+      "com.google.errorprone" % "error_prone_core" % "2.30.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.46.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.42",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.44",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -114,7 +114,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.6"
+      "ch.qos.logback" % "logback-classic" % "1.5.7"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

@@ -66,7 +66,7 @@ public class BlockDefinitionTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                    testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
                     Optional.empty()))
             .build();
 
@@ -92,7 +92,8 @@ public class BlockDefinitionTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
+                    testQuestionBank.fileUploadApplicantFile().getQuestionDefinition(),
+                    Optional.empty()))
             .build();
 
     assertThat(blockDefinition.isFileUpload()).isTrue();
@@ -114,12 +115,14 @@ public class BlockDefinitionTest {
 
   @Test
   public void setAndGetEligibilityDefinition() {
-    var visibilityAddress = LeafAddressServiceAreaExpressionNode.create(1L, "");
+    var visibilityAddress =
+        LeafAddressServiceAreaExpressionNode.create(1L, "", Operator.IN_SERVICE_AREA);
     PredicateDefinition visibilityPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(visibilityAddress), PredicateAction.HIDE_BLOCK);
 
-    var eligibilityAddress = LeafAddressServiceAreaExpressionNode.create(2L, "");
+    var eligibilityAddress =
+        LeafAddressServiceAreaExpressionNode.create(2L, "", Operator.IN_SERVICE_AREA);
     PredicateDefinition eligibilityPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(eligibilityAddress), PredicateAction.HIDE_BLOCK);
@@ -158,9 +161,10 @@ public class BlockDefinitionTest {
 
   @Test
   public void getAddressCorrectionEnabledOnDifferentQuestion() {
-    QuestionDefinition firstAddress = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition firstAddress =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition secondAddress =
-        testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     ProgramQuestionDefinition firstQuestion =
         ProgramQuestionDefinition.create(firstAddress, Optional.empty());
     // Second address has correction enabled
@@ -185,11 +189,11 @@ public class BlockDefinitionTest {
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() {
-    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     QuestionDefinition colorQuestion =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()
@@ -224,7 +228,7 @@ public class BlockDefinitionTest {
 
   @Test
   public void hasNullQuestion_isFalse() {
-    QuestionDefinition nullQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nullQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()

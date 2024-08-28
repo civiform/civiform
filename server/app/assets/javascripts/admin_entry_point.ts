@@ -7,6 +7,7 @@ import * as main from './main'
 import * as radio from './radio'
 import * as toast from './toast'
 import * as toggle from './toggle'
+import * as adminApiKeys from './admin_api_keys'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
@@ -24,6 +25,7 @@ import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
+import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
 
 import htmx from 'htmx.org'
@@ -49,6 +51,7 @@ function initializeEverything(): void {
   radio.init()
   toast.init()
   toggle.init()
+  adminApiKeys.init()
   adminApplicationView.init()
   adminApplications.init()
   adminPredicates.init()
@@ -66,6 +69,7 @@ function initializeEverything(): void {
   phoneNumber.init()
   adminQuestionEdit.init()
   adminExportView.init()
+  adminImportView.init()
   trustedIntermediaryController.init()
 }
 
