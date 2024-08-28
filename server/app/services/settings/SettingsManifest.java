@@ -979,7 +979,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
-  /** When enabled, admins will be able to select many applications for status updates. */
+  /**
+   * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
+   * status updates
+   */
   public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
@@ -2030,8 +2033,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "BULK_STATUS_UPDATE_ENABLED",
-                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status"
-                          + " updates.",
+                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
+                          + " applications for status updates",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
