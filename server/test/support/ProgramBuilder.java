@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -292,6 +293,11 @@ public class ProgramBuilder {
 
   public ProgramBuilder withProgramType(ProgramType programType) {
     builder.setProgramType(programType);
+    return this;
+  }
+
+  public ProgramBuilder withCategories(ImmutableList<CategoryModel> categories) {
+    builder.setCategories(categories);
     return this;
   }
 
