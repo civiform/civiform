@@ -45,7 +45,6 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
-  private final Provider<InternalServerError> internalServerErrorPageProvider;
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
 
@@ -72,11 +71,9 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
-      Provider<InternalServerError> internalServerErrorPageProvider,
       Provider<NotFound> notFoundPageProvider,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.internalServerErrorPageProvider = checkNotNull(internalServerErrorPageProvider);
     this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
   }
