@@ -75,6 +75,9 @@ public class AdminExportController extends CiviFormController {
       return badRequest(String.format("Program with ID %s could not be found", programId));
     }
 
+    // TODO(#7087) migrate program categories
+    program = program.toBuilder().setCategories(ImmutableList.of()).build();
+
     ImmutableList<QuestionDefinition> questionsUsedByProgram =
         program.getQuestionIdsInProgram().stream()
             .map(

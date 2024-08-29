@@ -12,11 +12,15 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
+import models.CategoryModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -93,6 +97,26 @@ public class AdminExportControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Copy JSON");
     assertThat(contentAsString(result)).contains("Download JSON");
+  }
+
+  @Test
+  public void index_removesProgramCategories() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    ImmutableMap<Locale, String> translations =
+        ImmutableMap.of(
+            Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
+    CategoryModel category = new CategoryModel(translations);
+    category.save();
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("active-program-1")
+            .withCategories(ImmutableList.of(category))
+            .build();
+    Result result = controller.index(fakeRequest(), activeProgram.id);
+
+    assertThat(contentAsString(result)).contains("&quot;categories&quot; : [ ]");
+    assertThat(contentAsString(result)).doesNotContain("Health");
   }
 
   @Test
