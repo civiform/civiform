@@ -354,6 +354,7 @@ public final class ProgramRepository {
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
+        .fetch("categories")
         .where()
         .in("name", programNameQuery)
         .query()
@@ -382,6 +383,7 @@ public final class ProgramRepository {
             .setLabel("ApplicationModel.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
+            .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
             .orderBy("id desc")
             .where()
