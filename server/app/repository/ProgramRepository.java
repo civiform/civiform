@@ -175,6 +175,8 @@ public final class ProgramRepository {
         // We only set the cache if it hasn't yet been set for the ID.
         && getFullProgramDefinitionFromCache(programId).isEmpty()) {
       // We should never set the cache for draft programs.
+      // todo should this just ask the program if it's a draft and join the programs on first?
+      // or is there a potential race condition where the program we're holding was a draft but isn't anymore?
       if (!versionRepository.get().isDraftProgram(programId)) {
         ImmutableList<BlockDefinition> blocksWithNullQuestion =
             programDefinition.blockDefinitions().stream()
@@ -354,6 +356,7 @@ public final class ProgramRepository {
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
+        .fetch("categories")
         .where()
         .in("name", programNameQuery)
         .query()
@@ -382,6 +385,7 @@ public final class ProgramRepository {
             .setLabel("ApplicationModel.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
+            .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
             .orderBy("id desc")
             .where()

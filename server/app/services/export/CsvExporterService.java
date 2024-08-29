@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
@@ -48,6 +49,8 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ExporterService generates CSV files for applications to a program or demographic information
@@ -60,6 +63,7 @@ public final class CsvExporterService {
   private final ApplicantService applicantService;
   private final Config config;
   private final DateConverter dateConverter;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporterService.class);
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
@@ -92,14 +96,16 @@ public final class CsvExporterService {
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
       throws ProgramNotFoundException {
-    ImmutableList<ProgramDefinition> allProgramVersions =
-        programService.getAllVersionsFullProgramDefinition(programId);
 
-    ProgramDefinition currentProgram = programService.getFullProgramDefinition(programId);
-    CsvExportConfig exportConfig =
-        generateCsvConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
+    LOGGER.debug("atlee before load all program versions");
+    ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
+        programService.getAllVersionsFullProgramDefinition(programId).stream()
+            .collect(ImmutableMap.toImmutableMap(ProgramDefinition::id, pd -> pd));
+    var currentProgram = programDefinitionsForAllVersions.get(programId);
 
-    ImmutableList<ApplicationModel> applications =
+
+    LOGGER.debug("atlee before load all applications, first");
+    ImmutableList<ApplicationModel> allApplications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
@@ -107,24 +113,27 @@ public final class CsvExporterService {
                 filters)
             .getPageContents();
 
-    return exportCsv(exportConfig, applications, Optional.of(currentProgram));
+    LOGGER.debug("atlee before generate export config");
+    CsvExportConfig exportConfig = generateCsvConfig(allApplications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+
+    LOGGER.debug("atlee before exportCsv");
+    return exportCsv(exportConfig, allApplications, programDefinitionsForAllVersions, Optional.of(currentProgram));
   }
 
-  private CsvExportConfig generateCsvConfig(
-      ImmutableList<ProgramDefinition> programDefinitions, boolean showEligibilityColumn)
+  private CsvExportConfig generateCsvConfig(ImmutableList<ApplicationModel> allApplications,
+    ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions, boolean showEligibilityColumn)
       throws ProgramNotFoundException {
     Map<Path, AnswerData> answerMap = new HashMap<>();
 
-    for (ProgramDefinition programDefinition : programDefinitions) {
-      for (ApplicationModel application :
-          programService.getSubmittedProgramApplications(programDefinition.id())) {
-        applicantService
-            .getReadOnlyApplicantProgramService(application, programDefinition)
-            .getSummaryDataOnlyActive()
-            .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
-      }
-    }
-
+    allApplications.stream().flatMap(app ->
+      applicantService.getReadOnlyApplicantProgramService(
+        app,
+        programDefinitionsForAllVersions.get(app.getProgram().id))
+      .getSummaryDataOnlyActive().stream())
+      .forEach(data -> {
+        answerMap.putIfAbsent(data.contextualizedPath(), data);
+      });
+      LOGGER.debug("atlee in generateCsvConfig, before sorting answers");
     // Get the list of all answers, sorted by block ID, then question index, and finally
     // contextualized path in string form.
     ImmutableList<AnswerData> answers =
@@ -134,13 +143,14 @@ public final class CsvExporterService {
                     .thenComparing(AnswerData::questionIndex)
                     .thenComparing(answerData -> answerData.contextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
-
+    LOGGER.debug("atlee in generateCsvConfig, before buildColumnHeaders");
     return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
   private String exportCsv(
       CsvExportConfig exportConfig,
       ImmutableList<ApplicationModel> applications,
+      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
       Optional<ProgramDefinition> currentProgram) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
@@ -150,34 +160,20 @@ public final class CsvExporterService {
               config.getString("play.http.secret.key"),
               writer,
               dateConverter)) {
-        // Cache Program data which doesn't change, so we only look it up once rather than on every
-        // exported row.
-        // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
-        // TODO(#1750): Consider Play's JavaCache over this caching.
-        HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
         boolean shouldCheckEligibility =
             currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
         for (ApplicationModel application : applications) {
-          Long programId = application.getProgram().id;
-          if (!programDefinitions.containsKey(programId)) {
-            try {
-              programDefinitions.put(programId, programService.getFullProgramDefinition(programId));
-            } catch (ProgramNotFoundException e) {
-              throw new RuntimeException("Cannot find a program that has applications for it.", e);
-            }
-          }
-          ProgramDefinition programDefinition = programDefinitions.get(programId);
-
+          var programDefForApplication = programDefinitionsForAllVersions.get(application.getProgram().id);
           ReadOnlyApplicantProgramService roApplicantService =
-              applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+              applicantService.getReadOnlyApplicantProgramService(application, programDefForApplication);
 
           Optional<Boolean> optionalEligibilityStatus =
               shouldCheckEligibility
-                  ? applicantService.getApplicationEligibilityStatus(application, programDefinition)
+                  ? applicantService.getApplicationEligibilityStatus(application, programDefForApplication)
                   : Optional.empty();
 
           csvExporter.exportRecord(
-              application, roApplicantService, optionalEligibilityStatus, programDefinition);
+              application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
         }
       }
     } catch (IOException e) {
@@ -350,6 +346,7 @@ public final class CsvExporterService {
     return exportCsv(
         getDemographicsExporterConfig(),
         applicantService.getApplications(filter),
+        ImmutableMap.<Long, ProgramDefinition>builder().build(), // todo fix this
         /* currentProgram= */ Optional.empty());
   }
 

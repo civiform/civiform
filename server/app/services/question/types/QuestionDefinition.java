@@ -12,6 +12,9 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+
+import auth.oidc.IdTokens;
+
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -25,6 +28,10 @@ import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Superclass for all question types.
@@ -49,9 +56,16 @@ import services.question.QuestionOption;
   @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text"),
 })
 public abstract class QuestionDefinition {
+  private static final Logger LOGGER = LoggerFactory.getLogger(QuestionDefinition.class);
 
   @JsonProperty("config")
   private QuestionDefinitionConfig config;
+
+  private Supplier<String> questionNameKeySupplier = () -> {
+    // LOGGER.debug("atlee question supplier cache miss");
+    return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+  };
+  private Supplier<String> memoizedQuestionNameKeySupplier = Suppliers.memoize(questionNameKeySupplier);
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
     if (config.validationPredicates().isEmpty()) {
@@ -59,6 +73,8 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
+
+
   }
 
   /**
@@ -180,7 +196,8 @@ public abstract class QuestionDefinition {
   // Note that this formatting logic is duplicated in main.ts formatQuestionName()
   @JsonIgnore
   public final String getQuestionNameKey() {
-    return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    // LOGGER.debug("atlee question supplier request");
+    return memoizedQuestionNameKeySupplier.get();
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
