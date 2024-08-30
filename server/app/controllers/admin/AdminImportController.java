@@ -371,9 +371,8 @@ public class AdminImportController extends CiviFormController {
   }
 
   /**
-   * Update the eligibility or visibility predicate with the id from the newly saved question. We
-   * use the old question id from the json to fetch the question admin name and match it to the
-   * newly saved question so we can set the new question id on the predicate definition.
+   * Update the predicate definition by updating the predicate expression, starting with the root
+   * node.
    */
   private PredicateDefinition updatePredicateDefinition(
       PredicateDefinition predicateDefinition,
@@ -385,6 +384,12 @@ public class AdminImportController extends CiviFormController {
         predicateDefinition.action());
   }
 
+  /**
+   * Update the eligibility or visibility predicate with the id from the newly saved question. We
+   * use the old question id from the json to fetch the question admin name and match it to the
+   * newly saved question so we can set the new question id on the predicate definition. We
+   * recursively call this function on predicates with children.
+   */
   private PredicateExpressionNode updatePredicateExpression(
       PredicateExpressionNode predicateExpressionNode,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
@@ -410,6 +415,7 @@ public class AdminImportController extends CiviFormController {
                 .collect(ImmutableList.toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(andNodeChildren));
       case LEAF_ADDRESS_SERVICE_AREA:
+        // TODO(#8450): Ensure we support service area validation.
       case LEAF_OPERATION:
         LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafOperationNode();
         Long oldQuestionId = leafNode.questionId();
