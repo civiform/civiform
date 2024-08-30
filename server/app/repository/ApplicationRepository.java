@@ -205,8 +205,8 @@ public final class ApplicationRepository {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
-            .fetch("program")
-            .fetch("applicant.account")
+            .fetch("applicant")
+            .fetch("applicant.account.managedByGroup")
             .orderBy("id")
             .where();
     if (submitTimeFilter.fromTime().isPresent()) {
