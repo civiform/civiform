@@ -45,7 +45,6 @@ public final class CiviFormProfileFilter extends Filter {
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
     return NonUserRoutePrefixes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
-        && requestHeader.method().equals("GET")
         && profileIsMissing(requestHeader);
   }
 
