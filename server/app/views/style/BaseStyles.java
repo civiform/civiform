@@ -114,7 +114,7 @@ public final class BaseStyles {
 
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
-      StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
+    StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
 
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
@@ -122,7 +122,7 @@ public final class BaseStyles {
           "hidden",
           "absolute",
           "left-1/2",
-          "top-1/2",
+          "top-1/4",
           "transform",
           "-translate-x-1/2",
           "-translate-y-1/2",
