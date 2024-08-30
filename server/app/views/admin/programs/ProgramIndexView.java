@@ -590,7 +590,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
-        .setProfile(profile)
+        .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())
         .build();
   }
 
