@@ -25,7 +25,9 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
@@ -369,24 +371,63 @@ public class AdminImportController extends CiviFormController {
   }
 
   /**
-   * Update the eligibility or visibility predicate with the id from the newly saved question. We
-   * use the old question id from the json to fetch the question admin name and match it to the
-   * newly saved question so we can set the new question id on the predicate definition.
+   * Update the predicate definition by updating the predicate expression, starting with the root
+   * node.
    */
   private PredicateDefinition updatePredicateDefinition(
       PredicateDefinition predicateDefinition,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    return PredicateDefinition.create(
+        updatePredicateExpression(
+            predicateDefinition.rootNode(), questionsOnJsonById, updatedQuestionsMap),
+        predicateDefinition.action());
+  }
 
-    LeafOperationExpressionNode leafNode = predicateDefinition.rootNode().getLeafOperationNode();
+  /**
+   * Update the eligibility or visibility predicate with the id from the newly saved question. We
+   * use the old question id from the json to fetch the question admin name and match it to the
+   * newly saved question so we can set the new question id on the predicate definition. We
+   * recursively call this function on predicates with children.
+   */
+  private PredicateExpressionNode updatePredicateExpression(
+      PredicateExpressionNode predicateExpressionNode,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
 
-    Long oldQuestionId = leafNode.questionId();
-    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
-    Long newQuestionId = updatedQuestionsMap.get(questionAdminName).getId();
-
-    PredicateExpressionNode newPredicateExpressionNode =
-        PredicateExpressionNode.create(leafNode.toBuilder().setQuestionId(newQuestionId).build());
-
-    return PredicateDefinition.create(newPredicateExpressionNode, predicateDefinition.action());
+    switch (predicateExpressionNode.getType()) {
+      case OR:
+        OrNode orNode = predicateExpressionNode.getOrNode();
+        ImmutableList<PredicateExpressionNode> orNodeChildren =
+            orNode.children().stream()
+                .map(
+                    child ->
+                        updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
+                .collect(ImmutableList.toImmutableList());
+        return PredicateExpressionNode.create(OrNode.create(orNodeChildren));
+      case AND:
+        AndNode andNode = predicateExpressionNode.getAndNode();
+        ImmutableList<PredicateExpressionNode> andNodeChildren =
+            andNode.children().stream()
+                .map(
+                    child ->
+                        updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
+                .collect(ImmutableList.toImmutableList());
+        return PredicateExpressionNode.create(AndNode.create(andNodeChildren));
+      case LEAF_ADDRESS_SERVICE_AREA:
+        // TODO(#8450): Ensure we support service area validation.
+      case LEAF_OPERATION:
+        LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafOperationNode();
+        Long oldQuestionId = leafNode.questionId();
+        String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+        Long newQuestionId = updatedQuestionsMap.get(questionAdminName).getId();
+        return PredicateExpressionNode.create(
+            leafNode.toBuilder().setQuestionId(newQuestionId).build());
+      default:
+        throw new IllegalStateException(
+            String.format(
+                "Unsupported predicate expression type for import: %s",
+                predicateExpressionNode.getType()));
+    }
   }
 }
