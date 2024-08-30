@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicationModel;
@@ -92,12 +94,10 @@ public final class CsvExporterService {
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
       throws ProgramNotFoundException {
-    ImmutableList<ProgramDefinition> allProgramVersions =
-        programService.getAllVersionsFullProgramDefinition(programId);
-
-    ProgramDefinition currentProgram = programService.getFullProgramDefinition(programId);
-    CsvExportConfig exportConfig =
-        generateCsvConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
+    ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
+        programService.getAllVersionsFullProgramDefinition(programId).stream()
+            .collect(ImmutableMap.toImmutableMap(ProgramDefinition::id, pd -> pd));
+    ProgramDefinition currentProgram = programDefinitionsForAllVersions.get(programId);
 
     ImmutableList<ApplicationModel> applications =
         programService
@@ -107,23 +107,38 @@ public final class CsvExporterService {
                 filters)
             .getPageContents();
 
-    return exportCsv(exportConfig, applications, Optional.of(currentProgram));
+    CsvExportConfig exportConfig =
+        generateCsvConfig(
+            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+
+    return exportCsv(
+        exportConfig,
+        applications,
+        // Use our local program definition cache when exporting applications,
+        // it's faster then the cache in the ProgramRepository.
+        programDefinitionsForAllVersions::get,
+        Optional.of(currentProgram));
   }
 
   private CsvExportConfig generateCsvConfig(
-      ImmutableList<ProgramDefinition> programDefinitions, boolean showEligibilityColumn)
+      ImmutableList<ApplicationModel> applications,
+      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
+      boolean showEligibilityColumn)
       throws ProgramNotFoundException {
     Map<Path, AnswerData> answerMap = new HashMap<>();
 
-    for (ProgramDefinition programDefinition : programDefinitions) {
-      for (ApplicationModel application :
-          programService.getSubmittedProgramApplications(programDefinition.id())) {
-        applicantService
-            .getReadOnlyApplicantProgramService(application, programDefinition)
-            .getSummaryDataOnlyActive()
-            .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
-      }
-    }
+    applications.stream()
+        .flatMap(
+            app ->
+                applicantService
+                    .getReadOnlyApplicantProgramService(
+                        app, programDefinitionsForAllVersions.get(app.getProgram().id))
+                    .getSummaryDataOnlyActive()
+                    .stream())
+        .forEach(
+            data -> {
+              answerMap.putIfAbsent(data.contextualizedPath(), data);
+            });
 
     // Get the list of all answers, sorted by block ID, then question index, and finally
     // contextualized path in string form.
@@ -138,9 +153,18 @@ public final class CsvExporterService {
     return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
+  /**
+   * Export a CSV using the provided CsvExportConfig and applications.
+   *
+   * @param exportConfig the CsvExportConfig to use
+   * @param applications the list of ApplicationModels to export
+   * @param getProgramDefinition a function used to retrieve the ProgramDefinition by ID
+   * @param currentProgram the current program definition
+   */
   private String exportCsv(
       CsvExportConfig exportConfig,
       ImmutableList<ApplicationModel> applications,
+      Function<Long, ProgramDefinition> getProgramDefinition,
       Optional<ProgramDefinition> currentProgram) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
@@ -150,34 +174,24 @@ public final class CsvExporterService {
               config.getString("play.http.secret.key"),
               writer,
               dateConverter)) {
-        // Cache Program data which doesn't change, so we only look it up once rather than on every
-        // exported row.
-        // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
-        // TODO(#1750): Consider Play's JavaCache over this caching.
-        HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
         boolean shouldCheckEligibility =
             currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
-        for (ApplicationModel application : applications) {
-          Long programId = application.getProgram().id;
-          if (!programDefinitions.containsKey(programId)) {
-            try {
-              programDefinitions.put(programId, programService.getFullProgramDefinition(programId));
-            } catch (ProgramNotFoundException e) {
-              throw new RuntimeException("Cannot find a program that has applications for it.", e);
-            }
-          }
-          ProgramDefinition programDefinition = programDefinitions.get(programId);
 
+        for (ApplicationModel application : applications) {
+          ProgramDefinition programDefForApplication =
+              getProgramDefinition.apply(application.getProgram().id);
           ReadOnlyApplicantProgramService roApplicantService =
-              applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+              applicantService.getReadOnlyApplicantProgramService(
+                  application, programDefForApplication);
 
           Optional<Boolean> optionalEligibilityStatus =
               shouldCheckEligibility
-                  ? applicantService.getApplicationEligibilityStatus(application, programDefinition)
+                  ? applicantService.getApplicationEligibilityStatus(
+                      application, programDefForApplication)
                   : Optional.empty();
 
           csvExporter.exportRecord(
-              application, roApplicantService, optionalEligibilityStatus, programDefinition);
+              application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
         }
       }
     } catch (IOException e) {
@@ -347,9 +361,25 @@ public final class CsvExporterService {
    * TODO(#6746): Include repeated questions in the demographic export
    */
   public String getDemographicsCsv(TimeFilter filter) {
+    // Use the ProgramDefinition cache in the ProgramRepository, since we don't already have a local
+    // cache of ProgramDefinitions. This will cause a database call for program definitions that
+    // aren't yet in the cache.
+    // TODO(#8147): Consider warming the program definition cache with definitions for all
+    // programs.
+    Function<Long, ProgramDefinition> getProgramDefinition =
+        (id) -> {
+          try {
+            return programService.getFullProgramDefinition(id);
+          } catch (ProgramNotFoundException e) {
+            // This shouldn't happen, we used a known program ID when requesting the program
+            // definition
+            throw new RuntimeException(e);
+          }
+        };
     return exportCsv(
         getDemographicsExporterConfig(),
         applicantService.getApplications(filter),
+        getProgramDefinition,
         /* currentProgram= */ Optional.empty());
   }
 

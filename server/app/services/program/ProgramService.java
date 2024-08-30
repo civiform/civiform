@@ -1552,21 +1552,6 @@ public final class ProgramService {
   }
 
   /**
-   * Get all the program's submitted applications. Does not include drafts or deleted applications.
-   *
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   */
-  public ImmutableList<ApplicationModel> getSubmittedProgramApplications(long programId)
-      throws ProgramNotFoundException {
-    Optional<ProgramModel> programMaybe =
-        programRepository.lookupProgram(programId).toCompletableFuture().join();
-    if (programMaybe.isEmpty()) {
-      throw new ProgramNotFoundException(programId);
-    }
-    return programMaybe.get().getSubmittedApplications();
-  }
-
-  /**
    * Get all submitted applications for this program and all other previous and future versions of
    * it matches the specified filters.
    *
