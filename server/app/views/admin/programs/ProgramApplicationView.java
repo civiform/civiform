@@ -422,6 +422,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)
+        .setTop(Modal.Top.QUARTER)
         .build();
   }
 
