@@ -807,7 +807,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "                \"children\" : [ { \n"
           + "                  \"node\" : { \n"
           + "                    \"type\" : \"leaf\", \n"
-          + "                    \"questionId\" : 11, \n" 
+          + "                    \"questionId\" : 11, \n"
           + "                    \"scalar\" : \"SELECTIONS\", \n"
           + "                    \"operator\" : \"ANY_OF\", \n"
           + "                    \"value\" : { \n"
