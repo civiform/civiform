@@ -1361,7 +1361,7 @@ public final class ApplicantService {
       return program().id();
     }
 
-    public abstract Long currentApplicationProgramId();
+    public abstract long currentApplicationProgramId();
 
     public abstract ProgramDefinition program();
 
@@ -1780,11 +1780,12 @@ public final class ApplicantService {
       questionPathToValueMap.put(addressQuestion.getStatePath().toString(), address.getState());
       questionPathToValueMap.put(addressQuestion.getZipPath().toString(), address.getZip());
       questionPathToValueMap.put(
-          addressQuestion.getLatitudePath().toString(), location.getLatitude().toString());
+          addressQuestion.getLatitudePath().toString(), Double.toString(location.getLatitude()));
       questionPathToValueMap.put(
-          addressQuestion.getLongitudePath().toString(), location.getLongitude().toString());
+          addressQuestion.getLongitudePath().toString(), Double.toString(location.getLongitude()));
       questionPathToValueMap.put(
-          addressQuestion.getWellKnownIdPath().toString(), location.getWellKnownId().toString());
+          addressQuestion.getWellKnownIdPath().toString(),
+          Integer.toString(location.getWellKnownId()));
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());

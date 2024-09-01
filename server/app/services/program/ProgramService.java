@@ -688,7 +688,7 @@ public final class ProgramService {
       BlockDefinition block = programDefinition.blockDefinitions().get(i);
       Optional<LocalizationUpdate.ScreenUpdate> screenUpdate =
           localizationUpdate.screens().stream()
-              .filter(update -> update.blockIdToUpdate().equals(block.id()))
+              .filter(update -> update.blockIdToUpdate() == block.id())
               .findFirst();
       if (screenUpdate.isEmpty()) {
         // If there is no update, keep the block as is.
