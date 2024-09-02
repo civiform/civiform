@@ -1,6 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
@@ -11,13 +10,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import models.ApplicantModel;
 import play.i18n.Messages;
-import play.mvc.Http.Request;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
-import services.settings.SettingsManifest;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -25,11 +22,8 @@ import views.style.ReferenceClasses;
 /** Renders a name question. */
 public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
-  private final SettingsManifest settingsManifest;
-
-  public NameQuestionRenderer(ApplicantQuestion question, SettingsManifest settingsManifest) {
+  public NameQuestionRenderer(ApplicantQuestion question) {
     super(question);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Override
@@ -45,8 +39,6 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
     Messages messages = params.messages();
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
     boolean alreadyAutofocused = false;
-    Request request =
-        params.request().orElseThrow(() -> new IllegalArgumentException("Request cannot be null"));
 
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
@@ -121,7 +113,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .with(firstNameField.getInputTag())
             .with(middleNameField.getInputTag())
             .with(lastNameField.getInputTag());
-    if (settingsManifest.getNameSuffixDropdownEnabled(request)) {
+    if (params.isNameSuffixEnabled().orElse(false)) {
       nameQuestionFormContent.with(nameSuffixField.getSelectTag());
     }
 

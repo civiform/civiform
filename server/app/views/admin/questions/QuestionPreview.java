@@ -27,13 +27,13 @@ public final class QuestionPreview {
       Request request)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
-        new ApplicantQuestionRendererFactory(applicantFileUploadRenderer, settingsManifest);
+        new ApplicantQuestionRendererFactory(applicantFileUploadRenderer);
     ApplicantQuestionRendererParams params;
     if (type == QuestionType.NAME) {
       params =
           ApplicantQuestionRendererParams.builder()
               .setMessages(messages)
-              .setRequest(request)
+              .setIsNameSuffixEnabled(settingsManifest.getNameSuffixDropdownEnabled(request))
               .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
               .build();
     } else {

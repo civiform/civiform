@@ -24,6 +24,7 @@ import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ApplicationBaseView;
 import views.ApplicationBaseViewParams;
@@ -43,6 +44,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final ApplicantRoutes applicantRoutes;
   private final EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   ApplicantProgramBlockEditView(
@@ -50,12 +52,14 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
       ApplicantRoutes applicantRoutes,
-      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator) {
+      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.editOrDiscardAnswersModalCreator = checkNotNull(editOrDiscardAnswersModalCreator);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(ApplicationBaseViewParams params) {
@@ -182,7 +186,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                   ApplicantQuestionRendererParams rendererParams =
                       ApplicantQuestionRendererParams.builder()
                           .setMessages(params.messages())
-                          .setRequest(params.request())
+                          .setIsNameSuffixEnabled(
+                              settingsManifest.getNameSuffixDropdownEnabled(params.request()))
                           .setErrorDisplayMode(params.errorDisplayMode())
                           .setAutofocus(
                               calculateAutoFocusTarget(
