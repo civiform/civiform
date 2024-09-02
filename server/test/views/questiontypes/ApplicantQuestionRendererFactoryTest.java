@@ -4,7 +4,6 @@ import static j2html.TagCreator.document;
 import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -17,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.i18n.Lang;
 import play.i18n.Messages;
-import play.mvc.Http.Request;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -31,11 +29,9 @@ public class ApplicantQuestionRendererFactoryTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
-  private final Request request = fakeRequest();
   private final ApplicantQuestionRendererParams params =
       ApplicantQuestionRendererParams.builder()
           .setMessages(messages)
-          .setRequest(request)
           .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
           .build();
 
@@ -55,8 +51,7 @@ public class ApplicantQuestionRendererFactoryTest {
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))),
-            new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of())));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -84,8 +79,7 @@ public class ApplicantQuestionRendererFactoryTest {
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))),
-            new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of())));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 

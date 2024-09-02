@@ -1,9 +1,7 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static play.test.Helpers.stubMessagesApi;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
@@ -15,13 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
-import play.mvc.Http.Request;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import services.settings.SettingsManifest;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class NameQuestionRendererTest {
@@ -38,26 +34,22 @@ public class NameQuestionRendererTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
-  private final Request request = fakeRequest();
   private ApplicantData applicantData;
   private ApplicantQuestion question;
   private NameQuestionRenderer renderer;
   private ApplicantQuestionRendererParams params;
-  private SettingsManifest settingsManifest;
 
   @Before
   public void setup() {
     applicantData = new ApplicantData();
-    settingsManifest = mock(SettingsManifest.class);
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
     question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
-    renderer = new NameQuestionRenderer(question, settingsManifest);
+    renderer = new NameQuestionRenderer(question);
   }
 
   @Test
@@ -65,7 +57,6 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
@@ -80,7 +71,6 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
@@ -95,7 +85,6 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setRequest(request)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .build();
