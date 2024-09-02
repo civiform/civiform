@@ -27,17 +27,7 @@ import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
 import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
-
-import htmx from 'htmx.org'
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    htmx: any
-  }
-}
-
-window.htmx = htmx
+import htmx from './htmx'
 
 window.addEventListener('load', () => {
   initializeEverything()
