@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const {ProvidePlugin} = require('webpack')
 
 module.exports = {
   mode: 'production',
@@ -64,5 +65,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].min.css' /* The name for the compiled output CSS file */,
     }),
+    new ProvidePlugin({
+      htmx: 'htmx.org'
+    })
   ],
 }
