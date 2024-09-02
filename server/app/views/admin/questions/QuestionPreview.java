@@ -29,19 +29,18 @@ public final class QuestionPreview {
     ApplicantQuestionRendererFactory rf =
         new ApplicantQuestionRendererFactory(applicantFileUploadRenderer);
     ApplicantQuestionRendererParams params;
+
+    ApplicantQuestionRendererParams.Builder paramsBuilder =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS);
     if (type == QuestionType.NAME) {
       params =
-          ApplicantQuestionRendererParams.builder()
-              .setMessages(messages)
+          paramsBuilder
               .setIsNameSuffixEnabled(settingsManifest.getNameSuffixDropdownEnabled(request))
-              .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
               .build();
     } else {
-      params =
-          ApplicantQuestionRendererParams.builder()
-              .setMessages(messages)
-              .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
-              .build();
+      params = paramsBuilder.build();
     }
     return div(rf.getSampleRenderer(type).render(params));
   }
