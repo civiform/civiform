@@ -25,7 +25,7 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: [
+                loadPaths: [
                   './app/assets/stylesheets/northstar',
                   './node_modules/@uswds/uswds/packages'
                 ],
