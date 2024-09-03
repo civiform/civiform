@@ -48,7 +48,7 @@ public class HomeController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
-    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     if (profile.isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(

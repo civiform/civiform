@@ -113,7 +113,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> reviewWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> submittingProfile = profileUtils.optionalCurrentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
     if (submittingProfile.isEmpty()) {
@@ -148,7 +148,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
               AlertSettings eligibilityAlertSettings =
                   eligibilityAlertSettingsCalculator.calculate(
                       request,
-                      profileUtils.currentUserProfile(request).get().isTrustedIntermediary(),
+                      profileUtils
+                          .optionalCurrentUserProfile(request)
+                          .get()
+                          .isTrustedIntermediary(),
                       !roApplicantProgramService.isApplicationNotEligible(),
                       settingsManifest.getNorthStarApplicantUi(request),
                       false,
@@ -260,7 +263,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> submitWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> submittingProfile = profileUtils.optionalCurrentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
     if (submittingProfile.isEmpty()) {
@@ -333,7 +336,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
-    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    CiviFormProfile submittingProfile =
+        profileUtils.optionalCurrentUserProfile(request).orElseThrow();
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
@@ -404,7 +408,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof DuplicateApplicationException) {
                   return renderPreventDuplicateSubmissionPage(
                       request,
-                      profileUtils.currentUserProfileOrThrow(request),
+                      profileUtils.currentUserProfile(request),
                       applicantId,
                       applicantPersonalInfo.join(),
                       readOnlyApplicantProgramServiceFuture.join());
@@ -472,7 +476,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               roApplicantProgramService,
               messagesApi.preferred(request),
               applicantId,
-              profileUtils.currentUserProfileOrThrow(request)));
+              profileUtils.currentUserProfile(request)));
     }
   }
 

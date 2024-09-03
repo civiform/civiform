@@ -88,7 +88,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request,
       long applicantId, /* The selected program categories */
       List<String> categories) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
     if (requesterProfile.isEmpty()) {
@@ -172,7 +172,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
     if (requesterProfile.isEmpty()) {
@@ -196,7 +196,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
@@ -251,7 +251,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> editWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
     if (requesterProfile.isEmpty()) {
@@ -266,7 +266,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(
@@ -282,7 +282,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
-                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 return supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId)));
               }

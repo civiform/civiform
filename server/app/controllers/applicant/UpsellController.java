@@ -98,7 +98,7 @@ public final class UpsellController extends CiviFormController {
       long applicationId,
       String redirectTo,
       String submitTime) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
     if (profile.isEmpty()) {
       // should definitely never happen.
       return CompletableFuture.completedFuture(

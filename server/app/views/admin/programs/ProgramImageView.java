@@ -318,7 +318,7 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag currentProgramCardSection =
         div().withClass("mx-auto").with(h2("What the applicant will see").withClasses("mb-4"));
 
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
     Long applicantId;
     try {
       applicantId = profile.get().getApplicant().get().id;

@@ -415,7 +415,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.optionalCurrentUserProfile(request).get().getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
@@ -458,7 +458,7 @@ public final class AdminApplicationController extends CiviFormController {
     programAdminApplicationService.setNote(
         application,
         ApplicationEventDetails.NoteEvent.create(note),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.optionalCurrentUserProfile(request).get().getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
@@ -550,7 +550,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   private CiviFormProfile getCiviFormProfile(Http.Request request) {
     return profileUtils
-        .currentUserProfile(request)
+        .optionalCurrentUserProfile(request)
         .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
   }
 }
