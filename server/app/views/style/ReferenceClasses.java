@@ -138,7 +138,6 @@ public final class ReferenceClasses {
   public static final String NAME_FIRST = "cf-name-first";
   public static final String NAME_MIDDLE = "cf-name-middle";
   public static final String NAME_LAST = "cf-name-last";
-  public static final String NAME_SUFFIX = "cf-name-suffix";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common reference classes

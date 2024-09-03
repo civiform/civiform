@@ -236,19 +236,15 @@ test.describe('name applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await test.step('opens name question during application process', async () => {
-        await validateScreenshot(
-          page.locator('.cf-question-name'),
-          'name-question-with-suffix-field',
-        )
+      await test.step('name question has suffix field available and no default value selected', async () => {
+        await expect(page.getByLabel('Suffix')).toBeVisible()
+        await expect(page.getByLabel('Suffix')).toHaveValue('')
       })
 
       await test.step('selects an option in name suffix dropdown', async () => {
         await applicantQuestions.answerDropdownQuestion('II')
-        await validateScreenshot(
-          page.locator('.cf-question-name'),
-          'name-suffix-with-value-selected',
-        )
+        await expect(page.getByLabel('Suffix')).toBeVisible()
+        await expect(page.getByLabel('Suffix')).toHaveValue('II')
       })
     })
   })
