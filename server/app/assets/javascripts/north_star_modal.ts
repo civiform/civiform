@@ -74,6 +74,22 @@ export class NorthStarModalController {
   }
 }
 
+window.onload = function () {
+  /* Expected flow:
+   * 1. On block edit page, user has invalid form
+   * 2. User clicks "Previous"
+   * 3. Block edit page reloads via routes (see NorthStarApplicantProgramBlockEditView.java:getFormAction)
+   * 4. Block edit page needs to show a modal
+   */
+  const openModalButton = document.getElementById(
+    'invisible-validation-modal-button',
+  ) as HTMLAnchorElement
+  const shouldOpenModal = document.getElementById('show-error-modal')
+  if (openModalButton && shouldOpenModal) {
+    openModalButton.click()
+  }
+}
+
 export function init() {
   new NorthStarModalController()
 }

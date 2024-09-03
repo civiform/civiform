@@ -60,10 +60,16 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
-    context.setVariable(
-        "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
+    Map<Long, ApplicantQuestionRendererParams> questionParams =
+        getApplicantQuestionRendererParams(applicationParams);
+    context.setVariable("questionRendererParams", questionParams);
     context.setVariable(
         "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+
+    boolean showErrorModal =
+        questionParams.values().stream().anyMatch(param -> param.shouldShowErrorsWithModal());
+    context.setVariable("showErrorModal", showErrorModal);
+
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()) {
       this.addFileUploadParameters(applicationParams, context);
@@ -74,6 +80,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
       context.setVariable(
           "reviewFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
@@ -111,6 +118,18 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                 params.inReview(),
                 nextAction)
             .url();
+  }
+
+  private String previousWithoutSaving(ApplicationBaseViewParams params) {
+    return params
+        .applicantRoutes()
+        .blockPreviousOrReview(
+            params.profile(),
+            params.applicantId(),
+            params.programId(),
+            params.blockIndex(),
+            params.inReview())
+        .url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
