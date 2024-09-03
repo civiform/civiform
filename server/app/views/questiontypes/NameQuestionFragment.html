@@ -73,7 +73,7 @@
     lastNamePath=${nameQuestion.getLastNamePath()},
     fieldErrors=${nameQuestion.getValidationErrors().get(lastNamePath)},
     hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
-    class="cf-name-last cf-applicant-question-field"
+    class="cf-name-last cf-applicant-question-field margin-bottom-1"
     th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   >
     <div
@@ -96,5 +96,34 @@
       th:name="${lastNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
     />
+  </div>
+
+  <div
+    th:with="nameSuffixId=${'id-' + #strings.randomAlphanumeric(8)}"
+    class="cf-dropdown-question cf-applicant-question-field"
+  >
+    <label
+      class="use-label"
+      th:for="${nameSuffixId}"
+      th:text="#{label.nameSuffix}"
+    ></label>
+    <select
+      class="usa-select cf-input-large"
+      th:maxlength="${maxInputLength}"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+      th:id="${nameSuffixId}"
+      th:name="${nameQuestion.getNameSuffixPath()}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(nameSuffixPath)}"
+    >
+      <option
+        th:selected="${!nameQuestion.getNameSuffixValue.isEmpty()}"
+      ></option>
+      <option
+        th:each="option,iterator: ${nameSuffixOptions}"
+        th:value="${option.getValue()}"
+        th:text="${option.getValue()}"
+        th:selected="${!nameQuestion.getNameSuffixValue.isEmpty()}"
+      ></option>
+    </select>
   </div>
 </div>
