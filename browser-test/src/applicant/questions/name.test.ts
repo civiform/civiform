@@ -217,37 +217,41 @@ test.describe('name applicant flow', () => {
     })
   })
 
-  test.describe('name question with name suffix flag enabled', () => {
-    const programName = 'Test program for name suffix'
+  test.describe(
+    'name question with name suffix flag enabled',
+    {tag: ['@in-development']},
+    () => {
+      const programName = 'Test program for name suffix'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleRequiredQuestion(
-        programName,
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleRequiredQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+      })
+
+      test('name questions with suffix field being available to use', async ({
         page,
-        adminQuestions,
-        adminPrograms,
-      )
-      await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
-    })
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
 
-    test('name questions with suffix field being available to use', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
+        await test.step('name question has suffix field available and no default value selected', async () => {
+          await expect(page.getByLabel('Suffix')).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('')
+        })
 
-      await test.step('name question has suffix field available and no default value selected', async () => {
-        await expect(page.getByLabel('Suffix')).toBeVisible()
-        await expect(page.getByLabel('Suffix')).toHaveValue('')
+        await test.step('selects an option in name suffix dropdown', async () => {
+          await applicantQuestions.answerDropdownQuestion('II')
+          await expect(page.getByLabel('Suffix')).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('II')
+        })
       })
-
-      await test.step('selects an option in name suffix dropdown', async () => {
-        await applicantQuestions.answerDropdownQuestion('II')
-        await expect(page.getByLabel('Suffix')).toBeVisible()
-        await expect(page.getByLabel('Suffix')).toHaveValue('II')
-      })
-    })
-  })
+    },
+  )
 
   test.describe(
     'single required name question with north star flag enabled',
