@@ -569,8 +569,6 @@ public final class ApplicantService {
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
-    CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -579,88 +577,89 @@ public final class ApplicantService {
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
-    return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
-        .thenComposeAsync(
-            (v) -> {
-              Optional<ApplicationModel> applicationMaybe = applicationFuture.join();
-              if (applicationMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ApplicationSubmissionException(applicantId, programId));
-              }
+    return applicationFuture.thenComposeAsync(
+        (v) -> {
+          Optional<ApplicationModel> applicationMaybe = applicationFuture.join();
+          if (applicationMaybe.isEmpty()) {
+            return CompletableFuture.failedFuture(
+                new ApplicationSubmissionException(applicantId, programId));
+          }
 
-              ApplicationModel application = applicationMaybe.get();
-              ProgramModel applicationProgram = application.getProgram();
-              ProgramDefinition programDefinition =
-                  programRepository.getShallowProgramDefinition(applicationProgram);
-              String programName = programDefinition.adminName();
-              StatusDefinitions activeStatusDefinitions =
-                  applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
-              Optional<StatusDefinitions.Status> maybeDefaultStatus =
-                  activeStatusDefinitions.getDefaultStatus();
+          ApplicationModel application = applicationMaybe.get();
+          ProgramModel applicationProgram = application.getProgram();
+          ProgramDefinition programDefinition =
+              programRepository.getShallowProgramDefinition(applicationProgram);
+          String programName = programDefinition.adminName();
+          StatusDefinitions activeStatusDefinitions =
+              applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
+          Optional<StatusDefinitions.Status> maybeDefaultStatus =
+              activeStatusDefinitions.getDefaultStatus();
 
-              CompletableFuture<ApplicationEventModel> updateStatusFuture =
-                  maybeDefaultStatus
-                      .map(
-                          status -> setApplicationStatus(application, status).toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
+          CompletableFuture<ApplicationEventModel> updateStatusFuture =
+              maybeDefaultStatus
+                  .map(status -> setApplicationStatus(application, status).toCompletableFuture())
+                  .orElse(CompletableFuture.completedFuture(null));
 
-              CompletableFuture<Void> notifyProgramAdminsFuture =
-                  CompletableFuture.runAsync(
-                      () ->
-                          notifyProgramAdmins(applicantId, programId, application.id, programName),
-                      classLoaderExecutionContext.current());
+          CompletableFuture<Void> notifyProgramAdminsFuture =
+              CompletableFuture.runAsync(
+                  () -> notifyProgramAdmins(applicantId, programId, application.id, programName),
+                  classLoaderExecutionContext.current());
 
-              CompletableFuture<Void> notifyTiSubmitterFuture =
-                  tiSubmitterEmail
-                      .map(
-                          email ->
-                              notifyTiSubmitter(
-                                      email,
-                                      applicantId,
-                                      application.id,
-                                      programName,
-                                      maybeDefaultStatus)
-                                  .toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
+          CompletableFuture<Void> notifyTiSubmitterFuture =
+              tiSubmitterEmail
+                  .map(
+                      email ->
+                          notifyTiSubmitter(
+                                  email,
+                                  applicantId,
+                                  application.id,
+                                  programName,
+                                  maybeDefaultStatus)
+                              .toCompletableFuture())
+                  .orElse(CompletableFuture.completedFuture(null));
 
-              ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<ImmutableSet<String>> applicantEmails =
-                  getApplicantEmails(applicantPersonalInfo);
+          return getPersonalInfo(applicantId)
+              .thenComposeAsync(
+                  applicantPersonalInfo -> {
+                    Optional<ImmutableSet<String>> applicantEmails =
+                        getApplicantEmails(applicantPersonalInfo);
 
-              CompletableFuture<Void> notifyApplicantFuture;
-              if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
-                notifyApplicantFuture = CompletableFuture.completedFuture(null);
-              } else {
-                ImmutableList<CompletableFuture<Void>> futures =
-                    applicantEmails.get().stream()
-                        .map(
-                            email -> {
-                              return notifyApplicant(
-                                      applicantId,
-                                      application.id,
-                                      email,
-                                      programDefinition,
-                                      maybeDefaultStatus)
-                                  .toCompletableFuture();
-                            })
-                        .collect(ImmutableList.toImmutableList());
-                notifyApplicantFuture =
-                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-              }
-              return CompletableFuture.allOf(
-                      updateStatusFuture,
-                      notifyProgramAdminsFuture,
-                      notifyApplicantFuture,
-                      notifyTiSubmitterFuture,
-                      updateStoredFileAclsForSubmit(
-                              applicantId,
-                              programId,
-                              settingsManifest.getMultipleFileUploadEnabled(request))
-                          .toCompletableFuture())
-                  .thenApplyAsync(
-                      (ignoreVoid) -> application, classLoaderExecutionContext.current());
-            },
-            classLoaderExecutionContext.current());
+                    CompletableFuture<Void> notifyApplicantFuture;
+                    if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
+                      notifyApplicantFuture = CompletableFuture.completedFuture(null);
+                    } else {
+                      ImmutableList<CompletableFuture<Void>> futures =
+                          applicantEmails.get().stream()
+                              .map(
+                                  email -> {
+                                    return notifyApplicant(
+                                            applicantId,
+                                            application.id,
+                                            email,
+                                            programDefinition,
+                                            maybeDefaultStatus)
+                                        .toCompletableFuture();
+                                  })
+                              .collect(ImmutableList.toImmutableList());
+                      notifyApplicantFuture =
+                          CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                    }
+                    return CompletableFuture.allOf(
+                            updateStatusFuture,
+                            notifyProgramAdminsFuture,
+                            notifyApplicantFuture,
+                            notifyTiSubmitterFuture,
+                            updateStoredFileAclsForSubmit(
+                                    applicantId,
+                                    programId,
+                                    settingsManifest.getMultipleFileUploadEnabled(request))
+                                .toCompletableFuture())
+                        .thenApplyAsync(
+                            (ignoreVoid) -> application, classLoaderExecutionContext.current());
+                  },
+                  classLoaderExecutionContext.current());
+        },
+        classLoaderExecutionContext.current());
   }
 
   public Optional<ImmutableSet<String>> getApplicantEmails(
