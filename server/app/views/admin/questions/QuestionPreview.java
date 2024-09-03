@@ -1,8 +1,10 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
+import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -18,12 +20,17 @@ import views.style.ReferenceClasses;
 
 /** Contains methods for rendering preview of a question. */
 public final class QuestionPreview {
+  private final SettingsManifest settingsManifest;
 
-  private static DivTag buildQuestionRenderer(
+  @Inject
+  public QuestionPreview(SettingsManifest settingsManifest) {
+    this.settingsManifest = checkNotNull(settingsManifest);
+  }
+
+  private DivTag buildQuestionRenderer(
       QuestionType type,
       Messages messages,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      SettingsManifest settingsManifest,
       Request request)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
@@ -45,11 +52,10 @@ public final class QuestionPreview {
     return div(rf.getSampleRenderer(type).render(params));
   }
 
-  public static DivTag renderQuestionPreview(
+  public DivTag renderQuestionPreview(
       QuestionType type,
       Messages messages,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      SettingsManifest settingsManifest,
       Request request) {
     DivTag titleContainer =
         div()
@@ -63,8 +69,7 @@ public final class QuestionPreview {
     DivTag renderedQuestion;
     try {
       renderedQuestion =
-          buildQuestionRenderer(
-              type, messages, applicantFileUploadRenderer, settingsManifest, request);
+          buildQuestionRenderer(type, messages, applicantFileUploadRenderer, request);
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
