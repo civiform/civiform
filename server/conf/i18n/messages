@@ -666,7 +666,11 @@ error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
 error.internalServerTitle=An error occurred
+error.internalServerTitle.v2=An error has occurred
+error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
 error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
+error.internalServerHomeButton=Visit homepage
+error.errorCode=Error code: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
