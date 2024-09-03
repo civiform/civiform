@@ -50,6 +50,8 @@ public abstract class Modal {
 
   public abstract Width width();
 
+  public abstract Top top();
+
   public abstract boolean displayOnLoad();
 
   public abstract RepeatOpenBehavior repeatOpenBehavior();
@@ -58,6 +60,7 @@ public abstract class Modal {
     // Set some defaults before the user sets their own values.
     return new AutoValue_Modal.Builder()
         .setWidth(Width.DEFAULT)
+        .setTop(Top.DEFAULT)
         .setDisplayOnLoad(false)
         .setRepeatOpenBehavior(RepeatOpenBehavior.alwaysShow());
   }
@@ -88,6 +91,8 @@ public abstract class Modal {
     public abstract Builder setWidth(Width width);
 
     public abstract Builder setDisplayOnLoad(boolean value);
+
+    public abstract Builder setTop(Top top);
 
     public abstract Builder setRepeatOpenBehavior(RepeatOpenBehavior repeatOpenBehavior);
 
@@ -131,6 +136,20 @@ public abstract class Modal {
 
     public String getStyle() {
       return this.width;
+    }
+  }
+
+  public enum Top {
+    DEFAULT("top-1/2"),
+    QUARTER("top-1/4");
+    private final String top;
+
+    Top(String top) {
+      this.top = top;
+    }
+
+    public String getStyle() {
+      return this.top;
     }
   }
 
@@ -200,7 +219,11 @@ public abstract class Modal {
 
     String modalStyles =
         StyleUtils.joinStyles(
-            ReferenceClasses.MODAL, BaseStyles.MODAL, "w-11/12", "lg:" + width().getStyle());
+            ReferenceClasses.MODAL,
+            BaseStyles.MODAL,
+            "w-11/12",
+            "lg:" + width().getStyle(),
+            top().getStyle());
     if (displayOnLoad()) {
       modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     }
