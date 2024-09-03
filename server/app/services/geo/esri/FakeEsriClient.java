@@ -102,7 +102,7 @@ public final class FakeEsriClient extends EsriClient {
   @Override
   CompletionStage<Optional<JsonNode>> fetchServiceAreaFeatures(
       AddressLocation location, String validationUrl) {
-    String latitude = location.getLatitude().toString();
+    String latitude = Double.toString(location.getLatitude());
     Optional<JsonNode> maybeJson = Optional.empty();
     File resource;
     FileInputStream inputStream;

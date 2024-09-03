@@ -80,15 +80,21 @@ public class CorrectAddressViewPartial extends BaseHtmlView {
                                                       tr(
                                                           th("Latitude/Y")
                                                               .withClasses("text-left", "pr-8"),
-                                                          td(location.getLatitude().toString())),
+                                                          td(
+                                                              Double.toString(
+                                                                  location.getLatitude()))),
                                                       tr(
                                                           th("Longitude/X")
                                                               .withClasses("text-left"),
-                                                          td(location.getLongitude().toString())),
+                                                          td(
+                                                              Double.toString(
+                                                                  location.getLongitude()))),
                                                       tr(
                                                           th("WellKnownId")
                                                               .withClasses("text-left"),
-                                                          td(location.getWellKnownId().toString())),
+                                                          td(
+                                                              Integer.toString(
+                                                                  location.getWellKnownId()))),
                                                       tr(
                                                           th("Score").withClasses("text-left"),
                                                           td(addressSuggestion.getScore() + "")))
@@ -97,17 +103,20 @@ public class CorrectAddressViewPartial extends BaseHtmlView {
                                                   .withType("hidden")
                                                   .withId("latitude-" + idSuffix)
                                                   .withName("latitude")
-                                                  .withValue(location.getLatitude().toString()),
+                                                  .withValue(
+                                                      Double.toString(location.getLatitude())),
                                               input()
                                                   .withType("hidden")
                                                   .withId("longitude-" + idSuffix)
                                                   .withName("longitude")
-                                                  .withValue(location.getLongitude().toString()),
+                                                  .withValue(
+                                                      Double.toString(location.getLongitude())),
                                               input()
                                                   .withType("hidden")
                                                   .withId("wellKnownId-" + idSuffix)
                                                   .withName("wellKnownId")
-                                                  .withValue(location.getWellKnownId().toString())))
+                                                  .withValue(
+                                                      Integer.toString(location.getWellKnownId()))))
                                   .condWith(
                                       settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                           request),

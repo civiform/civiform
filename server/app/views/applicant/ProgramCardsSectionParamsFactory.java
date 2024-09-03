@@ -203,7 +203,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String actionUrl();
 
-    public abstract Boolean isGuest();
+    public abstract boolean isGuest();
 
     public abstract Optional<String> loginModalId();
 
