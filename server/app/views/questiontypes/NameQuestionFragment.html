@@ -73,8 +73,9 @@
     lastNamePath=${nameQuestion.getLastNamePath()},
     fieldErrors=${nameQuestion.getValidationErrors().get(lastNamePath)},
     hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
-    class="cf-name-last cf-applicant-question-field margin-bottom-1"
+    class="cf-name-last cf-applicant-question-field"
     th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+    th:classappend="${isNameSuffixEnabled? 'margin-bottom-1' : ''}"
   >
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams})}"
@@ -99,6 +100,7 @@
   </div>
 
   <div
+    th:if="${isNameSuffixEnabled}"
     th:with="nameSuffixId=${'id-' + #strings.randomAlphanumeric(8)}"
     class="cf-dropdown-question cf-applicant-question-field"
   >

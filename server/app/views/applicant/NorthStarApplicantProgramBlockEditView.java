@@ -80,6 +80,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
+      context.setVariable(
+          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
   }
