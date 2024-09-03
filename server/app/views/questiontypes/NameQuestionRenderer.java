@@ -83,7 +83,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
     SelectWithLabel nameSuffixField =
         new SelectWithLabel()
-            .addReferenceClass(ReferenceClasses.NAME_SUFFIX)
+            .addReferenceClass(ReferenceClasses.DROPDOWN_QUESTION)
             .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
             .setFieldName(nameQuestion.getNameSuffixPath().toString())
             .setPlaceholderText("")

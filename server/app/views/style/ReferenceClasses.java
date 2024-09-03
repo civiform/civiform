@@ -125,6 +125,7 @@ public final class ReferenceClasses {
   public static final String CURRENCY_QUESTION = "cf-question-currency";
   public static final String CURRENCY_VALUE = "cf-currency-value";
   public static final String DATE_QUESTION = "cf-question-date";
+  public static final String DROPDOWN_QUESTION = "cf-dropdown-question";
   public static final String EMAIL_QUESTION = "cf-question-email";
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
@@ -138,7 +139,6 @@ public final class ReferenceClasses {
   public static final String NAME_FIRST = "cf-name-first";
   public static final String NAME_MIDDLE = "cf-name-middle";
   public static final String NAME_LAST = "cf-name-last";
-  public static final String NAME_SUFFIX = "cf-name-suffix";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common reference classes
