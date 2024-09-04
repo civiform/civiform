@@ -59,7 +59,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-name-first input >> nth=${index}`, firstName)
     await this.page.fill(`.cf-name-middle input >> nth=${index}`, middleName)
     await this.page.fill(`.cf-name-last input >> nth=${index}`, lastName)
-    await this.answerDropdownQuestion(nameSuffix)
+    if (nameSuffix.length != 0) {
+      await this.answerDropdownQuestion(nameSuffix)
+    }
   }
 
   async checkNameQuestionValue(
