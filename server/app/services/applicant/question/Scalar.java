@@ -121,7 +121,7 @@ public enum Scalar {
       case ID:
         return ImmutableSet.of(ID);
       case NAME:
-        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME, NAME_SUFFIX);
+        return ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
       case NUMBER:
         return ImmutableSet.of(NUMBER);
       case TEXT:
