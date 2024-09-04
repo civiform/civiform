@@ -118,8 +118,7 @@ public class FileController extends CiviFormController {
       return notFound();
     }
 
-    AccountModel adminAccount =
-        profileUtils.optionalCurrentUserProfile(request).orElseThrow().getAccount().join();
+    AccountModel adminAccount = profileUtils.currentUserProfile(request).getAccount().join();
 
     // An admin is eligible if they are a global admin with the program access flag turned on
     // or if they have been explicitly given read permission to the program.

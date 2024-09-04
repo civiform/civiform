@@ -86,10 +86,7 @@ public final class ApplicantInformationController extends CiviFormController {
               String redirectLink;
               if (request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)) {
                 redirectLink = request.session().data().get(REDIRECT_TO_SESSION_KEY);
-              } else if (profileUtils
-                  .optionalCurrentUserProfile(request)
-                  .get()
-                  .isTrustedIntermediary()) {
+              } else if (profileUtils.currentUserProfile(request).isTrustedIntermediary()) {
                 redirectLink =
                     controllers.ti.routes.TrustedIntermediaryController.dashboard(
                             /* nameQuery= */ Optional.empty(),

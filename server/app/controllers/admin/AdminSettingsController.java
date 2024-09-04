@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import java.util.Map;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -46,11 +45,7 @@ public class AdminSettingsController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-
-    if (profile.isEmpty()) {
-      throw new RuntimeException("Unable to resolve profile.");
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     ImmutableMap<String, String> settingUpdates =
         formFactory.form().bindFromRequest(request).rawData().entrySet().stream()
@@ -58,7 +53,7 @@ public class AdminSettingsController extends CiviFormController {
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
     SettingsService.SettingsGroupUpdateResult result =
-        settingsService.updateSettings(settingUpdates, profile.get());
+        settingsService.updateSettings(settingUpdates, profile);
 
     if (result.hasErrors()) {
       return ok(indexView.render(request, result.errorMessages()));

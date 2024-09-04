@@ -598,6 +598,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
       return Optional.of(profileTester);
     }
 
+    @Override
+    public CiviFormProfile currentUserProfile(Http.RequestHeader request) {
+      return profileTester;
+    }
+
     // A test version of CiviFormProfile that disable functionality that is hard
     // to otherwise test around.
     public static class ProfileTester extends CiviFormProfile {
