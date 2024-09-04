@@ -35,7 +35,7 @@ public class ProgramAdminController extends CiviFormController {
   /** Return a HTML page showing all programs the program admin administers. */
   @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
   public Result index(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     if (profile.isEmpty()) {
       throw new RuntimeException("No profile found for program admin");

@@ -28,7 +28,7 @@ public abstract class Definition {
    * Swagger 2 does not officially support nullable types, but many vendor tools do under the
    * x-nullable field name
    */
-  public abstract Boolean getNullable();
+  public abstract boolean getNullable();
 
   /** Get the child definitions */
   public abstract ImmutableList<Definition> getDefinitions();

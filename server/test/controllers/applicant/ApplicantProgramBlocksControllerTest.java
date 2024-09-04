@@ -1935,7 +1935,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addFile_civiformAdminAccessToDraftProgram_isOk() {
+  public void addFile_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -1963,11 +1963,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
-  public void addFile_obsoleteProgram_isOk() {
+  public void addFile_obsoleteProgram_redirects() {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
@@ -1993,7 +1993,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
@@ -2109,8 +2109,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("1 of 2");
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .contains(String.format("/programs/%s/blocks/1/edit", program.id));
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
@@ -2160,7 +2161,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     // Now add the second file.
     RequestBuilder secondRequest =
@@ -2262,7 +2263,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     result =
         subject
@@ -2275,7 +2276,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
@@ -2358,7 +2359,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void removeFile_civiformAdminAccessToDraftProgram_isOk() {
+  public void removeFile_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -2389,11 +2390,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
-  public void removeFile_obsoleteProgram_isOk() {
+  public void removeFile_obsoleteProgram_redirects() {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock("block 1")
@@ -2420,7 +2421,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
@@ -2583,7 +2584,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     applicant.refresh();
     String applicantDataString = applicant.getApplicantData().asJsonString();
@@ -2629,7 +2630,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     applicant.refresh();
     assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("key-to-remove");
@@ -2674,7 +2675,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     applicant.refresh();
     String applicantDataString = applicant.getApplicantData().asJsonString();

@@ -330,6 +330,24 @@ test.describe('name applicant flow', () => {
         })
       })
 
+      test('validate name suffix field with north star flag and name suffix dropdown flag enabled', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+
+        await test.step('name suffix field available to use', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await expect(page.getByLabel('Suffix')).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('')
+        })
+
+        await test.step('selects an option in name suffix dropdown', async () => {
+          await applicantQuestions.answerDropdownQuestion('III')
+          await expect(page.getByLabel('Suffix')).toHaveValue('III')
+        })
+      })
+
       test('has no accessiblity violations', async ({
         page,
         applicantQuestions,

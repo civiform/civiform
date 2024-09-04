@@ -688,7 +688,7 @@ public final class ProgramService {
       BlockDefinition block = programDefinition.blockDefinitions().get(i);
       Optional<LocalizationUpdate.ScreenUpdate> screenUpdate =
           localizationUpdate.screens().stream()
-              .filter(update -> update.blockIdToUpdate().equals(block.id()))
+              .filter(update -> update.blockIdToUpdate() == block.id())
               .findFirst();
       if (screenUpdate.isEmpty()) {
         // If there is no update, keep the block as is.
@@ -1549,21 +1549,6 @@ public final class ProgramService {
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }
-  }
-
-  /**
-   * Get all the program's submitted applications. Does not include drafts or deleted applications.
-   *
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   */
-  public ImmutableList<ApplicationModel> getSubmittedProgramApplications(long programId)
-      throws ProgramNotFoundException {
-    Optional<ProgramModel> programMaybe =
-        programRepository.lookupProgram(programId).toCompletableFuture().join();
-    if (programMaybe.isEmpty()) {
-      throw new ProgramNotFoundException(programId);
-    }
-    return programMaybe.get().getSubmittedApplications();
   }
 
   /**

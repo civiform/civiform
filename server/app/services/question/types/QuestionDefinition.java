@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -52,6 +54,10 @@ public abstract class QuestionDefinition {
 
   @JsonProperty("config")
   private QuestionDefinitionConfig config;
+
+  // Note that this formatting logic is duplicated in main.ts formatQuestionName()
+  private Supplier<String> memoizedQuestionNameKeySupplier =
+      Suppliers.memoize(() -> config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_"));
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
     if (config.validationPredicates().isEmpty()) {
@@ -177,10 +183,12 @@ public abstract class QuestionDefinition {
     return config.lastModifiedTime();
   }
 
-  // Note that this formatting logic is duplicated in main.ts formatQuestionName()
+  // TODO(#6597): Persist the question name key to the database instead of just memoizing it
   @JsonIgnore
   public final String getQuestionNameKey() {
-    return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    // We memoize the name key because it's expensive to compile and run the regex for each of the
+    // 1000s of times it's needed.
+    return memoizedQuestionNameKeySupplier.get();
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */

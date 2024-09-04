@@ -85,7 +85,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                             renderViewApplicationsLink(activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
-        .setProfile(profile)
+        .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())
         .build();
   }
 

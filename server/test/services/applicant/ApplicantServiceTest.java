@@ -941,6 +941,67 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void submitApplication_emailSentToGuestApplicantWhoAnsweredPaiEmailQuestion() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    EmailQuestionDefinition emailQuestion =
+        (EmailQuestionDefinition)
+            questionService
+                .create(
+                    new EmailQuestionDefinition(
+                        QuestionDefinitionConfig.builder()
+                            .setName("emailplz")
+                            .setDescription("Email plz")
+                            .setQuestionText(LocalizedStrings.of(Locale.US, "Give email plz"))
+                            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Email!"))
+                            .setPrimaryApplicantInfoTags(
+                                ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
+                            .build()))
+                .getResult();
+
+    ProgramDefinition progDef =
+        ProgramBuilder.newDraftProgram("Email program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(emailQuestion))
+            .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
+    StatusDefinitions.Status status =
+        APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
+    repo.createOrUpdateStatusDefinitions(
+        progDef.adminName(), new StatusDefinitions(ImmutableList.of(status)));
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.emailplz").join(Scalar.EMAIL).toString(),
+                "picard@starfleet.com")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    subject
+        .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+        .toCompletableFuture()
+        .join();
+
+    Messages messages = getMessages(Locale.US);
+    String programName = progDef.adminName();
+    Mockito.verify(amazonSESClient)
+        .send(
+            "picard@starfleet.com",
+            messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
+            String.format(
+                "%s\n%s",
+                APPROVED_STATUS.localizedEmailBodyText().get().getOrDefault(Locale.US),
+                messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl)));
+  }
+
+  @Test
   public void submitApplication_savesPrimaryApplicantInfoAnswers() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -3568,11 +3629,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(correctedAddress.get(addressQuestion.getZipPath().toString()))
         .isEqualTo(address.getZip());
     assertThat(correctedAddress.get(addressQuestion.getLatitudePath().toString()))
-        .isEqualTo(addressLocation.getLatitude().toString());
+        .isEqualTo(Double.toString(addressLocation.getLatitude()));
     assertThat(correctedAddress.get(addressQuestion.getLongitudePath().toString()))
-        .isEqualTo(addressLocation.getLongitude().toString());
+        .isEqualTo(Double.toString(addressLocation.getLongitude()));
     assertThat(correctedAddress.get(addressQuestion.getWellKnownIdPath().toString()))
-        .isEqualTo(addressLocation.getWellKnownId().toString());
+        .isEqualTo(Integer.toString(addressLocation.getWellKnownId()));
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.CORRECTED.getSerializationFormat());
   }

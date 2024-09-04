@@ -32,7 +32,7 @@ public class ProfileController extends Controller {
   }
 
   public CompletionStage<Result> myProfile(Http.Request request) {
-    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> maybeProfile = profileUtils.optionalCurrentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(ok(profileView.renderNoProfile(request)));

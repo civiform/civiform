@@ -78,7 +78,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile = profileUtils.optionalCurrentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }

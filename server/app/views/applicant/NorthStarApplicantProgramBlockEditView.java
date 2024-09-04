@@ -9,6 +9,7 @@ import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import models.ApplicantModel.Suffix;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
@@ -78,6 +79,9 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+      context.setVariable("nameSuffixOptions", Suffix.values());
+      context.setVariable(
+          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
   }

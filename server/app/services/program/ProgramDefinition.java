@@ -121,7 +121,7 @@ public abstract class ProgramDefinition {
    * submitted.
    */
   @JsonProperty("eligibilityIsGating")
-  public abstract Boolean eligibilityIsGating();
+  public abstract boolean eligibilityIsGating();
 
   @JsonProperty("acls")
   public abstract ProgramAcls acls();
@@ -817,7 +817,7 @@ public abstract class ProgramDefinition {
     public abstract Builder setProgramType(ProgramType programType);
 
     @JsonProperty("eligibilityIsGating")
-    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
+    public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
 
     @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);

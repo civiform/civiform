@@ -83,7 +83,7 @@ public abstract class ApplicationEventDetails {
 
     /** If the status has email content and if it was sent as part of setting the status. */
     @JsonProperty("email_sent")
-    public abstract Boolean emailSent();
+    public abstract boolean emailSent();
 
     public static Builder builder() {
       return new AutoValue_ApplicationEventDetails_StatusEvent.Builder();

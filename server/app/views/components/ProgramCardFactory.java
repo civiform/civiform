@@ -6,7 +6,6 @@ import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
-import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
@@ -53,14 +52,16 @@ public final class ProgramCardFactory {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  cardData.profile(), /* isActive= */ false, cardData.draftProgram().get()));
+                  cardData.isCiviFormAdmin(),
+                  /* isActive= */ false,
+                  cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  cardData.profile(),
+                  cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
@@ -132,7 +133,7 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      Optional<CiviFormProfile> profile,
+      boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
       String... extraStyles) {
@@ -170,7 +171,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
-            createImageIcon(program, profile),
+            createImageIcon(program, isCiviFormAdmin),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -219,8 +220,7 @@ public final class ProgramCardFactory {
     return cardData.activeProgram().get().program();
   }
 
-  private DivTag createImageIcon(ProgramDefinition program, Optional<CiviFormProfile> profile) {
-    boolean isCiviFormAdmin = profile.isPresent() && profile.get().isCiviFormAdmin();
+  private DivTag createImageIcon(ProgramDefinition program, boolean isCiviFormAdmin) {
     if (!isCiviFormAdmin) {
       // Only CiviForm admins need the program image preview since they're the only ones that can
       // modify it. (Specifically, program admins don't need it.)
@@ -264,7 +264,7 @@ public final class ProgramCardFactory {
 
     abstract Optional<ProgramRow> draftProgram();
 
-    abstract Optional<CiviFormProfile> profile();
+    abstract boolean isCiviFormAdmin();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
@@ -276,7 +276,7 @@ public final class ProgramCardFactory {
 
       public abstract Builder setDraftProgram(Optional<ProgramRow> v);
 
-      public abstract Builder setProfile(Optional<CiviFormProfile> profile);
+      public abstract Builder setIsCiviFormAdmin(boolean isCiviFormAdmin);
 
       public abstract ProgramCardData build();
     }

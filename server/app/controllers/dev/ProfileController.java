@@ -22,7 +22,7 @@ public final class ProfileController extends Controller {
 
   /** Returns a text/plain page containing the user profile, if present. */
   public Result index(Http.Request request) {
-    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> maybeProfile = profileUtils.optionalCurrentUserProfile(request);
     String profileContent =
         maybeProfile
             .map((p) -> JsonPrettifier.asPrettyJsonString(p.getProfileData()))

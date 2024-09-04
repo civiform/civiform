@@ -50,7 +50,7 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
 
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     QuestionType questionTypeEnum;
     try {

@@ -3555,11 +3555,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(correctedAddress.get(addressQuestion.getZipPath().toString()))
         .isEqualTo(address.getZip());
     assertThat(correctedAddress.get(addressQuestion.getLatitudePath().toString()))
-        .isEqualTo(addressLocation.getLatitude().toString());
+        .isEqualTo(Double.toString(addressLocation.getLatitude()));
     assertThat(correctedAddress.get(addressQuestion.getLongitudePath().toString()))
-        .isEqualTo(addressLocation.getLongitude().toString());
+        .isEqualTo(Double.toString(addressLocation.getLongitude()));
     assertThat(correctedAddress.get(addressQuestion.getWellKnownIdPath().toString()))
-        .isEqualTo(addressLocation.getWellKnownId().toString());
+        .isEqualTo(Integer.toString(addressLocation.getWellKnownId()));
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.CORRECTED.getSerializationFormat());
   }

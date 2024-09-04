@@ -83,7 +83,7 @@ public final class TrustedIntermediaryController {
           routes.TrustedIntermediaryController.dashboard(
               nameQuery, dayQuery, monthQuery, yearQuery, Optional.of(1)));
     }
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
@@ -127,7 +127,7 @@ public final class TrustedIntermediaryController {
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result accountSettings(Http.Request request) {
 
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
 
     if (civiformProfile.isEmpty()) {
       return unauthorized();
@@ -155,7 +155,7 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result showAddClientForm(Long id, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
@@ -185,7 +185,7 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result showEditClientForm(Long accountId, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
@@ -210,7 +210,7 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result addClient(Long id, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
@@ -246,7 +246,7 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result editClient(Long id, Http.Request request) throws ApplicantNotFoundException {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }

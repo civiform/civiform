@@ -40,7 +40,10 @@ public class CiviFormController extends Controller {
 
   protected CompletableFuture<Void> checkApplicantAuthorization(
       Http.Request request, long applicantId) {
-    return profileUtils.currentUserProfile(request).orElseThrow().checkAuthorization(applicantId);
+    return profileUtils
+        .optionalCurrentUserProfile(request)
+        .orElseThrow()
+        .checkAuthorization(applicantId);
   }
 
   /**
@@ -51,7 +54,7 @@ public class CiviFormController extends Controller {
   protected CompletableFuture<Void> checkProgramAdminAuthorization(
       Http.Request request, String programName) {
     return profileUtils
-        .currentUserProfile(request)
+        .optionalCurrentUserProfile(request)
         .orElseThrow()
         .checkProgramAuthorization(programName, request);
   }
@@ -63,7 +66,10 @@ public class CiviFormController extends Controller {
         .thenAccept(
             (isDraftProgram) -> {
               if (isDraftProgram
-                  && !profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+                  && !profileUtils
+                      .optionalCurrentUserProfile(request)
+                      .orElseThrow()
+                      .isCiviFormAdmin()) {
                 throw new SecurityException();
               }
             });

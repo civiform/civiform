@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const {ProvidePlugin} = require('webpack')
 
 module.exports = {
   mode: 'production',
@@ -24,7 +25,7 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: [
+                loadPaths: [
                   './app/assets/stylesheets/northstar',
                   './node_modules/@uswds/uswds/packages'
                 ],
@@ -64,5 +65,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].min.css' /* The name for the compiled output CSS file */,
     }),
+    new ProvidePlugin({
+      htmx: 'htmx.org'
+    })
   ],
 }

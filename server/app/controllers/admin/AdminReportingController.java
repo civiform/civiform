@@ -52,7 +52,7 @@ public final class AdminReportingController extends CiviFormController {
 
   private CiviFormProfile getCiviFormProfile(Http.Request request) {
     return profileUtils
-        .currentUserProfile(request)
+        .optionalCurrentUserProfile(request)
         .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
   }
 

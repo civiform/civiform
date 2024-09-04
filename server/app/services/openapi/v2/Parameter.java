@@ -46,7 +46,7 @@ public abstract class Parameter {
    * required and its value MUST be true. Otherwise, the property MAY be included and its default
    * value is false.
    */
-  public abstract Boolean getRequired();
+  public abstract boolean getRequired();
 
   /**
    * Required.

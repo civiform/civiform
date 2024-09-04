@@ -25,7 +25,6 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
-import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
@@ -153,8 +152,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
-    setSessionIdInProfile(civiformProfile, context);
-    String sessionId = getSessionId(civiformProfile, context);
+    String sessionId = UUID.randomUUID().toString();
+    civiformProfile.getProfileData().addAttribute(SESSION_ID, sessionId);
 
     if (enhancedLogoutEnabled()) {
       // Save the id_token from the returned OidcProfile in the account so that it can be
@@ -171,44 +170,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     return civiformProfile.getProfileData();
-  }
-
-  private void setSessionIdInProfile(CiviFormProfile profile, WebContext context) {
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    // The code below is for migration. We used to create the session id via
-    // a filter and store in the session alongside the profile. Now we will
-    // store it in the profile itself.
-    //
-    // If the session id exists in the session, then use that value in the
-    // profile. Otherwise, generate a new session ID to store in the profile.
-    //
-    // Once current profiles expire, this won't be a problem, and we will always
-    // generate a new session id here.
-    Optional<String> existingSessionIdFromCookie =
-        playWebContext.getNativeSession().get(SESSION_ID);
-    String sessionId = existingSessionIdFromCookie.orElse(UUID.randomUUID().toString());
-    profile.getProfileData().addAttribute(SESSION_ID, sessionId);
-  }
-
-  private String getSessionId(CiviFormProfile profile, WebContext context) {
-    String sessionIdFromProfile = profile.getProfileData().getAttribute(SESSION_ID, String.class);
-
-    // As described in setSessionIdInProfile(), these values should match if both
-    // are present. We log warnings if they do not match so that we can investigate.
-    // However, the value from the profile is authoritative.
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    Optional<String> sessionIdFromContext = playWebContext.getNativeSession().get(SESSION_ID);
-    if (sessionIdFromContext.isPresent()) {
-      final boolean matchingSessionIds = sessionIdFromContext.get().equals(sessionIdFromProfile);
-      if (!matchingSessionIds) {
-        LOGGER.warn(
-            "Non-matching session IDs: id from context = {}, id from session = {}",
-            sessionIdFromContext.get(),
-            sessionIdFromProfile);
-      }
-    }
-
-    return sessionIdFromProfile;
   }
 
   @Override
@@ -231,7 +192,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile = profileUtils.optionalCurrentUserProfile(context);
 
     // The merge function signature specifies the two profiles as parameters.
     // We need to supply an extra parameter (context), so bind it here.

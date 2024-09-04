@@ -121,7 +121,8 @@ public final class ProgramCardsSectionParamsFactory {
 
       if (shouldShowEligibilityTag(programDatum)) {
         boolean isEligible = programDatum.isProgramMaybeEligible().get();
-        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+        CiviFormProfile submittingProfile =
+            profileUtils.optionalCurrentUserProfile(request).orElseThrow();
         boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
         MessageKey mayQualifyMessage =
             isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
@@ -203,7 +204,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String actionUrl();
 
-    public abstract Boolean isGuest();
+    public abstract boolean isGuest();
 
     public abstract Optional<String> loginModalId();
 

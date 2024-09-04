@@ -23,7 +23,7 @@ public abstract class AnswerData {
   }
 
   /** The {@link models.ProgramModel} id that this is currently in the context of. */
-  public abstract Long programId();
+  public abstract long programId();
 
   /** The {@link Block} id for where this question resides within the current program. */
   public abstract String blockId();
@@ -97,7 +97,7 @@ public abstract class AnswerData {
   public abstract Optional<String> originalFileName();
 
   /** The timestamp of when the answer was saved. */
-  public abstract Long timestamp();
+  public abstract long timestamp();
 
   /** Whether the question was answered for another program. */
   public abstract boolean isPreviousResponse();

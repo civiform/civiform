@@ -213,7 +213,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages,
       Long applicantId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     return nav()
         .with(
@@ -541,7 +541,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   protected Optional<DivTag> maybeRenderBackToAdminViewButton(
       Http.Request request, long programId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
     if (profile.isPresent() && profile.get().isCiviFormAdmin()) {
       return Optional.of(
           div()

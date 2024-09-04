@@ -86,7 +86,10 @@ public final class ApplicantInformationController extends CiviFormController {
               String redirectLink;
               if (request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)) {
                 redirectLink = request.session().data().get(REDIRECT_TO_SESSION_KEY);
-              } else if (profileUtils.currentUserProfile(request).get().isTrustedIntermediary()) {
+              } else if (profileUtils
+                  .optionalCurrentUserProfile(request)
+                  .get()
+                  .isTrustedIntermediary()) {
                 redirectLink =
                     controllers.ti.routes.TrustedIntermediaryController.dashboard(
                             /* nameQuery= */ Optional.empty(),
@@ -96,7 +99,7 @@ public final class ApplicantInformationController extends CiviFormController {
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
 
@@ -136,7 +139,7 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
-    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     if (infoForm.getRedirectLink().isEmpty()) {
       redirectLocation = applicantRoutes.index(profile, applicantId).url();

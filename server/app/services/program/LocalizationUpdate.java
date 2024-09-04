@@ -82,7 +82,7 @@ public abstract class LocalizationUpdate {
   @AutoValue
   public abstract static class ScreenUpdate {
     /** The block that is being updated */
-    public abstract Long blockIdToUpdate();
+    public abstract long blockIdToUpdate();
 
     /** The new block name to update for a locale. */
     public abstract String localizedName();
@@ -96,7 +96,7 @@ public abstract class LocalizationUpdate {
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setBlockIdToUpdate(Long v);
+      public abstract Builder setBlockIdToUpdate(long v);
 
       public abstract Builder setLocalizedName(String v);
 
