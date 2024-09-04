@@ -359,6 +359,22 @@ test.describe('create and edit predicates', () => {
     ).toContain('Screen 1')
   })
 
+  test('suffix cannot be added as an eligibility predicate for name question', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+
+    await adminQuestions.addNameQuestion({questionName: 'name-question'})
+
+    const programName = 'Test name question '
+
+  })
+
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
   if (isHermeticTestEnvironment()) {
     test('add a service area validation predicate', async ({
