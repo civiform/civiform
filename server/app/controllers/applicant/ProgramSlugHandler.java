@@ -1,12 +1,10 @@
 package controllers.applicant;
 
-import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import controllers.LanguageUtils;
@@ -52,14 +50,9 @@ public final class ProgramSlugHandler {
 
   public CompletionStage<Result> showProgram(
       CiviFormController controller, Http.Request request, String programSlug) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    if (profile.isEmpty()) {
-      return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     return profile
-        .get()
         .getApplicant()
         .thenComposeAsync(
             (ApplicantModel applicant) -> {
@@ -94,8 +87,7 @@ public final class ProgramSlugHandler {
                                   applicantId,
                                   programSlug,
                                   request,
-                                  profile.orElseThrow(
-                                      () -> new MissingOptionalException(CiviFormProfile.class))));
+                                  profile));
                         } else {
                           return programService
                               .getActiveFullProgramDefinitionAsync(programSlug)
@@ -107,10 +99,7 @@ public final class ProgramSlugHandler {
                                           applicantId,
                                           programSlug,
                                           request,
-                                          profile.orElseThrow(
-                                              () ->
-                                                  new MissingOptionalException(
-                                                      CiviFormProfile.class))))
+                                          profile))
                               .exceptionally(
                                   ex ->
                                       controller
