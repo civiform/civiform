@@ -1,37 +1,37 @@
 package views.errors;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
-import java.util.Optional;
-import controllers.routes;
+import j2html.tags.UnescapedText;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.PTag;
-import javax.inject.Inject;
-import play.i18n.Messages;
-import play.mvc.Http;
-import play.twirl.api.Content;
-import services.MessageKey;
-import services.applicant.ApplicantPersonalInfo;
-import views.BaseHtmlView;
-import views.HtmlBundle;
+import java.util.Optional;
 
-public final class ErrorComponent extends BaseHtmlView {
+/**
+ * Render an error component based on the USWDS 404 page template
+ *
+ * @see <a
+ *     href="https://designsystem.digital.gov/templates/404-page">https://designsystem.digital.gov/templates/404-page</a>
+ */
+public final class ErrorComponent {
 
-// must have a title, subtitle, button text, button link
-// optional message and status code
-  public static DivTag renderErrorComponent(String title, String subtitle, Optional<String> additionalInfo, String buttonText, String buttonLink, Optional<String> statusCode) {
-    H1Tag headerText =
-        renderHeader(title);
-    PTag contentText =
-        p().withClass("usa-intro")
-            .withText(subtitle);
+  public static DivTag renderErrorComponent(
+      String title,
+      String subtitle,
+      Optional<UnescapedText> additionalInfo,
+      String buttonText,
+      String buttonLink,
+      Optional<String> statusCode) {
 
+    H1Tag titleText = h1(title).withClasses("mb-4");
+    PTag subtitleText = p().withClass("usa-intro").withText(subtitle);
     DivTag button =
         div()
             .withClass("margin-y-5")
@@ -59,8 +59,20 @@ public final class ErrorComponent extends BaseHtmlView {
                                     div()
                                         .withId("main-content")
                                         .withClasses("usa-prose")
-                                        .with(headerText)
-                                        .with(contentText)
-                                        .with(div().withClass("margin-y-5").with(button))))));
+                                        .with(titleText)
+                                        .with(subtitleText)
+                                        .condWith(
+                                            additionalInfo.isPresent(),
+                                            div(additionalInfo.orElse(rawHtml(""))))
+                                        .with(
+                                            div()
+                                                .withClass("margin-y-5")
+                                                .with(button)
+                                                .condWith(
+                                                    statusCode.isPresent(),
+                                                    p(String.format(
+                                                            "Error code: %s",
+                                                            statusCode.orElse("")))
+                                                        .withClass("text-base")))))));
   }
 }

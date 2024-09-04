@@ -31,7 +31,6 @@ import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.statuses.StatusNotFoundException;
-import views.errors.InternalServerError;
 import views.errors.NotFound;
 
 /**
