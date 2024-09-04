@@ -19,6 +19,7 @@ import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -43,7 +44,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testUpdateClientInfo_ThrowsApplicantNotFoundException()
       throws ApplicantNotFoundException {
-    Http.RequestBuilder requestBuilder =
+    Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
@@ -60,13 +61,12 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "tiNote",
                     "unitTest",
                     "phoneNumber",
-                    "4259879090"));
-
+                    "4259879090"))
+            .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.optionalCurrentUserProfile(requestBuilder.build()).get())
+        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
             .get();
-    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
@@ -129,7 +129,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
   @Test
   public void testEditClient_AllFieldsUpdated() throws ApplicantNotFoundException {
-    Http.RequestBuilder requestBuilder =
+    Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
@@ -146,13 +146,12 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "tiNote",
                     "unitTest",
                     "phoneNumber",
-                    "4259879090"));
-
+                    "4259879090"))
+            .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.optionalCurrentUserProfile(requestBuilder.build()).get())
+        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
             .get();
-    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("testUpdate@fake.com").toCompletableFuture().join();
@@ -215,7 +214,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void addClient_WithMissingDob() {
     ApplicantModel managedApplicant = createApplicantWithMockedProfile();
     createTIWithMockedProfile(managedApplicant);
-    Http.RequestBuilder requestBuilder =
+    Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
@@ -232,20 +231,19 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "tiNote",
                     "unitTest",
                     "phoneNumber",
-                    "4259879090"));
-
+                    "4259879090"))
+            .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.optionalCurrentUserProfile(requestBuilder.build()).get())
+        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
             .get();
-    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Date of birth required");
   }
 
   @Test
   public void addClient_WithAllInformation() {
-    Http.RequestBuilder requestBuilder =
+    Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
@@ -262,13 +260,12 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "tiNote",
                     "unitTest",
                     "phoneNumber",
-                    "4259879090"));
-
+                    "4259879090"))
+            .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.optionalCurrentUserProfile(requestBuilder.build()).get())
+        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
             .get();
-    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
@@ -277,7 +274,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   private AccountModel setupForEditClient(String email) {
-    Http.RequestBuilder requestBuilder =
+    Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
@@ -294,13 +291,12 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "tiNote",
                     "unitTest",
                     "phoneNumber",
-                    "4259879090"));
-
+                    "4259879090"))
+            .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.optionalCurrentUserProfile(requestBuilder.build()).get())
+        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
             .get();
-    Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
+    Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail(email).toCompletableFuture().join();

@@ -69,6 +69,8 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
+  public abstract Optional<Boolean> isNameSuffixEnabled();
+
   public abstract ErrorDisplayMode errorDisplayMode();
 
   public abstract boolean multipleFileUploadEnabled();
@@ -111,6 +113,8 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setSignedFileUploadRequest(
         StorageUploadRequest signedFileUploadRequest);
+
+    public abstract Builder setIsNameSuffixEnabled(boolean isNameSuffixEnabled);
 
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
