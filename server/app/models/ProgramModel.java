@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.Keep;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
@@ -124,6 +125,7 @@ public class ProgramModel extends BaseModel {
       inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<VersionModel> versions;
 
+  @Keep
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
   private List<ApplicationModel> applications;
@@ -306,20 +308,6 @@ public class ProgramModel extends BaseModel {
       // Optional.empty field for the program definition.
       builder.setSummaryImageFileKey(Optional.empty());
     }
-  }
-
-  /**
-   * Returns submitted program applications sorted by descending application id. Applications are
-   * obsolete if the applicant submitted the application more than once, but are included since all
-   * submitted applications should be shown.
-   */
-  public ImmutableList<ApplicationModel> getSubmittedApplications() {
-    return applications.stream()
-        .filter(
-            application ->
-                application.getLifecycleStage().equals(LifecycleStage.ACTIVE)
-                    || application.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
-        .collect(ImmutableList.toImmutableList());
   }
 
   public String getSlug() {
