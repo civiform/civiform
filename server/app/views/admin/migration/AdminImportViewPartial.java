@@ -8,9 +8,9 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -28,6 +28,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.AlertComponent;
 import views.BaseHtmlView;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.TextFormatter;
 
@@ -43,65 +44,48 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   public static final String PROGRAM_DATA_ID = "program-data";
 
   /** Renders an error that occurred while trying to parse the program data. */
-  public DomContent renderError(String title, String errorMessage) {
+  public DomContent renderError(String errorMessage) {
     return div()
         .withId(PROGRAM_DATA_ID)
         .with(
             AlertComponent.renderFullAlert(
                 AlertType.ERROR,
                 /* text= */ errorMessage,
-                /* title= */ Optional.of(title),
-                /* hidden= */ false),
-            asRedirectElement(button("Try again"), routes.AdminImportController.index().url())
-                .withClasses("my-5", "usa-button", "usa-button--outline"));
+                /* title= */ Optional.of("Error processing JSON"),
+                /* hidden= */ false
+
+                /* classes...= */ ));
   }
 
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(
-      Http.Request request,
-      ProgramDefinition program,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
-      String json) {
-
-    ImmutableMap<String, String> newToOldQuestionNameMap =
-        getNewToOldQuestionAdminNameMap(updatedQuestionsMap);
-
-    DivTag questionAlert = buildQuestionAlert(updatedQuestionsMap, newToOldQuestionNameMap);
-
+      Http.Request request, ProgramMigrationWrapper programMigrationWrapper, String json) {
+    ProgramDefinition program = programMigrationWrapper.getProgram();
     DivTag programDiv =
         div()
             .withId(PROGRAM_DATA_ID)
             .with(
-                h3("Program preview"),
-                AlertComponent.renderFullAlert(
-                    AlertType.INFO,
-                    /* text= */ "Please review the program name and details before saving.",
-                    /* title= */ Optional.empty(),
-                    /* hidden= */ false,
-                    /* classes...= */ "mb-2"))
-            .condWith(!updatedQuestionsMap.isEmpty(), questionAlert)
-            .with(
-                h4("Program name: " + program.localizedName().getDefault()).withClass("mb-2"),
-                h4("Admin name: " + program.adminName()).withClass("mb-2"));
+                h3("Program name: " + program.localizedName().getDefault()),
+                h4("Admin name: " + program.adminName()));
+    // TODO(#7087): If the imported program admin name matches an existing program admin name, we
+    // should show some kind of error because admin names need to be unique.
 
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
-
-    if (!updatedQuestionsMap.isEmpty()) {
+    // If there are no questions in the program, the "questions" field will not be included in the
+    // JSON and programMigrationWrapper.getQuestions() will return null
+    if (programMigrationWrapper.getQuestions() != null) {
       questionsById =
-          updatedQuestionsMap.values().stream()
+          programMigrationWrapper.getQuestions().stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
     }
 
     for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(renderProgramBlock(block, questionsById, newToOldQuestionNameMap));
+      programDiv.with(renderProgramBlock(block, questionsById));
     }
 
     FormTag hiddenForm =
         form()
-            .attr("hx-encoding", "multipart/form-data")
-            .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
-            .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
-            .attr("hx-swap", "outerHTML")
+            .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
@@ -111,95 +95,15 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .withClass("hidden"))
             .with(
                 div()
-                    .with(
-                        submitButton("Save").withClasses("usa-button", "mr-2"),
-                        asRedirectElement(
-                                button("Delete and start over"),
-                                routes.AdminImportController.index().url())
-                            .withClasses("usa-button", "usa-button--outline"))
-                    .withClasses("flex", "my-5"))
-            .withAction(routes.AdminImportController.hxSaveProgram().url());
+                    .with(submitButton("Save Program").withClass(ButtonStyles.SOLID_BLUE))
+                    .withClasses("flex"))
+            .withAction(routes.AdminImportController.saveProgram().url());
 
     return programDiv.with(hiddenForm);
   }
 
-  /** Renders a message saying the program was successfully saved. */
-  public DomContent renderProgramSaved(String programName, Long programId) {
-    return div()
-        .with(
-            AlertComponent.renderFullAlert(
-                AlertType.SUCCESS,
-                /* text= */ programName
-                    + " and its questions have been imported to your program dashboard. To view it,"
-                    + " visit the program dashboard.",
-                /* title= */ Optional.of("Your program has been successfully imported"),
-                /* hidden= */ false,
-                /* classes...= */ "mb-2"),
-            div()
-                .with(
-                    asRedirectElement(
-                            button("View program"),
-                            routes.AdminProgramBlocksController.edit(programId, 1).url())
-                        .withClasses("usa-button", "mr-2"),
-                    asRedirectElement(
-                            button("Import another program"),
-                            routes.AdminImportController.index().url())
-                        .withClasses("usa-button", "usa-button--outline"))
-                .withClasses("flex", "my-5"));
-  }
-
-  private ImmutableMap<String, String> getNewToOldQuestionAdminNameMap(
-      ImmutableMap<String, QuestionDefinition> questions) {
-    return questions.entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(
-                entry -> entry.getValue().getName(), entry -> entry.getKey()));
-  }
-
-  private DivTag buildQuestionAlert(
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
-      ImmutableMap<String, String> newToOldQuestionNameMap) {
-    int numDuplicateQuestions = countDuplicateQuestions(newToOldQuestionNameMap);
-    int numNewQuestions = updatedQuestionsMap.size() - numDuplicateQuestions;
-
-    AlertType alertType = AlertType.INFO;
-    String alertMessage = "Importing this program will add ";
-
-    if (numDuplicateQuestions > 0) {
-      alertType = AlertType.WARNING;
-      if (numNewQuestions > 0) {
-        String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
-        alertMessage =
-            alertMessage.concat(numNewQuestions + " new " + questionOrQuestions + " and ");
-      }
-      String questionOrQuestions = numDuplicateQuestions == 1 ? "question" : "questions";
-      alertMessage =
-          alertMessage.concat(
-              numDuplicateQuestions
-                  + " duplicate "
-                  + questionOrQuestions
-                  + " to the question bank.");
-    } else if (numNewQuestions > 0) {
-      String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
-      alertMessage =
-          alertMessage.concat(
-              numNewQuestions + " new " + questionOrQuestions + " to the question bank.");
-    }
-
-    return AlertComponent.renderFullAlert(alertType, alertMessage, Optional.empty(), false, "");
-  }
-
-  private int countDuplicateQuestions(ImmutableMap<String, String> newToOldQuestionNameMap) {
-    return newToOldQuestionNameMap.entrySet().stream()
-        .filter(question -> !question.getKey().equals(question.getValue()))
-        .collect(ImmutableList.toImmutableList())
-        .size();
-  }
-
   private DomContent renderProgramBlock(
-      BlockDefinition block,
-      ImmutableMap<Long, QuestionDefinition> questionsById,
-      ImmutableMap<String, String> newToOldQuestionNameMap) {
+      BlockDefinition block, ImmutableMap<Long, QuestionDefinition> questionsById) {
     DivTag blockDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
@@ -208,32 +112,18 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
     if (!questionsById.isEmpty()) {
       for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-        blockDiv.with(
-            renderQuestion(
-                Objects.requireNonNull(questionsById.get(question.id())), newToOldQuestionNameMap));
+        blockDiv.with(renderQuestion(Objects.requireNonNull(questionsById.get(question.id()))));
       }
     }
 
     return blockDiv;
   }
 
-  private DomContent renderQuestion(
-      QuestionDefinition question, ImmutableMap<String, String> newToOldQuestionNameMap) {
-    String currentAdminName = question.getName();
-    boolean questionIsDuplicate =
-        !currentAdminName.equals(newToOldQuestionNameMap.get(currentAdminName));
-
-    DivTag newOrDuplicateIndicator =
-        questionIsDuplicate
-            ? div(p("DUPLICATE QUESTION").withClass("p-2"))
-                .withClasses("bg-yellow-100", "w-44", "flex", "justify-center")
-            : div(p("NEW QUESTION").withClass("p-2"))
-                .withClasses("bg-cyan-100", "w-32", "flex", "justify-center");
+  private DomContent renderQuestion(QuestionDefinition question) {
     DivTag questionDiv =
         div()
-            .withClasses("p-2")
+            .withClasses("border", "border-gray-200", "p-2")
             .with(
-                newOrDuplicateIndicator,
                 div()
                     .with(
                         TextFormatter.formatText(
