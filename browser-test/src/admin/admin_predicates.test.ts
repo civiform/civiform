@@ -371,8 +371,31 @@ test.describe('create and edit predicates', () => {
 
     await adminQuestions.addNameQuestion({questionName: 'name-question'})
 
-    const programName = 'Test name question '
+    const programName = 'Test name question as a eligibility condition excluding suffix'
+    await adminPrograms.addProgram(programName)
 
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      questions: [
+        {name: 'name-question'},
+      ],
+    })
+
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+
+    await adminPredicates.selectQuestionForPredicate('name-question')
+    await adminPredicates.clickAddConditionButton()
+    await adminPredicates.addValueRows(1)
+
+    await page.click
+
+    await validateScreenshot(
+      page,
+      'haha',
+    )
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
