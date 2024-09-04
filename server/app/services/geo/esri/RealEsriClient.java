@@ -312,7 +312,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     request.addQueryParameter("returnGeometry", "false");
     request.addQueryParameter("outFields", "*");
     // "inSR" specifies the spatial reference for the service to use
-    request.addQueryParameter("inSR", location.getWellKnownId().toString());
+    request.addQueryParameter("inSR", Integer.toString(location.getWellKnownId()));
     String geo = "{'x':";
     geo += location.getLongitude();
     geo += ",'y':";

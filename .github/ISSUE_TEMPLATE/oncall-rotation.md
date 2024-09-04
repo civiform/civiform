@@ -21,13 +21,7 @@ Resources:
 
 ## Release
 
-- [ ] Choose a new version number in the format `vX.Y.Z`. If any of the following apply to the release, bump the minor version (Y). Otherwise, bump the patch version (Z). Do not bump the major version (X) without discussing with #engineering, as this will need more extensive communication and planning.
-  - A brand new feature (both when adding the feature behind a feature flag, and when removing the feature flag)
-  - New APIs or API version (e.g. `/v2/` in the path instead of `/v1/`)
-  - A database evolution
-  - File key naming changes
-  - Changes to other stateful parts of the application (i.e. changes to the format of things stored in the database not necessarily requiring an evolution)
-  - Config setting addition or removal
+- [ ] Choose a new version number in the format `vX.Y.Z`. If this is an unscheduled release in order to fix a bug, increment Z. Otherwise, increment Y and set Z to 0. Do not increment X without a discussion with the rest of the engineering team.
 - [ ] Create a Draft Release by 12 PT on Tuesday
   - Ensure both the `civiform` and `cloud-deploy-infra` repos are tagged appropriately after running the `Create Release` action.
 - [ ] Contact Matthew Sprenke for QA on Slack

@@ -59,13 +59,13 @@ export class ApplicantFileQuestion {
 
   async expectHasFileInput() {
     await expect(
-      this.page.getByRole('button', {name: 'Choose File'}),
+      this.page.getByText('Drag file here or choose from folder'),
     ).toHaveCount(1)
   }
 
   async expectNoFileInput() {
     await expect(
-      this.page.getByRole('button', {name: 'Choose File'}),
+      this.page.getByText('Drag file here or choose from folder'),
     ).toHaveCount(0)
   }
 

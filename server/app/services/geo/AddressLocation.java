@@ -14,15 +14,15 @@ public abstract class AddressLocation {
 
   /** returns a coordinate on the x axis of the coordinate system (longitude) */
   @JsonProperty("longitude")
-  public abstract Double getLongitude();
+  public abstract double getLongitude();
 
   /** returns a coordinate on the y axis of the coordinate system (latitude) */
   @JsonProperty("latitude")
-  public abstract Double getLatitude();
+  public abstract double getLatitude();
 
   /** returns a well-known ID for ArcGIS coordinate systems, used for spatial reference */
   @JsonProperty("wellKnownId")
-  public abstract Integer getWellKnownId();
+  public abstract int getWellKnownId();
 
   @AutoValue.Builder
   public abstract static class Builder {

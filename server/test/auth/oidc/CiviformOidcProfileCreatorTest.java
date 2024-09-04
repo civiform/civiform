@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequest;
-import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -37,7 +36,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
-  private static final String SESSION_ID = "session_id";
+  private static final String ID_TOKEN_STRING = "id token string";
 
   private static OidcProfile profile;
 
@@ -57,6 +56,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("user_locale", "fr");
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
+    profile.setIdTokenString(ID_TOKEN_STRING);
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreator(boolean enhancedLogoutEnabled) {
@@ -173,12 +173,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user_with_enhanced_logout() {
-    // Create a web context containing a session id.
-    PlayWebContext context =
-        new PlayWebContext(
-            fakeRequestBuilder()
-                .session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID)
-                .build());
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
@@ -207,7 +202,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     AccountModel account = maybeApplicant.get().getAccount();
     SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
     assertThat(serializedIdTokens).isNotNull();
-    assertThat(serializedIdTokens.containsKey(SESSION_ID)).isTrue();
+    assertThat(serializedIdTokens.size()).isEqualTo(1);
+    assertThat(serializedIdTokens.entrySet().iterator().next().getValue())
+        .isEqualTo(ID_TOKEN_STRING);
   }
 
   @Test

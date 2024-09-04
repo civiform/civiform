@@ -621,33 +621,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
+              // Re-direct back to the current page.
               return supplyAsync(
                   () -> {
-                    ApplicantPersonalInfo personalInfo =
-                        applicantStage.toCompletableFuture().join();
-                    CiviFormProfile submittingProfile =
-                        profileUtils.currentUserProfileOrThrow(request);
-
-                    ApplicationBaseViewParams applicationParams =
-                        buildApplicationBaseViewParams(
-                            request,
-                            applicantId,
-                            programId,
-                            blockId,
-                            inReview,
-                            roApplicantProgramService,
-                            block.get(),
-                            personalInfo,
-                            DISPLAY_ERRORS,
-                            applicantRoutes,
-                            submittingProfile);
-                    if (settingsManifest.getNorthStarApplicantUi(request)) {
-                      return ok(northStarApplicantProgramBlockEditView.render(
-                              request, applicationParams))
-                          .as(Http.MimeTypes.HTML);
-                    } else {
-                      return ok(editView.render(applicationParams));
-                    }
+                    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
                   });
             },
             classLoaderExecutionContext.current())
@@ -784,34 +766,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              // Re-render the current page, with the updated file info.
+              // Re-direct back to the current page.
               return supplyAsync(
                   () -> {
-                    ApplicantPersonalInfo personalInfo =
-                        applicantStage.toCompletableFuture().join();
-                    CiviFormProfile submittingProfile =
-                        profileUtils.currentUserProfileOrThrow(request);
-
-                    ApplicationBaseViewParams applicationParams =
-                        buildApplicationBaseViewParams(
-                            request,
-                            applicantId,
-                            programId,
-                            blockId,
-                            inReview,
-                            roApplicantProgramService,
-                            block.get(),
-                            personalInfo,
-                            DISPLAY_ERRORS,
-                            applicantRoutes,
-                            submittingProfile);
-                    if (settingsManifest.getNorthStarApplicantUi(request)) {
-                      return ok(northStarApplicantProgramBlockEditView.render(
-                              request, applicationParams))
-                          .as(Http.MimeTypes.HTML);
-                    } else {
-                      return ok(editView.render(applicationParams));
-                    }
+                    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
                   });
             },
             classLoaderExecutionContext.current())

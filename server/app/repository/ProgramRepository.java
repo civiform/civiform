@@ -190,12 +190,12 @@ public final class ProgramRepository {
                   .map(String::valueOf)
                   .collect(Collectors.joining(", "));
           logger.warn(
-              "Program {} with ID {} has the following null question ID(s): {} in {} / {} blocks,"
-                  + " so we won't set it into the cache.",
+              "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
+                  + " into the cache. This is an issue in {} / {} blocks.",
               programDefinition.slug(),
               programDefinition.id(),
-              blocksWithNullQuestion.size(),
               nullQuestionIds,
+              blocksWithNullQuestion.size(),
               programDefinition.blockDefinitions().size());
         } else {
           programDefCache.set(String.valueOf(programId), programDefinition);
@@ -354,6 +354,7 @@ public final class ProgramRepository {
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
+        .fetch("categories")
         .where()
         .in("name", programNameQuery)
         .query()
@@ -382,6 +383,7 @@ public final class ProgramRepository {
             .setLabel("ApplicationModel.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
+            .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
             .orderBy("id desc")
             .where()

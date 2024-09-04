@@ -356,6 +356,12 @@ public class AdminImportControllerTest extends ResetPostgres {
             .get()
             .predicate()
             .rootNode()
+            .getOrNode()
+            .children()
+            .get(0)
+            .getAndNode()
+            .children()
+            .get(0)
             .getLeafOperationNode()
             .questionId();
     Long visibilityQuestionId =
@@ -792,18 +798,39 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "      \"hidePredicate\" : null,\n"
           + "      \"eligibilityDefinition\" : {\n"
           + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"leaf\",\n"
-          + "              \"questionId\" : 11,\n"
-          + "              \"scalar\" : \"ID\",\n"
-          + "              \"operator\" : \"IN\",\n"
-          + "              \"value\" : {\n"
-          + "                \"value\" : \"[\\\"1\\\", \\\"2\\\", \\\"3\\\"]\",\n"
-          + "                \"type\" : \"LIST_OF_STRINGS\"\n"
-          + "              }\n"
-          + "            }\n"
-          + "          },\n"
+          + "        \"rootNode\" : { \n"
+          + "          \"node\" : { \n"
+          + "            \"type\" : \"or\", \n"
+          + "            \"children\" : [ { \n"
+          + "              \"node\" : { \n"
+          + "                \"type\" : \"and\", \n"
+          + "                \"children\" : [ { \n"
+          + "                  \"node\" : { \n"
+          + "                    \"type\" : \"leaf\", \n"
+          + "                    \"questionId\" : 11, \n"
+          + "                    \"scalar\" : \"SELECTIONS\", \n"
+          + "                    \"operator\" : \"ANY_OF\", \n"
+          + "                    \"value\" : { \n"
+          + "                      \"value\" : \"[\\\"0\\\", \\\"9\\\", \\\"11\\\"]\", \n"
+          + "                      \"type\" : \"LIST_OF_STRINGS\" \n"
+          + "                    } \n"
+          + "                  } \n"
+          + "                }, { \n"
+          + "                  \"node\" : { \n"
+          + "                    \"type\" : \"leaf\", \n"
+          + "                    \"questionId\" : 11, \n"
+          + "                    \"scalar\" : \"SELECTION\", \n"
+          + "                    \"operator\" : \"IN\", \n"
+          + "                    \"value\" : { \n"
+          + "                      \"value\" : \"[\\\"1\\\"]\", \n"
+          + "                      \"type\" : \"LIST_OF_STRINGS\" \n"
+          + "                    } \n"
+          + "                  } \n"
+          + "                } ] \n"
+          + "              } \n"
+          + "            } ] \n"
+          + "          } \n"
+          + "        }, \n"
           + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
           + "        }\n"
           + "      },\n"
