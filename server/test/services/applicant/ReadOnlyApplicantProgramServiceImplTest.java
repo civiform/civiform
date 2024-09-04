@@ -1120,7 +1120,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(9);
-    assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
+    assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last Jr.");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
 

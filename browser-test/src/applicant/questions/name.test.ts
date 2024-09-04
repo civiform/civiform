@@ -95,8 +95,14 @@ test.describe('name applicant flow', () => {
 
     test('with valid name does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
-      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
+      await applicantQuestions.answerNameQuestion(
+        'Chuckie',
+        'Finster',
+        '',
+        '',
+        1,
+      )
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
@@ -107,8 +113,14 @@ test.describe('name applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('', '', '', 0)
-      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
+      await applicantQuestions.answerNameQuestion('', '', '', '', 0)
+      await applicantQuestions.answerNameQuestion(
+        'Chuckie',
+        'Finster',
+        '',
+        '',
+        1,
+      )
       await applicantQuestions.clickNext()
 
       // First question has errors.
@@ -125,8 +137,8 @@ test.describe('name applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
-      await applicantQuestions.answerNameQuestion('', '', '', 1)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
+      await applicantQuestions.answerNameQuestion('', '', '', '', 1)
       await applicantQuestions.clickNext()
 
       // First question has no errors.
@@ -177,7 +189,7 @@ test.describe('name applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
@@ -188,8 +200,8 @@ test.describe('name applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
-      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
+      await applicantQuestions.answerNameQuestion('Tommy', '', '', '', 0)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickNext()
 
       // Optional question has an error.
@@ -199,7 +211,7 @@ test.describe('name applicant flow', () => {
     test.describe('with invalid required name', () => {
       test.beforeEach(async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerNameQuestion('', '', '', 1)
+        await applicantQuestions.answerNameQuestion('', '', '', '', 1)
         await applicantQuestions.clickNext()
       })
 
@@ -216,6 +228,77 @@ test.describe('name applicant flow', () => {
       })
     })
   })
+
+  test.describe(
+    'name question with name suffix flag enabled',
+    {tag: ['@in-development']},
+    () => {
+      const programName = 'Test program for name suffix'
+
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleRequiredQuestion(
+          programName,
+          page,
+          adminQuestions,
+          adminPrograms,
+        )
+        await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+      })
+
+      test('name questions with suffix field being available to use', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('name question has suffix field available and no default value selected', async () => {
+          await expect(page.getByLabel('Suffix')).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('')
+        })
+
+        await test.step('selects an option in name suffix dropdown', async () => {
+          await applicantQuestions.answerDropdownQuestion('II')
+          await expect(page.getByLabel('Suffix')).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('II')
+        })
+      })
+
+      test('with suffix the application does submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('anwers name question with suffix', async () => {
+          await applicantQuestions.answerNameQuestion(
+            'Lilly',
+            'Singh',
+            'Saini',
+            'I',
+          )
+          await applicantQuestions.clickNext()
+
+          await expect(page.getByText('Lilly Saini Singh I')).toBeVisible()
+          await applicantQuestions.submitFromReviewPage()
+        })
+      })
+
+      test('without suffix the application does submit as well', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('anwers name question with suffix', async () => {
+          await applicantQuestions.answerNameQuestion('Ann', 'Gates', 'Quiroz')
+          await applicantQuestions.clickNext()
+
+          await expect(page.getByText('Ann Quiroz Gates')).toBeVisible()
+          await applicantQuestions.submitFromReviewPage()
+        })
+      })
+    },
+  )
 
   test.describe(
     'single required name question with north star flag enabled',

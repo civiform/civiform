@@ -67,6 +67,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
+  private final QuestionPreview questionPreview;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -79,6 +80,7 @@ public final class QuestionEditView extends BaseHtmlView {
       MessagesApi messagesApi,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
+      QuestionPreview questionPreview,
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
@@ -86,6 +88,7 @@ public final class QuestionEditView extends BaseHtmlView {
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionPreview = checkNotNull(questionPreview);
   }
 
   /** Render a fresh New Question Form. */
@@ -232,7 +235,8 @@ public final class QuestionEditView extends BaseHtmlView {
               .attr("hx-trigger", "load");
     } else {
       previewContent =
-          QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
+          questionPreview.renderQuestionPreview(
+              type, messages, applicantFileUploadRenderer, request);
     }
 
     HtmlBundle htmlBundle =

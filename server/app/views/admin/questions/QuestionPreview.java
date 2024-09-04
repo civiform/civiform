@@ -1,12 +1,16 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
+import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -16,24 +20,43 @@ import views.style.ReferenceClasses;
 
 /** Contains methods for rendering preview of a question. */
 public final class QuestionPreview {
+  private final SettingsManifest settingsManifest;
 
-  private static DivTag buildQuestionRenderer(
-      QuestionType type, Messages messages, ApplicantFileUploadRenderer applicantFileUploadRenderer)
+  @Inject
+  public QuestionPreview(SettingsManifest settingsManifest) {
+    this.settingsManifest = checkNotNull(settingsManifest);
+  }
+
+  private DivTag buildQuestionRenderer(
+      QuestionType type,
+      Messages messages,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      Request request)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
         new ApplicantQuestionRendererFactory(applicantFileUploadRenderer);
-    ApplicantQuestionRendererParams params =
+    ApplicantQuestionRendererParams params;
+
+    ApplicantQuestionRendererParams.Builder paramsBuilder =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
-            .build();
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS);
+    if (type == QuestionType.NAME) {
+      params =
+          paramsBuilder
+              .setIsNameSuffixEnabled(settingsManifest.getNameSuffixDropdownEnabled(request))
+              .build();
+    } else {
+      params = paramsBuilder.build();
+    }
     return div(rf.getSampleRenderer(type).render(params));
   }
 
-  public static DivTag renderQuestionPreview(
+  public DivTag renderQuestionPreview(
       QuestionType type,
       Messages messages,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer) {
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      Request request) {
     DivTag titleContainer =
         div()
             .withId("sample-render")
@@ -43,10 +66,10 @@ public final class QuestionPreview {
                 span()
                     .withText(type.getLabel())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, "font-semibold"));
-
     DivTag renderedQuestion;
     try {
-      renderedQuestion = buildQuestionRenderer(type, messages, applicantFileUploadRenderer);
+      renderedQuestion =
+          buildQuestionRenderer(type, messages, applicantFileUploadRenderer, request);
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
