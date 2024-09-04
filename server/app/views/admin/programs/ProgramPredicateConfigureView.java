@@ -525,7 +525,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     }
     ImmutableList<OptionTag> options =
         scalars.stream()
-            // .filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX))
+            .filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX))
             .map(
                 scalar -> {
                   OptionTag tag =
