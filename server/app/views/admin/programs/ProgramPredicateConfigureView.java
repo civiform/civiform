@@ -523,9 +523,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             .withText("Sorry, you cannot create a show/hide predicate with this question type.");
       }
     }
-
+    System.out.println("lala");
     ImmutableList<OptionTag> options =
         scalars.stream()
+            .filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX))
             .map(
                 scalar -> {
                   OptionTag tag =
