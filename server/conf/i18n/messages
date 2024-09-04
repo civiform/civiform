@@ -675,7 +675,7 @@ error.internalServerDescription=Please contact technical support for assistance 
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Visit homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
-error.errorCode=Error code: {0}
+error.statusCode=Error code: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

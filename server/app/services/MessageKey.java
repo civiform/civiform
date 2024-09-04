@@ -181,7 +181,7 @@ public enum MessageKey {
   ERROR_INTERNAL_SERVER_SUBTITLE("error.internalServerSubtitle"),
   ERROR_INTERNAL_SERVER_DESCRIPTION("error.internalServerDescription"),
   ERROR_INTERNAL_SERVER_HOME_BUTTON("error.internalServerHomeButton"),
-  ERROR_ERROR_CODE("error.errorCode"),
+  ERROR_STATUS_CODE("error.statusCode"),
   ERROR_NOT_FOUND_TITLE("error.notFoundTitle"),
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
