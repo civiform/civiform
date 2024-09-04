@@ -363,39 +363,40 @@ test.describe('create and edit predicates', () => {
     page,
     adminQuestions,
     adminPrograms,
-    applicantQuestions,
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
 
-    await adminQuestions.addNameQuestion({questionName: 'name-question'})
+    const programName =
+      'Test name question as a eligibility condition excluding suffix'
+    const questionName = 'name-question'
+    const screenName = 'Screen 1'
 
-    const programName = 'Test name question as a eligibility condition excluding suffix'
-    await adminPrograms.addProgram(programName)
-
-    await adminPrograms.editProgramBlockUsingSpec(programName, {
-      name: 'Screen 1',
-      questions: [
-        {name: 'name-question'},
-      ],
+    await test.step('adds name question as an eligibility condition', async () => {
+      await adminQuestions.addNameQuestion({questionName: questionName})
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: screenName,
+        questions: [{name: questionName}],
+      })
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.selectQuestionForPredicate(questionName)
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.addValueRows(1)
     })
 
-    await adminPrograms.goToEditBlockEligibilityPredicatePage(
-      programName,
-      'Screen 1',
-    )
+    await test.step('name suffix is not visible to be selected as a value', async () => {
+      await page.click(`.cf-scalar-select`)
 
-    await adminPredicates.selectQuestionForPredicate('name-question')
-    await adminPredicates.clickAddConditionButton()
-    await adminPredicates.addValueRows(1)
-
-    await page.click
-
-    await validateScreenshot(
-      page,
-      'haha',
-    )
+      await page.getByText('first name').isVisible()
+      await page.getByText('middle name').isVisible()
+      await page.getByText('last name').isVisible()
+      await page.getByText('name suffix').isHidden()
+    })
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
