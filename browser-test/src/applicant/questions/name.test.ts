@@ -250,6 +250,41 @@ test.describe('name applicant flow', () => {
           await expect(page.getByLabel('Suffix')).toHaveValue('II')
         })
       })
+
+      test('with suffix the application does submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('anwers name question with suffix', async () => {
+          await applicantQuestions.answerNameQuestion(
+            'Lilly',
+            'Singh',
+            'Saini',
+            'I',
+          )
+          await applicantQuestions.clickNext()
+
+          await expect(page.getByText('Lilly Saini Singh I')).toBeVisible()
+          await applicantQuestions.submitFromReviewPage()
+        })
+      })
+
+      test('without suffix the application does submit as well', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('anwers name question with suffix', async () => {
+          await applicantQuestions.answerNameQuestion('Ann', 'Gates', 'Quiroz')
+          await applicantQuestions.clickNext()
+
+          await expect(page.getByText('Ann Quiroz Gates')).toBeVisible()
+          await applicantQuestions.submitFromReviewPage()
+        })
+      })
     },
   )
 
