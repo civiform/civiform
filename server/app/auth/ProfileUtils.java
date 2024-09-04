@@ -28,30 +28,25 @@ public class ProfileUtils {
   }
 
   /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * request's cookies, using the injected session store to decrypt it.
-   */
-  public Optional<CiviFormProfile> currentUserProfile(Http.RequestHeader request) {
-    PlayWebContext webContext = new PlayWebContext(request);
-    return currentUserProfile(webContext);
-  }
-
-  /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * request's cookies, using the injected session store to decrypt it.
+   * Fetch the current profile, or throw an exception if none is present. Note that {@link
+   * filters.CiviFormProfileFilter} should guarantee that a profile is present for user-facing
+   * requests.
    *
    * @throws MissingOptionalException if we can't find the profile from the request
    */
-  public CiviFormProfile currentUserProfileOrThrow(Http.RequestHeader request) {
-    return currentUserProfile(request)
+  public CiviFormProfile currentUserProfile(Http.RequestHeader request) {
+    return optionalCurrentUserProfile(request)
         .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
   }
 
-  /**
-   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
-   * context's cookies, using the injected session store to decrypt it.
-   */
-  public Optional<CiviFormProfile> currentUserProfile(WebContext webContext) {
+  /** Fetch the current pac4j profile for the given request. */
+  public Optional<CiviFormProfile> optionalCurrentUserProfile(Http.RequestHeader request) {
+    PlayWebContext webContext = new PlayWebContext(request);
+    return optionalCurrentUserProfile(webContext);
+  }
+
+  /** Fetch the current pac4j profile for the given web context. */
+  public Optional<CiviFormProfile> optionalCurrentUserProfile(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
     Optional<CiviFormProfileData> p = profileManager.getProfile(CiviFormProfileData.class);
     if (p.isEmpty()) {
@@ -110,7 +105,7 @@ public class ProfileUtils {
 
   /** Retrieves the applicant id from the user profile, if present. */
   public Optional<Long> getApplicantId(Http.Request request) {
-    Optional<CiviFormProfile> profile = currentUserProfile(request);
+    Optional<CiviFormProfile> profile = optionalCurrentUserProfile(request);
     if (profile.isEmpty()) {
       return Optional.empty();
     }

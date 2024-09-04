@@ -50,7 +50,7 @@ public final class ProgramSlugHandler {
 
   public CompletionStage<Result> showProgram(
       CiviFormController controller, Http.Request request, String programSlug) {
-    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     return profile
         .getApplicant()
@@ -131,7 +131,8 @@ public final class ProgramSlugHandler {
       long applicantId, String programSlug, Http.Request request) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
-    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    CiviFormProfile requesterProfile =
+        profileUtils.optionalCurrentUserProfile(request).orElseThrow();
     return applicantService
         .relevantProgramsForApplicant(applicantId, requesterProfile, request)
         .thenApplyAsync(

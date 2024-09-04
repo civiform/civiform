@@ -46,7 +46,7 @@ public class AdminSettingsController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     if (profile.isEmpty()) {
       throw new RuntimeException("Unable to resolve profile.");

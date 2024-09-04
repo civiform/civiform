@@ -83,7 +83,7 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result retire(Http.Request request, Long apiKeyId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     if (profile.isEmpty()) {
       throw new RuntimeException("Unable to resolve profile.");
@@ -107,7 +107,7 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Http.Request request) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     if (profile.isEmpty()) {
       throw new RuntimeException("Unable to resolve profile.");
