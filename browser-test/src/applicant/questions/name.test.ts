@@ -96,7 +96,13 @@ test.describe('name applicant flow', () => {
     test('with valid name does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
-      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', '', 1)
+      await applicantQuestions.answerNameQuestion(
+        'Chuckie',
+        'Finster',
+        '',
+        '',
+        1,
+      )
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
@@ -108,7 +114,13 @@ test.describe('name applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', '', 0)
-      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', '', 1)
+      await applicantQuestions.answerNameQuestion(
+        'Chuckie',
+        'Finster',
+        '',
+        '',
+        1,
+      )
       await applicantQuestions.clickNext()
 
       // First question has errors.
@@ -177,7 +189,7 @@ test.describe('name applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '','', 1)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
@@ -199,7 +211,7 @@ test.describe('name applicant flow', () => {
     test.describe('with invalid required name', () => {
       test.beforeEach(async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerNameQuestion('', '', '','', 1)
+        await applicantQuestions.answerNameQuestion('', '', '', '', 1)
         await applicantQuestions.clickNext()
       })
 
