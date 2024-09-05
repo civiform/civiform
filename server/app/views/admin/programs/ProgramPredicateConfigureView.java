@@ -516,7 +516,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       try {
         scalars = Scalar.getScalars(questionDefinition.getQuestionType());
         if (questionDefinition.getQuestionType().equals(QuestionType.NAME)) {
-          // Suffix is not included in eligibility predicates
+          // Name suffix is not included in eligibility predicates.
           scalars = ImmutableSet.of(Scalar.FIRST_NAME, Scalar.MIDDLE_NAME, Scalar.LAST_NAME);
         }
         maybeSelectedScalar =
