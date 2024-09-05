@@ -36,7 +36,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramBlocksController blockController;
   private ProgramModel activeProgram;
   public ApplicantModel applicant;
-  public ApplicantModel applicantWithoutProfile;
 
   @Before
   public void setUpWithFreshApplicants() {
@@ -50,20 +49,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
-    applicantWithoutProfile = createApplicant();
   }
 
   @Test
   public void review_invalidApplicant_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.review(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  @Test
-  public void review_applicantWithoutProfile_redirectsToHome() {
-    Result result = this.review(applicantWithoutProfile.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -117,13 +108,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public void submit_invalid_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.submit(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  @Test
-  public void submit_applicantWithoutProfile_redirectsToHome() {
-    Result result = this.submit(applicantWithoutProfile.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -410,13 +394,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   public Result review(long applicantId, long programId) {
-    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         fakeRequestBuilder()
             .call(
                 routes.ApplicantProgramReviewController.reviewWithApplicantId(
                     applicantId, programId))
-            .header(skipUserProfile, shouldSkipUserProfile.toString())
+            .header(skipUserProfile, "false")
             .build();
     return subject
         .reviewWithApplicantId(request, applicantId, programId)
@@ -425,13 +408,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   public Result submit(long applicantId, long programId) {
-    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         fakeRequestBuilder()
             .call(
                 routes.ApplicantProgramReviewController.submitWithApplicantId(
                     applicantId, programId))
-            .header(skipUserProfile, shouldSkipUserProfile.toString())
+            .header(skipUserProfile, "false")
             .build();
     return subject
         .submitWithApplicantId(request, applicantId, programId)

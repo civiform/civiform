@@ -88,12 +88,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request,
       long applicantId, /* The selected program categories */
       List<String> categories) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
-
-    // If the user doesn't have a profile, send them home.
-    if (requesterProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
     Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
@@ -105,7 +100,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.relevantProgramsForApplicant(
-                    applicantId, requesterProfile.get(), request),
+                    applicantId, requesterProfile, request),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
@@ -119,8 +114,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
                             bannerMessage,
-                            requesterProfile.orElseThrow(
-                                () -> new MissingOptionalException(CiviFormProfile.class))))
+                            requesterProfile))
                         .as(Http.MimeTypes.HTML);
               } else {
                 result =
@@ -133,8 +127,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             applicationPrograms,
                             ImmutableList.copyOf(categories),
                             banner,
-                            requesterProfile.orElseThrow(
-                                () -> new MissingOptionalException(CiviFormProfile.class))));
+                            requesterProfile));
               }
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
@@ -172,12 +165,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
-
-    // If the user doesn't have a profile, send them home.
-    if (requesterProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -185,9 +173,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
-            v ->
-                applicantService.relevantProgramsForApplicant(
-                    applicantId, requesterProfile.get(), request),
+            v -> applicantService.relevantProgramsForApplicant(applicantId, profile, request),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
@@ -196,7 +182,6 @@ public final class ApplicantProgramsController extends CiviFormController {
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
-              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
@@ -251,12 +236,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> editWithApplicantId(
       Request request, long applicantId, long programId) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.optionalCurrentUserProfile(request);
-
-    // If the user doesn't have a profile, send them home.
-    if (requesterProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     // Determine first incomplete block, then redirect to other edit.
     return checkApplicantAuthorization(request, applicantId)
@@ -266,7 +246,6 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
-              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(
@@ -282,7 +261,6 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
-                CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 return supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId)));
               }
