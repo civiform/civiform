@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -34,21 +32,6 @@ final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
-
-  /**
-   * Regex matcher used to extract service_area index number Match examples:
-   * <li>applicant.question_name.service_area[0].service_area_id
-   * <li>applicant.question_name.service_area[0].state
-   * <li>applicant.question_name.service_area[0].timestamp
-   */
-  private final Pattern pathIndexPattern =
-      Pattern.compile(
-          String.format(
-              "applicant.[\\w]+.%s\\[(?<index>[0-9]+)\\].(%s|%s|%s)",
-              Scalar.SERVICE_AREA.toDisplayString(),
-              Scalar.SERVICE_AREA_ID.toDisplayString(),
-              Scalar.SERVICE_AREA_STATE.toDisplayString(),
-              Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()));
 
   @Inject
   public ServiceAreaUpdateResolver(
@@ -180,51 +163,13 @@ final class ServiceAreaUpdateResolver {
       Path serviceAreaPath, ImmutableMap<String, String> updateMap) {
 
     return updateMap.keySet().stream()
-        .filter(x -> x.startsWith(serviceAreaPath.toString()))
-        .map(this::extractIndexFromPath)
-        .filter(x -> x >= 0)
+        .map(x -> Path.create(x))
+        .filter(x -> x.parentPath().startsWith(serviceAreaPath) && x.parentPath().isArrayElement())
+        .map(x -> x.parentPath().arrayIndex())
         .distinct()
         .sorted()
         .map(index -> getServiceAreaInclusion(updateMap, serviceAreaPath, index))
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /**
-   * Attempts to find the index for a service_area array.
-   *
-   * @param updateMapKey Key from the updateMap in path form. Example:
-   *     `applicant.question_name.service_area[0].service_area_id`.
-   *     --------------------------------------^
-   * @return the int value of the index or -1 if errors/no matches found
-   */
-  private int extractIndexFromPath(String updateMapKey) {
-    Matcher matcher = pathIndexPattern.matcher(updateMapKey);
-    if (!matcher.find()) {
-      logger.error(
-          "Could not match '{}' against pattern '{}'", updateMapKey, pathIndexPattern.pattern());
-      return -1;
-    }
-
-    String groupValue = matcher.group("index");
-
-    if (groupValue == null) {
-      logger.error(
-          "Could not find group 'index' in '{}' with pattern '{}'",
-          updateMapKey,
-          pathIndexPattern.pattern());
-      return -1;
-    }
-
-    try {
-      return Integer.parseInt(groupValue);
-    } catch (NumberFormatException ex) {
-      logger.error(
-          "Could not parse 'index' value of '{}' from {} with pattern '{}'",
-          groupValue,
-          updateMapKey,
-          pathIndexPattern.pattern());
-      return -1;
-    }
   }
 
   /** Build a {@link ServiceAreaInclusion} object from the values of an update map */
