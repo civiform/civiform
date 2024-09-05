@@ -512,12 +512,12 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     if (questionDefinition.isAddress()) {
       scalars = ImmutableSet.of(Scalar.SERVICE_AREA);
       maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
+    }
+    if (questionDefinition.getQuestionType().equals(QuestionType.NAME)) {
+      scalars = ImmutableSet.of(Scalar.FIRST_NAME, Scalar.MIDDLE_NAME, Scalar.LAST_NAME);
     } else {
       try {
         scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-        if (questionDefinition.getQuestionType().equals(QuestionType.NAME)) {
-          scalars = ImmutableSet.of(Scalar.FIRST_NAME, Scalar.MIDDLE_NAME, Scalar.LAST_NAME);
-        }
         maybeSelectedScalar =
             assertLeafOperationNode(maybeLeafNode).map(LeafOperationExpressionNode::scalar);
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
