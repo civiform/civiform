@@ -10,6 +10,7 @@ import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
@@ -19,7 +20,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -143,7 +143,7 @@ public final class AdminApplicationController extends CiviFormController {
     try {
       program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
 
@@ -213,7 +213,7 @@ public final class AdminApplicationController extends CiviFormController {
           .as(Http.MimeTypes.BINARY)
           .withHeader(
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
   }
@@ -272,7 +272,7 @@ public final class AdminApplicationController extends CiviFormController {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
       checkProgramAdminAuthorization(request, program.adminName()).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
     Optional<ApplicationModel> applicationMaybe =
@@ -298,7 +298,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     try {
       checkProgramAdminAuthorization(request, programName).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
 
@@ -355,7 +355,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     try {
       checkProgramAdminAuthorization(request, programName).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
 
@@ -415,7 +415,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.optionalCurrentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
@@ -433,7 +433,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     try {
       checkProgramAdminAuthorization(request, programName).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
 
@@ -458,7 +458,7 @@ public final class AdminApplicationController extends CiviFormController {
     programAdminApplicationService.setNote(
         application,
         ApplicationEventDetails.NoteEvent.create(note),
-        profileUtils.optionalCurrentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
@@ -506,7 +506,7 @@ public final class AdminApplicationController extends CiviFormController {
     try {
       program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
 
@@ -518,7 +518,7 @@ public final class AdminApplicationController extends CiviFormController {
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
-    CiviFormProfile profile = getCiviFormProfile(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
     return ok(
         applicationListView.render(
             request,
@@ -546,11 +546,5 @@ public final class AdminApplicationController extends CiviFormController {
         .distinct()
         .sorted()
         .collect(ImmutableList.toImmutableList());
-  }
-
-  private CiviFormProfile getCiviFormProfile(Http.Request request) {
-    return profileUtils
-        .optionalCurrentUserProfile(request)
-        .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
   }
 }

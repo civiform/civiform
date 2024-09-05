@@ -1104,8 +1104,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
-    CiviFormProfile submittingProfile =
-        profileUtils.optionalCurrentUserProfile(request).orElseThrow();
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -1392,7 +1391,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
-            profileUtils.optionalCurrentUserProfile(request).get().isTrustedIntermediary(),
+            profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
             settingsManifest.getNorthStarApplicantUi(request),
             false,

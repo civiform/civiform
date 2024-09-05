@@ -40,23 +40,17 @@ public class CiviFormController extends Controller {
 
   protected CompletableFuture<Void> checkApplicantAuthorization(
       Http.Request request, long applicantId) {
-    return profileUtils
-        .optionalCurrentUserProfile(request)
-        .orElseThrow()
-        .checkAuthorization(applicantId);
+    return profileUtils.currentUserProfile(request).checkAuthorization(applicantId);
   }
 
   /**
    * Checks that the profile in {@code request} is an admin for {@code programName}.
    *
-   * @throws java.util.NoSuchElementException if there is no profile in request.
+   * @throws auth.controllers.MissingOptionalException if there is no profile in request.
    */
   protected CompletableFuture<Void> checkProgramAdminAuthorization(
       Http.Request request, String programName) {
-    return profileUtils
-        .optionalCurrentUserProfile(request)
-        .orElseThrow()
-        .checkProgramAuthorization(programName, request);
+    return profileUtils.currentUserProfile(request).checkProgramAuthorization(programName, request);
   }
 
   /** Checks that the profile is authorized to access the specified program. */
@@ -65,11 +59,7 @@ public class CiviFormController extends Controller {
         .isDraftProgramAsync(programId)
         .thenAccept(
             (isDraftProgram) -> {
-              if (isDraftProgram
-                  && !profileUtils
-                      .optionalCurrentUserProfile(request)
-                      .orElseThrow()
-                      .isCiviFormAdmin()) {
+              if (isDraftProgram && !profileUtils.currentUserProfile(request).isCiviFormAdmin()) {
                 throw new SecurityException();
               }
             });

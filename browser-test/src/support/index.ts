@@ -185,10 +185,8 @@ async function loginAsTestUserFakeOidc(
   loginButton: string,
   isTi: boolean,
 ) {
-  await Promise.all([
-    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
-    page.click(loginButton),
-  ])
+  await page.click(loginButton)
+  await page.waitForURL('**/interaction/*')
 
   // If the user has previously signed in to the provider, a prompt is shown
   // to reauthorize rather than sign-in. In this case, click "Continue" instead
@@ -207,18 +205,14 @@ async function loginAsTestUserFakeOidc(
 
   await page.fill('input[name=login]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
-  await Promise.all([
-    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
-    page.click('button:has-text("Sign-in"):not([disabled])'),
-  ])
+
+  await page.click('button:has-text("Sign-in"):not([disabled])')
+  await page.waitForURL('**/interaction/*')
+
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
-  await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/, {
-      waitUntil: 'networkidle',
-    }),
-    page.click('button:has-text("Continue")'),
-  ])
+  await page.click('button:has-text("Continue")')
+  await page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/)
 }
 
 export const testUserDisplayName = () => {
