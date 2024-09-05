@@ -2,6 +2,7 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -519,6 +520,20 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             assertLeafOperationNode(maybeLeafNode).map(LeafOperationExpressionNode::scalar);
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
         // This should never happen since we filter out Enumerator questions before this point.
+        return div()
+            .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+      }
+    }
+
+    if (questionDefinition.isName()) {
+      try {
+        scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+        // Filter out NAME_SUFFIX
+        scalars =
+            scalars.stream()
+                .filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX))
+                .collect(toImmutableSet());
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
         return div()
             .withText("Sorry, you cannot create a show/hide predicate with this question type.");
       }
