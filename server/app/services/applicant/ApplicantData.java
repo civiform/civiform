@@ -5,8 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.oidc.applicant.ApplicantProfileCreator;
 import auth.saml.SamlProfileCreator;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.jayway.jsonpath.TypeRef;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +20,8 @@ import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.question.Scalar;
+import services.geo.ServiceAreaInclusion;
 
 /**
  * Brokers access to the answer data for a specific applicant across versions.
@@ -387,5 +391,43 @@ public class ApplicantData extends CfJsonDocumentContext {
   private Optional<String> getAccountEmail() {
     return Optional.ofNullable(applicant)
         .flatMap(a -> Optional.ofNullable(a.getAccount().getEmailAddress()));
+  }
+
+  /**
+   * Puts an array at a given path, building parent objects as needed.
+   *
+   * @param path the {@link Path} where the array should be added.
+   * @param entityNames a {@link List} containing service area results.
+   */
+  public void putServiceAreaInclusionEntities(
+      Path path, ImmutableList<ServiceAreaInclusion> entityNames) {
+    if (entityNames.isEmpty()) {
+      put(path, ImmutableList.of());
+    } else {
+      for (int i = 0; i < entityNames.size(); i++) {
+        putString(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_ID.toDisplayString()),
+            entityNames.get(i).getServiceAreaId());
+        putString(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_STATE.toDisplayString()),
+            entityNames.get(i).getState().name());
+        putLong(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()),
+            entityNames.get(i).getTimeStamp());
+      }
+    }
+  }
+
+  /**
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of {@link ServiceAreaInclusion}
+   * is found.
+   *
+   * @param path the {@link Path} to the list
+   * @return an Optional containing an ImmutableList<ServiceAreaInclusion>
+   */
+  public Optional<ImmutableList<ServiceAreaInclusion>> readServiceAreaList(Path path) {
+    return readList(
+        path.safeWithoutArrayReference(), new TypeRef<ImmutableList<ServiceAreaInclusion>>() {});
   }
 }
