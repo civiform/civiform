@@ -5,15 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import durablejobs.DurableJob;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.QueryIterator;
+import io.ebean.Transaction;
 import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.AccountRepository;
-import repository.ApplicationRepository;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 
@@ -35,16 +36,11 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final PersistedDurableJobModel persistedDurableJobModel;
-  private final AccountRepository accountRepository;
-  private final ApplicationRepository applicationRepository;
+  private final Database database;
 
-  public CopyFileKeyForMultipleFileUpload(
-      PersistedDurableJobModel persistedDurableJobModel,
-      AccountRepository accountRepository,
-      ApplicationRepository applicationRepository) {
+  public CopyFileKeyForMultipleFileUpload(PersistedDurableJobModel persistedDurableJobModel) {
     this.persistedDurableJobModel = persistedDurableJobModel;
-    this.accountRepository = accountRepository;
-    this.applicationRepository = applicationRepository;
+    this.database = DB.getDefault();
   }
 
   @Override
@@ -56,35 +52,51 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
   public void run() {
     LOGGER.info("Copying file keys for applicants.");
 
-    try (QueryIterator<ApplicantModel> applicants = accountRepository.streamAllApplicants()) {
-      while (applicants.hasNext()) {
-        try {
-          ApplicantModel applicant = applicants.next();
-          ApplicantData migratedData = migrateApplicantData(applicant.getApplicantData());
-          applicant.setApplicantData(migratedData);
-          applicant.save();
-        } catch (Exception e) {
-          LOGGER.error(e.getMessage(), e);
+    try (Transaction jobTransaction = database.beginTransaction()) {
+      int errorCount = 0;
+
+      try (QueryIterator<ApplicantModel> applicants =
+          database.find(ApplicantModel.class).findIterate()) {
+        while (applicants.hasNext()) {
+          try {
+            ApplicantModel applicant = applicants.next();
+            ApplicantData migratedData = migrateApplicantData(applicant.getApplicantData());
+            applicant.setApplicantData(migratedData);
+            applicant.save(jobTransaction);
+          } catch (Exception e) {
+            errorCount++;
+            LOGGER.error(e.getMessage(), e);
+          }
         }
       }
-    }
 
-    LOGGER.info("Copying file keys for applications.");
+      LOGGER.info("Copying file keys for applications.");
 
-    try (QueryIterator<ApplicationModel> applications =
-        applicationRepository.streamAllApplications()) {
-      while (applications.hasNext()) {
-        try {
-          ApplicationModel application = applications.next();
-          application.setApplicantData(migrateApplicantData(application.getApplicantData()));
-          application.save();
-        } catch (Exception e) {
-          LOGGER.error(e.getMessage(), e);
+      try (QueryIterator<ApplicationModel> applications =
+          database.find(ApplicationModel.class).findIterate()) {
+        while (applications.hasNext()) {
+          try {
+            ApplicationModel application = applications.next();
+            application.setApplicantData(migrateApplicantData(application.getApplicantData()));
+            application.save(jobTransaction);
+          } catch (Exception e) {
+            errorCount++;
+            LOGGER.error(e.getMessage(), e);
+          }
         }
       }
-    }
 
-    LOGGER.info("Finished copying file keys.");
+      if (errorCount == 0) {
+        LOGGER.info("Finished copying file keys for multiple file upload feature.");
+        jobTransaction.commit();
+      } else {
+        LOGGER.error(
+            "Failed to copy file keys for multiple file upload feature. See previous logs for"
+                + " failures. Total failures: {0}",
+            errorCount);
+        jobTransaction.rollback();
+      }
+    }
   }
 
   @VisibleForTesting
@@ -94,6 +106,8 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
     for (JsonNode node : rootJsonNode.findParents(FILE_KEY_PROPERTY)) {
       if (!node.has(FILE_KEY_LIST_PROPERTY)) {
         JsonNode fileKeyNode = node.get(FILE_KEY_PROPERTY);
+        // The first putArray() adds an empty array node on the "file_key"list" property, then
+        // .add() adds the string value node that we got from the "file_key" property to that array.
         ((ObjectNode) node).putArray(FILE_KEY_LIST_PROPERTY).add(fileKeyNode);
       }
     }

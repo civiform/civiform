@@ -12,8 +12,6 @@ import models.LifecycleStage;
 import models.PersistedDurableJobModel;
 import models.ProgramModel;
 import org.junit.Test;
-import repository.AccountRepository;
-import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
@@ -24,10 +22,6 @@ import services.question.types.EnumeratorQuestionDefinition;
 import support.ProgramBuilder;
 
 public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
-  private final AccountRepository accountRepository = instanceOf(AccountRepository.class);
-  private final ApplicationRepository applicationRepository =
-      instanceOf(ApplicationRepository.class);
-
   @Test
   public void run_copiesFileKey() {
     ProgramModel program =
@@ -119,6 +113,106 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
         .isEqualTo("oldData.jpg");
     assertThat(latestProgramFileUpload.createFileUploadQuestion().getFileKeyListValue().get())
         .containsExactly("newData.jpg");
+  }
+
+  @Test
+  public void run_copiesFileKeyForNestedEnumerators() {
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("program")
+            .withBlock("household")
+            .withOptionalQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("jobs")
+            .withOptionalQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
+            .withRepeatedBlock("fileuploads")
+            .withOptionalQuestion(testQuestionBank.fileUploadRepeatedHouseholdMemberFile())
+            .build();
+
+    ProgramQuestionDefinition programEnumerator =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            Optional.of(program.id));
+    ProgramQuestionDefinition programNestedEnumerator =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition(),
+            Optional.of(program.id));
+    ProgramQuestionDefinition programFileUpload =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.fileUploadApplicantFile().getQuestionDefinition(),
+            Optional.of(program.id));
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    ApplicantQuestion enumeratorQuestion =
+        new ApplicantQuestion(programEnumerator, applicant.getApplicantData(), Optional.empty());
+    ApplicantQuestion nestedEnumeratorQuestion =
+        new ApplicantQuestion(
+            programNestedEnumerator, applicant.getApplicantData(), Optional.empty());
+
+    // Answer enumerator question
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicant.getApplicantData(),
+        enumeratorQuestion.getContextualizedPath(),
+        ImmutableList.of("enumerator"));
+
+    // Answer nested enumerator
+    RepeatedEntity enumeratorEntity =
+        RepeatedEntity.createRepeatedEntities(
+                (EnumeratorQuestionDefinition) enumeratorQuestion.getQuestionDefinition(),
+                Optional.empty(),
+                applicant.getApplicantData())
+            .get(0);
+
+    ApplicantQuestion enumeratorEntityQuestion =
+        new ApplicantQuestion(
+            programNestedEnumerator, applicant.getApplicantData(), Optional.of(enumeratorEntity));
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicant.getApplicantData(),
+        enumeratorEntityQuestion.getContextualizedPath(),
+        ImmutableList.of("nested"));
+
+    // Answer repeated file question.
+    RepeatedEntity nestedEntity =
+        enumeratorEntity
+            .createNestedRepeatedEntities(
+                (EnumeratorQuestionDefinition) nestedEnumeratorQuestion.getQuestionDefinition(),
+                Optional.empty(),
+                applicant.getApplicantData())
+            .get(0);
+
+    ApplicantQuestion nestedFiledUploadEntityQuestion =
+        new ApplicantQuestion(
+            programFileUpload, applicant.getApplicantData(), Optional.of(nestedEntity));
+
+    QuestionAnswerer.answerFileQuestion(
+        applicant.getApplicantData(),
+        nestedFiledUploadEntityQuestion.getContextualizedPath(),
+        "entity1File.jpg");
+
+    applicant.save();
+
+    runJob();
+
+    applicant.refresh();
+
+    RepeatedEntity latestEnumeratorEntity =
+        RepeatedEntity.createRepeatedEntities(
+                (EnumeratorQuestionDefinition) enumeratorQuestion.getQuestionDefinition(),
+                Optional.empty(),
+                applicant.getApplicantData())
+            .get(0);
+
+    RepeatedEntity latestNestedEntity =
+        enumeratorEntity
+            .createNestedRepeatedEntities(
+                (EnumeratorQuestionDefinition) nestedEnumeratorQuestion.getQuestionDefinition(),
+                Optional.empty(),
+                applicant.getApplicantData())
+            .get(0);
+    ApplicantQuestion latestFileUpload =
+        new ApplicantQuestion(
+            programFileUpload, applicant.getApplicantData(), Optional.of(latestNestedEntity));
+
+    assertOldAndNewDataEquals(latestFileUpload, "entity1File.jpg");
   }
 
   @Test
@@ -452,9 +546,7 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
   private void runJob() {
     CopyFileKeyForMultipleFileUpload job =
         new CopyFileKeyForMultipleFileUpload(
-            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()),
-            accountRepository,
-            applicationRepository);
+            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()));
 
     job.run();
   }

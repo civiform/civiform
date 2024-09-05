@@ -16,7 +16,6 @@ import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
-import io.ebean.QueryIterator;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
@@ -496,19 +495,5 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens();
     idTokens.storeIdToken(sessionId, idToken);
     account.save();
-  }
-
-  /*
-   * Returns an iterator which iterates through all applicants in the database.
-   *
-   * <p>This uses ebeans "adaptive persistence context" to avoid holding all applications in memory.
-   *
-   * <p>Remember that you must call {@code close()} when you are finished iterating. Since QueryIterator
-   * is auto-closeable, you can use "try with resources" to ensure this happens.
-   *
-   * <p> See https://ebean.io/apidoc/12/io/ebean/QueryIterator.html
-   */
-  public QueryIterator<ApplicantModel> streamAllApplicants() {
-    return database.find(ApplicantModel.class).findIterate();
   }
 }
