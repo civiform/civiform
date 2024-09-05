@@ -524,12 +524,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       }
     }
 
-    if (questionDefinition.isName()) {
-      scalars.stream().filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX));
-    }
-
     ImmutableList<OptionTag> options =
         scalars.stream()
+            .filter(scalar -> !questionDefinition.isName() || !scalar.equals(Scalar.NAME_SUFFIX))
             .map(
                 scalar -> {
                   OptionTag tag =
