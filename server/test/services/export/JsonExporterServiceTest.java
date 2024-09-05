@@ -19,7 +19,6 @@ import services.Path;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
-import services.geo.ServiceAreaInclusionGroup;
 import services.geo.ServiceAreaState;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
@@ -180,7 +179,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    var serviceAreas =
+    var serviceAreaInclusions =
         ImmutableList.of(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId("cityvilleTownship")
@@ -209,7 +208,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             44.0462,
             -123.0236,
             54321L,
-            ServiceAreaInclusionGroup.serialize(serviceAreas))
+            serviceAreaInclusions)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -243,7 +242,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsRepeated_answersAreCorrectlyNested() {
     createFakeQuestions();
-    var serviceAreas =
+    var serviceAreaInclusions =
         ImmutableList.of(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId("cityvilleTownship")
@@ -276,7 +275,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             44.0462,
             -123.0236,
             54321L,
-            ServiceAreaInclusionGroup.serialize(serviceAreas))
+            serviceAreaInclusions)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);

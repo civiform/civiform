@@ -26,6 +26,7 @@ import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 import services.export.JsonPrettifier;
+import services.geo.ServiceAreaInclusion;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
 
@@ -214,6 +215,31 @@ public class CfJsonDocumentContext {
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
         putString(path.atIndex(i).join(Scalar.ENTITY_NAME), entityNames.get(i));
+      }
+    }
+  }
+
+  /**
+   * Puts an array at a given path, building parent objects as needed.
+   *
+   * @param path the {@link Path} where the array should be added.
+   * @param entityNames a {@link List} containing service area results.
+   */
+  public void putServiceAreaInclusionEntities(
+      Path path, ImmutableList<ServiceAreaInclusion> entityNames) {
+    if (entityNames.isEmpty()) {
+      put(path, ImmutableList.of());
+    } else {
+      for (int i = 0; i < entityNames.size(); i++) {
+        putString(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_ID.toDisplayString()),
+            entityNames.get(i).getServiceAreaId());
+        putString(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_STATE.toDisplayString()),
+            entityNames.get(i).getState().name());
+        putLong(
+            path.atIndex(i).join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()),
+            entityNames.get(i).getTimeStamp());
       }
     }
   }
@@ -434,6 +460,20 @@ public class CfJsonDocumentContext {
    */
   public Optional<ImmutableList<String>> readStringList(Path path) {
     return this.readList(path, new TypeRef<ImmutableList<String>>() {});
+  }
+
+  //
+  /**
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of {@link ServiceAreaInclusion}
+   * is found.
+   *
+   * @param path the {@link Path} to the list
+   * @return an Optional containing an ImmutableList<ServiceAreaInclusion>
+   */
+  public Optional<ImmutableList<ServiceAreaInclusion>> readServiceAreaList(Path path) {
+    return this.readList(
+        path.safeWithoutArrayReference(), new TypeRef<ImmutableList<ServiceAreaInclusion>>() {});
   }
 
   /**
