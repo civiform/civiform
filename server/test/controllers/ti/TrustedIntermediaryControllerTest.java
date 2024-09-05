@@ -64,8 +64,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "4259879090"))
             .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
-            .get();
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request)).get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
@@ -149,8 +148,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "4259879090"))
             .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
-            .get();
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request)).get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
@@ -234,8 +232,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "4259879090"))
             .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
-            .get();
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request)).get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Date of birth required");
@@ -263,8 +260,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "4259879090"))
             .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
-            .get();
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request)).get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
@@ -294,8 +290,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "4259879090"))
             .build();
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(profileUtils.optionalCurrentUserProfile(request).get())
-            .get();
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request)).get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =

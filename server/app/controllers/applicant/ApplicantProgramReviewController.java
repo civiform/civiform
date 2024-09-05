@@ -143,10 +143,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               AlertSettings eligibilityAlertSettings =
                   eligibilityAlertSettingsCalculator.calculate(
                       request,
-                      profileUtils
-                          .optionalCurrentUserProfile(request)
-                          .get()
-                          .isTrustedIntermediary(),
+                      profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                       !roApplicantProgramService.isApplicationNotEligible(),
                       settingsManifest.getNorthStarApplicantUi(request),
                       false,
@@ -321,8 +318,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
-    CiviFormProfile submittingProfile =
-        profileUtils.optionalCurrentUserProfile(request).orElseThrow();
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService

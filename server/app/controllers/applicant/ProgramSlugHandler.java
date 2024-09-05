@@ -131,8 +131,7 @@ public final class ProgramSlugHandler {
       long applicantId, String programSlug, Http.Request request) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
-    CiviFormProfile requesterProfile =
-        profileUtils.optionalCurrentUserProfile(request).orElseThrow();
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
     return applicantService
         .relevantProgramsForApplicant(applicantId, requesterProfile, request)
         .thenApplyAsync(
