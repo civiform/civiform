@@ -8,12 +8,15 @@
 # GENERAL - contains text that corresponds to multiple views. #
 #-------------------------------------------------------------#
 
+# The text on the button an applicant clicks to log out of their session.
 button.logout=Logout
+#  This appears before applicants select their preferred language.
 label.selectLanguage=Please select your preferred language.
 button.untranslatedSubmit=Submit
 # Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
 # not be translated.
 footer.aboutCiviform=About CiviForm
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=For technical support, contact
 # Text in the footer telling users that this is an official website of the specified Civic entity.
 footer.officialWebsiteOf=An official website of the {0}
@@ -22,22 +25,34 @@ footer.returnToTop=Return to top
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=For technical support: {0}
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
 guest=Guest
+# Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Choose a language
 # A label on the button that opens the header menu shown on mobile
 header.menu=Menu
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=End session
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Your session has ended.
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=You''re a guest user.
+# Message with user's name to show who you are logged in as.
 header.userName=Logged in as {0}
+# Error message to answer a required question
 validation.isRequired=This question is required.
+# Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
+# Error message announced to screen reader when there are errors on the current page.
 validation.errorAnnouncementSr=There are errors in the form. Please fix before continuing.
+# Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 content.requiredFieldsNote=Note: Fields marked with a {0} are required.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(optional)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
@@ -53,32 +68,50 @@ link.opensNewTabSr=opens in a new tab
 
 # This is a title for the login page
 title.login=Login
+# Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
+# The text on the button an applicant clicks to create an account.
 button.createAnAccount=Create an account
+# The text on the button an applicant clicks to log in to their session.
 button.login=Log in
+# Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Don''t have an account?
+# The text between creating a new account, and becoming a guest
 content.or=or
+# The text on the button for applicants to create a new account.
 button.createAccount=Create account
+# The text on the button for guests to log in to their session.
 button.guestLogin=Continue as guest
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
 content.loginDisabledPrompt=Account login currently disabled
+# The words leading up to the admin login anchor
 content.adminLoginPrompt=Looking for something else?
+# Asking whether the user is an administrator for the program
 content.adminFooterPrompt=Are you an administrator?
+# The text on the anchor for admins to log in to their session.
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
+# The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=File uploaded: {0}
+# The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Delete
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
 button.keepFile=Continue
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Save and next
+# The button text for navigating to the previous screen in the form.
 button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
 button.saveAndExit=Save and finish application later
+# The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
+# The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0} of {1}
 # A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} of {1} completed
@@ -88,9 +121,13 @@ content.blockProgressLabel=Application progress
 content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
+# A link that logs out a guest user after they submit an application.
 link.allDone=I''m all done
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Apply to another program
+# A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Create account or sign in
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Remove file
@@ -113,32 +150,56 @@ modal.errorSaving.stayAndFixButton=Stay and fix your answers
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
+# The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+# The text read for screen readers.
 button.applySr=Apply to {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
+# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+# The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continue to application
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Start here by filling out {0}
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editCommonIntakeSr=Edit submitted information for {0}
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continue filling out {0}
 # Button on each program card that allows the user to view the details of the program, possibly through an external link.
 button.viewDetails=View details
+# Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
+# Text for applicants to understand the section is for finding programs
 content.findPrograms=Find programs
+# Long form description of the CiviForm site shown to the applicant.
 content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
+# Title for programs page when applicant is not logged in
 content.saveTimeServices=Save time applying for programs and services
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 # The label for the program filter buttons
 label.programFilters=Program filters
+# Link text to read more about a program.
 link.programDetails=Program details
+# The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}, opens in a new tab
+# The title of the page for the list of programs.
 title.programs=Programs & services
+# The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=Get Started
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=All programs ({0})
+# For the badge on the program list index denoting the current status of an application
 title.status=Status
+# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
+# Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Find services that can help you
@@ -158,8 +219,11 @@ title.programsSection.v2=Programs and services ({0})
 title.recommendedSection=Recommended ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
+# Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
+# Alert banner when an application was successfully saved, with the ID of the application.
 toast.applicationSaved=Successfully saved application: application ID {0}
+# Alert banner when an application was already completed
 toast.programCompleted=Application was already completed.
 
 #------------------------------------------------------------------------------------------------------#
@@ -305,21 +369,32 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
 #------------------------------------------------------------------------#
 
+# Submit application button
 button.submit=Submit
+# Continue application button
 button.continue=Continue
 # Button text on a button that will allow the user to start filling out a section of questions.
 button.start=Start
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
 content.reviewPageIntro=Select a step below to start your application. You can save and come back at any time.
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Does not qualify
+# The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Edit
 link.answer=Answer
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Previously answered on {0}
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=Answer {0}
 
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
+# Title for the summary of the pre-screener page
 title.commonIntakeSummary=Benefits pre-screener summary
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Let''s get started.
@@ -329,28 +404,42 @@ title.programSummary=Program application summary
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
 title.applicantNotEligibleTi=Based on your responses to the following questions, your client may not qualify for the {0}.
 # Section heading
 heading.eligibilityCriteria=More about eligibility requirements
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=For eligibility criteria please refer to {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=To learn more about this program''s eligibility rules or contact the program team directly, please see {0}.
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=You can return to the previous page to edit your answers. Or apply to another program.
 # Text shown on a webpage when the applicant is ineligible for a program.
 content.changeAnswersForEligibility.v2=If you think there was a mistake, you can return to the previous page to edit your answers. You can also go back to the homepage to apply to a different program.
+# Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=Go back and edit
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=Edit my responses
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayQualifyTi=Based on your responses, your client may qualify for the {0}. To proceed, continue filling out the application.
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
 toast.mayQualify=Based on your responses, you may qualify for the {0}. To proceed, continue filling out the application.
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=You may qualify
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayQualifyTi=Your client may qualify
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
 tag.mayNotQualify=You may not qualify
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Your client may not qualify
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If your information has changed you can edit your answers and then proceed with the application.
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client''s information has changed you can edit your answers and then proceed with the application.
 
+# Error when there was an exception while submitting the application
 banner.errorSavingApplication=Error saving application
 
 # Alert title when applicant may be eligible for a program
@@ -401,23 +490,38 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
 
+# Title on the page after the applicant has successfully submitted an application.
 title.applicationConfirmation=Application confirmation
+# A confirmation message that shows after an applicant has submitted their application.
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Create an account or sign in
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+# A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
 title.commonIntakeConfirmation=Programs you may qualify for
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Programs your client may qualify for
+# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Download PDF
+# A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs
 # Heading above a section showing the user's name, confirmation number, and date
 heading.yourSubmissionInformation=Your submission information
@@ -470,6 +574,7 @@ button.homePage=Back to homepage
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
 
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=Apartment, suite, etc. (optional)
 label.city=City
 label.state=State
@@ -477,6 +582,7 @@ label.selectState=Select State
 label.street=Address
 label.zipcode=ZIP Code
 
+# Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
 validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
@@ -500,6 +606,7 @@ content.noValidAddressLine2=Please check your address for spelling and edit to c
 content.addressEntered=Address you entered:
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Suggested address:
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=Suggested addresses:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Confirm address
@@ -508,6 +615,7 @@ button.confirmAddress=Confirm address
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
 #----------------------------------------------------------------------------------------------------------#
 
+# Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Choose an option:
 
 #------------------------------------------------------------------------------------------------------------------------------#
@@ -564,11 +672,14 @@ validation.impossibleDob=Date of Birth should be less than 150 years ago
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
 
+# Text on a button an applicant would click to add another entity
 button.addEntity=Add {0}
+# Text on a button an applicant would click to delete an entity
 button.removeEntity=Remove {0}
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Please enter a value for each line.
+# Validation error that shows when an applicant uses a duplicate entity name
 validation.duplicateEntityName=Please enter a unique value for each line.
 # Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
 validation.tooManyEntities=Please enter at most {0} values.
@@ -580,6 +691,7 @@ placeholder.entityName={0} name
 # FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
 #---------------------------------------------------------------------------------#
 
+# Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
@@ -589,6 +701,7 @@ button.chooseFile=Choose File
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#
 
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Must contain at most {0} characters.
 validation.idTooShort=Must contain at least {0} characters.
 validation.numberRequired=Must contain only numbers.
@@ -597,6 +710,7 @@ validation.numberRequired=Must contain only numbers.
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
 #----------------------------------------------------------------------------------------------------------#
 
+# Validation errors that are shown if a user selects too many or too few answers.
 validation.tooFewSelections=Please select at least {0}.
 # Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=Please select at most {0}.
@@ -605,12 +719,14 @@ validation.tooManySelections.v2=Please select at most {0}.
 # NAME QUESTION - text when viewing a name question #
 #---------------------------------------------------#
 
+# Name question labels - these are shown as the field label before an input box.
 label.firstName=First name
 label.lastName=Last name
 label.middleName=Middle name
 # Label for name suffix field in name question
 label.nameSuffix=Suffix
 
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=First name
 placeholder.lastName=Last name
 placeholder.middleName=Middle name
@@ -632,6 +748,7 @@ option.forth=IV
 # Option the fifth for the name suffix dropdown
 option.fifth=V
 
+# Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.
 
@@ -639,6 +756,7 @@ validation.lastNameRequired=Please enter your last name.
 # NUMBER QUESTION - text specific to answering a question with a number. #
 #------------------------------------------------------------------------#
 
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=Must be at most {0}.
 validation.numberTooSmall=Must be at least {0}.
 validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
@@ -647,6 +765,7 @@ validation.numberNonInteger=Number must be a positive whole number and can only 
 # TEXT QUESTION - text specific to filling out a question with words. #
 #---------------------------------------------------------------------#
 
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
 
@@ -654,6 +773,7 @@ validation.textTooShort=Must contain at least {0} characters.
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
+# Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
@@ -665,6 +785,7 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
+# This occurs when an unhandled exception happens.
 error.internalServerTitle=An error occurred
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=An error has occurred
@@ -681,14 +802,23 @@ error.statusCode=Error code: {0}
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
 
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Log in to Civiform at {0}
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Your application to program {0} is received
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Manage your clients at {0}.
+# Subject of the email sent to an applicant when the status of their application has changed
 email.applicationUpdateSubject=An update on your application {0}
+# Subject of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
+# Body of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.
 
 #------------------------------------------------------------------------------#
