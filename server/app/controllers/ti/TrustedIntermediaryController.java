@@ -83,12 +83,9 @@ public final class TrustedIntermediaryController {
           routes.TrustedIntermediaryController.dashboard(
               nameQuery, dayQuery, monthQuery, yearQuery, Optional.of(1)));
     }
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -108,7 +105,7 @@ public final class TrustedIntermediaryController {
         PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
 
     Optional<String> applicantName =
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+        civiformProfile.getApplicant().join().getApplicantData().getApplicantName();
 
     return ok(
         tiClientListView.render(
@@ -126,22 +123,16 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result accountSettings(Http.Request request) {
-
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
-
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
 
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
 
     Optional<String> applicantName =
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+        civiformProfile.getApplicant().join().getApplicantData().getApplicantName();
 
     return ok(
         tiAccountSettingsView.render(
@@ -155,12 +146,9 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result showAddClientForm(Long id, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -168,7 +156,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
     Optional<String> applicantName =
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+        civiformProfile.getApplicant().join().getApplicantData().getApplicantName();
 
     return ok(
         editTiClientView.render(
@@ -185,12 +173,9 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result showEditClientForm(Long accountId, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -210,12 +195,9 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result addClient(Long id, Http.Request request) {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -246,13 +228,10 @@ public final class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result editClient(Long id, Http.Request request) throws ApplicantNotFoundException {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
+    CiviFormProfile civiformProfile = profileUtils.currentUserProfile(request);
 
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile);
     if (trustedIntermediaryGroup.isEmpty()) {
       return unauthorized();
     }
@@ -276,7 +255,7 @@ public final class TrustedIntermediaryController {
             /* applicantIdOfNewlyAddedClient= */ null));
   }
 
-  private Long getTiApplicantIdFromCiviformProfile(Optional<CiviFormProfile> civiformProfile) {
-    return civiformProfile.get().getApplicant().toCompletableFuture().join().id;
+  private Long getTiApplicantIdFromCiviformProfile(CiviFormProfile civiformProfile) {
+    return civiformProfile.getApplicant().toCompletableFuture().join().id;
   }
 }

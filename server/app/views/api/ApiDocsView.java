@@ -308,6 +308,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {
+    // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
     Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
     return currentUserProfile.isPresent()
         && (currentUserProfile.get().isCiviFormAdmin()
