@@ -37,6 +37,11 @@
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
   <logger name="auth" level="INFO" />
+  <logger name="services.geo.esri.RealEsriClient" level="OFF" />
+  <logger name="durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob" level="TRACE" />
+  <logger name="services.applicant.predicate.JsonPathPredicateGenerator" level="DEBUG" />
+  <logger name="services.applicant.predicate.JsonPathPredicateGeneratorTest" level="DEBUG" />
+
   <!-- Increase the level of this one to avoid leaking PII (such as email and name) into logs -->
   <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN" />
 

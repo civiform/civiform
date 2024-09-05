@@ -18,6 +18,7 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
+import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -169,6 +170,11 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
         JobType.RUN_ONCE,
         persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
+
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
+        JobType.RUN_ONCE,
+        persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
 
     return durableJobRegistry;
   }
