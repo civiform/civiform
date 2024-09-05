@@ -52,6 +52,8 @@ content.requiredFieldsNote=Note: Fields marked with a {0} are required.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk ({0}).
 content.optional=(optional)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Close
@@ -59,14 +61,12 @@ button.close=Close
 button.review=Review
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# Title of the login page.
+# This is a title for the login page
 title.login=Login
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
@@ -621,6 +621,7 @@ placeholder.noDropdownSelection=Choose an option:
 #------------------------------------------------------------------------------------------------------------------------------#
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
+
 label.countryCode=Country
 label.phoneNumber=Enter phone number
 validation.phoneNumberRequired=Phone number is required
@@ -692,7 +693,6 @@ placeholder.entityName={0} name
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
-
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=Choose File
@@ -782,6 +782,7 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 #----------------------------------#
 # ERRORS - various error messages  #
 #----------------------------------#
+
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
@@ -801,6 +802,7 @@ error.statusCode=Error code: {0}
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
+
 # Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Log in to Civiform at {0}
 # Subject of the email sent automatically on application submission
