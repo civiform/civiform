@@ -44,6 +44,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_DOB = "dob";
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
+  public static final String FORM_FIELD_NAME_SUFFIX = "suffixName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
 
   @Inject

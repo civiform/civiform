@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
@@ -15,7 +16,9 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import java.util.stream.Stream;
 import models.AccountModel;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -34,7 +37,9 @@ import views.HtmlBundle;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.SelectWithLabel;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends TrustedIntermediaryDashboardView {
@@ -244,6 +249,22 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
+
+    SelectWithLabel nameSuffixField =
+        new SelectWithLabel()
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
+            .setFieldName("nameSuffix")
+            .setPlaceholderText("")
+            .setOptions(
+                Stream.of(ApplicantModel.Suffix.values())
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.getValue().toString())
+                                .setValue(option.toString())
+                                .build())
+                    .collect(ImmutableList.toImmutableList()));
+
     FieldWithLabel phoneNumberField =
         setStateIfPresent(
             FieldWithLabel.input()
@@ -315,6 +336,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     firstNameField.getUSWDSInputTag(),
                     middleNameField.getUSWDSInputTag(),
                     lastNameField.getUSWDSInputTag(),
+                    nameSuffixField.getSelectTag(),
                     phoneNumberField.getUSWDSInputTag(),
                     emailField.getUSWDSInputTag(),
                     dateOfBirthField.getUSWDSInputTag(),
