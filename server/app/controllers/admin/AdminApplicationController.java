@@ -18,10 +18,12 @@ import controllers.FlashKey;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
@@ -51,6 +53,7 @@ import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
+import services.program.ProgramApplicationTableRow;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -61,7 +64,9 @@ import services.statuses.StatusService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
+import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
+import views.ApplicantUtils;
 
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
@@ -83,6 +88,8 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final SettingsManifest settingsManifest;
+  private final ProgramApplicationTableView tableView;
+  private final ApplicantUtils applicantUtils;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -94,22 +101,24 @@ public final class AdminApplicationController extends CiviFormController {
 
   @Inject
   public AdminApplicationController(
-      ProgramService programService,
-      ApplicantService applicantService,
-      CsvExporterService csvExporterService,
-      FormFactory formFactory,
-      JsonExporterService jsonExporterService,
-      PdfExporterService pdfExporterService,
-      ProgramApplicationListView applicationListView,
-      ProgramApplicationView applicationView,
-      ProgramAdminApplicationService programAdminApplicationService,
-      ProfileUtils profileUtils,
-      MessagesApi messagesApi,
-      DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider,
-      VersionRepository versionRepository,
-      StatusService statusService,
-      SettingsManifest settingsManifest) {
+    ProgramService programService,
+    ApplicantService applicantService,
+    CsvExporterService csvExporterService,
+    FormFactory formFactory,
+    JsonExporterService jsonExporterService,
+    PdfExporterService pdfExporterService,
+    ProgramApplicationListView applicationListView,
+    ProgramApplicationView applicationView,
+    ProgramAdminApplicationService programAdminApplicationService,
+    ProfileUtils profileUtils,
+    MessagesApi messagesApi,
+    DateConverter dateConverter,
+    @Now Provider<LocalDateTime> nowProvider,
+    VersionRepository versionRepository,
+    StatusService statusService,
+    SettingsManifest settingsManifest,
+    ProgramApplicationTableView tableView,
+    ApplicantUtils applicantUtils) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -125,6 +134,8 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.tableView = checkNotNull(tableView);
+    this.applicantUtils = checkNotNull(applicantUtils);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -519,6 +530,22 @@ public final class AdminApplicationController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = getCiviFormProfile(request);
+    if(settingsManifest.getBulkStatusUpdateEnabled(request))
+    {
+      boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
+      ImmutableList<ProgramApplicationTableRow> tableRows =  applications.getPageContents().stream().map(app -> createApplicationTableRow(app,
+        activeStatusDefinitions.getDefaultStatus(),
+        hasEligibilityEnabled
+          ? applicantService.getApplicationEligibilityStatus(
+          app, program)
+          : Optional.empty())).collect(ImmutableList.toImmutableList());
+      return ok(tableView.render(
+        request,
+        profile,
+        program,
+        getAllApplicationStatusesForProgram(program.id()),
+         tableRows));
+    }
     return ok(
         applicationListView.render(
             request,
@@ -552,5 +579,27 @@ public final class AdminApplicationController extends CiviFormController {
     return profileUtils
         .currentUserProfile(request)
         .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
+  }
+  private ProgramApplicationTableRow createApplicationTableRow(ApplicationModel application, Optional<StatusDefinitions.Status> defaultStatus, Optional<Boolean> maybeEligibilityStatus) {
+    String applicantName = applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName());
+    Long applicationId = application.id;
+    String applicationStatus = application
+      .getLatestStatus()
+      .map(
+        s ->
+          String.format(
+            "%s%s",
+            s,
+            defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
+              ? " (default)"
+              : ""))
+      .orElse("None");
+    String eligibilityStatus = maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
+      ? "Meets eligibility"
+      : "Doesn't meet eligibility";
+
+    String submitTime = dateConverter.renderDateTimeHumanReadable(application.getSubmitTime());
+    return new ProgramApplicationTableRow(applicantName, applicationId, applicationStatus, eligibilityStatus, submitTime, application.getProgram().id
+    );
   }
 }
