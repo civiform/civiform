@@ -315,12 +315,6 @@ public final class PredicateGenerator {
         }
 
       case SERVICE_AREA:
-        if (!LeafAddressServiceAreaExpressionNode.SERVICE_AREA_ID_PATTERN
-            .matcher(value)
-            .matches()) {
-          throw new BadRequestException(String.format("Invalid service area ID: %s", value));
-        }
-
         return PredicateValue.serviceArea(value);
 
       case LONG:

@@ -48,7 +48,10 @@ public enum Scalar {
       "entity name", ScalarType.STRING), // This is used for adding/updating enumerator entries
 
   // Special scalars for Address questions
-  SERVICE_AREA("service_area", ScalarType.SERVICE_AREA),
+  SERVICE_AREA("service_area", ScalarType.SERVICE_AREA), // This is the array property name
+  SERVICE_AREA_STATE("state", ScalarType.STRING),
+  SERVICE_AREA_ID("service_area_id", ScalarType.STRING),
+  SERVICE_AREA_TIMESTAMP("timestamp", ScalarType.LONG),
 
   // Scalars for Phone Question
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),

@@ -73,29 +73,56 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
 
   @Test
   public void getServiceAreaUpdate() {
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREA).asArrayElement();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "555 E 5th St.")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "555 E 5th St.")
-            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
-            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
-            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                rootPath.join(Scalar.CORRECTED).toString(),
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
+            .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
+            .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "100.0")
+                serviceAreaPath
+                    .atIndex(0)
+                    .join(Scalar.SERVICE_AREA_ID.toDisplayString())
+                    .toString(),
+                "Bloomington")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-100.0")
+                serviceAreaPath
+                    .atIndex(0)
+                    .join(Scalar.SERVICE_AREA_STATE.toDisplayString())
+                    .toString(),
+                ServiceAreaState.NOT_IN_AREA.getSerializationFormat())
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
-                "4326")
+                serviceAreaPath
+                    .atIndex(0)
+                    .join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString())
+                    .toString(),
+                "1234")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
-                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+                serviceAreaPath
+                    .atIndex(1)
+                    .join(Scalar.SERVICE_AREA_ID.toDisplayString())
+                    .toString(),
+                "Seattle")
+            .put(
+                serviceAreaPath
+                    .atIndex(1)
+                    .join(Scalar.SERVICE_AREA_STATE.toDisplayString())
+                    .toString(),
+                ServiceAreaState.FAILED.getSerializationFormat())
+            .put(
+                serviceAreaPath
+                    .atIndex(1)
+                    .join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString())
+                    .toString(),
+                "4567")
             .build();
 
     CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
@@ -227,8 +254,25 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
-                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+                Path.create("applicant.applicant_address.service_area[0].service_area_id")
+                    .toString(),
+                "Bloomington")
+            .put(
+                Path.create("applicant.applicant_address.service_area[0].state").toString(),
+                "NotInArea")
+            .put(
+                Path.create("applicant.applicant_address.service_area[0].timestamp").toString(),
+                "1234")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].service_area_id")
+                    .toString(),
+                "Seattle")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].state").toString(),
+                "Failed")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].timestamp").toString(),
+                "4567")
             .build();
 
     CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
@@ -280,8 +324,25 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
-                "Bloomington_NotInArea_1234,Seattle_InArea_4567")
+                Path.create("applicant.applicant_address.service_area[0].service_area_id")
+                    .toString(),
+                "Bloomington")
+            .put(
+                Path.create("applicant.applicant_address.service_area[0].state").toString(),
+                "NotInArea")
+            .put(
+                Path.create("applicant.applicant_address.service_area[0].timestamp").toString(),
+                "1234")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].service_area_id")
+                    .toString(),
+                "Seattle")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].state").toString(),
+                "InArea")
+            .put(
+                Path.create("applicant.applicant_address.service_area[1].timestamp").toString(),
+                "4567")
             .build();
 
     CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =

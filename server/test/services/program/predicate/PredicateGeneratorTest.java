@@ -351,30 +351,6 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void singleQuestion_singleValue_serviceArea_invalidId_throws() throws Exception {
-    DynamicForm form =
-        buildForm(
-            ImmutableMap.of(
-                "predicateAction",
-                "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.addressApplicantAddress().id),
-                "SERVICE_AREA",
-                String.format(
-                    "question-%d-operator", testQuestionBank.addressApplicantAddress().id),
-                "IN_SERVICE_AREA",
-                String.format(
-                    "group-1-question-%d-predicateValue",
-                    testQuestionBank.addressApplicantAddress().id),
-                "seattle invalid"));
-
-    assertThatThrownBy(
-            () ->
-                predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
-        .isInstanceOf(BadRequestException.class);
-  }
-
-  @Test
   public void singleQuestion_singleValue_numberIn() throws Exception {
     DynamicForm form =
         buildForm(

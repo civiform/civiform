@@ -14,7 +14,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.geo.ServiceAreaInclusion;
-import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.AddressQuestionDefinition;
 
 /**
@@ -210,13 +209,9 @@ public final class AddressQuestion extends Question {
       return serviceAreaValue;
     }
 
-    Optional<String> serviceAreaString =
-        applicantQuestion.getApplicantData().readString(getServiceAreaPath());
-
-    return serviceAreaValue =
-        serviceAreaString.isPresent()
-            ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
-            : Optional.empty();
+    return applicantQuestion
+        .getApplicantData()
+        .readServiceAreaList(getServiceAreaPath().safeWithoutArrayReference());
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {

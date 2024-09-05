@@ -9,9 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
@@ -19,16 +23,32 @@ import services.applicant.question.Scalar;
 import services.geo.AddressLocation;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
-import services.geo.ServiceAreaInclusionGroup;
+import services.geo.ServiceAreaState;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 
 /** Contains methods for resolving {@link ServiceAreaUpdate}s to update applicant data. */
 final class ServiceAreaUpdateResolver {
+  private final Logger logger = LoggerFactory.getLogger(ServiceAreaUpdateResolver.class);
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+
+  /**
+   * Regex matcher used to extract service_area index number Match examples:
+   * <li>applicant.question_name.service_area[0].service_area_id
+   * <li>applicant.question_name.service_area[0].state
+   * <li>applicant.question_name.service_area[0].timestamp
+   */
+  private final Pattern pathIndexPattern =
+      Pattern.compile(
+          String.format(
+              "applicant.[\\w]+.%s\\[(?<index>[0-9]+)\\].(%s|%s|%s)",
+              Scalar.SERVICE_AREA.toDisplayString(),
+              Scalar.SERVICE_AREA_ID.toDisplayString(),
+              Scalar.SERVICE_AREA_STATE.toDisplayString(),
+              Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()));
 
   @Inject
   public ServiceAreaUpdateResolver(
@@ -158,15 +178,87 @@ final class ServiceAreaUpdateResolver {
 
   private ImmutableList<ServiceAreaInclusion> getExistingServiceAreaInclusionGroup(
       Path serviceAreaPath, ImmutableMap<String, String> updateMap) {
-    String serviceAreaValue = updateMap.get(serviceAreaPath.toString());
-    ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder =
-        ImmutableList.builder();
-    if (serviceAreaValue != null) {
-      existingServiceAreaInclusionGroupBuilder.addAll(
-          ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
+
+    return updateMap.keySet().stream()
+        .filter(x -> x.startsWith(serviceAreaPath.toString()))
+        .map(this::extractIndexFromPath)
+        .filter(x -> x >= 0)
+        .distinct()
+        .sorted()
+        .map(index -> getServiceAreaInclusion(updateMap, serviceAreaPath, index))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Attempts to find the index for a service_area array.
+   *
+   * @param updateMapKey Key from the updateMap in path form. Example:
+   *     `applicant.question_name.service_area[0].service_area_id`.
+   *     --------------------------------------^
+   * @return the int value of the index or -1 if errors/no matches found
+   */
+  private int extractIndexFromPath(String updateMapKey) {
+    Matcher matcher = pathIndexPattern.matcher(updateMapKey);
+    if (!matcher.find()) {
+      logger.error(
+          "Could not match '{}' against pattern '{}'", updateMapKey, pathIndexPattern.pattern());
+      return -1;
     }
 
-    return existingServiceAreaInclusionGroupBuilder.build();
+    String groupValue = matcher.group("index");
+
+    if (groupValue == null) {
+      logger.error(
+          "Could not find group 'index' in '{}' with pattern '{}'",
+          updateMapKey,
+          pathIndexPattern.pattern());
+      return -1;
+    }
+
+    try {
+      return Integer.parseInt(groupValue);
+    } catch (NumberFormatException ex) {
+      logger.error(
+          "Could not parse 'index' value of '{}' from {} with pattern '{}'",
+          groupValue,
+          updateMapKey,
+          pathIndexPattern.pattern());
+      return -1;
+    }
+  }
+
+  /** Build a {@link ServiceAreaInclusion} object from the values of an update map */
+  private ServiceAreaInclusion getServiceAreaInclusion(
+      ImmutableMap<String, String> updateMap, Path serviceAreaPath, Integer index) {
+    Path elementAtIndex = serviceAreaPath.asArrayElement().atIndex(index);
+
+    String serviceAreaIdPath =
+        elementAtIndex.join(Scalar.SERVICE_AREA_ID.toDisplayString()).toString();
+    String statePath = elementAtIndex.join(Scalar.SERVICE_AREA_STATE.toDisplayString()).toString();
+    String timestampPath =
+        elementAtIndex.join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()).toString();
+
+    if (!updateMap.containsKey(serviceAreaIdPath)
+        || !updateMap.containsKey(statePath)
+        || !updateMap.containsKey(timestampPath)) {
+      logger.error(
+          "'updateMap' index {} missing one or more required fields {}, {}, {}.",
+          index,
+          serviceAreaIdPath,
+          statePath,
+          timestampPath);
+    }
+
+    String timestampStr = updateMap.get(timestampPath);
+    ServiceAreaState serviceAreaState =
+        ServiceAreaState.getEnumFromSerializedFormat(updateMap.get(statePath));
+    long timestamp = Long.parseLong(timestampStr == null ? "0" : timestampStr);
+
+    return ServiceAreaInclusion.builder()
+        .setServiceAreaId(updateMap.get(serviceAreaIdPath))
+        .setState(serviceAreaState)
+        .setTimeStamp(timestamp)
+        .build();
   }
 
   private AddressLocation getAddressLocationFromUpdates(
