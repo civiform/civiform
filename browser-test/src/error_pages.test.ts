@@ -43,7 +43,7 @@ test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
     await test.step('Home button takes you to the homepage', async () => {
       await page
         .getByRole('link', {
-          name: 'Visit homepage',
+          name: 'Back to homepage',
         })
         .click()
       await waitForPageJsLoad(page)

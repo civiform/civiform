@@ -52,16 +52,15 @@ public final class InternalServerError extends BaseHtmlView {
   private DivTag mainContent(
       Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
 
-    String title = messages.at(MessageKey.ERROR_INTERNAL_SERVER_TITLE_V2.getKeyName());
-    String subtitle = messages.at(MessageKey.ERROR_INTERNAL_SERVER_SUBTITLE.getKeyName());
+    // TODO: update strings once translations come back
+    String title = messages.at(MessageKey.ERROR_INTERNAL_SERVER_TITLE.getKeyName());
     Optional<UnescapedText> additionalInfo =
         Optional.of(buildAdditionalInfo(requestHeader, messages, exceptionId));
-    String buttonText = messages.at(MessageKey.ERROR_INTERNAL_SERVER_HOME_BUTTON.getKeyName());
+    String buttonText = messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName());
     String buttonUrl = routes.HomeController.index().url();
-    Optional<String> statusCode = Optional.of("500");
 
     return ErrorComponent.renderErrorComponent(
-        title, subtitle, additionalInfo, buttonText, buttonUrl, statusCode);
+        title, Optional.empty(), additionalInfo, buttonText, buttonUrl, Optional.empty());
   }
 
   private UnescapedText buildAdditionalInfo(

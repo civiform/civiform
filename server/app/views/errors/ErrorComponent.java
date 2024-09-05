@@ -10,8 +10,6 @@ import static j2html.TagCreator.ul;
 
 import j2html.tags.UnescapedText;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.H1Tag;
-import j2html.tags.specialized.PTag;
 import java.util.Optional;
 
 /**
@@ -24,14 +22,12 @@ public final class ErrorComponent {
 
   public static DivTag renderErrorComponent(
       String title,
-      String subtitle,
+      Optional<String> subtitle,
       Optional<UnescapedText> additionalInfo,
       String buttonText,
       String buttonLink,
       Optional<String> statusCode) {
 
-    H1Tag titleText = h1(title).withClasses("mb-4");
-    PTag subtitleText = p().withClass("usa-intro").withText(subtitle);
     DivTag button =
         div()
             .withClass("margin-y-5")
@@ -59,8 +55,11 @@ public final class ErrorComponent {
                                     div()
                                         .withId("main-content")
                                         .withClasses("usa-prose")
-                                        .with(titleText)
-                                        .with(subtitleText)
+                                        .with(h1(title).withClasses("mb-4"))
+                                        .condWith(
+                                            subtitle.isPresent(),
+                                            p().withClass("usa-intro")
+                                                .withText(subtitle.orElse("")))
                                         .condWith(
                                             additionalInfo.isPresent(),
                                             div(additionalInfo.orElse(rawHtml(""))))

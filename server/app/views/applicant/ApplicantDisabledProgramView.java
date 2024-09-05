@@ -39,7 +39,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
   private DivTag mainContent(Messages messages) {
     return ErrorComponent.renderErrorComponent(
         messages.at(MessageKey.TITLE_PROGRAM_NOT_AVAILABLE.getKeyName()),
-        messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName()),
+        Optional.of(messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName())),
         Optional.empty(),
         messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName()),
         routes.HomeController.index().url(),
