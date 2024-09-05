@@ -666,7 +666,16 @@ error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
 error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
 error.internalServerTitle=오류가 발생했습니다.
+# The title on the error page that is show to the user in large font
+error.internalServerTitle.v2=An error has occurred
+# The subtitle on the error page that is show to the user in medium font
+error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+# Additional information about the error that is shown to the user in small font
 error.internalServerDescription=도움이 필요한 경우 오류 ID({0})를 포함하여 기술 지원팀(%s)에 문의하세요.
+# A button redirecting the user to the homepage
+error.internalServerHomeButton=Visit homepage
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
+error.statusCode=Error code: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

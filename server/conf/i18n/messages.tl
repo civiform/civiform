@@ -666,7 +666,16 @@ error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
 error.internalServerTitle=Nagkaroon ng error
+# The title on the error page that is show to the user in large font
+error.internalServerTitle.v2=An error has occurred
+# The subtitle on the error page that is show to the user in medium font
+error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+# Additional information about the error that is shown to the user in small font
 error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
+# A button redirecting the user to the homepage
+error.internalServerHomeButton=Visit homepage
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
+error.statusCode=Error code: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
