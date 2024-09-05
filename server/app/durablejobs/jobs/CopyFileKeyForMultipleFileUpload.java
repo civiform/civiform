@@ -54,7 +54,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
 
   @Override
   public void run() {
-    LOGGER.atInfo().log("Copying file keys for applicants.");
+    LOGGER.info("Copying file keys for applicants.");
 
     try (QueryIterator<ApplicantModel> applicants = accountRepository.streamAllApplicants()) {
       while (applicants.hasNext()) {
@@ -69,7 +69,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
       }
     }
 
-    LOGGER.atInfo().log("Copying file keys for applications.");
+    LOGGER.info("Copying file keys for applications.");
 
     try (QueryIterator<ApplicationModel> applications =
         applicationRepository.streamAllApplications()) {
@@ -84,7 +84,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
       }
     }
 
-    LOGGER.atInfo().log("Finished copying file keys.");
+    LOGGER.info("Finished copying file keys.");
   }
 
   @VisibleForTesting
