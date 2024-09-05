@@ -28,7 +28,7 @@
     "mini-css-extract-plugin": "^2.7.6",
     "postcss": "8.4.44",
     "postcss-loader": "^8.0.0",
-    "sass-embedded": "1.77.8",
+    "sass-embedded": "1.78.0",
     "sass-loader": "16.0.1",
     "tailwindcss": "^3.4.1",
     "ts-jest": "29.2.5",
