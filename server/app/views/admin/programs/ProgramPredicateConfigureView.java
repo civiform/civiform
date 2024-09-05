@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -516,6 +515,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     } else {
       try {
         scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+        if (questionDefinition.getQuestionType().equals(QuestionType.NAME)) {
+          scalars = ImmutableSet.of(Scalar.FIRST_NAME, Scalar.MIDDLE_NAME, Scalar.LAST_NAME);
+        }
         maybeSelectedScalar =
             assertLeafOperationNode(maybeLeafNode).map(LeafOperationExpressionNode::scalar);
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
@@ -525,23 +527,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       }
     }
 
-    if (questionDefinition.isName()) {
-      try {
-        scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-        // Filter out NAME_SUFFIX
-        scalars =
-            scalars.stream()
-                .filter(scalar -> !scalar.equals(Scalar.NAME_SUFFIX))
-                .collect(toImmutableSet());
-      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-        return div()
-            .withText("Sorry, you cannot create a show/hide predicate with this question type.");
-      }
-    }
-
     ImmutableList<OptionTag> options =
         scalars.stream()
-            .filter(scalar -> !questionDefinition.isName() || !scalar.equals(Scalar.NAME_SUFFIX))
             .map(
                 scalar -> {
                   OptionTag tag =

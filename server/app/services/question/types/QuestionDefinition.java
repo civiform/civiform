@@ -246,12 +246,6 @@ public abstract class QuestionDefinition {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }
 
-  /** True if the question is an {@link NameQuestionDefinition}. */
-  @JsonIgnore
-  public final boolean isName() {
-    return getQuestionType().equals(QuestionType.NAME);
-  }
-
   /**
    * A repeated question definition references an enumerator question definition that determines the
    * entities the repeated question definition asks its question for.
