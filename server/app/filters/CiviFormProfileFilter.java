@@ -17,17 +17,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 /**
- * Filter that ensures that sessions for user-facing requests have a CiviFormProfile.
- *
- * <p>The filter will redirect the request to the GuestClient callback under these conditions:
- *
- * <p>
- *
- * <ul>
- *   <li>The request is for a user-facing route
- *   <li>The request uses the `GET` method (since we redirect)
- *   <li>The session associated with the request does not contain a pac4j user profile
- * </ul>
+ * Ensures that user-facing requests have a CiviFormProfile by redirecting to create a guest session
+ * then redirecting back to the original request.
  */
 public final class CiviFormProfileFilter extends Filter {
   private final ProfileUtils profileUtils;
@@ -38,32 +29,38 @@ public final class CiviFormProfileFilter extends Filter {
     this.profileUtils = checkNotNull(profileUtils);
   }
 
-  private boolean profileIsMissing(Http.RequestHeader requestHeader) {
-    return profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty();
-  }
-
-  private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
+  /**
+   * Determines whether to redirect this request to create a guest profile. Returns true if:
+   *
+   * <ul>
+   *   <li>The request is for a user-facing route
+   *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
+   *       original URI)
+   *   <li>The session associated with the request does not contain a pac4j user profile
+   * </ul>
+   */
+  private boolean shouldRedirect(Http.RequestHeader requestHeader) {
     return NonUserRoutePrefixes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
+        // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))
-        && profileIsMissing(requestHeader);
+        && profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty();
   }
 
   @Override
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (!shouldApplyThisFilter(requestHeader)) {
-      return nextFilter.apply(requestHeader);
+    if (shouldRedirect(requestHeader)) {
+      // Directly invoke the callback of the GuestClient, which creates a profile. Then redirect the
+      // user to the page they were trying to reach.
+      return CompletableFuture.completedFuture(
+          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+              .withSession(
+                  requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
     }
 
-    // No profile is present.
-    //
-    // Directly invoke the callback of the GuestClient, which creates a profile. Then redirect the
-    // user to the page they were trying to reach.
-    return CompletableFuture.completedFuture(
-        redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-            .withSession(
-                requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
+    // Do nothing
+    return nextFilter.apply(requestHeader);
   }
 }
