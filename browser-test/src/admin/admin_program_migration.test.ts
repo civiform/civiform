@@ -406,7 +406,7 @@ test.describe('program migration', () => {
         'no_duplicate_questions_for_migration_enabled',
       )
     })
-
+  
     let downloadedComprehensiveProgram: string
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
@@ -429,6 +429,10 @@ test.describe('program migration', () => {
       )
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
+    })
+  
+    await test.step('publish programs', async () => {
+      await adminPrograms.publishAllDrafts()
     })
 
     await test.step('import comprehensive program', async () => {
@@ -477,7 +481,7 @@ test.describe('program migration', () => {
 
       // Assert the warning about duplicate question names is shown
       await adminProgramMigration.expectAlert(
-        'There are 17 existing question that will appear as drafts in the question bank.',
+        'There are 17 existing questions that will appear as drafts in the question bank.',
         ALERT_WARNING,
       )
 
@@ -490,9 +494,9 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should be updated with "-1" on the end)
+      // admin name (should not be updated with "-1" on the end)
       await expect(programDataDiv).toContainText(
-        'Admin name: Sample Address Question-1',
+        'Admin name: Sample Address Question',
       )
       // admin description
       await expect(programDataDiv).toContainText(
@@ -522,10 +526,11 @@ test.describe('program migration', () => {
         downloadedComprehensiveProgram,
       )
       await adminProgramMigration.expectAlert(
-        'Importing this program will add 1 new question to the question bank. There are 16 existing questions that will appear as drafts in the question bank.',
+        'There are 16 existing questions that will appear as drafts in the question bank.',
         ALERT_WARNING,
       )
       await adminProgramMigration.clickButton('Save')
+
       await adminProgramMigration.expectAlert(
         'Your program has been successfully imported',
         ALERT_SUCCESS,
@@ -533,10 +538,12 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'saved-program-success-no-dups')
     })
 
-    await test.step('return to import page', async () => {
-      await adminProgramMigration.clickButton('Import another program')
-      await adminProgramMigration.expectImportPage()
-      await expect(page.getByRole('textbox')).toHaveValue('')
+    await test.step('publish programs', async () => {
+      await adminPrograms.publishAllDrafts()
+    })
+
+    await test.step('go to import page', async () => {
+      await adminProgramMigration.goToImportPage()
     })
 
     await test.step('save the minimal sample program', async () => {

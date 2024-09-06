@@ -190,8 +190,11 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     AlertType alertType = AlertType.INFO;
     String alertMessage = "";
 
-    if (numDuplicateQuestions > 0) {
+    if (withDuplicates || numNewQuestions > 0) {
       alertMessage += "Importing this program will add ";
+    }
+
+    if (numDuplicateQuestions > 0) {
       alertType = AlertType.WARNING;
       if (numNewQuestions > 0) {
         String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
