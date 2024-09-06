@@ -120,6 +120,23 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_noDuplicatesEnabled_malformattedJson_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}"))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
+  }
+
+  @Test
   public void hxImportProgram_noTopLevelProgramFieldInJson_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -141,8 +158,51 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_noDuplicatesEnabled_noTopLevelProgramFieldInJson_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        "{ \"id\" : 32, \"adminName\" : \"admin-name\","
+                            + " \"adminDescription\" : \"description\"}"))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result))
+        .containsPattern("JSON did not have a top-level .*program.* field");
+  }
+
+  @Test
   public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        "{ \"program\": { \"adminName\" : \"admin-name\","
+                            + " \"adminDescription\" : \"description\"}}"))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
+  }
+
+  @Test
+  public void hxImportProgram_noDuplicatesEnabled_notEnoughInfoToCreateProgramDef_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -186,8 +246,54 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_noDuplicatesEnabled_programAlreadyExists_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    // save a program
+    controller.hxSaveProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    // attempt to import the program again
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("This program already exists in our system.");
+    assertThat(contentAsString(result)).contains("Please check your file and and try again.");
+  }
+
+  @Test
   public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Minimal Sample Program");
+    assertThat(contentAsString(result)).contains("minimal-sample-program");
+    assertThat(contentAsString(result)).contains("Screen 1");
+    assertThat(contentAsString(result)).contains("Please enter your first and last name");
+  }
+
+  @Test
+  public void
+      hxImportProgram_noDuplicatesEnabled_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -239,8 +345,70 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      hxImportProgram_noDuplicatesEnabled_showsWarningAndDoesNotOverwriteQuestionAdminNamesIfTheyAlreadyExist() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    // save the program
+    controller.hxSaveProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    // update the program admin name so we don't receive an error
+    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
+        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
+            "minimal-sample-program", "minimal-sample-program-new");
+
+    // parse the program for import
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    // warning is shown
+    assertThat(contentAsString(result))
+        .contains("Importing this program will add 1 duplicate question to the question bank.");
+    // question has the new admin name
+    assertThat(contentAsString(result)).contains("Name");
+    // other information in the question is unchanged
+    assertThat(contentAsString(result)).contains("Please enter your first and last name");
+  }
+
+  @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITHOUT_QUESTIONS))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    ProgramDefinition programDefinition =
+        database
+            .find(ProgramModel.class)
+            .where()
+            .eq("name", "no-questions")
+            .findOne()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.externalLink()).isEqualTo("https://www.example.com");
+  }
+
+  @Test
+  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithoutQuestions() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -297,8 +465,87 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithQuestions() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    ProgramDefinition programDefinition =
+        database
+            .find(ProgramModel.class)
+            .where()
+            .eq("name", "minimal-sample-program")
+            .findOne()
+            .getProgramDefinition();
+    QuestionDefinition questionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Name")
+            .findOne()
+            .getQuestionDefinition();
+
+    assertThat(programDefinition.externalLink()).isEqualTo("https://github.com/civiform/civiform");
+    assertThat(questionDefinition.getQuestionText().getDefault())
+        .isEqualTo("Please enter your first and last name");
+    assertThat(programDefinition.getQuestionIdsInProgram()).contains(questionDefinition.getId());
+  }
+
+  @Test
   public void hxSaveProgram_handlesNestEnumeratorQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    QuestionDefinition enumeratorQuestionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Sample Enumerator Question")
+            .findOne()
+            .getQuestionDefinition();
+
+    QuestionDefinition nestedEnumeratorQuestionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "cats")
+            .findOne()
+            .getQuestionDefinition();
+
+    QuestionDefinition childQuestionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "cat-color")
+            .findOne()
+            .getQuestionDefinition();
+
+    assertThat(enumeratorQuestionDefinition.getId())
+        .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
+    assertThat(nestedEnumeratorQuestionDefinition.getId())
+        .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
+  }
+
+  @Test
+  public void hxSaveProgram_noDuplicatesEnabled_handlesNestEnumeratorQuestions() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -397,8 +644,91 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxSaveProgram_noDuplicatesEnabled_savesUpdatedQuestionIdsOnPredicates()
+      throws ProgramBlockDefinitionNotFoundException {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    ProgramDefinition programDefinition =
+        database
+            .find(ProgramModel.class)
+            .where()
+            .eq("name", "visibility-eligibility")
+            .findOne()
+            .getProgramDefinition();
+    Long eligibilityQuestionId =
+        programDefinition
+            .getBlockDefinition(1)
+            .eligibilityDefinition()
+            .get()
+            .predicate()
+            .rootNode()
+            .getOrNode()
+            .children()
+            .get(0)
+            .getAndNode()
+            .children()
+            .get(0)
+            .getLeafOperationNode()
+            .questionId();
+    Long visibilityQuestionId =
+        programDefinition
+            .getBlockDefinition(2)
+            .visibilityPredicate()
+            .get()
+            .rootNode()
+            .getLeafOperationNode()
+            .questionId();
+    Long savedQuestionId =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "id-test")
+            .findOne()
+            .getQuestionDefinition()
+            .getId();
+
+    assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
+    assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
+  }
+
+  @Test
   public void hxSaveProgram_discardsPaiTagsOnImportedQuestions() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    QuestionDefinition questionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "dob")
+            .findOne()
+            .getQuestionDefinition();
+
+    assertThat(questionDefinition.getPrimaryApplicantInfoTags()).isEqualTo(ImmutableSet.of());
+  }
+
+  @Test
+  public void hxSaveProgram_noDuplicatesEnabled_discardsPaiTagsOnImportedQuestions() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -447,8 +777,57 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxSaveProgram_noDuplicatesEnabled_preservesUniversalSettingOnImportedQuestions() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                // Questions must be marked as "universal" before being tagged with a PAI
+                // tag, so we can reuse the PROGRAM_JSON_WITH_PAI_TAGS json
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    QuestionDefinition questionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "dob")
+            .findOne()
+            .getQuestionDefinition();
+
+    assertThat(questionDefinition.isUniversal()).isTrue();
+  }
+
+  @Test
   public void hxSaveProgram_addsAnEmptyStatus() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    controller.hxSaveProgram(
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+            .build());
+
+    StatusDefinitions statusDefinitions =
+        database
+            .find(ApplicationStatusesModel.class)
+            .where()
+            .eq("program_name", "minimal-sample-program")
+            .findOne()
+            .getStatusDefinitions();
+
+    assertThat(statusDefinitions.getStatuses()).isEmpty();
+  }
+
+  @Test
+  public void hxSaveProgram_noDuplicatesEnabled_addsAnEmptyStatus() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     controller.hxSaveProgram(
         fakeRequestBuilder()
