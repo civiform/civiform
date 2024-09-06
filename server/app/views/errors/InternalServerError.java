@@ -5,7 +5,6 @@ import static j2html.TagCreator.rawHtml;
 
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
-import controllers.routes;
 import j2html.tags.UnescapedText;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -57,10 +56,9 @@ public final class InternalServerError extends BaseHtmlView {
     Optional<UnescapedText> additionalInfo =
         Optional.of(buildAdditionalInfo(requestHeader, messages, exceptionId));
     String buttonText = messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName());
-    String buttonUrl = routes.HomeController.index().url();
 
     return ErrorComponent.renderErrorComponent(
-        title, Optional.empty(), additionalInfo, buttonText, buttonUrl, Optional.empty());
+        title, Optional.empty(), additionalInfo, buttonText, messages, Optional.empty());
   }
 
   private UnescapedText buildAdditionalInfo(

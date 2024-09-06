@@ -2,7 +2,6 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -42,7 +41,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
         Optional.of(messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName())),
         Optional.empty(),
         messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName()),
-        routes.HomeController.index().url(),
+        messages,
         Optional.empty());
   }
 }

@@ -8,9 +8,12 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
+import controllers.routes;
 import j2html.tags.UnescapedText;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import play.i18n.Messages;
+import services.MessageKey;
 
 /**
  * Render an error component based on the USWDS 404 page template
@@ -25,7 +28,7 @@ public final class ErrorComponent {
       Optional<String> subtitle,
       Optional<UnescapedText> additionalInfo,
       String buttonText,
-      String buttonLink,
+      Messages messages,
       Optional<String> statusCode) {
 
     DivTag button =
@@ -39,7 +42,7 @@ public final class ErrorComponent {
                                 a().withClass("usa-button")
                                     .withId("visit-home-page-button")
                                     .withText(buttonText)
-                                    .withHref(buttonLink))));
+                                    .withHref(routes.HomeController.index().url()))));
 
     return div()
         .with(
@@ -69,8 +72,9 @@ public final class ErrorComponent {
                                                 .with(button)
                                                 .condWith(
                                                     statusCode.isPresent(),
-                                                    p(String.format(
-                                                            "Error code: %s",
+                                                    p(messages.at(
+                                                            MessageKey.ERROR_STATUS_CODE
+                                                                .getKeyName(),
                                                             statusCode.orElse("")))
                                                         .withClass("text-base")))))));
   }
