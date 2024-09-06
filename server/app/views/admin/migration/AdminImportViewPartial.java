@@ -111,7 +111,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     for (BlockDefinition block : program.blockDefinitions()) {
       programDiv.with(
           renderProgramBlock(
-              block, questionsById, newToOldQuestionNameMap, /* withDuplicates= */ withDuplicates));
+              block, questionsById, newToOldQuestionNameMap, withDuplicates));
     }
 
     FormTag hiddenForm =

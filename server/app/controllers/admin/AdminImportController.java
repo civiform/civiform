@@ -167,6 +167,7 @@ public class AdminImportController extends CiviFormController {
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
+    
     return ok(
         adminImportViewPartial
             .renderProgramData(
