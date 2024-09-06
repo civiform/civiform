@@ -31,7 +31,6 @@ import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.statuses.StatusNotFoundException;
-import views.errors.InternalServerError;
 import views.errors.NotFound;
 
 /**
@@ -45,7 +44,6 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
-  private final Provider<InternalServerError> internalServerErrorPageProvider;
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
 
@@ -72,11 +70,9 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
-      Provider<InternalServerError> internalServerErrorPageProvider,
       Provider<NotFound> notFoundPageProvider,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.internalServerErrorPageProvider = checkNotNull(internalServerErrorPageProvider);
     this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
   }
@@ -151,9 +147,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   protected CompletionStage<Result> onProdServerError(
       RequestHeader request, UsefulException exception) {
     return CompletableFuture.completedFuture(
-        Results.internalServerError(
-            internalServerErrorPageProvider
-                .get()
-                .render(request, messagesApi.preferred(request), exception.id)));
+        Results.redirect(
+            controllers.routes.InternalServerErrorController.index(exception.id).url()));
   }
 }

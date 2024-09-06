@@ -16,6 +16,9 @@ GET     /                           controllers.HomeController.index(request: Re
 GET     /playIndex                  controllers.HomeController.playIndex()
 GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 
+# Error page
+GET     /error                      controllers.InternalServerErrorController.index(request: Request, exceptionId: String)
+
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/disabled                                controllers.admin.AdminProgramController.indexDisabled(request: Request)
