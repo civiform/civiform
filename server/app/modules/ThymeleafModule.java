@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
+import controllers.AssetsFinder;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -35,17 +36,22 @@ import play.Environment;
 import play.api.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
+import views.tags.CiviFormProcessorDialect;
 
 public final class ThymeleafModule extends AbstractModule {
 
   @Provides
   public TemplateEngine provideTemplateEngine(
-      FileTemplateResolver fileTemplateResolver, MessagesApi messagesApi) {
+      FileTemplateResolver fileTemplateResolver,
+      MessagesApi messagesApi,
+      AssetsFinder assetsFinder,
+      Environment environment) {
     TemplateEngine templateEngine = new TemplateEngine();
 
     templateEngine.setTemplateResolver(fileTemplateResolver);
     templateEngine.setMessageResolver(new PlayMessageResolver(messagesApi));
     templateEngine.addDialect(new HtmxDialect(new ObjectMapper()));
+    templateEngine.addDialect(new CiviFormProcessorDialect(assetsFinder, environment));
 
     return templateEngine;
   }
