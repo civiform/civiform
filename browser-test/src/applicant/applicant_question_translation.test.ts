@@ -19,7 +19,7 @@ test.describe('Admin can manage translations', () => {
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editQuestionTranslations(
-      'Spanish question text',
+      'ingrese\n1.nombre\n2.segundo nombre\n3.apellido',
       'Spanish help text',
     )
 
@@ -46,7 +46,7 @@ test.describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      'Spanish question text',
+      'ingrese\n1.nombre\n2.segundo nombre\n3.apellido',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
       'Spanish help text',
