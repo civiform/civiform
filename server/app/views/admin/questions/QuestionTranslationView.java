@@ -176,14 +176,11 @@ public final class QuestionTranslationView extends TranslationFormView {
       QuestionOption option = options.get(optionIdx);
       optionFieldsBuilder.add(
           fieldWithDefaultLocaleTextHint(
-              FieldWithLabel.textArea()
+              FieldWithLabel.input()
                   .setFieldName("options[]")
                   .setLabelText(String.format("Answer option #%d", optionIdx + 1))
                   .setValue(option.optionText().maybeGet(toUpdate).orElse(""))
-                  .setMarkdownSupported(true)
-                  .setMarkdownText("Markdown is supported, ")
-                  .setMarkdownLinkText("see how it works")
-                  .getTextareaTag(),
+                  .getInputTag(),
               option.optionText()));
     }
 
