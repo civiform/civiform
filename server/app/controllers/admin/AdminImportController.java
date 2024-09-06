@@ -253,11 +253,11 @@ public class AdminImportController extends CiviFormController {
       ImmutableList<QuestionDefinition> questionsOnJson,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
-    // here is where we save all the questions
+    // Save all the questions
     ImmutableList<QuestionModel> newlySavedQuestions =
         questionRepository.bulkCreateQuestions(questionsOnJson);
 
-    ImmutableMap<String, QuestionDefinition> newlySavedQuestionsMap =
+    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
         newlySavedQuestions.stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
@@ -268,19 +268,20 @@ public class AdminImportController extends CiviFormController {
                 question -> {
                   QuestionDefinition qd = question.getQuestionDefinition();
                   if (qd.getEnumeratorId().isPresent()) {
-                    // get the old id for the parent question
+                    // The child question was saved with the incorrect enumerator id so we need to
+                    // update it
                     Long oldEnumeratorId = qd.getEnumeratorId().get();
-                    // get the admin name for the parent question using the old id
+                    // Use the old enumerator id to get the admin name of the parent question off
+                    // the old question map
                     String parentQuestionAdminName =
                         questionsOnJsonById.get(oldEnumeratorId).getName();
-                    // get the new id for the parent question using the admin name
+                    // Use the admin name to get the updated id for the parent question off the new
+                    // question map
                     Long newlySavedParentQuestionId =
-                        newlySavedQuestionsMap.get(parentQuestionAdminName).getId();
-                    // update the child question with the newly saved id
+                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
+                    // Update the child question with the correct id and save the question
                     qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
-                    // maybe i should be returning the question here and then getting the qd off of
-                    // it
-                    questionRepository.createOrUpdateDraft(qd);
+                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
                   }
                   return qd;
                 })
