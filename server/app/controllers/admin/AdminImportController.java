@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Optional;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -245,49 +246,48 @@ public class AdminImportController extends CiviFormController {
   }
 
   /**
-   * Update enumerator type questions (and other questions that do not have the `enumeratorId` field
-   * set) first so that we can update questions that reference the id of the enumerator question
-   * with the id of the newly saved enumerator question.
+   * Save all questions and then update enumerator child questions with the correct ids of their
+   * newly saved parent questions.
    */
   private ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
       ImmutableList<QuestionDefinition> questionsOnJson,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
-    ImmutableList<QuestionDefinition> questionsWithoutEnumeratorId =
-        questionsOnJson.stream()
-            .filter(qd -> qd.getEnumeratorId().isEmpty())
-            .collect(ImmutableList.toImmutableList());
+    // Save all the questions
+    ImmutableList<QuestionModel> newlySavedQuestions =
+        questionRepository.bulkCreateQuestions(questionsOnJson);
 
-    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithoutEnumeratorId =
-        questionRepository.bulkCreateQuestions(questionsWithoutEnumeratorId).stream()
+    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
+        newlySavedQuestions.stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
-    ImmutableList<QuestionDefinition> questionsWithEnumeratorId =
-        questionsOnJson.stream()
-            .filter(qd -> qd.getEnumeratorId().isPresent())
+    ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
+        newlySavedQuestions.stream()
             .map(
-                qd -> {
-                  Long oldEnumeratorId = qd.getEnumeratorId().get();
-                  QuestionDefinition oldQuestion = questionsOnJsonById.get(oldEnumeratorId);
-                  String oldQuestionAdminName = oldQuestion.getName();
-                  QuestionDefinition newQuestion =
-                      updatedQuestionsWithoutEnumeratorId.get(oldQuestionAdminName);
-                  // update the enumeratorId on the child question before saving
-                  Long newEnumeratorId = newQuestion.getId();
-                  return questionRepository.updateEnumeratorId(qd, newEnumeratorId);
+                question -> {
+                  QuestionDefinition qd = question.getQuestionDefinition();
+                  if (qd.getEnumeratorId().isPresent()) {
+                    // The child question was saved with the incorrect enumerator id so we need to
+                    // update it
+                    Long oldEnumeratorId = qd.getEnumeratorId().get();
+                    // Use the old enumerator id to get the admin name of the parent question off
+                    // the old question map
+                    String parentQuestionAdminName =
+                        questionsOnJsonById.get(oldEnumeratorId).getName();
+                    // Use the admin name to get the updated id for the parent question off the new
+                    // question map
+                    Long newlySavedParentQuestionId =
+                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
+                    // Update the child question with the correct id and save the question
+                    qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
+                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
+                  }
+                  return qd;
                 })
-            .collect(ImmutableList.toImmutableList());
-
-    ImmutableMap<String, QuestionDefinition> updatedQuestionsWithEnumeratorId =
-        questionRepository.bulkCreateQuestions(questionsWithEnumeratorId).stream()
-            .map(question -> question.getQuestionDefinition())
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
-    return ImmutableMap.<String, QuestionDefinition>builder()
-        .putAll(updatedQuestionsWithoutEnumeratorId)
-        .putAll(updatedQuestionsWithEnumeratorId)
-        .build();
+    return fullyUpdatedQuestions;
   }
 
   /**
