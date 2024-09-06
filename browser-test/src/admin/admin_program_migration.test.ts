@@ -477,7 +477,7 @@ test.describe('program migration', () => {
 
       // Assert the warning about duplicate question names is shown
       await adminProgramMigration.expectAlert(
-        'Importing this program will add 17 duplicate questions to the question bank.',
+        'There are 17 existing question that will appear as drafts in the question bank.',
         ALERT_WARNING,
       )
 
@@ -522,7 +522,7 @@ test.describe('program migration', () => {
         downloadedComprehensiveProgram,
       )
       await adminProgramMigration.expectAlert(
-        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        'Importing this program will add 1 new question to the question bank. There are 16 existing questions that will appear as drafts in the question bank.',
         ALERT_WARNING,
       )
       await adminProgramMigration.clickButton('Save')

@@ -188,9 +188,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     int numNewQuestions = updatedQuestionsMap.size() - numDuplicateQuestions;
 
     AlertType alertType = AlertType.INFO;
-    String alertMessage = "Importing this program will add ";
+    String alertMessage = "";
 
     if (numDuplicateQuestions > 0) {
+      alertMessage += "Importing this program will add ";
       alertType = AlertType.WARNING;
       if (numNewQuestions > 0) {
         String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
@@ -206,9 +207,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     + questionOrQuestions
                     + " to the question bank.");
       } else {
+        if (numNewQuestions > 0) {
+          alertMessage += " to the question bank. ";
+        }
+        String areOrIs = numDuplicateQuestions > 1 ? "are " : "is ";
         alertMessage =
             alertMessage.concat(
-                "There are "
+                "There "
+                    + areOrIs
                     + numDuplicateQuestions
                     + " existing "
                     + questionOrQuestions
