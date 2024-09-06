@@ -126,22 +126,28 @@ public final class QuestionTranslationView extends TranslationFormView {
     ImmutableList.Builder<DomContent> fields = ImmutableList.builder();
     fields.add(
         fieldWithDefaultLocaleTextHint(
-            FieldWithLabel.input()
+            FieldWithLabel.textArea()
                 .setFieldName("questionText")
                 .setLabelText("Question text")
                 .setValue(questionText.maybeGet(locale))
-                .getInputTag(),
+                .setMarkdownSupported(true)
+                .setMarkdownText("Markdown is supported, ")
+                .setMarkdownLinkText("see how it works")
+                .getTextareaTag(),
             questionText));
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
       fields.add(
           fieldWithDefaultLocaleTextHint(
-              FieldWithLabel.input()
+              FieldWithLabel.textArea()
                   .setFieldName("questionHelpText")
                   .setLabelText("Question help text")
                   .setValue(helpText.maybeGet(locale))
-                  .getInputTag(),
+                  .setMarkdownSupported(true)
+                  .setMarkdownText("Markdown is supported, ")
+                  .setMarkdownLinkText("see how it works")
+                  .getTextareaTag(),
               helpText));
     }
 
@@ -185,11 +191,14 @@ public final class QuestionTranslationView extends TranslationFormView {
       LocalizedStrings entityType, Locale toUpdate) {
     return Optional.of(
         fieldWithDefaultLocaleTextHint(
-            FieldWithLabel.input()
+            FieldWithLabel.textArea()
                 .setFieldName("entityType")
                 .setLabelText("What is being enumerated")
                 .setValue(entityType.maybeGet(toUpdate).orElse(""))
-                .getInputTag(),
+                .setMarkdownSupported(true)
+                .setMarkdownText("Markdown is supported, ")
+                .setMarkdownLinkText("see how it works")
+                .getTextareaTag(),
             entityType));
   }
 }

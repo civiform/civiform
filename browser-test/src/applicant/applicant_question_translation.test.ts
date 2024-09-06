@@ -1,5 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, logout, selectApplicantLanguage} from '../support'
+import {
+  loginAsAdmin,
+  logout,
+  selectApplicantLanguage,
+  validateScreenshot,
+} from '../support'
 
 test.describe('Admin can manage translations', () => {
   test('Expect single-answer question is translated for applicant', async ({
@@ -19,7 +24,7 @@ test.describe('Admin can manage translations', () => {
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editQuestionTranslations(
-      'Spanish question text',
+      'ingrese\n1.nombre\n2.segundo nombre\n3.apellido',
       'Spanish help text',
     )
 
@@ -46,10 +51,54 @@ test.describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      'Spanish question text',
+      'ingrese\n1.nombre\n2.segundo nombre\n3.apellido',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
       'Spanish help text',
+    )
+  })
+
+  test('Expect single-answer question is translated with markdown for applicant', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    applicantQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    // Add a new question to be translated
+    const questionName = 'name-translated'
+    await adminQuestions.addNameQuestion({questionName})
+
+    // Go to the question translation page and add a translation for Spanish
+    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editQuestionTranslations(
+      '# Enter name  \n * Your first name \n *  Your middle name \n * Your last name',
+      '## It will identify you',
+    )
+    // Add the question to a program and publish
+    const programName = 'Spanish question program with markdown'
+    await adminPrograms.addProgram(
+      programName,
+      'program description',
+      'http://seattle.gov',
+    )
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName])
+    await adminPrograms.publishProgram(programName)
+    await logout(page)
+
+    // Log in as an applicant and view the translated question
+    await selectApplicantLanguage(page, 'Español')
+    await applicantQuestions.validateHeader('es-US')
+
+    await applicantQuestions.applyProgram(programName)
+
+    await validateScreenshot(
+      page.locator('.cf-applicant-question-text'),
+      'question-translation-with-markdown',
+      /* fullPage= */ false,
     )
   })
 
