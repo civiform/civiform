@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -57,7 +58,7 @@ public abstract class ProgramDefinition {
   private Optional<Boolean> hasOrderedBlockDefinitionsMemo = Optional.empty();
 
   public static Builder builder() {
-    return new AutoValue_ProgramDefinition.Builder();
+    return new AutoValue_ProgramDefinition.Builder().setNotificationPreferences(ImmutableList.of());
   }
 
   /** Unique identifier for a ProgramDefinition. */
@@ -82,6 +83,10 @@ public abstract class ProgramDefinition {
   /** The program's display mode. */
   @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
+
+  /** The notification preferences for this program. */
+  @JsonProperty("notificationPreferences")
+  public abstract ImmutableList<ProgramNotificationPreference> notificationPreferences();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
@@ -784,6 +789,10 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("displayMode")
     public abstract Builder setDisplayMode(DisplayMode displayMode);
+
+    @JsonProperty("notificationPreferences")
+    public abstract Builder setNotificationPreferences(
+        ImmutableList<ProgramNotificationPreference> notificationPreferences);
 
     @JsonProperty("adminDescription")
     public abstract Builder setAdminDescription(String adminDescription);

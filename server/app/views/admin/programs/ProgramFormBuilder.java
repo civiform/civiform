@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.ProgramNotificationPreference;
 import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
 import play.mvc.Http.Request;
@@ -81,6 +82,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
+        program.getNotificationPreferences(),
         program.getEligibilityIsGating(),
         program.getIsCommonIntakeForm(),
         programEditStatus,
@@ -100,6 +102,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.externalLink(),
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
+        program.notificationPreferences().stream()
+            .map(ProgramNotificationPreference::getValue)
+            .toList(),
         program.eligibilityIsGating(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
@@ -116,6 +121,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String confirmationSceen,
       String displayMode,
+      List<String> notificationPreferences,
       boolean eligibilityIsGating,
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
@@ -242,6 +248,25 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(String.valueOf(false))
                     .setChecked(!eligibilityIsGating)
                     .getRadioTag()));
+
+    formTag.with(
+        fieldset()
+            .with(
+                legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
+                FieldWithLabel.checkbox()
+                    .setFieldName("notificationPreferences")
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Send Program Admins an email notification every time an application is"
+                            + " submitted")
+                    .setValue(
+                        ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                            .getValue())
+                    .setChecked(
+                        notificationPreferences.contains(
+                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                .getValue()))
+                    .getCheckboxTag()));
 
     formTag
         .with(

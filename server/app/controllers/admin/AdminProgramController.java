@@ -122,6 +122,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getNotificationPreferences()),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
@@ -149,6 +150,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getNotificationPreferences()),
             programData.getEligibilityIsGating(),
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
@@ -254,6 +256,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            programData.getNotificationPreferences(),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
@@ -287,6 +290,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),
+        programData.getNotificationPreferences(),
         programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         ImmutableList.copyOf(programData.getTiGroups()),

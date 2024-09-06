@@ -50,6 +50,7 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
+            /* notificationPreferences */ ImmutableList.of(),
             /* blockDefinitions */ ImmutableList.of(emptyFirstBlock),
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ ProgramType.DEFAULT,

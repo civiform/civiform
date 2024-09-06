@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import models.ApplicationModel;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +70,8 @@ public final class ProgramService {
       "A public description for the program is required";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
+  private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
+      "One or more notification preferences are invalid";
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
@@ -317,6 +321,8 @@ public final class ProgramService {
    *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param notificationPreferences The {@link models.ProgramNotificationPreference}s for the
+   *     program
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
@@ -337,6 +343,7 @@ public final class ProgramService {
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
+      ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
@@ -348,6 +355,7 @@ public final class ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode,
+            notificationPreferences,
             categoryIds,
             tiGroups);
     if (!errors.isEmpty()) {
@@ -365,6 +373,10 @@ public final class ProgramService {
       clearCommonIntakeForm();
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
+    ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
+        notificationPreferences.stream()
+            .map(ProgramNotificationPreference::valueOf)
+            .collect(ImmutableList.toImmutableList());
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
     ProgramModel program =
         new ProgramModel(
@@ -375,6 +387,7 @@ public final class ProgramService {
             defaultConfirmationMessage,
             externalLink,
             displayMode,
+            notificationPreferencesAsEnums,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersionOrCreate(),
             programType,
@@ -412,12 +425,19 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      ImmutableList<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
-            displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups));
+            displayName,
+            displayDescription,
+            externalLink,
+            displayMode,
+            notificationPreferences,
+            categoryIds,
+            tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -454,6 +474,8 @@ public final class ProgramService {
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param notificationPreferences The {@link models.ProgramNotificationPreference}s for the
+   *     program
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
@@ -475,6 +497,7 @@ public final class ProgramService {
       String confirmationMessage,
       String externalLink,
       String displayMode,
+      List<String> notificationPreferences,
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
@@ -483,7 +506,13 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups);
+            displayName,
+            displayDescription,
+            externalLink,
+            displayMode,
+            notificationPreferences,
+            categoryIds,
+            tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -503,7 +532,10 @@ public final class ProgramService {
         && !programDefinition.isCommonIntakeForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
-
+    ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
+        notificationPreferences.stream()
+            .map(ProgramNotificationPreference::valueOf)
+            .collect(ImmutableList.toImmutableList());
     ProgramModel program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
@@ -516,6 +548,7 @@ public final class ProgramService {
             .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setNotificationPreferences(notificationPreferencesAsEnums)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
@@ -601,10 +634,17 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      List<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
-        displayName, displayDescription, externalLink, displayMode, categoryIds, tiGroups);
+        displayName,
+        displayDescription,
+        externalLink,
+        displayMode,
+        notificationPreferences,
+        categoryIds,
+        tiGroups);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -621,6 +661,7 @@ public final class ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
+      List<String> notificationPreferences,
       List<Long> categoryIds,
       List<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -634,6 +675,13 @@ public final class ProgramService {
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
+    }
+    ImmutableList<String> validNotificationPreferences =
+        Arrays.stream(ProgramNotificationPreference.values())
+            .map(ProgramNotificationPreference::getValue)
+            .collect(ImmutableList.toImmutableList());
+    if (notificationPreferences.stream().anyMatch(p -> !validNotificationPreferences.contains(p))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_NOTIFICATION_PREFERENCE_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));

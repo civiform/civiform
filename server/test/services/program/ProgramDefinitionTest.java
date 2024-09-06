@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
+import models.ProgramNotificationPreference;
 import models.QuestionModel;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -1386,6 +1387,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
                         "Italian summary image description")))
             .setExternalLink("external.link")
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setNotificationPreferences(
+                ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
@@ -1434,6 +1437,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 "Italian summary image description"));
     assertThat(result.externalLink()).isEqualTo("external.link");
     assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
+    assertThat(result.notificationPreferences())
+        .containsExactlyInAnyOrder(
+            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
     assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
     assertThat(result.eligibilityIsGating()).isTrue();
     assertThat(result.acls().getTiProgramViewAcls()).containsExactlyInAnyOrder(987L, 65L, 4321L);

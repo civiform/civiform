@@ -39,6 +39,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
@@ -174,6 +175,8 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              ImmutableList.of(
+                  ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
@@ -216,6 +219,8 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              ImmutableList.of(
+                  ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),

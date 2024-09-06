@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import models.ProgramNotificationPreference;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
@@ -128,5 +129,34 @@ public final class ProgramMigrationService {
       continue;
     }
     return newAdminName;
+  }
+
+  /**
+   * Prepare the {@link ProgramDefinition} for export by making any changes required, such as
+   * removing settings that may be specific to an environment.
+   *
+   * @param programDefinition the {@link ProgramDefinition} to modify
+   * @return a modified {@link ProgramDefinition} ready for export
+   */
+  public ProgramDefinition prepForExport(ProgramDefinition programDefinition) {
+    return programDefinition.toBuilder()
+        // TODO(#7087) migrate program categories
+        .setCategories(ImmutableList.of())
+        // Don't export environment specific notification preferences
+        .setNotificationPreferences(ImmutableList.of())
+        .build();
+  }
+
+  /**
+   * Prepare the {@link ProgramDefinition} for import by making any changes required, such as
+   * setting defaults.
+   *
+   * @param programDefinition the {@link ProgramDefinition} to modify
+   * @return a modified {@link ProgramDefinition} ready for import
+   */
+  public ProgramDefinition prepForImport(ProgramDefinition programDefinition) {
+    return programDefinition.toBuilder()
+        .setNotificationPreferences(ProgramNotificationPreference.getDefaults())
+        .build();
   }
 }
