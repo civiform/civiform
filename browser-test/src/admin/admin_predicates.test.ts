@@ -359,6 +359,46 @@ test.describe('create and edit predicates', () => {
     ).toContain('Screen 1')
   })
 
+  test('suffix cannot be added as an eligibility predicate for name question', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+
+    const programName =
+      'Test name question as a eligibility condition excluding suffix'
+    const questionName = 'name-question'
+    const screenName = 'Screen 1'
+
+    await test.step('adds name question as an eligibility condition', async () => {
+      await adminQuestions.addNameQuestion({questionName: questionName})
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: screenName,
+        questions: [{name: questionName}],
+      })
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.selectQuestionForPredicate(questionName)
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.addValueRows(1)
+    })
+
+    await test.step('name suffix is not visible to be selected as a value', async () => {
+      await page.click(`.cf-scalar-select`)
+
+      await page.getByText('first name').isVisible()
+      await page.getByText('middle name').isVisible()
+      await page.getByText('last name').isVisible()
+      await page.getByText('name suffix').isHidden()
+    })
+  })
+
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
   if (isHermeticTestEnvironment()) {
     test('add a service area validation predicate', async ({

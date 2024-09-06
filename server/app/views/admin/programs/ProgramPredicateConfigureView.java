@@ -515,6 +515,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     } else {
       try {
         scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+        if (questionDefinition.getQuestionType().equals(QuestionType.NAME)) {
+          // Name suffix is not included in eligibility predicates.
+          scalars = ImmutableSet.of(Scalar.FIRST_NAME, Scalar.MIDDLE_NAME, Scalar.LAST_NAME);
+        }
         maybeSelectedScalar =
             assertLeafOperationNode(maybeLeafNode).map(LeafOperationExpressionNode::scalar);
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
