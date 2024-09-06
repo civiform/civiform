@@ -952,6 +952,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
+   * between deployed environments. Note: this should only be used on new environments, since
+   * existing programs will be modified if a program with the same question gets imported.
+   */
+  public boolean getNoDuplicateQuestionsForMigrationEnabled(RequestHeader request) {
+    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage */
   public boolean getProgramFilteringEnabled(RequestHeader request) {
     return getBool("PROGRAM_FILTERING_ENABLED", request);
@@ -1997,6 +2006,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_MIGRATION_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
                           + " environments",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
+                          + " migrating programs between deployed environments. Note: this should"
+                          + " only be used on new environments, since existing programs will be"
+                          + " modified if a program with the same question gets imported.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
