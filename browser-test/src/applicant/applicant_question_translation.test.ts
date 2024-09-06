@@ -95,7 +95,11 @@ test.describe('Admin can manage translations', () => {
 
     await applicantQuestions.applyProgram(programName)
 
-    await validateScreenshot(page, 'question-translation-with-markdown')
+    await validateScreenshot(
+      page.locator('.cf-applicant-question-text'),
+      'question-translation-with-markdown',
+      /* fullPage= */ false,
+    )
   })
 
   test('Expect multi-option question is translated for applicant', async ({
