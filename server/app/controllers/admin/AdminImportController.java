@@ -147,7 +147,7 @@ public class AdminImportController extends CiviFormController {
     if (questions == null) {
       return ok(
           adminImportViewPartial
-              .renderProgramData(request, program, ImmutableMap.of(), jsonString)
+              .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
               .render());
     }
 
@@ -157,16 +157,25 @@ public class AdminImportController extends CiviFormController {
     ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
         programMigrationService.maybeOverwriteQuestionName(questions);
 
+    boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+    if (withDuplicates) {
+      questions = ImmutableList.copyOf(updatedQuestionsMap.values());
+    }
+
     ErrorAnd<String, String> serializeResult =
-        programMigrationService.serialize(
-            program, ImmutableList.copyOf(updatedQuestionsMap.values()));
+        programMigrationService.serialize(program, questions);
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
-
     return ok(
         adminImportViewPartial
-            .renderProgramData(request, program, updatedQuestionsMap, serializeResult.getResult())
+            .renderProgramData(
+                request,
+                program,
+                questions,
+                updatedQuestionsMap,
+                serializeResult.getResult(),
+                withDuplicates)
             .render());
   }
 
@@ -216,13 +225,31 @@ public class AdminImportController extends CiviFormController {
           programRepository.insertProgramSync(
               new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
+      // If we are re-using existing questions, we will put all programs in draft mode to ensure no
+      // errors. We could also go through each question being updated and see what program it
+      // applies to, but this is more straightforward.
+      if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
+        ImmutableList<Long> programsInDraft =
+            versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
+                .map(p -> p.id)
+                .collect(ImmutableList.toImmutableList());
+        versionRepository
+            .getProgramsForVersion(versionRepository.getActiveVersion())
+            .forEach(
+                program -> {
+                  if (!programsInDraft.contains(program.id)) {
+                    programRepository.createOrUpdateDraft(program);
+                  }
+                });
+      }
+
       // TODO(#7087) migrate application statuses for the program
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
           updatedProgram.adminName(), new StatusDefinitions());
 
       return ok(
           adminImportViewPartial
-              .renderProgramSaved(updatedProgram.adminName(), savedProgram.id)
+              .renderProgramSaved(request, updatedProgram.adminName(), savedProgram.id)
               .render());
     } catch (RuntimeException error) {
       return ok(
