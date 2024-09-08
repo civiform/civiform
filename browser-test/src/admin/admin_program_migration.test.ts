@@ -406,7 +406,7 @@ test.describe('program migration', () => {
         'no_duplicate_questions_for_migration_enabled',
       )
     })
-  
+
     let downloadedComprehensiveProgram: string
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
@@ -430,7 +430,7 @@ test.describe('program migration', () => {
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
     })
-  
+
     await test.step('publish programs', async () => {
       await adminPrograms.publishAllDrafts()
     })
