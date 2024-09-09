@@ -1388,15 +1388,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
+
+    var isEligible = roApplicantProgramService.isActiveBlockEligible(blockId);
+
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-            !roApplicantProgramService.isApplicationNotEligible(),
+            isEligible,
             settingsManifest.getNorthStarApplicantUi(request),
             false,
             programId,
             roApplicantProgramService.getIneligibleQuestions());
+
+    // Placeholder: restored from
+    // https://github.com/civiform/civiform/pull/7965/files?file-filters%5B%5D=.java
+    if (shouldShowNotEligibleBanner(roApplicantProgramService, blockId)) {
+      eligibilityAlertSettings = AlertSettings.empty();
+    }
 
     return ApplicationBaseViewParams.builder()
         .setRequest(request)
@@ -1522,5 +1531,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return Optional.empty();
+  }
+
+  private boolean shouldShowNotEligibleBanner(
+      ReadOnlyApplicantProgramService roApplicantProgramService, String blockId) {
+    return roApplicantProgramService.blockHasEligibilityPredicate(blockId)
+        && roApplicantProgramService.isActiveBlockEligible(blockId);
   }
 }
