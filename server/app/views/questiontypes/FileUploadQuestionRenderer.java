@@ -62,8 +62,6 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
       boolean isOptional) {
     Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
-    boolean canUploadFile =
-        params.multipleFileUploadEnabled() ? fileUploadQuestion.canUploadFile() : true;
 
     return div()
         .with(
@@ -71,8 +69,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withFor(fileInputId)
                 .withClass("sr-only")
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
-        .condWith(
-            canUploadFile,
+        .with(
             applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .condWith(
