@@ -199,7 +199,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
       if (numDuplicateQuestions > 0) {
         alertType = AlertType.WARNING;
-        alertMessage += withDuplicates ? " and" : " to the question bank. ";
+        alertMessage += withDuplicates ? " and " : " to the question bank. ";
       } else if (withDuplicates || numDuplicateQuestions == 0) {
         alertMessage += " to the question bank.";
       }
@@ -221,7 +221,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
   private String addDuplicateMessageToAlert(int numDuplicateQuestions) {
     return String.format(
-        " %s duplicate question%s to the question bank.",
+        "%s duplicate question%s to the question bank.",
         numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
   }
 
