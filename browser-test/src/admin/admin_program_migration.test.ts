@@ -517,7 +517,7 @@ test.describe('program migration', () => {
         downloadedComprehensiveProgram,
       )
       await adminProgramMigration.expectAlert(
-        'There are 16 existing questions that will appear as drafts in the question bank.',
+        'Importing this program will add 1 new question to the question bank. There are 16 existing questions that will appear as drafts in the question bank.',
         ALERT_WARNING,
       )
       await adminProgramMigration.clickButton('Save')
