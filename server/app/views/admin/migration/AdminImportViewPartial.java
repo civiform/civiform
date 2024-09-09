@@ -101,7 +101,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     }
 
     // If there are no questions in the program, the "questions" field will not be included in the
-    // JSON and programMigrationWrapper.getQuestions() will return null
+    // // JSON and questions will be null here
     if (!withDuplicates && questions != null) {
       questionsById =
           questions.stream()
@@ -214,6 +214,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
           alertMessage += " to the question bank. ";
         }
         String areOrIs = numDuplicateQuestions > 1 ? "are " : "is ";
+        String draftOrDrafts = numDuplicateQuestions > 1 ? "drafts" : "draft";
         alertMessage =
             alertMessage.concat(
                 "There "
@@ -221,7 +222,9 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     + numDuplicateQuestions
                     + " existing "
                     + questionOrQuestions
-                    + " that will appear as drafts in the question bank.");
+                    + " that will appear as "
+                    + draftOrDrafts
+                    + " in the question bank.");
       }
     } else if (numNewQuestions > 0) {
       String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";

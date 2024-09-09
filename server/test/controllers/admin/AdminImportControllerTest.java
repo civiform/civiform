@@ -41,6 +41,7 @@ import views.admin.migration.AdminImportViewPartial;
 public class AdminImportControllerTest extends ResetPostgres {
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+  private VersionRepository versionRepository;
   private Database database;
 
   @Before
@@ -58,6 +59,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(QuestionRepository.class),
             instanceOf(ApplicationStatusesRepository.class));
     database = DB.getDefault();
+    versionRepository = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -272,6 +274,52 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_noDuplicatesNotEnabled_draftsExist_noError() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // Create a draft program, so that there are unpublished programs
+    ProgramBuilder.newDraftProgram("draft-program").build();
+
+    // save a program
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    // no error because duplicate questions for migration is not enabled
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Minimal Sample Program");
+    assertThat(contentAsString(result)).contains("minimal-sample-program");
+    assertThat(contentAsString(result)).contains("Screen 1");
+    assertThat(contentAsString(result)).contains("Please enter your first and last name");
+  }
+
+  @Test
+  public void hxImportProgram_noDuplicatesEnabled_draftsExist_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    // Create a draft program, so that there are unpublished programs
+    ProgramBuilder.newDraftProgram("draft-program").build();
+
+    // save a program
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("There are draft programs and questions in our system.");
+    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
+  }
+
+  @Test
   public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -356,6 +404,9 @@ public class AdminImportControllerTest extends ResetPostgres {
             .method("POST")
             .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
             .build());
+
+    // publish the drafts
+    versionRepository.publishNewSynchronizedVersion();
 
     // update the program admin name so we don't receive an error
     String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =

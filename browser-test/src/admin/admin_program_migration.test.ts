@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   seedProgramsAndCategories,
@@ -207,10 +206,6 @@ test.describe('program migration', () => {
     adminProgramMigration,
   }) => {
     await test.step('seed programs', async () => {
-      // Force this to be disabled for the time being. I think it's causing intermittent issues
-      // because the flag may have been enabled in a different run
-      await disableFeatureFlag(page, 'multiple_file_upload_enabled')
-
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
@@ -393,10 +388,6 @@ test.describe('program migration', () => {
     adminProgramMigration,
   }) => {
     await test.step('seed programs', async () => {
-      // Force this to be disabled for the time being. I think it's causing intermittent issues
-      // because the flag may have been enabled in a different run
-      await disableFeatureFlag(page, 'multiple_file_upload_enabled')
-
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
@@ -536,6 +527,32 @@ test.describe('program migration', () => {
         ALERT_SUCCESS,
       )
       await validateScreenshot(page, 'saved-program-success-no-dups')
+    })
+
+    await test.step('attempt to import with existing drafts', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+
+      // Replace the admin name so you don't get an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-new-no-dups',
+      )
+
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+
+      await adminProgramMigration.expectAlert(
+        'There are draft programs and questions in our system.',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('check programs are in draft', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.expectDraftProgram('Comprehensive Sample Program')
+      await adminPrograms.expectDraftProgram('Minimal Sample Program')
     })
 
     await test.step('publish programs', async () => {

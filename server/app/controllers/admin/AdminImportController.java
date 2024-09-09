@@ -144,6 +144,21 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
 
+    boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+
+    // When we are importing without duplicate questions, we expect all drafts to be published
+    // before the import process begins.
+    if (!withDuplicates
+        && versionRepository.getDraftVersion().isPresent()
+        && !versionRepository.getDraftVersion().get().getPrograms().isEmpty()) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "There are draft programs and questions in our system.",
+                  "Please publish all drafts and try again.")
+              .render());
+    }
+
     if (questions == null) {
       return ok(
           adminImportViewPartial
@@ -154,10 +169,11 @@ public class AdminImportController extends CiviFormController {
     // Overwrite the admin names for any questions that already exist in the import environment so
     // we can create new versions of the questions.
     // This creates a map of the old question name -> updated question data
+    // We want to do this even when we don't want to save the updated admin names
+    // so that we can use the count of existing questions in the alert
     ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
         programMigrationService.maybeOverwriteQuestionName(questions);
 
-    boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
     if (withDuplicates) {
       questions = ImmutableList.copyOf(updatedQuestionsMap.values());
     }
