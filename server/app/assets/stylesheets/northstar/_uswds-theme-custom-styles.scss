@@ -233,3 +233,24 @@ main {
   flex-wrap: wrap;
   row-gap: 0.5rem;
 }
+
+.flex-parent {
+  display: flex;
+}
+
+.flex-fill {
+  flex-grow: 1;
+}
+
+.success-state {
+  border-radius: 2px;
+  background: var(--State-tokens-success-success-lighter, #ecf3ec);
+  @include u-padding-y(0.5);
+  @include u-padding-x(1);
+  align-items: center;
+  gap: units(1);
+}
+
+.cf-eligible-tag {
+  @include u-font('sans', 'xs');
+}
