@@ -33,10 +33,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.SelectWithLabel;
 
-/**
- * Renders a page for a developer to seed the database. This is only available in non-prod
- * environments.
- */
+/** Renders a page with various dev tools. This is only available in non-prod environments. */
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
@@ -55,7 +52,7 @@ public class DatabaseSeedView extends BaseHtmlView {
    * Renders a page for a developer to view seeded data. This is only available in non-prod
    * environments.
    */
-  public Content seedDataView(
+  public Content renderSeedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
       ImmutableList<QuestionDefinition> questionDefinitions) {
@@ -244,10 +241,10 @@ public class DatabaseSeedView extends BaseHtmlView {
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
             createLink(
-                "View current pac4j profile",
+                "👤 View current pac4j profile",
                 controllers.dev.routes.ProfileController.index().url()),
             createLink(
-                "View current session data",
+                "📜 View current Play session",
                 controllers.dev.routes.SessionDisplayController.index().url()));
   }
 

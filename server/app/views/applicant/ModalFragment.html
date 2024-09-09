@@ -64,9 +64,10 @@
   <div class="usa-modal__content">
     <div class="usa-modal__main">
       <h2 class="usa-modal__heading" id="debug-content-modal-heading">
-        Debug Tools
+        Dev Tools
       </h2>
       <div class="display-flex flex-column">
+        <p>Log in as:</p>
         <a th:href="${fakeCiviformAdminUrl}" class="usa-button margin-y-2"
           >Civiform Admin</a
         >
@@ -79,6 +80,7 @@
         <a th:href="${fakeTrustedIntermediaryUrl}" class="usa-button margin-y-2"
           >Trusted Intermediary</a
         >
+        <p>Other:</p>
         <a th:href="${additionalToolsUrl}" class="usa-button margin-y-2"
           >Additional tools</a
         >
