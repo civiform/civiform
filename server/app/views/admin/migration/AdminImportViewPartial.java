@@ -194,46 +194,39 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       alertMessage += "Importing this program will add ";
     }
 
+    if (numNewQuestions > 0) {
+      alertMessage += buildAlertWithNewQuestions(numNewQuestions);
+
+      if (numDuplicateQuestions > 0) {
+        alertType = AlertType.WARNING;
+        alertMessage += withDuplicates ? " and" : " to the question bank. ";
+      } else if (withDuplicates || numDuplicateQuestions == 0) {
+        alertMessage += " to the question bank.";
+      }
+    }
     if (numDuplicateQuestions > 0) {
       alertType = AlertType.WARNING;
-      if (numNewQuestions > 0) {
-        String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
-        alertMessage =
-            alertMessage.concat(numNewQuestions + " new " + questionOrQuestions + " and ");
-      }
-      String questionOrQuestions = numDuplicateQuestions == 1 ? "question" : "questions";
       if (withDuplicates) {
-        alertMessage =
-            alertMessage.concat(
-                numDuplicateQuestions
-                    + " duplicate "
-                    + questionOrQuestions
-                    + " to the question bank.");
+        alertMessage += addDuplicateMessageToAlert(numDuplicateQuestions);
       } else {
-        if (numNewQuestions > 0) {
-          alertMessage += " to the question bank. ";
-        }
-        String areOrIs = numDuplicateQuestions > 1 ? "are " : "is ";
-        String draftOrDrafts = numDuplicateQuestions > 1 ? "drafts" : "draft";
-        alertMessage =
-            alertMessage.concat(
-                "There "
-                    + areOrIs
-                    + numDuplicateQuestions
-                    + " existing "
-                    + questionOrQuestions
-                    + " that will appear as "
-                    + draftOrDrafts
-                    + " in the question bank.");
+        alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
       }
-    } else if (numNewQuestions > 0) {
-      String questionOrQuestions = numNewQuestions == 1 ? "question" : "questions";
-      alertMessage =
-          alertMessage.concat(
-              numNewQuestions + " new " + questionOrQuestions + " to the question bank.");
     }
-
     return AlertComponent.renderFullAlert(alertType, alertMessage, Optional.empty(), false, "");
+  }
+
+  private String buildAlertWithNewQuestions(int numNewQuestions) {
+    return String.format("%s new question%s", numNewQuestions, numNewQuestions > 1 ? "s" : "");
+  }
+
+  private String addDuplicateMessageToAlert(int numDuplicateQuestions) {
+    return String.format(" %s duplicate question%s to the question bank.", numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
+  }
+  
+  private String addExistingMessageToAlert(int numExistingQuestions) {
+    boolean plural = numExistingQuestions > 1;
+    String makePlural = plural ? "s" : "";
+    return String.format("There %s %s existing question%s that will appear as draft%s in the question bank.", plural ? "are" : "is", numExistingQuestions, makePlural, makePlural);
   }
 
   private int countDuplicateQuestions(ImmutableMap<String, String> newToOldQuestionNameMap) {
