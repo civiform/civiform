@@ -328,4 +328,36 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     assertThat(result.show()).isEqualTo(isEligibilityGating);
   }
+
+  @Test
+  public void build_expected_eligibility_alert_settings_when_program_is_common_intake()
+      throws ProgramNotFoundException {
+
+    var commonIntakeProgram =
+        ProgramDefinition.builder()
+            .setId(1L)
+            .setAdminName("")
+            .setAdminDescription("")
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .build();
+
+    MessagesApi messagesApiMock = getMessagesApiMock();
+    ProgramService programServiceMock = mock(ProgramService.class);
+    when(programServiceMock.getFullProgramDefinition(any(Long.class)))
+        .thenReturn(commonIntakeProgram);
+
+    EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
+        new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
+
+    AlertSettings result =
+        eligibilityAlertSettingsCalculator.calculate(
+            fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
+
+    assertThat(result.show()).isEqualTo(false);
+  }
 }

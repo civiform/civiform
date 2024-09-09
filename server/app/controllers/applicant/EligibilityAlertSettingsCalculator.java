@@ -28,9 +28,13 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean isEligibilityGating(long programId) {
+  private boolean shouldShowThisProgramDefinition(long programId) {
     try {
-      return programService.getFullProgramDefinition(programId).eligibilityIsGating();
+      var programDefinition = programService.getFullProgramDefinition(programId);
+
+      return programDefinition.eligibilityIsGating()
+          && programDefinition.hasEligibilityEnabled()
+          && !programDefinition.isCommonIntakeForm();
     } catch (ProgramNotFoundException ex) {
       // Checked exceptions are the devil and we've already determined that this program exists by
       // this point
@@ -52,9 +56,7 @@ public final class EligibilityAlertSettingsCalculator {
       ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
-    boolean isEligibilityGating = isEligibilityGating(programId);
-
-    if (!isEligibilityGating) {
+    if (!shouldShowThisProgramDefinition(programId)) {
       return AlertSettings.empty();
     }
 
@@ -80,7 +82,7 @@ public final class EligibilityAlertSettingsCalculator {
             .collect(ImmutableList.toImmutableList());
 
     return new AlertSettings(
-        isEligibilityGating,
+        true,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
         messages.at(triple.textKey.getKeyName()),
         triple.alertType,
