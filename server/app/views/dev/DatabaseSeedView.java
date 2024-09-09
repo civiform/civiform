@@ -109,7 +109,8 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(createCachingSection(request))
                     .with(createIconsSection())
                     .condWith(deploymentType.isDev(), createEmailSection())
-                    .with(createAddressToolsSection()));
+                    .with(createAddressToolsSection())
+                    .with(createSessionToolsSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
@@ -234,6 +235,20 @@ public class DatabaseSeedView extends BaseHtmlView {
             createLink(
                 "\uD83D\uDDFA\uFE0F Go to address tools", // <-- Unicode is a map emoji
                 controllers.dev.routes.AddressCheckerController.index().url()));
+  }
+
+  private SectionTag createSessionToolsSection() {
+    return section()
+        .with(h2("Session Tools"))
+        .with(p("Inspect the current session"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(
+            createLink(
+                "View current pac4j profile",
+                controllers.dev.routes.ProfileController.index().url()),
+            createLink(
+                "View current session data",
+                controllers.dev.routes.SessionDisplayController.index().url()));
   }
 
   private FormTag createForm(Request request, String buttonId, String buttonText, String url) {
