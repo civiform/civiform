@@ -269,8 +269,9 @@ POST    /dev/runDurableJob               controllers.dev.seeding.DevDatabaseSeed
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
 
-# Display user profile
+# Display user profile/session
 GET     /dev/profile                   controllers.dev.ProfileController.index(request: Request)
+GET     /dev/session                   controllers.dev.SessionDisplayController.index(request: Request)
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()
