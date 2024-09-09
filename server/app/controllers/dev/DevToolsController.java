@@ -1,10 +1,11 @@
-package controllers.dev.seeding;
+package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
+import controllers.dev.seeding.DevDatabaseSeedTask;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -30,13 +31,13 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
-import views.dev.DatabaseSeedView;
+import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
-public class DevDatabaseSeedController extends Controller {
+public class DevToolsController extends Controller {
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
-  private final DatabaseSeedView view;
+  private final DevToolsView view;
   private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
@@ -51,9 +52,9 @@ public class DevDatabaseSeedController extends Controller {
   private final Clock clock;
 
   @Inject
-  public DevDatabaseSeedController(
+  public DevToolsController(
       DevDatabaseSeedTask devDatabaseSeedTask,
-      DatabaseSeedView view,
+      DevToolsView view,
       QuestionService questionService,
       ProgramService programService,
       SettingsService settingsService,
@@ -109,7 +110,7 @@ public class DevDatabaseSeedController extends Controller {
 
     devDatabaseSeedTask.seedQuestions();
 
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "Sample questions seeded");
   }
 
@@ -123,7 +124,7 @@ public class DevDatabaseSeedController extends Controller {
     devDatabaseSeedTask.seedProgramCategories();
     devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been seeded");
   }
 
@@ -156,7 +157,7 @@ public class DevDatabaseSeedController extends Controller {
     }
     clearCacheIfEnabled();
     resetTables();
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been cleared");
   }
 
@@ -166,7 +167,7 @@ public class DevDatabaseSeedController extends Controller {
       return notFound();
     }
     if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
-      return redirect(routes.DevDatabaseSeedController.index().url())
+      return redirect(routes.DevToolsController.index().url())
           .flashing(
               "warning",
               "The cache is not enabled, so no cache was cleared. To enable caching, set"

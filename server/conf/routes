@@ -252,17 +252,17 @@ GET     /idcsRegister                controllers.LoginController.register(reques
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
 ## Dev tools
-GET     /dev/seed                                 controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
-GET     /dev/seed/data                            controllers.dev.seeding.DevDatabaseSeedController.data(request: Request)
-POST    /dev/seedQuestions                        controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
-POST    /dev/seedPrograms                         controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
-POST    /dev/seed/clear                           controllers.dev.seeding.DevDatabaseSeedController.clear()
-POST    /dev/seed/clearCache                      controllers.dev.seeding.DevDatabaseSeedController.clearCache()
+GET     /dev/seed                                 controllers.dev.DevToolsController.index(request: Request)
+GET     /dev/seed/data                            controllers.dev.DevToolsController.data(request: Request)
+POST    /dev/seedQuestions                        controllers.dev.DevToolsController.seedQuestions()
+POST    /dev/seedPrograms                         controllers.dev.DevToolsController.seedPrograms()
+POST    /dev/seed/clear                           controllers.dev.DevToolsController.clear()
+POST    /dev/seed/clearCache                      controllers.dev.DevToolsController.clearCache()
 GET     /dev/icons                                controllers.dev.IconsController.index(request: Request)
 GET     /dev/addressChecker                       controllers.dev.AddressCheckerController.index(request: Request)
 POST    /dev/addressChecker/hx/correctAddress     controllers.dev.AddressCheckerController.hxCorrectAddress(request: Request)
 POST    /dev/addressChecker/hx/checkServiceArea   controllers.dev.AddressCheckerController.hxCheckServiceArea(request: Request)
-POST    /dev/runDurableJob                        controllers.dev.seeding.DevDatabaseSeedController.runDurableJob(request: Request)
+POST    /dev/runDurableJob                        controllers.dev.DevToolsController.runDurableJob(request: Request)
 
 # Change feature flags
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
