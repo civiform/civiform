@@ -517,7 +517,7 @@ test.describe('program migration', () => {
     })
 
     await test.step('save the comprehensive sample program', async () => {
-      // Replace a question admin name so can see warning about new and duplicate questions
+      // Replace a question admin name so can see warning about new and existing questions
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'Sample Address Question',
         'Sample Address Question-new-no-dups',
