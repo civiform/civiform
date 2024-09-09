@@ -220,13 +220,17 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   private String addDuplicateMessageToAlert(int numDuplicateQuestions) {
-    return String.format(" %s duplicate question%s to the question bank.", numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
+    return String.format(
+        " %s duplicate question%s to the question bank.",
+        numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
   }
-  
+
   private String addExistingMessageToAlert(int numExistingQuestions) {
     boolean plural = numExistingQuestions > 1;
     String makePlural = plural ? "s" : "";
-    return String.format("There %s %s existing question%s that will appear as draft%s in the question bank.", plural ? "are" : "is", numExistingQuestions, makePlural, makePlural);
+    return String.format(
+        "There %s %s existing question%s that will appear as draft%s in the question bank.",
+        plural ? "are" : "is", numExistingQuestions, makePlural, makePlural);
   }
 
   private int countDuplicateQuestions(ImmutableMap<String, String> newToOldQuestionNameMap) {
