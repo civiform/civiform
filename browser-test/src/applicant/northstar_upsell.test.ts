@@ -118,6 +118,43 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('Page does not show programs the user already applied to', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    // Create a second program for the related programs section
+    await createRelatedProgram(page, adminPrograms)
+
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
+    })
+
+    await applicantQuestions.clickBackToHomepageButton()
+
+    await test.step('Apply to related program', async () => {
+      await applicantQuestions.clickApplyProgramButton(relatedProgramName)
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
+    })
+
+    // The user submitted an application to the first program. Expect to not
+    // see that program again.
+    await expect(
+      page.getByRole('heading', {
+        name: programName,
+      }),
+    ).toBeHidden()
+  })
+
   async function validateApplicationSubmittedPage(
     page: Page,
     expectRelatedProgram: boolean,
