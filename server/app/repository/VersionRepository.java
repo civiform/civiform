@@ -251,7 +251,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersion(existingDraft).stream()
+      getProgramsForVersionWithoutCache(existingDraft).stream()
           .filter(
               program ->
                   !programRepository
@@ -263,7 +263,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersion(existingDraft).stream()
+      getQuestionsForVersionWithoutCache(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(
