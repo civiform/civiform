@@ -1388,8 +1388,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
-
-
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
             request,
