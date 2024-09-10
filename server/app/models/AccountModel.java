@@ -177,14 +177,14 @@ public class AccountModel extends BaseModel {
 
   /**
    * Returns the name, as a string, of the most-recently created Applicant associated with this
-   * Account. There is no particular reason for an Account to have more than one Applicant - this
-   * was a capability we built but did not use - so the ordering is somewhat arbitrary /
-   * unnecessary.
+   * Account. Or the email if no name is associated with the applicant. There is no particular
+   * reason for an Account to have more than one Applicant - this was a capability we built but did
+   * not use - so the ordering is somewhat arbitrary / unnecessary.
    */
-  public String getApplicantName() {
+  public String getApplicantDisplayName() {
     return this.getApplicants().stream()
         .max(Comparator.comparing(ApplicantModel::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
+        .map(u -> u.getApplicantData().getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
 }
