@@ -38,6 +38,7 @@ import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.StoredFileModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -602,7 +603,14 @@ public final class ApplicantService {
 
           CompletableFuture<Void> notifyProgramAdminsFuture =
               CompletableFuture.runAsync(
-                  () -> notifyProgramAdmins(applicantId, programId, application.id, programName),
+                  () -> {
+                    if (programDefinition
+                        .notificationPreferences()
+                        .contains(
+                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS)) {
+                      notifyProgramAdmins(applicantId, programId, application.id, programName);
+                    }
+                  },
                   classLoaderExecutionContext.current());
 
           CompletableFuture<Void> notifyTiSubmitterFuture =

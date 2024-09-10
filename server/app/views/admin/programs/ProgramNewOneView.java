@@ -8,6 +8,7 @@ import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import models.ProgramNotificationPreference;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
@@ -37,7 +38,13 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
   /** Renders the create form. */
   public Content render(Request request) {
-    return render(request, new ProgramForm(), Optional.empty(), Optional.empty());
+    ProgramForm programForm = new ProgramForm();
+    // We set this default here, instead of in the ProgramForm constructor, because otherwise
+    // the setting gets re-enabled when the form is reloaded after an error. This is because
+    // an unset checkbox value is not included in the POST at all, so there's nothing to
+    // override the value the constructor initializes and set it back to an empty array.
+    programForm.setNotificationPreferences(ProgramNotificationPreference.getDefaultsForForm());
+    return render(request, programForm, Optional.empty(), Optional.empty());
   }
 
   /**

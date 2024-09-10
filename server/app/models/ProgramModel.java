@@ -5,11 +5,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -61,6 +63,10 @@ public class ProgramModel extends BaseModel {
 
   /** The program's display mode. */
   @Constraints.Required private String displayMode;
+
+  /** The notification preferences for this program */
+  @Constraints.Required
+  private @DbArray List<ProgramNotificationPreference> notificationPreferences;
 
   // Not required - will be autofilled if not present.
   private String slug;
@@ -166,6 +172,7 @@ public class ProgramModel extends BaseModel {
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.displayMode = definition.displayMode().getValue();
+    this.notificationPreferences = new ArrayList<>(definition.notificationPreferences());
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
@@ -193,6 +200,7 @@ public class ProgramModel extends BaseModel {
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
+      ImmutableList<ProgramNotificationPreference> notificationPreferences,
       ImmutableList<BlockDefinition> blockDefinitions,
       VersionModel associatedVersion,
       ProgramType programType,
@@ -208,6 +216,7 @@ public class ProgramModel extends BaseModel {
         LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
     this.externalLink = externalLink;
     this.displayMode = displayMode;
+    this.notificationPreferences = new ArrayList<>(notificationPreferences);
     this.blockDefinitions = blockDefinitions;
     this.versions.add(associatedVersion);
     this.programType = programType;
@@ -229,6 +238,7 @@ public class ProgramModel extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
+    notificationPreferences = new ArrayList<>(programDefinition.notificationPreferences());
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     acls = programDefinition.acls();
@@ -255,6 +265,7 @@ public class ProgramModel extends BaseModel {
             .setLocalizedDescription(localizedDescription)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setNotificationPreferences(ImmutableList.copyOf(notificationPreferences))
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)

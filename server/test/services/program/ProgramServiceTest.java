@@ -31,6 +31,7 @@ import models.AccountModel;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -250,6 +251,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -257,6 +259,30 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().id()).isNotNull();
+  }
+
+  @Test
+  public void createProgram_setsNotificationPreferences() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "test-program",
+            "description",
+            "name",
+            "description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(
+                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
+            /* eligibilityIsGating= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of());
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().notificationPreferences())
+        .containsExactlyInAnyOrder(
+            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
   }
 
   @Test
@@ -270,6 +296,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -294,6 +321,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of("invalid notification preference"),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -305,7 +333,8 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"));
+            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("One or more notification preferences are invalid"));
   }
 
   @Test
@@ -319,6 +348,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "confirm",
             "https://usa.gov",
             "",
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* tiGroup */ ImmutableList.of(),
@@ -340,6 +370,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         ProgramType.DEFAULT,
         ImmutableList.of(),
@@ -354,6 +385,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -377,6 +409,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -404,6 +437,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
@@ -426,6 +460,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -447,6 +482,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -468,6 +504,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ false,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -488,6 +525,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         ImmutableList.of(),
@@ -501,6 +539,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -521,6 +560,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         ImmutableList.of(),
@@ -539,6 +579,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -560,13 +601,21 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.of(), ImmutableList.of());
+            "",
+            "",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of("invalid notification preference"),
+            ImmutableList.of(),
+            ImmutableList.of());
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"));
+            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("One or more notification preferences are invalid"));
   }
 
   @Test
@@ -583,6 +632,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
             ImmutableList.of());
 
@@ -604,6 +654,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(validCategoryId),
             ImmutableList.of());
 
@@ -620,6 +671,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of());
 
@@ -641,6 +693,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
+            ImmutableList.of(),
             ImmutableList.of());
 
     assertThat(result)
@@ -659,6 +712,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
+            ImmutableList.of(),
             ImmutableList.of());
 
     assertThat(result).isEmpty();
@@ -673,6 +727,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display desc",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of());
 
@@ -689,6 +744,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "display name",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of());
 
@@ -711,6 +767,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
@@ -732,6 +789,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
+            ImmutableList.of(),
             ImmutableList.of());
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
@@ -746,6 +804,8 @@ public class ProgramServiceTest extends ResetPostgres {
             "display description",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(
+                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             ImmutableList.of(),
             ImmutableList.of());
 
@@ -765,6 +825,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
             ImmutableList.of(),
+            ImmutableList.of(),
             ImmutableList.copyOf(tiGroups));
 
     assertThat(result).isEmpty();
@@ -783,6 +844,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     "",
                     "https://usa.gov",
                     DisplayMode.PUBLIC.getValue(),
+                    ImmutableList.of(),
                     /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
                     ImmutableList.of(),
@@ -805,6 +867,8 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(
+                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -819,6 +883,9 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms()).hasSize(1);
     assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
     assertThat(found.lastModifiedTime().isPresent()).isTrue();
+    assertThat(found.notificationPreferences())
+        .containsExactlyInAnyOrder(
+            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
     assertThat(originalProgram.lastModifiedTime().isPresent()).isTrue();
     assertThat(found.lastModifiedTime().get().isAfter(originalProgram.lastModifiedTime().get()))
         .isTrue();
@@ -840,6 +907,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
@@ -865,6 +933,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -892,6 +961,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "custom confirmation screen message",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -914,6 +984,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "french custom confirmation screen message",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -935,6 +1006,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -962,6 +1034,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         ImmutableList.of(),
@@ -982,6 +1055,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -1010,6 +1084,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -1025,6 +1100,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -1045,6 +1121,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -1060,6 +1137,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -1104,6 +1182,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
@@ -1150,6 +1229,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
@@ -1576,6 +1656,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),

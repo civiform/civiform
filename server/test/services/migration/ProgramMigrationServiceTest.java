@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.admin.ProgramMigrationWrapper;
 import models.DisplayMode;
+import models.ProgramNotificationPreference;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -185,5 +186,29 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     String newAdminName = service.maybeGenerateNewAdminName("name-question-1");
     assertThat(newAdminName).isEqualTo("name-question-3");
+  }
+
+  @Test
+  public void prepForExport_clearsNotificationPreferences() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .setNotificationPreferences(
+                ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition output = service.prepForExport(program);
+
+    assertThat(output.notificationPreferences()).isEmpty();
+  }
+
+  @Test
+  public void prepForImport_setNotificationPreferencesToDefaults() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().build().getProgramDefinition();
+
+    ProgramDefinition output = service.prepForImport(program);
+
+    assertThat(output.notificationPreferences())
+        .containsExactlyInAnyOrderElementsOf(ProgramNotificationPreference.getDefaults());
   }
 }

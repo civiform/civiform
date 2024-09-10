@@ -35,6 +35,7 @@ public class VersionModelTest extends ResetPostgres {
             "confirmationMessage",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             /* blockDefinitions= */ ImmutableList.of(),
             version,
             ProgramType.DEFAULT,

@@ -3,6 +3,8 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -30,6 +32,7 @@ import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.QuestionModel;
 import models.StoredFileModel;
 import models.TrustedIntermediaryGroupModel;
@@ -1273,6 +1276,15 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_sendsEmailsWithoutDefaultStatus() {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .setNotificationPreferences(
+                ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
+
     AccountModel admin = resourceCreator.insertAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
     admin.save();
@@ -1349,9 +1361,19 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_sendsEmailsWithDefaultStatus() {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .setNotificationPreferences(
+                ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
+
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
-    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+    repo.createOrUpdateStatusDefinitions(
+        programDefinition.adminName(), new StatusDefinitions(ImmutableList.of(status)));
 
     AccountModel admin = resourceCreator.insertAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
@@ -1519,6 +1541,43 @@ public class ApplicantServiceTest extends ResetPostgres {
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
             "I'm a KOREAN email!\n"
                 + messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
+  }
+
+  @Test
+  public void submitApplication_doesNotSendProgramAdminEmailsWhenPreferenceIsNotSet() {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .setNotificationPreferences(ImmutableList.of())
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
+
+    AccountModel admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    admin.addAdministeredProgram(programDefinition);
+    admin.save();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccountWithEmail("user1@example.com"));
+    applicant.save();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    // Program admin email not sent
+    Mockito.verify(amazonSESClient, Mockito.times(0))
+        .send(eq(ImmutableList.of("admin@example.com")), anyString(), anyString());
   }
 
   @Test

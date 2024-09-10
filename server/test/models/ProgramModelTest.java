@@ -81,6 +81,8 @@ public class ProgramModelTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setNotificationPreferences(
+                ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls(tiOrgList))
@@ -98,6 +100,9 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().notificationPreferences())
+        .containsExactlyInAnyOrder(
+            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
     assertThat(found.getProgramDefinition().localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
     assertThat(found.getProgramDefinition().localizedSummaryImageDescription().get())

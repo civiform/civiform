@@ -9,6 +9,7 @@ import models.CategoryModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
@@ -101,6 +102,7 @@ public class ProgramBuilder {
             "",
             "https://usa.gov",
             displayMode.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
@@ -215,6 +217,7 @@ public class ProgramBuilder {
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
+            /* notificationPreferences */ ImmutableList.of(),
             /* blockDefinitions */ ImmutableList.of(EMPTY_FIRST_BLOCK),
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
@@ -243,6 +246,7 @@ public class ProgramBuilder {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             obsoleteVersion,
             ProgramType.DEFAULT,
@@ -293,6 +297,12 @@ public class ProgramBuilder {
 
   public ProgramBuilder withProgramType(ProgramType programType) {
     builder.setProgramType(programType);
+    return this;
+  }
+
+  public ProgramBuilder setNotificationPreferences(
+      ImmutableList<ProgramNotificationPreference> notificationPreferences) {
+    builder.setNotificationPreferences(notificationPreferences);
     return this;
   }
 

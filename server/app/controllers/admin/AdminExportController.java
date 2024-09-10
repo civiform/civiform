@@ -75,9 +75,6 @@ public class AdminExportController extends CiviFormController {
       return badRequest(String.format("Program with ID %s could not be found", programId));
     }
 
-    // TODO(#7087) migrate program categories
-    program = program.toBuilder().setCategories(ImmutableList.of()).build();
-
     ImmutableList<QuestionDefinition> questionsUsedByProgram =
         program.getQuestionIdsInProgram().stream()
             .map(
@@ -93,7 +90,8 @@ public class AdminExportController extends CiviFormController {
             .collect(ImmutableList.toImmutableList());
 
     ErrorAnd<String, String> serializeResult =
-        programMigrationService.serialize(program, questionsUsedByProgram);
+        programMigrationService.serialize(
+            programMigrationService.prepForExport(program), questionsUsedByProgram);
 
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());

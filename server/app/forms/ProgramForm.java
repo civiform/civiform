@@ -12,6 +12,7 @@ public final class ProgramForm {
   private String localizedConfirmationMessage;
   private String externalLink;
   private String displayMode;
+  private List<String> notificationPreferences;
   private Boolean isCommonIntakeForm;
 
   // Represents whether or not the user has confirmed that they want to change which program is
@@ -29,6 +30,7 @@ public final class ProgramForm {
     localizedConfirmationMessage = "";
     externalLink = "";
     displayMode = "";
+    notificationPreferences = new ArrayList<>();
     isCommonIntakeForm = false;
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
@@ -70,6 +72,14 @@ public final class ProgramForm {
 
   public void setDisplayMode(String displayMode) {
     this.displayMode = displayMode;
+  }
+
+  public List<String> getNotificationPreferences() {
+    return notificationPreferences;
+  }
+
+  public void setNotificationPreferences(List<String> notificationPreferences) {
+    this.notificationPreferences = notificationPreferences;
   }
 
   public String getLocalizedDisplayName() {

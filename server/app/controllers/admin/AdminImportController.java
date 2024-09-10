@@ -129,7 +129,8 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
 
-    ProgramDefinition program = programMigrationWrapper.getProgram();
+    ProgramDefinition program =
+        programMigrationService.prepForImport(programMigrationWrapper.getProgram());
     ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
 
     // Prevent admin from importing a program that already exists in the import environment
