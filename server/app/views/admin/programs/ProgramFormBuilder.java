@@ -13,6 +13,8 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.applicant.routes;
 import forms.ProgramForm;
@@ -21,9 +23,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -82,12 +82,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
-        program.getNotificationPreferences(),
+        ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
         program.getIsCommonIntakeForm(),
         programEditStatus,
-        program.getTiGroups(),
-        program.getCategories());
+        ImmutableSet.copyOf(program.getTiGroups()),
+        ImmutableList.copyOf(program.getCategories()));
   }
 
   /** Builds the form using program definition data. */
@@ -104,12 +104,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.displayMode().getValue(),
         program.notificationPreferences().stream()
             .map(ProgramNotificationPreference::getValue)
-            .toList(),
+            .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
-        new ArrayList<>(program.acls().getTiProgramViewAcls()),
-        program.categories().stream().map(CategoryModel::getId).collect(Collectors.toList()));
+        program.acls().getTiProgramViewAcls(),
+        program.categories().stream()
+            .map(CategoryModel::getId)
+            .collect(ImmutableList.toImmutableList()));
   }
 
   private FormTag buildProgramForm(
@@ -121,12 +123,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String confirmationSceen,
       String displayMode,
-      List<String> notificationPreferences,
+      ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
-      List<Long> selectedTi,
-      List<Long> categories) {
+      ImmutableSet<Long> selectedTi,
+      ImmutableList<Long> categories) {
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -337,7 +339,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .withClasses("mb-2");
   }
 
-  private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
+  private DomContent showTiSelectionList(ImmutableSet<Long> selectedTi, boolean selectTiChecked) {
     List<TrustedIntermediaryGroupModel> tiGroups =
         accountRepository.listTrustedIntermediaryGroups();
     DivTag tiSelectionRenderer =
