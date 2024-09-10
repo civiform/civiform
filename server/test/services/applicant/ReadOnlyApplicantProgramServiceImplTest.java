@@ -1102,8 +1102,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
 
+  @Parameters({"true", "false"})
   @Test
-  public void getSummaryDataOnlyActive_returnsCompletedData() {
+  public void getSummaryDataOnlyActive_returnsCompletedData(boolean multipleFilesEnabled) {
     // Create a program with lots of questions
     QuestionDefinition singleSelectQuestionDefinition =
         testQuestionBank.radioApplicantFavoriteSeason().getQuestionDefinition();
@@ -1152,10 +1153,18 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
         1,
         2L);
-    QuestionAnswerer.answerFileQuestion(
-        applicantData,
-        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        "file-key");
+    if (multipleFilesEnabled) {
+      QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+          applicantData,
+          ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+          ImmutableList.of("file-key-1", "file-key-2"));
+    } else {
+      QuestionAnswerer.answerFileQuestion(
+          applicantData,
+          ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+          "file-key");
+    }
+
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -1206,15 +1215,33 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
-    assertThat(result.get(5).scalarAnswersInDefaultLocale())
-        .containsExactly(
-            new AbstractMap.SimpleEntry<>(
-                ApplicantData.APPLICANT_PATH
-                    .join(fileQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.FILE_KEY),
-                String.format(
-                    "%s/admin/programs/%d/files/%s",
-                    FAKE_BASE_URL, programDefinition.id(), "file-key")));
+    if (multipleFilesEnabled) {
+      String file1Url =
+          String.format(
+              "%s/admin/programs/%d/files/%s", FAKE_BASE_URL, programDefinition.id(), "file-key-1");
+      String file2Url =
+          String.format(
+              "%s/admin/programs/%d/files/%s", FAKE_BASE_URL, programDefinition.id(), "file-key-2");
+
+      assertThat(result.get(5).scalarAnswersInDefaultLocale())
+          .containsExactly(
+              new AbstractMap.SimpleEntry<>(
+                  ApplicantData.APPLICANT_PATH
+                      .join(fileQuestionDefinition.getQuestionPathSegment())
+                      .join(Scalar.FILE_KEY),
+                  String.format("[%s, %s]", file1Url, file2Url)));
+
+    } else {
+      assertThat(result.get(5).scalarAnswersInDefaultLocale())
+          .containsExactly(
+              new AbstractMap.SimpleEntry<>(
+                  ApplicantData.APPLICANT_PATH
+                      .join(fileQuestionDefinition.getQuestionPathSegment())
+                      .join(Scalar.FILE_KEY),
+                  String.format(
+                      "%s/admin/programs/%d/files/%s",
+                      FAKE_BASE_URL, programDefinition.id(), "file-key")));
+    }
 
     // Check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);

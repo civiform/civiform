@@ -592,19 +592,33 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                         selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
-        return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.FILE_KEY),
-            question
-                .createFileUploadQuestion()
-                .getFileKeyValue()
-                .map(
-                    fileKey ->
-                        baseUrl
-                            + controllers.routes.FileController.adminShow(
-                                    programDefinition.id(),
-                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                                .url())
-                .orElse(""));
+        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+        if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
+          return ImmutableMap.of(
+              question.getContextualizedPath().join(Scalar.FILE_KEY),
+              fileUploadQuestion.getFileKeyListValue().orElse(ImmutableList.of()).stream()
+                  .map(
+                      fileKey ->
+                          baseUrl
+                              + controllers.routes.FileController.adminShow(
+                                      programDefinition.id(),
+                                      URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                                  .url())
+                  .collect(Collectors.joining(", ", "[", "]")));
+        } else {
+          return ImmutableMap.of(
+              question.getContextualizedPath().join(Scalar.FILE_KEY),
+              fileUploadQuestion
+                  .getFileKeyValue()
+                  .map(
+                      fileKey ->
+                          baseUrl
+                              + controllers.routes.FileController.adminShow(
+                                      programDefinition.id(),
+                                      URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                                  .url())
+                  .orElse(""));
+        }
       case ENUMERATOR:
         return ImmutableMap.of(
             question.getContextualizedPath(),
