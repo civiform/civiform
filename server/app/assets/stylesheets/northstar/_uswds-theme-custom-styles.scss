@@ -30,8 +30,18 @@ See the radio-option below as an example.
   font-weight: font-weight('bold');
 }
 
-.cf-radio-option:focus-within {
+/* Rather than having a focus outline around the checkbox or radio button,
+it is around the label */
+.usa-checkbox__input:focus + [class*='__label']::before,
+.usa-radio__input:focus + [class*='__label']::before {
+  outline: none;
+}
+
+.cf-radio-option:focus-within,
+.usa-checkbox__input:focus + [class*='__label'],
+.usa-radio__input:focus + [class*='__label'] {
   @include u-border('blue-40v');
+  @include u-border('05');
 }
 
 /*
