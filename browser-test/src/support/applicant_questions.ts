@@ -835,4 +835,10 @@ export class ApplicantQuestions {
       this.page.getByRole('heading', {name: 'may be eligible'}),
     ).not.toBeAttached()
   }
+
+  async expectMayNotBeEligibleAlertToBeHidden() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may not be eligible'}),
+    ).not.toBeAttached()
+  }
 }

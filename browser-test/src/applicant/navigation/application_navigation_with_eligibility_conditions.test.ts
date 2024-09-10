@@ -332,6 +332,14 @@ test.describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
+
+      // Verify eligibility banner shows on pages
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+      await applicantQuestions.clickNext()
+
     })
 
     test('does not show not eligible with nongating eligibility', async ({
@@ -351,18 +359,21 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application without submitting.
+      await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickNext()
+      await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
 
       // Verify that there's no indication of eligibility.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
 
-      // Go back to in progress application and submit.
+      // Go back to in progress application and validate no eligibility alert and submit.
       await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, '')
+      await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
