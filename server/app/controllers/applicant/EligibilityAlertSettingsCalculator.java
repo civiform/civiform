@@ -27,17 +27,6 @@ public final class EligibilityAlertSettingsCalculator {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean isEligibilityGating(long programId) {
-    try {
-      return programService.getFullProgramDefinition(programId).eligibilityIsGating();
-    } catch (ProgramNotFoundException ex) {
-      // Checked exceptions are the devil and we've already determined that this program exists by
-      // this point
-      throw new RuntimeException("Could not find program.", ex);
-    }
-  }
-
   /**
    * questions: List of questions that the applicant answered that may make the applicant
    * ineligible. The list may be empty.
@@ -52,9 +41,7 @@ public final class EligibilityAlertSettingsCalculator {
       ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
-    boolean isEligibilityGating = isEligibilityGating(programId);
-
-    if (!isEligibilityGating) {
+    if (!canShowEligibilitySettings(programId)) {
       return AlertSettings.empty();
     }
 
@@ -80,7 +67,7 @@ public final class EligibilityAlertSettingsCalculator {
             .collect(ImmutableList.toImmutableList());
 
     return new AlertSettings(
-        isEligibilityGating,
+        true,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
         messages.at(triple.textKey.getKeyName()),
         triple.alertType,
@@ -168,4 +155,20 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
+
+  /**
+   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
+   * otherwise.
+   */
+  private boolean canShowEligibilitySettings(long programId) {
+    try {
+      var programDefinition = programService.getFullProgramDefinition(programId);
+
+      return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
+    } catch (ProgramNotFoundException ex) {
+      // Checked exceptions are the devil and we've already determined that this program exists by
+      // this point
+      throw new RuntimeException("Could not find program.", ex);
+    }
+  }
 }

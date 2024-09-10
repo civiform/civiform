@@ -24,12 +24,22 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
+import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
+import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 
 @RunWith(JUnitParamsRunner.class)
 public class EligibilityAlertSettingsCalculatorTest {
@@ -100,18 +110,39 @@ public class EligibilityAlertSettingsCalculatorTest {
     return play.test.Helpers.stubMessagesApi(langMap, langs);
   }
 
-  private ProgramDefinition createProgramDefinition(boolean isEligibilityGating) {
-    return ProgramDefinition.builder()
-        .setId(1L)
-        .setAdminName("")
-        .setAdminDescription("")
-        .setExternalLink("")
-        .setDisplayMode(DisplayMode.PUBLIC)
-        .setProgramType(ProgramType.DEFAULT)
-        .setEligibilityIsGating(isEligibilityGating)
-        .setAcls(new ProgramAcls())
-        .setCategories(ImmutableList.of())
-        .build();
+  private ProgramDefinition createProgramDefinition(boolean hasEligibilityEnabled) {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder().setPredicate(predicate).build();
+    BlockDefinition.Builder blockBuilder =
+        BlockDefinition.builder()
+            .setId(1)
+            .setName("Screen 1")
+            .setDescription("Screen 1 description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"));
+    if (hasEligibilityEnabled) {
+      blockBuilder.setEligibilityDefinition(eligibility);
+    }
+    ProgramDefinition programDef =
+        ProgramDefinition.builder()
+            .setId(1L)
+            .setAdminName("")
+            .setAdminDescription("")
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
+            .setBlockDefinitions(ImmutableList.of(blockBuilder.build()))
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .build();
+    return programDef;
   }
 
   private Http.Request createFakeRequest(boolean isFastForwarded) {
@@ -253,14 +284,14 @@ public class EligibilityAlertSettingsCalculatorTest {
 
   @Test
   @Parameters(method = "getTestData")
-  public void build_expected_eligibility_alert_settings_when_gating_is_on(ParamValue value)
+  public void build_expected_eligibility_alert_settings_when_eligibility_enabled(ParamValue value)
       throws ProgramNotFoundException {
-    boolean isEligibilityGating = true;
+    boolean isEligibilityEnabled = true;
 
     MessagesApi messagesApiMock = getMessagesApiMock();
     ProgramService programServiceMock = mock(ProgramService.class);
     when(programServiceMock.getFullProgramDefinition(any(Long.class)))
-        .thenReturn(createProgramDefinition(isEligibilityGating));
+        .thenReturn(createProgramDefinition(isEligibilityEnabled));
 
     EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
         new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
@@ -277,7 +308,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             1L,
             ImmutableList.of());
 
-    assertThat(result.show()).isEqualTo(isEligibilityGating);
+    assertThat(result.show()).isEqualTo(isEligibilityEnabled);
     assertThat(result.alertType()).isEqualTo(value.expectedAlertType);
     assertThat(result.title().get()).isEqualTo(value.expectedTitle);
     assertThat(result.text()).isEqualTo(value.expectedText);
@@ -285,12 +316,12 @@ public class EligibilityAlertSettingsCalculatorTest {
 
   @Test
   public void formats_questions() throws ProgramNotFoundException {
-    boolean isEligibilityGating = true;
+    boolean isEligibilityEnabled = true;
 
     MessagesApi messagesApiMock = getMessagesApiMock();
     ProgramService programServiceMock = mock(ProgramService.class);
     when(programServiceMock.getFullProgramDefinition(any(Long.class)))
-        .thenReturn(createProgramDefinition(isEligibilityGating));
+        .thenReturn(createProgramDefinition(isEligibilityEnabled));
 
     EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
         new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
@@ -310,14 +341,14 @@ public class EligibilityAlertSettingsCalculatorTest {
   }
 
   @Test
-  public void build_expected_eligibility_alert_settings_when_gating_is_off()
+  public void build_expected_eligibility_alert_settings_when_eligibility_disabled()
       throws ProgramNotFoundException {
-    boolean isEligibilityGating = false;
+    boolean isEligibilityEnabled = false;
 
     MessagesApi messagesApiMock = getMessagesApiMock();
     ProgramService programServiceMock = mock(ProgramService.class);
     when(programServiceMock.getFullProgramDefinition(any(Long.class)))
-        .thenReturn(createProgramDefinition(isEligibilityGating));
+        .thenReturn(createProgramDefinition(isEligibilityEnabled));
 
     EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
         new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
@@ -326,6 +357,38 @@ public class EligibilityAlertSettingsCalculatorTest {
         eligibilityAlertSettingsCalculator.calculate(
             fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
 
-    assertThat(result.show()).isEqualTo(isEligibilityGating);
+    assertThat(result.show()).isEqualTo(isEligibilityEnabled);
+  }
+
+  @Test
+  public void build_expected_eligibility_alert_settings_when_program_is_common_intake()
+      throws ProgramNotFoundException {
+
+    var commonIntakeProgram =
+        ProgramDefinition.builder()
+            .setId(1L)
+            .setAdminName("")
+            .setAdminDescription("")
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .build();
+
+    MessagesApi messagesApiMock = getMessagesApiMock();
+    ProgramService programServiceMock = mock(ProgramService.class);
+    when(programServiceMock.getFullProgramDefinition(any(Long.class)))
+        .thenReturn(commonIntakeProgram);
+
+    EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
+        new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
+
+    AlertSettings result =
+        eligibilityAlertSettingsCalculator.calculate(
+            fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
+
+    assertThat(result.show()).isEqualTo(false);
   }
 }
