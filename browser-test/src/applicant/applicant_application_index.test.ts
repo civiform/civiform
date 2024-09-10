@@ -536,7 +536,9 @@ test.describe('applicant program index page', () => {
 
         await test.step('Verify that login dialog does not appear a second time', async () => {
           // Close the modal and click Apply again. This time, we should not see the login prompt modal.
-          await page.click(`.cf-ns-modal .usa-modal__close`)
+          await page
+            .getByRole('button', {class: 'usa-modal__close', isVisible: true})
+            .click()
           await page.click(
             `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
           )
