@@ -57,16 +57,16 @@ export class ApplicantFileQuestion {
     expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(0)
   }
 
-  async expectHasFileInput() {
+  async expectFileInputEnabled() {
     await expect(
-      this.page.getByText('Drag file here or choose from folder'),
-    ).toHaveCount(1)
+      this.page.getByLabel('Drag file here or choose from folder'),
+    ).toBeEnabled()
   }
 
-  async expectNoFileInput() {
+  async expectFileInputDisabled() {
     await expect(
-      this.page.getByText('Drag file here or choose from folder'),
-    ).toHaveCount(0)
+      this.page.getByLabel('Drag file here or choose from folder'),
+    ).toBeDisabled()
   }
 
   async clickSkip() {

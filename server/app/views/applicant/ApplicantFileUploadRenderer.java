@@ -27,6 +27,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Optional;
+import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
@@ -144,6 +145,22 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return result.withData("uploaded-files", uploadedFileNames.toString());
   }
 
+  private String getFileInputHint(
+      FileUploadQuestion question, ApplicantQuestionRendererParams params) {
+    OptionalInt maxFiles = question.getQuestionDefinition().getMaxFiles();
+
+    if (maxFiles.isPresent()) {
+      if (maxFiles.getAsInt() == 1) {
+        return params.messages().at(MessageKey.INPUT_SINGLE_FILE_UPLOAD_HINT.getKeyName());
+      } else {
+        return params
+            .messages()
+            .at(MessageKey.INPUT_MULTIPLE_FILE_UPLOAD_HINT.getKeyName(), maxFiles.getAsInt());
+      }
+    }
+    return params.messages().at(MessageKey.INPUT_UNLIMITED_FILE_UPLOAD_HINT.getKeyName());
+  }
+
   /**
    * Method to generate the field tags for the file upload view form.
    *
@@ -168,9 +185,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
           FileUploadViewStrategy.createUswdsFileInputFormElement(
               fileInputId,
               MIME_TYPES_IMAGES_AND_PDF,
-              ImmutableList.of(
-                  params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName())),
-              /* disabled= */ false,
+              ImmutableList.of(getFileInputHint(fileUploadQuestion, params)),
+              /* disabled= */ !fileUploadQuestion.canUploadFile(),
               applicantStorageClient.getFileLimitMb(),
               params.messages()));
     } else {

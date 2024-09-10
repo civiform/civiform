@@ -272,7 +272,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await test.step('Adding maximum files hides file input', async () => {
+      await test.step('Adding maximum files disables file input', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
         )
@@ -283,12 +283,84 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
-        await applicantFileQuestion.expectNoFileInput()
+        await applicantFileQuestion.expectFileInputDisabled()
       })
 
       await test.step('Removing a file shows file input again', async () => {
         await applicantFileQuestion.removeFileUpload('file-upload.png')
-        await applicantFileQuestion.expectHasFileInput()
+        await applicantFileQuestion.expectFileInputEnabled()
+      })
+    })
+
+    test('shows correct hint text based on max files', async ({
+      applicantQuestions,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+
+      await test.step('Add file upload questions and publish', async () => {
+        await loginAsAdmin(page)
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-no-limit',
+          questionText: fileUploadQuestionText,
+        })
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-limit',
+          questionText: fileUploadQuestionText,
+          maxFiles: 1,
+        })
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'second-file-upload-limit',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
+        })
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          description: 'File upload no limit',
+          questions: [{name: 'file-upload-no-limit', isOptional: true}],
+        })
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          description: 'File upload with limit 1',
+          questions: [{name: 'file-upload-limit', isOptional: true}],
+        })
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          description: 'File upload with limit 2',
+          questions: [{name: 'second-file-upload-limit', isOptional: true}],
+        })
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Check that text is correct for file upload with no limit set', async () => {
+        await expect(
+          page.getByText('Select one or more files', {exact: true}),
+        ).toBeVisible()
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('Check that text is correct for file upload with a max of 1 file set', async () => {
+        await expect(
+          page.getByText('Select a file', {exact: true}),
+        ).toBeVisible()
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('Check that text is correct for file upload with a max above 1 set', async () => {
+        await expect(
+          page.getByText('Select one or more files (maximum of 2)', {
+            exact: true,
+          }),
+        ).toBeVisible()
       })
     })
   })

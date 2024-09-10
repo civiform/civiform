@@ -130,9 +130,9 @@ public final class UpsellController extends CiviFormController {
             isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
-              if (!settingsManifest.getNorthStarApplicantUi(request) && !isCommonIntake.join()) {
-                // Pre-North Star, only the common intake form needs to get the applicant's
-                // eligible programs.
+              if (!isCommonIntake.join()) {
+                // Only the common intake form needs to get the applicant's eligible
+                // programs this way.
                 Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
                 return CompletableFuture.completedFuture(result);
               }
@@ -145,15 +145,7 @@ public final class UpsellController extends CiviFormController {
                           applicantService.maybeEligibleProgramsForApplicant(
                               applicantId, profile, request),
                       classLoaderExecutionContext.current())
-                  .thenApplyAsync(
-                      eligiblePrograms -> {
-                        // Don't show the program that the user just finished applying to
-                        ImmutableList<ApplicantProgramData> filteredPrograms =
-                            eligiblePrograms.stream()
-                                .filter(programData -> programData.programId() != programId)
-                                .collect(ImmutableList.toImmutableList());
-                        return Optional.of(filteredPrograms);
-                      });
+                  .thenApplyAsync(Optional::of);
             })
         .thenApplyAsync(
             maybeEligiblePrograms -> {
@@ -181,11 +173,13 @@ public final class UpsellController extends CiviFormController {
                         .setCustomConfirmationMessage(
                             roApplicantProgramService.join().getCustomConfirmationMessage())
                         .setApplicantId(applicantId)
-                        .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
                         .setDateSubmitted(formattedDate);
 
                 if (isCommonIntake.join()) {
-                  UpsellParams upsellParams = paramsBuilder.build();
+                  UpsellParams upsellParams =
+                      paramsBuilder
+                          .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                          .build();
                   return ok(northStarCommonIntakeUpsellView.render(upsellParams))
                       .as(Http.MimeTypes.HTML);
                 } else {
@@ -194,6 +188,8 @@ public final class UpsellController extends CiviFormController {
                           .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
                           .setProgramDescription(
                               roApplicantProgramService.join().getProgramDescription())
+                          .setEligiblePrograms(
+                              relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
                           .build();
                   return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
                 }

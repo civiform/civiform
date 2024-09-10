@@ -52,11 +52,7 @@ public final class DebugContent extends BaseHtmlView {
             redirectButton(
                 "additional-tools",
                 "Additional tools",
-                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()),
-            redirectButton(
-                "show-profile",
-                "Show pac4j profile",
-                controllers.dev.routes.ProfileController.index().url()));
+                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {

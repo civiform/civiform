@@ -136,8 +136,6 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl",
           controllers.dev.seeding.routes.DevDatabaseSeedController.index().url());
-      context.setVariable(
-          "pac4jProfileUrl", controllers.dev.routes.ProfileController.index().url());
     }
     return context;
   }
