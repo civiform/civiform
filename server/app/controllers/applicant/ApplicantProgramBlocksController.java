@@ -1398,7 +1398,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             programId,
             roApplicantProgramService.getIneligibleQuestions());
 
-    if (!roApplicantProgramService.hasAnsweredEligibilityQuestions() || roApplicantProgramService.notEligibleWithGatingEligibility()) {
+    if (!roApplicantProgramService.hasAnsweredEligibilityQuestions()
+        || roApplicantProgramService.notEligibleWithGatingEligibility()) {
       eligibilityAlertSettings = AlertSettings.empty();
     }
 
