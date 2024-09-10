@@ -19,6 +19,10 @@ public final class SelectWithLabel extends FieldWithLabel {
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
   private boolean placeholderVisible = false;
 
+  public static SelectWithLabel select() {
+    return new SelectWithLabel();
+  }
+
   @Override
   public SelectWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);

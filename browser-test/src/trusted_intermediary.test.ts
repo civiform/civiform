@@ -1312,21 +1312,32 @@ test.describe('Trusted intermediaries', () => {
 
     test('TI is able to fill out name suffix info for the applicant', async ({
       page,
-      tiDashboard
+      tiDashboard,
     }) => {
       await loginAsTrustedIntermediary(page)
+      const client: ClientInformation = {
+        emailAddress: 'test@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        nameSuffix: 'II',
+        dobDate: '1995-06-10',
+      }
 
-      await test.step(`suffix shows up on TI dashboard when adding new client`, async () => {
-        await tiDashboard.gotoTIDashboardPage(page)
-        await page.getByRole('link', {name: 'Add new client'}).click()
+      await test.step('adds an applicant with name suffix', async () => {
+        await tiDashboard.createClient(client)
+        await waitForPageJsLoad(page)
+        await page.click('#ti-dashboard-link')
         await waitForPageJsLoad(page)
 
-        await expect(page.getByLabel('Suffix')).toBeVisible()
+        await tiDashboard.expectDashboardContainClient(client)
       })
 
-      await test.step(`TI selects name suffix for the applicant`, async () => {
-        await page.selectOption('#name-suffix-select', 'I')
-        await expect(page.getByLabel('Suffix')).toHaveValue('I')
+      await test.step('name suffix field is filled with preset value', async () => {
+        await page.click('#edit-client')
+        await waitForPageJsLoad(page)
+
+        await expect(page.getByLabel('Suffix')).toHaveValue('II')
       })
     })
   })

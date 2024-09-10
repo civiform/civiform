@@ -249,20 +249,27 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
             messages);
 
     SelectWithLabel nameSuffixField =
-        new SelectWithLabel()
-            .setId("name-suffix-select")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
-            .setFieldName("nameSuffix")
-            .setPlaceholderText("")
-            .setOptions(
-                Stream.of(ApplicantModel.Suffix.values())
-                    .map(
-                        option ->
-                            SelectWithLabel.OptionValue.builder()
-                                .setLabel(option.getValue().toString())
-                                .setValue(option.toString())
-                                .build())
-                    .collect(ImmutableList.toImmutableList()));
+        setStateIfPresent(
+            SelectWithLabel.select()
+                .setId("name-suffix-select")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
+                .setFieldName("nameSuffix")
+                .setValue(
+                    setDefaultNameSuffix(optionalApplicantData).isEmpty()
+                        ? ""
+                        : setDefaultNameSuffix(optionalApplicantData).get())
+                .setOptions(
+                    Stream.of(ApplicantModel.Suffix.values())
+                        .map(
+                            option ->
+                                SelectWithLabel.OptionValue.builder()
+                                    .setLabel(option.getValue().toString())
+                                    .setValue(option.toString())
+                                    .build())
+                        .collect(ImmutableList.toImmutableList())),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX,
+            messages);
 
     FieldWithLabel phoneNumberField =
         setStateIfPresent(
@@ -374,6 +381,12 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     return optionalAccount.isPresent() ? optionalAccount.get().getTiNote() : "";
   }
 
+  private Optional<String> setDefaultNameSuffix(Optional<ApplicantData> optionalApplicantData) {
+    return optionalApplicantData.isPresent()
+        ? optionalApplicantData.get().getApplicantNameSuffix()
+        : Optional.empty();
+  }
+
   private Optional<String> setDefaultMiddleName(Optional<ApplicantData> optionalApplicantData) {
     return optionalApplicantData.isPresent()
         ? optionalApplicantData.get().getApplicantMiddleName()
@@ -390,6 +403,28 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     return optionalApplicantData.isPresent()
         ? optionalApplicantData.get().getApplicantFirstName()
         : Optional.empty();
+  }
+
+  private SelectWithLabel setStateIfPresent(
+      SelectWithLabel select,
+      Optional<Form<TiClientInfoForm>> optionalForm,
+      String key,
+      Messages messages) {
+    if (optionalForm.isEmpty()) {
+      return select;
+    }
+
+    TiClientInfoForm form = optionalForm.get().value().get();
+    switch (key) {
+      case TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX:
+        select.setValue(form.getNameSuffix());
+        break;
+    }
+
+    if (optionalForm.get().error(key).isPresent()) {
+      select.setFieldErrors(messages, optionalForm.get().errors(key));
+    }
+    return select;
   }
 
   private FieldWithLabel setStateIfPresent(

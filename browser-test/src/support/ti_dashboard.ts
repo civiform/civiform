@@ -35,6 +35,12 @@ export class TIDashboard {
     await this.page.fill('#first-name-input', client.firstName)
     await this.page.fill('#middle-name-input', client.middleName)
     await this.page.fill('#last-name-input', client.lastName)
+    if (client.nameSuffix != undefined) {
+      await this.page.selectOption(
+        '#name-suffix-select',
+        client.nameSuffix.toString(),
+      )
+    }
     await this.page.fill('#date-of-birth-input', client.dobDate)
     if (client.notes != undefined) {
       await this.page.fill('#ti-note-input', client.notes)
@@ -288,6 +294,7 @@ export interface ClientInformation {
   firstName: string
   middleName: string
   lastName: string
+  nameSuffix?: string
   dobDate: string
   phoneNumber?: string
   notes?: string

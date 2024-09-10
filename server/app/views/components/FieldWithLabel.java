@@ -698,11 +698,9 @@ public class FieldWithLabel {
     boolean isSelectTag = fieldTag instanceof SelectTag;
     boolean hasFieldErrors = hasFieldErrors();
     if (isTagTypeTextarea()) {
-      System.out.println("hi from isTagTypeTextarea");
       return hasFieldErrors ? "usa-textarea usa-input--error" : "usa-textarea";
     }
     if (isSelectTag) {
-      System.out.println("hi from selecttag");
       return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : "usa-select";
     } else {
       return hasFieldErrors ? "usa-input usa-input--error" : "usa-input";
@@ -808,7 +806,7 @@ public class FieldWithLabel {
         .withText(this.labelText);
   }
 
-  private FieldWithLabel setTagTypeInput() {
+  protected FieldWithLabel setTagTypeInput() {
     tagType = "input";
     return this;
   }
