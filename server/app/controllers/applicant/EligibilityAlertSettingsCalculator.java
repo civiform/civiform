@@ -12,6 +12,7 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -27,19 +28,41 @@ public final class EligibilityAlertSettingsCalculator {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean shouldShowThisProgramDefinition(long programId) {
+  /**
+   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
+   * otherwise.
+   */
+  public boolean canShowEligibilitySettings(long programId) {
     try {
       var programDefinition = programService.getFullProgramDefinition(programId);
 
-      return programDefinition.eligibilityIsGating()
-          && programDefinition.hasEligibilityEnabled()
-          && !programDefinition.isCommonIntakeForm();
+      return programDefinition.hasEligibilityEnabled() && !programDefinition.isCommonIntakeForm();
     } catch (ProgramNotFoundException ex) {
       // Checked exceptions are the devil and we've already determined that this program exists by
       // this point
       throw new RuntimeException("Could not find program.", ex);
     }
+  }
+
+  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
+  public boolean shouldShowNotEligibleBanner(
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
+    try {
+      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
+        return false;
+      }
+    } catch (ProgramNotFoundException ex) {
+      return false;
+    }
+
+    return roApplicantProgramService.isApplicationEligible();
+  }
+
+  /** Returns true if the eligibility banner should be hidden. */
+  public boolean shouldHideEligibilityBanner(
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
+    return !roApplicantProgramService.hasAnsweredEligibilityQuestions()
+        || !shouldShowNotEligibleBanner(roApplicantProgramService, programId);
   }
 
   /**
@@ -56,7 +79,7 @@ public final class EligibilityAlertSettingsCalculator {
       ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
-    if (!shouldShowThisProgramDefinition(programId)) {
+    if (!canShowEligibilitySettings(programId)) {
       return AlertSettings.empty();
     }
 

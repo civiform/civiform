@@ -68,6 +68,9 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
+  /** Returns whether the applicant has answered any eligibility questions in the program. */
+  boolean hasAnsweredEligibilityQuestions();
+
   /**
    * Get a list of questions that the applicant is currently not eligible for based on their answers
    * from active blocks in the program.

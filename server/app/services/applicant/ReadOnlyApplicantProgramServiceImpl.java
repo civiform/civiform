@@ -210,6 +210,27 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public boolean hasAnsweredEligibilityQuestions() {
+    return getAllActiveBlocks().stream()
+        .filter(b -> b.answeredQuestionsCount() > 0)
+        .anyMatch(
+            block -> {
+              if (block.getEligibilityDefinition().isPresent()) {
+                return block.getEligibilityDefinition().get().predicate().getQuestions().stream()
+                    .anyMatch(
+                        question -> {
+                          try {
+                            return block.getQuestion(question.longValue()).isAnswered();
+                          } catch (QuestionNotFoundException e) {
+                            throw new RuntimeException(e);
+                          }
+                        });
+              }
+              return false;
+            });
+  }
+
+  @Override
   public ImmutableList<ApplicantQuestion> getIneligibleQuestions() {
     ImmutableList<Block> blocks = getAllActiveBlocks();
     List<ApplicantQuestion> questionList = new ArrayList<>();

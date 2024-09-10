@@ -150,9 +150,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       programId,
                       roApplicantProgramService.getIneligibleQuestions());
 
-              // Placeholder: restored from
-              // https://github.com/civiform/civiform/pull/7965/files?file-filters%5B%5D=.java
-              if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
+              if (eligibilityAlertSettingsCalculator.shouldHideEligibilityBanner(
+                  roApplicantProgramService, programId)) {
                 eligibilityAlertSettings = AlertSettings.empty();
               }
 
@@ -496,19 +495,5 @@ public class ApplicantProgramReviewController extends CiviFormController {
     }
 
     return Optional.empty();
-  }
-
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  private boolean shouldShowNotEligibleBanner(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
-    try {
-      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
-        return false;
-      }
-    } catch (ProgramNotFoundException ex) {
-      return false;
-    }
-
-    return roApplicantProgramService.isApplicationEligible();
   }
 }
