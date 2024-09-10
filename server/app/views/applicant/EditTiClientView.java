@@ -29,6 +29,7 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
+import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
 import views.AlertComponent;
 import views.ApplicationBaseView;
@@ -43,16 +44,19 @@ import views.style.BaseStyles;
 public class EditTiClientView extends TrustedIntermediaryDashboardView {
   private final DateConverter dateConverter;
   private AccountRepository accountRepository;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public EditTiClientView(
       ApplicantLayout layout,
       DateConverter dateConverter,
       Config configuration,
-      AccountRepository accountRepository) {
+      AccountRepository accountRepository,
+      SettingsManifest settingsManifest) {
     super(configuration, layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -194,6 +198,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       Messages messages) {
     Optional<ApplicantData> optionalApplicantData = Optional.empty();
     FormTag formTag;
+    Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled(request);
     if (optionalAccount.isPresent()) {
       optionalApplicantData =
           Optional.of(optionalAccount.get().newestApplicant().get().getApplicantData());
@@ -335,26 +340,36 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    return div()
-        .with(
-            formTag
-                .with(
-                    firstNameField.getUSWDSInputTag(),
-                    middleNameField.getUSWDSInputTag(),
-                    lastNameField.getUSWDSInputTag(),
-                    nameSuffixField.getUSWDSSelectTag(),
-                    phoneNumberField.getUSWDSInputTag(),
-                    emailField.getUSWDSInputTag(),
-                    dateOfBirthField.getUSWDSInputTag(),
-                    tiNoteField.getUSWDSTextareaTag(),
-                    makeCsrfTokenInputTag(request),
-                    submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
-                        .withClasses("usa-button"),
-                    asRedirectElement(
-                        button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-                            .withClasses("usa-button usa-button--outline", "m-2"),
-                        cancelUrl))
-                .withClasses("w-1/2", "mt-6"));
+
+    ImmutableList<Tag> nameTags =
+        ImmutableList.of(
+            firstNameField.getUSWDSInputTag(),
+            middleNameField.getUSWDSInputTag(),
+            lastNameField.getUSWDSInputTag());
+
+    ImmutableList<Tag> tags =
+        ImmutableList.of(
+            phoneNumberField.getUSWDSInputTag(),
+            emailField.getUSWDSInputTag(),
+            dateOfBirthField.getUSWDSInputTag(),
+            tiNoteField.getUSWDSTextareaTag(),
+            makeCsrfTokenInputTag(request),
+            submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
+                .withClasses("usa-button"),
+            asRedirectElement(
+                button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
+                    .withClasses("usa-button usa-button--outline", "m-2"),
+                cancelUrl));
+
+    FormTag addOrEditClientForm = formTag;
+    if (isNameSuffixEnabled) {
+      addOrEditClientForm =
+          formTag.with(nameTags).with(nameSuffixField.getUSWDSSelectTag()).with(tags);
+    } else {
+      addOrEditClientForm = formTag.with(nameTags).with(tags);
+    }
+
+    return div().with(addOrEditClientForm.withClasses("w-1/2", "mt-6"));
   }
 
   private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
