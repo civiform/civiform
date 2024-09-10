@@ -68,6 +68,9 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
+  /** Returns whether the application is not eligible and eligibility is gating. */
+  boolean notEligibleWithGatingEligibility();
+
   /** Returns whether the applicant has answered any eligibility questions in the program. */
   boolean hasAnsweredEligibilityQuestions();
 

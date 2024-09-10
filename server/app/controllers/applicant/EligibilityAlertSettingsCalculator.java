@@ -12,7 +12,6 @@ import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
 import services.MessageKey;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -42,27 +41,6 @@ public final class EligibilityAlertSettingsCalculator {
       // this point
       throw new RuntimeException("Could not find program.", ex);
     }
-  }
-
-  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
-  public boolean shouldShowNotEligibleBanner(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
-    try {
-      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
-        return false;
-      }
-    } catch (ProgramNotFoundException ex) {
-      return false;
-    }
-
-    return roApplicantProgramService.isApplicationEligible();
-  }
-
-  /** Returns true if the eligibility banner should be hidden. */
-  public boolean shouldHideEligibilityBanner(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
-    return !roApplicantProgramService.hasAnsweredEligibilityQuestions()
-        || !shouldShowNotEligibleBanner(roApplicantProgramService, programId);
   }
 
   /**

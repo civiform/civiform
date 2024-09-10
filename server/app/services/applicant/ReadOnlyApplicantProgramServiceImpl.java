@@ -210,6 +210,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public boolean notEligibleWithGatingEligibility() {
+    return programDefinition.eligibilityIsGating() && !isApplicationEligible();
+  }
+
+  @Override
   public boolean hasAnsweredEligibilityQuestions() {
     return getAllActiveBlocks().stream()
         .filter(b -> b.answeredQuestionsCount() > 0)
