@@ -219,7 +219,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     if (programDefinition.eligibilityIsGating()) {
       return true;
     }
-    return !isApplicationNotEligible();
+    return isApplicationEligible();
   }
 
   /** Returns whether the applicant has answered any eligibility questions in the program. */

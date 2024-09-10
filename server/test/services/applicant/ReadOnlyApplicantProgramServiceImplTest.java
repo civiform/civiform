@@ -742,7 +742,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         createProgramWithEligibilityConditions().toBuilder().setEligibilityIsGating(true).build();
 
     // Answer the question with ineligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
@@ -765,7 +764,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         createProgramWithEligibilityConditions().toBuilder().setEligibilityIsGating(true).build();
 
     // Answer the question with eligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
@@ -803,7 +801,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         createProgramWithEligibilityConditions().toBuilder().setEligibilityIsGating(false).build();
 
     // Answer the question with ineligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
@@ -826,7 +823,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         createProgramWithEligibilityConditions().toBuilder().setEligibilityIsGating(false).build();
 
     // Answer the question with eligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
@@ -877,7 +873,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     programDefinition = createProgramWithEligibilityConditions();
 
     // Answer the question with ineligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
@@ -904,7 +899,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     programDefinition = createProgramWithEligibilityConditions();
 
     // Answer the question with eligible answer
-    answerNameQuestion(programDefinition.id());
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),

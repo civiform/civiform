@@ -28,22 +28,6 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   /**
-   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
-   * otherwise.
-   */
-  public boolean canShowEligibilitySettings(long programId) {
-    try {
-      var programDefinition = programService.getFullProgramDefinition(programId);
-
-      return programDefinition.hasEligibilityEnabled() && !programDefinition.isCommonIntakeForm();
-    } catch (ProgramNotFoundException ex) {
-      // Checked exceptions are the devil and we've already determined that this program exists by
-      // this point
-      throw new RuntimeException("Could not find program.", ex);
-    }
-  }
-
-  /**
    * questions: List of questions that the applicant answered that may make the applicant
    * ineligible. The list may be empty.
    */
@@ -171,4 +155,20 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
+
+  /**
+   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
+   * otherwise.
+   */
+  private boolean canShowEligibilitySettings(long programId) {
+    try {
+      var programDefinition = programService.getFullProgramDefinition(programId);
+
+      return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
+    } catch (ProgramNotFoundException ex) {
+      // Checked exceptions are the devil and we've already determined that this program exists by
+      // this point
+      throw new RuntimeException("Could not find program.", ex);
+    }
+  }
 }

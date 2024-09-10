@@ -140,18 +140,18 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               Messages messages = messagesApi.preferred(request);
 
-              AlertSettings eligibilityAlertSettings =
-                  eligibilityAlertSettingsCalculator.calculate(
-                      request,
-                      profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-                      !roApplicantProgramService.isApplicationNotEligible(),
-                      settingsManifest.getNorthStarApplicantUi(request),
-                      false,
-                      programId,
-                      roApplicantProgramService.getIneligibleQuestions());
+              AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
-              if (!roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-                eligibilityAlertSettings = AlertSettings.empty();
+              if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
+                eligibilityAlertSettings =
+                    eligibilityAlertSettingsCalculator.calculate(
+                        request,
+                        profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+                        !roApplicantProgramService.isApplicationNotEligible(),
+                        settingsManifest.getNorthStarApplicantUi(request),
+                        false,
+                        programId,
+                        roApplicantProgramService.getIneligibleQuestions());
               }
 
               ApplicantProgramSummaryView.Params.Builder params =
