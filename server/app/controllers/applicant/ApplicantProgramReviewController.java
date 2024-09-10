@@ -150,8 +150,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       programId,
                       roApplicantProgramService.getIneligibleQuestions());
 
-              if (!roApplicantProgramService.hasAnsweredEligibilityQuestions()
-                  || roApplicantProgramService.notEligibleWithNonGatingEligibility()) {
+              if (!roApplicantProgramService.shouldDisplayEligibilityMessage()) {
                 eligibilityAlertSettings = AlertSettings.empty();
               }
 

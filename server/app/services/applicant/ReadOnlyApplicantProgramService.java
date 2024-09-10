@@ -68,11 +68,13 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
-  /** Returns whether the application is not eligible and eligibility is not gating. */
-  boolean notEligibleWithNonGatingEligibility();
-
-  /** Returns whether the applicant has answered any eligibility questions in the program. */
-  boolean hasAnsweredEligibilityQuestions();
+  /**
+   * Returns whether the applicant should see the eligibility message. This is based on whether the
+   * applicant has answered any eligibility questions in the program AND whether eligibility is
+   * gating or the application is eligible. When non-gating eligibility is enabled and the person
+   * doesn't qualify, we don't show them a message.
+   */
+  boolean shouldDisplayEligibilityMessage();
 
   /**
    * Get a list of questions that the applicant is currently not eligible for based on their answers

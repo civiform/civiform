@@ -210,15 +210,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public boolean notEligibleWithNonGatingEligibility() {
-    if (programDefinition.eligibilityIsGating()) {
-      return false;
-    }
-    return isApplicationNotEligible();
+  public boolean shouldDisplayEligibilityMessage() {
+    return hasAnsweredEligibilityQuestions() && hasGatingEligibilityEnabledOrEligible();
   }
 
-  @Override
-  public boolean hasAnsweredEligibilityQuestions() {
+  /** Returns whether eligibility is gating or the application is eligible. */
+  private boolean hasGatingEligibilityEnabledOrEligible() {
+    if (programDefinition.eligibilityIsGating()) {
+      return true;
+    }
+    return !isApplicationNotEligible();
+  }
+
+  /** Returns whether the applicant has answered any eligibility questions in the program. */
+  private boolean hasAnsweredEligibilityQuestions() {
     return getAllActiveBlocks().stream()
         .filter(b -> b.answeredQuestionsCount() > 0)
         .anyMatch(
