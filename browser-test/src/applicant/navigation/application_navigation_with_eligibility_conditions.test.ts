@@ -6,7 +6,6 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  validateToastMessage,
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
 
@@ -339,7 +338,6 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await applicantQuestions.clickNext()
-
     })
 
     test('does not show not eligible with nongating eligibility', async ({
