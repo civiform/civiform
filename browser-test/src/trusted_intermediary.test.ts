@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   ClientInformation,
   loginAsAdmin,
   loginAsTrustedIntermediary,
@@ -1300,6 +1301,32 @@ test.describe('Trusted intermediaries', () => {
           '(718) 867-5309',
         )
         await validateScreenshot(page, 'pai-ti-dash')
+      })
+    })
+  })
+
+  test.describe('ti can add suffix information with suffix feature flag enabled', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
+    })
+
+    test('TI is able to fill out name suffix info for the applicant', async ({
+      page,
+      tiDashboard
+    }) => {
+      await loginAsTrustedIntermediary(page)
+
+      await test.step(`suffix shows up on TI dashboard when adding new client`, async () => {
+        await tiDashboard.gotoTIDashboardPage(page)
+        await page.getByRole('link', {name: 'Add new client'}).click()
+        await waitForPageJsLoad(page)
+
+        await expect(page.getByLabel('Suffix')).toBeVisible()
+      })
+
+      await test.step(`TI selects name suffix for the applicant`, async () => {
+        await page.selectOption('#name-suffix-select', 'I')
+        await expect(page.getByLabel('Suffix')).toHaveValue('I')
       })
     })
   })

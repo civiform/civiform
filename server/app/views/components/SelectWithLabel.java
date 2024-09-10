@@ -59,6 +59,10 @@ public final class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  public DivTag getUSWDSSelectTag() {
+    return getSelectTag(true);
+  }
+
   @Override
   public SelectWithLabel setFieldName(String fieldName) {
     super.setFieldName(fieldName);
@@ -132,6 +136,10 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   public DivTag getSelectTag() {
+    return getSelectTag(false);
+  }
+
+  public DivTag getSelectTag(boolean isUSWDS) {
     SelectTag fieldTag = TagCreator.select();
     OptionTag placeholder = option(placeholderText).withValue("");
 
@@ -150,7 +158,7 @@ public final class SelectWithLabel extends FieldWithLabel {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
-    return applyAttrsClassesAndLabel(fieldTag);
+    return isUSWDS ? applyUSWDSAttrsClassesAndLabel(fieldTag) : applyAttrsClassesAndLabel(fieldTag);
   }
 
   private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {

@@ -2,7 +2,6 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
@@ -39,7 +38,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends TrustedIntermediaryDashboardView {
@@ -252,6 +250,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
 
     SelectWithLabel nameSuffixField =
         new SelectWithLabel()
+            .setId("name-suffix-select")
             .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
             .setFieldName("nameSuffix")
             .setPlaceholderText("")
@@ -336,7 +335,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     firstNameField.getUSWDSInputTag(),
                     middleNameField.getUSWDSInputTag(),
                     lastNameField.getUSWDSInputTag(),
-                    nameSuffixField.getSelectTag(),
+                    nameSuffixField.getUSWDSSelectTag(),
                     phoneNumberField.getUSWDSInputTag(),
                     emailField.getUSWDSInputTag(),
                     dateOfBirthField.getUSWDSInputTag(),
