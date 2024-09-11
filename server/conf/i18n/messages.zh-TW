@@ -520,9 +520,9 @@ content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填�
 # A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
