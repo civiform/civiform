@@ -520,9 +520,9 @@ content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid 
 # A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 # A header above a list of other programs the applicant might be interested in applying to.
