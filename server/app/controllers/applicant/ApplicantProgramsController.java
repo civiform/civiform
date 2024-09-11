@@ -31,6 +31,7 @@ import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -159,14 +160,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     // get the programs for the active version
     // turn them into applicationPrograms
 
-    ImmutableList<ProgramDefinition> activeProgramDefinitions =
-        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
-            .map(p -> programRepository.getShallowProgramDefinition(p))
-            .filter(
-                pdef ->
-                    pdef.displayMode().equals(DisplayMode.PUBLIC))
-            .collect(ImmutableList.toImmutableList());
-
+    ApplicationPrograms programs = applicantService.relevantProgramsForNoApplicant(request);
 
 
     Result result;
@@ -184,7 +178,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     // } else {
       result =
           ok(
-              programIndexView.renderWithoutApplicant(messagesApi.preferred(request), request));
+              programIndexView.renderWithoutApplicant(messagesApi.preferred(request), request, programs));
     // }
     return CompletableFuture.completedFuture(result);
   }
