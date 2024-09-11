@@ -795,13 +795,13 @@ error.notFoundDescriptionLink=homepage
 # This occurs when an unhandled exception happens.
 error.internalServerTitle=Nagkaroon ng error
 # The title on the error page that is show to the user in large font
-error.internalServerTitle.v2=An error has occurred
+error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
-error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+error.internalServerSubtitle=Pasensya na, nagkaroon ng internal error sa aming system.
 # Additional information about the error that is shown to the user in small font
 error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
 # A button redirecting the user to the homepage
-error.internalServerHomeButton=Visit homepage
+error.internalServerHomeButton=Pumunta sa homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=Error code: {0}
 
