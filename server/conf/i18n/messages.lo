@@ -795,15 +795,15 @@ error.notFoundDescriptionLink=ໜ້າຫຼັກ
 # This occurs when an unhandled exception happens.
 error.internalServerTitle=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
 # The title on the error page that is show to the user in large font
-error.internalServerTitle.v2=An error has occurred
+error.internalServerTitle.v2=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
 # The subtitle on the error page that is show to the user in medium font
-error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+error.internalServerSubtitle=ພວກເຮົາຂໍອະໄພ, ມີຂໍ້ຜິດພາດພາຍໃນເກີດຂຶ້ນໃນລະບົບຂອງພວກເຮົາ.
 # Additional information about the error that is shown to the user in small font
 error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ %s ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {0}.
 # A button redirecting the user to the homepage
-error.internalServerHomeButton=Visit homepage
+error.internalServerHomeButton=ເຂົ້າເບິ່ງໜ້າຫຼັກ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
-error.statusCode=Error code: {0}
+error.statusCode=ລະຫັດຂໍ້ຜິດພາດ: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
