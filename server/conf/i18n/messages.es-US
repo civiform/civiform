@@ -795,15 +795,15 @@ error.notFoundDescriptionLink=página de inicio
 # This occurs when an unhandled exception happens.
 error.internalServerTitle=Se produjo un error.
 # The title on the error page that is show to the user in large font
-error.internalServerTitle.v2=An error has occurred
+error.internalServerTitle.v2=Se produjo un error
 # The subtitle on the error page that is show to the user in medium font
-error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+error.internalServerSubtitle=Lo sentimos, se produjo un error interno en nuestro sistema.
 # Additional information about the error that is shown to the user in small font
 error.internalServerDescription=Comunícate con la asistencia técnica para recibir ayuda escribiendo a %s y utiliza el ID {0} del error.
 # A button redirecting the user to the homepage
-error.internalServerHomeButton=Visit homepage
+error.internalServerHomeButton=Visitar página principal
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
-error.statusCode=Error code: {0}
+error.statusCode=Código de error: {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
