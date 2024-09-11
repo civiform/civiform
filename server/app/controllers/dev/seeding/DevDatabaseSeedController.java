@@ -128,6 +128,9 @@ public class DevDatabaseSeedController extends Controller {
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
     String jobName = request.body().asFormUrlEncoded().get("durableJobSelect")[0];
     // I think there's currently a bug where the job runner interprets the timestamps as local
     // times rather than UTC. So set it to yesterday to ensure it runs.
