@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.iff;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -341,26 +340,35 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    return div()
-        .with(
-            formTag
-                .with(
-                    firstNameField.getUSWDSInputTag(),
-                    middleNameField.getUSWDSInputTag(),
-                    lastNameField.getUSWDSInputTag(),
-                    iff(isNameSuffixEnabled, nameSuffixField.getUSWDSSelectTag()),
-                    phoneNumberField.getUSWDSInputTag(),
-                    emailField.getUSWDSInputTag(),
-                    dateOfBirthField.getUSWDSInputTag(),
-                    tiNoteField.getUSWDSTextareaTag(),
-                    makeCsrfTokenInputTag(request),
-                    submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
-                        .withClasses("usa-button"),
-                    asRedirectElement(
-                        button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-                            .withClasses("usa-button usa-button--outline", "m-2"),
-                        cancelUrl))
-                .withClasses("w-1/2", "mt-6"));
+    ImmutableList<Tag> nameTags =
+        ImmutableList.of(
+            firstNameField.getUSWDSInputTag(),
+            middleNameField.getUSWDSInputTag(),
+            lastNameField.getUSWDSInputTag());
+
+    ImmutableList<Tag> tags =
+        ImmutableList.of(
+            phoneNumberField.getUSWDSInputTag(),
+            emailField.getUSWDSInputTag(),
+            dateOfBirthField.getUSWDSInputTag(),
+            tiNoteField.getUSWDSTextareaTag(),
+            makeCsrfTokenInputTag(request),
+            submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
+                .withClasses("usa-button"),
+            asRedirectElement(
+                button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
+                    .withClasses("usa-button usa-button--outline", "m-2"),
+                cancelUrl));
+
+    FormTag addOrEditClientForm = formTag;
+    if (isNameSuffixEnabled) {
+      addOrEditClientForm =
+          formTag.with(nameTags).with(nameSuffixField.getUSWDSSelectTag()).with(tags);
+    } else {
+      addOrEditClientForm = formTag.with(nameTags).with(tags);
+    }
+
+    return div().with(addOrEditClientForm.withClasses("w-1/2", "mt-6"));
   }
 
   private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
