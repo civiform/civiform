@@ -795,15 +795,15 @@ error.notFoundDescriptionLink=首頁
 # This occurs when an unhandled exception happens.
 error.internalServerTitle=發生錯誤
 # The title on the error page that is show to the user in large font
-error.internalServerTitle.v2=An error has occurred
+error.internalServerTitle.v2=發生錯誤
 # The subtitle on the error page that is show to the user in medium font
-error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+error.internalServerSubtitle=很抱歉，系統發生內部錯誤。
 # Additional information about the error that is shown to the user in small font
 error.internalServerDescription=請前往 %s 向技術支援團隊尋求協助，並提供以下錯誤 ID：{0}。
 # A button redirecting the user to the homepage
-error.internalServerHomeButton=Visit homepage
+error.internalServerHomeButton=前往首頁
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
-error.statusCode=Error code: {0}
+error.statusCode=錯誤代碼：{0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
