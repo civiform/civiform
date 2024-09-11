@@ -191,7 +191,7 @@ content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbi
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # The label for the program filter buttons
-label.programFilters=Program filters
+label.programFilters=Mga filter ng programa
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
@@ -211,17 +211,17 @@ title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Find services
+title.benefitsFinderSection.v2=Maghanap ng mga serbisyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Iba pang program ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
-title.otherProgramsSection.v2=Other programs and services ({0})
+title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Mga Program ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
-title.programsSection.v2=Programs and services ({0})
+title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Inirerekomenda ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
