@@ -48,44 +48,51 @@ public class HomeController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    if (profile.isCiviFormAdmin()) {
-      return CompletableFuture.completedFuture(
-          redirect(controllers.admin.routes.AdminProgramController.index()));
-    } else if (profile.isProgramAdmin()) {
-      return CompletableFuture.completedFuture(
-          redirect(controllers.admin.routes.ProgramAdminController.index()));
-    } else if (profile.isTrustedIntermediary()) {
-      return CompletableFuture.completedFuture(
-          redirect(
-              controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                  /* nameQuery= */ Optional.empty(),
-                  /* dayQuery= */ Optional.empty(),
-                  /* monthQuery= */ Optional.empty(),
-                  /* yearQuery= */ Optional.empty(),
-                  /* page= */ Optional.empty())));
-    } else {
-      return profile
-          .getApplicant()
-          .thenApplyAsync(
-              applicant -> {
-                // Attempt to set default language for the applicant.
-                applicant = languageUtils.maybeSetDefaultLocale(applicant);
-                ApplicantData data = applicant.getApplicantData();
-                // If the applicant has not yet set their preferred language, redirect to
-                // the information controller to ask for preferred language.
-                if (data.hasPreferredLocale()) {
-                  return redirect(applicantRoutes.index(profile, applicant.id))
-                      .withLang(data.preferredLocale(), messagesApi);
-                } else {
-                  return redirect(
-                      controllers.applicant.routes.ApplicantInformationController
-                          .setLangFromBrowser(applicant.id));
-                }
-              },
-              classLoaderExecutionContext.current());
+    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+      System.out.println("IN HOME CONTROLLER NO USER PROFILE");
+      // redirect to applicant programs page
+      return CompletableFuture.completedFuture(redirect(controllers.applicant.routes.ApplicantProgramsController.index()));
     }
+      CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+      if (profile.isCiviFormAdmin()) {
+        return CompletableFuture.completedFuture(
+            redirect(controllers.admin.routes.AdminProgramController.index()));
+      } else if (profile.isProgramAdmin()) {
+        return CompletableFuture.completedFuture(
+            redirect(controllers.admin.routes.ProgramAdminController.index()));
+      } else if (profile.isTrustedIntermediary()) {
+        return CompletableFuture.completedFuture(
+            redirect(
+                controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    /* nameQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
+                    /* page= */ Optional.empty())));
+      } else {
+        return profile
+            .getApplicant()
+            .thenApplyAsync(
+                applicant -> {
+                  // Attempt to set default language for the applicant.
+                  applicant = languageUtils.maybeSetDefaultLocale(applicant);
+                  ApplicantData data = applicant.getApplicantData();
+                  // If the applicant has not yet set their preferred language, redirect to
+                  // the information controller to ask for preferred language.
+                  if (data.hasPreferredLocale()) {
+                    return redirect(applicantRoutes.index(profile, applicant.id))
+                        .withLang(data.preferredLocale(), messagesApi);
+                  } else {
+                    return redirect(
+                        controllers.applicant.routes.ApplicantInformationController
+                            .setLangFromBrowser(applicant.id));
+                  }
+                },
+                classLoaderExecutionContext.current());
+      }
+
   }
 
   public Result playIndex() {

@@ -34,6 +34,7 @@ public final class CiviFormProfileFilter extends Filter {
    *
    * <ul>
    *   <li>The request is for a user-facing route
+   *   <li>The request is not for the homepage (/programs)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
    *   <li>The session associated with the request does not contain a pac4j user profile
@@ -41,6 +42,7 @@ public final class CiviFormProfileFilter extends Filter {
    */
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
     return NonUserRoutePrefixes.noneMatch(requestHeader)
+        && !requestHeader.path().equals("/programs")
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))
@@ -51,6 +53,8 @@ public final class CiviFormProfileFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
+    System.out.println("should redirect in ProfileFilter..." + shouldRedirect(requestHeader));
+    System.out.println("request path in ProfileFilter..." + requestHeader.path());
     if (shouldRedirect(requestHeader)) {
       // Directly invoke the callback of the GuestClient, which creates a profile. Then redirect the
       // user to the page they were trying to reach.

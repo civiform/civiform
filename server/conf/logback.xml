@@ -28,15 +28,15 @@
     <appender-ref ref="STDOUT" />
   </appender>
 
-  <logger name="play" level="INFO" />
+  <logger name="play" level="DEBUG" />
   <logger name="application" level="DEBUG" />
-  <logger name="loggingfilter" level="INFO" />
-  <logger name="controllers" level="INFO" />
-  <logger name="services" level="INFO" />
-  <logger name="s3client" level="INFO" />
-  <logger name="io.ebean" level="INFO" />
-  <logger name="org.pac4j" level="INFO" />
-  <logger name="auth" level="INFO" />
+  <logger name="loggingfilter" level="DEBUG" />
+  <logger name="controllers" level="DEBUG" />
+  <logger name="services" level="DEBUG" />
+  <logger name="s3client" level="DEBUG" />
+  <logger name="io.ebean" level="DEBUG" />
+  <logger name="org.pac4j" level="DEBUG" />
+  <logger name="auth" level="DEBUG" />
   <!-- Increase the level of this one to avoid leaking PII (such as email and name) into logs -->
   <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN" />
 
@@ -57,7 +57,7 @@
   <logger name="io.ebean.TXN" level="OFF" />
 
 
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>

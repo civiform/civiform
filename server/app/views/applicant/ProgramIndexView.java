@@ -92,7 +92,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // statement.
     if (settingsManifest.getProgramFilteringEnabled(request)) {
       bundle.addMainContent(
-          topContent(request, messages, personalInfo),
+          topContent(request, messages, Optional.of(personalInfo)),
           mainContentWithProgramFiltersEnabled(
               request,
               messages,
@@ -105,7 +105,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               profile));
     } else {
       bundle.addMainContent(
-          topContent(request, messages, personalInfo),
+          topContent(request, messages, Optional.of(personalInfo)),
           mainContent(
               request,
               messages,
@@ -121,12 +121,37 @@ public final class ProgramIndexView extends BaseHtmlView {
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
   }
 
+  public Content renderWithoutApplicant(     
+    Messages messages,
+  Http.Request request
+//   ApplicantService.ApplicationPrograms applicationPrograms,
+//   ImmutableList<String> selectedCategoriesFromParams,
+  ) {
+    HtmlBundle bundle = layout.getBundle(request);
+    bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+    bundle.addMainContent(topContent(request, messages, Optional.empty()), div("no cookies!"));
+    // bundle.addMainContent(
+    //       topContent(request, messages, Optional.empty()),
+    //       mainContent(
+    //           request,
+    //           messages,
+    //           personalInfo,
+    //           applicationPrograms,
+    //           applicantId,
+    //           messages.lang().toLocale(),
+    //           bundle,
+    //           profile));
+    return layout.render(bundle);
+  }
+
   private DivTag topContent(
-      Http.Request request, Messages messages, ApplicantPersonalInfo personalInfo) {
+      Http.Request request, Messages messages, Optional<ApplicantPersonalInfo> personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
-    if (personalInfo.getType() == GUEST) {
+    boolean shouldShowGuestView = personalInfo.isEmpty() || personalInfo.get().getType() == GUEST;
+
+    if (shouldShowGuestView) {
       // "Save time finding and applying for programs and services"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
@@ -162,6 +187,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(
                 "text-sm", "px-6", widthClass, "pb-6", StyleUtils.responsiveSmall("text-base"));
 
+
     return div()
         .withId("top-content")
         .withClasses(
@@ -172,7 +198,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             "items-center")
         .with(programIndexH1, infoDiv)
         .condWith(
-            personalInfo.getType() == GUEST,
+            shouldShowGuestView,
             // Log in and Create account buttons if user is a guest.
             div()
                 .with(

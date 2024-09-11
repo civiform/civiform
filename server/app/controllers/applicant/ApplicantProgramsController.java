@@ -10,6 +10,8 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import models.DisplayMode;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -24,6 +26,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.Results;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -55,6 +58,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
+  private final ProgramRepository programRepository;
 
   @Inject
   public ApplicantProgramsController(
@@ -69,7 +73,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView) {
+      NorthStarProgramIndexView northStarProgramIndexView,
+      ProgramRepository programRepository) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -81,13 +86,15 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   @Secure
   public CompletionStage<Result> indexWithApplicantId(
       Request request,
-      long applicantId, /* The selected program categories */
-      List<String> categories) {
+      long applicantId,
+      List<String> categories  // The selected program categories
+    ) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
@@ -148,8 +155,46 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  @Secure
+  public CompletionStage<Result> indexWithoutApplicantId(Request request) {
+    // get the programs for the active version
+    // turn them into applicationPrograms
+
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
+            .map(p -> programRepository.getShallowProgramDefinition(p))
+            .filter(
+                pdef ->
+                    pdef.displayMode().equals(DisplayMode.PUBLIC))
+            .collect(ImmutableList.toImmutableList());
+
+
+
+    Result result;
+    // if (settingsManifest.getNorthStarApplicantUi(request)) {
+    //   result =
+    //       ok(northStarProgramIndexView.render(
+    //               messagesApi.preferred(request),
+    //               request,
+    //               applicantId,
+    //               applicantStage.toCompletableFuture().join(),
+    //               applicationPrograms,
+    //               bannerMessage,
+    //               requesterProfile))
+    //           .as(Http.MimeTypes.HTML);
+    // } else {
+      result =
+          ok(
+              programIndexView.renderWithoutApplicant(messagesApi.preferred(request), request));
+    // }
+    return CompletableFuture.completedFuture(result);
+  }
+
   public CompletionStage<Result> index(Request request) {
+    // we're not getting in here for some reason
+    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+      return indexWithoutApplicantId(request);
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
