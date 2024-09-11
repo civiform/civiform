@@ -241,7 +241,7 @@ public class CfJsonDocumentContext {
    *     "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
-  protected void put(Path path, Object value) {
+  private void put(Path path, Object value) {
     checkLocked();
     putParentIfMissing(path);
     if (path.isArrayElement()) {

@@ -402,7 +402,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public void putServiceAreaInclusionEntities(
       Path path, ImmutableList<ServiceAreaInclusion> entityNames) {
     if (entityNames.isEmpty()) {
-      put(path, ImmutableList.of());
+      putArray(path, ImmutableList.of());
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
         putString(
