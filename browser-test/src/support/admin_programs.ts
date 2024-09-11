@@ -47,6 +47,10 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export enum NotificationPreference {
+  EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
+}
+
 export interface QuestionSpec {
   name: string
   isOptional?: boolean
@@ -404,19 +408,52 @@ export class AdminPrograms {
     return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
+  async expectEmailNotificationPreferenceIsChecked(isChecked: boolean) {
+    await expect(
+      this.page.getByRole('checkbox', {
+        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+      }),
+    ).toBeChecked({checked: isChecked})
+  }
+
+  async setEmailNotificationPreferenceCheckbox(checked: boolean) {
+    await this.page
+      .getByRole('checkbox', {
+        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+      })
+      .setChecked(checked)
+  }
+
   async gotoEditDraftProgramPage(
     programName: string,
     isProgramDisabled: boolean = false,
+    createNewDraft: boolean = false,
   ) {
     await this.gotoAdminProgramsPage(isProgramDisabled)
-    await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        'button :text("Edit")',
-      ),
-    )
+
+    if (createNewDraft) {
+      await this.expectActiveProgram(programName)
+      await this.page.click(
+        this.withinProgramCardSelector(
+          programName,
+          'Active',
+          '.cf-with-dropdown',
+        ),
+      )
+      await this.page.click(
+        this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
+      )
+    } else {
+      await this.expectDraftProgram(programName)
+      await this.page.click(
+        this.withinProgramCardSelector(
+          programName,
+          'Draft',
+          'button :text("Edit")',
+        ),
+      )
+    }
+
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
@@ -473,8 +510,11 @@ export class AdminPrograms {
     await this.expectEditEligibilityPredicatePage(blockName)
   }
 
-  async goToProgramDescriptionPage(programName: string) {
-    await this.gotoEditDraftProgramPage(programName)
+  async goToProgramDescriptionPage(
+    programName: string,
+    createNewDraft: boolean = false,
+  ) {
+    await this.gotoEditDraftProgramPage(programName, false, createNewDraft)
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
   }
@@ -530,6 +570,14 @@ export class AdminPrograms {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
       'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+    )
+    expect(toastMessages).toContain('Error: ')
+  }
+
+  async expectDisplayNameErrorToast() {
+    const toastMessages = await this.page.innerText('#toast-container')
+    expect(toastMessages).toContain(
+      'A public display name for the program is required.',
     )
     expect(toastMessages).toContain('Error: ')
   }
