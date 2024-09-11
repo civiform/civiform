@@ -191,7 +191,7 @@ content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັ�
 # {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 # The label for the program filter buttons
-label.programFilters=Program filters
+label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
 # Link text to read more about a program.
 link.programDetails=ລາຍລະອຽດໂຄງການ
 # The same text, read for screen readers.
@@ -211,17 +211,17 @@ title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Find services
+title.benefitsFinderSection.v2=ຊອກຫາບໍລິການ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=ໂຄງການອື່ນໆ ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
-title.otherProgramsSection.v2=Other programs and services ({0})
+title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການອື່ນໆ ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=ໂຄງການ ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
-title.programsSection.v2=Programs and services ({0})
+title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=ແນະນຳ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
