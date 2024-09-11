@@ -191,7 +191,7 @@ content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች �
 # {0} represents the authentication provider's name
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 # The label for the program filter buttons
-label.programFilters=Program filters
+label.programFilters=የፕሮግራም ማጣሪያዎች
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.
@@ -211,17 +211,17 @@ title.activeProgramsUpdated=ያልተጀመሩ
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=ሊረዱዎት የሚችሉ አገልግሎቶችን ያግኙ
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Find services
+title.benefitsFinderSection.v2=አገልግሎቶችን ያግኙ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=ሌሎች ፕሮግራሞች ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
-title.otherProgramsSection.v2=Other programs and services ({0})
+title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=ፕሮግራሞች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
-title.programsSection.v2=Programs and services ({0})
+title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=የሚመከር ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
