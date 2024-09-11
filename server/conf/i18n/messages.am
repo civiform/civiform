@@ -795,15 +795,15 @@ error.notFoundDescriptionLink=መነሻ ገጽ
 # This occurs when an unhandled exception happens.
 error.internalServerTitle=ስህተት ተከስቷል
 # The title on the error page that is show to the user in large font
-error.internalServerTitle.v2=An error has occurred
+error.internalServerTitle.v2=ስህተት ተከስቷል
 # The subtitle on the error page that is show to the user in medium font
-error.internalServerSubtitle=We''re sorry, an internal error has occurred in our system.
+error.internalServerSubtitle=ይቅርታ፣ በስርዓታችን ውስጥ ውስጣዊ ስህተት ተከስቷል።
 # Additional information about the error that is shown to the user in small font
 error.internalServerDescription=እባክዎ ለእርዳታ %s ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {0} ያካትቱ።
 # A button redirecting the user to the homepage
-error.internalServerHomeButton=Visit homepage
+error.internalServerHomeButton=መነሻ ገጽን ይጎብኙ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
-error.statusCode=Error code: {0}
+error.statusCode=የስህተት ኮድ፦ {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
