@@ -70,7 +70,6 @@ public class SecurityModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    System.out.println("in SecurityModule.configure");
     // After logging in you are redirected to '/', and auth autorenews.
     CallbackController callbackController = new CallbackController();
     callbackController.setDefaultUrl(routes.HomeController.index().url());
@@ -229,7 +228,6 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Singleton
   protected CiviFormHttpActionAdapter provideCiviFormHttpActionAdapter() {
-    System.out.println("in SecurityModule.provideCiviFormHttpActionAdapter");
     var actionAdapter = new CiviFormHttpActionAdapter();
 
     actionAdapter

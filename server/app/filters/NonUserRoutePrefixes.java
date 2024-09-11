@@ -16,7 +16,6 @@ enum NonUserRoutePrefixes {
   PLAY_INDEX("/playIndex"),
   METRICS("/metrics"),
   NONE("/");
-  
 
   public static ImmutableList<String> ALL =
       Arrays.stream(NonUserRoutePrefixes.values())

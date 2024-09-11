@@ -31,7 +31,6 @@ public class ApplicantAuthorizationAction extends Action.Simple {
 
   @Override
   public CompletionStage<Result> call(Request request) {
-    System.out.println("IN AUTHORIZATION ACTION");
     String routePattern = request.attrs().get(Router.Attrs.HANDLER_DEF).path();
     RouteExtractor routeExtractor = new RouteExtractor(routePattern, request.path());
 
@@ -60,7 +59,6 @@ public class ApplicantAuthorizationAction extends Action.Simple {
     if (throwable instanceof CompletionException) {
       Throwable cause = throwable.getCause();
       if (cause instanceof SecurityException) {
-        System.out.println("REDIRECTING TO HOMECONTROLLER BECAUSE OF SECURITY EXCEPTION");
         return CompletableFuture.completedFuture(
             redirect(controllers.routes.HomeController.index().url()));
       }

@@ -72,14 +72,11 @@ public class CiviFormController extends Controller {
 
   /** Returns a redirect to the home page. */
   protected static Result redirectToHome() {
-    System.out.println("in CiviformController.redirectToHome()");
     return redirect(controllers.routes.HomeController.index().url());
   }
 
   /** Returns a CompletionStage containing a redirect to the home page. */
   protected static CompletionStage<Result> redirectToHomeCompletionStage() {
-    System.out.println("in CiviformController.redirectToHomeCompletionStage()");
-
     return CompletableFuture.completedFuture(redirectToHome());
   }
 }

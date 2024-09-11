@@ -10,8 +10,6 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
-import models.DisplayMode;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -92,10 +90,8 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> indexWithApplicantId(
-      Request request,
-      long applicantId,
-      List<String> categories  // The selected program categories
-    ) {
+      Request request, long applicantId, List<String> categories // The selected program categories
+      ) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
@@ -159,9 +155,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> indexWithoutApplicantId(Request request) {
     // get the programs for the active version
     // turn them into applicationPrograms
-
     ApplicationPrograms programs = applicantService.relevantProgramsForNoApplicant(request);
-
 
     Result result;
     // if (settingsManifest.getNorthStarApplicantUi(request)) {
@@ -176,15 +170,15 @@ public final class ApplicantProgramsController extends CiviFormController {
     //               requesterProfile))
     //           .as(Http.MimeTypes.HTML);
     // } else {
-      result =
-          ok(
-              programIndexView.renderWithoutApplicant(messagesApi.preferred(request), request, programs));
+    result =
+        ok(
+            programIndexView.renderWithoutApplicant(
+                messagesApi.preferred(request), request, programs));
     // }
     return CompletableFuture.completedFuture(result);
   }
 
   public CompletionStage<Result> index(Request request) {
-    // we're not getting in here for some reason
     if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
       return indexWithoutApplicantId(request);
     }

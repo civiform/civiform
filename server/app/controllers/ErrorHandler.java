@@ -132,7 +132,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
    */
   @Override
   protected CompletionStage<Result> onForbidden(RequestHeader request, String message) {
-    System.out.println("In ErrorHandler.onForbidden");
     return CompletableFuture.completedFuture(
         Results.redirect(controllers.routes.HomeController.index().url()));
   }

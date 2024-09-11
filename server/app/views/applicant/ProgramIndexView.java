@@ -32,7 +32,6 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ApplicantService.ApplicationPrograms;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -122,12 +121,12 @@ public final class ProgramIndexView extends BaseHtmlView {
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
   }
 
-  public Content renderWithoutApplicant(     
-    Messages messages,
-  Http.Request request,
-  ApplicantService.ApplicationPrograms applicationPrograms
-//   ImmutableList<String> selectedCategoriesFromParams,
-  ) {
+  public Content renderWithoutApplicant(
+      Messages messages,
+      Http.Request request,
+      ApplicantService.ApplicationPrograms applicationPrograms
+      //   ImmutableList<String> selectedCategoriesFromParams,
+      ) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     bundle.addMainContent(topContent(request, messages, Optional.empty()), div("no cookies!"));
@@ -145,40 +144,42 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.render(bundle);
   }
 
-  private DivTag mainContentNoApplicant(ApplicantService.ApplicationPrograms relevantPrograms, Messages messages, Http.Request request) {
-    DivTag content =
-    div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
+//   private DivTag mainContentNoApplicant(
+//       ApplicantService.ApplicationPrograms relevantPrograms,
+//       Messages messages,
+//       Http.Request request) {
+//     DivTag content =
+//         div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
 
-// The different program card containers should have the same styling, by using the program
-// count of the larger set of programs
-String cardContainerStyles =
-    programCardViewRenderer.programCardsContainerStyles(
-        Math.max(
-            Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
-            relevantPrograms.inProgress().size()));
-  
-    // will need to handle case where there is a common intake form
-    content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
+//     // The different program card containers should have the same styling, by using the program
+//     // count of the larger set of programs
+//     String cardContainerStyles =
+//         programCardViewRenderer.programCardsContainerStyles(
+//             Math.max(
+//                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
+//                 relevantPrograms.inProgress().size()));
 
+//     // will need to handle case where there is a common intake form
+//     content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
 
-    content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.unapplied(),
-              MessageKey.BUTTON_APPLY,
-              MessageKey.BUTTON_APPLY_SR,
-              bundle,
-              profile,
-              /* isMyApplicationsSection= */ false));
+//     content.with(
+//         programCardViewRenderer.programCardsSection(
+//             request,
+//             messages,
+//             personalInfo,
+//             Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
+//             cardContainerStyles,
+//             applicantId,
+//             preferredLocale,
+//             relevantPrograms.unapplied(),
+//             MessageKey.BUTTON_APPLY,
+//             MessageKey.BUTTON_APPLY_SR,
+//             bundle,
+//             profile,
+//             /* isMyApplicationsSection= */ false));
 
-    return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
-}
+//     return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
+//   }
 
   private DivTag topContent(
       Http.Request request, Messages messages, Optional<ApplicantPersonalInfo> personalInfo) {
@@ -222,7 +223,6 @@ String cardContainerStyles =
             .withText(infoDivText)
             .withClasses(
                 "text-sm", "px-6", widthClass, "pb-6", StyleUtils.responsiveSmall("text-base"));
-
 
     return div()
         .withId("top-content")
