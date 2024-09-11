@@ -191,7 +191,7 @@ content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamij
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # The label for the program filter buttons
-label.programFilters=Program filters
+label.programFilters=Shaandhaynada barnaamijka
 # Link text to read more about a program.
 link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
@@ -211,17 +211,17 @@ title.activeProgramsUpdated=Lama bilaabin
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection=Raadi adeegyada ee ku caawin kara
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Find services
+title.benefitsFinderSection.v2=Hel adeegyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Codsiyadayda ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters.
 title.otherProgramsSection=Barnaamijyada kale ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
-title.otherProgramsSection.v2=Other programs and services ({0})
+title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected.
 title.programsSection=Barnaamijyada ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
-title.programsSection.v2=Programs and services ({0})
+title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection=Lagu taliyey ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
