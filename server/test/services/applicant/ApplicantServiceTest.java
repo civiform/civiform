@@ -1798,42 +1798,16 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
             .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
             .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
+            .put(serviceAreaPath.atIndex(0).join(Scalar.SERVICE_AREA_ID).toString(), "Bloomington")
             .put(
-                serviceAreaPath
-                    .atIndex(0)
-                    .join(Scalar.SERVICE_AREA_ID.toDisplayString())
-                    .toString(),
-                "Bloomington")
-            .put(
-                serviceAreaPath
-                    .atIndex(0)
-                    .join(Scalar.SERVICE_AREA_STATE.toDisplayString())
-                    .toString(),
+                serviceAreaPath.atIndex(0).join(Scalar.SERVICE_AREA_STATE).toString(),
                 ServiceAreaState.NOT_IN_AREA.getSerializationFormat())
+            .put(serviceAreaPath.atIndex(0).join(Scalar.TIMESTAMP).toString(), "1234")
+            .put(serviceAreaPath.atIndex(1).join(Scalar.SERVICE_AREA_ID).toString(), "Seattle")
             .put(
-                serviceAreaPath
-                    .atIndex(0)
-                    .join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString())
-                    .toString(),
-                "1234")
-            .put(
-                serviceAreaPath
-                    .atIndex(1)
-                    .join(Scalar.SERVICE_AREA_ID.toDisplayString())
-                    .toString(),
-                "Seattle")
-            .put(
-                serviceAreaPath
-                    .atIndex(1)
-                    .join(Scalar.SERVICE_AREA_STATE.toDisplayString())
-                    .toString(),
+                serviceAreaPath.atIndex(1).join(Scalar.SERVICE_AREA_STATE).toString(),
                 ServiceAreaState.FAILED.getSerializationFormat())
-            .put(
-                serviceAreaPath
-                    .atIndex(1)
-                    .join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString())
-                    .toString(),
-                "4567")
+            .put(serviceAreaPath.atIndex(1).join(Scalar.TIMESTAMP).toString(), "4567")
             .build();
 
     subject

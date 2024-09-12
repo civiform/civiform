@@ -406,14 +406,10 @@ public class ApplicantData extends CfJsonDocumentContext {
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
         putString(
-            path.atIndex(i).join(Scalar.SERVICE_AREA_ID.toDisplayString()),
-            entityNames.get(i).getServiceAreaId());
+            path.atIndex(i).join(Scalar.SERVICE_AREA_ID), entityNames.get(i).getServiceAreaId());
         putString(
-            path.atIndex(i).join(Scalar.SERVICE_AREA_STATE.toDisplayString()),
-            entityNames.get(i).getState().name());
-        putLong(
-            path.atIndex(i).join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()),
-            entityNames.get(i).getTimeStamp());
+            path.atIndex(i).join(Scalar.SERVICE_AREA_STATE), entityNames.get(i).getState().name());
+        putLong(path.atIndex(i).join(Scalar.TIMESTAMP), entityNames.get(i).getTimeStamp());
       }
     }
   }

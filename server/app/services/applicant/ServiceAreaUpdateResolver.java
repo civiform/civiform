@@ -177,11 +177,9 @@ final class ServiceAreaUpdateResolver {
       ImmutableMap<String, String> updateMap, Path serviceAreaPath, Integer index) {
     Path elementAtIndex = serviceAreaPath.asArrayElement().atIndex(index);
 
-    String serviceAreaIdPath =
-        elementAtIndex.join(Scalar.SERVICE_AREA_ID.toDisplayString()).toString();
-    String statePath = elementAtIndex.join(Scalar.SERVICE_AREA_STATE.toDisplayString()).toString();
-    String timestampPath =
-        elementAtIndex.join(Scalar.SERVICE_AREA_TIMESTAMP.toDisplayString()).toString();
+    String serviceAreaIdPath = elementAtIndex.join(Scalar.SERVICE_AREA_ID).toString();
+    String statePath = elementAtIndex.join(Scalar.SERVICE_AREA_STATE).toString();
+    String timestampPath = elementAtIndex.join(Scalar.TIMESTAMP).toString();
 
     if (!updateMap.containsKey(serviceAreaIdPath)
         || !updateMap.containsKey(statePath)
