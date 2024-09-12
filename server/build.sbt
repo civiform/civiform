@@ -220,9 +220,9 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
-// Include North Star HTML files. We need these in the image in order
-// for Thymeleaf to be able to use them for templating.
-mappings in Universal ++= {
+// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// We need these in order for Thymeleaf to be able to use them for templating.
+Universal / mappings ++= {
   val viewsDir = baseDirectory.value / "app" / "views"
   (viewsDir ** "*.html").get.map { file =>
     file -> s"app/views/${file.relativeTo(viewsDir).get.getPath}"
