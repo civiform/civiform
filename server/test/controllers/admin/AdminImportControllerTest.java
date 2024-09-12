@@ -31,6 +31,7 @@ import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -57,7 +58,8 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(QuestionRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+            instanceOf(ApplicationStatusesRepository.class),
+            instanceOf(ProgramService.class));
     database = DB.getDefault();
     versionRepository = instanceOf(VersionRepository.class);
   }

@@ -168,7 +168,7 @@ public class AdminImportController extends CiviFormController {
         program.notificationPreferences().stream()
             .map(preference -> preference.getValue())
             .collect(ImmutableList.toImmutableList());
-    ImmutableSet<CiviFormError> errors =
+    ImmutableSet<CiviFormError> programErrors =
         programService.validateProgramDataForCreate(
             program.adminName(),
             program.localizedName().getDefault(),
@@ -179,10 +179,10 @@ public class AdminImportController extends CiviFormController {
             ImmutableList.of(), // categories are not migrated
             ImmutableList.of() // associated TI groups are not migrated
             );
-    if (!errors.isEmpty()) {
+    if (!programErrors.isEmpty()) {
       return ok(
           adminImportViewPartial
-              .renderError("One or more errors occured:", joinErrors(errors))
+              .renderError("One or more program errors occured:", joinErrors(programErrors))
               .render());
     }
 
@@ -218,6 +218,18 @@ public class AdminImportController extends CiviFormController {
 
     if (withDuplicates) {
       questions = ImmutableList.copyOf(updatedQuestionsMap.values());
+    }
+
+    ImmutableSet<CiviFormError> questionErrors =
+        questions.stream()
+            .map(question -> question.validate())
+            .flatMap(errors -> errors.stream())
+            .collect(ImmutableSet.toImmutableSet());
+    if (!questionErrors.isEmpty()) {
+      return ok(
+          adminImportViewPartial
+              .renderError("One or more question errors occured:", joinErrors(questionErrors))
+              .render());
     }
 
     ErrorAnd<String, String> serializeResult =
