@@ -84,12 +84,21 @@ it is around the label */
   margin-top: 0;
 }
 
+.cf-no-margin-padding {
+  margin: 0px;
+  padding: 0px;
+}
+
 .cf-north-star-enumerator-field {
   @include u-padding-y('105');
 }
 
 .cf-north-star-enumerator-field:last-child {
   @include u-padding-bottom(0);
+}
+
+.content {
+  @include u-margin-y('105');
 }
 
 .content-spacing {
@@ -110,10 +119,6 @@ it is around the label */
 
 .text-medium-spacing {
   @include u-height(1);
-}
-
-.content {
-  @include u-margin-y('105');
 }
 
 // This should only be used to override styling.
