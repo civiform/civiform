@@ -396,7 +396,9 @@ public interface QuestionJsonPresenter<Q extends Question> {
           /* k2= */ question.getMiddleNamePath().asNestedEntitiesPath(),
           /* v2= */ question.getMiddleNameValue(),
           /* k3= */ question.getLastNamePath().asNestedEntitiesPath(),
-          /* v3= */ question.getLastNameValue());
+          /* v3= */ question.getLastNameValue(),
+          /* k4= */ question.getNameSuffixPath().asNestedEntitiesPath(),
+          /* v4= */ question.getNameSuffixValue());
     }
   }
 
