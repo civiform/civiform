@@ -323,10 +323,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "predicateAction",
                 "HIDE_BLOCK",
                 String.format("question-%d-scalar", testQuestionBank.addressApplicantAddress().id),
-                "SERVICE_AREA",
+                Scalar.SERVICE_AREAS.name(),
                 String.format(
                     "question-%d-operator", testQuestionBank.addressApplicantAddress().id),
-                "IN_SERVICE_AREA",
+                Operator.IN_SERVICE_AREA.name(),
                 String.format(
                     "group-1-question-%d-predicateValue",
                     testQuestionBank.addressApplicantAddress().id),

@@ -1571,7 +1571,7 @@ public final class ApplicantService {
               .parentPath()
               .withoutArrayReference()
               .keyName()
-              .equals(Scalar.SERVICE_AREA.toDisplayString())) {
+              .equals(Scalar.SERVICE_AREAS.toDisplayString())) {
         continue;
       }
 
@@ -1639,7 +1639,7 @@ public final class ApplicantService {
               .get()
               .path()
               .parentPath()
-              .join(ScalarType.SERVICE_AREA.name())
+              .join(Scalar.SERVICE_AREAS.name())
               .asArrayElement(),
           serviceAreaUpdate.get().value());
     }

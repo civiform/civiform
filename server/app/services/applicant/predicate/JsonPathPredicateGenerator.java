@@ -78,7 +78,7 @@ public final class JsonPathPredicateGenerator {
    * Formats a {@link services.program.predicate.LeafAddressServiceAreaExpressionNode} in JsonPath
    * format: {@code path[?(expression)]}
    *
-   * <p>Example: $.applicant.addresstest.service_area[?((@.state == 'NOT_IN_AREA' || @.state ==
+   * <p>Example: $.applicant.addresstest.service_areas[?((@.state == 'NOT_IN_AREA' || @.state ==
    * 'FAILED') && @.serviceAreaId == 'Seattle')]
    */
   public JsonPathPredicate fromLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node)
@@ -92,7 +92,7 @@ public final class JsonPathPredicateGenerator {
         String.format(
             "%1$s.%2$s[?((@.%3$s == '%4$s' || @.%3$s == '%5$s') && @.%6$s == '%7$s')]",
             getPath(node).predicateFormat(),
-            Scalar.SERVICE_AREA.toDisplayString(),
+            Scalar.SERVICE_AREAS.toDisplayString(),
             Scalar.SERVICE_AREA_STATE.toDisplayString(),
             serviceAreaState.name(),
             ServiceAreaState.FAILED.name(),

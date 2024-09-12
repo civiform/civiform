@@ -515,9 +515,11 @@ public class JsonPathPredicateGeneratorTest {
   @Test
   public void fromLeafServiceAreaNode_generatesCorrectPredicate() throws Exception {
     ApplicantData data = new ApplicantData();
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
 
     data.putServiceAreaInclusionEntities(
-        Path.create("applicant.applicant_address.service_area[]"),
+        serviceAreaPath,
         ImmutableList.of(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId("bloomington")

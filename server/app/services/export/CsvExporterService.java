@@ -70,6 +70,10 @@ public final class CsvExporterService {
       ScalarType.CURRENCY_CENTS.toString().toLowerCase(Locale.ROOT);
 
   private static final String NAME_SUFFIX = Scalar.NAME_SUFFIX.toString().toLowerCase(Locale.ROOT);
+  private static final String SERVICE_AREA =
+      Scalar.SERVICE_AREA.toString().toLowerCase(Locale.ROOT);
+  private static final String SERVICE_AREAS =
+      Scalar.SERVICE_AREAS.toString().toLowerCase(Locale.ROOT);
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
@@ -331,6 +335,11 @@ public final class CsvExporterService {
     // Remove "name" from the name suffix string as it will be indicated in the name.
     if (path.keyName().equals(NAME_SUFFIX)) {
       scalarComponent = "(suffix)";
+    }
+
+    // TODO: #7134 Only here for backwards compatibility. Long term this should go away
+    if (path.keyName().equals(SERVICE_AREAS)) {
+      scalarComponent = String.format("(%s)", SERVICE_AREA);
     }
 
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));

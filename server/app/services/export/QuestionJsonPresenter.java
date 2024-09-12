@@ -223,6 +223,9 @@ public interface QuestionJsonPresenter<Q extends Question> {
           /* v8= */ question.getLongitudeValue().map(l -> latLongFormat.format(l)),
           /* k9= */ question.getWellKnownIdPath().asNestedEntitiesPath(),
           /* v9= */ question.getWellKnownIdValue().map(w -> Long.toString(w)),
+
+          // TODO: #7134 Only here for api backwards compatibility. Long term this should move
+          //       to call {@link question.getServiceAreasPath}
           /* k10= */ question.getServiceAreaPath().asNestedEntitiesPath(),
           /* v10= */ question
               .getServiceAreaValue()
