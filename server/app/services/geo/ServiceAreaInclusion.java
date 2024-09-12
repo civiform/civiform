@@ -10,7 +10,7 @@ public abstract class ServiceAreaInclusion {
   @JsonCreator
   public static ServiceAreaInclusion create(
       @JsonProperty("service_area_id") String serviceAreaId,
-      @JsonProperty("state") ServiceAreaState state,
+      @JsonProperty("service_area_state") ServiceAreaState state,
       @JsonProperty("timestamp") long timestamp) {
     return builder()
         .setServiceAreaId(serviceAreaId)
@@ -28,7 +28,7 @@ public abstract class ServiceAreaInclusion {
   public abstract String getServiceAreaId();
 
   /** The inclusion state of the service area. */
-  @JsonProperty("state")
+  @JsonProperty("service_area_state")
   public abstract ServiceAreaState getState();
 
   /** The timestamp for when the inclusion check was made. */

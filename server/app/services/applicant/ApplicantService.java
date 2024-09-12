@@ -1571,7 +1571,7 @@ public final class ApplicantService {
               .parentPath()
               .withoutArrayReference()
               .keyName()
-              .equals(Scalar.SERVICE_AREAS.toDisplayString())) {
+              .equals(Scalar.SERVICE_AREAS.name().toLowerCase(Locale.ROOT))) {
         continue;
       }
 

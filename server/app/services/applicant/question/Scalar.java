@@ -52,7 +52,9 @@ public enum Scalar {
   SERVICE_AREAS("service_areas", ScalarType.SERVICE_AREA), // Array property name
   SERVICE_AREA_STATE("state", ScalarType.STRING),
   SERVICE_AREA_ID("service_area_id", ScalarType.STRING),
-  SERVICE_AREA_TIMESTAMP("timestamp", ScalarType.LONG),
+
+  // Generic timestamp
+  TIMESTAMP("timestamp", ScalarType.LONG),
 
   // Scalars for Phone Question
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
