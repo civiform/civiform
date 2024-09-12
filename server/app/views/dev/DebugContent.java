@@ -54,7 +54,7 @@ public final class DebugContent extends BaseHtmlView {
             redirectButton(
                 "additional-tools",
                 "Additional tools",
-                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()));
+                controllers.dev.routes.DevToolsController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {

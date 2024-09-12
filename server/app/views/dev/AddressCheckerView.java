@@ -14,7 +14,7 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.inject.Inject;
-import controllers.dev.seeding.routes;
+import controllers.dev.routes;
 import j2html.tags.specialized.DivTag;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -56,7 +56,7 @@ public class AddressCheckerView extends BaseHtmlView {
             .withClasses("m-8", "max-w-6xl")
             .with(
                 header(
-                        a().withHref(routes.DevDatabaseSeedController.index().url())
+                        a().withHref(routes.DevToolsController.index().url())
                             .with(
                                 span()
                                     .with(
