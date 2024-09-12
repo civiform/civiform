@@ -1,0 +1,12 @@
+# Builds on docker-compose.yml and docker-compose.dev.yml
+# Runs the prod image in like dev mode, but as if it was deployed to staging.
+
+services:
+  civiform:
+    build: prod
+    image: civiform
+    platform: linux/amd64
+    environment:
+      - SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - STAGING_HOSTNAME=localhost
+    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -Dconfig.file=/civiform-server-0.0.1/conf/application.conf
