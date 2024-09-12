@@ -35,6 +35,7 @@ public final class AddressQuestion extends Question {
   private Optional<Double> longitudeValue;
   private Optional<Long> wellKnownIdValue;
   private Path serviceAreaPath;
+  private Path serviceAreasPath;
   private Optional<ImmutableList<ServiceAreaInclusion>> serviceAreaValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
@@ -211,7 +212,7 @@ public final class AddressQuestion extends Question {
 
     return applicantQuestion
         .getApplicantData()
-        .readServiceAreaList(getServiceAreaPath().safeWithoutArrayReference());
+        .readServiceAreaList(getServiceAreasPath().safeWithoutArrayReference());
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {
@@ -254,11 +255,24 @@ public final class AddressQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
   }
 
+  public Path getServiceAreasPath() {
+    if (serviceAreasPath != null) {
+      return serviceAreasPath;
+    }
+
+    serviceAreasPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
+    return serviceAreasPath;
+  }
+
+  // TODO: #7134 Only here for api backwards compatibility. Long term this should move
+  //       to Scalar.SERVICE_AREA when we push the new output
   public Path getServiceAreaPath() {
     if (serviceAreaPath != null) {
       return serviceAreaPath;
     }
-    return serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+
+    serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+    return serviceAreaPath;
   }
 
   public Address getAddress() {
@@ -312,7 +326,7 @@ public final class AddressQuestion extends Question {
         getLatitudePath(),
         getLongitudePath(),
         getWellKnownIdPath(),
-        getServiceAreaPath());
+        getServiceAreasPath());
   }
 
   /**

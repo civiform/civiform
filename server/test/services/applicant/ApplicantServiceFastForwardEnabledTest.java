@@ -1655,7 +1655,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
     Path rootPath = Path.create("applicant.applicant_address");
-    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREA).asArrayElement();
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
@@ -1716,7 +1716,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
     Path rootPath = Path.create("applicant.applicant_address");
-    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREA).asArrayElement();
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()

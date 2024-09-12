@@ -52,7 +52,7 @@ public final class QuestionAnswerer {
     applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
     applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);
     applicantData.putServiceAreaInclusionEntities(
-        contextualizedPath.join(Scalar.SERVICE_AREA).asArrayElement(), serviceAreaInclusions);
+        contextualizedPath.join(Scalar.SERVICE_AREAS).asArrayElement(), serviceAreaInclusions);
   }
 
   public static void answerCurrencyQuestion(

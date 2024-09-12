@@ -78,7 +78,7 @@ final class ServiceAreaUpdateResolver {
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
     ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
         getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
 
