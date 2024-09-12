@@ -32,7 +32,7 @@ import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
 
-/** Controller for seeding the development database with test content. */
+/** Controller for dev tools. */
 public class DevDatabaseSeedController extends Controller {
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
@@ -99,7 +99,7 @@ public class DevDatabaseSeedController extends Controller {
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(view.seedDataView(request, activeAndDraftPrograms, questionDefinitions));
+    return ok(view.renderSeedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {
@@ -199,9 +199,6 @@ public class DevDatabaseSeedController extends Controller {
       programDefCache.removeAll().toCompletableFuture().join();
     }
   }
-
-  // Create a date question definition with the given name and questionText. We currently create
-  // multiple date questions in a single program for testing.
 
   private void resetTables() {
     Models.truncate(database);

@@ -71,7 +71,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
           .setModalId("debug-content-modal")
           .setLocation(Modal.Location.DEBUG)
           .setContent(DebugContent.devTools())
-          .setModalTitle("Debug tools")
+          .setModalTitle("Dev tools")
           .setWidth(Width.THIRD)
           .build();
 
