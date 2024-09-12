@@ -471,6 +471,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("my-4")
             .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
 
+    FieldWithLabel eligibilityMessage =  
+        FieldWithLabel.textArea()
+            .setId("custom-eligibility-message")
+            .setFieldName("eligibility-message")
+            .setLabelText("Eligibility Message")
+            .setRequired(false)
+
+
+    /* 
+            .setId("program-display-description-textarea")
+            .setFieldName("localizedDisplayDescription")
+            .setLabelText("Describe this program for the public")
+            .setRequired(true)
+            .setMarkdownSupported(true)
+            .setValue(displayDescription)
+            .getTextareaTag()
+    */
+
     IntStream.range(0, blockQuestions.size())
         .forEach(
             index -> {
