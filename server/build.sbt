@@ -220,6 +220,15 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
+// Include North Star HTML files. We need these in the image in order
+// for Thymeleaf to be able to use them for templating.
+mappings in Universal ++= {
+  val viewsDir = baseDirectory.value / "app" / "views"
+  (viewsDir ** "*.html").get.map { file =>
+    file -> s"app/views/${file.relativeTo(viewsDir).get.getPath}"
+  }
+}
+
 // Define a transition to pull the "remote" (really local filesystem) cache on startup.
 lazy val startupTransition: State => State = { s: State =>
   "pullRemoteCache" :: s
