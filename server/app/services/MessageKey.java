@@ -93,6 +93,7 @@ public enum MessageKey {
   BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),
   BUTTON_EXIT_APPLICATION("button.exitApplication"),
   BUTTON_GO_BACK_AND_EDIT("button.goBackAndEdit"),
+  BUTTON_LANGUAGES("button.languages"), // North Star only
   BUTTON_LOGIN("button.login"),
   BUTTON_CREATE_AN_ACCOUNT("button.createAnAccount"),
   BUTTON_CLEAR_SEARCH("button.clearSearch"),
