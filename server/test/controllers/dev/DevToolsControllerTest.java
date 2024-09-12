@@ -1,7 +1,6 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -100,39 +99,6 @@ public class DevToolsControllerTest {
     controller.clearCache();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(programsByVersionCache.get(cacheKey).isPresent()).isFalse();
-  }
-
-  @Test
-  public void index_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.index(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void data_inNonDevMode_returnsNotFound() {
-
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.data(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void seedPrograms_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.seedPrograms();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void clear_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.clear();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   private void setupControllerInMode(Mode mode) {

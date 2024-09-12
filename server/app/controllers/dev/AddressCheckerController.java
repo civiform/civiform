@@ -15,7 +15,6 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.Address;
-import services.DeploymentType;
 import services.geo.AddressLocation;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
@@ -32,7 +31,6 @@ public final class AddressCheckerController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(AddressCheckerController.class);
 
   private final SettingsManifest settingsManifest;
-  private final DeploymentType deploymentType;
   private final AddressCheckerView addressCheckerView;
   private final CorrectAddressViewPartial correctAddressViewPartial;
   private final ServiceAreaCheckViewPartial checkServiceAreaViewPartial;
@@ -43,7 +41,6 @@ public final class AddressCheckerController extends Controller {
   @Inject
   AddressCheckerController(
       SettingsManifest settingsManifest,
-      DeploymentType deploymentType,
       AddressCheckerView addressCheckerView,
       CorrectAddressViewPartial correctAddressViewPartial,
       ServiceAreaCheckViewPartial checkServiceAreaViewPartial,
@@ -51,7 +48,6 @@ public final class AddressCheckerController extends Controller {
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       FormFactory formFactory) {
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.deploymentType = checkNotNull(deploymentType);
     this.addressCheckerView = checkNotNull(addressCheckerView);
     this.correctAddressViewPartial = checkNotNull(correctAddressViewPartial);
     this.checkServiceAreaViewPartial = checkServiceAreaViewPartial;
@@ -61,19 +57,11 @@ public final class AddressCheckerController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    if (!deploymentType.isDevOrStaging()) {
-      return notFound();
-    }
-
     return ok(addressCheckerView.render(request));
   }
 
   /** Performs address correction and returns the results */
   public CompletionStage<Result> hxCorrectAddress(Http.Request request) {
-    if (!deploymentType.isDevOrStaging()) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
     Address address;
 
     try {
@@ -126,10 +114,6 @@ public final class AddressCheckerController extends Controller {
 
   /** Performs service area validation check and returns the results */
   public CompletionStage<Result> hxCheckServiceArea(Http.Request request) {
-    if (!deploymentType.isDevOrStaging()) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
     EsriServiceAreaValidationOption esriServiceAreaValidationOption;
     AddressLocation addressLocation;
     String validationOption;

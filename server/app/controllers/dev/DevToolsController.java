@@ -24,7 +24,6 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.DeploymentType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
@@ -42,7 +41,6 @@ public class DevToolsController extends Controller {
   private final QuestionService questionService;
   private final ProgramService programService;
   private final SettingsService settingsService;
-  private final boolean isDevOrStaging;
   private final SettingsManifest settingsManifest;
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
@@ -58,7 +56,6 @@ public class DevToolsController extends Controller {
       QuestionService questionService,
       ProgramService programService,
       SettingsService settingsService,
-      DeploymentType deploymentType,
       SettingsManifest settingsManifest,
       Clock clock,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
@@ -72,7 +69,6 @@ public class DevToolsController extends Controller {
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
-    this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
@@ -87,16 +83,10 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
   }
 
   public Result data(Request request) {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
@@ -104,10 +94,6 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedQuestions() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
-
     devDatabaseSeedTask.seedQuestions();
 
     return redirect(routes.DevToolsController.index().url())
@@ -116,9 +102,6 @@ public class DevToolsController extends Controller {
 
   public Result seedPrograms() {
     // TODO: Check whether test program already exists to prevent error.
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
 
     devDatabaseSeedTask.seedProgramCategories();
@@ -129,9 +112,6 @@ public class DevToolsController extends Controller {
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     String jobName = request.body().asFormUrlEncoded().get("durableJobSelect")[0];
     // I think there's currently a bug where the job runner interprets the timestamps as local
     // times rather than UTC. So set it to yesterday to ensure it runs.
@@ -152,9 +132,6 @@ public class DevToolsController extends Controller {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     clearCacheIfEnabled();
     resetTables();
     return redirect(routes.DevToolsController.index().url())
@@ -163,9 +140,6 @@ public class DevToolsController extends Controller {
 
   /** Remove all content from the cache. */
   public Result clearCache() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
       return redirect(routes.DevToolsController.index().url())
           .flashing(
@@ -185,9 +159,6 @@ public class DevToolsController extends Controller {
    * tasks, but we assume all dev instances only have one task.
    */
   private void clearCacheIfEnabled() {
-    if (!isDevOrStaging) {
-      return;
-    }
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
