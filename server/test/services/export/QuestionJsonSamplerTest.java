@@ -220,7 +220,9 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 Path.create("applicant.sample_name_question.middle_name"),
                 Optional.of("Jay"),
                 Path.create("applicant.sample_name_question.last_name"),
-                Optional.of("Simpson")));
+                Optional.of("Simpson"),
+                Path.create("applicant.sample_name_question.name_suffix"),
+                Optional.of("Jr.")));
   }
 
   @Test
