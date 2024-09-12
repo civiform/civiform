@@ -1211,8 +1211,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.nameApplicantName())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNameQuestion(
-            testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "Jr.")
+        .answerNameQuestion(testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1232,6 +1231,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : "Allison",
+          "name_suffix" : "I",
           "question_type" : "NAME"
         }""");
   }
@@ -1253,7 +1253,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "Taylor",
             "Allison",
             "Swift",
-            "")
+            "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1276,6 +1276,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
               "first_name" : "Taylor",
               "last_name" : "Swift",
               "middle_name" : "Allison",
+              "name_suffix" : "I",
               "question_type" : "NAME"
             }
           } ],
@@ -1311,6 +1312,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : null,
+          "name_suffix" : null,
           "question_type" : "NAME"
         }""");
   }
@@ -1341,6 +1343,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : null,
           "last_name" : null,
           "middle_name" : null,
+          "name_suffix" : null,
           "question_type" : "NAME"
         }""");
   }
