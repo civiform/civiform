@@ -2,6 +2,7 @@ package services.migration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,6 +145,8 @@ public final class ProgramMigrationService {
         .setCategories(ImmutableList.of())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
+        // Don't export associated ti group ids
+        .setAcls(new ProgramAcls())
         .build();
   }
 

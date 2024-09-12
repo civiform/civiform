@@ -6,9 +6,11 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Optional;
+import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
@@ -20,12 +22,14 @@ import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.VersionRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramService;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
@@ -59,6 +63,7 @@ public class AdminImportController extends CiviFormController {
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final ProgramService programService;
 
   @Inject
   public AdminImportController(
@@ -71,7 +76,8 @@ public class AdminImportController extends CiviFormController {
       VersionRepository versionRepository,
       ProgramRepository programRepository,
       QuestionRepository questionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicationStatusesRepository applicationStatusesRepository,
+      ProgramService programService) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
@@ -81,6 +87,7 @@ public class AdminImportController extends CiviFormController {
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.programService = checkNotNull(programService);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -142,6 +149,39 @@ public class AdminImportController extends CiviFormController {
               .renderError(
                   "This program already exists in our system.",
                   "Please check your file and and try again.")
+              .render());
+    }
+
+    // Prevent admin from importing a program with visiblity set to "Visible to selected trusted
+    // intermediaries only" since we don't migrate TI groups
+    if (program.displayMode() == DisplayMode.SELECT_TI) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "Display mode 'SELECT_TI' is not allowed.",
+                  "Please select another program display mode and try again")
+              .render());
+    }
+
+    // Check for other validation errors like invalid program admin names
+    ImmutableList<String> notificationPreferences =
+        program.notificationPreferences().stream()
+            .map(preference -> preference.getValue())
+            .collect(ImmutableList.toImmutableList());
+    ImmutableSet<CiviFormError> errors =
+        programService.validateProgramDataForCreate(
+            program.adminName(),
+            program.localizedName().getDefault(),
+            program.localizedDescription().getDefault(),
+            program.externalLink(),
+            program.displayMode().getValue(),
+            notificationPreferences,
+            ImmutableList.of(),
+            ImmutableList.of());
+    if (!errors.isEmpty()) {
+      return ok(
+          adminImportViewPartial
+              .renderError("One or more errors occured:", joinErrors(errors))
               .render());
     }
 
