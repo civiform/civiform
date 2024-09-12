@@ -176,8 +176,9 @@ public class AdminImportController extends CiviFormController {
             program.externalLink(),
             program.displayMode().getValue(),
             notificationPreferences,
-            ImmutableList.of(),
-            ImmutableList.of());
+            ImmutableList.of(), // categories are not migrated
+            ImmutableList.of() // associated TI groups are not migrated
+            );
     if (!errors.isEmpty()) {
       return ok(
           adminImportViewPartial
