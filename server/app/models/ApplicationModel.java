@@ -51,6 +51,7 @@ public class ApplicationModel extends BaseModel {
   private String submitterEmail;
   private String latestStatus;
   private boolean isAdmin;
+  private String latestNote;
 
   public ApplicationModel(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
@@ -167,6 +168,14 @@ public class ApplicationModel extends BaseModel {
   public Optional<String> getLatestStatus() {
     return Optional.ofNullable(latestStatus);
   }
+  /**
+   * Returns the latest application note value associated with the application.
+   *
+   * <p>This value is updated by Porgram Admins who want to add more details to the application.
+   */
+  public Optional<String> getLatestNote() {
+    return Optional.ofNullable(latestNote);
+  }
 
   /**
    * This is visible only for tests to manipulate the latest status directly in order to ensure that
@@ -175,6 +184,14 @@ public class ApplicationModel extends BaseModel {
   @VisibleForTesting
   void setLatestStatusForTest(String latestStatus) {
     this.latestStatus = latestStatus;
+  }
+  /**
+   * This is visible only for tests to manipulate the latest note directly in order to ensure that
+   * updates to it are overridden by the configured database trigger.
+   */
+  @VisibleForTesting
+  void setlatestNote(String applicationNote) {
+    this.latestNote = applicationNote;
   }
 
   /**
