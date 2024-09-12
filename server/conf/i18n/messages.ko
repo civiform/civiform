@@ -522,7 +522,7 @@ content.commonIntakeConfirmationTi=관리자가 '프로그램 신청'을 클릭�
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
