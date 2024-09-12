@@ -1,7 +1,6 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 
@@ -9,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
-import services.DeploymentType;
 import services.settings.SettingsService;
 
 public class FeatureFlagOverrideControllerTest extends ResetPostgres {
@@ -26,21 +24,9 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void disable_nonDevMode_fails() {
-    // Execute
-    var result = controller.disable(fakeRequest(), FLAG_NAME);
-
-    // Verify
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void disable() {
     // Setup
-    controller =
-        new FeatureFlagOverrideController(
-            instanceOf(SettingsService.class),
-            new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
+    controller = new FeatureFlagOverrideController(instanceOf(SettingsService.class));
 
     // Execute
     var result = controller.disable(fakeRequest(), FLAG_NAME);
@@ -51,21 +37,9 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void enable_nonDevMode_fails() {
-    // Execute
-    var result = controller.enable(fakeRequest(), FLAG_NAME);
-
-    // Verify
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void enable() {
     // Setup
-    controller =
-        new FeatureFlagOverrideController(
-            instanceOf(SettingsService.class),
-            new DeploymentType(/* isDev= */ true, /* isStaging= */ true));
+    controller = new FeatureFlagOverrideController(instanceOf(SettingsService.class));
 
     // Execute
     var result = controller.enable(fakeRequest(), FLAG_NAME);
