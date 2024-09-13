@@ -168,6 +168,7 @@ public class ApplicationModel extends BaseModel {
   public Optional<String> getLatestStatus() {
     return Optional.ofNullable(latestStatus);
   }
+
   /**
    * Returns the latest application note value associated with the application.
    *
@@ -185,11 +186,12 @@ public class ApplicationModel extends BaseModel {
   void setLatestStatusForTest(String latestStatus) {
     this.latestStatus = latestStatus;
   }
+
   /**
    * This is visible only for tests to manipulate the latest note directly in order to ensure that
    * updates to it are overridden by the configured database trigger.
    */
-  //@VisibleForTesting
+  // @VisibleForTesting
   public void setLatestNote(String applicationNote) {
     this.latestNote = applicationNote;
   }

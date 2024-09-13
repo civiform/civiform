@@ -521,6 +521,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
     assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(adminAccount));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
+    // verify application has the latest note
+    assertThat(application.getLatestNote().get()).isEqualTo(noteText);
   }
 
   @Test
@@ -547,6 +549,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
+    assertThat(application.getLatestNote().get()).isEqualTo(noteText);
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.

@@ -227,6 +227,7 @@ public final class ProgramAdminApplicationService {
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(admin), details);
     eventRepository.insertSync(event);
+    // save the latest note on the applications table too
     application.setLatestNote(note.note());
     application.save();
   }

@@ -156,7 +156,7 @@ public final class CsvExporter implements AutoCloseable {
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
           break;
         case ADMIN_NOTE:
-          printer.print(programDefinition.adminDescription());
+          printer.print(application.getLatestNote());
           break;
       }
     }
