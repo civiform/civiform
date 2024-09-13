@@ -189,8 +189,8 @@ public class ApplicationModel extends BaseModel {
    * This is visible only for tests to manipulate the latest note directly in order to ensure that
    * updates to it are overridden by the configured database trigger.
    */
-  @VisibleForTesting
-  void setlatestNote(String applicationNote) {
+  //@VisibleForTesting
+  public void setLatestNote(String applicationNote) {
     this.latestNote = applicationNote;
   }
 
