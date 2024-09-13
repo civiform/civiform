@@ -1231,8 +1231,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : "Allison",
-          "name_suffix" : "I",
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : "I"
         }""");
   }
 
@@ -1276,8 +1276,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
               "first_name" : "Taylor",
               "last_name" : "Swift",
               "middle_name" : "Allison",
-              "name_suffix" : "I",
-              "question_type" : "NAME"
+              "question_type" : "NAME",
+              "suffix" : "I"
             }
           } ],
           "question_type" : "ENUMERATOR"
@@ -1312,8 +1312,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : null,
-          "name_suffix" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 
@@ -1343,8 +1343,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : null,
           "last_name" : null,
           "middle_name" : null,
-          "name_suffix" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 
