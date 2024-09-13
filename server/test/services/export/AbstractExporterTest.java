@@ -21,6 +21,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
+import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
 import services.program.EligibilityDefinition;
@@ -183,14 +184,20 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
     applicationOne =
         createFakeApplication(
-            applicantOne, admin, fakeProgram, LifecycleStage.ACTIVE, STATUS_VALUE);
+            applicantOne, admin, fakeProgram, LifecycleStage.ACTIVE, STATUS_VALUE, "Test note");
     applicationTwo =
         createFakeApplication(
-            applicantOne, admin, fakeProgram, LifecycleStage.OBSOLETE, STATUS_VALUE);
+            applicantOne, admin, fakeProgram, LifecycleStage.OBSOLETE, STATUS_VALUE, "admin_note");
     applicationThree =
-        createFakeApplication(applicantOne, admin, fakeProgram, LifecycleStage.DRAFT, STATUS_VALUE);
+        createFakeApplication(
+            applicantOne,
+            admin,
+            fakeProgram,
+            LifecycleStage.DRAFT,
+            STATUS_VALUE,
+            "test_application");
     applicationFour =
-        createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null);
+        createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null, null);
   }
 
   private ApplicationModel createFakeApplication(
@@ -198,7 +205,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       @Nullable AccountModel admin,
       ProgramModel program,
       LifecycleStage lifecycleStage,
-      @Nullable String status)
+      @Nullable String status,
+      @Nullable String note)
       throws Exception {
     ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
@@ -215,6 +223,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           application,
           StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
           admin);
+    }
+    if (note != null && admin != null) {
+      programAdminApplicationService.setNote(
+          application, ApplicationEventDetails.NoteEvent.create(note), admin);
     }
     application.refresh();
     return application;
