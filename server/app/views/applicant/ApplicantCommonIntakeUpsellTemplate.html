@@ -53,11 +53,11 @@
         </div>
       </div>
     </main>
-    <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
-                                                           <!--/* showReviewLogin= */-->false,
-                                                           <!--/* showUpsellLogin= */-->${isGuest})}"
-    ></div>
+
+    <div th:if="${isGuest}">
+      <div th:replace="~{applicant/ModalFragment:: upsellLogin}"></div>
+    </div>
+
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>
