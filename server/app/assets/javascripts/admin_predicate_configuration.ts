@@ -232,7 +232,7 @@ class AdminPredicateConfiguration {
     return (
       scalarValue === 'SELECTION' ||
       scalarValue === 'SELECTIONS' ||
-      scalarValue === 'SERVICE_AREA'
+      scalarValue === 'SERVICE_AREAS'
     )
   }
 

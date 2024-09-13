@@ -83,7 +83,7 @@ test.describe('Applicant navigation flow', () => {
 
           await adminPredicates.addPredicates({
             questionName: questionAddress,
-            scalar: 'service_area',
+            scalar: 'service area',
             operator: 'in service area',
             value: 'Seattle',
           })
@@ -99,7 +99,7 @@ test.describe('Applicant navigation flow', () => {
           await adminPredicates.addPredicates({
             questionName: questionAddress,
             action: 'shown if',
-            scalar: 'service_area',
+            scalar: 'service area',
             operator: 'in service area',
             value: 'Seattle',
           })
