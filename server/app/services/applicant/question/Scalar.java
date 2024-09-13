@@ -49,7 +49,7 @@ public enum Scalar {
 
   // Special scalars for Address questions
   SERVICE_AREA("service_area", ScalarType.SERVICE_AREA), // Deprecated
-  SERVICE_AREAS("service_areas", ScalarType.SERVICE_AREA), // Array property name
+  SERVICE_AREAS("service area", ScalarType.SERVICE_AREA), // Array property name
   SERVICE_AREA_STATE("state", ScalarType.STRING),
   SERVICE_AREA_ID("service_area_id", ScalarType.STRING),
 
