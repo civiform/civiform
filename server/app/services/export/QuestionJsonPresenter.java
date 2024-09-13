@@ -390,6 +390,9 @@ public interface QuestionJsonPresenter<Q extends Question> {
         NameQuestion question, boolean multipleFileUploadEnabled) {
       // We could be clever and loop through question.getAllPaths(), but we want
       // to explicitly set which scalars are exposed to the API.
+
+      Path questionPath =
+          question.getApplicantQuestion().getContextualizedPath().asNestedEntitiesPath();
       return ImmutableMap.of(
           /* k1= */ question.getFirstNamePath().asNestedEntitiesPath(),
           /* v1= */ question.getFirstNameValue(),
@@ -397,7 +400,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
           /* v2= */ question.getMiddleNameValue(),
           /* k3= */ question.getLastNamePath().asNestedEntitiesPath(),
           /* v3= */ question.getLastNameValue(),
-          /* k4= */ Path.replaceSuffixPath(question.getNameSuffixPath().segments()),
+          /* k4= */ questionPath.join(ApiPathSegment.SUFFIX),
           /* v4= */ question.getNameSuffixValue());
     }
   }
