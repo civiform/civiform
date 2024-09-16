@@ -8,8 +8,6 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -51,17 +49,6 @@ public abstract class Path {
   private static Path create(ImmutableList<String> segments) {
     return new AutoValue_Path(
         segments.stream().map(String::toLowerCase).collect(ImmutableList.toImmutableList()));
-  }
-
-  /** Substitute "suffix" for "name_suffix" and return in a new path. */
-  public static Path replaceSuffixPath(ImmutableList<String> segments) {
-    List<String> modifiedSegments = new ArrayList<>(segments);
-    String lastElement = segments.get(segments.size() - 1);
-    if (lastElement.equals("name_suffix")) {
-      modifiedSegments.remove(segments.size() - 1);
-      modifiedSegments.add("suffix");
-    }
-    return new AutoValue_Path(modifiedSegments.stream().collect(ImmutableList.toImmutableList()));
   }
 
   /**
