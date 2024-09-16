@@ -293,26 +293,31 @@ public abstract class EsriClient {
 
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
-              List<String> features =
-                  ctx.read(
-                      "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
+
+              // Earlier this was just using the results of read directly. While the list
+              // was explicitly typed for String it still had some values as non-strings
+              // which was preventing the later contains check from correctly matching.
+              // This creates a copy of the results because trying to directly stream
+              // from it results in json array errors.
+              ImmutableList<String> features =
+                  List.copyOf(
+                          ctx.read(
+                              "features[*].attributes."
+                                  + esriServiceAreaValidationOption.getAttribute()))
+                      .stream()
+                      .map(Object::toString)
+                      .collect(ImmutableList.toImmutableList());
 
               for (EsriServiceAreaValidationOption option : optionList) {
-                if (features.contains(option.getId())) {
-                  inclusionListBuilder.add(
-                      serviceAreaInclusionBuilder
-                          .setServiceAreaId(option.getId())
-                          .setState(ServiceAreaState.IN_AREA)
-                          .setTimeStamp(clock.millis())
-                          .build());
-                } else {
-                  inclusionListBuilder.add(
-                      serviceAreaInclusionBuilder
-                          .setServiceAreaId(option.getId())
-                          .setState(ServiceAreaState.NOT_IN_AREA)
-                          .setTimeStamp(clock.millis())
-                          .build());
-                }
+                inclusionListBuilder.add(
+                    serviceAreaInclusionBuilder
+                        .setServiceAreaId(option.getId())
+                        .setState(
+                            features.contains(option.getId())
+                                ? ServiceAreaState.IN_AREA
+                                : ServiceAreaState.NOT_IN_AREA)
+                        .setTimeStamp(clock.millis())
+                        .build());
               }
 
               return inclusionListBuilder.build();

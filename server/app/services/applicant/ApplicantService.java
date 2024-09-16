@@ -80,7 +80,6 @@ import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
-import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
@@ -1565,6 +1564,17 @@ public final class ApplicantService {
         applicantData.maybeClearArray(currentPath);
       }
 
+      // Service area gets updated below, but we need to skip the property and any
+      // children that is under that path as they need to be treated as a group.
+      if (currentPath.parentPath().isArrayElement()
+          && currentPath
+              .parentPath()
+              .withoutArrayReference()
+              .keyName()
+              .equals(Scalar.SERVICE_AREAS.name().toLowerCase(Locale.ROOT))) {
+        continue;
+      }
+
       ScalarType type =
           block
               .getScalarType(currentPath)
@@ -1624,9 +1634,14 @@ public final class ApplicantService {
     }
 
     if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
-      applicantData.putString(
-          serviceAreaUpdate.get().path(),
-          ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
+      applicantData.putServiceAreaInclusionEntities(
+          serviceAreaUpdate
+              .get()
+              .path()
+              .parentPath()
+              .join(Scalar.SERVICE_AREAS.name())
+              .asArrayElement(),
+          serviceAreaUpdate.get().value());
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.

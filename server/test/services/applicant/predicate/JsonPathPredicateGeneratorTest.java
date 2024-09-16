@@ -19,6 +19,8 @@ import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -513,9 +515,32 @@ public class JsonPathPredicateGeneratorTest {
   @Test
   public void fromLeafServiceAreaNode_generatesCorrectPredicate() throws Exception {
     ApplicantData data = new ApplicantData();
-    data.putString(
-        Path.create("applicant.applicant_address.service_area"),
-        "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
+
+    data.putServiceAreaInclusionEntities(
+        serviceAreaPath,
+        ImmutableList.of(
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("bloomington")
+                .setState(ServiceAreaState.FAILED)
+                .setTimeStamp(1234)
+                .build(),
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("king-county")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(2222)
+                .build(),
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("seattle")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(5678)
+                .build(),
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("Arkansas")
+                .setState(ServiceAreaState.NOT_IN_AREA)
+                .setTimeStamp(8765)
+                .build()));
 
     JsonPathPredicate predicate =
         generator.fromLeafAddressServiceAreaNode(
@@ -546,15 +571,5 @@ public class JsonPathPredicateGeneratorTest {
             LeafAddressServiceAreaExpressionNode.create(
                 question.getId(), "Kansas", Operator.IN_SERVICE_AREA));
     assertThat(data.evalPredicate(predicate)).isFalse();
-  }
-
-  @Test
-  public void fromLeafServiceAreaNode_invalidServiceAreaId_throws() {
-    assertThatThrownBy(
-            () ->
-                generator.fromLeafAddressServiceAreaNode(
-                    LeafAddressServiceAreaExpressionNode.create(
-                        question.getId(), "busted ID", Operator.IN_SERVICE_AREA)))
-        .isInstanceOf(InvalidPredicateException.class);
   }
 }

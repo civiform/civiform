@@ -152,7 +152,7 @@ export class AdminPredicates {
     questionId: string,
   ) {
     // Service areas are the only value input that use a select
-    if (scalar === 'service_area') {
+    if (scalar === 'service area') {
       const valueSelect = await this.page.$(
         `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
       )

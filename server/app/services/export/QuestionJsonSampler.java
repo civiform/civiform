@@ -22,6 +22,8 @@ import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Question;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionAnswerer;
@@ -188,7 +190,10 @@ public interface QuestionJsonSampler<Q extends Question> {
           /* latitude= */ 44.0462,
           /* longitude= */ -123.0236,
           /* wellKnownId= */ 4326L,
-          /* serviceArea= */ "springfieldCounty_InArea_1709069741,portland_NotInArea_1709069741");
+          /* serviceAreaInclusions= */ ImmutableList.of(
+              ServiceAreaInclusion.create(
+                  "springfieldCounty", ServiceAreaState.IN_AREA, 1709069741),
+              ServiceAreaInclusion.create("portland", ServiceAreaState.NOT_IN_AREA, 1709069741)));
     }
 
     @Override

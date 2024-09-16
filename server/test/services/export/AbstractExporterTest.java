@@ -23,6 +23,7 @@ import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
+import services.geo.ServiceAreaInclusion;
 import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
@@ -807,7 +808,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         Double latitude,
         Double longitude,
         Long wellKnownId,
-        String serviceArea) {
+        ImmutableList<ServiceAreaInclusion> serviceAreaInclusions) {
       return answerCorrectedAddressQuestion(
           question,
           null,
@@ -820,7 +821,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           latitude,
           longitude,
           wellKnownId,
-          serviceArea);
+          serviceAreaInclusions);
     }
 
     FakeApplicationFiller answerCorrectedAddressQuestion(
@@ -835,7 +836,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         Double latitude,
         Double longitude,
         Long wellKnownId,
-        String serviceArea) {
+        ImmutableList<ServiceAreaInclusion> serviceAreaInclusions) {
       var repeatedEntity =
           Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
       Path answerPath =
@@ -854,7 +855,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           latitude,
           longitude,
           wellKnownId,
-          serviceArea);
+          serviceAreaInclusions);
       applicant.save();
       return this;
     }

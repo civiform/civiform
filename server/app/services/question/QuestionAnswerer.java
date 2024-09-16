@@ -5,6 +5,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.geo.ServiceAreaInclusion;
 
 /**
  * A class that has static methods used to answer {@link ApplicantQuestion}s for each type.
@@ -40,7 +41,7 @@ public final class QuestionAnswerer {
       Double latitude,
       Double longitude,
       Long wellKnownId,
-      String serviceArea) {
+      ImmutableList<ServiceAreaInclusion> serviceAreaInclusions) {
     applicantData.putString(contextualizedPath.join(Scalar.STREET), street);
     applicantData.putString(contextualizedPath.join(Scalar.LINE2), line2);
     applicantData.putString(contextualizedPath.join(Scalar.CITY), city);
@@ -50,7 +51,8 @@ public final class QuestionAnswerer {
     applicantData.putDouble(contextualizedPath.join(Scalar.LATITUDE), latitude);
     applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
     applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);
-    applicantData.putString(contextualizedPath.join(Scalar.SERVICE_AREA), serviceArea);
+    applicantData.putServiceAreaInclusionEntities(
+        contextualizedPath.join(Scalar.SERVICE_AREAS).asArrayElement(), serviceAreaInclusions);
   }
 
   public static void answerCurrencyQuestion(

@@ -445,7 +445,7 @@ public class CfJsonDocumentContext {
    * @param typeRef the {@link TypeRef} of the expected ImmutableList<T> type.
    * @return an Optional containing an ImmutableList<T>.
    */
-  private <T> Optional<ImmutableList<T>> readList(Path path, TypeRef<ImmutableList<T>> typeRef) {
+  protected <T> Optional<ImmutableList<T>> readList(Path path, TypeRef<ImmutableList<T>> typeRef) {
     try {
       return this.read(path, typeRef);
     } catch (JsonPathTypeMismatchException e) {
