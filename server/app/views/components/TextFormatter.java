@@ -179,6 +179,7 @@ public final class TextFormatter {
                 "target",
                 "xmlns",
                 "fill",
+                "start", // <--- Allow OLs to continue numbering instead of resetting to 1.
                 "stroke",
                 "stroke-width",
                 "aria-label",
