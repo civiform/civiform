@@ -15,12 +15,12 @@ import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.util.Arrays;
-import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 import services.geo.ServiceAreaInclusion;
@@ -99,7 +99,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
   }
 
   private ApplicantData processRow(ApplicantData applicantData) throws JsonProcessingException {
-    String serviceAreaName = Scalar.SERVICE_AREA.name().toLowerCase(Locale.ROOT);
+    String serviceAreaName = Path.create(Scalar.SERVICE_AREA.name()).keyName();
     JsonNode rootJsonNode = objectMapper.readTree(applicantData.asJsonString());
 
     for (var questionJsonNode : rootJsonNode.findParents(serviceAreaName)) {
@@ -117,7 +117,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
 
         // Plural "service_areas"
         ((ObjectNode) questionJsonNode)
-            .set(Scalar.SERVICE_AREAS.name().toLowerCase(Locale.ROOT), newJsonNode);
+            .set(Path.create(Scalar.SERVICE_AREAS.name()).keyName(), newJsonNode);
       }
     }
 
