@@ -13,11 +13,9 @@ import durablejobs.DurableJob;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
-import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.Arrays;
 import java.util.Locale;
-
-import io.ebean.annotation.TxIsolation;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.PersistedDurableJobModel;
@@ -53,7 +51,7 @@ public final class ConvertAddressServiceAreaToArrayJob extends DurableJob {
     try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       int errorCount = 0;
 
-      // Filter to only include rows what have a service_area key that is a string type. Vastly
+      // Filter to only include rows that have a service_area key that is a string type. Vastly
       // improves the run time cutting out a large number of unneeded records.
       String filter =
           """
@@ -109,7 +107,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
           && questionJsonNode.get(serviceAreaName).getNodeType() == JsonNodeType.STRING) {
         ImmutableList<ServiceAreaInclusion> items =
             Arrays.stream(questionJsonNode.get(serviceAreaName).asText().split(","))
-                .map(ConvertAddressServiceAreaToArrayJob::buildServiceAreaArrayFromString)
+                .map(ConvertAddressServiceAreaToArrayJob::buildServiceAreaFromString)
                 .collect(ImmutableList.toImmutableList());
 
         JsonNode newJsonNode = objectMapper.valueToTree(items);
@@ -127,7 +125,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
   }
 
   @VisibleForTesting
-  static ServiceAreaInclusion buildServiceAreaArrayFromString(String value) {
+  static ServiceAreaInclusion buildServiceAreaFromString(String value) {
     String[] parts = value.split("_");
 
     if (parts.length < 3) {
@@ -137,7 +135,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
     }
 
     // The original string was in the pattern serviceareaid_state_timestamp. The state and
-    // timestamp are have known fixed values. While there was a regular expression that should
+    // timestamp have known fixed values. While there was a regular expression that should
     // only have allowed alphanumerics and a hyphen to be used for the serviceareaid it's
     // technically free form from the user data. If there were a bug that allowed an underscore
     // to get through it would prevent breaking this delimited string up correctly.

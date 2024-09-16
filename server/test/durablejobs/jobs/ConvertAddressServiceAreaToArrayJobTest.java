@@ -1,6 +1,7 @@
 package durablejobs.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
@@ -34,7 +35,7 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
     applicationRepository = instanceOf(ApplicationRepository.class);
   }
 
-  static ImmutableList<Object[]> canConvertStringToArrayParameters() {
+  static ImmutableList<Object[]> buildServiceAreaFromStringParameters() {
     return ImmutableList.of(
         new Object[] {"a_InArea_1", "a", ServiceAreaState.IN_AREA, 1L},
         new Object[] {"a_b_InArea_1", "a_b", ServiceAreaState.IN_AREA, 1L},
@@ -42,14 +43,20 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters(method = "canConvertStringToArrayParameters")
-  public void canConvertStringToArray(
+  @Parameters(method = "buildServiceAreaFromStringParameters")
+  public void buildServiceAreaFromString_succeeds(
       String value, String serviceAreaId, ServiceAreaState state, Long timestamp) {
-    var row = ConvertAddressServiceAreaToArrayJob.buildServiceAreaArrayFromString(value);
+    var row = ConvertAddressServiceAreaToArrayJob.buildServiceAreaFromString(value);
 
     assertThat(row.getServiceAreaId()).isEqualTo(serviceAreaId);
     assertThat(row.getState()).isEqualTo(state);
     assertThat(row.getTimeStamp()).isEqualTo(timestamp);
+  }
+
+  @Test
+  public void buildServiceAreaFromString_failsWhenInputDoesNotHaveEnoughParts() {
+    assertThatThrownBy(
+        () -> ConvertAddressServiceAreaToArrayJob.buildServiceAreaFromString("InArea_1"));
   }
 
   @Test
@@ -151,7 +158,6 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
         }
         """;
 
-    //
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.setApplicantData(new ApplicantData(originalJson, applicant));
     applicant.save();
@@ -194,7 +200,6 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
         }
         """;
 
-    //
     ProgramModel program = ProgramBuilder.newActiveProgram("program1").build();
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
@@ -276,7 +281,6 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
         }
         """;
 
-    //
     ProgramModel program = ProgramBuilder.newActiveProgram("program1").build();
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
