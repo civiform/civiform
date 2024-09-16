@@ -16,6 +16,8 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.Arrays;
 import java.util.Locale;
+
+import io.ebean.annotation.TxIsolation;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.PersistedDurableJobModel;
@@ -48,8 +50,7 @@ public final class ConvertAddressServiceAreaToArrayJob extends DurableJob {
   public void run() {
     logger.info("Run - Begin");
 
-    try (Transaction jobTransaction = database.beginTransaction()) {
-      jobTransaction.setNestedUseSavepoint();
+    try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       int errorCount = 0;
 
       // Filter to only include rows what have a service_area key that is a string type. Vastly
@@ -61,12 +62,11 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
 
       try (var query = database.find(ApplicantModel.class).where().raw(filter).findIterate()) {
         while (query.hasNext()) {
-          try (Transaction stepTransaction = database.beginTransaction(TxScope.mandatory())) {
+          try {
             ApplicantModel applicant = query.next();
             logger.debug("Converting service area for applicant id {}", applicant.id);
             applicant.setApplicantData(processRow(applicant.getApplicantData()));
-            applicant.save(stepTransaction);
-            stepTransaction.commit();
+            applicant.save(jobTransaction);
           } catch (Exception e) {
             errorCount++;
             logger.error(e.getMessage(), e);
@@ -76,12 +76,11 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
 
       try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
         while (query.hasNext()) {
-          try (Transaction stepTransaction = database.beginTransaction(TxScope.mandatory())) {
+          try {
             ApplicationModel application = query.next();
             logger.debug("Converting service area for application id {}", application.id);
             application.setApplicantData(processRow(application.getApplicantData()));
-            application.save(stepTransaction);
-            stepTransaction.commit();
+            application.save(jobTransaction);
           } catch (Exception e) {
             errorCount++;
             logger.error(e.getMessage(), e);
