@@ -180,9 +180,10 @@ public class AdminImportController extends CiviFormController {
             ImmutableList.of() // associated TI groups are not migrated
             );
     if (!programErrors.isEmpty()) {
+      String errorString = joinErrors(programErrors).replace("URL", "admin name");
       return ok(
           adminImportViewPartial
-              .renderError("One or more program errors occured:", joinErrors(programErrors))
+              .renderError("One or more program errors occured:", errorString)
               .render());
     }
 

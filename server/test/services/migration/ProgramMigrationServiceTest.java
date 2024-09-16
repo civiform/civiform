@@ -8,16 +8,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.admin.ProgramMigrationWrapper;
+import java.util.HashSet;
+import java.util.Locale;
+import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Lang;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.ErrorAnd;
@@ -200,6 +205,35 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ProgramDefinition output = service.prepForExport(program);
 
     assertThat(output.notificationPreferences()).isEmpty();
+  }
+
+  @Test
+  public void prepForExport_clearsTiGroupAcls() {
+    ImmutableList<Long> tiGroups = ImmutableList.of(1L, 2L, 3L);
+    ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram().withAcls(programAcls).build().getProgramDefinition();
+
+    ProgramDefinition output = service.prepForExport(program);
+
+    assertThat(output.acls().getTiProgramViewAcls()).isEmpty();
+  }
+
+  @Test
+  public void prepForExport_clearsCategories() {
+    ImmutableMap<Locale, String> translations =
+        ImmutableMap.of(
+            Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withCategories(ImmutableList.of(new CategoryModel(translations)))
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition output = service.prepForExport(program);
+
+    assertThat(output.categories()).isEmpty();
   }
 
   @Test
