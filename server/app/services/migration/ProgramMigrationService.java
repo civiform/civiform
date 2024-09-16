@@ -141,12 +141,11 @@ public final class ProgramMigrationService {
    */
   public ProgramDefinition prepForExport(ProgramDefinition programDefinition) {
     return programDefinition.toBuilder()
-        // TODO(#7087) migrate program categories
+        // TODO(#8613) migrate program categories and associated TI groups
         .setCategories(ImmutableList.of())
+        .setAcls(new ProgramAcls())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
-        // Don't export associated ti group ids
-        .setAcls(new ProgramAcls())
         .build();
   }
 

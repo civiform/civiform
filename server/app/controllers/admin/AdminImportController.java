@@ -180,6 +180,9 @@ public class AdminImportController extends CiviFormController {
             ImmutableList.of() // associated TI groups are not migrated
             );
     if (!programErrors.isEmpty()) {
+      // We want to reference "admin name" instead of "URL" in errors, because there is no URL field
+      // in program migration. The existing error strings were created for the program create/edit
+      // UI which has a URL field that is generated from the admin name.
       String errorString = joinErrors(programErrors).replace("URL", "admin name");
       return ok(
           adminImportViewPartial
@@ -315,7 +318,7 @@ public class AdminImportController extends CiviFormController {
                 });
       }
 
-      // TODO(#7087) migrate application statuses for the program
+      // TODO(#8613) migrate application statuses for the program
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
           updatedProgram.adminName(), new StatusDefinitions());
 
