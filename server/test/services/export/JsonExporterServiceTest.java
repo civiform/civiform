@@ -1211,8 +1211,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.nameApplicantName())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNameQuestion(
-            testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "Jr.")
+        .answerNameQuestion(testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1232,7 +1231,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : "Allison",
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : "I"
         }""");
   }
 
@@ -1253,7 +1253,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "Taylor",
             "Allison",
             "Swift",
-            "")
+            "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1276,7 +1276,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
               "first_name" : "Taylor",
               "last_name" : "Swift",
               "middle_name" : "Allison",
-              "question_type" : "NAME"
+              "question_type" : "NAME",
+              "suffix" : "I"
             }
           } ],
           "question_type" : "ENUMERATOR"
@@ -1311,7 +1312,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 
@@ -1341,7 +1343,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : null,
           "last_name" : null,
           "middle_name" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 
