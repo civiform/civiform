@@ -1,7 +1,6 @@
-package controllers.dev.seeding;
+package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -21,10 +20,10 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.VersionRepository;
 
-public class DevDatabaseSeedControllerTest {
+public class DevToolsControllerTest {
 
   private Optional<Application> maybeApp = Optional.empty();
-  private DevDatabaseSeedController controller;
+  private DevToolsController controller;
   private VersionRepository versionRepo;
   private SyncCacheApi programsByVersionCache;
 
@@ -47,7 +46,7 @@ public class DevDatabaseSeedControllerTest {
 
     // Seed the fake data.
     result = controller.seedPrograms();
-    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
@@ -60,7 +59,7 @@ public class DevDatabaseSeedControllerTest {
 
     // Clear the data.
     result = controller.clear();
-    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been cleared");
     result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
@@ -85,7 +84,7 @@ public class DevDatabaseSeedControllerTest {
 
     // Seed the fake data.
     result = controller.seedPrograms();
-    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
@@ -102,39 +101,6 @@ public class DevDatabaseSeedControllerTest {
     assertThat(programsByVersionCache.get(cacheKey).isPresent()).isFalse();
   }
 
-  @Test
-  public void index_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.index(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void data_inNonDevMode_returnsNotFound() {
-
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.data(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void seedPrograms_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.seedPrograms();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void clear_inNonDevMode_returnsNotFound() {
-    setupControllerInMode(Mode.TEST);
-    Result result = controller.clear();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
   private void setupControllerInMode(Mode mode) {
     maybeApp =
         Optional.of(
@@ -142,7 +108,7 @@ public class DevDatabaseSeedControllerTest {
                 .in(mode)
                 .configure("version_cache_enabled", true)
                 .build());
-    controller = maybeApp.get().injector().instanceOf(DevDatabaseSeedController.class);
+    controller = maybeApp.get().injector().instanceOf(DevToolsController.class);
     BindingKey<SyncCacheApi> versionProgramsKey =
         new BindingKey<>(SyncCacheApi.class).qualifiedWith(new NamedCacheImpl("version-programs"));
     programsByVersionCache = maybeApp.get().injector().instanceOf(versionProgramsKey.asScala());

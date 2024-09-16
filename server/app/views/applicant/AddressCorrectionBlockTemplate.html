@@ -13,73 +13,81 @@
       <div class="grid-container section">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
+            <div
+              th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
+            ></div>
+            <div
+              th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+            ></div>
+
+            <div class="usa-prose">
+              <h2 th:text="#{title.confirmAddress}"></h2>
+            </div>
+            <div class="section usa-prose">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${addressAlertSettings}, headingLevel='H3')}"
+              ></div>
+            </div>
+
             <form
               id="cf-block-form"
               th:action="${confirmAddressAction}"
               method="POST"
-              th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()},
-               anySuggestions=${suggestions.size() > 0}"
+              th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()}"
             >
-              <div
-                th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
-              ></div>
               <input hidden th:value="${csrfToken}" name="csrfToken" />
-              <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-              ></div>
-
-              <h2 th:text="#{title.confirmAddress}"></h2>
-              <div th:text="#{content.confirmAddressLine1}"></div>
-              <div
-                th:if="${anySuggestions}"
-                th:text="#{content.foundSimilarAddressLine2}"
-              ></div>
-              <div
-                th:if="${!anySuggestions}"
-                th:text="#{content.noValidAddressLine2}"
-              ></div>
-
-              <!--/* If this question is used for eligibility, we must use the corrected address */-->
-              <div th:if="${!isEligibilityEnabled}">
-                <h3 th:text="#{content.addressEntered}"></h3>
-                <div
-                  th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${addressSuggestionGroup.getOriginalAddress()}, ${!anySuggestions}, ${!anySuggestions}, 'USER_KEEPING_ADDRESS_VALUE')}"
-                ></div>
-              </div>
-
-              <!--/* render suggested addresses */-->
-              <div th:if="${anySuggestions}">
-                <h3
-                  th:if="${suggestions.size() == 1}"
-                  th:text="#{content.suggestedAddress}"
-                ></h3>
-                <h3
-                  th:if="${suggestions.size() > 1}"
-                  th:text="#{content.suggestedAddresses}"
-                ></h3>
-
-                <th:block
-                  th:each="suggestion, iterator: ${suggestions}"
-                  th:if="${iterator.index &lt; 3}"
-                >
+              <fieldset class="cf-no-margin-padding">
+                <!--/* If this question is used for eligibility, we must use the corrected address */-->
+                <div th:if="${!isEligibilityEnabled}" class="usa-prose">
+                  <h4 th:text="#{content.addressEntered}"></h4>
                   <div
-                    th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(${suggestions.get(iterator.index).getAddress()}, ${iterator.index == 0}, false, ${suggestion.getSingleLineAddress()})}"
+                    th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                        ${addressSuggestionGroup.getOriginalAddress()},
+                        ${!anySuggestions},
+                        ${!anySuggestions},
+                        'USER_KEEPING_ADDRESS_VALUE')}"
                   ></div>
-                </th:block>
-              </div>
+                </div>
+
+                <!--/* Render suggested addresses */-->
+                <div th:if="${anySuggestions}" class="usa-prose">
+                  <h4
+                    th:if="${suggestions.size() == 1}"
+                    th:text="#{content.suggestedAddress}"
+                  ></h4>
+                  <h4
+                    th:if="${suggestions.size() > 1}"
+                    th:text="#{content.suggestedAddresses}"
+                  ></h4>
+
+                  <th:block
+                    th:each="suggestion, iterator: ${suggestions}"
+                    th:if="${iterator.index &lt; 3}"
+                  >
+                    <div
+                      th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                        ${suggestions.get(iterator.index).getAddress()},
+                        ${iterator.index == 0},
+                        false,
+                        ${suggestion.getSingleLineAddress()})}"
+                    ></div>
+                  </th:block>
+                </div>
+              </fieldset>
+
               <!--/* Bottom nav buttons */-->
-              <div>
+              <div class="section">
                 <button
-                  type="submit"
-                  class="usa-button"
-                  th:text="#{button.confirmAddress}"
-                  th:formaction="${confirmAddressAction}"
-                ></button>
-                <button
-                  class="usa-button"
+                  class="usa-button usa-button--outline margin-bottom-1"
                   th:text="#{button.goBackAndEdit}"
                   th:attr="data-redirect-to=${goBackAction}"
                   type="button"
+                ></button>
+                <button
+                  type="submit"
+                  class="usa-button margin-bottom-1"
+                  th:text="#{button.confirmAddress}"
+                  th:formaction="${confirmAddressAction}"
                 ></button>
               </div>
             </form>
@@ -87,11 +95,6 @@
         </div>
       </div>
     </main>
-    <div
-      th:replace="~{applicant/ModalFragment:: modalContainer(<!--/* showProgramIndexLogin= */-->false,
-                                                             <!--/* showReviewLogin= */-->false,
-                                                             <!--/* showUpsellLogin= */-->false)}"
-    ></div>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

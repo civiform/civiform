@@ -1,6 +1,7 @@
 <div
   th:fragment="address-correction-option(address, selected, hideButton, singleLineAddress)"
   class="usa-radio"
+  th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
 >
   <input
     type="radio"
@@ -9,8 +10,9 @@
     th:value="${singleLineAddress}"
     th:checked="${selected}"
     th:attr="hidden=${hideButton ? '' : null}"
+    th:id="${inputId}"
   />
-  <label th:class="${hideButton ? '' : 'usa-radio__label'}">
+  <label th:class="${hideButton ? '' : 'usa-radio__label'}" th:for="${inputId}">
     <div th:text="${address.getStreet()}"></div>
     <div th:if="${address.hasLine2()}" th:text="${address.getLine2()}"></div>
     <!--/* City, State Zip */-->

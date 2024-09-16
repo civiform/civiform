@@ -19,6 +19,15 @@ function docker::compose_dev() {
 }
 
 #######################################
+# Runs docker compose with the prod image in a dev-like way.
+# Arguments:
+#   @: arguments for compose
+#######################################
+function docker::compose_dev_with_prod() {
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.prod-dev.yml "$@"
+}
+
+#######################################
 # Runs docker compose with the unit test settings.
 # Arguments:
 #   @: arguments for compose
@@ -255,4 +264,12 @@ function docker::dev_and_test_server_sbt_command() {
 
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
   docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dsbt.offline $2
+}
+
+#######################################
+# Tail the application log inside the prod civiform container.
+#######################################
+function docker::tail_prod_civiform_log() {
+  local server_container_name="${COMPOSE_PROJECT_NAME}-civiform-1"
+  docker exec -it $server_container_name bin/bash -c "tail -F /civiform-server-0.0.1/logs/application.log 2>/dev/null"
 }

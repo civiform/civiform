@@ -1,10 +1,11 @@
-package controllers.dev.seeding;
+package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
+import controllers.dev.seeding.DevDatabaseSeedTask;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -23,25 +24,23 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.DeploymentType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
-import views.dev.DatabaseSeedView;
+import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
-public class DevDatabaseSeedController extends Controller {
+public class DevToolsController extends Controller {
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
-  private final DatabaseSeedView view;
+  private final DevToolsView view;
   private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
   private final SettingsService settingsService;
-  private final boolean isDevOrStaging;
   private final SettingsManifest settingsManifest;
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
@@ -51,13 +50,12 @@ public class DevDatabaseSeedController extends Controller {
   private final Clock clock;
 
   @Inject
-  public DevDatabaseSeedController(
+  public DevToolsController(
       DevDatabaseSeedTask devDatabaseSeedTask,
-      DatabaseSeedView view,
+      DevToolsView view,
       QuestionService questionService,
       ProgramService programService,
       SettingsService settingsService,
-      DeploymentType deploymentType,
       SettingsManifest settingsManifest,
       Clock clock,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
@@ -71,7 +69,6 @@ public class DevDatabaseSeedController extends Controller {
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
-    this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
@@ -86,16 +83,10 @@ public class DevDatabaseSeedController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
   }
 
   public Result data(Request request) {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
@@ -103,34 +94,24 @@ public class DevDatabaseSeedController extends Controller {
   }
 
   public Result seedQuestions() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
-
     devDatabaseSeedTask.seedQuestions();
 
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "Sample questions seeded");
   }
 
   public Result seedPrograms() {
     // TODO: Check whether test program already exists to prevent error.
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
 
     devDatabaseSeedTask.seedProgramCategories();
     devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been seeded");
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     String jobName = request.body().asFormUrlEncoded().get("durableJobSelect")[0];
     // I think there's currently a bug where the job runner interprets the timestamps as local
     // times rather than UTC. So set it to yesterday to ensure it runs.
@@ -151,22 +132,16 @@ public class DevDatabaseSeedController extends Controller {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     clearCacheIfEnabled();
     resetTables();
-    return redirect(routes.DevDatabaseSeedController.index().url())
+    return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been cleared");
   }
 
   /** Remove all content from the cache. */
   public Result clearCache() {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
-      return redirect(routes.DevDatabaseSeedController.index().url())
+      return redirect(routes.DevToolsController.index().url())
           .flashing(
               "warning",
               "The cache is not enabled, so no cache was cleared. To enable caching, set"
@@ -184,9 +159,6 @@ public class DevDatabaseSeedController extends Controller {
    * tasks, but we assume all dev instances only have one task.
    */
   private void clearCacheIfEnabled() {
-    if (!isDevOrStaging) {
-      return;
-    }
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
