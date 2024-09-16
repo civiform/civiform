@@ -224,10 +224,12 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ImmutableMap<Locale, String> translations =
         ImmutableMap.of(
             Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
+    CategoryModel category = new CategoryModel(translations);
+    category.save();
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
-            .withCategories(ImmutableList.of(new CategoryModel(translations)))
+            .withCategories(ImmutableList.of(category))
             .build()
             .getProgramDefinition();
 
