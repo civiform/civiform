@@ -16,8 +16,20 @@ import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
+import htmx from './htmx'
+
+// todo not sure why this doesn't init from the import above. maybe it's unused to it's getting cleaned up?
+// @ts-expect-error Extra noise because of linting rules thinking this is wrong, but it is not.
+window.htmx = htmx
 
 window.addEventListener('load', () => {
+  initializeEverything()
+  htmx.on('htmx:afterSettle', () => {
+    initializeEverything()
+  })
+})
+
+function initializeEverything(): void {
   main.init()
   languageSelector.init()
   enumerator.init()
@@ -32,4 +44,4 @@ window.addEventListener('load', () => {
   // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()
   trustedIntermediary.init()
-})
+}

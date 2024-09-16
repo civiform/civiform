@@ -238,6 +238,7 @@ public class BaseHtmlLayout {
                                 "usa-banner__button")
                             .attr("aria-expanded", false)
                             .attr("aria-controls", "gov-banner-default-default")
+                            // .attr("hidden") // start the banner hidden by default
                             .with(
                                 span(maybeMessages.isPresent()
                                         ? maybeMessages
@@ -250,6 +251,7 @@ public class BaseHtmlLayout {
         div()
             .withClasses("usa-banner__content", "usa-accordion__content", "sm: ml-0", "sm:pl-4")
             .withId("gov-banner-default-default")
+            .attr("hidden")
             .with(
                 div()
                     .withClasses("grid-row", "grid-gap-lg")

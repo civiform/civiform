@@ -570,10 +570,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages) {
     return form()
         .withId("category-filter-form")
-        .withAction(
-            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId, ImmutableList.of())
-                .url())
+        // .withAction(
+        //     controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+        //             applicantId, ImmutableList.of())
+        //         .url())
         .withMethod("GET")
         .with(
             fieldset(
@@ -586,6 +586,14 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 .withId("filter-chip")
                                 .with(
                                     input()
+                                        .attr("hx-get", controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                                            applicantId, ImmutableList.of())
+                                        .url())
+                                        .attr("hx-include", "[id*=\"check-category\"]")
+                                        .attr("hx-params", "categories")
+                                        .attr("hx-target", "body")
+                                        .attr("hx-swap", "innerHTML, focus-scroll:true")
+                                        // .attr("hx-swap", )
                                         .withId("check-category-" + category)
                                         .withType("checkbox")
                                         .withName("categories")
