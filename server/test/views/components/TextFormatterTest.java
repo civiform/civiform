@@ -152,11 +152,17 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void orderedListRendersCorrectly() {
     String withList =
-        "This is my list:\n"
-            + "1.\tcream cheese\n\n**hello**\n\n"
-            + "2.\teggs\n"
-            + "3.\tsugar\n"
-            + "4.\tvanilla";
+        """
+        This is my list:
+        1.\tcream cheese
+
+        **hello**
+
+        2.\teggs
+        3.\tsugar
+        4.\tvanilla
+        """;
+
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
