@@ -101,7 +101,10 @@ public final class ProgramCardsSectionParamsFactory {
       cardBuilder
           .setTitle(program.localizedName().getOrDefault(preferredLocale))
           .setBody(program.localizedDescription().getOrDefault(preferredLocale))
-          .setDetailsUrl(program.externalLink())
+          .setDetailsUrl(
+              program.externalLink().isEmpty()
+                  ? applicantRoutes.show(profile, applicantId, program.id()).url()
+                  : program.externalLink())
           .setActionUrl(actionUrl)
           .setIsGuest(isGuest)
           .setActionText(messages.at(buttonText.getKeyName()));

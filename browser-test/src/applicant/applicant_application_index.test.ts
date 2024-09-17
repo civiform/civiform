@@ -625,6 +625,41 @@ test.describe('applicant program index page', () => {
         // Verify the program details URL matches the external link
         expect(popupURL).toMatch('https://www.usa.gov/')
       })
+
+      test('Click "View details" button on program with no external link and expect to open a new tab with the program details', async ({
+        page,
+        adminPrograms,
+      }) => {
+        const programWithoutExternalLink = 'No Link Program'
+
+        await test.step('Create a new program without an external link', async () => {
+          await loginAsAdmin(page)
+          await adminPrograms.addProgram(
+            programWithoutExternalLink,
+            'program description',
+            '' /* no external link */,
+          )
+          await adminPrograms.publishAllDrafts()
+          await logout(page)
+        })
+
+        await test.step('Find the program card and click on "View details"', async () => {
+          const cardLocator = page.locator('.cf-application-card', {
+            has: page.getByText(programWithoutExternalLink),
+          })
+          await cardLocator.getByText('View details').click()
+        })
+
+        await test.step('Verify the URL of the new tab', async () => {
+          // Clicking the button opens a new tab
+          const popupPromise = page.waitForEvent('popup')
+          const popup = await popupPromise
+          const popupURL = await popup.evaluate('location.href')
+
+          // Verify the program details URL matches the program details page
+          expect(popupURL).toMatch(/\/programs\/\d+/)
+        })
+      })
     },
   )
 })
