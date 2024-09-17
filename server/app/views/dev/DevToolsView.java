@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
-import controllers.dev.seeding.routes;
+import controllers.dev.routes;
 import durablejobs.DurableJobName;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -33,17 +33,14 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.SelectWithLabel;
 
-/**
- * Renders a page for a developer to seed the database. This is only available in non-prod
- * environments.
- */
-public class DatabaseSeedView extends BaseHtmlView {
+/** Renders a page with various dev tools. This is only available in non-prod environments. */
+public class DevToolsView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
   private final DeploymentType deploymentType;
 
   @Inject
-  public DatabaseSeedView(
+  public DevToolsView(
       BaseHtmlLayout layout, ObjectMapper objectMapper, DeploymentType deploymentType) {
     this.layout = checkNotNull(layout);
     this.objectMapper = checkNotNull(objectMapper);
@@ -55,7 +52,7 @@ public class DatabaseSeedView extends BaseHtmlView {
    * Renders a page for a developer to view seeded data. This is only available in non-prod
    * environments.
    */
-  public Content seedDataView(
+  public Content renderSeedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
       ImmutableList<QuestionDefinition> questionDefinitions) {
@@ -70,7 +67,7 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     ATag indexLinkTag =
-        a().withHref(routes.DevDatabaseSeedController.index().url())
+        a().withHref(routes.DevToolsController.index().url())
             .withId("index")
             .with(submitButton("index", "Go to dev database seeder page"));
 
@@ -133,21 +130,21 @@ public class DatabaseSeedView extends BaseHtmlView {
                 request,
                 "sample-programs",
                 "Seed sample programs and categories",
-                routes.DevDatabaseSeedController.seedPrograms().url()))
+                routes.DevToolsController.seedPrograms().url()))
         .with(
             createForm(
                 request,
                 "sample-questions",
                 "Seed sample questions",
-                routes.DevDatabaseSeedController.seedQuestions().url()))
+                routes.DevToolsController.seedQuestions().url()))
         .with(
             createForm(
                 request,
                 "clear",
                 "Clear entire database (irreversible!)",
-                routes.DevDatabaseSeedController.clear().url(),
+                routes.DevToolsController.clear().url(),
                 true))
-        .with(createLink("View seed data", routes.DevDatabaseSeedController.data().url()));
+        .with(createLink("View seed data", routes.DevToolsController.data().url()));
   }
 
   private SectionTag createCachingSection(Request request) {
@@ -160,7 +157,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                 request,
                 "clear-cache",
                 "\uD83D\uDCB5 Clear cache",
-                routes.DevDatabaseSeedController.clearCache().url()));
+                routes.DevToolsController.clearCache().url()));
   }
 
   private SectionTag createDurableJobsSection(Request request) {
@@ -182,7 +179,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .withClasses("w-full")
                     .withId("run-durable-job-button"))
             .withMethod("post")
-            .withAction(routes.DevDatabaseSeedController.runDurableJob().url())
+            .withAction(routes.DevToolsController.runDurableJob().url())
             .with(
                 new SelectWithLabel()
                     .setId("durable-job-select")
@@ -244,10 +241,10 @@ public class DatabaseSeedView extends BaseHtmlView {
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
             createLink(
-                "View current pac4j profile",
+                "👤 View current pac4j profile",
                 controllers.dev.routes.ProfileController.index().url()),
             createLink(
-                "View current session data",
+                "📜 View current Play session",
                 controllers.dev.routes.SessionDisplayController.index().url()));
   }
 

@@ -19,7 +19,6 @@ import services.Path;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
-import services.geo.ServiceAreaInclusionGroup;
 import services.geo.ServiceAreaState;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
@@ -180,7 +179,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    var serviceAreas =
+    var serviceAreaInclusions =
         ImmutableList.of(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId("cityvilleTownship")
@@ -209,7 +208,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             44.0462,
             -123.0236,
             54321L,
-            ServiceAreaInclusionGroup.serialize(serviceAreas))
+            serviceAreaInclusions)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -243,7 +242,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsRepeated_answersAreCorrectlyNested() {
     createFakeQuestions();
-    var serviceAreas =
+    var serviceAreaInclusions =
         ImmutableList.of(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId("cityvilleTownship")
@@ -276,7 +275,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             44.0462,
             -123.0236,
             54321L,
-            ServiceAreaInclusionGroup.serialize(serviceAreas))
+            serviceAreaInclusions)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1211,8 +1210,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.nameApplicantName())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNameQuestion(
-            testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "Jr.")
+        .answerNameQuestion(testQuestionBank.nameApplicantName(), "Taylor", "Allison", "Swift", "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1232,7 +1230,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : "Allison",
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : "I"
         }""");
   }
 
@@ -1253,7 +1252,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "Taylor",
             "Allison",
             "Swift",
-            "")
+            "I")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1276,7 +1275,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
               "first_name" : "Taylor",
               "last_name" : "Swift",
               "middle_name" : "Allison",
-              "question_type" : "NAME"
+              "question_type" : "NAME",
+              "suffix" : "I"
             }
           } ],
           "question_type" : "ENUMERATOR"
@@ -1311,7 +1311,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : "Taylor",
           "last_name" : "Swift",
           "middle_name" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 
@@ -1341,7 +1342,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "first_name" : null,
           "last_name" : null,
           "middle_name" : null,
-          "question_type" : "NAME"
+          "question_type" : "NAME",
+          "suffix" : null
         }""");
   }
 

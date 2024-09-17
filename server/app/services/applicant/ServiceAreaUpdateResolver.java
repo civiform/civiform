@@ -12,6 +12,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
@@ -19,13 +21,14 @@ import services.applicant.question.Scalar;
 import services.geo.AddressLocation;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
-import services.geo.ServiceAreaInclusionGroup;
+import services.geo.ServiceAreaState;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 
 /** Contains methods for resolving {@link ServiceAreaUpdate}s to update applicant data. */
 final class ServiceAreaUpdateResolver {
+  private final Logger logger = LoggerFactory.getLogger(ServiceAreaUpdateResolver.class);
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
@@ -75,7 +78,7 @@ final class ServiceAreaUpdateResolver {
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
     ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
         getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
 
@@ -158,15 +161,47 @@ final class ServiceAreaUpdateResolver {
 
   private ImmutableList<ServiceAreaInclusion> getExistingServiceAreaInclusionGroup(
       Path serviceAreaPath, ImmutableMap<String, String> updateMap) {
-    String serviceAreaValue = updateMap.get(serviceAreaPath.toString());
-    ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder =
-        ImmutableList.builder();
-    if (serviceAreaValue != null) {
-      existingServiceAreaInclusionGroupBuilder.addAll(
-          ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
+
+    return updateMap.keySet().stream()
+        .map(x -> Path.create(x))
+        .filter(x -> x.parentPath().startsWith(serviceAreaPath) && x.parentPath().isArrayElement())
+        .map(x -> x.parentPath().arrayIndex())
+        .distinct()
+        .sorted()
+        .map(index -> getServiceAreaInclusion(updateMap, serviceAreaPath, index))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Build a {@link ServiceAreaInclusion} object from the values of an update map */
+  private ServiceAreaInclusion getServiceAreaInclusion(
+      ImmutableMap<String, String> updateMap, Path serviceAreaPath, Integer index) {
+    Path elementAtIndex = serviceAreaPath.asArrayElement().atIndex(index);
+
+    String serviceAreaIdPath = elementAtIndex.join(Scalar.SERVICE_AREA_ID).toString();
+    String statePath = elementAtIndex.join(Scalar.SERVICE_AREA_STATE).toString();
+    String timestampPath = elementAtIndex.join(Scalar.TIMESTAMP).toString();
+
+    if (!updateMap.containsKey(serviceAreaIdPath)
+        || !updateMap.containsKey(statePath)
+        || !updateMap.containsKey(timestampPath)) {
+      logger.error(
+          "'updateMap' index {} missing one or more required fields {}, {}, {}.",
+          index,
+          serviceAreaIdPath,
+          statePath,
+          timestampPath);
     }
 
-    return existingServiceAreaInclusionGroupBuilder.build();
+    String timestampStr = updateMap.get(timestampPath);
+    ServiceAreaState serviceAreaState =
+        ServiceAreaState.getEnumFromSerializedFormat(updateMap.get(statePath));
+    long timestamp = Long.parseLong(timestampStr == null ? "0" : timestampStr);
+
+    return ServiceAreaInclusion.builder()
+        .setServiceAreaId(updateMap.get(serviceAreaIdPath))
+        .setState(serviceAreaState)
+        .setTimeStamp(timestamp)
+        .build();
   }
 
   private AddressLocation getAddressLocationFromUpdates(

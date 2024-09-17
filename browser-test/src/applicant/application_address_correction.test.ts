@@ -417,6 +417,7 @@ test.describe('address correction', () => {
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
+        await validateAccessibility(page)
       })
 
       await test.step('Confirm user can confirm address and submit', async () => {
@@ -462,6 +463,7 @@ test.describe('address correction', () => {
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
+        await validateAccessibility(page)
       })
 
       await test.step('Confirm user can confirm address and submit', async () => {

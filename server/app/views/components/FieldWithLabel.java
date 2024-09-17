@@ -701,7 +701,7 @@ public class FieldWithLabel {
       return hasFieldErrors ? "usa-textarea usa-input--error" : "usa-textarea";
     }
     if (isSelectTag) {
-      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : "usa-select";
     } else {
       return hasFieldErrors ? "usa-input usa-input--error" : "usa-input";
     }
@@ -806,7 +806,7 @@ public class FieldWithLabel {
         .withText(this.labelText);
   }
 
-  private FieldWithLabel setTagTypeInput() {
+  protected FieldWithLabel setTagTypeInput() {
     tagType = "input";
     return this;
   }

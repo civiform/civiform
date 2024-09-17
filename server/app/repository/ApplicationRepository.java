@@ -323,7 +323,7 @@ public final class ApplicationRepository {
   }
 
   /**
-   * Updates an application to point to a new program
+   * Updates a draft application, if one exists, to point to a new program
    *
    * @param applicantId the applicant ID
    * @param programId the program ID
@@ -353,17 +353,11 @@ public final class ApplicationRepository {
                   queryProfileLocationBuilder.create("updateDraftApplicationProgram"))
               .findOne();
 
-      if (existingDraft == null) {
-        throw new RuntimeException(
-            String.format(
-                "Did not find expected draft application for applicantId=%d, programId=%d.",
-                applicantId, programId));
+      if (existingDraft != null) {
+        existingDraft.setProgram(program);
+        existingDraft.save();
+        transaction.commit();
       }
-
-      existingDraft.setProgram(program);
-      existingDraft.save();
-
-      transaction.commit();
     }
   }
 }

@@ -21,6 +21,7 @@ import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.LinkElement;
+import views.components.TextFormatter;
 import views.style.AdminStyles;
 
 /**
@@ -119,7 +120,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 .withClasses("px-2", "py-1", "text-sm", "bg-gray-100")
                 .with(
                     p("English text:").withClass("font-medium"),
-                    p(localizedStrings.getDefault()).withClasses("font-sans")));
+                    div()
+                        .with(TextFormatter.formatText(localizedStrings.getDefault()))
+                        .withClasses("font-sans")));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */

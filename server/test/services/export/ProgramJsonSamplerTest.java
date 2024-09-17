@@ -138,7 +138,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "first_name" : "Homer",
         "last_name" : "Simpson",
         "middle_name" : "Jay",
-        "question_type" : "NAME"
+        "question_type" : "NAME",
+        "suffix" : "Jr."
       },
       "sample_number_question" : {
         "number" : 12321,
@@ -234,7 +235,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "first_name" : "Homer",
         "last_name" : "Simpson",
         "middle_name" : "Jay",
-        "question_type" : "NAME"
+        "question_type" : "NAME",
+        "suffix" : "Jr."
       },
       "sample_number_question" : {
         "number" : 12321,

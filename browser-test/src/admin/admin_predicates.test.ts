@@ -434,7 +434,7 @@ test.describe('create and edit predicates', () => {
       // Add two to ensure the JS correctly handles multiple value rows
       await adminPredicates.addPredicates({
         questionName: 'eligibility-predicate-q',
-        scalar: 'service_area',
+        scalar: 'service area',
         operator: 'in service area',
         values: ['Seattle', 'Seattle'],
       })

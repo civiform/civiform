@@ -8,7 +8,6 @@ import play.mvc.Controller;
 import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.DeploymentType;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 
@@ -21,13 +20,10 @@ import services.settings.SettingsService;
 public final class FeatureFlagOverrideController extends Controller {
 
   private final SettingsService settingsService;
-  private final boolean isDevOrStaging;
 
   @Inject
-  public FeatureFlagOverrideController(
-      SettingsService settingsService, DeploymentType deploymentType) {
+  public FeatureFlagOverrideController(SettingsService settingsService) {
     this.settingsService = Preconditions.checkNotNull(settingsService);
-    this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
   public Result enable(Request request, String rawFlagName) {
@@ -39,9 +35,6 @@ public final class FeatureFlagOverrideController extends Controller {
   }
 
   private Result updateFlag(Request request, String rawFlagName, String newValue) {
-    if (!isDevOrStaging) {
-      return notFound();
-    }
     var flagName = rawFlagName.toUpperCase(Locale.ROOT);
     var currentSettings =
         settingsService.loadSettings().toCompletableFuture().join().orElse(ImmutableMap.of());

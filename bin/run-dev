@@ -1,9 +1,16 @@
 #! /usr/bin/env bash
 
 # DOC: Run the app locally using Docker. Useful for manual testing.
+# DOC: When providing the --prod flag, it uses the production image instead
+# DOC: of the dev image. This is useful for testing bugs that only show
+# DOC: up in staging/prod. Note that in this mode, it will *not* recompile
+# DOC: the app when you make code changes. It will use the version of the code
+# DOC: compiled when the prod image was built. Also, because we only build
+# DOC: prod for linux/amd64, this will run in emulation on M1 Macs.
 
 source bin/lib.sh
 docker::set_project_name_dev
+truth::declare_var_false runprod
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
@@ -31,6 +38,9 @@ function set_args() {
         emulators::ensure_only_one_cloud_provider_flag aws
         # Already defaulted to AWS.
         ;;
+      "--prod")
+        truth::enable runprod
+        ;;
     esac
 
     shift
@@ -42,17 +52,21 @@ set_args "$@"
 bin/pull-image
 
 # Start containers w/ specified emulator.
-docker::compose_dev --profile "${cloud_provider}" \
-  up \
-  -d "${emulator}"
+if truth::is_enabled runprod; then
+  docker::compose_dev_with_prod --profile "${cloud_provider}" up -d "${emulator}"
+else
+  docker::compose_dev --profile "${cloud_provider}" up -d "${emulator}"
+fi
 
 # Wait until the emulator is running.
 "bin/${emulator}/wait"
 
-# Start the civiform container and dependancies.
-docker::compose_dev up \
-  --wait \
-  -d
+# Start the civiform container and dependencies.
+if truth::is_enabled runprod; then
+  docker::compose_dev_with_prod up --wait -d
+else
+  docker::compose_dev up --wait -d
+fi
 
 # Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
 # loading its edit-refresh resources so save developer time.
@@ -65,6 +79,13 @@ done &
 
 echo "Civiform starting locally at http://localhost:9000"
 
-docker::dev_and_test_server_sbt_command "8457" runDevServer
-
-docker::compose_dev stop civiform
+if truth::is_enabled runprod; then
+  docker::tail_prod_civiform_log
+  # This doesn't really do anything, since we have to Ctrl+C out of
+  # tailing the log. But one of these days we should fix this up
+  # to trap the Ctrl+C and stop the containers.
+  docker::compose_dev_with_prod stop civiform
+else
+  docker::dev_and_test_server_sbt_command "8457" runDevServer
+  docker::compose_dev stop civiform
+fi

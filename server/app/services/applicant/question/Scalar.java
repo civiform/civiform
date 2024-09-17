@@ -48,7 +48,13 @@ public enum Scalar {
       "entity name", ScalarType.STRING), // This is used for adding/updating enumerator entries
 
   // Special scalars for Address questions
-  SERVICE_AREA("service_area", ScalarType.SERVICE_AREA),
+  SERVICE_AREA("service_area", ScalarType.SERVICE_AREA), // Deprecated
+  SERVICE_AREAS("service area", ScalarType.SERVICE_AREA), // Array property name
+  SERVICE_AREA_STATE("state", ScalarType.STRING),
+  SERVICE_AREA_ID("service_area_id", ScalarType.STRING),
+
+  // Generic timestamp
+  TIMESTAMP("timestamp", ScalarType.LONG),
 
   // Scalars for Phone Question
   PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
@@ -109,7 +115,7 @@ public enum Scalar {
             LATITUDE,
             LONGITUDE,
             WELL_KNOWN_ID,
-            SERVICE_AREA);
+            SERVICE_AREAS);
       case CURRENCY:
         return ImmutableSet.of(CURRENCY_CENTS);
       case DATE:

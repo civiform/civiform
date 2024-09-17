@@ -311,6 +311,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withAcls(ProgramAcls programAcls) {
+    builder.setAcls(programAcls);
+    return this;
+  }
+
   /**
    * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
    * description.

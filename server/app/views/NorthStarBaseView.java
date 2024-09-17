@@ -134,8 +134,7 @@ public abstract class NorthStarBaseView {
                   FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
               .url());
       context.setVariable(
-          "additionalToolsUrl",
-          controllers.dev.seeding.routes.DevDatabaseSeedController.index().url());
+          "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
     return context;
   }

@@ -15,7 +15,9 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import java.util.stream.Stream;
 import models.AccountModel;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -27,6 +29,7 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
+import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
 import views.AlertComponent;
 import views.ApplicationBaseView;
@@ -34,22 +37,26 @@ import views.HtmlBundle;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.SelectWithLabel;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends TrustedIntermediaryDashboardView {
   private final DateConverter dateConverter;
   private AccountRepository accountRepository;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public EditTiClientView(
       ApplicantLayout layout,
       DateConverter dateConverter,
       Config configuration,
-      AccountRepository accountRepository) {
+      AccountRepository accountRepository,
+      SettingsManifest settingsManifest) {
     super(configuration, layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -191,6 +198,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       Messages messages) {
     Optional<ApplicantData> optionalApplicantData = Optional.empty();
     FormTag formTag;
+    Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled(request);
     if (optionalAccount.isPresent()) {
       optionalApplicantData =
           Optional.of(optionalAccount.get().newestApplicant().get().getApplicantData());
@@ -244,6 +252,30 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
+
+    SelectWithLabel nameSuffixField =
+        setStateIfPresent(
+            new SelectWithLabel()
+                .setId("name-suffix-select")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
+                .setFieldName("nameSuffix")
+                .setValue(
+                    setDefaultNameSuffix(optionalApplicantData).isEmpty()
+                        ? ""
+                        : setDefaultNameSuffix(optionalApplicantData).get())
+                .setOptions(
+                    Stream.of(ApplicantModel.Suffix.values())
+                        .map(
+                            option ->
+                                SelectWithLabel.OptionValue.builder()
+                                    .setLabel(option.getValue().toString())
+                                    .setValue(option.toString())
+                                    .build())
+                        .collect(ImmutableList.toImmutableList())),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX,
+            messages);
+
     FieldWithLabel phoneNumberField =
         setStateIfPresent(
             FieldWithLabel.input()
@@ -308,25 +340,35 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    return div()
-        .with(
-            formTag
-                .with(
-                    firstNameField.getUSWDSInputTag(),
-                    middleNameField.getUSWDSInputTag(),
-                    lastNameField.getUSWDSInputTag(),
-                    phoneNumberField.getUSWDSInputTag(),
-                    emailField.getUSWDSInputTag(),
-                    dateOfBirthField.getUSWDSInputTag(),
-                    tiNoteField.getUSWDSTextareaTag(),
-                    makeCsrfTokenInputTag(request),
-                    submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
-                        .withClasses("usa-button"),
-                    asRedirectElement(
-                        button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-                            .withClasses("usa-button usa-button--outline", "m-2"),
-                        cancelUrl))
-                .withClasses("w-1/2", "mt-6"));
+    ImmutableList<Tag> nameTags =
+        ImmutableList.of(
+            firstNameField.getUSWDSInputTag(),
+            middleNameField.getUSWDSInputTag(),
+            lastNameField.getUSWDSInputTag());
+
+    ImmutableList<Tag> tags =
+        ImmutableList.of(
+            phoneNumberField.getUSWDSInputTag(),
+            emailField.getUSWDSInputTag(),
+            dateOfBirthField.getUSWDSInputTag(),
+            tiNoteField.getUSWDSTextareaTag(),
+            makeCsrfTokenInputTag(request),
+            submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
+                .withClasses("usa-button"),
+            asRedirectElement(
+                button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
+                    .withClasses("usa-button usa-button--outline", "m-2"),
+                cancelUrl));
+
+    FormTag addOrEditClientForm = formTag;
+    if (isNameSuffixEnabled) {
+      addOrEditClientForm =
+          formTag.with(nameTags).with(nameSuffixField.getUSWDSSelectTag()).with(tags);
+    } else {
+      addOrEditClientForm = formTag.with(nameTags).with(tags);
+    }
+
+    return div().with(addOrEditClientForm.withClasses("w-1/2", "mt-6"));
   }
 
   private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
@@ -353,6 +395,12 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     return optionalAccount.isPresent() ? optionalAccount.get().getTiNote() : "";
   }
 
+  private Optional<String> setDefaultNameSuffix(Optional<ApplicantData> optionalApplicantData) {
+    return optionalApplicantData.isPresent()
+        ? optionalApplicantData.get().getApplicantNameSuffix()
+        : Optional.empty();
+  }
+
   private Optional<String> setDefaultMiddleName(Optional<ApplicantData> optionalApplicantData) {
     return optionalApplicantData.isPresent()
         ? optionalApplicantData.get().getApplicantMiddleName()
@@ -369,6 +417,28 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     return optionalApplicantData.isPresent()
         ? optionalApplicantData.get().getApplicantFirstName()
         : Optional.empty();
+  }
+
+  private SelectWithLabel setStateIfPresent(
+      SelectWithLabel select,
+      Optional<Form<TiClientInfoForm>> optionalForm,
+      String key,
+      Messages messages) {
+    if (optionalForm.isEmpty()) {
+      return select;
+    }
+
+    TiClientInfoForm form = optionalForm.get().value().get();
+    switch (key) {
+      case TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX:
+        select.setValue(form.getNameSuffix());
+        break;
+    }
+
+    if (optionalForm.get().error(key).isPresent()) {
+      select.setFieldErrors(messages, optionalForm.get().errors(key));
+    }
+    return select;
   }
 
   private FieldWithLabel setStateIfPresent(

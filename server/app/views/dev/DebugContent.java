@@ -25,6 +25,7 @@ public final class DebugContent extends BaseHtmlView {
     return div()
         .withClasses("flex", "flex-col")
         .with(
+            p("Log in as:"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
@@ -49,10 +50,11 @@ public final class DebugContent extends BaseHtmlView {
                 controllers.routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
                     .url()),
+            p("Other:"),
             redirectButton(
                 "additional-tools",
                 "Additional tools",
-                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()));
+                controllers.dev.routes.DevToolsController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {

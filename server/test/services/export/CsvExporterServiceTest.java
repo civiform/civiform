@@ -10,12 +10,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicantModel;
+import models.ProgramModel;
 import models.QuestionModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ApplicationRepository;
 import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
@@ -31,12 +34,14 @@ import services.applicant.question.NameQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.program.ProgramService;
+import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import support.ProgramBuilder;
 
 public class CsvExporterServiceTest extends AbstractExporterTest {
 
@@ -47,12 +52,15 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   private QuestionService questionService;
   private VersionRepository versionRepository;
 
+  private ApplicationRepository applicationRepository;
+
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
   }
 
   @Before
   public void setUp() {
+    applicationRepository = instanceOf(ApplicationRepository.class);
     questionService = instanceOf(QuestionService.class);
     versionRepository = instanceOf(VersionRepository.class);
     exporterService =
@@ -232,6 +240,56 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
         CsvExporterService.formatHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
         .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
+  }
+
+  // TODO(#8563) This should be removed/rolled into the above tests when we remove support for
+  // single file uploads.
+  @Test
+  public void programCsv_multipleFileUpload() throws Exception {
+    QuestionModel fileUploadQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    ProgramModel fakeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withName("File Upload program")
+            .withBlock()
+            .withRequiredQuestion(fileUploadQuestion)
+            .build();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        fileUploadQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        ImmutableList.of("my-file-key", "my-file-key-2"));
+
+    applicant.save();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, fakeProgram.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, fakeProgram.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+            DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    FileUploadQuestion fileUploadApplicantQuestion =
+        getApplicantQuestion(fileUploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
+    String fileKeyHeader =
+        CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyPath());
+    assertThat(records.get(0).get(fileKeyHeader))
+        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
+    assertThat(records.get(0).get(fileKeyHeader))
+        .contains(String.format("/admin/programs/%d/files/my-file-key-2", fakeProgram.id));
   }
 
   @Test

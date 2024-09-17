@@ -42,11 +42,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.27.19",
-      "software.amazon.awssdk" % "ses" % "2.27.19",
+      "software.amazon.awssdk" % "s3" % "2.28.1",
+      "software.amazon.awssdk" % "ses" % "2.28.1",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.13.2",
+      "com.azure" % "azure-identity" % "1.13.3",
       "com.azure" % "azure-storage-blob" % "12.27.1",
 
       // Database and database testing libraries
@@ -91,7 +91,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.31.0",
+      "com.google.errorprone" % "error_prone_core" % "2.32.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.47.0",
 
       // Apache libraries for export
@@ -219,6 +219,15 @@ jacocoReportSettings := JacocoReportSettings()
 
 jacocoExcludes := Seq("views*", "*Routes*")
 jacocoDirectory := baseDirectory.value / "code-coverage"
+
+// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// We need these in order for Thymeleaf to be able to use them for templating.
+Universal / mappings ++= {
+  val viewsDir = baseDirectory.value / "app" / "views"
+  (viewsDir ** "*.html").get.map { file =>
+    file -> s"app/views/${file.relativeTo(viewsDir).get.getPath}"
+  }
+}
 
 // Define a transition to pull the "remote" (really local filesystem) cache on startup.
 lazy val startupTransition: State => State = { s: State =>

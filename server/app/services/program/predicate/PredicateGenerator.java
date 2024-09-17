@@ -161,7 +161,7 @@ public final class PredicateGenerator {
       final Operator operator = getOperator(predicateForm, questionId);
       final PredicateValue predicateValue;
 
-      if (scalar.equals(Scalar.SERVICE_AREA)) {
+      if (scalar.equals(Scalar.SERVICE_AREAS)) {
         ProgramQuestionDefinition questionDefinition =
             programDefinition.getProgramQuestionDefinition(questionId);
         if (!questionDefinition.getQuestionDefinition().isAddress()) {
@@ -213,7 +213,7 @@ public final class PredicateGenerator {
       }
 
       LeafExpressionNode leafNode =
-          scalar.equals(Scalar.SERVICE_AREA)
+          scalar.equals(Scalar.SERVICE_AREAS)
               ? LeafAddressServiceAreaExpressionNode.create(
                   questionId, predicateValue.value(), operator)
               : LeafOperationExpressionNode.builder()
@@ -315,12 +315,6 @@ public final class PredicateGenerator {
         }
 
       case SERVICE_AREA:
-        if (!LeafAddressServiceAreaExpressionNode.SERVICE_AREA_ID_PATTERN
-            .matcher(value)
-            .matches()) {
-          throw new BadRequestException(String.format("Invalid service area ID: %s", value));
-        }
-
         return PredicateValue.serviceArea(value);
 
       case LONG:
