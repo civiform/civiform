@@ -65,24 +65,6 @@
 </div>
 
 <div
-  th:fragment="programIndexLogin"
-  id="modal-container"
-  class="display-none position-fixed height-viewport width-full z-100"
->
-  <div th:each="programIdAndLoginBypassUrl: ${programIdsToLoginBypassUrls}">
-    <div
-      th:replace="~{this :: loginPromptModal(${'login-dialog-' + programIdAndLoginBypassUrl.key},
-                                             ${programIdAndLoginBypassUrl.value},
-                                             ${programIdsToLoginUrls.get(programIdAndLoginBypassUrl.key)},
-                                             #{content.initialLoginModalPrompt(${authProviderName})},
-                                             #{button.continueToApplication},
-                                             'login-prompt',
-                                             false)}"
-    ></div>
-  </div>
-</div>
-
-<div
   th:fragment="reviewLogin"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"

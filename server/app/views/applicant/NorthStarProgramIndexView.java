@@ -5,7 +5,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -135,24 +134,6 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         settingsManifest.getApplicantPortalName(request).get());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
-    ImmutableMap<Long, String> programIdsToLoginBypassUrls =
-        applicationPrograms.allPrograms().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    program -> program.programId(),
-                    program ->
-                        applicantRoutes.review(profile, applicantId, program.programId()).url()));
-    context.setVariable("programIdsToLoginBypassUrls", programIdsToLoginBypassUrls);
-    context.setVariable(
-        "programIdsToLoginUrls",
-        applicationPrograms.allPrograms().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    program -> program.programId(),
-                    program ->
-                        routes.LoginController.applicantLogin(
-                                Optional.of(programIdsToLoginBypassUrls.get(program.programId())))
-                            .url())));
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
