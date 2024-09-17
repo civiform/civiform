@@ -98,12 +98,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       return Optional.empty();
     }
 
-    if (!profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)) {
-      LOGGER.warn("Profile for account {} contains no session ID", accountId);
-      return Optional.empty();
-    }
-    String sessionId =
-        profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class);
+    String sessionId = profileData.getSessionId();
 
     Optional<AccountModel> account = accountRepositoryProvider.get().lookupAccount(accountId);
     if (account.isEmpty()) {

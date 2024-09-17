@@ -157,11 +157,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    // Ensure that the session ID is set.
-    assertThat(profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)).isTrue();
-    // The session ID is a random value, so just ensure it's not an empty string.
-    assertThat(profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class))
-        .isNotEmpty();
+    // The session ID is a random value, so just ensure it's set and not an empty string.
+    assertThat(profileData.getSessionId()).isNotEmpty();
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
 
@@ -169,6 +166,21 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
+  }
+
+  @Test
+  public void mergeCiviFormProfile_existingUser_maintainsExistingData() {
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviformOidcProfileCreator profileCreator = getOidcProfileCreator();
+    OidcProfile oidcProfile = makeOidcProfile();
+    CiviFormProfileData existingProfileData = profileFactory.createNewApplicant();
+    CiviFormProfile existingProfile = profileFactory.wrapProfileData(existingProfileData);
+
+    CiviFormProfileData mergedProfileData =
+        profileCreator.mergeCiviFormProfile(Optional.of(existingProfile), oidcProfile, context);
+
+    assertThat(existingProfileData.getSessionId()).isEqualTo(mergedProfileData.getSessionId());
+    assertThat(existingProfileData.getId()).isEqualTo(mergedProfileData.getId());
   }
 
   @Test
@@ -239,5 +251,14 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isNotPresent();
+  }
+
+  /** Returns an OidcProfile with required fields set. */
+  private OidcProfile makeOidcProfile() {
+    OidcProfile oidcProfile = new OidcProfile();
+    oidcProfile.setId(SUBJECT);
+    oidcProfile.addAttribute("iss", "my_issuer");
+    oidcProfile.addAttribute("user_emailid", "foo@example.com");
+    return oidcProfile;
   }
 }
