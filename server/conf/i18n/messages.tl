@@ -28,6 +28,8 @@ footer.technicalSupport=Para sa technical support: {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
+# Clicking this button shows a dropdown menu to change the display language
+button.languages=Select Language
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Pumili ng wika
 # A label on the button that opens the header menu shown on mobile
