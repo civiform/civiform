@@ -186,10 +186,10 @@ test.describe('normal application flow', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.editNote('first note')
+
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      ',sarah,,smith,,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,first note',
+      ',sarah,,smith,,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,',
     )
 
     await logout(page)

@@ -344,6 +344,14 @@ test.describe('view program statuses', () => {
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
+    test('allow notes to be exported', async ({adminPrograms}) => {
+      await adminPrograms.editNote('Note is exported')
+      await adminPrograms.expectNoteUpdatedToast()
+      const noApplyFilters = false
+
+      const csvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContent).toContain('Note is exported')
+    })
 
     test('preserves newlines in notes', async ({adminPrograms}) => {
       const noteText = 'Some note content\nwithseparatelines'

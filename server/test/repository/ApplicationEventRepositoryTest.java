@@ -149,4 +149,35 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // NoteEvent wasn't set and should be available as an empty Optional.
     assertThat(gotEvent.getDetails().noteEvent()).isNotPresent();
   }
+
+  @Test
+  public void test_setNoteEvent() {
+    // Setup
+    Instant startInstant = Instant.now();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
+            .setNoteEvent(ApplicationEventDetails.NoteEvent.create("some note"))
+            .build();
+    repo.setNote(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
+
+    // Execute
+    ImmutableList<ApplicationEventModel> gotEvents =
+        repo.getEventsOrderByCreateTimeDesc(application.id);
+
+    // Verify
+    assertThat(gotEvents).hasSize(1);
+    ApplicationEventModel gotEvent = gotEvents.get(0);
+    // Generated values.
+    assertThat(gotEvent.id).isNotNull();
+    assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
+    // Data is stored in application as well
+    assertThat(application.getLatestNote()).isNotEmpty();
+    assertThat(application.getLatestNote().get()).isEqualTo("some note");
+  }
 }

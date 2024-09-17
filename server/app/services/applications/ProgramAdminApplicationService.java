@@ -219,17 +219,7 @@ public final class ProgramAdminApplicationService {
    * @param admin The Account that instigated the change.
    */
   public void setNote(ApplicationModel application, NoteEvent note, AccountModel admin) {
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
-            .setNoteEvent(note)
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(admin), details);
-    eventRepository.insertSync(event);
-    // save the latest note on the applications table too
-    application.setLatestNote(note.note());
-    application.save();
+    eventRepository.setNote(application, note, admin);
   }
 
   /* Returns the note content for {@code application}. */
