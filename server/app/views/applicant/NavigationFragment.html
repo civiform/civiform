@@ -205,7 +205,7 @@
       class="usa-button"
       id="select-language"
     >
-      <option hidden selected="true">Languages</option>
+      <option th:text="#{button.languages}"></option>
       <option
         class="usa-language__submenu-item"
         th:each="language: ${enabledLanguages}"
