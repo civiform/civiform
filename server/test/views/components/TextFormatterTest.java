@@ -150,6 +150,29 @@ public class TextFormatterTest extends ResetPostgres {
   }
 
   @Test
+  public void orderedListRendersCorrectly() {
+    String withList =
+        "This is my list:\n"
+            + "1.\tcream cheese\n\n**hello**\n\n"
+            + "2.\teggs\n"
+            + "3.\tsugar\n"
+            + "4.\tvanilla";
+    ImmutableList<DomContent> content =
+        TextFormatter.formatText(
+            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    String htmlContent = content.get(0).render();
+
+    assertThat(htmlContent)
+        .isEqualTo(
+            """
+<p>This is my list:</p>
+<ol class="list-decimal mx-8"><li>cream cheese</li></ol>
+<p><strong>hello</strong></p>
+<ol start="2" class="list-decimal mx-8"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
+""");
+  }
+
+  @Test
   public void preservesLines() {
     String withBlankLine =
         "This is the first line of content.\n"
