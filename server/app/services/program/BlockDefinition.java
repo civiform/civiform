@@ -64,6 +64,10 @@ public abstract class BlockDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
+  /** Eligibility message of a Block used to label it for the user. */
+  @JsonProperty("localizedMessage")
+  public abstract Optional<LocalizedStrings> localizedMessage();
+
   /**
    * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
    * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list
@@ -261,6 +265,13 @@ public abstract class BlockDefinition {
 
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
+
+    @JsonProperty("localizedMessage")
+    public abstract Builder setLocalizedMessage(Optional<LocalizedStrings> localizedMessage);
+
+    public Builder setLocalizedMessage(LocalizedStrings localizedMessage) {
+      return this.setLocalizedMessage(Optional.of(localizedMessage));
+    }
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);

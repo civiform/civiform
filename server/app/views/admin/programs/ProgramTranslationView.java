@@ -181,7 +181,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 "Translations entered below will be visible at a future launch"
                                     + " date."))));
 
-    // Add fields for Screen names and descriptions
+    // Add fields for Screen names, descriptions, and eligibility messages
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {
       LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
@@ -211,7 +211,16 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setScreenReaderText("Screen description")
                           .setValue(screenUpdateData.localizedDescription())
                           .getInputTag(),
-                      block.localizedDescription()));
+                      block.localizedDescription()))
+               .add(
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(ProgramTranslationForm.localizedEligibilityMessage(block.id()))
+                            .setLabelText("Eligibility message")
+                            .setScreenReaderText("Eligibility message")
+                            .setValue(screenUpdateData.localizedMessage())
+                            .getInputTag(),
+                        block.localizedName()));
       String blockDetailsLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
               .url();

@@ -34,6 +34,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
+import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
@@ -188,6 +189,14 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
 
+    // Text input field for custom eligibility message
+        FieldWithLabel eligibilityMessage =  
+        FieldWithLabel.textArea()
+            .setId("custom-eligibility-message")
+            .setFieldName("eligibility-message")
+            .setLabelText("Eligibility Message")
+            .setRequired(false);
+
     DivTag content =
         div()
             .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
@@ -219,6 +228,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
+            .with(eligibilityMessage.getUSWDSInputTag())
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
