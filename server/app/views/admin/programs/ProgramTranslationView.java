@@ -19,6 +19,7 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
@@ -220,7 +221,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             .setScreenReaderText("Eligibility message")
                             .setValue(screenUpdateData.localizedMessage())
                             .getInputTag(),
-                        block.localizedName()));
+                        block.localizedMessage().isEmpty()? block.localizedDescription() : block.localizedMessage().get()));
       String blockDetailsLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
               .url();
