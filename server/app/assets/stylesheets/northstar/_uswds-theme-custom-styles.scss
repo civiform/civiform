@@ -131,6 +131,10 @@ it is around the label */
   @include u-height(1);
 }
 
+.cf-zero-top-margin {
+  margin-top: 0;
+}
+
 .usa-form .usa-button.zero-top-margin {
   margin-top: 0;
 }

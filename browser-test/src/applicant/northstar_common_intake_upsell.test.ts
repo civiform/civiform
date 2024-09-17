@@ -111,7 +111,7 @@ test.describe(
         )
       })
 
-      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await applicantQuestions.clickApplyToProgramsButton()
 
       await validateScreenshot(page, 'upsell-north-star-common-intake-login')
 
