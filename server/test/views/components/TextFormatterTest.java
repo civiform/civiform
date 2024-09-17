@@ -154,13 +154,13 @@ public class TextFormatterTest extends ResetPostgres {
     String withList =
         """
         This is my list:
-        1.\tcream cheese
+        1. cream cheese
 
         **hello**
 
-        2.\teggs
-        3.\tsugar
-        4.\tvanilla
+        2. eggs
+        3. sugar
+        4. vanilla
         """;
 
     ImmutableList<DomContent> content =
