@@ -158,12 +158,9 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+    application.setLatestNote("initial note");
+    application.save();
 
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
-            .setNoteEvent(ApplicationEventDetails.NoteEvent.create("some note"))
-            .build();
     repo.setNote(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
 
     // Execute
@@ -176,7 +173,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Generated values.
     assertThat(gotEvent.id).isNotNull();
     assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
-    // Data is stored in application as well
+    application.refresh();
+    // Data is stored in application as well and old note is rewritten
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
   }
